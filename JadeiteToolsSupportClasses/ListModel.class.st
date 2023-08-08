@@ -40,6 +40,12 @@ ListModel >> asSortedCollection [
 	self beSorted
 ]
 
+{ #category : 'accessing' }
+ListModel >> at: anIndex [
+
+	^collection at: anIndex ifAbsent: [ nil ]
+]
+
 { #category : 'converting' }
 ListModel >> beSorted [
 

@@ -1361,6 +1361,7 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 	| classListPage |
 	classListHierarchyTabs := self instantiate: JadeiteNotebookPresenter.
 	classListPresenter := JadeiteListPresenter newNameSortedList.
+	classListPresenter beSingleSelection.
 	classListPresenter displayColor: [ :classService |
 		self classDisplayColor: classService ].
 	classListPage := JadeiteNotebookPage
