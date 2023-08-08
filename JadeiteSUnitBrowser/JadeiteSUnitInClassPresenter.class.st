@@ -1,0 +1,256 @@
+Class {
+	#name : 'JadeiteSUnitInClassPresenter',
+	#superclass : 'JadeiteSUnitAbstractPresenter',
+	#instVars : [
+		'testClassService'
+	],
+	#category : 'JadeiteSUnitBrowser'
+}
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter class >> resource_Default_view [
+	"Answer the literal data from which the 'Default view' resource can be reconstituted.
+	DO NOT EDIT OR RECATEGORIZE THIS METHOD.
+
+	If you wish to modify this resource evaluate:
+	ViewComposer openOn: (ResourceIdentifier class: self selector: #resource_Default_view)
+	"
+
+	^#(#'!STL' 4 788558 10 ##(Smalltalk.STBViewProxy) ##(Smalltalk.ContainerView) 34 15 nil nil 34 2 8 1409286144 131073 416 nil 196934 1 ##(Smalltalk.RGB) 26337781 nil 5 nil nil nil 416 788230 ##(Smalltalk.BorderLayout) 1 1 nil 410 ##(Smalltalk.ContainerView) 34 15 nil 416 34 2 8 1140850688 131073 544 nil nil nil 5 nil nil nil 544 1180166 ##(Smalltalk.ProportionalLayout) 170 176 8 #() false 170 192 34 2 410 ##(Smalltalk.StaticText) 34 16 nil 544 34 2 8 1140850944 1 704 nil 327686 ##(Smalltalk.Color) #face3d nil 5 nil 263174 ##(Smalltalk.Font) nil true 459014 ##(Smalltalk.LOGFONT) 8 #[240 255 255 255 0 0 0 0 0 0 0 0 0 0 0 0 188 2 0 0 0 0 0 0 1 2 1 34 83 121 115 116 101 109 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] 328198 ##(Smalltalk.Point) 193 193 nil 704 nil 8 1585904832 852486 ##(Smalltalk.NullConverter) nil nil nil 983302 ##(Smalltalk.MessageSequence) 138 144 34 1 721670 ##(Smalltalk.MessageSend) #createAt:extent: 34 2 882 1 1 882 1241 71 704 983302 ##(Smalltalk.WINDOWPLACEMENT) 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 0 0 0 0 108 2 0 0 35 0 0 0] 8 #() 882 193 193 nil 27 8 'textResult' nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 1 801 882 1241 71 544 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 144 1 0 0 108 2 0 0 179 1 0 0] 34 1 704 1168 nil 27 410 ##(Smalltalk.ContainerView) 34 15 nil 416 34 2 8 1140850688 131073 1360 nil nil nil 5 nil nil nil 1360 610 170 176 656 true 170 192 656 nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 1181 1 882 61 801 1360 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 78 2 0 0 0 0 0 0 108 2 0 0 144 1 0 0] 34 1 410 ##(Smalltalk.ContainerView) 34 15 nil 1360 34 2 8 1140850688 131073 1632 nil 784 nil 5 nil nil nil 1632 610 170 176 656 false 170 192 656 nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 1 1 882 61 801 1632 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 0 0 0 0 30 0 0 0 144 1 0 0] 34 1 410 ##(Smalltalk.ContainerView) 34 15 nil 1632 34 2 8 1140850688 131073 1904 nil nil nil 5 nil nil nil 1904 610 170 176 656 false 170 192 656 nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 1 1 882 61 801 1904 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 0 0 0 0 30 0 0 0 144 1 0 0] 34 1 410 ##(Smalltalk.SUnitToolbar) 34 25 nil 1904 34 2 8 1149240268 131137 2176 nil 770 #default nil 517 nil nil nil 2176 2240 8 1586015616 nil 170 192 34 12 15229 1246790 1 ##(Smalltalk.ToolbarSystemButton) 2176 1 1180998 4 ##(Smalltalk.CommandDescription) #reset 8 'Reset' 1 1 nil 15229 1 9 15225 1115206 1 ##(Smalltalk.ToolbarIconButton) 2176 1 2338 #runAndMesureTime 8 'Run and Measure Time' 1 1 263494 3 ##(Smalltalk.Icon) nil true 1572870 ##(Smalltalk.ImageRelativeFileLocator) 8 'Time.ico' 2032142 ##(Smalltalk.STBExternalResourceLibraryProxy) 8 'dolphindr7.dll' nil 15225 15221 1246790 1 ##(Smalltalk.ToolbarBitmapButton) 2176 1 2338 #runAll 8 'Run All' 13443 1 nil 15221 395334 3 ##(Smalltalk.Bitmap) nil true 2496 8 'Tools.bmp' 2544 nil 7 882 1857 33 51 15635 2386 2176 1 2338 #stopTestProcess 8 'Stop Tests' 1 1 2450 nil true 2496 8 'LintError.ico' nil 15635 15227 2578 2176 1 2338 #debug 8 'Debug' 1 1 nil 15227 2656 15 15223 2578 2176 1 2338 #runSelected 8 'Run Selected' 13479 1 nil 15223 2656 83 34 9 2592 2832 2704 1049158 1 ##(Smalltalk.ToolbarSeparator) 2176 1 2400 2898 2176 1 2784 2898 2176 1 2320 nil nil 1 nil 882 33 33 882 45 45 nil nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 1 1 882 61 801 2176 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 0 0 0 0 30 0 0 0 144 1 0 0] 8 #() 1168 nil 27 1168 nil 27 1168 nil 27 1168 nil 27 nil 410 ##(Smalltalk.ContainerView) 34 15 nil 416 34 2 8 1140850688 131073 3152 nil 482 26337781 nil 5 nil nil nil 3152 610 170 176 656 false 170 192 34 2 410 ##(Smalltalk.MultipleSelectionListView) 34 45 nil 3152 34 2 8 1140936777 1025 3296 590662 2 ##(Smalltalk.ListModel) 138 144 656 nil 1310726 ##(Smalltalk.IdentitySearchPolicy) 482 26337781 nil 5 265030 4 ##(Smalltalk.Menu) nil true 34 8 984134 2 ##(Smalltalk.CommandMenuItem) 1 2338 #runAll 8 'Run All' 13443 1 nil nil nil 3506 1 2338 #runSelected 8 'Run Selected' 13479 1 nil nil nil 983366 1 ##(Smalltalk.DividerMenuItem) 4097 3506 1 2338 #runAndMesureTime 8 'Run and Measure Time' 1 1 nil nil nil 3618 4097 3506 1 2338 #debug 8 'Debug' 13445 1 nil nil nil 3618 4097 3506 1 2338 #refresh 8 'Reset' 1025 1 nil nil nil 8 '' nil 134217729 nil nil nil nil nil nil nil 3296 nil 8 1585991904 459270 ##(Smalltalk.Message) #displayString 8 #() ##(Smalltalk.IconicListAbstract) 1049926 1 ##(Smalltalk.IconImageManager) nil nil nil nil nil nil 138 144 34 1 920646 5 ##(Smalltalk.ListViewColumn) 8 'Test Cases' 1181 #left 3858 #name 8 #() 787814 3 ##(Smalltalk.BlockClosure) 0 nil 1180966 ##(Smalltalk.CompiledExpression) 2 1 106 8 'Dolphin' 8 'SortedCollection' 8 'doIt' 8 '[:a :b | a methodName <= b methodName]' 8 #[30 105 226 0 226 32 130 106] #methodName 4064 7 513 nil nil nil 3296 nil 3 nil nil #report 8 #() nil 131169 nil 1 nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil 962 138 144 34 3 1026 #createAt:extent: 34 2 882 1 1 882 1181 801 3296 1026 #contextMenu: 34 1 3472 3296 1026 #text: 34 1 8 'Test Cases' 3296 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 0 0 0 0 78 2 0 0 144 1 0 0] 8 #() 1168 nil 35 8 'testCases' nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 1 1 882 1181 801 3152 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 0 0 0 0 0 0 0 0 78 2 0 0 144 1 0 0] 34 1 3296 1168 nil 27 170 192 656 nil 962 138 144 34 1 1026 #createAt:extent: 34 2 882 6455 21 882 1241 871 416 1106 8 #[44 0 0 0 0 0 0 0 1 0 0 0 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 155 12 0 0 10 0 0 0 7 15 0 0 189 1 0 0] 34 3 3152 1360 544 1168 nil 27 )
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> addSystemBrowser [
+
+	^parentPresenter addSystemBrowser
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> addWorkspace [
+
+	^self topShell addWorkspace
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> basicDelete [
+	testClassService
+		command: #removeMethods:;
+		commandArgs: (Array with: methodListPresenter selections).
+	self issueCommand: testClassService
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> browseClassReferences [
+
+	^parentPresenter browseClassReferences
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> browseIt [ 
+	^self debug
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> closeCard [
+	^parentPresenter topShell closeCard
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> debug [
+	testClassService ifNil: [^self].
+	self debugTests: methodListPresenter selections.
+	methodListPresenter view invalidate
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> debugTests: methodServices [
+	^self debugTestMethodServices: methodServices className: self selectedClass name
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> doesNotUnderstand: failedMessage [
+	"a little dangerous but this is the sunit tab in the browser. The parentPresenter
+	performs most of the menu operations for the browser's toolbar. A true dnu
+	should get caught in the parent also"
+
+	^failedMessage forwardTo: parentPresenter
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> editFind [
+
+	"do nothing"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> editReplace [
+
+	"do nothing"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> editSave [
+
+	"do nothing" 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> findClass [
+
+	^parentPresenter findClass
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> findMethod [
+
+	^parentPresenter findMethod
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> gotoMethodDefinedPackage [
+	^self parentPresenter gotoMethodDefinedPackage
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> jadeBrowseTests [
+
+	^parentPresenter topShell jadeBrowseTests
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> jadeDebug [
+	"hot key hook"  
+	self debug
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> jadeDisplay [
+
+	"do nothing"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> jadeExecute [
+
+	"do nothing"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> jadeInspect [
+
+	"do nothing"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> maximizeCode [
+	^parentPresenter topShell maximizeCode
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> moveCardLeft [
+	^parentPresenter topShell moveCardLeft
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> moveCardRight [
+
+	^parentPresenter topShell moveCardRight
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> newBrowser [
+
+	^parentPresenter newBrowser
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> onViewOpened [
+	super onViewOpened. 
+	self registerPresentersForUpdates.
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> queryCommand: aCommandQuery [
+	(self topShell queryCommand: aCommandQuery) ifTrue: [^true].	"make sure card actions are appropriately enabled"
+	(#(#runSelected #runMethodTests #runAndMesureTime #debug #browseSelectedMethods)
+		includes: aCommandQuery command)
+			ifTrue: 
+				[aCommandQuery isEnabled: methodListPresenter selections notEmpty.
+				^true].
+	(#(#stopTestProcess) includes: aCommandQuery command)
+		ifTrue: 
+			[aCommandQuery isEnabled: testProcess notNil.
+			^true].
+	(self parentPresenter queryCommand: aCommandQuery)
+		ifFalse: 
+			[aCommandQuery isEnabled: true.
+			^true].
+	^false
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> refresh [
+	parentPresenter selectedClass
+		ifNil: [self resetTestList]
+		ifNotNil: 
+			[parentPresenter updateService: parentPresenter selectedClass.
+			self parentPresenter updateSUnitTab].
+	self ensureVisible.
+	self reset
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> resetTestList [
+	^methodListPresenter list: ListModel new
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> runAll [
+	testProcess := 
+			[[self runTests: methodListPresenter model in: testClassService name] ensure: 
+					[testProcess := nil.
+					shouldStopTestRun := false]]
+					fork
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> runAndMesureTime [
+	| millisecondsToRun timeMessage time |
+	"(testCasesPresenter selection size = 1) ifFalse: [^MessageBox notify: 'Select only one Test' ]."
+	timeMessage := WriteStream on: String new.
+	timeMessage nextPutAll: 'Total Time'.
+	millisecondsToRun := Time millisecondsToRun: [self runSelected].
+	time := Time fromMilliseconds: millisecondsToRun.
+	time asSeconds = 0
+		ifTrue: [timeMessage nextPutAll: 'milliseconds - ' , millisecondsToRun printString]
+		ifFalse: 
+			[timeMessage nextPutAll: String lineDelimiter , time minutes printString , ' minutes or'.
+			timeMessage nextPutAll: String lineDelimiter , time asSeconds printString , ' seconds or'.
+			timeMessage nextPutAll: String lineDelimiter , millisecondsToRun printString , ' milliseconds'].
+	MessageBox notify: timeMessage contents
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> runMethodTests [
+	^self runSelected
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> runSelected [
+	testProcess := 
+			[[self runTests: methodListPresenter selections in: testClassService name] ensure: 
+					[testProcess := nil.
+					shouldStopTestRun := false]]
+					fork
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> runTests: methodServices [
+	^self runTestMethodServices: methodServices className: self selectedClass name
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitInClassPresenter >> selectedClass [
+	^self parentPresenter selectedClass
+]

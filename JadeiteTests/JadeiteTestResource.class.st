@@ -1,0 +1,430 @@
+Class {
+	#name : 'JadeiteTestResource',
+	#superclass : 'TestResource',
+	#instVars : [
+		'projectsBrowser',
+		'jadeiteShell'
+	],
+	#category : 'JadeiteTests'
+}
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource class >> current [
+	current
+		ifNil: 
+			[current := self new.
+			current session ifNil: [^nil	"notified earlier"]].
+	current hasValidSession ifFalse: [current := self new].
+	^current
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource class >> isAvailable [
+	^self current isAvailable
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource class >> sampleProject1Name [
+	^'RowanSample1'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource class >> sampleProject9Name [
+	^'RowanSample9'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource class >> signalInitializationError [
+	"TestSuite>>run: in the SUnit pacakge sends this method
+	to the class, but implements it on the instance. That appears
+	to be a bug."
+
+	self reset.
+	^TestResult signalErrorWith: 'Resource ' , self name , ' could not be initialized'
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> basicUnloadProjects: projectNames [
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #unloadProjectsNamed:;
+		commandArgs: (Array with: projectNames).
+	self issueCommand: browserService.
+	self refreshGlobalSelections
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> cloneRowanSample1 [
+	| sample1Path root service |
+	self disableInteractionsWhile: 
+			[sample1Path := self rowanSample1Path.
+			root := self rowanProjectsHome.
+			service := RowanProjectService new.
+			service
+				command: #newGitProject:root:useSsh:;
+				commandArgs: (Array
+							with: sample1Path
+							with: root
+							with: true).
+			JadePresenter issueCommands: (Array with: service) session: GciSession current]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> closeTranscript: aTranscript [
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.	"closing the transcript will logout the session. don't commit"
+	[aTranscript view close] ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> closeTranscripts [
+	self transcript ifNotNil: [self closeTranscript: self transcript].
+	JadeiteTranscript allInstances
+		do: [:transcript | self closeTranscript: transcript	"hopeful none, but just in case"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> disableInteractionsWhile: block [
+	"interactions like confirm: and notify: are enabled by 
+	default on all service commands. Disable for the duration
+	of this block"
+
+	| answeringService wasEnabled |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #interactionHandlerActive;
+		commandArgs: Array new.
+	self issueCommand: answeringService.
+	wasEnabled := answeringService answer.
+	answeringService
+		command: #setEnableInteractionHandler:;
+		commandArgs: (Array with: false).
+	self issueCommand: answeringService.
+	[block value] ensure: 
+			[answeringService
+				command: #setEnableInteractionHandler:;
+				commandArgs: (Array with: wasEnabled).
+			self issueCommand: answeringService]
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> ensureRowanSample1Loaded [
+
+	self
+		ensureSampleProjectLoaded: [ self unloadSampleProject1 ]
+		path: self rowanSample1Path
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> ensureRowanSample9Loaded [
+	self todo:[self
+		ensureSampleProjectLoaded: [ self unloadSampleProject9 ]
+		path: self rowanSample9Path]
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> ensureRowanSampleProjectsLoaded [
+	"make sure we have the correct server state in the browser"
+	self ensureRowanSample1Loaded.
+	self ensureRowanSample9Loaded
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath [
+
+	self todo:[self switchTransactionModeTo: #autoBegin. "Initializing the resource will do a commit. Make sure we can commit."].
+	self transcript projectListPresenter refresh. "make sure we have the correct server state in the browser"
+	self rowanSample1Project ifNotNil: [ :projectService | 
+		projectService isDirty ifFalse: [ ^ self ] ].
+	self disableInteractionsWhile: [ 
+		unloadBlock value.
+		self
+			loadProjectFromFile: projectPath
+			projectsHome: '$ROWAN_PROJECTS_HOME'
+			customConditionalAttributes: #( 'tests' )
+			componentNames: #( 'Core' 'Tests' ) ]
+]
+
+{ #category : 'accessing' }
+JadeiteTestResource >> gciSession [
+
+	^self session
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> hasValidSession [
+	| session |
+	session := GciSession current.
+	session ifNil: [^false].
+	^session isValidSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> isAvailable [
+	^self session notNil and: [self transcript notNil]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> issueCommand: service [
+	^JadePresenter issueCommands: (Array with: service) session: self session
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> jadeiteShell [
+	^jadeiteShell
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHomePath customConditionalAttributes: attributes componentNames: componentNames [
+	| projectService |
+	projectService := RowanProjectService new.
+	projectService
+		command: #loadProjectFromFile:projectsHome:customConditionalAttributes:componentNames:;
+		commandArgs: (Array
+					with: fileString
+					with: projectsHomePath
+					with: attributes
+					with: componentNames).
+	JadePresenter issueCommands: (Array with: projectService) session: self session
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> loginAs: userName [
+	jadeiteShell := JadeiteLoginShell show.
+	jadeiteShell userIDPresenter value: userName.
+	jadeiteShell loginWithoutErrorHandling
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> loginWithRetry: loginShell [
+	| loginError |
+	loginError := true.
+	[loginError] whileTrue: 
+			[
+			[loginShell loginWithoutErrorHandling.
+			loginError := false] on: Error
+					do: [:ex | (Delay forMilliseconds: 100) wait]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> logout [
+	"hopeful none, but just in case"
+	self closeTranscripts.
+	JadeiteLoginShell allInstances do: 
+			[:shell |
+			shell view close.
+			(Delay forMilliseconds: 100) wait	"should save to the remote 'C:\Users\ewinger\AppData\Roaming\JadeDefaultConnection.gss' file"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
+	"closing the transcript will logout the session. don't commit"
+
+	"hopeful none, but just in case"
+
+	"should save to the remote 'C:\Users\ewinger\AppData\Roaming\JadeDefaultConnection.gss' file"
+
+	self todo:[userName ifNil: [^self].
+	forceClose
+		ifFalse: 
+			[GciSession current
+				ifNotNil: [:current | current isValidSession ifTrue: [userName = current userID ifTrue: [^self]]]].
+	self logout.
+	self loginAs: userName]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> openProjectsBrowser [
+	((projectsBrowser isKindOf: JadeiteBrowser) not or: [projectsBrowser isOpen not])
+		ifTrue: [projectsBrowser := self openWindow: [self transcript openJadeiteProjectsBrowser]].
+	projectsBrowser := projectsBrowser topShell.
+	^projectsBrowser
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> openWindow: aBlock [
+	"evaluate a block which is expected to return an object that responds to #view.
+	Wait until the view affirms it is open before continuing"
+
+	| presenter count |
+	presenter := aBlock value.
+	count := 0.
+	[presenter view isOpen] whileFalse: 
+			[(Delay forMilliseconds: 50) wait.
+			count := count + 1.
+			count > 10 ifTrue: [^presenter]].
+	^presenter
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> projectsBrowser: anObject [
+	projectsBrowser := anObject
+]
+
+{ #category : 'updates' }
+JadeiteTestResource >> refreshGlobalSelections [
+	"refresh selections in all browsers."
+
+	| browserService |
+	browserService := RowanBrowserService new
+				command: #findRemovedServices:;
+				commandArgs: (Array with: BrowserUpdate current activeServices asSet asArray).
+	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession.
+	self updateServices: BrowserUpdate current selectedServices
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> refreshProjectNamed: projectName [
+	| projectService |
+	projectService := RowanProjectService new name: projectName.
+	projectService
+		command: #update;
+		commandArgs: nil.
+	JadePresenter issueCommands: (Array with: projectService) session: self session
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> reloadProjectNamed: projectName [
+	| projectService |
+	projectService := RowanProjectService new name: projectName.
+	projectService
+		command: #reloadProject;
+		commandArgs: nil.
+	JadePresenter issueCommands: (Array with: projectService) session: self session
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> rowanProjectsHome [
+	^JadePresenter rowanProjectsHomeEnvVarString
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> rowanSample1Path [
+	^JadePresenter rowanSample1Path
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> rowanSample1Project [
+
+	^ self rowanSampleProjectNamed: self sampleProject1Name 
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> rowanSample9Path [
+	^JadePresenter rowanSample9Path
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> rowanSample9Project [
+
+	^ self rowanSampleProjectNamed: self sampleProject9Name
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> rowanSampleProjectNamed: projectName [
+
+	^ self transcript projectListPresenter list items
+		  detect: [ :projectService | projectService name = projectName ]
+		  ifNone: [  ]
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> sampleProject1Name [
+	^self class sampleProject1Name
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> sampleProject9Name [
+	^self class sampleProject9Name
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> session [
+
+	^GciSession current
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> setUp [
+	super setUp.
+	self logoutThenLoginAs: 'SystemUser' forceClose: false.
+	GciSession current
+		ifNil: 
+			[MessageBox notify: 'GciSession current is nil. Login again.'.
+			Processor activeProcess terminate	"There's not a good way to safely return without many subsequent errors. Just kill the test process."].
+	self unloadSampleProject1.
+	self ensureRowanSampleProjectsLoaded
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> switchTransactionModeTo: aSymbol [
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #yes.	"confirm transaction mode switch"
+	[self transcript transactionMode: aSymbol] ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> tearDown [
+	super tearDown.
+	self logoutThenLoginAs: 'SystemUser' forceClose: false.
+	(projectsBrowser isKindOf: JadeiteBrowser)
+		ifTrue: 
+			[(projectsBrowser currentCard projectListPresenter list
+				detect: [:service | service name = self sampleProject1Name]
+				ifNone: [])
+					ifNotNil: [projectsBrowser currentCard basicUnloadProjects: (Array with: self sampleProject1Name)].
+			projectsBrowser destroy.
+			projectsBrowser := nil]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> transcript [
+	^self transcriptForCurrentSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTestResource >> transcriptForCurrentSession [
+	| console |
+	console := JadeiteConsole allInstances
+				detect: [:aConsole | aConsole gciSession == GciSession current]
+				ifNone: [].
+	console
+		ifNil: 
+			["somehow we have a transcript disconnected from the current session or no session at all. 
+				This might have happened when a test failed in a bad way. Reestablish
+				a valid session and transcript"
+			self todo:[JadeiteConsole allInstances do: 
+					[:aTranscript |
+					aTranscript gciSession ifNotNil: [:sess | sess logout].
+					self closeTranscript: aTranscript]].
+			GciSession current ifNotNil: [:sess | sess logout]].
+	^console
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> unloadSampleProject1 [
+
+	self unloadSampleProject: self rowanSample1Project
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> unloadSampleProject9 [
+
+	self unloadSampleProject: self rowanSample9Project
+]
+
+{ #category : 'projects' }
+JadeiteTestResource >> unloadSampleProject: sampleProject [
+	sampleProject ifNil:[^self]. 
+	sampleProject isDirty ifFalse: [^self].
+	self basicUnloadProjects: (Array with: sampleProject name).
+]
+
+{ #category : 'updates' }
+JadeiteTestResource >> updateServices: services [
+
+	BrowserUpdate current
+		updateServices: services asSet asArray
+		session: self gciSession
+]

@@ -1,0 +1,2363 @@
+"
+General Jadeite tests. Assumes a logged in session and transcript present. 
+
+When running tests from SUnit Browser Tool, make sure to turn on Auto Initialize Resources.
+
+See JadeiteProjectBrowserTestCase for similar tests. Additional test class created so 
+test run wouldn't be too long to run in the test browser. 
+"
+Class {
+	#name : 'JadeiteProjectBrowserClassesTestCase',
+	#superclass : 'JadeiteProjectBrowserAbstractTestCase',
+	#category : 'JadeiteTests'
+}
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> expectedGrandchildrenNames [
+	^#('RowanAnsweringService' 'RowanAutoCommitService' 'RowanBrowserService' 'RowanClassService' 'RowanComponentService' 'RowanDebuggerService' 'RowanDefinitionService' 'RowanDictionaryService' 'RowanFrameService' 'RowanInspectorService' 'RowanLoggingService' 'RowanMethodService' 'RowanPackageService' 'RowanProcessService' 'RowanProjectService' 'RowanQueryService' 'RowanTestService' 'RowanVariableService')
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_abortRemovesClassAndMethod [
+	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestAbortRemovesClass'
+		superclass: 'Object'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	
+	[self
+		saveMethod: 'terrific ^''yippee'''
+		in: 'TestAbortRemovesClass'
+		category: 'deleteme'.
+	self denyIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'TestAbortRemovesClass']
+				ifNone: []).
+	self abortTransaction.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'TestAbortRemovesClass']
+				ifNone: [])]
+			ensure: 
+				[self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_abortRemovesProjectAndPackage [
+	self selectRowanSample1Test.
+	
+	[self denyIsNil: (self projectListPresenter list
+				detect: [:projectService | projectService name = 'RowanSample1']
+				ifNone: []).
+	self denyIsNil: (self packageListPresenter list
+				detect: [:packageService | packageService name = 'RowanSample1-Tests']
+				ifNone: []).
+	self abortTransaction.
+	self assertIsNil: (self projectListPresenter list
+				detect: [:projectService | projectService name = 'RowanSample1']
+				ifNone: []).
+	self assertIsNil: (self packageListPresenter list
+				detect: [:packageService | packageService name = 'RowanSample1-Tests']
+				ifNone: [])]
+			ensure: 
+				[self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_abortRemovesSelectedChildHierarchyTab [
+	self testsIssue: #issue891 withTitle: 'class hierarchy not quite right'.
+	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Services-Core' in: self packageListPresenter.
+	self selectServiceNamed: 'RowanService' in: self classListPresenter.
+	self selectHierarchyTab.
+	self
+		saveClass: 'RowanServiceTestClass'
+		superclass: 'RowanService'
+		instVars: #('var1' 'var2' 'var3')
+		package: 'Rowan-Services-Core'.
+	
+	[self assert: self classHierarchyPresenter selection name = 'RowanServiceTestClass'.
+	self abortTransaction.
+	self assert: self classHierarchyPresenter selection name = 'RowanTestService'.
+	self assertIsNil: (self classHierarchyPresenter model asBag
+				detect: [:classService | classService name = 'RowanServiceTestClass']
+				ifNone: [])]
+			ensure: 
+				[self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_addAccessorsHierarchyTab [
+	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+	self selectRowanSample1Class.
+	self selectHierarchyTab.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('var1' 'var2' 'var3')
+		package: 'RowanSample1-Core'.
+	
+	[self projectsPresenter selectVariableTab.
+	self variableListPresenter selections: #('var1' 'var3').
+	self projectsPresenter addVariableAccessors.
+	self selectMethodNamed: #var1.
+	self assert: self methodListPresenter selections first selector equals: #var1.
+	self selectMethodNamed: #var1:.
+	self assert: self methodListPresenter selections first selector equals: #var1:.
+	self selectMethodNamed: #var3.
+	self assert: self methodListPresenter selections first selector equals: #var3.
+	self selectMethodNamed: #var3:.
+	self assert: self methodListPresenter selections first selector equals: #var3:.
+	self
+		assertIsNil: (self methodListPresenter list detect: [:methodService | methodService selector = #var2]
+				ifNone: []).
+	self assertIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #var2:]
+				ifNone: [])]
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_addAccessorsHierarchyTabVerifySource [
+	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+	self selectRowanSample1Class.
+	self selectHierarchyTab.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('var1' 'var2' 'var3')
+		package: 'RowanSample1-Core'.
+	
+	[self projectsPresenter selectVariableTab.
+	self variableListPresenter selections: #('var1').
+	self projectsPresenter addVariableAccessors.
+	self selectMethodNamed: #var1.
+	self assert: self methodSourcePresenter value equals: 'var1
+	^var1' replaceCrLfWithLf.
+	self selectMethodNamed: #var1:.
+	self assert: self methodSourcePresenter value
+		equals: 'var1: object
+	var1 := object' replaceCrLfWithLf]
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_addClassInHierarchyAlphabetized [
+
+	| rowanSample1ClassService children |
+	self testsIssue: #issue891 withTitle: 'class hierarchy not quite right'.
+	self selectRowanSample1Class.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'RowanSample1'.
+	self
+		saveClass: 'Z'
+		superclass: 'RowanSample1'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'Z'.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'Z')
+		in: self projectsPresenter classHierarchyPresenter.
+	rowanSample1ClassService := self projectsPresenter classHierarchyPresenter model asBag
+				detect: [:service | service name = 'RowanSample1'].
+	children := (self projectsPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect:[:service | service name].
+	self assert: children asArray equals: #('Z').
+	self
+		saveClass: 'Y'
+		superclass: 'RowanSample1'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'Y'.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'Y')
+		in: self projectsPresenter classHierarchyPresenter.
+	children := (self projectsPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect:[:service | service name].
+	self assert: children asArray equals: #('Y' 'Z').
+	self
+		saveClass: 'X'
+		superclass: 'RowanSample1'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'X'.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'X')
+		in: self projectsPresenter classHierarchyPresenter.
+	children := (self projectsPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect:[:service | service name].
+	self assert: children asArray equals: #('X' 'Y' 'Z').
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_addClassInHierarchyAlphabetizedInSecondBrowser [
+	| rowanSample1ClassService children |
+	self testsIssue: #issue891 withTitle: 'class hierarchy not quite right'.
+	self selectRowanSample1Class.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'RowanSample1'.
+	self openSecondBrowser.
+	self selectRowanSample1Class.
+	self selectServicesNamed: (Array with: 'RowanSample1')
+		in: secondBrowser currentCard projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Core') in: secondBrowser currentCard packageListPresenter.
+	self selectServicesNamed: (Array with: 'RowanSample1')
+		in: secondPresenter classListPresenter.
+	self selectHierarchyTabIn: secondBrowser currentCard.
+	self
+		saveClass: 'Z'
+		superclass: 'RowanSample1'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'Z'.
+	self assert: secondPresenter classHierarchyPresenter selection name = 'RowanSample1'.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'Z')
+		in: self projectsPresenter classHierarchyPresenter.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'Z')
+		in: secondPresenter classHierarchyPresenter.
+	rowanSample1ClassService := self projectsPresenter classHierarchyPresenter model asBag
+				detect: [:service | service name = 'RowanSample1'].
+	children := (self projectsPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect: [:service | service name].
+	self assert: children asArray equals: #('Z').
+	children := (secondPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect: [:service | service name].
+	self assert: children asArray equals: #('Z').
+	self
+		saveClass: 'Y'
+		superclass: 'RowanSample1'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'Y'.
+	self assert: secondPresenter classHierarchyPresenter selection name = 'RowanSample1'.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'Y')
+		in: self projectsPresenter classHierarchyPresenter.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'Y')
+		in: secondPresenter classHierarchyPresenter.
+	children := (self projectsPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect: [:service | service name].
+	self assert: children asArray equals: #('Y' 'Z').
+	children := (secondPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect: [:service | service name].
+	self assert: children asArray equals: #('Y' 'Z').
+	self
+		saveClass: 'X'
+		superclass: 'RowanSample1'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'X'.
+	self assert: secondPresenter classHierarchyPresenter selection name = 'RowanSample1'.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'X')
+		in: self projectsPresenter classHierarchyPresenter.
+	self assertLinearAncestry: #('Object' 'RowanSample1' 'X')
+		in: secondPresenter classHierarchyPresenter.
+	children := (self projectsPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect: [:service | service name].
+	self assert: children asArray equals: #('X' 'Y' 'Z').
+	children := (secondPresenter classHierarchyPresenter model
+				getChildrenOf: rowanSample1ClassService) collect: [:service | service name].
+	self assert: children asArray equals: #('X' 'Y' 'Z').
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_addRemoveHierarchyCategory [
+	self testsIssue: #issue215 withTitle: 'add category in hierarchy view'.
+	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Core') in: self packageListPresenter.
+	self selectHierarchyTab.
+	self selectClassInHierarchyNamed: self sampleClassName.
+	self deny: (self categoryListPresenter list includes: 'jadeite test').
+	self projectsPresenter basicAddMethodCategory: 'jadeite test'.
+	self assert: (self categoryListPresenter list includes: 'jadeite test').
+	self assert: self categoryListPresenter selection = 'jadeite test'.
+	self projectsPresenter basicRemoveMethodCategories.
+	self deny: (self categoryListPresenter list includes: 'jadeite test')
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_addSubclass [
+	self testsIssue: #issue422
+		withTitle: '(3.0.58) Add subclass in hierachy view adds to wrong class (or does not work)'.
+	self selectRowanSample1Test.
+	self selectHierarchyTab.
+	self selectClassInHierarchyNamed: 'TestCase'.
+	
+	[self projectsPresenter addSubclass.
+	self assertClassDefinitionPaneMatches: 'TestCase rwSubclass: ''NewSubclass''']
+			ensure: [self projectsPresenter classDefinitionPresenter view isModified: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_allClassesAutoCommitOn [
+	"all classes is used by findClass and was returning
+	an empty list when auto commit was turned on"
+
+	| classCount |
+	self testsIssue: #issue484 withTitle: '(Oscar-3.0.72) Empty Find Class dialog'.
+	self setAutoCommit: false.
+	self assert: self projectsPresenter allClasses notEmpty.
+	classCount := session executeString: 'ClassOrganizer new classes size'.
+	self assert: self projectsPresenter allClasses size equals: classCount.
+	self setAutoCommit: true.
+	
+	[self assert: self projectsPresenter allClasses notEmpty.
+	classCount := session executeString: 'ClassOrganizer new classes size'.
+	self assert: self projectsPresenter allClasses size equals: classCount]
+			ensure: [self setAutoCommit: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_browseClassReferencesFromClassesMenu [
+	"run from classes menu per bug #640"
+
+	| classesMenu browseReferencesMenuItem |
+	self testsIssue: #issue640 withTitle: 'Error dialogs from PB menu items when on Sunit tab'.
+	self selectRowanServicesPackage.
+	self projectsPresenter isHierarchyTabSelected
+		ifTrue: 
+			[self selectTreeServicesNamed: (Array with: 'RowanClassService') in: self classHierarchyPresenter]
+		ifFalse: [self selectServiceNamed: 'RowanClassService' in: self classListPresenter].
+	classesMenu := projectsBrowser topShell view menuBar items
+				detect: [:item | '*Classes*' match: item text].
+	browseReferencesMenuItem := classesMenu items
+				detect: [:item | '*Browse Class References*' match: item text].
+	self selectSUnitTab.	"must be selected for bug to occur"
+	methodListBrowser := browseReferencesMenuItem commandDescription
+				performAgainst: self projectsPresenter.
+	self
+		assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list notEmpty.
+	methodListBrowser primaryPresenter methodListPresenter methodListPresenter list
+		do: [:methodService | self assert: ('*RowanClassService*' match: methodService source)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_changeClassUpdatesSubclasses [
+	| classTwo |
+	self testsIssue: #issue619
+		withTitle: 'Recompiling class does not update subclasses (3.0.86 candidate)'.
+	self
+		saveClass: 'ClassOne'
+		superclass: 'Object'
+		instVars: #('one')
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self selectVariableNamed: #one.
+	self projectsPresenter basicAddVariableAccessors.
+	self assert: self projectsPresenter variableListPresenter list asArray = #(#one).
+	self assert: self projectsPresenter selectedClass displayString = 'ClassOne'.
+	self
+		saveClass: 'ClassTwo'
+		superclass: 'ClassOne'
+		instVars: #('two')
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self selectVariableNamed: #two.
+	self projectsPresenter basicAddVariableAccessors.
+	self assert: self projectsPresenter variableListPresenter list asArray = #(#one #two).
+	self assert: self projectsPresenter selectedClass displayString = 'ClassTwo'.
+	TestMessageBox enableJadeiteTestMessageBox. 
+	TestMessageBox plannedResult: #yes. 
+	[self
+		saveClass: 'ClassOne'
+		superclass: 'Object'
+		instVars:  #('one' 'onePlus')
+		package: 'RowanSample1-Core'] ensure: [TestMessageBox disableJadeiteTestMessageBox. ].
+	self assert: self projectsPresenter selectedClass displayString = 'ClassOne (2/2)'.
+	self assert: self projectsPresenter variableListPresenter list asArray = #(#one #onePlus).
+	classTwo := self projectsPresenter classListPresenter list
+				detect: [:classService | classService name = 'ClassTwo'].
+	self assert: classTwo displayString = 'ClassTwo (2/2)'.
+	self projectsPresenter selectClassInClassListNamed: 'ClassTwo'.
+	self assert: self projectsPresenter variableListPresenter list asArray = #(#one #onePlus #two)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classColoring [
+	| classService sunitBrowser |
+	self testsIssue: #issue426 withTitle: 'Strange case of classes turning purple'.
+	self selectRowanServicesTestsPackage.
+	sunitBrowser := self openWindow: [transcript jadeBrowseTests].
+	
+	[sunitBrowser primaryPresenter selectPackageOrDictionaryNamed: 'Rowan-Services-Tests' for: nil. 
+	sunitBrowser primaryPresenter selectClassNamed: 'RowanClassServiceTest'.
+	classService := self classListPresenter list
+				detect: [:service | service name = 'RowanClassServiceTest'].
+	self deny: (classService shouldColorAsExtension: self projectsPresenter).
+	sunitBrowser primaryPresenter selectClassNamed: 'RowanPackageServiceTest'.
+	classService := self classListPresenter list
+				detect: [:service | service name = 'RowanPackageServiceTest'].
+	self deny: (classService shouldColorAsExtension: self projectsPresenter).
+	self selectHierarchyTab.
+	classService := self classHierarchyPresenter model asBag
+				detect: [:service | service name = 'RowanClassServiceTest'].
+	self deny: (classService shouldColorAsExtension: self projectsPresenter).
+	classService := self classHierarchyPresenter model asBag
+				detect: [:service | service name = 'RowanPackageServiceTest'].
+	self deny: (classService shouldColorAsExtension: self projectsPresenter)]
+			ensure: [self destroy: sunitBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classColoringExtension [
+	| classService sunitBrowser |
+	self testsIssue: #issue426 withTitle: 'Strange case of classes turning purple'.
+	self
+		saveClass: 'ExtendedTestClass'
+		superclass: 'RowanSample1Test'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'testInExtended'
+		in: 'ExtendedTestClass'
+		category: '*rowansample1-core'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	sunitBrowser := self openWindow: [transcript jadeBrowseTests].
+	
+	[sunitBrowser primaryPresenter selectPackageOrDictionaryNamed: 'RowanSample1-Core' for: nil.
+	sunitBrowser primaryPresenter selectClassNamed: 'ExtendedTestClass'.
+	classService := self classListPresenter list detect: [:service | service name = 'ExtendedTestClass'].
+	self assert: (classService shouldColorAsExtension: self projectsPresenter).
+	self selectHierarchyTab.
+	classService := self classHierarchyPresenter model asBag
+				detect: [:service | service name = 'ExtendedTestClass'].
+	self assert: (classService shouldColorAsExtension: self projectsPresenter)]
+			ensure: [self destroy: sunitBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classCopyHierarchy [
+	self testsIssue: #issue506 withTitle: 'Usefful to be able to copy a class ...'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self projectsPresenter isHierarchyTabSelected
+		ifTrue: [self selectTreeServicesNamed: (Array with: 'RowanSample1') in: self classHierarchyPresenter]
+		ifFalse: [self selectServiceNamed: 'RowanSample1' in: self classListPresenter].
+	self selectHierarchyTab.
+	self projectsPresenter basicCopyClass: self projectsPresenter selectedClass to: 'Fnoodle'.
+	self assert: self projectsPresenter selectedClass name equals: 'Fnoodle'.
+	self assert: self categoryListPresenter list first equals: 'accessing'.
+	self assert: self methodListPresenter list first selector equals: #foo.
+	self selectClassTab.
+	self assert: self categoryListPresenter list first equals: '*rowansample1-extensions'.
+	self assert: self methodListPresenter list first selector equals: #bar
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classDefinitionTemplateAfterRemove [
+	self testsIssue: #issue449 withTitle: '(3.0.63) missing class definition template in empty package'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'Gnoofle'
+		withInstVars: #()
+		package: 'RowanSample1-Tests'.
+	self assert: self projectsPresenter selectedClass name equals: 'Gnoofle'.
+	self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+	self assertClassDefinitionPaneMatches: 'Object rwSubclass: ''NameOfSubclass'''	"show the typical default template"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classDefinitionTemplateAfterRemoveInHierarchy [
+	self testsIssue: #issue449 withTitle: '(3.0.63) missing class definition template in empty package'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'Gnoofle'
+		withInstVars: #()
+		package: 'RowanSample1-Tests'.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter selectedClass name equals: 'Gnoofle'.
+	self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+	self assertClassDefinitionPaneMatches:  'nil rwSubclass: ''Object'''.
+	self selectClassListTab.
+	self assertClassDefinitionPaneMatches:  'Object rwSubclass: ''NameOfSubclass'''. "show typical default template" 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classDeselection [
+	| packageClassDefinition |
+	self testsIssue: #issue475 withTitle: '(3.0.69) ''incorrect'' class creation template'.
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Core-Definitions-Extensions' in: self packageListPresenter.
+	packageClassDefinition := 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Core-Definitions-Extensions''
+	options: #()
+'
+				replaceCrLfWithLf.
+	self assert: self projectsPresenter classDefinitionPresenter value equals: packageClassDefinition.
+	self selectServiceNamed: 'RwDefinition' in: self classListPresenter.	"extension class"
+	self assertClassDefinitionPaneMatches: 'Object rwSubclass: ''RwDefinition'''.
+	self selectServicesNamed: #() in: self classListPresenter.
+	self assert: self projectsPresenter classDefinitionPresenter value equals: packageClassDefinition
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classHierarchyDeselection [
+	| packageClassDefinition |
+	self testsIssue: #issue475 withTitle: '(3.0.69) ''incorrect'' class creation template'.
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Core-Definitions-Extensions' in: self packageListPresenter.
+	packageClassDefinition := 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Core-Definitions-Extensions''
+	options: #()
+'
+				replaceCrLfWithLf.
+	self assert: self projectsPresenter classDefinitionPresenter value equals: packageClassDefinition.
+	self selectHierarchyTab.
+	self selectClassInHierarchyNamed: 'RwDefinition'.	"extension class"
+	self assert: self projectsPresenter classDefinitionPresenter value
+		equals: 'Object rwSubclass: ''RwDefinition''
+	instVarNames: #( properties)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Definitions''
+	options: #()
+'
+				replaceCrLfWithLf.
+	self selectServicesNamed: #() in: self classHierarchyPresenter.
+	self assert: self projectsPresenter classDefinitionPresenter value equals: packageClassDefinition
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classListNotBlank [
+	| rowanClass |
+	self selectRowanServicesPackage.
+	self selectServicesNamed: (Array with: 'RowanClassService') in: self classListPresenter.
+	self selectHierarchyTabIn: self projectsPresenter.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'RowanClassService'.
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Kernel' in: self packageListPresenter.
+	self selectClassListTab.
+	self assert: self projectsPresenter classListPresenter list notEmpty. 
+	rowanClass := self projectsPresenter classListPresenter list detect:[:classService | classService name = 'Rowan'] ifNone:[].
+	self denyIsNil: rowanClass
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameNoReferences [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	
+	[self projectsPresenter selectClassNamed: 'TestClass'.
+	self projectsPresenter basicRenameClass: self projectsPresenter selectedClass to: 'RenamedClass'.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name asString = 'TestClass']
+				ifNone: []).
+	self assert: self classListPresenter selection name equals: 'RenamedClass']
+			ensure: [self projectsPresenter basicRemoveClass: self classListPresenter selection]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameNoReferencesHierarchy [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	
+	[self projectsPresenter selectClassNamed: 'TestClass'.
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter selection name equals: 'TestClass'.
+	self projectsPresenter basicRenameClass: self projectsPresenter selectedClass to: 'RenamedClass'.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name asString = 'TestClass']
+				ifNone: []).
+	self assert: self classHierarchyPresenter selection name equals: 'RenamedClass']
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameResetsClassDefinition [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	
+	[self projectsPresenter selectClassNamed: 'TestClass'.
+	self projectsPresenter basicRenameClass: self projectsPresenter selectedClass to: 'RenamedClass'.
+	self assert: ('*Object rwSubclass: ''RenamedClass''*'
+				match: self projectsPresenter classDefinitionPresenter value)]
+			ensure: [self projectsPresenter basicRemoveClass: self classListPresenter selection]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameShowsMethods [
+	"don't lose the method display on rename"
+
+	| methodList |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	"essentially by not using the test dialog box we test Jadeite's part of the fix for #513. The rest was in Rowan"
+	self testsIssue: #issue513 withTitle: 'Class rename also updates method sends (3.0.76)'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	
+	[self projectsPresenter selectClassNamed: 'TestClass'.
+	methodList := self methodListPresenter list.
+	self projectsPresenter basicRenameClass: self projectsPresenter selectedClass to: 'RenamedClass'.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name asString = 'TestClass']
+				ifNone: []).
+	self assert: self classListPresenter selection name equals: 'RenamedClass'.
+	self assert: self methodListPresenter list equals: methodList]
+			ensure: [self projectsPresenter basicRemoveClass: self classListPresenter selection]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameWithReferences [
+	| list |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  ^TestClass'
+		in: 'RefersToTestClass'
+		category: 'foo'.
+	
+	[self projectsPresenter selectClassNamed: 'TestClass'.
+	methodListBrowser := self projectsPresenter basicRenameClass: self projectsPresenter selectedClass
+				to: 'RenamedClass'.
+	self assert: self classListPresenter selection name equals: 'RenamedClass'.
+	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selection equals: 'RenamedClass'. 
+	]
+			ensure: [self projectsPresenter basicRemoveClass: self classListPresenter selection]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameWithReferencesFailingCompile [
+	| list |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'Sub'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'SubString'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  | subString | subString := SubString. ^Sub'
+		in: 'RefersToTestClass'
+		category: 'wontCompile'.	"method refers to both. Will fail compilation
+							based on current limitations in recompile method server code"
+	
+	[self projectsPresenter selectClassNamed: 'Sub'.
+	methodListBrowser := self projectsPresenter basicRenameClass: self projectsPresenter selectedClass
+				to: 'RenamedClass'.
+	self assert: self classListPresenter selection name equals: 'RenamedClass'.
+	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self assert: list first failedCompile.  "should show up as red. No way to easily test that" 
+	self assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selectionRange  equals: (46 to: 48). "select old class on compile"
+	]
+			ensure: [self projectsPresenter basicRemoveClass: self classListPresenter selection]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameWithReferencesHierarchy [
+	| list |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  ^TestClass'
+		in: 'RefersToTestClass'
+		category: 'foo'.
+	
+	[self projectsPresenter selectClassNamed: 'TestClass'.
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter selection name equals: 'TestClass'.
+	methodListBrowser := self projectsPresenter basicRenameClass: self projectsPresenter selectedClass
+				to: 'RenamedClass'.
+	self assert: self classHierarchyPresenter selection name equals: 'RenamedClass'.
+	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selection
+		equals: 'RenamedClass']
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classRenameWithReferencesSimilarNameButNoFailCompile [
+	| list |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'Sub'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'SubString'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #('inst1')
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  | subString | subString := SubString. ^Sub'
+		in: 'RefersToTestClass'
+		category: 'foo'.
+	
+	[self projectsPresenter selectClassNamed: 'SubString'.
+	methodListBrowser := self projectsPresenter basicRenameClass: self projectsPresenter selectedClass
+				to: 'RenamedClass'.
+	self assert: self classListPresenter selection name equals: 'RenamedClass'.
+	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selection
+		equals: 'RenamedClass']
+			ensure: [self projectsPresenter basicRemoveClass: self classListPresenter selection]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classSideSelection [
+	self selectRowanServicesPackage.
+	self selectServicesNamed: (Array with: 'RowanService') in: self classListPresenter.
+	"select methods in class list view"
+	self selectMethodsNamed: (Array with: #stonStringFor:).	"pick some methods that hopefully won't go away someday"
+	self assert: self methodListPresenter selection selector == #stonStringFor:.
+	self selectMethodsNamed: (Array with: #stonOn:).
+	self assert: self methodListPresenter selection selector == #stonOn:.
+	self selectMethodsNamed: (Array with: #command:).
+	self assert: self methodListPresenter selection selector == #command:.
+	"see same methods in hierarchy view"
+	self selectHierarchyTab.
+	self selectMethodsNamed: (Array with: #stonStringFor:).
+	self assert: self methodListPresenter selection selector == #stonStringFor:.
+	self selectMethodsNamed: (Array with: #stonOn:).
+	self assert: self methodListPresenter selection selector == #stonOn:.
+	self selectMethodsNamed: (Array with: #command:).
+	self assert: self methodListPresenter selection selector == #command:.
+	"see methods in class list view on class side"
+	self selectClassListTab.
+	self selectClassTab.
+	self selectMethodsNamed: (Array with: #new).
+	self assert: self methodListPresenter selection selector == #new.
+	self methodListPresenter resetSelection.
+	self assertIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #stonStringFor:]
+				ifNone: []).
+	self selectHierarchyTab.
+	self selectMethodsNamed: (Array with: #new).
+	self assert: self methodListPresenter selection selector == #new.
+	self assertIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #stonStringFor:]
+				ifNone: [])
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classTemplateWhenNoPackagesSelected [
+	"#resetClassTemplate is not a public method but still test that we
+	don't walkback if no packages are selected when the projects presenter
+	sends it"
+
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self projectsPresenter selectClassDefinitionTab.
+	self projectsPresenter resetClassTemplate.
+	self assert: self projectsPresenter classDefinitionPresenter value isEmpty
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classVersionIncrementedInClassList [
+	self testsIssue: #issue228
+		withTitle: 'lose selected class in project browser when new version created'.
+	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self selectServiceNamed: 'TestClass' in: self classListPresenter.
+	self assert: self classListPresenter selection displayString equals: 'TestClass'.
+	self saveTestClassWithInstVars: (Array with: 'a') package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (2/2)'.
+	self saveTestClassWithInstVars: (Array with: 'a' with: 'b') package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (3/3)'.
+	self saveTestClassWithInstVars: (Array
+				with: 'a'
+				with: 'b'
+				with: 'c')
+		package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (4/4)'.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (5/5)'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_classVersionIncrementedInHierarchy [
+	self testsIssue: #issue228
+		withTitle: 'lose selected class in project browser when new version created'.
+	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self selectServiceNamed: 'TestClass' in: self classListPresenter.
+	self assert: self classListPresenter selection displayString equals: 'TestClass'.
+	self selectHierarchyTab.
+	self saveTestClassWithInstVars: (Array with: 'a') package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (2/2)'.
+	self saveTestClassWithInstVars: (Array with: 'a' with: 'b') package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (3/3)'.
+	self saveTestClassWithInstVars: (Array
+				with: 'a'
+				with: 'b'
+				with: 'c')
+		package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (4/4)'.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection displayString equals: 'TestClass (5/5)'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_copyClassExistingClassRetry [
+	self testsIssue: #issue650
+		withTitle: '(3.0.89) `Jadeite>>Auto Commit enabled` menu out of sync with auto commit state'.
+	self selectRowanSample1Test.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestPrompter plannedResult: (OrderedCollection with: 'RowanSample1Test' with: 'RowanSample1Test2').	"first dialog - enter existing class name. second - enter non-existing name"
+	TestMessageBox plannedResult: #ok.	"got retry option"
+	self projectsPresenter copyClass.
+	self assertIsNil: TestPrompter plannedResult.
+	self assertIsNil: TestMessageBox plannedResult.
+	self assert: self classListPresenter selection name equals: 'RowanSample1Test2']
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_displayCompileWarningsNicely [
+	self testsIssue: #issue509 withTitle: 'Warning for unused temps should be grouped better (3.0.75)'.
+	self selectRowanSample1Test.
+	self projectsPresenter selectMethodSourceTab.
+	self selectCategoriesNamed: #('tests'). 
+	self methodSourcePresenter
+		value: 'failInConcreteClass
+	| abc def aa ddd |
+	self assert: self class name equals: ''SubTest'''.
+	self projectsPresenter editSaveMethod.
+	
+	[self assert: self projectsPresenter statusBarText value
+		equals: 'WARNING: unused method temp ''abc''; unused method temp ''def''; unused method temp ''aa''; unused method temp ''ddd''; ']
+			ensure: [self projectsPresenter removeMethods: (Array with: self projectsPresenter selectedClass)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dontDuplicateClasses [
+	self testsIssue: #issue760 withTitle: 'Duplicate classes pop up if a class is selected (3.1prerelease2)'.
+	self selectRowanSample1Test.
+	self selectClassTab. 
+	self assert: self classListPresenter list size equals: 1. 
+	self assert: self classListPresenter list first name equals: 'RowanSample1Test'. 
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter. 
+	self assert: self classListPresenter list size equals: 1. 
+	self assert: self classListPresenter list first name equals: 'RowanSample1Test'. 
+	self selectInstanceTab. 
+	self assert: self classListPresenter list size equals: 1. 
+	self assert: self classListPresenter list first name equals: 'RowanSample1Test'. 
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter. 
+	self assert: self classListPresenter list size equals: 1. 
+	self assert: self classListPresenter list first name equals: 'RowanSample1Test'. 
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dragClassInHierarchyDoesNotWalkback [
+	"Not really a drag drop but make sure that 
+		class list is hooked up to the drag method we expect
+		and we do not get an error in the expected drag method"
+
+	| dragDropSession |
+	self testsIssue: #issue334
+		withTitle: 'Error on add subclass if that class is not not explicitly selected'.
+	self selectRowanSample1Class.
+	(self classHierarchyPresenter getEvents at: #drag:)
+		messagesDo: [:message | self assert: message asSymbol equals: #onDragClass:].
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter selection name equals: 'RowanSample1'.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragClass: dragDropSession.	"walkback occurred here"
+	dragDropSession suggestedTarget: (self serviceNamed: 'TestClass' in: self classListPresenter).
+	dragDropSession suggestedSource: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dragDropMethodFailCompile [
+	| dragDropSession source |
+	self testsIssue: #issue286
+		withTitle: '(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
+	self selectRowanSample1Class.
+	self projectsPresenter classDefinitionPresenter
+		value: 'Object rwSubclass: ''Def''
+	instVarNames: #(def)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+'.
+	self projectsPresenter editSaveClass.
+	self projectsPresenter classDefinitionPresenter
+		value: 'Object rwSubclass: ''Abc''
+	instVarNames: #(abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+'.
+	self projectsPresenter editSaveClass.
+	self assert: self classListPresenter selection name equals: 'Abc'.
+	source := 'dragMe  ^abc'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	dragDropSession := self classListPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragMethod: dragDropSession.
+	dragDropSession suggestedTarget: (self serviceNamed: 'Def' in: self classListPresenter).
+	dragDropSession suggestedSource: self methodListPresenter selections.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #ok.
+	
+	[self projectsPresenter onDropOnClassList: dragDropSession.	"should raise fail dialog here. answer ok"
+	self assert: self projectsPresenter selectedClass name equals: 'Abc'.	"stay on drag source class"
+	self assert: self methodListPresenter selections size equals: 1	"don't lose selection"]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dragDropMultipleMethods [
+	"don't really drop but we can simulate it and exercise the methods involved"
+
+	| dragDropSession source |
+	self testsIssue: #issue86
+		withTitle: '(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
+	self selectRowanSample1Class.
+	self selectCategoriesNamed: (Array with: 'accessing').
+	source := 'dragMe1  ^1'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'dragMe2  ^2'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'dragMe3  ^3'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self selectMethodsNamed: #(#dragMe1 #dragMe2 #dragMe3).
+	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragMethod: dragDropSession.
+	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession suggestedSource: self methodListPresenter selections. 
+	self projectsPresenter onDropOnClassList: dragDropSession.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
+	self assert: self methodListPresenter selections size equals: 3. 
+	self assert: self methodListPresenter selections first selector equals: #dragMe1. 
+	self assert: self methodListPresenter selections second selector equals: #dragMe2. 
+	self assert: self methodListPresenter selections third selector equals: #dragMe3.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dragDropMultipleMethodsHierarchy [
+	"don't really drop but we can simulate it and exercise the methods involved"
+
+	| dragDropSession source |
+	self testsIssue: #issue86
+		withTitle: '(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
+	self selectRowanSample1Class.
+	self selectCategoriesNamed: (Array with: 'accessing').
+	source := 'dragMe1  ^1'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'dragMe2  ^2'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'dragMe3  ^3'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self selectHierarchyTab.
+	self selectMethodsNamed: #(#dragMe1 #dragMe2 #dragMe3).
+	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragMethod: dragDropSession.
+	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession suggestedSource: self methodListPresenter selections. 
+	self projectsPresenter onDropMethodsOnClassHierarchy: dragDropSession.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
+	self assert: self methodListPresenter selections size equals: 3. 
+	self assert: self methodListPresenter selections first selector equals: #dragMe1. 
+	self assert: self methodListPresenter selections second selector equals: #dragMe2. 
+	self assert: self methodListPresenter selections third selector equals: #dragMe3.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dropMethodOnClassHierarchy [
+	"don't really drop but we can simulate it and exercise the methods involved"
+
+	| dragDropSession  newMethodService |
+	self testsIssue: #issue213 withTitle: 'Cannot drag methods to class when using hierarchy view?'.
+	self testsIssue: #issue354 withTitle: '(3.0.52) drag/drop of instance method ends up on class side'. 
+	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Core') in: self packageListPresenter.
+	self selectHierarchyTab.
+	self projectsPresenter selectClassNamed: self sampleClassName.
+	self selectMethodNamed: #foo.
+	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragMethod: dragDropSession.
+	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession suggestedSource: (self serviceNamed: 'foo' in: self methodListPresenter).
+	self projectsPresenter onDropMethodsOnClassHierarchy: dragDropSession.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
+	newMethodService :=  self methodListPresenter selections first.
+	self assert: newMethodService selector equals: #foo.
+	self deny: newMethodService meta. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dropMethodOnClassList [
+	"don't really drop but we can simulate it and exercise the methods involved"
+
+	| dragDropSession newMethodService |
+	self testsIssue: #issue213 withTitle: 'Cannot drag methods to class when using hierarchy view?'.
+	self testsIssue: #issue354 withTitle: '(3.0.52) drag/drop of instance method ends up on class side'. 
+	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Core') in: self packageListPresenter.
+	self projectsPresenter selectClassNamed: self sampleClassName.
+	self selectMethodNamed: #foo.
+	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragMethod: dragDropSession.
+	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession suggestedSource: (self serviceNamed: 'foo' in: self methodListPresenter).
+	self projectsPresenter onDropMethodsOnClassHierarchy: dragDropSession.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
+	newMethodService :=  self methodListPresenter selections first.
+	self assert: newMethodService selector equals: #foo.
+	self deny: newMethodService meta. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_dropNonSelectedMethod [
+	"don't really drop but we can simulate it and exercise the methods involved"
+
+	| dragDropSession newMethodService |
+	self testsIssue: #issue443 withTitle: '(3.0.62) Error drag/drop of method'.
+	self selectRowanSample1Class.
+	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter onDragMethod: dragDropSession.
+	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession dragObjects add: (InternalDragDropObject object: (self serviceNamed: 'foo' in: self methodListPresenter)).
+	self projectsPresenter onDropOnClassList: dragDropSession.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
+	newMethodService := self methodListPresenter selections first.
+	self assert: newMethodService selector equals: #foo.
+	self deny: newMethodService meta
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_expandFullHierarchyFromClassesMenu [
+	self testsIssue: #issue852
+		withTitle: 'would be convenient if Expand Full Hierarchy was enabled when Classes tab selected in project browser'.
+	self projectsPresenter selectClassListTab.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanService' in: self classListPresenter.
+	self projectsPresenter expandFullHierarchy.
+	self assert: self projectsPresenter isClassHierarchyTabSelected.
+	self denyIsNil: (self projectsPresenter classHierarchyPresenter model asBag
+				detect: [:classService | classService name = 'Object']
+				ifNone: []).
+	RowanService allSubclassesDo: 
+			[:subclass |
+			"RowanDisplayLabelVariableService is not a true service"
+			subclass name = 'RowanDisplayLabelVariableService'
+				ifFalse: 
+					[self denyIsNil: (self projectsPresenter classHierarchyPresenter model asBag
+								detect: [:classService | classService name = subclass name]
+								ifNone: [])]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_expansion [
+	"When no classes are selected and the hierarchy tab is chosen, we should
+	see a hierarchy showing all superclasses of the packaged classes. 
+	Subclasses are available with the > arrow. 
+	"
+	self testsIssue: #issue156 withTitle: 'Double click on hierarchy class should expand list #156'.
+	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
+	self selectServicesNamed: #('Rowan-Kernel') in: self packageListPresenter.
+	self assert: self classListPresenter model size equals: 2.
+	self assert: self classListPresenter model first name equals: 'Rowan'.
+	self assert: self classListPresenter model last name equals: 'RwPlatform'.
+	self selectHierarchyTab.
+	self assert: (self classHierarchyPresenter model asArray at: 1) name equals: 'Object'.
+	self assert: (self classHierarchyPresenter model asArray at: 1) expand.
+	self assert: (self classHierarchyPresenter model asArray at: 2) name equals: 'Rowan'.
+	self deny: (self classHierarchyPresenter model asArray at: 2) expand.
+	self assert: (self classHierarchyPresenter model asArray at: 3) name equals: 'RwPlatform'. "not expanded beyond packaged class"
+	self deny: (self classHierarchyPresenter model asArray at: 3) expand.
+	self assert: (self classHierarchyPresenter model asArray at: 4) name equals: 'RwGsPlatform'. "subclass in list available by > in super"
+	self deny: (self classHierarchyPresenter model asArray at: 4) expand
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_extensionColoringInHierarchy [
+	| testClass |
+	self selectServicesNamed: (Array with: 'RowanClientServices') in: self projectListPresenter.
+	self selectServicesNamed: #('Rowan-Services-Tests') in: self packageListPresenter.
+	self selectServicesNamed: (Array with: 'TestLoggingService') in: self classListPresenter.
+	testClass := self classListPresenter list
+				detect: [:classService | classService name = 'RowanLoggingService']
+				ifNone: [].
+	self assertIsNil: testClass.	"Our class is an extension so we don't see him in Classes view"
+	self selectHierarchyTab.
+	self
+		assert: self projectsPresenter classHierarchyPresenter selection name = 'TestLoggingService'.
+	self deny: (self projectsPresenter classHierarchyPresenter selection
+				shouldColorAsExtension: self projectsPresenter).
+	self selectClassInHierarchyNamed: 'RowanLoggingService'.
+	self assert: (self projectsPresenter classHierarchyPresenter selection
+				shouldColorAsExtension: self projectsPresenter)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_extensionMethodSelection [
+	| source |
+	self testsIssue: #issue352
+		withTitle: 'Create method on class not in selected package, method disappears'.
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Core' in: self packageListPresenter.
+	self selectServiceNamed: 'RwClassMove' in: self classListPresenter.
+	self selectMethodNamed: #addMovedClassToPatchSet:.
+	self assert: self classListPresenter selection name equals: 'RwClassMove'.
+	self assert: self methodListPresenter selection selector equals: #addMovedClassToPatchSet:.
+	self assert: ('addMovedClassToPatchSet:*' match: self methodSourcePresenter model value).
+	self assert: self methodListPresenter selection category first equals: $*.	"extension method category"
+	source := 'addMovedClassToPatchSet2 
+		^#thisIsATestMethod'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self denyIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #addMovedClassToPatchSet:]
+				ifNone: []).
+	self assert: self methodListPresenter selection selector equals: #addMovedClassToPatchSet2.
+	self assert: self categoryListPresenter selection equals: '*rowan-gemstone-loader-extensions-onlyv2'.
+	self assert: self classListPresenter selection name equals: 'RwClassMove'.
+	self assert: self projectsPresenter definedMethodPackageText view text
+		equals: 'Defined Package: Rowan-GemStone-Loader-Extensions-OnlyV2'.
+	self assert: self projectsPresenter methodCategoryText value
+		equals: 'Category: *rowan-gemstone-loader-extensions-onlyv2'.
+	transcript projectListPresenter abortTransaction.	"clean up Rowan project"
+	[] ensure: 
+			[self cloneRowanSample1.
+			self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_failMethodCompile [
+	| source |
+	self testsIssue: #issue458 withTitle: '(3.0.64) category error'.
+	self selectRowanSample1Test.
+	self projectsPresenter basicAddMethodCategory: 'newCategory'.
+	
+	[source := 'failCompile  aaaaa'.
+	self methodSourcePresenter value: source.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #ok.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self selectCategoryNamed: 'tests'.	"error happened here"
+	self assertIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #failCompile]
+				ifNone: [])]
+			ensure: [self projectsPresenter basicRemoveMethodCategories]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_fileoutClass [
+	"don't over-test the contents of the file itself as that could change and string parsing is brittle. 
+	Instead just test that the file out file gets written and do a couple sanity checks on the contents"
+
+	| path fileContents |
+	path := '/home/ewinger/temp/test_fileoutClass.gs'.
+	(session executeString: 'GsFile existsOnServer: ''' , path , '''')
+		ifTrue: [session executeString: 'GsFile removeServerFile: ''' , path , ''''].
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('instVar1' 'instVar2')
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self variableListPresenter selections: #('instVar1' 'instVar2').
+	self projectsPresenter addVariableAccessors.
+	
+	[self projectsPresenter fileOutClassOnPath: path.
+	fileContents := session executeString: '(GsFile openReadOnServer: ''' , path , ''') contents'.
+	1 to: fileContents size do:[:index |
+	  | char |
+		char := fileContents at: index. 
+		self deny: char equals: Character cr]. 
+	self
+		assert: ('*Object subclass: ''TestClass''*instVarNames: #( instVar1 instVar2)*' match: fileContents).
+	self assert: ('*category: ''accessing''*method: TestClass*instVar1*^instVar1*' match: fileContents).
+	self assert: (session executeString: 'GsFile existsOnServer: ''' , path , '''')]
+			ensure: 
+				[session executeString: 'GsFile removeServerFile: ''' , path , ''''.
+				self deny: (session executeString: 'GsFile existsOnServer: ''' , path , '''')]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_fileoutSelectedMethods [
+	"don't over-test the contents of the file itself as that could change and string parsing is brittle. 
+	Instead just test that the file out file gets written and do a couple sanity checks on the contents"
+
+	| path fileContents |
+	path := '/home/ewinger/temp/test_fileoutSelectedMethods.gs'.
+	(session executeString: 'GsFile existsOnServer: ''' , path , '''')
+		ifTrue: [session executeString: 'GsFile removeServerFile: ''' , path , ''''].
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self
+		saveMethod: 'october ^''october'''
+		in: 'TestClass'
+		category: 'months'.
+	self
+		saveMethod: 'november ^''november'''
+		in: 'TestClass'
+		category: 'months'.
+	self
+		saveMethod: 'december ^''december'''
+		in: 'TestClass'
+		category: 'months'.
+	self selectMethodsNamed: #(november december). 
+	[self projectsPresenter fileOutMethodsOnPath: path.
+	fileContents := session executeString: '(GsFile openReadOnServer: ''' , path , ''') contents'.
+	self assert: ('*!*category: ''months''*method: TestClass*december ^''december''*%*' match: fileContents).
+	self assert: ('*!*category: ''months''*method: TestClass*november ^''november''*%*' match: fileContents).
+	self assert: (session executeString: 'GsFile existsOnServer: ''' , path , '''')]
+			ensure: 
+				[session executeString: 'GsFile removeServerFile: ''' , path , ''''.
+				self deny: (session executeString: 'GsFile existsOnServer: ''' , path , '''')]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_filtersUpdatedInHierarchyView [
+	| selectedClass browserServiceCategories |
+	self testsIssue: #issue343 withTitle: 'Category/Variables tab not updating correctly'.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanBrowserService' in: self classListPresenter.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter isCategoryTabSelected.
+	self assert: self categoryListPresenter list notEmpty.
+	browserServiceCategories := self categoryListPresenter list.
+	self projectsPresenter selectVariableTab.
+	self assert: self variableListPresenter list notEmpty.
+	selectedClass := self projectsPresenter selectedClass.
+	self assert: selectedClass name equals: 'RowanBrowserService'.
+	selectedClass instVarNames
+		do: [:instVar | self assert: (self variableListPresenter list includes: instVar asString)].
+	self selectClassInHierarchyNamed: 'RowanService'.
+	self assert: self variableListPresenter list notEmpty.
+	selectedClass := self projectsPresenter selectedClass.
+	self assert: selectedClass name equals: 'RowanService'.
+	selectedClass instVarNames
+		do: [:instVar | self assert: (self variableListPresenter list includes: instVar asString)].
+	self projectsPresenter selectCategoryTab. 
+	self deny: browserServiceCategories size equals: self categoryListPresenter list size. "At least test that something changed since the categories will change" 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_findClass [
+	self projectsPresenter updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform').
+	self assert: self classListPresenter selection name equals: 'RwGsPlatform'.
+	self assert: self classListPresenter selection definedPackageName equals: 'Rowan-GemStone-Core'.
+	self assert: self packageListPresenter selection name equals: 'Rowan-GemStone-Core'.
+	self assert: self projectListPresenter selection name equals: 'Rowan'.
+	self projectsPresenter updateAfterFindClass: (RowanClassService new name: 'CypressClassDefinition').
+	self assert: self classListPresenter selection name equals: 'CypressClassDefinition'.
+	self assert: self classListPresenter selection definedPackageName equals: 'Cypress-Definitions'.
+	self assert: self packageListPresenter selection name equals: 'Cypress-Definitions'.
+	self assert: self projectListPresenter selection name equals: 'Cypress'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_findClassDialog [
+	| findClassDialog |
+	findClassDialog := (JadeiteFindClassDialog create: 'DefaultView'
+				on: (JadePresenter allClassesIn: session)) show.	"do not open modal"
+	
+	[self assert: findClassDialog classListPresenter selectionByIndex equals: 1.
+	findClassDialog selectNextClass.
+	self assert: findClassDialog classListPresenter selectionByIndex equals: 2.
+	findClassDialog classListPresenter selectionByIndex: findClassDialog classListPresenter list size.
+	self assert: findClassDialog classListPresenter selectionByIndex
+		equals: findClassDialog classListPresenter list size.
+	findClassDialog selectNextClass.
+	self assert: findClassDialog classListPresenter selectionByIndex
+		equals: findClassDialog classListPresenter list size.
+	findClassDialog selectPreviousClass.
+	self assert: findClassDialog classListPresenter selectionByIndex
+		equals: findClassDialog classListPresenter list size - 1.
+	findClassDialog classListPresenter selectionByIndex: 1.
+	self assert: findClassDialog classListPresenter selectionByIndex equals: 1.
+	findClassDialog selectPreviousClass.
+	self assert: findClassDialog classListPresenter selectionByIndex equals: 1]
+			ensure: [findClassDialog view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_fullHierarchyExpansion [
+	| hierarchyClassNames |
+	self testsIssue: #issue640 withTitle: 'Double click no longer expands hierarchy view'.
+	self selectRowanServicesPackage.
+	self selectClassListTab. 
+	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
+	self selectHierarchyTab.
+	hierarchyClassNames := self classHierarchyPresenter model asArray
+				collect: [:classService | classService name].
+	self assert: hierarchyClassNames equals: #('Object' 'RowanService' 'RowanClassService' 'RowanFillerClassService').
+	self selectClassInHierarchyNamed: 'RowanService'.
+	self projectsPresenter expandFullHierarchy.
+	hierarchyClassNames := self classHierarchyPresenter model asArray do: 
+					[:classService |
+					self assert: (session
+								executeString: '
+							| hierarchy |
+							hierarchy := (RowanService allSuperclasses collect: [:cls | cls name]) asArray. 
+							hierarchy add: #RowanService. 
+							hierarchy addAll: (RowanService allSubclasses collect: [:cls | cls name]) asArray. 
+							hierarchy includes: '
+										, classService name asSymbol printString)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_fullHierarchyExpansionDoubleClick [
+	| hierarchyClassNames |
+	self testsIssue: #issue640 withTitle: 'Double click no longer expands hierarchy view'.
+	self selectRowanServicesPackage.
+	self selectClassListTab.
+	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
+	self selectHierarchyTab.
+	hierarchyClassNames := self classHierarchyPresenter model asArray
+				collect: [:classService | classService name].
+	self assert: hierarchyClassNames
+		equals: #('Object' 'RowanService' 'RowanClassService' 'RowanFillerClassService').
+	self selectClassInHierarchyNamed: 'RowanService'.
+	self classHierarchyPresenter trigger: #actionPerformed.	"double click"
+	hierarchyClassNames := (self classHierarchyPresenter model
+				getChildrenOf: self classHierarchyPresenter selection) do: 
+						[:classService |
+						self assert: (session
+									executeString: '
+							| hierarchy |
+							hierarchy := (RowanService allSuperclasses collect: [:cls | cls name]) asArray. 
+							hierarchy add: #RowanService. 
+							hierarchy addAll: (RowanService allSubclasses collect: [:cls | cls name]) asArray. 
+							hierarchy includes: '
+											, classService name asSymbol printString)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_fullHierarchyExpansionManyLevels [
+	"JadeServer has a subclass that's many levels deep"
+
+	self testsIssue: #issue640 withTitle: 'Double click no longer expands hierarchy view'.
+	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-JadeServer' in: self packageListPresenter.
+	self selectClassListTab.
+	self selectServiceNamed: 'JadeServer64bit' in: self classListPresenter.
+	self selectHierarchyTab.
+	self assertLinearAncestry: #('Object' 'JadeServer' 'JadeServer64bit' 'JadeServer64bit24')
+		in: self classHierarchyPresenter.
+	self selectClassInHierarchyNamed: 'JadeServer'.
+	self projectsPresenter expandFullHierarchy.
+	(self classHierarchyPresenter model getChildrenOf: self classHierarchyPresenter selection) do: 
+			[:classService |
+			self assert: (session
+						executeString: '
+							| hierarchy |
+							hierarchy := (JadeServer allSuperclasses collect: [:cls | cls name]) asArray. 
+							hierarchy add: #JadeServer. 
+							hierarchy addAll: (JadeServer allSubclasses collect: [:cls | cls name]) asArray. 
+							hierarchy includes: '
+								, classService name asSymbol printString)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_fullHierarchyExpansionManyLevelsDoubleClick [
+	"JadeServer has a subclass that's many levels deep"
+
+	self testsIssue: #issue640 withTitle: 'Double click no longer expands hierarchy view'.
+	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-JadeServer' in: self packageListPresenter.
+	self selectClassListTab.
+	self selectServiceNamed: 'JadeServer64bit' in: self classListPresenter.
+	self selectHierarchyTab.
+	self assertLinearAncestry: #('Object' 'JadeServer' 'JadeServer64bit' 'JadeServer64bit24')
+		in: self classHierarchyPresenter.
+	self selectClassInHierarchyNamed: 'JadeServer'.
+	self classHierarchyPresenter trigger: #actionPerformed.	"double click"
+	(self classHierarchyPresenter model getChildrenOf: self classHierarchyPresenter selection) do: 
+			[:classService |
+			self assert: (session
+						executeString: '
+							| hierarchy |
+							hierarchy := (JadeServer allSuperclasses collect: [:cls | cls name]) asArray. 
+							hierarchy add: #JadeServer. 
+							hierarchy addAll: (JadeServer allSubclasses collect: [:cls | cls name]) asArray. 
+							hierarchy includes: '
+								, classService name asSymbol printString)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_getClassCommentWithDeprecationsOn [
+	"code was trying to use deprecated method #description"
+
+	self testsIssue: #issue507 withTitle: '(NONE) package browsing invokes deprecated method (3.0.74)'.
+	session executeString: 'Deprecated doErrorOnDeprecated'.
+	
+	[self selectNoneProject.
+	self selectServiceNamed: 'Globals' in: self dictionaryPresenter.
+	self selectServiceNamed: 'AbstractException' in: self classListPresenter.
+	self assert: self projectsPresenter selectedClass comment notEmpty.
+	self selectServiceNamed: 'AbstractDictionary' in: self classListPresenter.
+	self assert: self projectsPresenter selectedClass comment notEmpty.
+	self selectClassTab.
+	self selectServiceNamed: 'AbstractException' in: self classListPresenter.
+	self assert: self projectsPresenter selectedClass comment notEmpty.
+	self selectServiceNamed: 'AbstractDictionary' in: self classListPresenter.
+	self assert: self projectsPresenter selectedClass comment notEmpty.
+	self selectHierarchyTab.
+	self selectServiceNamed: 'AbstractException' in: self classListPresenter.
+	self assert: self projectsPresenter selectedClass comment notEmpty.
+	self selectClassTab.
+	self assert: self projectsPresenter selectedClass comment notEmpty]
+			ensure: [session executeString: 'Deprecated doNothingOnDeprecated']
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_goToDefinedClassFromHierarchy [
+	| gotoClass |
+	self selectServicesNamed: (Array with: 'RowanClientServices') in: self projectListPresenter.
+	self selectServicesNamed: #('Rowan-Services-Tests') in: self packageListPresenter.
+	self selectServicesNamed: (Array with: 'TestLoggingService') in: self classListPresenter.
+	gotoClass := self classListPresenter list
+				detect: [:classService | classService name = 'RowanLoggingService']
+				ifNone: [].
+	self assertIsNil: gotoClass.	"Our class is an extension so we don't see him in Classes view"
+	self selectHierarchyTab.
+	self deny: self projectsPresenter isClassListTabSelected.
+	self selectClassInHierarchyNamed: 'RowanLoggingService'.
+	self projectsPresenter gotoClassDefinedPackage.
+	self assert: self packageListPresenter selection name = 'Rowan-Services-Core'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_goToDefinedClassFromHierarchyViaButton [
+	| gotoClass |
+	self selectServicesNamed: (Array with: 'RowanClientServices') in: self projectListPresenter.
+	self selectServicesNamed: #('Rowan-Services-Tests') in: self packageListPresenter.
+	self selectServicesNamed: (Array with: 'TestLoggingService') in: self classListPresenter.
+	gotoClass := self classListPresenter list
+				detect: [:classService | classService name = 'RowanLoggingService']
+				ifNone: [].
+	self assertIsNil: gotoClass.	"Our class is an extension so we don't see him in Classes view"
+	self selectHierarchyTab.
+	self deny: self projectsPresenter isClassListTabSelected.
+	self selectClassInHierarchyNamed: 'RowanLoggingService'.
+	self assert: self projectsPresenter definedClassPackageText view command
+		equals: #gotoClassDefinedPackageViaButton.
+	self projectsPresenter gotoClassDefinedPackageViaButton.
+	self assert: self packageListPresenter selection name = 'Rowan-Services-Core'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_goToDefinedMethodFromClassList [
+	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Services-Extensions' in: self packageListPresenter.
+	self selectServiceNamed: 'RwGsPlatform' in: self classListPresenter.
+	self selectCategoryNamed: '*rowan-services-extensions'.
+	self selectMethodNamed: #classServiceClass.
+	self assert: self projectsPresenter isClassListTabSelected.
+	self projectsPresenter gotoMethodDefinedPackage.
+	self assert: self packageListPresenter selection name = 'Rowan-Services-Extensions'.
+	self assert: self classListPresenter selection name = 'RwGsPlatform'.
+	self assert: self categoryListPresenter selection = '*rowan-services-extensions'.
+	self assert: self methodListPresenter selection selector = #classServiceClass.
+	self assert: self projectsPresenter isClassListTabSelected
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_goToDefinedMethodFromHierarchy [
+	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Services-Extensions' in: self packageListPresenter.
+	self selectServiceNamed: 'RwGsPlatform' in: self classListPresenter.
+	self selectHierarchyTab.
+	self selectCategoryNamed: '*rowan-services-extensions'.
+	self selectMethodNamed: #classServiceClass.
+	self deny: self projectsPresenter isClassListTabSelected.
+	self projectsPresenter gotoMethodDefinedPackage.
+	self assert: self packageListPresenter selection name = 'Rowan-Services-Extensions'.
+	self assert: self classListPresenter selection name = 'RwGsPlatform'.
+	self assert: self categoryListPresenter selection = '*rowan-services-extensions'.
+	self assert: self methodListPresenter selection selector = #classServiceClass.
+	self assert: self projectsPresenter isClassListTabSelected	"make my life easier by forcing the class side to be seleted"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_goToDefinedMethodFromHierarchyViaButton [
+	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
+	self selectServiceNamed: 'Rowan-Services-Extensions' in: self packageListPresenter.
+	self selectServiceNamed: 'RwGsPlatform' in: self classListPresenter.
+	self selectHierarchyTab.
+	self selectCategoryNamed: '*rowan-services-extensions'.
+	self selectMethodNamed: #classServiceClass.
+	self deny: self projectsPresenter isClassListTabSelected.
+	self assert: self projectsPresenter definedMethodPackageText view command
+		equals: #gotoMethodDefinedPackageViaButton.
+	self projectsPresenter gotoMethodDefinedPackageViaButton.
+	self assert: self packageListPresenter selection name = 'Rowan-Services-Extensions'.
+	self assert: self classListPresenter selection name = 'RwGsPlatform'.
+	self assert: self categoryListPresenter selection = '*rowan-services-extensions'.
+	self assert: self methodListPresenter selection selector = #classServiceClass.
+	self assert: self projectsPresenter isClassListTabSelected	"make my life easier by forcing the class side to be seleted"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_hierarchyCleanedUpAfterUnload [
+	"hierarchy classes were being left in the display
+	after project was unloaded"
+
+	self selectRowanSample1Test.
+	self selectHierarchyTab.
+	self deny: self classHierarchyPresenter model isEmpty.
+	self projectsPresenter basicUnloadProjects: (self projectsPresenter projectListPresenter selections
+				collect: [:service | service name]).
+	[self assert: self classHierarchyPresenter model isEmpty]
+		ensure: [self cloneRowanSample1	"rest of tests expect project to be available"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_hierarchyMethodsNotDisplayed [
+	| className source |
+	self testsIssue: #issue290
+		withTitle: '(3.0.50) wrong methods displayed when switching from a superclass to subclass'.
+	self selectRowanSample1Test.
+	self selectHierarchyTab.
+	className := 'TestTestClass'.
+	self
+		saveClass: className
+		superclass: 'RowanSample1Test'
+		instVars: Array new
+		package: 'RowanSample1-Tests'.
+	self selectClassInHierarchyNamed: className.
+	self projectsPresenter basicAddMethodCategory: 'tests'.
+	source := 'subclassMethod1  ^#aaa'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self projectsPresenter classHierarchyPresenter selection.
+	self assert: self methodListPresenter selection selector equals: #subclassMethod1.
+	self projectsPresenter basicAddMethodCategory: 'zzz'.
+	source := 'subclassMethod2  ^#foo'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self projectsPresenter classHierarchyPresenter selection.
+	self assert: self methodListPresenter list size equals: 1.
+	self assert: self methodListPresenter list first selector equals: #subclassMethod2.
+	self selectClassInHierarchyNamed: 'RowanSample1Test'.
+	self assertIsNil: self categoryListPresenter selectionOrNil.	"no zzz category in super"
+	self assert: self methodListPresenter list size equals: 4.
+	self assert: (self methodListPresenter list at: 1) selector equals: #test1.
+	self assert: (self methodListPresenter list at: 2) selector equals: #test2.
+	self assert: (self methodListPresenter list at: 3) selector equals: #testError.
+	self assert: (self methodListPresenter list at: 4) selector equals: #testFailure.
+	self selectClassInHierarchyNamed: className.
+	self assertIsNil: self categoryListPresenter selectionOrNil.	"no category was previously selected"
+	self assert: self methodListPresenter list size equals: 2.
+	self assert: self methodListPresenter list first selector equals: #subclassMethod1.
+	self assert: self methodListPresenter list last selector equals: #subclassMethod2
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_hierarchySelectTwoBrowsers [
+	| firstBrowser |
+	self testsIssue: #issue122 withTitle: 'Hierarchy tab selection updates incorrectly.'.
+	firstBrowser := projectsBrowser.	"for easier reading"
+	self openSecondBrowser. 
+	
+	[self selectRowanSample1Class.
+	self selectServicesNamed: (Array with: 'RowanSample1')
+		in: secondBrowser currentCard projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Tests') in: secondBrowser currentCard packageListPresenter.
+	self selectServicesNamed: (Array with: 'RowanSample1Test')
+		in: secondBrowser currentCard classListPresenter.
+	self selectHierarchyTabIn: firstBrowser currentCard.
+	self assert: firstBrowser currentCard classHierarchyPresenter selection name = 'RowanSample1'.
+	self selectHierarchyTabIn: secondBrowser currentCard.
+	self assert: firstBrowser currentCard classHierarchyPresenter selection name = 'RowanSample1'.
+	self assert: (firstBrowser currentCard classHierarchyPresenter isKindOf: TreePresenter).
+	self assert: secondBrowser currentCard classHierarchyPresenter selection name = 'RowanSample1Test'.
+	self assert: (secondBrowser currentCard classHierarchyPresenter isKindOf: TreePresenter)]
+			ensure: [self destroy: secondBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_hierarchyWithNonResolvableClass [
+	| unresolvableClassService |
+	self testsIssue: #issue442
+		withTitle: '(3.0.62) odd (but legal) class hierarchy causes trouble for Project Browser'.
+	session
+		executeString: 'Rowan platform _alternateImageClass: Rowan image testImageClass.
+		RowanClassServiceTest new createHierarchyWithNonResolvableClass.'.
+	
+	[self projectsPresenter refreshFromServer.
+	self selectServiceNamed: 'Issue470' in: self projectListPresenter.
+	self selectServiceNamed: 'Issue470-Core' in: self packageListPresenter.
+	self selectServiceNamed: 'Issue470Class3' in: self classListPresenter.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter selectedClass name equals: 'Issue470Class3'.
+	unresolvableClassService := self projectsPresenter classHierarchyPresenter model asArray at: 3.
+	self assert: unresolvableClassService name equals: 'Issue470Class2'.
+	self assert: ('Issue470Class2 {*}' match: unresolvableClassService displayString).
+	self deny: unresolvableClassService isInSymbolList]
+			ensure: 
+				[self projectsPresenter basicUnloadProjects: #('Issue470').
+				session executeString: ' Rowan platform _alternateImageClass: nil.']
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_moveClassToPackageOutsideProject [
+
+	self testsIssue: #issue980 withTitle: '[3.2.13] error on moving class to package in a different project'. 
+	self selectRowanSample1Class. 
+	self assert: self projectsPresenter selectedProjectName equals: 'RowanSample1'. 
+	self assert: self projectsPresenter selectedPackageNames first equals: 'RowanSample1-Core'. 
+	self deny: self projectsPresenter projectListPresenter selectionOrNil isDirty. 
+	self deny: self projectsPresenter packageListPresenter selectionOrNil isDirty. 
+	self projectsPresenter moveClassToPackageNamed: 'RowanSample9-Core'. 
+	self assert: self projectsPresenter selectedProjectName equals: 'RowanSample9'. 
+	self assert: self projectsPresenter selectedPackageNames first equals: 'RowanSample9-Core'. 
+	self assert: self projectsPresenter projectListPresenter selectionOrNil isDirty. 
+	self assert: self projectsPresenter packageListPresenter selectionOrNil isDirty. 
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_moveMethodDirtiesPackage [
+	self testsIssue: #issue950
+		withTitle: '(3.2.10) RowanClassService>>moveMethods:to: should not use the category name as a literal package name'.
+	self ensureRowanSampleProjectsLoaded.
+	self selectRowanSample1Class.
+	self deny: self projectsPresenter projectListPresenter selection isDirty.
+	self deny: self projectsPresenter packageListPresenter selection isDirty.
+	self projectsPresenter basicAddMethodCategory: '*rowansample1-extensions'.
+	self selectCategoryNamed: 'accessing'.
+	self selectMethodNamed: #foo.
+	self projectsPresenter moveMethods: self methodListPresenter selections
+		toCategory: '*rowansample1-extensions'.
+	self assert: self categoryListPresenter selection equals: '*rowansample1-extensions'.
+	self assert: self methodListPresenter selection name equals: #foo.
+	self assert: self projectsPresenter projectListPresenter selection isDirty.
+	self assert: self projectsPresenter packageListPresenter selection isDirty
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_newBrowserRetainsClassAndMethod [
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	secondBrowser := self projectsPresenter newBrowser.
+	self assert: secondBrowser currentCard methodListPresenter selection selector equals: #test1.
+	self assert: secondBrowser currentCard classListPresenter selection name equals: 'RowanSample1Test'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_newBrowserRetainsClassAndMethodClassSide [
+	self selectRowanSample1Class.
+	self selectClassTab.
+	self selectMethodNamed: #bar.
+	secondBrowser := self projectsPresenter newBrowser.
+	self assert: secondBrowser currentCard methodListPresenter selection selector equals: #bar.
+	self assert: secondBrowser currentCard classListPresenter selection name equals: 'RowanSample1'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_noSelectionHierarchy [
+	| roots children childrensNames grandchildren grandchildrensNames |
+	self testsIssue: #issue125 withTitle: 'Hierarchy view empty if class not selected'.
+	self selectRowanServicesPackage.
+	self assertIsNil: self projectsPresenter selectedClass.
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter model notEmpty.
+	roots := self classHierarchyPresenter model roots.
+	self assert: roots size = 1.
+	self assert: roots first name = 'Object'.
+	children := self classHierarchyPresenter model getChildrenOf: roots first.
+	childrensNames := children collect: [:classService | classService name].
+	self assert: (childrensNames includes: 'RowanCommandResult').
+	self assert: (childrensNames includes: 'RowanService').
+	self deny: (childrensNames includes: 'RowanClassService').
+	grandchildren := self classHierarchyPresenter model
+				getChildrenOf: (children detect: [:classService | classService name = 'RowanService']).
+	self assert: grandchildren size equals: 18.	"this will probably change but it's a nice test to ensure all the expected services are present"
+	grandchildrensNames := grandchildren collect: [:classService | classService name].
+	1 to: self expectedGrandchildrenNames size
+		do: [:idx | self assert: (grandchildrensNames at: idx) equals: (self expectedGrandchildrenNames at: idx)].
+	1 to: grandchildrensNames size
+		do: [:idx | self assert: (grandchildrensNames at: idx) equals: (self expectedGrandchildrenNames at: idx)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_refreshFromServer [
+	self selectRowanServicesPackage.
+	self selectServicesNamed: (Array with: 'RowanPackageService') in: self classListPresenter.
+	self selectCategoryNamed: 'client commands'.
+	self selectServiceNamed: 'classHierarchy' in: self methodListPresenter.
+	self projectsPresenter refreshFromServer.
+	self assert: self projectsPresenter selectedMethodName equals: #classHierarchy.
+	self assert: self projectsPresenter categoryListPresenter selection equals: 'client commands'.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanPackageService'.
+	self assert: self projectsPresenter packageListPresenter selection name equals: 'Rowan-Services-Core'.
+	self assert: self projectsPresenter projectListPresenter selection name equals: 'RowanClientServices'.
+	"hierarchy tab" 
+	self selectHierarchyTab. "selections remain" 
+	self projectsPresenter refreshFromServer.
+	self assert: self projectsPresenter selectedMethodName equals: #classHierarchy.
+	self assert: self projectsPresenter categoryListPresenter selection equals: 'client commands'.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanPackageService'.
+	self assert: self projectsPresenter packageListPresenter selection name equals: 'Rowan-Services-Core'.
+	self assert: self projectsPresenter projectListPresenter selection name equals: 'RowanClientServices'
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_removeClassFromHierarchy [
+	| classReferences |
+	self testsIssue: #issue377 withTitle: '(3.0.53) remove class in hierarchy class view does not work'.
+	self selectRowanSample1Class.
+	self
+		saveMethod: 'createReference  ^RowanSample1Test'
+		in: 'RowanSample1'
+		category: 'deleteme'.
+	self selectRowanSample1Test.
+	self selectHierarchyTab.
+	self assertLinearAncestry: #('Object' 'TestAsserter' 'TestCase' 'RowanSample1Test')
+		in: self classHierarchyPresenter.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #(#yes #ok) asOrderedCollection.
+	classReferences := self projectsPresenter removeClass.
+	self assertLinearAncestry: #('Object' 'TestAsserter' 'TestCase') in: self classHierarchyPresenter]
+			ensure: 
+				[classReferences view close.
+				TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_removeClassFromList [
+	| classReferences |
+	self testsIssue: #issue377 withTitle: '(3.0.53) remove class in hierarchy class view does not work'.
+	self testsIssue: #issue725 withTitle: 'Handle removed class references better'.
+	self selectRowanSample1Class.
+	self
+		saveMethod: 'createReference  ^RowanSample1Test'
+		in: 'RowanSample1'
+		category: 'deleteme'.
+	self selectRowanSample1Test.
+	self denyIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'RowanSample1Test']
+				ifNone: []).
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #(#yes #ok) asOrderedCollection.
+	classReferences := self projectsPresenter removeClass.
+	self assert: ('Class References of*' match: classReferences topShell caption).
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'RowanSample1Test']
+				ifNone: [])]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.
+				classReferences view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_removeClassNoReferences [
+	self testsIssue: #issue753
+		withTitle: '(3.0.93) when removing a class that has no references, no need for empty method browser and notification'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'RowanSample1TestSubClass'
+		superclass: 'RowanSample1Test'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self denyIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'RowanSample1TestSubClass']
+				ifNone: []).
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #(#yes) asOrderedCollection.
+	self projectsPresenter removeClass.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'RowanSample1TestSubClass']
+				ifNone: [])	"no class references list appeared which is expected"]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_removeClassWithSubclasses [
+	self testsIssue: #issue727 withTitle: 'Prevent class removal if subclasses present'.
+	self selectRowanSample1Class.
+	TestMessageBox enableJadeiteTestMessageBox.
+	self
+		denyIsNil: (self classListPresenter list detect: [:classService | classService name = 'RowanSample1']
+				ifNone: []).
+	
+	[TestMessageBox plannedResult: #ok.
+	self projectsPresenter removeClass.
+	self assertIsNil: TestMessageBox plannedResult.	"shows dialog was raised"
+	self
+		denyIsNil: (self classListPresenter list detect: [:classService | classService name = 'RowanSample1']
+				ifNone: [])]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassMethodListUpdates [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Test.
+	methodListBrowser := JadePresenter browseImplementorsOf: 'test1' session: session.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list first
+				className
+		equals: 'RowanSample1Test'.
+	self projectsPresenter basicRenameClass: self classListPresenter selection to: 'TestClassWasRenamed'.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list first
+				className
+		equals: 'TestClassWasRenamed'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassMethodListUpdatesFromClassesMenu [
+	"run from classes menu per bug #640"
+
+	| classesMenu renameMenuItem |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self testsIssue: #issue640 withTitle: 'Error dialogs from PB menu items when on Sunit tab'.
+	self selectRowanSample1Test.
+	methodListBrowser := JadePresenter browseImplementorsOf: 'test1' session: session.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list first
+				className
+		equals: 'RowanSample1Test'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestPrompter plannedResult: 'TestClassWasRenamed'.
+	classesMenu := projectsBrowser topShell view menuBar items
+				detect: [:item | '*Classes*' match: item text].
+	renameMenuItem := classesMenu items detect: [:item | '*Rename*' match: item text].
+	self selectSUnitTab.	"must be selected for bug to occur"
+	TestMessageBox plannedResult: #yes.
+	renameMenuItem commandDescription performAgainst: self projectsPresenter.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list first
+				className
+		equals: 'TestClassWasRenamed']
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassSUnitBrowserUpdates [
+	| sunitBrowser |
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Test.
+	sunitBrowser := JadeiteSUnitBrowser showOnSession: session.
+	
+	[self selectServiceNamed: 'RowanSample1-Tests' in: sunitBrowser primaryPresenter packageListPresenter.
+	self assert: sunitBrowser primaryPresenter classListPresenter list size equals: 1.
+	self assert: sunitBrowser primaryPresenter classListPresenter list first name
+		equals: 'RowanSample1Test'.
+	self projectsPresenter basicRenameClass: self classListPresenter selection to: 'TestClassWasRenamed'.
+	self assert: sunitBrowser primaryPresenter classListPresenter list size equals: 1.
+	self assert: sunitBrowser primaryPresenter classListPresenter list first name
+		equals: 'TestClassWasRenamed']
+			ensure: [sunitBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassShowsAsDefinedInPackage [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Class.
+	self deny: self classListPresenter selection isExtension.
+	self assert: self classListPresenter selection name equals: 'RowanSample1'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #ok.
+	self projectsPresenter basicRenameClass: self classListPresenter selection to: 'TestClassWasRenamed']
+			ensure: [TestMessageBox disableJadeiteTestMessageBox].
+	JadeiteRenameClassMethodListBrowser allInstances do: [:browser | browser view close].	"referenced methods browser is opened"
+	self deny: self classListPresenter selection isExtension.
+	self assert: self classListPresenter selection name equals: 'TestClassWasRenamed'.
+	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
+	self selectServiceNamed: 'TestClassWasRenamed' in: self classListPresenter.
+	self assert: self classListPresenter selection isExtension.
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter selection isExtension.
+	self assert: self classHierarchyPresenter selection name equals: 'TestClassWasRenamed'.
+	self selectClassListTab.
+	self projectsPresenter basicRenameClass: self classListPresenter selection
+		to: 'TestClassWasRenamedAgain'.
+	JadeiteRenameClassMethodListBrowser allInstances do: [:browser | browser view close].	"referenced methods browser is opened"
+	self assert: self classListPresenter selection isExtension.
+	self assert: self classListPresenter selection name equals: 'TestClassWasRenamedAgain'.
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter selection isExtension.
+	self assert: self classHierarchyPresenter selection name equals: 'TestClassWasRenamedAgain'.
+	self selectClassListTab
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassSwitchToHierarchyOk [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Class.
+	self projectsPresenter basicRenameClass: self classListPresenter selection to: 'TestClassWasRenamed'.
+	JadeiteRenameClassMethodListBrowser allInstances do: [:browser | browser view close].	"referenced methods browser is opened"
+	self assert: self classListPresenter selection name equals: 'TestClassWasRenamed'.
+	self selectHierarchyTab.
+	self assert: self classHierarchyPresenter selection name equals: 'TestClassWasRenamed'.
+	self projectsPresenter basicRenameClass: self classListPresenter selection
+		to: 'TestClassWasRenamedAgain'.
+	JadeiteRenameClassMethodListBrowser allInstances do: [:browser | browser view close].	"referenced methods browser is opened"
+	self assert: self classHierarchyPresenter selection name equals: 'TestClassWasRenamedAgain'.
+	self selectClassListTab.
+	self assert: self classHierarchyPresenter selection name equals: 'TestClassWasRenamedAgain'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassUpdatedInSecondBrowser [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Class.
+	self openSecondBrowser.
+	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
+	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self assert: self classListPresenter selection name equals: 'RowanSample1'.
+	self assert: secondPresenter classListPresenter selection name equals: 'RowanSample1'.
+	self projectsPresenter basicRenameClass: self classListPresenter selection to: 'TestClassWasRenamed'.
+	JadeiteRenameClassMethodListBrowser allInstances do: [:browser | browser view close].	"referenced methods browser is opened"
+	self assert: self classListPresenter selection name equals: 'TestClassWasRenamed'.
+	self assert: secondPresenter classListPresenter selection name equals: 'TestClassWasRenamed'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameClassUpdatedInSecondBrowserHierarchy [
+	self testsIssue: #issue439 withTitle: '`rename` class menu item would be useful'.
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Class.
+	self openSecondBrowser.
+	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
+	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self selectHierarchyTabIn: secondPresenter.
+	self assert: self classListPresenter selection name equals: 'RowanSample1'.
+	self assert: secondPresenter classListPresenter selection name equals: 'RowanSample1'.
+	self projectsPresenter basicRenameClass: self classListPresenter selection to: 'TestClassWasRenamed'.
+	JadeiteRenameClassMethodListBrowser allInstances do: [:browser | browser view close].	"referenced methods browser is opened"
+	self assert: self classListPresenter selection name equals: 'TestClassWasRenamed'.
+	self assert: secondPresenter classListPresenter selection name equals: 'TestClassWasRenamed'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameInClassListWithMethodListOpen [
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	methodListBrowser := self projectsPresenter browseSelectedMethods.
+	TestMessageBox enableJadeiteTestMessageBox.
+	self projectsPresenter basicRenameClass: self projectsPresenter selectedClass to: 'Fnoodly'.
+	
+	[TestMessageBox plannedResult: #ok.
+	self assert: self projectsPresenter selectedClass name = 'Fnoodly']
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_renameInHierarchyWithMethodListOpen [
+	self testsIssue: #issue465 withTitle: '(3.067) error after rename class in hierarchy view'.
+	self selectRowanSample1Test.
+	self selectHierarchyTab.
+	self selectMethodNamed: #test1.
+	methodListBrowser := self projectsPresenter browseSelectedMethods.
+	TestMessageBox enableJadeiteTestMessageBox.
+	self projectsPresenter basicRenameClass: self projectsPresenter selectedClass to: 'Fnoodly'.
+	
+	[TestMessageBox plannedResult: #ok.
+	self assert: self projectsPresenter selectedClass name = 'Fnoodly'.
+	self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_rowanTestsHierarchy [
+	
+	self testsIssue: #issue239 withTitle: 'long update times possible when selecting a package with `hierarchy` tab selected'.
+	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
+	self selectHierarchyTab.
+ 	self selectServicesNamed: #('Rowan-Tests') in: self packageListPresenter. "<-- infinite recursion occured here"
+	self assert: self projectsPresenter classListPresenter selections isEmpty.  
+	self selectTreeServicesNamed: (Array with: 'TestCase') in: self classHierarchyPresenter.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'TestCase'. 
+	self selectClassListTab.
+	self assert: self projectsPresenter classListPresenter selections isEmpty.  "TestCase not in project"
+	self selectHierarchyTab.
+	self assert: self projectsPresenter classListPresenter selections isEmpty.  
+	self selectTreeServicesNamed: (Array with: 'RwEditToolTest') in: self classHierarchyPresenter.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'RwEditToolTest'. 
+	self selectClassListTab.
+	self selectServicesNamed: (Array with: 'RwEditToolTest') in: self classListPresenter.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_saveClassCommentInClassList [
+	self selectRowanSample1Class.
+	self projectsPresenter selectCommentTab.
+	self assert: ('No class-specific documentation for RowanSample1, hierarchy is:*' match: self projectsPresenter classCommentPresenter value). 
+	self projectsPresenter classCommentPresenter value: 'testing'.
+	self projectsPresenter editSaveClassComment.
+	self selectHierarchyTab.
+	self projectsPresenter selectCommentTab.
+	self assert: self projectsPresenter classCommentPresenter value equals: 'testing'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_saveClassCommentInHierarchy [
+	self selectRowanSample1Class.
+	self selectHierarchyTab.
+	self projectsPresenter selectCommentTab.
+	self assert: ('No class-specific documentation for RowanSample1, hierarchy is:*' match: self projectsPresenter classCommentPresenter value).
+	self projectsPresenter classCommentPresenter value: 'this is a test'.
+	self projectsPresenter editSaveClassComment.
+	self selectClassTab.
+	self projectsPresenter selectCommentTab.
+	self assert: self projectsPresenter classCommentPresenter value equals: 'this is a test'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_selectionsRetainedFromClassListToHierarchy [
+	self testsIssue: #issue448 withTitle: 'Class selection not retained from Hierarchy->Class view'.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanAnsweringService' in: self classListPresenter.
+	self selectCategoryNamed: 'accessing'. 
+	self selectMethodNamed: #answer.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanAnsweringService'.
+	self assert: self categoryListPresenter selection equals: 'accessing'.
+	self assert: self methodListPresenter selection selector equals: #answer.
+	self projectsPresenter selectClassListTab.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanAnsweringService'.
+	self assert: self categoryListPresenter selection equals: 'accessing'.
+	self assert: self methodListPresenter selection selector equals: #answer.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanAnsweringService'.
+	self assert: self categoryListPresenter selection equals: 'accessing'.
+	self assert: self methodListPresenter selection selector equals: #answer.
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_selectionsRetainedFromHierarchyToClassList [
+	self testsIssue: #issue448 withTitle: 'Class selection not retained from Hierarchy->Class view'.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanService' in: self classListPresenter.
+	self selectHierarchyTab.
+	self selectClassInHierarchyNamed: 'RowanAnsweringService'.
+	self selectCategoryNamed: 'accessing'.
+	self selectMethodNamed: #answer.
+	self projectsPresenter selectClassListTab.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanAnsweringService'.
+	self assert: self categoryListPresenter selection equals: 'accessing'.
+	self assert: self methodListPresenter selection selector equals: #answer.
+	self selectHierarchyTab.
+	self selectCategoryNamed: 'accessing'.
+	self selectMethodNamed: #answer.
+	self projectsPresenter selectClassListTab.
+	self projectsPresenter selectClassListTab.
+	self assert: self projectsPresenter selectedClass name equals: 'RowanAnsweringService'.
+	self assert: self categoryListPresenter selection equals: 'accessing'.
+	self assert: self methodListPresenter selection selector equals: #answer.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_showMethodsFailingClassRecompilation [
+	"show a method list browser with as much compile information as possible"
+
+	| failService |
+	self testsIssue: #issue390 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'FailCompile'
+		superclass: 'Object'
+		instVars: #(#aaa)
+		package: 'RowanSample1-Core'.
+	
+	[self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self selectServiceNamed: 'FailCompile' in: self classListPresenter.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selection: 'aaa'.
+	self projectsPresenter addVariableAccessors.
+	self projectsPresenter classDefinitionPresenter
+		value: 'Object rwSubclass: ''FailCompile''
+	instVarNames: #(#bbb)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()'.
+	methodListBrowser := self projectsPresenter editSaveClass.
+	failService := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list
+				first.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	self assert: failService className = 'FailCompile'.
+	self assert: ('aaa*' match: failService selector).
+	self assert: failService category = 'other'.
+	self assert: ('*aaa*aaa*' match: failService source)]
+			ensure: 
+				[self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				methodListBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_simpleHierarchyTest [
+	"just make sure that we can select different classes and the hierarchy browser updates"
+
+	self selectRowanServicesPackage.
+	self selectServicesNamed: (Array with: 'RowanService') in: self classListPresenter.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'RowanService'.
+	self selectClassListTab.
+	self assert: self projectsPresenter classListPresenter selection name = 'RowanService'.
+	self selectServicesNamed: (Array with: 'RowanProjectService') in: self classListPresenter.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter classHierarchyPresenter selection name = 'RowanProjectService'.
+	self selectClassListTab.
+	self assert: self projectsPresenter classListPresenter selection name = 'RowanProjectService'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_stayOnDefinitionPaneAfterUnsavedChanges [
+	"The mouse events are ridiculously hacked-up. They may be brittle. 
+	Dolphin sends the unsaved changes check from the gui, not the underlying model change 
+	which makes it hard to test. "
+
+	| mouseEvent |
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestUnsavedChanges'
+		superclass: 'Object'
+		instVars: #(#aaa)
+		package: 'RowanSample1-Tests'.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selection: 'aaa'.
+	self projectsPresenter addVariableAccessors.
+	self selectMethodNamed: #aaa.
+	
+	[self projectsPresenter selectClassDefinitionTab.
+	self projectsPresenter classDefinitionPresenter
+		value: 'Object rwSubclass: ''TestUnsavedChanges''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Tests''
+	options: #()'.
+	self assert: self projectsPresenter classDefinitionPresenter view isModified.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.	"stay on definition pane"
+	mouseEvent := MouseEvent
+				window: self methodListPresenter view
+				message: 513
+				wParam: 1
+				lParam: 852058.
+	self methodListPresenter view onButtonPressed: mouseEvent.
+	self assert: self projectsPresenter classDefinitionPresenter view isModified.
+	self assert: self methodListPresenter selection selector equals: #aaa.
+	TestMessageBox plannedResult: #yes.	"stay on definition pane"
+	mouseEvent := MouseEvent
+				window: self methodListPresenter view
+				message: 513
+				wParam: 1
+				lParam: 2359362.
+	self methodListPresenter view onButtonPressed: mouseEvent.
+	self deny: self projectsPresenter classDefinitionPresenter view isModified.
+	self assert: self methodListPresenter selection selector equals: #aaa:]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_updateHierarchyAfterClassRecompile [
+	| selection |
+	self selectRowanSample1Test.
+	self selectHierarchyTab.
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'TestCase'
+		instVars: #('ab')
+		package: 'RowanSample1-Tests'.
+	
+	[selection := self classHierarchyPresenter selection.
+	self assert: selection name equals: 'RowanSample1Test'.
+	self assert: selection version equals: 2.
+	self assert: selection versions equals: 2.
+	self assert: self classHierarchyPresenter selection displayString equals: 'RowanSample1Test (2/2)'.
+	self assertClassDefinitionPaneMatches: 'TestCase rwSubclass: ''RowanSample1Test''']
+			ensure: 
+				["restore the class"
+				self
+					saveClass: 'RowanSample1Test'
+					superclass: 'TestCase'
+					instVars: #()
+					package: 'RowanSample1-Tests']
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_variablesTab [
+	"at least do something with the variables tab"
+
+	| selectedMethod methodListSize dictionaryBrowser variableSize |
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selection: 'variables'.
+	methodListSize := self methodListPresenter list size.
+	self denyIsNil: (selectedMethod := self methodListPresenter list
+						detect: [:service | service selector = #initializeVariablesFor:]
+						ifNone: []).
+	self methodListPresenter selection: selectedMethod.
+	methodListBrowser := JadePresenter browseImplementorsOf: 'allInstVarNames' session: session.	"selected method sends this"
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection
+				selector
+		equals: #allInstVarNames.
+	dictionaryBrowser := methodListBrowser primaryPresenter methodListPresenter browseClass.
+	[self assert: self methodListPresenter list size equals: methodListSize] ensure: 
+			[self destroy: dictionaryBrowser.
+			self destroy: methodListBrowser].
+	variableSize := self projectsPresenter variableListPresenter list size.
+	self selectHierarchyTab.
+	self assert: self projectsPresenter variableListPresenter list size equals: variableSize.
+	self assert: self projectsPresenter variableListPresenter selection equals: 'variables'.
+	self assert: self methodListPresenter selection equals: selectedMethod.	"assert selections & lists stay the same switching to hierarchy view ..."
+	self selectClassListTab.
+	self assert: self projectsPresenter variableListPresenter list size equals: variableSize.
+	self assert: self projectsPresenter variableListPresenter selection equals: 'variables'.
+	self assert: self methodListPresenter selection equals: selectedMethod	"... and back"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_variablesUpdatedOnClassSaveInClassList [
+	self testsIssue: #issue445 withTitle: '(3.0.63) class def / instance var oddities'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self
+		saveClass: 'TempClass'
+		superclass: 'Object'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self assert: self categoryListPresenter list isEmpty.
+	self projectsPresenter selectCategoryTab.
+	self
+		saveClass: 'TempClass'
+		superclass: 'Object'
+		instVars: #('aaa')
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self assert: self categoryListPresenter list size equals: 1.
+	self assert: (self categoryListPresenter list includes: 'aaa')
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserClassesTestCase >> test_variablesUpdatedOnClassSaveInHierarchy [
+	self testsIssue: #issue445 withTitle: '(3.0.63) class def / instance var oddities'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self selectHierarchyTab.
+	self
+		saveClass: 'TempClass'
+		superclass: 'Object'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self assert: self categoryListPresenter list isEmpty.
+	self projectsPresenter selectCategoryTab.
+	self
+		saveClass: 'TempClass'
+		superclass: 'Object'
+		instVars: #('aaa')
+		package: 'RowanSample1-Core'.
+	self projectsPresenter selectVariableTab.
+	self assert: self categoryListPresenter list size equals: 1.
+	self assert: (self categoryListPresenter list includes: 'aaa')
+]

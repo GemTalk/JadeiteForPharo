@@ -1,0 +1,3227 @@
+"
+Tests the Jadeite debugger. 
+
+It's recommended to run this set of tests with a fresh login to avoid counting stale processes. 
+"
+Class {
+	#name : 'JadeiteDebuggerTestCase',
+	#superclass : 'JadeiteDebuggerDataCuratorTestCase',
+	#category : 'JadeiteTests'
+}
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> badFileInString [
+
+	^
+'DoIt
+ Object subclass: ''BadClass''
+  instVarNames: #()
+  classVars: #()
+  classInstVars: #()
+  poolDictionaries: #()
+  inDictionary: UserGlobals
+  options: #()
+%
+method: BadClass
+iContainACompileError
+
+	^SomethingThatDoesNotExist at: #key ifAbsent: [42]
+%'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> firstFrameStartingWith: className [
+	^debugger frameListPresenter list detect: [:stackFrame | className , '*' match: stackFrame]
+		ifNone: [self error: 'Frame with class named ' , className , ' not found']
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> forkStepThrough [
+	| fork completed |
+	completed := false.
+	fork := 
+			[JadeiteDebugger semaphore: nil.
+			self debuggerDo: [debugger stepThrough].
+			completed := true]
+					fork.
+	(Delay forMilliseconds: 1) wait.
+	[fork isActive and: [completed not]] whileTrue: [(Delay forMilliseconds: 1) wait].
+	(Delay forMilliseconds: 500) wait
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> indexOfVariableNamed: aSymbol [
+	| variable |
+	variable := debugger variableListPresenter list detect: [:var | aSymbol = var key value] ifNone: [].
+	^debugger variableListPresenter list indexOf: variable
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> lastFrameStartingWith: className [
+	| selections |
+	selections := debugger frameListPresenter list
+				select: [:stackFrame | className , '*' match: stackFrame].
+	^selections last
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> processHeldOnServer: processOop [
+	^session
+		executeString: '((SessionTemps current at: #jadeiteProcesses) detect:[:process | process asOop = '
+				, processOop printString , '] ifNone: []) notNil'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> selectFirstFrameStartingWith: className [
+	| frame |
+	frame := self firstFrameStartingWith: className.
+	debugger frameListPresenter selection: frame
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> selectLastFrameStartingWith: className [
+	| frame |
+	frame := self lastFrameStartingWith: className.
+	debugger frameListPresenter selection: frame
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> setUp [
+	user := 'SystemUser'.
+	super setUp.
+	self closeDebuggers.
+	JadeiteDebugger debuggerClass: JadeiteDebugger.
+	JadeiteDebugger allInstances isEmpty ifTrue: [JadeiteDebugger semaphore: nil].
+	self assertIsNil: JadeiteDebugger semaphore.
+	self assert: session notNil.
+	session := GciSession current.
+	session userID = 'SystemUser'
+		ifFalse: 
+			["Running tests will not stop on assert. (Debugging tests does) Need to do a hard halt to determine how a test can login as the wrong user"
+			self haltTestForHardToCatchErrors: 'Debugger test is not logged in as SystemUser as expected'].
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> stepOutTwiceExpecting: aString [
+	| count |
+	self debuggerDo: [process := [debugger stepOut] forkAt: Processor activePriority + 1].
+	self getDebugger.
+	(Delay forMilliseconds: 50) wait.
+	self assert: debugger frameListPresenter selection
+		equals: 'Array (SequenceableCollection) >> select: @20 line 25'.	"step out to select:"
+	self debuggerDo: [process := [debugger stepOut] forkAt: Processor activePriority + 1].
+	self getDebugger.
+	(Delay forMilliseconds: 50) wait.
+	debugger variableListPresenter selectionByIndex: 5.
+	(Delay forMilliseconds: 50) wait.
+	[debugger variableListPresenter selectionByIndex = 5] whileFalse: 
+			[debugger variableListPresenter selectionByIndex: 5.
+			(Delay forMilliseconds: 1) wait].
+	(Delay forMilliseconds: 50) wait.
+	count := 0.
+	
+	[count := count + 1.
+	count >= 100
+		ifTrue: 
+			[^self assert: debugger variableDataPresenter value equals: aString	"didn't hit the string in 100 ms so fail the assertion to stop the test and show us what the values are"].
+	debugger variableDataPresenter value = aString]
+			whileFalse: [(Delay forMilliseconds: 1) wait].
+	self assert: debugger variableDataPresenter value equals: aString
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test1 [
+	"Basics of opening a debugger, viewing the UI, and resuming."
+
+	| x |
+	self 
+		openDebuggerOn: 'nil halt';
+		assert: (x := debugger errorMessagePresenter value) = 'a Halt occurred (error 2709)';
+		assert: (x := debugger processListPresenter list size) == 1;
+		assert: (x := debugger frameListPresenter list size) == 8;
+		assert: (x := debugger frameListPresenter selection) = 'Executed Code  @2 line 1';
+		assert: (x := debugger variableListPresenter list size) == 1;
+		assert: (x := debugger variableListPresenter list first) class == RowanVariableService;
+		assert: x oop == 20;
+		assert: x _key == #'receiver';
+		assert: x value = 'nil';
+		debuggerDo: [debugger resumeProcess];
+		assert: (x := debugger view) class == DeafObject;
+		yourself.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test2 [
+	"Stepping (note that 3.2.15 has some odd behaviors)"
+
+	self
+		openDebuggerOn: '| x | 
+nil halt.
+x := 1 + 2 * 3.
+1 == 1 ifTrue: [x := 1].
+1 to: 1 by: 1 do: [:i | x := i ].
+[x := 2] value.
+x yourself';
+		assert: debugger errorMessagePresenter value equals: 'a Halt occurred (error 2709)';
+		assert: debugger frameListPresenter selection equals: 'Executed Code  @2 line 2';
+		assert: debugger documentPresenter view selection equals: 'halt';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: '+ ';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: '* ';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: ':=';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: '==';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: 'ifTrue:';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection = ':=';
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection = 'to:';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection = ':=';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: 'to:';
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: 'value';
+		debuggerDo: [debugger stepInto];
+		assert: debugger documentPresenter view selection equals: 'x';
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepOut].	"will resume, stepping out of context"
+	debugger := nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test3 [
+	"browse stack class"
+
+	self
+		openDebuggerOn: '| x | 
+nil halt.
+x := 1 -> 2.
+x yourself';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: '->';
+		debuggerDo: [debugger stepInto];
+		debuggerDo: [projectsBrowser := debugger browseFrameMethod];
+		assert: projectsBrowser isKindOf: JadeiteBrowser.
+	
+	[self
+		assert: (self projectsPresenter classListPresenter selections
+					collect: [:classService | classService name])
+			equals: #('Object');
+		assert: self projectsPresenter methodListPresenter selection name equals: '->';
+		debuggerDo: [debugger resumeProcess]]
+			ensure: [projectsBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test4 [
+	"browse variable class"
+
+	| browser |
+	self
+		openDebuggerOn: '| x | 
+nil halt.
+x := 1 -> 2.
+x yourself';
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepOver];
+		assert: (self selectVariableNamed: #x) notNil;
+		debuggerDo: [projectsBrowser := debugger browseObjectClass];
+		assert: projectsBrowser isKindOf: JadeiteBrowser.
+	
+	[self
+		assert: (self projectsPresenter classListPresenter selections
+					collect: [:classService | classService name])
+			equals: #('Association');
+		debuggerDo: [debugger resumeProcess]]
+			ensure: [projectsBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test5 [
+	"browse implementors"
+
+	| browser list |
+	self 
+		openDebuggerOn: '| x | 
+nil halt.
+x := 1 -> 2.
+x yourself';
+		debuggerDo: [debugger stepOver];
+		assert: debugger documentPresenter view selection equals: '->';
+		debuggerDo: [debugger stepInto];
+
+		debuggerDo: [debugger browseImplementors];
+		assert: (browser := self methodListBrowser) notNil;
+		assert: (list := browser primaryPresenter methodListPresenter primaryPresenter list) notEmpty;
+		assert: list size < 10;
+
+		debuggerDo: [debugger resumeProcess];
+		yourself.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test6 [
+	"browse senders"
+
+	| browser list |
+	self
+		openDebuggerOn: '| x | 
+nil halt.
+x := 1 -> 2.
+x yourself';
+		assert: debugger documentPresenter view selection equals: 'halt'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: '->'.
+	self debuggerDo: [debugger stepInto].
+	self debuggerDo: [debugger browseSenders].
+	self assert: (browser := self methodListBrowser) notNil.
+	self assert: (list := browser primaryPresenter methodListPresenter primaryPresenter list) notEmpty.
+	self assert: list size > 10.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test7 [
+	"set/clear breakpoints"
+
+	| indicator |
+	self 
+		openDebuggerOn: '| x | 
+nil halt.
+x := 1 -> 2.
+x yourself';
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (12 to: 15);
+		assert: indicator styleName equals: #stepPoint;
+		assert: indicator tag = 'step point #2';
+
+		debuggerDo: [debugger methodSourcePresenter setBreakPointAt: 2 in: debugger];
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (12 to: 15);
+		assert: indicator styleName equals:  #breakPoint;
+		assert: indicator tag = 'Break at step point #2';
+
+		debuggerDo: [debugger methodSourcePresenter clearBreakPointAt: 2 in: debugger];
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (12 to: 15);
+		assert: indicator styleName equals:  #stepPoint;
+		assert: indicator tag = 'step point #2';
+
+		debuggerDo: [debugger resumeProcess];
+		yourself.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test8 [
+	"https://github.com/ericwinger/Jade/issues/20"
+
+	self
+		assert: JadeiteDebugger allInstances isEmpty;
+		debuggerDo: 
+				[process := 
+						[session
+							debugString: '#(abc def) do:[:symbol | symbol size]'
+							fromContext: nil
+							environment: 0]
+								fork];
+		getDebugger;
+		yourself.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> testBug77 [
+
+	| string view |
+	string := '"
+2 + 3
+x
+"
+| x |
+x := 4 + 8.
+x halt.
+'.
+	self 
+		openDebuggerOn: string;
+		assert: (view := debugger documentPresenter view) class equals: JadeiteScintillaView;
+		assert: (view selectionRange: (3 to: 7)) notNil;
+		"debuggerDo: [debugger jadeDisplay];
+		assert: view selection equals: ' 5';
+		halt;"
+		yourself.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocDebug [
+	| workspace |
+	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: '123'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger methodSourcePresenter documentPresenter value equals: '123'. 
+]
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocExecutionEvaluatesArgs [
+	self
+		saveMethod: 'testAdHocExecutionWith: arg1
+	| temp1 |
+	temp1 := arg1. 
+	self halt.
+	^temp1'
+		in: 'RowanSample1Test'
+		category: 'tests'.
+	
+	[self openDebuggerOn: 'RowanSample1Test new testAdHocExecutionWith: 1 '.
+	debugger methodSourcePresenter documentPresenter selectionRange: (53 to: 56).
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: 'arg1'.
+	debugger methodSourcePresenter documentPresenter view setFocus.
+	debugger methodSourcePresenter jadeDisplay.
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: ' 1']
+			ensure: [self removeMethodNamed: #testAdHocExecutionWith:]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocExecutionEvaluatesTemp [
+	self
+		saveMethod: 'testAdHocExecutionWith: arg1
+	| temp1 |
+	temp1 := arg1. 
+	self halt.
+	^temp1'
+		in: 'RowanSample1Test'
+		category: 'tests'.
+	
+	[self openDebuggerOn: 'RowanSample1Test new testAdHocExecutionWith: 1 '.
+	self selectVariableNamed: #arg1.
+	self assert: debugger variableListPresenter selection value equals: '1'.
+	self selectVariableNamed: #temp1.
+	self assert: debugger variableListPresenter selection value equals: '1'.
+	debugger methodSourcePresenter documentPresenter selectionRange: (44 to: 57).
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: 'temp1 := arg1.'.
+	debugger methodSourcePresenter documentPresenter replaceSelection: 'temp1 := 5.'.
+	debugger methodSourcePresenter documentPresenter selectionRange: (44 to: 53).
+	debugger methodSourcePresenter documentPresenter view setFocus.
+	debugger methodSourcePresenter executeSelectionOrLine.
+	debugger methodSourcePresenter documentPresenter selectionRange: (44 to: 48).
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: 'temp1'.
+	debugger methodSourcePresenter jadeDisplay.
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: ' 5']
+			ensure: [self removeMethodNamed: #testAdHocExecutionWith:]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocExecutionSelf [
+	| count | 
+	self openDebuggerOn: '''gloop'' halt'.
+	self selectFirstFrameStartingWith: 'String'.
+	debugger methodSourcePresenter documentPresenter value: 'self'.
+	debugger methodSourcePresenter documentPresenter view setFocus.
+	self debuggerDo: 
+			[
+			[debugger jadeDisplay.
+			debugger methodSourcePresenter documentPresenter view invalidate]
+					forkAt: Processor activePriority + 1].
+	count := 0. 
+	[debugger methodSourcePresenter documentPresenter value = 'self''gloop''' or: [count >= 100]]
+		whileFalse: [(Delay forMilliseconds: 10) wait. count := count + 1].
+	self assert: count <= 100. 
+	self assert: debugger methodSourcePresenter documentPresenter value equals: 'self''gloop'''.
+	debugger methodSourcePresenter documentPresenter view isModified: false
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocExecutionUpdatesVariablesList [
+	self
+		saveMethod: 'testAdHocExecutionWith: arg1
+	| temp1 |
+	temp1 := arg1. 
+	self halt.
+	^temp1'
+		in: 'RowanSample1Test'
+		category: 'tests'.
+	
+	[self openDebuggerOn: 'RowanSample1Test new testAdHocExecutionWith: 1 '.
+	self selectVariableNamed: #temp1.
+	self assert: debugger variableListPresenter selection value equals: '1'.
+	debugger methodSourcePresenter documentPresenter selectionRange: (44 to: 57).
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: 'temp1 := arg1.'.
+	debugger methodSourcePresenter documentPresenter replaceSelection: 'temp1 := 5.'.
+	debugger methodSourcePresenter documentPresenter selectionRange: (44 to: 53).
+	debugger methodSourcePresenter documentPresenter view setFocus.
+	debugger methodSourcePresenter executeSelectionOrLine.
+	self selectVariableNamed: #temp1.
+	self assert: debugger variableListPresenter selection value equals: '5']
+			ensure: [self removeMethodNamed: #testAdHocExecutionWith:]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocVariablePaneDisplay [
+	| count | 
+	self openDebuggerOn: 'self halt'.
+	self assert: debugger variableDataPresenter value equals: String new.
+	debugger variableDataPresenter value: '#abc'.
+	self debuggerDo: 
+			[
+			[debugger jadeDisplay.
+			debugger methodSourcePresenter documentPresenter view invalidate]
+					forkAt: Processor activePriority + 1].
+	count := 0. 
+	[debugger variableDataPresenter value = '#abc#''abc''' or: [count >= 100]]
+		whileFalse: [(Delay forMilliseconds: 10) wait. count := count + 1].
+	self assert: count <= 100. 
+	self assert: debugger variableDataPresenter value equals: '#abc#''abc'''.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocVariablePaneExecute [
+	| index |
+	self openDebuggerOn: '| abc | abc := 123. self halt. abc := 234'.
+	index := self indexOfVariableNamed:  #abc.
+	self assert: (debugger variableListPresenter list at: index) _key equals: #abc.
+	self assert: (debugger variableListPresenter list at: index) value equals: '123'.
+	self assert: debugger variableDataPresenter value equals: String new.
+	debugger variableDataPresenter value: 'abc := 567'.
+	self debuggerDo: [debugger jadeExecute].
+	self assert: (debugger variableListPresenter list at: index) value equals: '567'.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocVariablePaneInspect [
+	| inspector inspectorOpen |
+	self openDebuggerOn: 'self halt'.
+	self assert: debugger variableDataPresenter value equals: String new.
+	debugger variableDataPresenter value: '#abc'.
+	inspectorOpen := false.
+	
+	[inspector := debugger jadeInspect.
+	inspectorOpen := true.
+	[self assert: inspector documentPresenter value equals: '#''abc'''] ensure: [inspector view close]]
+			fork.
+	[inspectorOpen] whileFalse: [(Delay forMilliseconds: 10) wait].
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_adHocVariablePaneInspect2 [
+	| inspector inspectorOpen |
+	self openDebuggerOn: 'self halt'.
+	self assert: debugger variableDataPresenter value equals: String new.
+	debugger variableDataPresenter value: 'OrderedCollection with: 1 with: 2'.
+	inspectorOpen := false.
+	
+	[inspector := debugger jadeInspect.
+	inspectorOpen := true.
+	[self assert: inspector documentPresenter value equals: 'anOrderedCollection( 1, 2)']
+		ensure: [inspector view close]]
+			fork.
+	[inspectorOpen] whileFalse: [(Delay forMilliseconds: 10) wait].
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_additionalAccelerators [
+	"No way yet to adequately test accelerators function
+	but we can assert that we tell Dolphin to set them up"
+
+	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
+	self testsIssue: #issue762
+		withTitle: 'Debug-it in debugger / missing menu item, failure on up arrow, and error dialog (3.1pr3)'.
+	self openDebuggerOn: 'self halt'.
+	self assert: (debugger additionalAccelerators includes: #(#reformatSource 'Ctrl+Shift+O')).
+	self assert: (debugger additionalAccelerators includes: #(#jadeDebug 'Ctrl+B')).
+	self assert: debugger additionalAccelerators size equals: 3	"should fail if we add a new one"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_badCompileInDebugger [
+	| source |
+	self testsIssue: #issue219 withTitle: 'error when saving source with compile error in debugger'.
+	self saveMethodWithHalt.
+	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
+	[debugger frameListPresenter list size <= 0] whileTrue: [(Delay forMilliseconds: 100) wait].
+	self assert: debugger frameListPresenter selection
+		equals: 'RowanSample1 >> sampleMethodWithHalt @3 line 3'.
+	source := 'sampleMethodWithHalt
+		"this code will fail compile"
+		| array  | 
+		array := Array with: .
+		^array'.
+	debugger methodSourcePresenter documentPresenter value: source.
+	debugger saveMethod.
+	self assert: self statusBarValue equals: 'expected a primary expression'.
+	self assert: debugger methodSourcePresenter documentPresenter view backcolor
+		equals: JadeiteTextStyles default colorForCompileError.
+	source := 'sampleMethodWithHalt
+		"this code will fail compile"
+		array := Array with: 1.'.
+	debugger methodSourcePresenter documentPresenter value: source.
+	debugger saveMethod.
+	self assert: self statusBarValue equals: 'undefined symbol'.
+	self assert: debugger methodSourcePresenter documentPresenter view backcolor
+		equals: JadeiteTextStyles default colorForCompileError.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_breakpointDisabledHighlighting [
+	| indicator |
+	self testsIssue: #issue607 withTitle: 'Debugger does not have correct breakpoint display (3.0.84)'.
+	self enableBreakpoints.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self setBreakAt: 2.
+	
+	[self openDebuggerOn: 'RowanSample1Test new test1'.
+	self disableBreakpoints.
+	self selectFrameAt: 2.	"remove these two lines when debugger updates bp enabled state automagically"
+	self selectFrameAt: 1.
+	self
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (35 to: 37);
+		assert: indicator styleName = #disabledBreakPoint;
+		assert: indicator tag = 'Break at step point #2']
+			ensure: 
+				[self clearBreakAt: 2.
+				self enableBreakpoints.
+				self debuggerDo: [debugger resumeProcess]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_breakpointHighlighting [
+	| indicator |
+	self testsIssue: #issue607 withTitle: 'Debugger does not have correct breakpoint display (3.0.84)'.
+	self enableBreakpoints.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self setBreakAt: 2.
+	
+	[self openDebuggerOn: 'RowanSample1Test new test1'.
+	self
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (35 to: 37);
+		assert: indicator styleName = #breakPoint;
+		assert: indicator tag = 'Break at step point #2']
+			ensure: 
+				[self clearBreakAt: 2.
+				self debuggerDo: [debugger resumeProcess]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_breakpointHighlightingInBlocks [
+	| sourcePresenter |
+	self createTestMethodWithBreakpoints.
+	self openDebuggerOn: 'RowanSample1Test new test_highlightBreaks'.
+	
+	[self assert: debugger frameListPresenter selection
+		equals: '[] in RowanSample1Test >> test_highlightBreaks @22 line 14'.
+	sourcePresenter := debugger methodSourcePresenter documentPresenter.
+	self assert: sourcePresenter selectionRange equals: (245 to: 248).
+	self assert: sourcePresenter selection equals: 'add:'.
+	self assert: (sourcePresenter view styleIdAt: 244) equals: 0.	"no breakpoint indicator + blue text"
+	(245 to: 248)
+		do: [:idx | self deny: (sourcePresenter view styleIdAt: idx) equals: 0	"breakpoint indicator + blue text"].
+	self assert: (sourcePresenter view styleIdAt: 249) equals: 0.
+	self assert: (sourcePresenter view styleIdAt: 295) equals: 0.
+	(296 to: 299) do: [:idx | self deny: (sourcePresenter view styleIdAt: idx) equals: 0].
+	self assert: (sourcePresenter view styleIdAt: 300) equals: 0.
+	self assert: (sourcePresenter view styleIdAt: 330) equals: 0.
+	(331 to: 332) do: [:idx | self deny: (sourcePresenter view styleIdAt: idx) equals: 0].	"breakpoint indicator + black text"
+	self assert: (sourcePresenter view styleIdAt: 333) equals: 0.
+	self projectsPresenter clearMethodBreakpoints]
+			ensure: [projectsBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseClass [
+	| browser |
+	self testsIssue: #issue169 withTitle: 'Debugger menu option Browse Class broken'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self saveIssue169Method.
+	self openDebuggerOn: 'RowanSample1 new issue169'.
+	debugger documentPresenter view selectionRange: (81 to: 85).
+	self debuggerDo: [browser := debugger methodSourcePresenter browseSelectedClass].
+	
+	[self assert: (browser isKindOf: JadeiteBrowserPresenter).
+	self assert: browser classListPresenter selection name = 'Rowan']
+			ensure: [self destroy: browser].
+	debugger documentPresenter view selectionRange: (105 to: 110).
+	self debuggerDo: [browser := debugger methodSourcePresenter browseSelectedClass].
+	
+	[self assert: (browser isKindOf: JadeiteBrowserPresenter).
+	self assert: ('*String*' match: browser selectedClasses first name)]
+			ensure: [self destroy: browser].
+	debugger documentPresenter view selectionRange: (119 to: 128).
+	self debuggerDo: [browser := debugger methodSourcePresenter browseSelectedClass].
+	
+	[self assert: (browser isKindOf: JadeiteBrowserPresenter).
+	self assert: browser selectedClassName equals: 'TranscriptStreamPortable']
+			ensure: 
+				[self destroy: browser.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseClassVariablePane [
+	self testsIssue: #issue192
+		withTitle: 'Oscar-3.0.40: `browse object class` menu item in inspector (debugger) opens dictionary browser...'.
+	self openDebuggerOn: 'nil halt. OrderedCollection with: RowanClassService new'.
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepOver].	"on with:"
+	self debuggerDo: [debugger stepInto].
+	self selectVariableNamed: #receiver.
+	self assert: debugger variableDataPresenter value equals: 'OrderedCollection'.
+	projectsBrowser := debugger browseObjectClass.
+	
+	[self assert: (projectsBrowser isKindOf: JadeiteBrowser).
+	self assert: projectsBrowser currentCard classListPresenter selection name
+		equals: 'OrderedCollection'	"receiver is OrderedCollection class"]
+			ensure: [projectsBrowser view close].
+	self selectVariableNamed: #aValue.
+	self assert: debugger variableDataPresenter value equals: 'aRowanClassService:nil'.
+	projectsBrowser := debugger browseObjectClass.
+	
+	[self assert: (projectsBrowser isKindOf: JadeiteBrowser).
+	self assert: projectsBrowser currentCard classListPresenter selection name
+		equals: 'RowanClassService'	"receiver is OrderedCollection class"]
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseFrameClassMethod [
+	| browser |
+	self testsIssue: #issue774
+		withTitle: 'Disable Browse* debugger frame list menu options if method not visible'.
+	self saveMethodWithHalt.
+	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
+	self selectFrameAt: debugger frameListPresenter list size.
+	self assert: debugger frameListPresenter selection
+		equals: 'GsNMethod class >> _gsReturnToC @1 line 11'.
+	browser := debugger browseFrameMethod.
+	
+	[self assert: browser isKindOf: JadeiteBrowser.
+	self assert: browser currentCard classListPresenter selection name equals: 'GsNMethod'.
+	self assert: browser currentCard methodListPresenter selection selector equals: #_gsReturnToC]
+			ensure: [self destroy: browser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseFrameMethod [
+	| browser |
+	self saveMethodWithHalt.
+	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
+	self selectFirstFrameStartingWith: 'Array'.	"#halt sent to Array but actually implemented by Object, hence the test for Object later"
+	browser := debugger browseFrameMethod.
+	
+	[self assert: browser isKindOf: JadeiteBrowser.
+	self assert: browser currentCard classListPresenter selection name equals: 'Object'.
+	self assert: browser currentCard methodListPresenter selection selector equals: #halt]
+			ensure: [browser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseFrameMethodInBlock [
+	| browser source |
+	self testsIssue: #issue287
+		withTitle: '(3.0.50) debugger "browse" menu disabled when on frame on nested block ...'.
+	source := 'testBlockMenuItems
+
+	[ | def |
+	def := Array new.
+	def add: #abc; add: 2. 
+	def size; halt. 
+	] value.'.
+	self
+		saveMethod: source
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
+	self assert: ('[] in RowanSample1Test >> testBlockMenuItems @11 line 6'
+				match: debugger frameListPresenter selection).
+	browser := debugger browseFrameMethod.
+	
+	[self assert: browser isKindOf: JadeiteBrowser.
+	self assert: browser currentCard classListPresenter selection name equals: 'RowanSample1Test'.
+	self assert: browser currentCard methodListPresenter selection selector equals: #testBlockMenuItems]
+			ensure: [browser view close].
+	self selectFirstFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: ('RowanSample1Test >> testBlockMenuItems*' match: debugger frameListPresenter selection).
+	browser := debugger browseFrameMethod.
+	
+	[self assert: browser isKindOf: JadeiteBrowser.
+	self assert: browser currentCard classListPresenter selection name equals: 'RowanSample1Test'.
+	self assert: browser currentCard methodListPresenter selection selector equals: #testBlockMenuItems]
+			ensure: [browser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseFrameMethodInExistingBrowser [
+	| browser |
+	browser := JadeiteBrowser showOnSession: session.
+	
+	[self assert: browser cardsPresenter subPresenters size = 1.
+	self saveMethodWithHalt.
+	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
+	self selectFirstFrameStartingWith: 'Array'.	"#halt sent to Array but actually implemented by Object, hence the test for Object later"
+	debugger browseFrameMethodInExistingBrowser.
+	self assert: browser cardsPresenter subPresenters size = 2.
+	self assert: browser currentCard classListPresenter selection name equals: 'Object'.
+	self assert: browser currentCard methodListPresenter selection selector equals: #halt]
+			ensure: [self destroy: browser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseImplementorsInBlock [
+	| browser source |
+	self testsIssue: #issue287
+		withTitle: '(3.0.50) debugger "browse" menu disabled when on frame on nested block ...'.
+	source := 'testBlockMenuItems
+
+	[ | def |
+	def := Array new.
+	def add: #abc; add: 2. 
+	def size; halt. 
+	] value.'.
+	self
+		saveMethod: source
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
+	self assert: ('[] in RowanSample1Test >> testBlockMenuItems @11 line 6'
+				match: debugger frameListPresenter selection).
+	browser := debugger browseImplementors.
+	
+	[self assert: browser isKindOf: JadeiteMethodListBrowser.
+	self assert: browser primaryPresenter methodListPresenter methodListPresenter selection selector
+		equals: #testBlockMenuItems.
+	self assert: ('Implementors *' match: browser topShell view caption)]
+			ensure: [browser view close].
+	self selectFirstFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: ('RowanSample1Test >> testBlockMenuItems*' match: debugger frameListPresenter selection).
+	browser := debugger browseImplementors.
+	
+	[self assert: browser isKindOf: JadeiteMethodListBrowser.
+	self assert: browser primaryPresenter methodListPresenter methodListPresenter selection selector
+		equals: #testBlockMenuItems.
+	self assert: ('Implementors *' match: browser topShell view caption)]
+			ensure: [browser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseSelectedFrameClassMethod [
+	| methodListBrowser |
+	self testsIssue: #issue774
+		withTitle: 'Disable Browse* debugger frame list menu options if method not visible'.
+	self saveMethodWithHalt.
+	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
+	self selectFrameAt: debugger frameListPresenter list size.
+	self assert: debugger frameListPresenter selection
+		equals: 'GsNMethod class >> _gsReturnToC @1 line 11'.
+	methodListBrowser := debugger browseSelectedMethod.
+	
+	[self assert: methodListBrowser isKindOf: JadeiteMethodListBrowser.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection
+				className
+		equals: 'GsNMethod'.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection
+				selector
+		equals: #_gsReturnToC]
+			ensure: [self destroy: methodListBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseSelectedFrameMethod [
+	| methodListBrowser |
+	self testsIssue: #issue740
+		withTitle: 'nice to have `Browse selected method` menu item in debugger, too'.
+	self openDebuggerOn: 'self halt'.
+	self selectFirstFrameStartingWith: 'UndefinedObject'.
+	methodListBrowser := debugger browseSelectedMethod.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection
+				selector
+		equals: #halt
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseSelectedFrameMethodClassSide [
+	|  methodListBrowser |
+	self testsIssue: #issue740
+		withTitle: 'nice to have `Browse selected method` menu item in debugger, too'.
+	self testsIssue: #issue765 withTitle: 'Debugger Browse Selected Method error on lower methods in stack (3.1pr3)'. 
+	self openDebuggerOn: 'RowanClassService halt; forClassNamed: ''RowanLoggingService'''. 
+	debugger stepOver.
+	debugger stepInto. 
+	debugger frameListPresenter selectionByIndex: 1.
+	methodListBrowser := debugger browseSelectedMethod .
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection selector equals: #forClassNamed:
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_browseSendersInBlock [
+	| browser source |
+	self testsIssue: #issue287
+		withTitle: '(3.0.50) debugger "browse" menu disabled when on frame on nested block ...'.
+	source := 'test1
+	self testBlockMenuItems'.
+	self
+		saveMethod: source
+		in: 'RowanSample1Test'
+		category: 'tests'.
+	source := 'testBlockMenuItems
+
+	[ | def |
+	def := Array new.
+	def add: #abc; add: 2. 
+	def size; halt. 
+	] value.'.
+	self
+		saveMethod: source
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
+	self
+		assert: ('[] in RowanSample1Test >> testBlockMenuItems*' match: debugger frameListPresenter selection).
+	browser := debugger browseSenders.
+	
+	[self assert: browser isKindOf: JadeiteMethodListBrowser.
+	self assert: browser primaryPresenter methodListPresenter methodListPresenter selection selector
+		equals: #test1.
+	self assert: ('Senders *' match: browser topShell view caption)]
+			ensure: [browser view close].
+	self selectFirstFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: ('RowanSample1Test >> testBlockMenuItems*' match: debugger frameListPresenter selection).
+	browser := debugger browseSenders.
+	
+	[self assert: browser isKindOf: JadeiteMethodListBrowser.
+	self assert: browser primaryPresenter methodListPresenter methodListPresenter selection selector
+		equals: #test1.
+	self assert: ('Senders *' match: browser topShell view caption)]
+			ensure: [browser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_bug74 [
+	"Open debugger on method with breakpoint"
+
+	session executeString: '(Repository compiledMethodAt: #pageSize) setBreakAtStepPoint: 2'.
+	self
+		openDebuggerOn: 'SystemRepository pageSize';
+		assert: debugger documentPresenter view selection equals: 'zeroArgPrim:50';
+		yourself.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_compileError [
+	self testsIssue: #issue353
+		withTitle: 'Debugger has inferior status bar, and opens dialog for unused temps (3.0.74)'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'testCompileError
+
+	self assert: true'
+		in: 'RowanSample1Test'
+		category: 'tests'.
+	self selectServiceNamed: 'testCompileError' in: self methodListPresenter.
+	self projectsPresenter setBreakPointAt: 2 in: self projectsPresenter.
+	
+	[self openDebuggerOn: 'RowanSample1Test new testCompileError'.
+	debugger documentPresenter value: 'testCompileError
+
+	self assert: '''.
+	self debuggerDo: [debugger saveMethod].
+	self assert: debugger methodSourcePresenter documentPresenter view selectionRange
+		equals: (24 to: 34).
+	self assert: debugger statusBarText
+		equals: 'missing end of literal mark (prime); expected a primary expression'.
+	self assert: debugger statusTextPresenter view backcolor equals: Color red faded.
+	debugger documentPresenter value: 'testCompileError
+	| warning |
+	self assert: true'.
+	self debuggerDo: [debugger saveMethod].
+	self assert: ('WARNING: unused method temp ''warning''*' match: debugger statusBarText).
+	self assert: debugger statusTextPresenter view backcolor equals: Color yellow faded]
+			ensure: [JadePresenter clearAllBreaksIn: session]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_compileInExecutedBlock [
+	self testsIssue: #issue498
+		withTitle: 'Would like to be able to compile method in debugger when block frame selected'.
+	self openProjectBrowser.
+	
+	[self selectRowanSample1Test.
+	self
+		saveMethod: 'eek
+
+	#(1 2 3) do:[:idx |
+		self halt].'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	
+	[self openDebuggerOn: 'RowanSample1Test new eek'.
+	debugger documentPresenter value: 'eek
+
+	#(1 2 3) do:[:idx |
+		self]'.
+	self debuggerDo: [debugger saveMethod].
+	self assert: debugger frameListPresenter selectionByIndex equals: 1.
+	self assert: (debugger frameListPresenter list at: 1) equals: 'RowanSample1Test >> eek @1 line 1']
+			ensure: [self projectsPresenter basicRemoveMethods]]
+			ensure: [projectsBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_compileInExecutedBlockFailsWhenNoHomeMethod [
+	self testsIssue: #issue498
+		withTitle: 'Would like to be able to compile method in debugger when block frame selected'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[self openDebuggerOn: '#(1 2 3) do:[:idx | self halt].'.
+	self assert: ('[] in Executed Code  * line *' match: (debugger frameListPresenter selection)).
+	debugger documentPresenter value: '#(1 2 3) do:[:idx | self].'.
+	TestMessageBox plannedResult: 'ok'.
+	debugger saveMethod.
+	self assert: ('[] in Executed Code  * line *' match: (debugger frameListPresenter selection))]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_compileInExecutedBlockSameSelectorOnStack [
+	self testsIssue: #issue498
+		withTitle: 'Would like to be able to compile method in debugger when block frame selected'.
+	self openProjectBrowser.
+	
+	[self selectRowanSample1Test.
+	self
+		saveMethod: 'doSomething
+
+	#(1 2 3) do: [:idx | 
+			RowanSample1 new doSomething halt]'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self selectRowanSample1Class.
+	self
+		saveMethod: 'doSomething
+
+	#(1 2 3) do:[:idx |
+		self halt]'
+		in: 'RowanSample1'
+		category: 'other'.
+	
+	[self openDebuggerOn: 'RowanSample1Test new doSomething'.
+	self assert: debugger frameListPresenter selection
+		equals: '[] in RowanSample1 >> doSomething @6 line 4'.
+	self assert: (self firstFrameStartingWith: 'RowanSample1Test')
+		equals: 'RowanSample1Test >> doSomething @2 line 3'.
+	debugger documentPresenter value: 'doSomething
+	#(1 2 3) do:[:idx |
+		self]'.
+	self debuggerDo: [debugger saveMethod].
+	self assert: debugger frameListPresenter selectionByIndex equals: 1.
+	self assert: (debugger frameListPresenter list at: 1)
+		equals: 'RowanSample1 >> doSomething @1 line 1'.
+	self assert: (debugger frameListPresenter list at: 4)
+		equals: 'RowanSample1Test >> doSomething @2 line 3']
+			ensure: [self projectsPresenter basicRemoveMethods]]
+			ensure: [projectsBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_contextMenu [
+	| error time view |
+	self testsIssue: #issue68 withTitle: 'Debuggers (old and new) text panes get error on popup menu'.
+	ShortcutMenuStatus reset.
+	self openDebuggerOn: 'nil halt'.
+	view := debugger documentPresenter view.
+	
+	[| counter |
+	counter := 0.
+	[ShortcutMenuStatus status isNil] whileTrue: [(Delay forMilliseconds: 10) wait].
+	self assert: ShortcutMenuStatus isOpen.
+	
+	[counter := counter + 1.
+	(Delay forMilliseconds: 100) wait.
+	ShortcutMenuStatus isOpen and: [counter <= 10]]
+			whileTrue: [self keyDownEscapeIn: view	"WM_KEYDOWN"	"VK_ESCAPE"	"WM_KEYUP"	"VK_ESCAPE"].
+	Transcript show: '
+testContextMenu - counter = ' , counter printString]
+			fork.
+	self pressButtonIn: view.	"WM_RBUTTONDOWN"	" (300 @ 100) "	"WM_RBUTTONUP"
+	time := Time millisecondClockValue + 2000.
+	
+	[SessionManager current inputState loopWhile: 
+			[(Delay forMilliseconds: 1) wait.
+			"menu wasn't always closing. These transcript writes seem to poke it into shutting down ... somehow" 
+			Transcript
+				cr;
+				show: 'time: ';
+				print: time;
+				tab;
+				show: 'clock: ';
+				print: Time millisecondClockValue;
+				flush.
+			ShortcutMenuStatus isClosed not and: [Time millisecondClockValue < time]]]
+			on: Error
+			do: 
+				[:ex |
+				error := ex.
+				ex return].
+	self assert: error isNil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_copyFrameString [
+	| frameListSelection |
+	self testsIssue: #issue704
+		withTitle: 'would be nice to be able get a copy the selected frame printstring'.
+	self openDebuggerOn: 'self halt'.
+	frameListSelection := debugger frameListPresenter selection.
+	debugger copyFrameString.
+	self assert: Clipboard current getText equals: frameListSelection
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_copyNotifierStack [
+	| notifierShell copiedStack |
+	[RowanAnsweringService new exec: '1 zork' in: session] on: Error
+		do: [:ex | notifierShell := JadeErrorShell new gsError: ex].
+	copiedStack := notifierShell doCopy.
+	self assert: ('a MessageNotUnderstood*' match: copiedStack).
+	self assert: Clipboard current getText equals: copiedStack
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debugCodeWithLeadingLineReturns [
+	| workspace |
+	self testsIssue: #issue531 withTitle: 'debug-it on ad hoc expression not working'.
+	
+	[workspace := (JadeiteWorkspace showOnSession: session) caption: 'Jade Workspace - Test #531'.
+	workspace codePane documentPresenter
+		value: '
+
+| var i |
+	var := WriteStream on: String new.
+	i := 2.
+	[i > 0] whileTrue: [
+			i := i - 1. 
+			var nextPut: (Character withValue: 70 - i).
+			].
+    var contents'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger isKindOf: JadeiteDebugger	"just opening the debugger tests the bug fix"]
+			ensure: [workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debugCodeWithLeadingLineReturnsLF [
+	| workspace |
+	self testsIssue: #issue531 withTitle: 'debug-it on ad hoc expression not working'.
+	
+	[workspace := (JadeiteWorkspace showOnSession: session) caption: 'Jade Workspace - Test #531'.
+	workspace codePane documentPresenter
+		value: '
+
+| var i |
+	var := WriteStream on: String new.
+	i := 2.
+	[i > 0] whileTrue: [
+			i := i - 1. 
+			var nextPut: (Character withValue: 70 - i).
+			].
+    var contents'
+				replaceCrLfWithLf.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger isKindOf: JadeiteDebugger	"just opening the debugger tests the bug fix"]
+			ensure: [workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debugCodeWithLeadingTab [
+	| workspace |
+	self testsIssue: #issue531 withTitle: 'debug-it on ad hoc expression not working'.
+	
+	[workspace := (JadeiteWorkspace showOnSession: session) caption: 'Jade Workspace - Test #531'.
+	workspace codePane documentPresenter
+		value: '	| var i |
+	var := WriteStream on: String new.
+	i := 2.
+	[i > 0] whileTrue: [
+			i := i - 1. 
+			var nextPut: (Character withValue: 70 - i).
+			].
+    var contents'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger isKindOf: JadeiteDebugger	"just opening the debugger tests the bug fix"]
+			ensure: [workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debugFromWithinInspector [
+	| remoteObject inspector |
+	remoteObject := session
+				executeString: '''abc'''
+				fromContext: nil
+				environment: 0.
+	inspector := JadeInspector showOn: remoteObject session: session.
+	
+	[inspector documentPresenter value: 'self size'.
+	inspector documentPresenter view selectAll.
+	inspector documentPresenter view setFocus.
+	JadeiteDebugger allInstances do: [:each | self assert: (each view isKindOf: DeafObject) not].
+	self
+		debuggerDo: [process := [inspector codePane jadeDebug] forkAt: Processor activePriority + 1];
+		getDebugger.
+	self assert: debugger model value equals: 'self size']
+			ensure: [inspector view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debuggerDoesNotFreeze1 [
+	"tests one of the many ways the debugger would freeze the gui. If test completes
+	we didn't freeze."
+
+	| workspace |
+	self testsIssue: #issue927 withTitle: '[3.2.9] Concurrent debuggers can hang Jadeite'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace
+		setDocumentData: '{ Date today } collect: [:aDay |
+		aDay asString = ''asdf''
+			ifFalse: [self error: ''wrong value''].
+		].'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane documentPresenter view selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	8 timesRepeat: 
+			["We fork the stepThrough because the debugger will encounter an error in the debugged code.
+			The debugger then unceremoniously kills the activeProcess which in this case is the test process
+			if it weren't forked. Then the test wouldn't finish. "
+			self forkStepThrough]]
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debuggerDoesNotFreeze2 [
+	"tests one of the many ways the debugger would freeze the gui. If test completes
+	we didn't freeze."
+
+	| workspace debuggersDestroyed |
+	self testsIssue: #issue927 withTitle: '[3.2.9] Concurrent debuggers can hang Jadeite'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: 'Array new: 1'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane documentPresenter view selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	debugger variableDataPresenter value: 'String new halt'.
+	debugger variableDataPresenter view selectAll.
+	[debugger jadeExecute] fork.
+	self getSecondDebugger.
+	self assert: (secondDebugger isKindOf: JadeiteDebugger).
+	debuggersDestroyed := false.
+	
+	[self destroy: debugger.
+	self destroy: secondDebugger.
+	debuggersDestroyed := true] fork.
+	[debuggersDestroyed] whileFalse: [(Delay forMilliseconds: 50) wait].
+	workspace setDocumentData: '#foo'.
+	workspace codePane documentPresenter setFocus.
+	workspace codePane documentPresenter view selectAll.
+	workspace codePane jadeDisplay.
+	self assert: workspace codePane documentPresenter value = '#foo #''foo''']
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debuggerDoesNotFreeze3 [
+	"tests one of the many ways the debugger would freeze the gui. If test completes
+	we didn't freeze."
+
+	| workspace debuggerDestroyed |
+	self testsIssue: #issue927 withTitle: '[3.2.9] Concurrent debuggers can hang Jadeite'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace
+		setDocumentData: '{ Date today } collect: [:aDay |
+		aDay asString = ''asdf''
+			ifFalse: [self error: ''wrong value''].
+		].'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane documentPresenter view selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	6 timesRepeat: 
+			["We fork the stepThrough because the debugger will encounter an error in the debugged code.
+			The debugger then unceremoniously kills the activeProcess which in this case is the test process
+			if it weren't forked. Then the test wouldn't finish. "
+			self forkStepThrough].
+	debugger stepInto.
+	8 timesRepeat: 
+			["just don't freeze up"
+			self forkStepThrough].
+	debuggerDestroyed := false.
+	
+	[self destroy: debugger.
+	debuggerDestroyed := true] fork.
+	[debuggerDestroyed] whileFalse: [(Delay forMilliseconds: 50) wait].
+	workspace setDocumentData: '#foo'.
+	workspace codePane documentPresenter setFocus.
+	workspace codePane documentPresenter view selectAll.
+	workspace codePane jadeDisplay.
+	self assert: workspace codePane documentPresenter value = '#foo #''foo''']
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debuggerDoesNotFreeze4 [
+	"tests one of the many ways the debugger would freeze the gui. If test completes
+	we didn't freeze."
+
+	| workspace debuggersDestroyed |
+	self testsIssue: #issue927 withTitle: '[3.2.9] Concurrent debuggers can hang Jadeite'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: 'Array new: 1'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane documentPresenter view selectAll.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	debugger documentPresenter value: debugger documentPresenter value , ' randomText'.
+	debuggersDestroyed := false.
+	
+	[self destroy: debugger.
+	debuggersDestroyed := true] fork.
+	[debuggersDestroyed] whileFalse: [(Delay forMilliseconds: 50) wait].
+	workspace setDocumentData: '#foo'.
+	workspace codePane documentPresenter setFocus.
+	workspace codePane documentPresenter view selectAll.
+	workspace codePane jadeDisplay.
+	self assert: workspace codePane documentPresenter value = '#foo #''foo''']
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debuggerModifiedSourcePaneChangeFrame [
+	self testsIssue: #issue120 withTitle: 'Debugger, edits in text, copy to clipboard, get error'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[self openDebuggerOn: 'nil halt'.
+	[debugger frameListPresenter list size <= 0] whileTrue: [(Delay forMilliseconds: 100) wait].
+	self assert: debugger frameListPresenter selection equals: 'Executed Code  @2 line 1'.
+	debugger methodSourcePresenter documentPresenter value: 'new text'.
+	debugger methodSourcePresenter documentPresenter view isModified: true.
+	TestMessageBox plannedResult: #yes.	
+	[self selectFrameAt: 2] forkAt: Processor activePriority + 1.	"Fork so that the tests' error handler doesn't catch the expected error raised in #selectedFrame"
+	self assert: debugger frameListPresenter selectionByIndex equals: 2]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_debuggerModifiedSourcePaneStayOnFrame [
+	self testsIssue: #issue120 withTitle: 'Debugger, edits in text, copy to clipboard, get error'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[self openDebuggerOn: 'nil halt'.
+	[debugger frameListPresenter list size <= 0] whileTrue: [(Delay forMilliseconds: 100) wait].
+	self assert: debugger frameListPresenter selection equals: 'Executed Code  @2 line 1'.
+	debugger methodSourcePresenter documentPresenter value: 'new text'.
+	debugger methodSourcePresenter documentPresenter view isModified: true.
+	TestMessageBox plannedResult: #no.	"answer that we want to stay on frame"
+	[self selectFrameAt: 2] forkAt: Processor activePriority + 1.	"Fork so that the tests' error handler doesn't catch the expected error raised in #selectedFrame"
+	self assert: debugger frameListPresenter selection equals: 'Executed Code  @2 line 1'. "did not change frames"]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_disablebreakpointHighlighting [
+	| indicator |
+	self testsIssue: #issue606
+		withTitle: 'On breakpoint enable/disable, breakpoint/method list browsers not updated (3.0.84)'.
+	self enableBreakpoints.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self setBreakAt: 2.
+	
+	[self openDebuggerOn: 'RowanSample1Test new test1'.
+	(Delay forMilliseconds: 1000) wait. "we defer bp refreshes until the debugger gui has settled down. Let the test wait a good long while" 
+	self
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (35 to: 37);
+		assert: indicator styleName = #breakPoint;
+		assert: indicator tag = 'Break at step point #2'.
+	self disableBreakpoints.
+	(Delay forMilliseconds: 1000) wait.
+	"debugger refreshBreakPointsIn: debugger methodSourcePresenter  documentPresenter."	"we defer the bp refresh. Tests need it done immediately."
+	self
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (35 to: 37);
+		assert: indicator styleName = #disabledBreakPoint;
+		assert: indicator tag = 'Break at step point #2'.
+	self enableBreakpoints.
+	(Delay forMilliseconds: 1000) wait.
+	self
+		assert: (indicator := debugger methodSourcePresenter documentPresenter view indicators at: 2) notNil;
+		assert: indicator range = (35 to: 37);
+		assert: indicator styleName = #breakPoint;
+		assert: indicator tag = 'Break at step point #2']
+			ensure: 
+				[self clearBreakAt: 2.
+				self debuggerDo: [debugger resumeProcess]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_doubleClickIncludesColon [
+	"It's difficult to fake up a mouse event so ensure the method that grabs the colon
+	is setup as an event and includes the colon after being called"
+
+	self testsIssue: #issue301 withTitle: '(3.0.50) inconsistent selector selection on double-click'.
+	self openDebuggerOn: 'Array with: 1; halt'.
+	self
+		assert: (debugger methodSourcePresenter documentPresenter events at: #leftButtonDoubleClicked:)
+				messages first
+				asSymbol
+		equals: #methodDoubleClicked:.
+	debugger methodSourcePresenter documentPresenter selectionRange: (7 to: 10).
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: 'with'.
+	debugger methodSourcePresenter methodDoubleClicked: nil.
+	self assert: debugger methodSourcePresenter documentPresenter selectionRange equals: (7 to: 11).
+	self assert: debugger methodSourcePresenter documentPresenter selection equals: 'with:'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_duplicateInstVars [
+	self testsIssue: #issue228
+		withTitle: 'lose selected class in project browser when new version created'.
+	self openProjectBrowser.
+	
+	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self selectClassTab.
+	self
+		saveClass: 'SubClass'
+		superclass: 'TestClass'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self selectServiceNamed: 'SubClass' in: self classListPresenter.
+	self
+		saveClass: 'SubSubClass'
+		superclass: 'SubClass'
+		instVars: #('aa')
+		package: 'RowanSample1-Tests'.
+	self selectServiceNamed: 'SubClass' in: self classListPresenter.
+	self debuggerDo: 
+			[process := 
+					[self selectServiceNamed: 'SubClass' in: self classListPresenter.
+					self
+						saveClass: 'SubClass'
+						withInstVars: #('aa')
+						package: 'RowanSample1-Tests']
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger variableListPresenter list first key value equals: #receiver.
+	self assert: debugger variableListPresenter list first className equals: 'ImproperOperation']
+			ensure: 
+				[self projectsPresenter classDefinitionPresenter view isModified: false.
+				self selectServiceNamed: 'SubSubClass' in: self classListPresenter.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self selectServiceNamed: 'SubClass' in: self classListPresenter.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_duplicateInstVarsHierarchy [
+	self testsIssue: #issue228
+		withTitle: 'lose selected class in project browser when new version created'.
+	self openProjectBrowser.
+	
+	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
+	self selectHierarchyTab.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self selectClassInHierarchyNamed: 'TestClass'.
+	self
+		saveClass: 'SubClass'
+		superclass: 'TestClass'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self selectClassInHierarchyNamed: 'SubClass'.
+	self
+		saveClass: 'SubSubClass'
+		superclass: 'SubClass'
+		instVars: #('aa')
+		package: 'RowanSample1-Tests'.
+	self selectClassInHierarchyNamed: 'SubSubClass'.
+	self debuggerDo: 
+			[process := 
+					[self selectClassInHierarchyNamed: 'SubClass'.
+					self
+						saveClass: 'SubClass'
+						withInstVars: #('aa')
+						package: 'RowanSample1-Tests']
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger variableListPresenter list first key value equals: #receiver.
+	self assert: debugger variableListPresenter list first className equals: 'ImproperOperation']
+			ensure: 
+				[self projectsPresenter classDefinitionPresenter view isModified: false.
+				self selectClassInHierarchyNamed: 'SubSubClass'.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self selectClassInHierarchyNamed: 'SubClass'.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_duplicateInstVarsInHierarchy [
+	self testsIssue: #issue228
+		withTitle: 'lose selected class in project browser when new version created'.
+	self openProjectBrowser.
+	
+	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
+	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self selectHierarchyTab.
+	self selectServiceNamed: 'TestClass' in: self classListPresenter.
+	self
+		saveClass: 'SubClass'
+		superclass: 'TestClass'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self selectClassInHierarchyNamed: 'SubClass'.
+	self
+		saveClass: 'SubSubClass'
+		superclass: 'SubClass'
+		instVars: #('aa')
+		package: 'RowanSample1-Tests'.
+	self selectClassInHierarchyNamed: 'SubSubClass'.
+	self debuggerDo: 
+			[process := 
+					[self selectClassInHierarchyNamed: 'SubClass'.
+					self
+						saveClass: 'SubClass'
+						withInstVars: #('aa')
+						package: 'RowanSample1-Tests']
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	self assert: debugger variableListPresenter list first key value equals: #receiver.
+	self assert: debugger variableListPresenter list first className equals: 'ImproperOperation']
+			ensure: 
+				[self projectsPresenter classDefinitionPresenter view isModified: false.
+				self selectClassInHierarchyNamed: 'SubSubClass'.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self selectClassInHierarchyNamed: 'SubClass'.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_errorInPrintString [
+	self testsIssue: #issue49
+		withTitle: 'Error during printString in debugger (inspector) makes debugger unusable'.
+	self
+		openDebuggerOn: '(ScaledDecimal _basicNew instVarAt: 1 put: 1; instVarAt: 2 put: nil; printString)';
+		assert: debugger errorMessagePresenter value
+			equals: 'a MessageNotUnderstood occurred (error 2010), a UndefinedObject does not understand  #''_generality''';
+		assert: debugger frameListPresenter selection
+			equals: 'SmallInteger (Number) >> _retry:coercing: @4 line 15';
+		assert: (debugger frameListPresenter selectionByIndex: 6) notNil.
+	self selectFirstFrameStartingWith: 'ScaledDecimal'.
+	self
+		assert: debugger variableListPresenter list first value
+			equals: '(ScaledDecimal printString error: a MessageNotUnderstood occurred (error 2010), a UndefinedObject does not understand  #''_generality'')';
+		debuggerDo: [[debugger _terminateProcess] fork];
+		assert: (Delay forMilliseconds: 250) wait notNil;
+		assert: (debugger isNil or: [debugger view class == DeafObject]);
+		yourself
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_extendedCharacterMethod [
+	"The the time of writing, extended characters should display ok in the debugger but not high unicode characters"
+	self testsIssue: #issue
+		withTitle: '(3.0.65) browse methods containing `%` yields "Can''t hold $\x3B1" Dollphin error'.
+	self
+		saveMethod: 'extendedChar | char | char := $Â¹. self halt.  ^char'
+		in: 'RowanSample1'
+		category: 'extendedChar'.
+	self openDebuggerOn: 'RowanSample1 new extendedChar'.
+	self assert: debugger frameListPresenter selection equals: 'RowanSample1 >> extendedChar @3 line 1'.
+	self assert: debugger methodSourcePresenter documentPresenter view backcolor
+		equals: JadeiteTextStyles default colorForNoEdits.
+	self assert: debugger methodSourcePresenter documentPresenter value
+		equals:  'extendedChar | char | char := $Â¹. self halt.  ^char'.
+	debugger variableListPresenter selectionByIndex: 3. "char" 
+	self assert: debugger variableListPresenter selection value equals: '$Â¹'. 
+	self assert: debugger variableDataPresenter value equals: '$Â¹'. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_frameDoubleClick [
+	| projectPresenter |
+	self testsIssue: #issue238
+		withTitle: '"RowanDebugger does not understand #browseClass" from double click on frame selection (3.0.41)'.
+	self openDebuggerOn: 'RowanClassService new halt; classHierarchy'.
+	self
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepInto].
+	self assert: ('*classHierarchy*' match: debugger frameListPresenter selection).
+	projectPresenter := (debugger frameListPresenter trigger: #actionPerformed) currentCard. "simulates double click"
+	
+	[self assert: projectPresenter classListPresenter selection name equals: 'RowanClassService'.
+	self assert: projectPresenter methodListPresenter selection selector equals: #classHierarchy]
+			ensure: [self destroy: projectPresenter]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_frameDoubleClickNoActionInBlockContext [
+	| projectPresenter |
+	self testsIssue: #issue238
+		withTitle: '"RowanDebugger does not understand #browseClass" from double click on frame selection (3.0.41)'.
+	self openDebuggerOn: '[RowanClassService new halt; classHierarchy] value'.
+	self assert: (debugger frameListPresenter selection copyFrom: 1 to: 2) equals: '[]'.
+	projectPresenter := debugger frameListPresenter trigger: #actionPerformed.	"simulates double click on the block context"
+	self assert: projectPresenter equals: debugger	"no browser opened and no walkback"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_implementersFromDebugger [
+	| browser |
+	self testsIssue: #issue216 withTitle: 'method list in method browser reorders on accept'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self saveIssue216Method.
+	self openDebuggerOn: 'RowanSample1 new issue216'.
+	debugger documentPresenter view selectionRange: (77 to: 89).	"Select classFromName"
+	self debuggerDo: [browser := debugger methodSourcePresenter browseImplementors].
+	
+	[self assert: (browser isKindOf: JadeiteMethodListBrowser).
+	self assert: ('*Implementors of ''classFromName''*' match: browser topShell caption)]
+			ensure: 
+				[self destroy: browser. 
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_implementorsSendersCaption [
+	| methodListBrowser |
+	self testsIssue: #issue209 withTitle: 'MethodListBrowser needs the token in the title bar'.
+	self
+		openDebuggerOn: '(RowanProjectService new name: ''Rowan'') halt; branch';
+		debuggerDo: [debugger stepOver];
+		debuggerDo: [debugger stepInto];
+		assert: debugger frameListPresenter list first = 'RowanProjectService >> branch @1 line 1'.
+	self debuggerDo: [methodListBrowser := debugger browseImplementors].
+	[self assert: ('Implementors of ''branch'' for *' match: methodListBrowser caption)]
+		ensure: [self destroy: methodListBrowser].
+	self debuggerDo: [methodListBrowser := debugger browseSenders].
+	[self assert: ('Senders of ''branch'' for *' match: methodListBrowser caption)]
+		ensure: [self destroy: methodListBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_inspectedDebuggerObjectHeld [
+	| inspector |
+	self testsIssue: #issue385 withTitle: '(3.0.53) Inspector should keep associated root object alive'.
+	self
+		saveMethod: 'issue385
+		| abc |
+		abc := Array with: Object new. 
+		self halt. 
+		^abc'
+		in: 'RowanSample1'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1 new issue385'.
+	self debuggerDo: [self selectVariableNamed: #abc].
+	self debuggerDo: [inspector := debugger inspectVariable].
+	
+	[self assert: (session executeString: 'Object = Object').
+	self assert: inspector documentPresenter value equals: 'anArray( anObject)'.
+	process terminate.
+	self closeDebuggers.
+
+	"do stuff while the debugger is closed to hopefully recycle the oop (if the bug was present)"
+	self openProjectBrowser.
+	
+	[self assert: (session executeString: 'Object = Object').
+	self assert: inspector documentPresenter value equals: 'anArray( anObject)']
+			ensure: [projectsBrowser view close].
+	self openProjectBrowser.
+	
+	[self assert: (session executeString: 'Object = Object').
+	self assert: inspector documentPresenter value equals: 'anArray( anObject)']
+			ensure: [projectsBrowser view close]]
+			ensure: [self destroy: inspector view]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_jadeItemsOnMenu [
+	| contextMenu theItem |
+	self testsIssue: #issue762
+		withTitle: 'Debug-it in debugger / missing menu item, failure on up arrow, and error dialog (3.1pr3)'.
+	self openDebuggerOn: 'self halt'.
+	contextMenu := debugger methodSourcePresenter documentPresenter view contextMenu.
+	theItem := contextMenu items detect: [:menuItem | menuItem command = #jadeDebug] ifNone: [].
+	self denyIsNil: theItem.
+	theItem := contextMenu items detect: [:menuItem | menuItem command = #jadeExecute] ifNone: [].
+	self denyIsNil: theItem.
+	theItem := contextMenu items detect: [:menuItem | menuItem command = #jadeInspect] ifNone: [].
+	self denyIsNil: theItem.
+	theItem := contextMenu items detect: [:menuItem | menuItem command = #jadeDisplay] ifNone: [].
+	self denyIsNil: theItem
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_loginButtonEnablementAfterDebug [
+	"transcript close wasn't setting GciSession current to nil"
+
+	| shell query sunitPresenter |
+	self testsIssue: #issue527 withTitle: 'Multiple sessions can''t keep console project list straight'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.	"don't commit"
+	
+	[JadeiteTestResource current closeTranscripts.
+	TestMessageBox disableJadeiteTestMessageBox.
+	shell := JadeiteLoginShell allInstances first.	"should be only one"
+	query := CommandQuery commandDescription: (CommandDescription command: #login)
+				source: shell loginButtonPresenter view.
+	shell queryCommand: query.
+	self assert: query isEnabled.	"enabled login button"
+	JadeiteTestResource current.	"will login"
+	self denyIsNil: GciSession current.
+	session := GciSession current.
+	transcript := JadeiteTranscript allInstances detect: [:tran | tran gciSession == session] ifNone: [].
+	query := CommandQuery commandDescription: (CommandDescription command: #login) source: shell view.
+	shell view queryCommand: query.
+	self deny: query isEnabled.
+	sunitPresenter := (JadeiteSUnitBrowser showOnSession: session) primaryPresenter.
+	"reproduce scenario in bug"
+	sunitPresenter selectPackageNamed: 'Rowan-Services-Tests'.
+	sunitPresenter selectClassNamed: 'RowanMethodServiceTest'.
+	sunitPresenter runAll.
+	self openDebuggerOn: 'RowanMethodServiceTest new test_noStepPoints'.
+	self debuggerDo: [debugger resumeProcess].
+	self rowanFixMe.	"without this, test somehow dies. Makes for a less useful test"
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.
+	transcript view close.	"closes all Jadeite windows"
+	query := CommandQuery commandDescription: (CommandDescription command: #login)
+				source: shell loginButtonPresenter view.
+	shell queryCommand: query.
+	self assert: query isEnabled]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.
+				debugger := nil.
+				process ifNotNil: [process terminate].
+				process := nil.
+				JadeiteTestResource current logoutThenLoginAs: user forceClose: true.
+				session := GciSession current.
+				transcript := JadeiteTranscript allInstances detect: [:tran | tran gciSession == session] ifNone: []]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_notifierDoesNotErrorCheckingResumeStatus [
+	| fileService shell |
+	fileService := RowanFileService new session: session.
+	TestJadeErrorShell enableJadeiteErrorShell.
+	
+	[process := [fileService fileInChunk: self badFileInString] forkAt: Processor activePriority + 1.
+	self getDebugger.
+	shell := TestJadeErrorShell lastErrorShell.
+	self assert: shell caption
+		equals: 'a CompileError occurred (error 1001), undefined symbol  SomethingThatDoesNotExist'.
+	self assert: (shell gsError isKindOf: GsCompileError).
+	self assert: shell gsError messageText
+		equals: 'a CompileError occurred (error 1001), undefined symbol  SomethingThatDoesNotExist']
+			ensure: 
+				[TestJadeErrorShell disableJadeiteErrorShell.
+				self abortTransaction. "make sure BadClass goes away" 
+				self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_openDebuggerWthBreakpointInDebuggerService [
+	"Basics of opening a debugger, viewing the UI, and resuming."
+
+	| x methodService answeringService wereBreakpointsEnabled classService |
+	self testsIssue: #issue748 withTitle: 'Debugger should ignore breakpoints'.
+	answeringService := RowanAnsweringService new.
+	wereBreakpointsEnabled := answeringService breakPointsAreEnabled: session.
+	
+	["set breakpoint in critical debugger path, expect debugger to open"
+	classService := RowanClassService named: 'RowanDebuggerService'.
+	classService
+		command: #saveMethodSource:category:;
+		commandArgs: (Array with: 'update  ^super update' with: 'for testing').
+	self issueCommand: classService.
+	methodService := RowanMethodService new
+				className: 'RowanDebuggerService';
+				selector: #update;
+				meta: false.
+	methodService
+		command: #setBreakAt:;
+		commandArgs: (Array with: 3).
+	self issueCommand: methodService.
+	JadePresenter enableAllBreakpointsIn: session.
+	self
+		openDebuggerOn: 'nil halt';
+		assert: (x := debugger errorMessagePresenter value) = 'a Halt occurred (error 2709)';
+		assert: (x := debugger processListPresenter list size) == 1;
+		assert: (x := debugger frameListPresenter list size) == 8;
+		assert: (x := debugger frameListPresenter selection) = 'Executed Code  @2 line 1';
+		assert: (x := debugger variableListPresenter list size) == 1;
+		assert: (x := debugger variableListPresenter list first) class == RowanVariableService;
+		assert: x oop == 20;
+		assert: x _key == #receiver;
+		assert: x value = 'nil';
+		debuggerDo: [debugger resumeProcess];
+		assert: (x := debugger view) class == DeafObject;
+		yourself]
+			ensure: 
+				[methodService
+					ifNotNil: 
+						[methodService
+							command: #clearBreakAt:;
+							commandArgs: (Array with: 3)].
+				self issueCommand: methodService.
+				self abortTransaction.  "Need to get rid of the new method." 
+				answeringService setBreakpointsEnabled: wereBreakpointsEnabled session: session]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processAdHocDebugHeldStepOver [
+	"When debugging, make sure the GsProcess is held to avoid garbage collection by the server"
+
+	| workspace processOop count |
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: '| sum | sum := 1 + 2. sum'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	processOop := debugger gsProcess oop.
+	self assert: (self processHeldOnServer: processOop).
+	debugger stepOver.
+	self assert: (self processHeldOnServer: processOop).
+	debugger stepOver.
+	self assert: (self processHeldOnServer: processOop).
+	debugger _terminateProcess.
+	count := 0.
+	[debugger isDeafObject] whileFalse: 
+			[count := count + 1.
+			(Delay forMilliseconds: 1) wait].
+	self assert: debugger isDeafObject.
+	self deny: (self processHeldOnServer: processOop)]
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processAdHocDebugReleasedOnResume [
+	"When debugging, make sure the GsProcess is held to avoid garbage collection by the server"
+
+	| workspace processOop count |
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: '| sum | sum := 1 + 2. sum'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane jadeDebug]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	processOop := debugger gsProcess oop.
+	self assert: (self processHeldOnServer: processOop).
+	debugger resumeProcess.
+	count := 0.
+	[debugger isDeafObject] whileFalse: 
+			[count := count + 1.
+			(Delay forMilliseconds: 1) wait].
+	self assert: debugger isDeafObject.
+	RowanAnsweringService new exec: '''do something to update server cache''' in: session.
+	self deny: (self processHeldOnServer: processOop)]
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processHaltedHeldStepOver [
+	"When debugging, make sure the GsProcess is held to avoid garbage collection by the server"
+
+	| workspace processOop count |
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: '| sum | self halt.  sum := 1 + 2. sum'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane jadeExecute]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	processOop := debugger gsProcess oop.
+	self assert: (self processHeldOnServer: processOop).
+	debugger stepOver.
+	self assert: (self processHeldOnServer: processOop).
+	debugger stepOver.
+	self assert: (self processHeldOnServer: processOop).
+	debugger _terminateProcess.
+	count := 0.
+	[debugger isDeafObject] whileFalse: 
+			[count := count + 1.
+			(Delay forMilliseconds: 1) wait].
+	self assert: debugger isDeafObject.
+	self deny: (self processHeldOnServer: processOop)]
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processHaltedReleasedOnResume [
+	"When debugging, make sure the GsProcess is held to avoid garbage collection by the server"
+
+	| workspace processOop count |
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	
+	[self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace setDocumentData: '| sum | self halt.  sum := 1 + 2. sum'.
+	self debuggerDo: 
+			[process := 
+					[workspace codePane documentPresenter setFocus.
+					workspace codePane jadeExecute]
+							forkAt: Processor activePriority + 1].
+	self getDebugger.
+	processOop := debugger gsProcess oop.
+	self assert: (self processHeldOnServer: processOop).
+	debugger stepOver.
+	debugger stepOver. 
+	debugger resumeProcess.
+	count := 0.
+	[debugger isDeafObject] whileFalse: 
+			[count := count + 1.
+			(Delay forMilliseconds: 1) wait].
+	self assert: debugger isDeafObject.
+	RowanAnsweringService new exec: '''do something to update server cache''' in: session.
+	self deny: (self processHeldOnServer: processOop)]
+			ensure: 
+				[workspace isModified: false.
+				workspace view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processIsServices [
+	"not a great test but does look at the underlying problem with issue #762"
+
+	self testsIssue: #issue762
+		withTitle: 'Debug-it in debugger / missing menu item, failure on up arrow, and error dialog (3.1pr3)'.
+	self openDebuggerOn: '| abc | 1 halt. abc := 0. abc := 1. abc := 2.'.
+	self assert: debugger gsProcess isKindOf: RowanProcessService.
+	debugger stepOver.
+	self assert: debugger gsProcess isKindOf: RowanProcessService.
+	debugger stepOver.
+	self assert: debugger gsProcess isKindOf: RowanProcessService
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processSwitching [
+	| activeProcesses longRunningProcess |
+	activeProcesses := session executeString: 'ProcessorScheduler scheduler allProcesses size'.
+	gsProcess := session executeString: '[(Delay forSeconds: 9999) wait] fork asOop.'.
+	session executeString: '(Delay forSeconds: 1) wait'.	"let forked process start"
+	self
+		openDebuggerOn: 'nil halt';
+		assert: debugger processListPresenter list size equals: activeProcesses + 1.
+	longRunningProcess := debugger processListPresenter list
+				detect: [:processService | processService oop = gsProcess].
+	self debuggerDo: [debugger processListPresenter selection: longRunningProcess].
+	self selectFrameMatching: '*Executed Code*'. 
+	self
+		assert: debugger methodSourcePresenter documentPresenter value
+			equals: '[(Delay forSeconds: 9999) wait] fork asOop.';
+		assert: longRunningProcess oop equals: gsProcess
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_processTermination [
+	| terminationProcessOop primaryProcessOop |
+	self testsIssue: #issue762
+		withTitle: 'Debug-it in debugger / missing menu item, failure on up arrow, and error dialog (3.1pr3)'.
+	gsProcess := session executeString: '[(Delay forSeconds: 9999) wait] fork asOop.'.
+	session executeString: '(Delay forSeconds: 1) wait'.	"let forked process start"
+	self openDebuggerOn: 'nil halt'.
+	self assert: debugger processListPresenter selectionByIndex equals: 1.	"always start on top process"
+	primaryProcessOop := debugger processListPresenter selection oop.
+	debugger processListPresenter selectionByIndex: 2.
+	terminationProcessOop := debugger processListPresenter selection oop.
+	debugger _terminateProcess.
+	self assert: debugger processListPresenter list first oop equals: primaryProcessOop.	"reselect top process"
+	debugger processListPresenter list
+		do: [:processService | self deny: processService oop equals: terminationProcessOop]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reformatIllegalSource [
+	self testsIssue: #issue345 withTitle: 'Jadeite format option (server ready) #345'.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod self halt. ^#test'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1Test new reformatSourceTemporaryMethod'.
+	
+	[self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod self halt. ^#test'.
+	debugger documentPresenter value: 'reformatSourceTemporaryMethod self halt. ^#'.
+	debugger reformatSource.
+	debugger documentPresenter view isModified: true. 
+	self assert: debugger statusTextPresenter view backcolor equals: Color red faded.
+	self assert: debugger documentPresenter view isModified.
+	self assert: debugger statusBarText equals: 'Reformat failed. Illegal source - a UserDefinedError occurred (error 2318), reason:halt, Expecting a literal type' replaceCrLfWithLf.
+	self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod self halt. ^#' replaceCrLfWithLf	"unchanged"]
+			ensure: [debugger documentPresenter view isModified: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reformatSource [
+	self testsIssue: #issue345 withTitle: 'Jadeite format option (server ready) #345'.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod self halt. ^#test'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1Test new reformatSourceTemporaryMethod'.
+	
+	[self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod self halt. ^#test'.
+	debugger reformatSource.
+	self assert: debugger documentPresenter view isModified.
+	self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod
+	self halt.
+	^ #''test''' replaceCrLfWithLf]
+			ensure: [debugger documentPresenter view isModified: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reformatSourceDoesNotStick [
+	| selectionIndex |
+	self testsIssue: #issue609
+		withTitle: 'Debugger problems with unsaved reformat and breakpoint in block'.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod 
+
+
+self halt. ^#test'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self openDebuggerOn: 'RowanSample1Test new reformatSourceTemporaryMethod'.
+	self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod 
+
+
+self halt. ^#test'.
+	debugger reformatSource.
+	self assert: debugger documentPresenter view isModified.
+	self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod
+	self halt.
+	^ #''test''' replaceCrLfWithLf.	"different formatting code in 3.6"
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.
+	selectionIndex := debugger frameListPresenter selectionByIndex.
+	self selectFirstFrameStartingWith: 'Halt'.	"click away and back"
+	self selectFrameAt: selectionIndex.
+	self assert: debugger documentPresenter value
+		equals: 'reformatSourceTemporaryMethod 
+
+
+self halt. ^#test'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reformatSourceIsUndoable [
+	self testsIssue: #issue550
+		withTitle: '"Reformat source" without save is not working right in method browsers (3.0.78)'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod | abc | abc := #abc. ^abc'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	
+	[self selectMethodNamed: #reformatSourceTemporaryMethod.
+	self projectsPresenter setBreakPointAt: 1 in: self projectsPresenter.
+	self openDebuggerOn: 'RowanSample1Test new reformatSourceTemporaryMethod'.
+	self assert: self methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod | abc | abc := #abc. ^abc'.
+	debugger reformatSource.
+	self assert: debugger documentPresenter view isModified.
+	self assert: debugger documentPresenter view text
+		equals: 'reformatSourceTemporaryMethod
+	| abc |
+	abc := #''abc''.
+	^ abc' replaceCrLfWithLf.
+	debugger documentPresenter view undo.
+	self assert: self methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod | abc | abc := #abc. ^abc'.
+	debugger documentPresenter view isModified: false.
+	self debuggerDo: [debugger resumeProcess]]
+			ensure: [self projectsPresenter removeMethods: self classListPresenter selections]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_registeredPresentersInProjectBrowserCleanedUp [
+	| registeredPresenters  |
+	registeredPresenters := BrowserUpdate current registeredPresenters size.
+	self openDebuggerOn: 'nil halt'.
+	self assert: BrowserUpdate current registeredPresenters size > registeredPresenters.
+	self tearDown.  "this will close the debugger and do proper cleanup" 
+	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresenters
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reloadWithDebuggerOpen [
+	"reload a project with a debugger open. That was enough to trigger the error"
+
+	self testsIssue: #issue359
+		withTitle: '(3.0.52 & 3.0.62) `a UserDefinedError occurred (error 2318), reason:halt, Use on*Process: constructors` Error'.
+	self openProjectBrowser. 
+	
+	[self selectRowanSample1Class.
+	self saveIssue169Method.
+	self denyIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #issue169]
+				ifNone: []).
+	self assert: self projectListPresenter selection isDirty.
+	self openDebuggerOn: 'RowanSample1 new issue169'.
+	RowanBrowserService new reloadProjects: self projectListPresenter selections
+		presenter: self projectsPresenter.
+	self deny: self projectListPresenter selection isDirty.
+	self selectRowanSample1Class.
+	self assertIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #issue169]
+				ifNone: [])]
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reopenInLastExtent [
+	| newExtent |
+	self testsIssue: #issue741 withTitle: '(3.0.93) would be nice if debugger remembered it''s size'.
+	self openDebuggerOn: '| abc |
+abc := Array new. 
+self halt. 
+abc add: 1.
+^abc'.
+	debugger view extent: (newExtent := debugger view extent + (20 @ 20)).
+	self debuggerDo: [debugger resumeProcess].
+	self closeDebuggers.
+	self openDebuggerOn: '| abc |
+abc := Array new. 
+self halt. 
+abc add: 1.
+^abc'.
+	self assert: debugger view extent equals: newExtent.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_reopenInLastPosition [
+	| newPosition |
+	self testsIssue: #issue665
+		withTitle: '(3.0.91) Would like debugger to remember it''s last location after resume'.
+	self openDebuggerOn: '| abc |
+abc := Array new. 
+self halt. 
+abc add: 1.
+^abc'.
+	debugger view position: (newPosition := debugger view position + (20 @ 20)).
+	self debuggerDo: [debugger resumeProcess].
+	self closeDebuggers.
+	self openDebuggerOn: '| abc |
+abc := Array new. 
+self halt. 
+abc add: 1.
+^abc'.
+	self assert: debugger view position equals: newPosition.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_restartInBlock [
+	"The original test did a restart but as of 3.7.0, restart (trim stack) no longer fails with a 	
+	second debugger. To simulate a failure, we just open a second debugger instead and
+	hope we're kind of testing the same code paths"
+
+	| secondDebuggedProcess breakPoint originalTrimStackSource |
+	self testsIssue: #issue126
+		withTitle: 'Debugger opens second debugger, loses stack in original debugger'.
+	true ifTrue:[^self rowanFixMe "make work"]. 
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self saveInterestingLoopMethod.
+	breakPoint := 8.
+	self projectsPresenter setBreakPointAt: breakPoint in: self projectsPresenter.	"inside the block"
+	
+	[self openDebuggerOn: 'RowanSample1 new interestingLoop'.
+	secondDebuggedProcess := 
+			[self debuggerDo: 
+					[
+					[session
+						debugString: '1 zork'
+						fromContext: nil
+						environment: 0] fork]]
+					fork.
+	
+	[
+	self getSecondDebugger.
+	self denyIsNil: secondDebugger.
+	self deny: debugger == secondDebugger.
+	self deny: debugger gsProcess oop = secondDebugger gsProcess oop.
+	self deny: debugger frameListPresenter list size = secondDebugger frameListPresenter list size.
+	self answerNoToDialogDuring: [self destroy: secondDebugger]]
+			ensure: [secondDebuggedProcess terminate]]
+			ensure: 
+				[self answerNoToDialogDuring: [self destroy: debugger].
+				self projectsPresenter clearBreakPointAt: breakPoint in: self projectsPresenter.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_resumeRepeated [
+	| inspector |
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	self
+		saveMethod: 'blockIteration
+"ThreeTest new blockIteration"
+
+  | clsOrg report res |
+  clsOrg := ClassOrganizer newExcludingGlobals.
+  report := { #''flattened'' . #''pairsCollect:'' . #''containsDigit'' . #''blarf'' . #sunshine . #tuesday . #asString . #asInteger . #now} 
+      select: [:sel |
+          res := clsOrg implementorsOf: sel.
+          res size > 0
+          ].
+  ^report'
+		in: 'RowanSample1'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self selectMethodNamed: #blockIteration.
+	self setBreakAt: 10.	"#size"
+	self openDebuggerOn: '| report | report := RowanSample1 new blockIteration'.
+	(Delay forMilliseconds: 250) wait.
+	9 timesRepeat: 
+			[debugger
+				ifNotNil: 
+					[self debuggerDo: [process := [debugger resumeProcess] forkAt: Processor activePriority + 1].
+					(Delay forMilliseconds: 250) wait.
+					self getDebugger]].
+	inspector := JadeiteInspector showOn: executionResult session: session.
+	
+	[self assert: (inspector isKindOf: JadeiteInspector).
+	inspector instVarListPresenter selectionByIndex: 3.
+	self assert: inspector documentPresenter value equals: '#''asString''']
+			ensure: 
+				[self destroy: inspector.
+				debugger := nil.
+				self clearBreakAt: 10	"#size"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_resumeRepeatedHoldsProcess [
+	| inspector processOop |
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	self
+		saveMethod: 'blockIteration
+"ThreeTest new blockIteration"
+
+  | clsOrg report res |
+  clsOrg := ClassOrganizer newExcludingGlobals.
+  report := { #''flattened'' . #''pairsCollect:'' . #''containsDigit'' . #''blarf'' . #sunshine . #tuesday . #asString . #asInteger . #now} 
+      select: [:sel |
+          res := clsOrg implementorsOf: sel.
+          res size > 0
+          ].
+  ^report'
+		in: 'RowanSample1'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self selectMethodNamed: #blockIteration.
+	self setBreakAt: 10.	"#size"
+	self openDebuggerOn: '| report | report := RowanSample1 new blockIteration'.
+	(Delay forMilliseconds: 250) wait.
+	processOop := debugger gsProcess oop.
+	self assert: (self processHeldOnServer: processOop).
+	8 timesRepeat: 
+			[debugger
+				ifNotNil: 
+					[self debuggerDo: [process := [debugger resumeProcess] forkAt: Processor activePriority + 1].
+					(Delay forMilliseconds: 250) wait.
+					self getDebugger.
+					self assert: (self processHeldOnServer: processOop)]].
+	self debuggerDo: [process := [debugger resumeProcess] forkAt: Processor activePriority + 1]. "final resume, no more debuggers" 
+	(Delay forMilliseconds: 250) wait.
+	RowanAnsweringService new exec: '3+4' in: session. 
+	self deny: (self processHeldOnServer: processOop).
+	inspector := JadeiteInspector showOn: executionResult session: session.
+	
+	[self assert: (inspector isKindOf: JadeiteInspector).
+	inspector instVarListPresenter selectionByIndex: 3.
+	self assert: inspector documentPresenter value equals: '#''asString''']
+			ensure: 
+				[self destroy: inspector.
+				debugger := nil.
+				self clearBreakAt: 10	"#size"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_runningTestDoesNotLoseStepPoint [
+	| count |
+	self testsIssue: #issue226 withTitle: 'have to reset method in order to disable a break point'.
+	self openProjectBrowser.
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self selectServiceNamed: 'AST-Kernel-Tests-Core' in: self packageListPresenter.
+	self projectsPresenter isHierarchyTabSelected
+		ifTrue: 
+			[self selectTreeServicesNamed: (Array with: 'RBGemStoneNumberParserTest')
+				in: self classHierarchyPresenter]
+		ifFalse: [self selectServiceNamed: 'RBGemStoneNumberParserTest' in: self classListPresenter].
+	self selectMethodNamed: #testNumberParser.
+	session
+		executeString: '(RBGemStoneNumberParserTest compiledMethodAt: #testNumberParser) setBreakAtStepPoint: 2'.
+	self projectsPresenter updateService: self methodListPresenter selection.
+	
+	[self
+		debuggerDo: [process := [self projectsPresenter runMethodTests] forkAt: Processor activePriority + 1];
+		getDebugger.
+	self debuggerDo: [debugger resumeProcess].
+	count := 0.
+	[self projectsPresenter isSunitTabSelected not and: [count < 5]] whileTrue: 
+			[(Delay forMilliseconds: 500) wait.
+			count := count + 1].
+	self assert: self projectsPresenter isSunitTabSelected.
+	self projectsPresenter selectMethodSourceTab.
+	self assert: self methodListPresenter selections first stepPoints notEmpty]
+			ensure: 
+				[session
+					executeString: '(RBGemStoneNumberParserTest compiledMethodAt: #testNumberParser) clearBreakAtStepPoint: 2']
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_saveMethod [
+	"https://github.com/GemTalk/Jadeite/issues/62"
+
+	| number view |
+	self openProjectBrowser.
+	
+	[self selectRowanSample1Class.
+	self createDebuggerTestMethod.
+	number := Time millisecondClockValue.
+	session executeString: '(RowanSample1 compiledMethodAt: #testMethod) setBreakAtStepPoint: 1'.
+	self
+		openDebuggerOn: 'RowanSample1 new testMethod';
+		assert: (view := debugger documentPresenter view) notNil;
+		assert: view selection equals: 'testMethod';
+		assert: (view selectionRange: (14 to: 99)) selection first equals: $^;
+		assert: (view replaceSelection: '^' , number printString) notNil;
+		assert: debugger saveMethod notNil;
+		assert: view selection equals: 'testMethod';
+		debuggerDo: [debugger resumeProcess];
+		assert: (session executeString: 'RowanSample1 new testMethod') equals: number]
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_saveMethodDuringTestRun [
+	| commandQuery |
+	self testsIssue: #issue512
+		withTitle: '"run selected" can get disabled after save in debugger (3.0.76)'.
+	self openProjectBrowser. 
+	
+	[self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	commandQuery := self
+				queryCommand: #runSelected
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	commandQuery := self
+				queryCommand: #debug
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	session executeString: '(RowanSample1Test compiledMethodAt: #test1) setBreakAtStepPoint: 1'.
+	self
+		debuggerDo: [process := [self projectsPresenter runMethodTests] forkAt: Processor activePriority + 1];
+		getDebugger.
+	self debuggerDo: 
+			[debugger methodSourcePresenter documentPresenter
+				value: 'test1
+	"add comment. no-op change"
+	self assert: RowanSample1 new foo = ''foo''   '].
+	self debuggerDo: [debugger saveMethod].
+	self debuggerDo: [debugger resumeProcess].
+	commandQuery := self
+				queryCommand: #runSelected
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	commandQuery := self
+				queryCommand: #debug
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled]
+			ensure: [projectsBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_selectAfterDiveNoStepPoint [
+	| breakpoint |
+	self testsIssue: #issue166
+		withTitle: 'Debugger step with unsaved edits results in empty source pane'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self saveInterestingLoopMethod.
+	breakpoint := 9.
+	self projectsPresenter setBreakPointAt: breakpoint in: self projectsPresenter.	"inside the block"	
+	[self openDebuggerOn: 'RowanSample1 new interestingLoop'.
+	self debuggerDo: [debugger stepInto].
+	self assert: debugger frameListPresenter list first equals: 'RowanSample1 >> test @1 line 1'.
+	self assert: (debugger frameListPresenter list at: 2)
+		equals: '[] in RowanSample1 >> interestingLoop @9 line 8'.
+	[self selectFrameAt: 2] fork.	"<<< Walkback occurred here"	"Fork so that the tests' error handler doesn't catch the expected error raised in #selectedFrame"
+	(Delay forMilliseconds: 100) wait.
+	[debugger documentPresenter value replaceLfWithCrLf isEmpty]
+		whileTrue: [(Delay forMilliseconds: 10) wait].
+	self assert: debugger documentPresenter value replaceLfWithCrLf
+		equals: self interestingLoopMethodSource]
+			ensure: 
+				[self projectsPresenter clearBreakPointAt: breakpoint in: self projectsPresenter.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_selectBlockContext [
+	self testsIssue: #issue166
+		withTitle: 'Debugger step within block and then select block context has bad behavior'.
+	self openProjectBrowser.
+	
+	[self selectRowanSample1Class.
+	self saveIssue166Method.
+	self openDebuggerOn: 'RowanSample1 new issue166'.
+	self debuggerDo: [debugger stepInto].
+	self selectFrameAt: 2.	"<<< bug occurred here"
+	self assert: ('issue166*' match: debugger documentPresenter value)]
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_selectedFrame [
+	self testsIssue: #issue868 withTitle: '(Oscar-3.1.1-release1) debugger selects incorrect frame'.
+	self openProjectBrowser.
+	
+	[| source |
+	self
+		saveClass: 'ThreeTest'
+		superclass: 'GsTestCase'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self selectServiceNamed: 'ThreeTest' in: self classListPresenter.
+	source := 'test868
+ [{ 1 . 2 . 3 } select: [:ea | 
+	(self deleteProject = ea) ]] 
+	on: Error 
+	do: [:ea | self assert: false].'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self openDebuggerOn: 'ThreeTest new test868'.
+	self assert: debugger frameListPresenter selectionByIndex equals: 10.
+	self assert: debugger frameListPresenter selection equals: '[] in ThreeTest >> test868 @15 line 5']
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_sendersFromDebugger [
+	| browser |
+	self testsIssue: #issue216 withTitle: 'method list in method browser reorders on accept'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self saveIssue216Method.
+	self openDebuggerOn: 'RowanSample1 new issue216'.
+	debugger documentPresenter view selectionRange: (77 to: 89).	"Select classFromName"
+	self debuggerDo: [browser := debugger methodSourcePresenter browseSenders].
+	
+	[self assert: (browser isKindOf: JadeiteMethodListBrowser).
+	self assert: ('*Senders of ''classFromName''*' match: browser topShell caption)]
+			ensure: 
+				[self destroy: browser.
+				self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stackDumpDetailedFrame [
+	| stream crlf nextLine matchString |
+	self testsIssue: #issue455 withTitle: 'Would like args & temps in stack dump'.
+	self openDebuggerOn: 'OrderedCollection with: 1 zork'.
+	debugger copyStack.
+	stream := ReadStream on: Clipboard current getText.
+	crlf := Character cr asString , Character lf asString.
+	stream upToAll: '===============================================' , crlf.
+	self assert: ('[1] MessageNotUnderstood >> defaultAction @* line *' match: (stream upToAll: crlf)).
+	self assert: stream next equals: Character tab.
+	self assert: ('receiver oop(*) == *' match: (stream upToAll: crlf)).
+	self assert: (stream upToAll: crlf) equals: String new.
+	self assert: (stream upToAll: crlf) equals: 'instance variables:'.
+	matchString := Character tab asString , '*' , ' oop(*) == *'.
+	[(nextLine := stream upToAll: crlf) = String new]
+		whileFalse: [self assert: (matchString match: nextLine)].
+	self assert: (stream upToAll: crlf) equals: 'temporary variables and parameters:'.
+	[(nextLine := stream upToAll: crlf) = '----------------------------------------------------']
+		whileFalse: [self assert: (matchString match: nextLine)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stackDumpHeader [
+	| stream crlf |
+	self testsIssue: #issue455 withTitle: 'Would like args & temps in stack dump'.
+	self openDebuggerOn: 'OrderedCollection with: 1 zork'.
+	debugger copyStack.
+	stream := ReadStream on: Clipboard current getText.
+	crlf := Character cr asString , Character lf asString.
+	self assert: (stream upToAll: crlf)
+		equals: 'a MessageNotUnderstood occurred (error 2010), a SmallInteger does not understand  #''zork'''.
+	self assert: (stream upToAll: crlf) equals: String new.	"blank line"
+	1 to: 7
+		do: 
+			[:index |
+			self assert: (stream next: 3) equals: '[' , index printString , ']'.
+			stream upToAll: crlf]	"short stack up front"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stackDumpTooLongString [
+	| stream crlf nextLine matchString |
+	self testsIssue: #issue455 withTitle: 'Would like args & temps in stack dump'.
+	self openDebuggerOn: '| bigStringStream |
+bigStringStream := WriteStream on: String new. 
+1 to: 250 do:[:idx |
+	bigStringStream nextPutAll: idx printString].
+OrderedCollection with:  bigStringStream contents zork'.
+	debugger copyStack.
+	stream := ReadStream on: Clipboard current getText.
+	self assert: ('*-receiver oop(*) == ''1234567891011121314*...*' match: stream contents)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stackMenuEnablement [
+	| frameContextMenu |
+	self testsIssue: #issue103 withTitle: 'debugger, ''Executed Code'' stack frame, pop up menu items'.
+	self openDebuggerOn: 'nil halt'.
+	self assert: debugger frameListPresenter selection equals: 'Executed Code  @2 line 1'.
+	frameContextMenu := debugger frameListPresenter view contextMenu.
+	frameContextMenu itemsDo: 
+			[:item |
+			(item isDivider not and: [(item command = #copyFrameString) not])
+				ifTrue: [self deny: (self menuItemIsEnabled: item)]].
+	debugger frameListPresenter selection: (debugger frameListPresenter list at: 2).
+	frameContextMenu
+		itemsDo: [:item | item isDivider not ifTrue: [self assert: (self menuItemIsEnabled: item)]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepOutEventuallyResumes [
+	| inspector |
+	"step out to select:"
+	self testsIssue: #issue884
+		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	self
+		saveMethod: 'blockIteration
+"ThreeTest new blockIteration"
+
+  | clsOrg report res |
+  clsOrg := ClassOrganizer newExcludingGlobals.
+  report := { #''flattened'' . #''pairsCollect:'' . #''containsDigit'' . #''blarf'' . #sunshine . #tuesday . #asString . #asInteger . #now} 
+      select: [:sel |
+          res := clsOrg implementorsOf: sel.
+          res size > 0
+          ].
+  ^report'
+		in: 'RowanSample1'.
+	self openProjectBrowser.
+	self selectRowanSample1Class.
+	self selectMethodNamed: #blockIteration.
+	self setBreakAt: 10.	"#size"
+	self openDebuggerOn: '| report | report := RowanSample1 new blockIteration'.
+	(Delay forMilliseconds: 250) wait. 
+	self stepOutTwiceExpecting: '#''pairsCollect:'''.
+	self stepOutTwiceExpecting: '#''containsDigit'''.
+	self stepOutTwiceExpecting: '#''blarf'''.
+	self stepOutTwiceExpecting: '#''sunshine'''.
+	self stepOutTwiceExpecting: '#''tuesday'''.
+	self stepOutTwiceExpecting: '#''asString'''.
+	self stepOutTwiceExpecting: '#''asInteger'''.
+	self stepOutTwiceExpecting: '#''now'''.
+	"now step out to the highest level which should resume on the final step out" 
+	self debuggerDo: [process := [debugger stepOut] forkAt: Processor activePriority + 1].
+	self getDebugger.
+	(Delay forMilliseconds: 50) wait. 
+	self debuggerDo: [process := [debugger stepOut] forkAt: Processor activePriority + 1].
+	self getDebugger.
+	(Delay forMilliseconds: 50) wait. 
+	self debuggerDo: [process := [debugger stepOut] forkAt: Processor activePriority + 1].
+	self getDebugger.
+	(Delay forMilliseconds: 50) wait. 
+	self debuggerDo: [process := [debugger stepOut] forkAt: Processor activePriority + 1].
+	self getDebugger.
+	(Delay forMilliseconds: 50) wait. 
+	inspector := JadeiteInspector showOn: executionResult session: session.
+	
+	[self assert: (inspector isKindOf: JadeiteInspector).
+	inspector instVarListPresenter selectionByIndex: 3.
+	self assert: inspector documentPresenter value equals: '#''asString''']
+			ensure: 
+				[self destroy: inspector.
+				debugger := nil.
+				self clearBreakAt: 10	"#size"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepOutMethod [
+	"not in a block. Step out to higher level method context"
+
+	self
+		openDebuggerOn: '| abc |
+self halt.
+abc := OrderedCollection with: 1 with: 2 with: 3. 
+abc do:[:int |
+	| array |
+	array := OrderedCollection with: $a with: $b with: $c. 
+	array do: [:char | 
+		char size. 
+		char printString].
+	int size. 
+	int printString. 
+	int - 1]. 
+abc'.
+	self assert: debugger documentPresenter view selection equals: 'halt'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: 'with:'.
+	self debuggerDo: [debugger stepInto].
+	self assert: ('OrderedCollection class (SequenceableCollection class) >> with:with:with:*'
+				match: debugger frameListPresenter selection).
+	self debuggerDo: [debugger stepOut].
+	self assert: debugger frameListPresenter selection equals: 'Executed Code  @4 line 3'.	"on the top frame so should step one frame up"
+	self assert: debugger documentPresenter view selection equals: ':='
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepOutSelectedFrame1 [
+	self
+		openDebuggerOn: '| abc |
+self halt.
+abc := Array with: 1 with: 2 with: 3. 
+abc do:[:int |
+	| array |
+	array := Array with: $a with: $b with: $c. 
+	array do: [:char | 
+		char size. 
+		char printString].
+	int size. 
+	int printString. 
+	int - 1]. 
+abc'.
+	self assert: debugger documentPresenter view selection equals: 'halt'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: 'with:'.
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepThrough].
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: 'with:'.	"inner #with:with:with:"
+	debugger frameListPresenter selectionByIndex: 3.
+	self debuggerDo: [debugger stepOut].	"this will step out of the executed code frame and resume"
+	self assert: (debugger view isKindOf: DeafObject).
+	debugger := nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepOutSelectedFrame2 [
+	self
+		openDebuggerOn: '| abc |
+self halt.
+abc := Array with: 1 with: 2 with: 3. 
+abc do:[:int |
+	| array |
+	array := Array with: $a with: $b with: $c. 
+	array do: [:char | 
+		char size. 
+		char printString].
+	int size. 
+	int printString. 
+	int - 1]. 
+abc'.
+	self assert: debugger documentPresenter view selection equals: 'halt'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: 'with:'.
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepThrough].
+	self debuggerDo: [debugger stepThrough].
+	self assert: debugger documentPresenter view selection equals: 'with:'.	"inner #with:with:with:"
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepThrough].
+	self assert: debugger documentPresenter view selection equals: 'size'.	"innermost `size`"
+	debugger frameListPresenter selectionByIndex: 5.	"Executed code `home frame`"
+	self debuggerDo: [debugger stepOut]. "this will step out of the executed code frame and resume"
+	self assert: (debugger view isKindOf: DeafObject).
+	debugger := nil. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepOutTopFrame [
+	self
+		openDebuggerOn: '| abc |
+self halt.
+abc := Array with: 1 with: 2 with: 3. 
+abc do:[:int |
+	| array |
+	array := Array with: $a with: $b with: $c. 
+	array do: [:char | 
+		char size. 
+		char printString].
+	int size. 
+	int printString. 
+	int - 1]. 
+abc'.
+	self assert: debugger documentPresenter view selection equals: 'halt'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: 'with:'.
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepOver].
+	self debuggerDo: [debugger stepThrough].
+	self debuggerDo: [debugger stepThrough].
+	self assert: debugger documentPresenter view selection equals: 'with:'.	"inner #with:with:with:"
+	self assert: debugger frameListPresenter selectionByIndex equals: 1.
+	self debuggerDo: [debugger stepOut]. "on the top frame so this should just resume."
+	self assert: (debugger view isKindOf: DeafObject). 
+	debugger := nil. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepPointMarkers [
+	| stepPointsMarkers |
+	self testsIssue: #issue401
+		withTitle: 'Step Into A Block Without going thru the detail code? Is this possible.'.
+	self
+		openDebuggerOn: '| array string |
+array := Array with: ''Ã½'' with: ''def'' with: ''ghi''. 
+string := ''Â¾''. 
+self halt. 
+array do:[:theString |
+	string := string, theString]. 
+array'.
+	stepPointsMarkers := debugger methodSourcePresenter gsMethod stepPoints
+				collect: [:assoc | assoc key].
+	self assert: (stepPointsMarkers at: 1) = (1 to: 2).
+	self assert: (stepPointsMarkers at: 2) = (33 to: 37).
+	self assert: (stepPointsMarkers at: 3) = (24 to: 25).
+	self assert: (stepPointsMarkers at: 4) = (79 to: 80).
+	self assert: (stepPointsMarkers at: 5) = (96 to: 97).
+	self assert: (stepPointsMarkers at: 6) = (109 to: 110).
+	self assert: (stepPointsMarkers at: 7) = (162 to: 162).
+	self assert: (stepPointsMarkers at: 8) = (112 to: 122).
+	self assert: (stepPointsMarkers at: 9) = (113 to: 122).
+	self assert: (stepPointsMarkers at: 10) = (143 to: 143).
+	self assert: (stepPointsMarkers at: 11) = (134 to: 134).
+	self assert: (stepPointsMarkers at: 12) = (153 to: 154).
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_stepThrough [
+	self testsIssue: #issue401
+		withTitle: 'Step Into A Block Without going thru the detail code? Is this possible.'.
+	self
+		openDebuggerOn: '| array string |
+array := Array with: ''abc'' with: ''def'' with: ''ghi''. 
+string := String new. 
+self halt. 
+array do:[:theString |
+	string := string, theString]. 
+array'.
+	self assert: debugger documentPresenter view selection equals: 'halt'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: 'do:'.
+	self debuggerDo: [debugger stepThrough].
+	self assert: debugger documentPresenter view selection equals: ', '.	"inside block"
+	self assert: debugger frameListPresenter selection equals: '[] in Executed Code  @11 line 6'.
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger documentPresenter view selection equals: ':='.
+	self assert: debugger frameListPresenter selection equals: '[] in Executed Code  @12 line 6'.
+	self debuggerDo: [debugger resumeProcess]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_switchProcesses [
+	| activeProcesses longRunningProcess |
+	activeProcesses := session executeString: 'ProcessorScheduler scheduler allProcesses size'.
+	gsProcess := session executeString: '[(Delay forSeconds: 9999) wait] fork asOop.'.
+	session executeString: '(Delay forSeconds: 1) wait'.	"let forked process start"
+	self
+		openDebuggerOn: 'nil halt';
+		assert: debugger processListPresenter list size equals: activeProcesses + 1.
+	longRunningProcess := debugger processListPresenter list
+				detect: [:processService | processService oop = gsProcess].
+	self debuggerDo: [debugger processListPresenter selection: longRunningProcess].
+	self debuggerDo: [self selectFrameAt: 6].
+	self
+		assert: debugger methodSourcePresenter documentPresenter value
+			equals: '[(Delay forSeconds: 9999) wait] fork asOop.';
+		assert: longRunningProcess oop equals: gsProcess
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_tempNamedReceiver [
+	| x |
+	self testsIssue: #issue902
+		withTitle: '(Oscar3.2pre-release5) message temp named receiver gets lost in inspector'.
+	self openDebuggerOn: '| receiver | 
+receiver := ''fnoodle''. 
+self halt.'.
+	self assert: debugger variableListPresenter list size equals: 3.	"two 'receivers' and an 'args and temps label'"
+	self assert: debugger variableListPresenter list first value equals: 'nil'.
+	self assert: debugger variableListPresenter list first key value equals: 'receiver'.
+	self assert: debugger variableListPresenter list last value equals: '''fnoodle'''.
+	self assert: debugger variableListPresenter list last key value = 'receiver'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_terminateDoesNotWalkback [
+	"Terminate a process other than the primary one"
+
+	| terminateProcess allProcesses processTerminated |
+	self testsIssue: #issue82 withTitle: 'Pressing Terminate button gives walkback'.
+	allProcesses := session executeString: 'ProcessorScheduler scheduler allProcesses size'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[gsProcess := session executeString: '[9999 timesRepeat:[(Delay forSeconds: 1) wait]] fork asOop'.
+	self
+		openDebuggerOn: 'nil halt';
+		assert: debugger processListPresenter list size equals: allProcesses + 1;
+		assert: (debugger processListPresenter selectionByIndex: allProcesses + 1) notNil.
+	TestMessageBox plannedResult: #yes.	"confirm we want to terminate process"
+	processTerminated := false.
+	terminateProcess := 
+			[processTerminated := debugger terminateProcess notNil.
+			self assert: processTerminated.
+			
+			[self
+				assert: debugger _processList size = allProcesses
+					description: '_processList size was not ' , allProcesses size printString;
+				assert: debugger processListPresenter list size = allProcesses
+					description: 'processListPresenter list size was not ' , allProcesses size printString]
+					on: Error
+					do: 
+						[:ex |
+						"the debugger may be gone already"
+						]]
+					fork.
+	[processTerminated] whileFalse: [(Delay forMilliseconds: 10) wait].
+	
+	[TestMessageBox disableJadeiteTestMessageBox.
+	self destroy: debugger] on: Error
+			do: 
+				[:ex |
+				"the debugger may be gone already"
+				]]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.	"in case the test gets an error before we destroy the debugger"
+				terminateProcess terminate.
+				gsProcess := nil]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_unicodeMethod [
+	"This won't actually display the character x3B1 correctly in the debugger yet but at least no error occurs.
+	The lower extended characters should display correctly though. "
+
+	self testsIssue: #issue
+		withTitle: '(3.0.65) browse methods containing `%` yields "Can''t hold $\x3B1" Dollphin error'.
+	session executeString: 'RowanServicesTest new compileUnicodeMethod'.
+	self openDebuggerOn: 'RowanServicesTest new iAmAUnicodeMethod'.
+	self assert: debugger frameListPresenter selection
+		equals: 'RowanServicesTest >> iAmAUnicodeMethod @3 line 5'.
+	self assert: debugger methodSourcePresenter documentPresenter view backcolor
+		equals: JadeiteTextStyles default colorForNoEdits.
+	self assert: debugger methodSourcePresenter documentPresenter value
+		equals: 'iAmAUnicodeMethod
+
+		| abc |
+		abc := ''Ï''.
+		self halt. 
+		^abc'.
+	debugger variableListPresenter selectionByIndex: 7.
+	self assert: debugger variableListPresenter selection value equals: '''Ï'''.
+	self assert: debugger variableDataPresenter value equals: '''Ï'''.
+
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_unsavedChangesActionChangeFrame [
+	| finished |
+	self testsIssue: #issue176 withTitle: 'unsaved debugger frame method not handled well'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[self openDebuggerOn: 'nil halt'.
+	self assert: debugger frameListPresenter selection equals: 'Executed Code  @2 line 1'.
+	debugger methodSourcePresenter documentPresenter value: 'new text'.
+	debugger methodSourcePresenter documentPresenter view isModified: true.
+	TestMessageBox plannedResult: #yes.	"ignore changes"
+	finished := false.
+	self
+		debuggerDo: [
+			[debugger stepOver.
+			finished := true] forkAt: Processor activePriority + 1].
+	[finished] whileFalse: [(Delay forMilliseconds: 50) wait].
+	self assert: debugger frameListPresenter selectionByIndex equals: 1]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_unsavedChangesActionChangeToHomeFrame [
+	self testsIssue: #issue176 withTitle: 'unsaved debugger frame method not handled well'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[| originalSource |
+	originalSource := '(Array with: 1) do:[:obj | self halt. obj size]'.
+	self openDebuggerOn: originalSource.
+	self assert: ( '[] in Executed Code  @* line *' match: debugger frameListPresenter selection).
+	debugger methodSourcePresenter documentPresenter value: 'new text'.
+	debugger methodSourcePresenter documentPresenter view isModified: true.
+	TestMessageBox plannedResult: #no.
+	self selectFirstFrameStartingWith:  'Executed Code'. 
+	self assert: debugger methodSourcePresenter documentPresenter value equals: originalSource]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_unsavedChangesActionStepping [
+	| originalSource |
+	self testsIssue: #issue176 withTitle: 'unsaved debugger frame method not handled well'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	originalSource := 'nil halt. Array new. Array new. Array new.'.
+	
+	[self openDebuggerOn: originalSource.
+	self assert: ( 'Executed Code  @* line *' match: debugger frameListPresenter selection).
+	debugger methodSourcePresenter documentPresenter value: 'step over'.
+	debugger methodSourcePresenter documentPresenter view isModified: true.
+	TestMessageBox plannedResult: #yes.	"don't save changes"
+	self debuggerDo: [debugger stepOver].
+	self assert: debugger methodSourcePresenter documentPresenter value equals: originalSource.
+	debugger methodSourcePresenter documentPresenter value: 'step into'.
+	debugger methodSourcePresenter documentPresenter view isModified: true.
+	TestMessageBox plannedResult: #no.	"keep changes"
+	self debuggerDo: [[debugger stepInto] fork].
+	self assert: debugger methodSourcePresenter documentPresenter value equals: 'step into']
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_variableDisplayLabels [
+	| source |
+	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'TestCase'
+		instVars: #(#achoo #ulp #vooey #wahoo)
+		package: 'RowanSample1-Tests'.
+	source := 'testBlockMenuItems
+	| xyz uvw |
+	uvw := Array new. 
+  self
+    testBlockMenuItems: [ 
+      | ghi abc def |
+      def := uvw.
+      def
+        add: #abc;
+        add: 2.
+		ghi := def. 
+		abc := ghi. 
+      xyz
+        size;
+        halt ]'.
+	self selectCategoriesNamed: (Array with: 'tests').
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'testBlockMenuItems: block
+	block value.'.
+	self selectCategoriesNamed: (Array with: 'tests').
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
+	"on ExecBlock frame"
+	self assert: (debugger variableListPresenter list at: 2) value equals: 'args and temps'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' #abc #def #ghi #uvw #xyz) asOrderedCollection.
+	self selectFirstFrameStartingWith: 'RowanSample1Test'. 
+	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
+	self assert: (debugger variableListPresenter list at: 8) value equals: 'args and temps'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #block)
+				asOrderedCollection.
+	self selectLastFrameStartingWith: 'RowanSample1Test'.
+	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
+	self assert: (debugger variableListPresenter list at: 8) value equals: 'args and temps'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #uvw #xyz)
+				asOrderedCollection
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_variableDynamicInstVarLabels [
+	| source |
+	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'TestCase'
+		instVars: #(#achoo #ulp #vooey #wahoo)
+		package: 'RowanSample1-Tests'.
+	source := 'testBlockMenuItems
+	| xyz uvw |
+	uvw := Array new. 
+  self
+    testBlockMenuItems: [ 
+      | ghi abc def |
+      def := uvw.
+      def
+        add: #abc;
+        add: 2.
+		ghi := def. 
+		abc := ghi. 
+      xyz
+        size;
+        halt ]'.
+	self selectCategoriesNamed: (Array with: 'tests').
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'testBlockMenuItems: block
+	block value.'.
+	self selectCategoriesNamed: (Array with: 'tests').
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self
+		openDebuggerOn: '(RowanSample1Test new dynamicInstVarAt: #dynamic put: ''theValue''; yourself) testBlockMenuItems'.
+	"on ExecBlock frame"
+	self assert: (debugger variableListPresenter list at: 2) value equals: 'args and temps'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' #abc #def #ghi #uvw #xyz) asOrderedCollection.
+	self selectFirstFrameStartingWith: 'RowanSample1Test'. 
+	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
+	self assert: (debugger variableListPresenter list at: 8) value equals: 'dynamic instance variables'.
+	self assert: (debugger variableListPresenter list at: 10) value equals: 'args and temps'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' '.dynamic' '' #block)
+				asOrderedCollection.
+	self selectLastFrameStartingWith: 'RowanSample1Test'.
+	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
+	self assert: (debugger variableListPresenter list at: 8) value equals: 'dynamic instance variables'.
+	self assert: (debugger variableListPresenter list at: 10) value equals: 'args and temps'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' '.dynamic' '' #uvw #xyz)
+				asOrderedCollection
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_variablePaneMenuOptions [
+	| contextMenu variableListPresenter |
+	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self openDebuggerOn: 'RowanSample1Test new testError'.
+	variableListPresenter := debugger variableListPresenter.
+	contextMenu := variableListPresenter view contextMenu.
+	variableListPresenter selectionByIndex: 1.	"receiver is always first"
+	#(#browseObjectClass #inspectVariable) do: 
+			[:selector |
+			| theItem query |
+			theItem := contextMenu items detect: [:menuItem | menuItem command = selector] ifNone: [].
+			query := CommandQuery commandDescription: theItem commandDescription
+						source: variableListPresenter view.
+			debugger queryCommand: query.
+			self assert: query isEnabled equals: true].
+	variableListPresenter selectionByIndex: 0.	"receiver is always first"
+	#(#browseObjectClass #inspectVariable) do: 
+			[:selector |
+			| theItem query |
+			theItem := contextMenu items detect: [:menuItem | menuItem command = selector] ifNone: [].
+			query := CommandQuery commandDescription: theItem commandDescription
+						source: variableListPresenter view.
+			debugger queryCommand: query.
+			self assert: query isEnabled equals: false].
+	variableListPresenter selectionByIndex: 2.
+	self assert: variableListPresenter selection isDisplayLabel.
+	self assert: variableListPresenter selection value equals: 'instance variables'.
+	#(#browseObjectClass #inspectVariable) do: 
+			[:selector |
+			| theItem query |
+			theItem := contextMenu items detect: [:menuItem | menuItem command = selector] ifNone: [].
+			query := CommandQuery commandDescription: theItem commandDescription
+						source: variableListPresenter view.
+			debugger queryCommand: query.
+			self assert: query isEnabled equals: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerTestCase >> test_variablesSorted [
+	| source |
+	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'TestCase'
+		instVars: #(#achoo #ulp #vooey #wahoo)
+		package: 'RowanSample1-Tests'.
+	source := 'testBlockMenuItems
+	| xyz uvw |
+	uvw := Array new. 
+  self
+    testBlockMenuItems: [ 
+      | ghi abc def |
+      def := uvw.
+      def
+        add: #abc;
+        add: 2.
+		ghi := def. 
+		abc := ghi. 
+      xyz
+        size;
+        halt ]'.
+	self selectCategoriesNamed: (Array with: 'tests').
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	source := 'testBlockMenuItems: block
+	block value.'.
+	self selectCategoriesNamed: (Array with: 'tests').
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
+	"on ExecBlock frame"
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' #abc #def #ghi #uvw #xyz) asOrderedCollection.
+	self selectFirstFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #block)
+				asOrderedCollection.
+	self selectLastFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
+		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #uvw #xyz)
+				asOrderedCollection
+]
