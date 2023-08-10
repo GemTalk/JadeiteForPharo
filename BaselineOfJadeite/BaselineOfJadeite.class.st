@@ -8,14 +8,6 @@ Class {
 BaselineOfJadeite >> baseline: spec [
 
 	<baseline>
-	self baselineNoScaffolding: spec
-]
-
-{ #category : 'baselines' }
-BaselineOfJadeite >> baselineNoScaffolding: spec [
-	"If sending #package: keeps track of load order, the requires statements aren't necessary"
-
-	<baseline>
 	spec for: #pharo do: [
 		spec
 			postLoadDoIt: #postload:package:;
@@ -57,14 +49,20 @@ BaselineOfJadeite >> baselineNoScaffolding: spec [
 			baseline: 'RemoteServiceReplication'
 			with: [ spec repository: self rsrUrl ].
 		spec
-			baseline: 'SparkleFFI'
-			with: [ spec repository: self sparkleFFIUrl ] ]
+			baseline: 'PharoGemStoneFFI'
+			with: [ spec repository: self pharoGemStoneFFIUrl ] ]
 ]
 
 { #category : 'baselines' }
 BaselineOfJadeite >> githubUrlForGemTalkProject: projectName [
 
 	^ 'github://GemTalk/' , projectName , ':main'
+]
+
+{ #category : 'baselines' }
+BaselineOfJadeite >> pharoGemStoneFFIUrl [
+
+	^ self urlForProject: 'PharoGemStoneFFI'
 ]
 
 { #category : 'actions' }
@@ -75,12 +73,6 @@ BaselineOfJadeite >> postload: loader package: packageSpec [
 BaselineOfJadeite >> rsrUrl [
 
 	^ self urlForProject: 'RemoteServiceReplication'
-]
-
-{ #category : 'baselines' }
-BaselineOfJadeite >> sparkleFFIUrl [
-
-	^ self urlForProject: 'SparkleFFI'
 ]
 
 { #category : 'baselines' }
