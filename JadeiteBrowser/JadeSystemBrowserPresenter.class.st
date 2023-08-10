@@ -1145,7 +1145,7 @@ JadeSystemBrowserPresenter >> isGlobalsTabSelected [
 { #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> isPackageListTabSelected [
 
-	^packageDictionaryTabs currentCard name = 'packageList'.
+	^packageDictionaryTabs currentCard name = 'Package'.
 
 ]
 

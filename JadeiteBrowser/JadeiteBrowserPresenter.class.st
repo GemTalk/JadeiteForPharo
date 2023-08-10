@@ -3006,7 +3006,9 @@ JadeiteBrowserPresenter >> updateDictionaries [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateDictionary [
-	classListPresenter model: ListModel new.
+	self isPackageListTabSelected  ifTrue:[^self]. 
+	packageListPresenter selections isEmpty ifTrue:[
+	classListPresenter model: ListModel new].
 	self todo:[classHierarchyPresenter model: JadeiteTreeModel new].
 	self updateServices: dictionaryListPresenter selections.
 	self isClassListTabSelected ifFalse: [self updateHierarchy].
