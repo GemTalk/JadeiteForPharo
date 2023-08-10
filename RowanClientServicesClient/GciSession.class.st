@@ -62,8 +62,8 @@ GciSession >> executeString: aString [
 	answeringService := RowanAnsweringServiceClient new registerWith:
 		                    library.
 	answeringService
-		command: #execReturningPrintString:context:;
-		commandArgs: (Array with: aString with: oop).
+		command: #exec:context:shouldDebug:;
+		commandArgs: (Array with: aString with: oop with: false).
 	BrowserUpdate current issueCommand: answeringService session: self.
 	answer := answeringService answer.
 	answer first ifFalse: [ ^ answer at: 2 ].

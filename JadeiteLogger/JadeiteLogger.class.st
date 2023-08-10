@@ -16,8 +16,9 @@ JadeiteLogger >> defaultLogFileName [
 	| ws |
 	ws := WriteStream on: String new.
 	ws nextPutAll: 'jadeiteCallTraceLog_'.
-	Date today printOn: ws format: 'yyyy_MM_dd_'.
-	Time now printOn: ws format: 'hh.mm.ss'.
+	ws nextPutAll: Date today yyyymmdd.
+	ws nextPut: $_.
+	Time now print24: true showSeconds: true on: ws.
 	ws nextPutAll: '.txt'.
 	^ws contents
 ]
@@ -83,6 +84,7 @@ JadeiteLogger >> loggingService: anObject [
 { #category : 'accessing' }
 JadeiteLogger >> newLoggingService [
 	| inst |
+	logFileName ifNil: [ logFileName := self defaultLogFileName ].
 	^shouldGetNewLoggerGroup
 		ifTrue: 
 			[inst := RowanLoggingService loggingServiceClass newWithGroupId: self nextGroupId logger: self.

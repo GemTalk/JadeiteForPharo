@@ -598,16 +598,6 @@ JadeiteConsole >> openJadeiteHelpFile [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> openJadeiteProjectsBrowser [
-	projectListPresenter hasSelection
-		ifTrue: [^projectListPresenter browseProject]
-		ifFalse: 
-			[gciSession hasServer ifTrue: [^(JadeiteBrowser showOnSession: gciSession)].
-			MessageBox warning: 'Cannot open Jadeite Projects browser'
-				caption: 'Cannot open Jadeite Projects browser']
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> openServerFile [
 	| filePath |
 	filePath := JadeiteServerFileSelectorDialog showOnSession: gciSession

@@ -2059,11 +2059,6 @@ JadeiteBrowserPresenter >> onViewOpened [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> openJadeiteProjectsBrowser [
-	^self addSystemBrowser
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> openSourceStyler [
 	| textStyles |
 	textStyles := methodSourcePresenter view editStyles textStyles.

@@ -46,17 +46,17 @@ BrowserUpdate class >> stopLogging [
 
 { #category : 'accessing' }
 BrowserUpdate >> activeClassServices [
-	^self registeredListServices select: [:service | service isClassService]
+	^self registeredListServices select: [:service | service isService and: [ service isClassService]]
 ]
 
 { #category : 'accessing' }
 BrowserUpdate >> activeMethodServices [
-	^self registeredListServices select: [:service | service isMethodService]
+	^self registeredListServices select: [:service | service isService and: [service isMethodService]]
 ]
 
 { #category : 'accessing' }
 BrowserUpdate >> activePackageServices [
-	^self registeredListServices select: [:service | service isPackageService]
+	^self registeredListServices select: [:service | service isService and:[service isPackageService]]
 ]
 
 { #category : 'accessing' }

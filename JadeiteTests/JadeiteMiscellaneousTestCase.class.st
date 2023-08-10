@@ -26,12 +26,12 @@ JadeiteMiscellaneousTestCase >> tearDown [
 
 { #category : 'as yet unclassified' }
 JadeiteMiscellaneousTestCase >> test_adHocCompileError [
-	self todo:[self testsIssue: #issue688 withTitle: '(3.0.92) Compile Errors in Workspace broken'.
+	self testsIssue: #issue688 withTitle: '(3.0.92) Compile Errors in Workspace broken'.
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '#(1 2'.
 	workspace codePane documentPresenter setFocus.
 	workspace codePane jadeExecute.
-	self assert: workspace codePane documentPresenter value equals: '#(1 2expected a right parenthesis'] 
+	self assert: workspace codePane documentPresenter value equals: '#(1 2expected a right parenthesis'
 ]
 
 { #category : 'as yet unclassified' }
@@ -79,7 +79,7 @@ JadeiteMiscellaneousTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpeningBr
 	BrowserUpdate current isLogging: true.
 	
 	[projectsBrowser
-		ifNil: [projectsBrowser := self openWindow: [transcript openJadeiteProjectsBrowser]].
+		ifNil: [projectsBrowser := self openWindow: [transcript openBrowser]].
 	
 	[BrowserUpdate current loggingService services
 		do: [:service | self deny: (service updateType includes: #updateAutoCommitButton)]]
