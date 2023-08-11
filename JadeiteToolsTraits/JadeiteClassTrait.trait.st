@@ -46,18 +46,20 @@ JadeiteClassTrait >> findClass [
 		issueCommand: answeringService
 		session: self gciSession.
 	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher | 
-			                answeringService answer select: [ :substring | 
-					                rxMatcher matchesPrefix: substring ] ];
+		                getList: [ :rxMatcher |
+			                answeringService answer select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ rxMatcher matchesPrefix: substring ] "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher" ] ];
 		                displayBlock: [ :e | e ];
 		                doubleClickOk;
-		                title: 'Jadeite Find Class';
+		                title: 'Jadeite Regex Find Class';
 		                yourself.
 	selection := dialogWindow chooseFromOwner: self currentWorld.
-	selection ifNotNil: [ 
+	selection ifNotNil: [
 		| classService |
 		classService := RowanClassService new name: selection.
-		Cursor wait showWhile: [ 
+		Cursor wait showWhile: [
 			self activePresenter updateAfterFindClass: classService ] ]
 ]
 
@@ -72,14 +74,18 @@ JadeiteClassTrait >> findPackage [
 		issueCommand: browserService
 		session: self gciSession.
 	packageServices := browserService projects
-		                   inject: (SortedCollection sortBlock: [ :x :y | x name < y name ])
+		                   inject:
+		                   (SortedCollection sortBlock: [ :x :y |
+			                    x name < y name ])
 		                   into: [ :coll :projectService |
 			                   coll addAll: projectService packages.
 			                   coll ].
 	dialogWindow := ListDialogWindow new
 		                getList: [ :rxMatcher |
 			                packageServices select: [ :packageService |
-					                rxMatcher matchesPrefix: packageService name ] ];
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: packageService name ]
+						                ifFalse: [ rxMatcher matchesPrefix: packageService name ] "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher" ] ];
 		                displayBlock: [ :e | e name ];
 		                doubleClickOk;
 		                title: 'Jadeite Find Package';

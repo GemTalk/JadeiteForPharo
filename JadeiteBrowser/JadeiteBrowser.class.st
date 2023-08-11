@@ -67,34 +67,6 @@ JadeiteBrowser >> defaultLayout [
 ]
 
 { #category : 'actions' }
-JadeiteBrowser >> findClass [
-
-	| dialogWindow answeringService selection |
-	answeringService := RowanAnsweringService new
-		                    command: #allClassNames;
-		                    commandArgs: Array new.
-	BrowserUpdate current
-		issueCommand: answeringService
-		session: self gciSession.
-	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher |
-			                answeringService answer select: [ :substring |
-					                rxMatcher isString "why would the matcher ever be a string? Too weird."
-						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ rxMatcher matchesPrefix: substring ] ] ];
-		                displayBlock: [ :e | e ];
-		                doubleClickOk;
-		                title: 'Jadeite Find Class';
-		                yourself.
-	selection := dialogWindow chooseFromOwner: self currentWorld.
-	selection ifNotNil: [
-		| classService |
-		classService := RowanClassService new name: selection.
-		Cursor wait showWhile: [
-			self activePresenter updateAfterFindClass: classService ] ]
-]
-
-{ #category : 'actions' }
 JadeiteBrowser >> flipAutoCommit [
 	self gciSession flipAutoCommit
 ]
