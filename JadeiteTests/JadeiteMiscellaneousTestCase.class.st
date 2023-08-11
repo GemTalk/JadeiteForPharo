@@ -67,7 +67,7 @@ JadeiteMiscellaneousTestCase >> test_adHocExecute [
 		equals: 'UserGlobals at: #foo put: ''bar'''.
 	self
 		assert: (session executeString: 'UserGlobals at: #foo')
-		equals: '''bar'''
+		equals: 'bar'
 ]
 
 { #category : 'as yet unclassified' }
@@ -113,7 +113,7 @@ JadeiteMiscellaneousTestCase >> test_autoCommitInAdHocDisplay [
 
 { #category : 'as yet unclassified' }
 JadeiteMiscellaneousTestCase >> test_autoCommitInAdHocExecution [
-	| workspace |
+
 	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
 	
 	[self setAutoCommit: true.
@@ -131,7 +131,7 @@ JadeiteMiscellaneousTestCase >> test_autoCommitInAdHocExecution [
 				self commitTransaction.
 				self setAutoCommit: false.
 				workspace isModified: false.
-				workspace view close]
+				self destroy: workspace ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -156,7 +156,6 @@ JadeiteMiscellaneousTestCase >> test_autoCommitOffInAdHocDisplay [
 
 { #category : 'as yet unclassified' }
 JadeiteMiscellaneousTestCase >> test_autoCommitOffInAdHocExecution [
-	| workspace |
 	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
 	
 	[self setAutoCommit: false.

@@ -77,18 +77,20 @@ JadeiteBrowser >> findClass [
 		issueCommand: answeringService
 		session: self gciSession.
 	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher | 
-			                answeringService answer select: [ :substring | 
-					                rxMatcher matchesPrefix: substring ] ];
+		                getList: [ :rxMatcher |
+			                answeringService answer select: [ :substring |
+					                rxMatcher isString "why would the matcher ever be a string? Too weird."
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ rxMatcher matchesPrefix: substring ] ] ];
 		                displayBlock: [ :e | e ];
 		                doubleClickOk;
 		                title: 'Jadeite Find Class';
 		                yourself.
 	selection := dialogWindow chooseFromOwner: self currentWorld.
-	selection ifNotNil: [ 
+	selection ifNotNil: [
 		| classService |
 		classService := RowanClassService new name: selection.
-		Cursor wait showWhile: [ 
+		Cursor wait showWhile: [
 			self activePresenter updateAfterFindClass: classService ] ]
 ]
 
