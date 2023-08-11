@@ -143,33 +143,37 @@ RowanFrameService >> printOn: aStream at: index [
 ]
 
 { #category : 'printing' }
-RowanFrameService >> printVariable: variableService on: stream [
+RowanFrameService >> printVariable: variableService on: aStream [
 
 	| valueString maxPrintSize |
-	stream
+	aStream
 		cr;
 		tab;
 		nextPutAll: variableService key value asString;
 		space;
 		nextPutAll: 'oop(';
-		print: variableService key key asString asNumber;
+		print: variableService oop;
 		nextPut: $);
 		space;
 		nextPutAll: '==';
 		space.
 	valueString := variableService value asString.
 	maxPrintSize := valueString size min: self maxPrint.
-	stream nextPutAll: (valueString copyFrom: 1 to: maxPrintSize).
-	valueString size > self maxPrint ifTrue: [ stream nextPutAll: '...' ]
+	aStream nextPutAll: (valueString copyFrom: 1 to: maxPrintSize).
+	valueString size > self maxPrint ifTrue: [ aStream nextPutAll: '...' ]
+]
+
+{ #category : 'printing' }
+RowanFrameService >> printVariables: variableServices on: aStream [
+
+	variableServices do: [ :variableService |
+		self printVariable: variableService on: aStream ]
 ]
 
 { #category : 'printing' }
 RowanFrameService >> printVarsOn: aStream [ 
 
 	| sortedVars sortedInstVars sortedTempsAndParms |
-	aStream
-		cr;
-		nextPutAll: '----------------------------------------------------'.
 	self printVariable: self vars first on: aStream.
 	sortedVars := (self vars copyFrom: 2 to: self vars size)
 		              asSortedCollection: [ :x :y |
@@ -180,14 +184,14 @@ RowanFrameService >> printVarsOn: aStream [
 		cr;
 		cr;
 		nextPutAll: 'instance variables:'.
-	self printVariable: sortedInstVars on: aStream.
+	self printVariables: sortedInstVars on: aStream.
 	sortedTempsAndParms := sortedVars reject: [ :var |
 		                       var key value first = $- ].
 	aStream
 		cr;
 		cr;
 		nextPutAll: 'temporary variables and parameters:'.
-	self printVariable: sortedTempsAndParms on: aStream
+	self printVariables: sortedTempsAndParms on: aStream
 ]
 
 { #category : 'accessing' }

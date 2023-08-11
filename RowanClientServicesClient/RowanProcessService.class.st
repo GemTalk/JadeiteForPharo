@@ -35,9 +35,7 @@ RowanProcessService >> dumpStackOn: aStream [
 		cr;
 		nextPutAll: '==============================================='.
 	self printFullStackOn: aStream.
-	aStream
-		cr;
-		nextPutAll: '==============================================='
+	
 ]
 
 { #category : 'public' }
@@ -97,10 +95,10 @@ RowanProcessService >> printFullStackOn: aStream [
 		| frameService |
 		frameService := frames at: index.
 		frameService printOn: aStream at: index.
-		frameService printVarsOn: aStream ].
+		frameService printVarsOn: aStream.
 	aStream
 		cr;
-		nextPutAll: '----------------------------------------------------'
+		nextPutAll: '----------------------------------------------------'. ].
 ]
 
 { #category : 'printing' }
