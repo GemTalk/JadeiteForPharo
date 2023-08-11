@@ -169,7 +169,7 @@ JadeiteDebuggerPresenter >> dumpStackToFile [
 	fileStream := File openForWriteFileNamed: fileName.
 	[ fileStream nextPutAll: writeStream contents ] ensure: [
 		fileStream close ].
-	UIManager inform: 'Stack written to: ' , fileName
+	UIManager inform: 'Stack written to: ' , Smalltalk imageDirectory pathString, File delimiter asString, fileName
 ]
 
 { #category : 'actions' }
