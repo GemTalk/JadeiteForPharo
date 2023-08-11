@@ -101,6 +101,17 @@ JadeiteDebuggerPresenter >> connectPresenters [
 			self methodSourcePresenter methodService source ]
 ]
 
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> copyStack [
+
+	| writeStream |
+	writeStream := WriteStream on: String new.
+	gsProcess dumpStackOn: writeStream.
+	Clipboard
+		clipboardText: writeStream contents
+		informing: 'Process stack copied to clipboard'
+]
+
 { #category : 'selection' }
 JadeiteDebuggerPresenter >> defaultFirstFrame [
 
@@ -206,6 +217,18 @@ JadeiteDebuggerPresenter >> gciSession: aGciSession [
 ]
 
 { #category : 'accessing' }
+JadeiteDebuggerPresenter >> gsProcess [
+
+	^ gsProcess
+]
+
+{ #category : 'accessing' }
+JadeiteDebuggerPresenter >> gsProcess: anObject [
+
+	gsProcess := anObject
+]
+
+{ #category : 'accessing' }
 JadeiteDebuggerPresenter >> homeFrame [
 	^frameListPresenter list detect: [:str | str = (self homeFrameOf: frame) printString]
 ]
@@ -217,6 +240,30 @@ JadeiteDebuggerPresenter >> homeFrameOf: theFrame [
 			frameService homeMethodSelector = theFrame homeMethodSelector and: 
 					[frameService method selector = frameService homeMethodSelector
 						and: [theFrame homeMethodClassName = frameService homeMethodClassName]]]
+]
+
+{ #category : 'initialization' }
+JadeiteDebuggerPresenter >> initializeFileMenu [
+
+	^ self newMenu
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Copy Stack';
+						  action: [ self copyStack ] ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteDebuggerPresenter >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'File';
+						  subMenu: self initializeFileMenu ] ];
+		  yourself
 ]
 
 { #category : 'initialization' }
@@ -285,11 +332,13 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 1000 @ 1200.
+	aWindowPresenter
+		initialExtent: 1000 @ 1200.
 	self updateCaption.
+	aWindowPresenter menu: self initializeMenubar. 
 	aWindowPresenter whenClosedDo: [
 		answer ifNil: [ answer := #terminate ].
-		[suspendedProcess resume] forkAt: Processor activePriority - 1 ]
+		[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
 ]
 
 { #category : 'menus' }

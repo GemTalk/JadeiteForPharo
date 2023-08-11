@@ -28,14 +28,16 @@ RowanProcessServiceClient >> cleanUpClient [
 RowanProcessServiceClient >> openDebugger [
 
 	| activeProcess |
-	self class debuggedProcessServices add: self. 
+	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
 	[
 	activeProcess suspend.
 	UIManager default defer: [ "open debugger in ui thread"
 		debugger := JadeiteDebuggerApplication showOnSession:
 			            GciSession current library.
-		debugger suspendedProcess: activeProcess.
+		debugger
+			suspendedProcess: activeProcess;
+			gsProcess: self.
 		debugger errorMessagePresenter text: errorMessage.
 		debugger frameListPresenter items: frames.
 		debugger selectInitialFrame ] ] fork.

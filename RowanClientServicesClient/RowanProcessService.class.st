@@ -24,6 +24,22 @@ RowanProcessService >> displayName [
 	^name
 ]
 
+{ #category : 'printing' }
+RowanProcessService >> dumpStackOn: aStream [
+
+	aStream
+		nextPutAll: errorMessage;
+		cr.
+	self printShortStackOn: aStream.
+	aStream
+		cr;
+		nextPutAll: '==============================================='.
+	self printFullStackOn: aStream.
+	aStream
+		cr;
+		nextPutAll: '==============================================='
+]
+
 { #category : 'public' }
 RowanProcessService >> frameForLevel: anInteger [ 
 
@@ -75,12 +91,32 @@ RowanProcessService >> oopType [
 ]
 
 { #category : 'printing' }
+RowanProcessService >> printFullStackOn: aStream [
+
+	1 to: self stack size do: [ :index |
+		| frameService |
+		frameService := frames at: index.
+		frameService printOn: aStream at: index.
+		frameService printVarsOn: aStream ].
+	aStream
+		cr;
+		nextPutAll: '----------------------------------------------------'
+]
+
+{ #category : 'printing' }
 RowanProcessService >> printOn: aStream [
 	aStream
 		nextPutAll: 'RowanProcessService(';
 		print: oop;
 		nextPutAll: ')';
 		yourself
+]
+
+{ #category : 'printing' }
+RowanProcessService >> printShortStackOn: aStream [
+
+	1 to: frames size do: [ :index |
+	(frames at: index) printOn: aStream at: index ]
 ]
 
 { #category : 'accessing' }
