@@ -158,6 +158,21 @@ JadeiteDebuggerPresenter >> displayVariables: selectedFrame [
 ]
 
 { #category : 'actions' }
+JadeiteDebuggerPresenter >> dumpStackToFile [
+
+	| writeStream fileName fileStream |
+	writeStream := WriteStream on: String new.
+	gsProcess dumpStackOn: writeStream.
+	fileName := Date today yyyymmdd , '_'
+	            , Time millisecondClockValue printString
+	            , '_rowanServerStackDump.txt'.
+	fileStream := File openForWriteFileNamed: fileName.
+	[ fileStream nextPutAll: writeStream contents ] ensure: [
+		fileStream close ].
+	UIManager inform: 'Stack written to: ' , fileName
+]
+
+{ #category : 'actions' }
 JadeiteDebuggerPresenter >> editSave [
 
 	^self methodSourcePresenter saveAction ifNotNil: [:action | action value]
@@ -247,10 +262,15 @@ JadeiteDebuggerPresenter >> initializeFileMenu [
 
 	^ self newMenu
 		  addGroup: [ :group |
-			  group addItem: [ :item |
+			  group
+				  addItem: [ :item |
 					  item
 						  name: 'Copy Stack';
-						  action: [ self copyStack ] ] ];
+						  action: [ self copyStack ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Dump Stack To File';
+						  action: [ self dumpStackToFile ] ] ];
 		  yourself
 ]
 

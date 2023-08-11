@@ -87,6 +87,14 @@ RowanFrameService >> label [
 	^label
 ]
 
+{ #category : 'printing' }
+RowanFrameService >> lineDelimiter [
+
+	^ OSPlatform current isWindows
+		  ifTrue: [ Character crlf ]
+		  ifFalse: [ Character lf ]
+]
+
 { #category : 'constants' }
 RowanFrameService >> maxPrint [
 	^200
@@ -134,7 +142,7 @@ RowanFrameService >> printOn: aStream [
 RowanFrameService >> printOn: aStream at: index [
 
 	^ aStream
-		  cr;
+		  nextPut: self lineDelimiter;
 		  nextPut: $[;
 		  nextPutAll: index printString;
 		  nextPut: $];
@@ -147,7 +155,7 @@ RowanFrameService >> printVariable: variableService on: aStream [
 
 	| valueString maxPrintSize |
 	aStream
-		cr;
+		nextPut: self lineDelimiter;
 		tab;
 		nextPutAll: variableService key value asString;
 		space;
@@ -181,15 +189,15 @@ RowanFrameService >> printVarsOn: aStream [
 	sortedInstVars := sortedVars select: [ :var |
 		                  var key value first = $- ].
 	aStream
-		cr;
-		cr;
+		nextPut: self lineDelimiter;
+		nextPut: self lineDelimiter;
 		nextPutAll: 'instance variables:'.
 	self printVariables: sortedInstVars on: aStream.
 	sortedTempsAndParms := sortedVars reject: [ :var |
 		                       var key value first = $- ].
 	aStream
-		cr;
-		cr;
+		nextPut: self lineDelimiter;
+		nextPut: self lineDelimiter;
 		nextPutAll: 'temporary variables and parameters:'.
 	self printVariables: sortedTempsAndParms on: aStream
 ]
