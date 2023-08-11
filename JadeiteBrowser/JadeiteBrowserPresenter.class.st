@@ -1294,6 +1294,20 @@ JadeiteBrowserPresenter >> hierarchyClassDoubleClicked [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenter >> initializeCategoryListPresenter [
+
+	^ JadeiteListPresenter new beMultipleSelection
+		  dropEnabled: true;
+		  wantsDrop: [ :transfer |
+			  transfer passenger allSatisfy: #isMethodService ];
+		  acceptDrop: [ :transfer |
+			  self
+				  moveMethods: transfer passenger
+				  toCategory:
+					  (self categoryListPresenter items at: transfer index) ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeCategoryText: methodColumn [
 
 	methodCategoryText := SpTextPresenter new
@@ -1405,7 +1419,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: listPresenters [
 
 	| categoryPage variablePage |
 	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
-	categoryListPresenter := JadeiteListPresenter new beMultipleSelection.
+	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
 	variableListPresenter := JadeiteListPresenter new.
 	self initializeVariableListMenu.
@@ -1452,7 +1466,8 @@ JadeiteBrowserPresenter >> initializeMethodList: listPresenters [
 				                       ifFalse: [ Color black ] ];
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
-					                       methodService inSelectedPackage ] ].
+					                       methodService inSelectedPackage ] ];
+									dragEnabled: true.
 	methodsBox add: methodListPresenter.
 	radioButtonBox := SpBoxLayout newHorizontal.
 	instanceRadioButton := self newRadioButton label: 'Instance'.
