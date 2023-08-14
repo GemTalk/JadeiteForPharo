@@ -55,6 +55,25 @@ JadeiteAbstractTestCase >> answerYesToDialogDuring: block [
 	block ensure: [TestMessageBox disableJadeiteTestMessageBox]
 ]
 
+{ #category : 'asserting' }
+JadeiteAbstractTestCase >> assert: actualObject isKindOf: expectedType [
+	(actualObject isKindOf: expectedType)
+		ifFalse: 
+			[self fail: ((WriteStream on: String new)
+						nextPutAll: 'Expected a ';
+						print: expectedType;
+						nextPutAll: ' Actual: ';
+						print: actualObject class;
+						nextPutAll: '.';
+						contents)]
+]
+
+{ #category : 'asserting' }
+JadeiteAbstractTestCase >> assertIsNil: anArgument [
+
+	self assert: anArgument value equals: nil
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> assertMethodInList: selector [
 	self assertMethodInList: selector presenter: self methodListPresenter
@@ -189,6 +208,12 @@ JadeiteAbstractTestCase >> createNewTestProjectNamed: projectName [
 	testService := RowanTestService command: #createNewTestProjectNamed:
 				withArgs: (Array with: projectName).
 	self issueCommand: testService
+]
+
+{ #category : 'asserting' }
+JadeiteAbstractTestCase >> denyIsNil: anArgument [
+
+	self deny: anArgument value equals: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -938,7 +963,7 @@ JadeiteAbstractTestCase >> setBreakAt: anInteger [
 	self projectsPresenter setBreakPointAt: anInteger in: self projectsPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteAbstractTestCase >> setUp [
 	super setUp.
 	user ifNil: [user := 'SystemUser'].

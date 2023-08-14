@@ -179,7 +179,7 @@ JadeiteServerFileSelectorPresenter >> select [
 { #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> selectedFileOrDirectory [
 
-	^directoryContentsList selectedItem value first
+	^directoryContentsList selectedItem value ifNil:[ pathText text] ifNotNil: [ :array | array first ]
 ]
 
 { #category : 'as yet unclassified' }

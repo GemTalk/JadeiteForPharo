@@ -114,6 +114,11 @@ GciSession >> logout [
 	library disconnect
 ]
 
+{ #category : 'accessing' }
+GciSession >> oopNil [ 
+	^20
+]
+
 { #category : 'server' }
 GciSession >> serverPerform: unused with: stonString [
 	"Temporarily, unpack the STON string and use RSR for replication. 

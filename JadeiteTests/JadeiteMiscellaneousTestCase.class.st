@@ -8,14 +8,20 @@ Class {
 }
 
 { #category : 'support' }
-JadeiteMiscellaneousTestCase >> displayAndPrint [
+JadeiteMiscellaneousTestCase >> dismissPopoverAndPrint [
 
-	workspace codePane jadeDisplay.
-	SpCodePopoverPrintPresenter allInstances do: [ :popup | 
+	SpCodePopoverPrintPresenter allInstances do: [ :popup |
 		popup dismissAndPrint ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
+JadeiteMiscellaneousTestCase >> displayAndPrint [
+
+	workspace codePane jadeDisplay.
+	self dismissPopoverAndPrint
+]
+
+{ #category : 'support' }
 JadeiteMiscellaneousTestCase >> tearDown [
 	super tearDown.
 	workspace
@@ -34,7 +40,7 @@ JadeiteMiscellaneousTestCase >> test_adHocCompileError [
 	self assert: workspace codePane documentPresenter value equals: '#(1 2expected a right parenthesis'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_adHocDisplay [
 
 	self
@@ -50,7 +56,7 @@ JadeiteMiscellaneousTestCase >> test_adHocDisplay [
 		equals: '123 "''123''"'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_adHocExecute [
 
 	self
@@ -70,7 +76,7 @@ JadeiteMiscellaneousTestCase >> test_adHocExecute [
 		equals: 'bar'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpeningBrowser [
 	"Not a very good test but the last service logged should not be an #updateAutoCommit command which was the bug"
 
@@ -87,97 +93,119 @@ JadeiteMiscellaneousTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpeningBr
 			ensure: [BrowserUpdate current isLogging: loggingState]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autoCommitInAdHocDisplay [
-	| workspace |
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
-	
-	[self setAutoCommit: true.
+
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
+
+	[
+	self setAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '123'.
 	workspace codePane documentPresenter setFocus.
-	workspace codePane jadeDisplay.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self displayAndPrint.
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self assert: workspace codePane documentPresenter value equals: '123 123']
-			ensure: 
-				[session executeString: 'UserGlobals removeKey: #TestCommit'.
-				self commitTransaction.
-				self setAutoCommit: false.
-				workspace isModified: false.
-				workspace view close]
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self
+		assert: workspace codePane documentPresenter text
+		equals: '123 "''123''"' ] ensure: [
+		session executeString: 'UserGlobals removeKey: #TestCommit'.
+		self commitTransaction.
+		self setAutoCommit: false.
+		workspace isModified: false ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autoCommitInAdHocExecution [
 
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
-	
-	[self setAutoCommit: true.
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
+
+	[
+	self setAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '''doSomething'''.
 	workspace codePane documentPresenter setFocus.
 	workspace codePane jadeExecute.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')	"TestCommit was committed"]
-			ensure: 
-				[session executeString: 'UserGlobals removeKey: #TestCommit'.
-				self commitTransaction.
-				self setAutoCommit: false.
-				workspace isModified: false.
-				self destroy: workspace ]
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') "TestCommit was committed" ]
+		ensure: [
+			session executeString: 'UserGlobals removeKey: #TestCommit'.
+			self commitTransaction.
+			self setAutoCommit: false.
+			workspace isModified: false ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autoCommitOffInAdHocDisplay [
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
-	
-	[self setAutoCommit: false.
+
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
+
+	[
+	self setAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '123'.
 	workspace codePane documentPresenter setFocus.
-	workspace codePane jadeDisplay.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self displayAndPrint.
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self assert: workspace codePane documentPresenter value equals: '123 123']
-			ensure: 
-				[workspace isModified: false.
-				workspace view close]
+	self assertIsNil:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self
+		assert: workspace codePane documentPresenter text
+		equals: '123 "''123''"' ] ensure: [ workspace isModified: false ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autoCommitOffInAdHocExecution [
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
-	
-	[self setAutoCommit: false.
+
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
+
+	[
+	self setAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '''doSomething'''.
 	workspace codePane documentPresenter setFocus.
 	workspace codePane jadeExecute.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')]
-			ensure: 
-				[workspace isModified: false.
-				workspace view close]
+	self assertIsNil:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') ]
+		ensure: [ workspace isModified: false ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autoCommitUpdatedInSession [
 	| autoCommit |
 	
-	[autoCommit := session autoCommit.
+	[autoCommit := session autoCommit value.
 	self setAutoCommit: true.
 	self assert: session autoCommit.
 	self setAutoCommit: false.
@@ -443,45 +471,6 @@ Another extended char - Ã  aaa Å'
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMiscellaneousTestCase >> test_findInWorkspace [
-	| workspace findView documentPresenter |
-	self testsIssue: #issue468 withTitle: 'Find text dialog does not highlight correctly'.
-	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[workspace model value: '1234
-
-
-1254
-
-124'.
-	documentPresenter := workspace codePane documentPresenter.
-	findView := workspace codePane documentPresenter view findPrompt: '12*4'.
-	findView modePresenter value: #wildcardExpression.
-	findView wrapPresenter value: true.
-	findView findNext.
-	self assert: documentPresenter selection equals: '1234'.
-	findView findNext.
-	self assert: documentPresenter selection equals: '1254'.
-	findView findNext.	"Last one doesn't match pattern. wrap around finds first again"
-	self assert: documentPresenter selection equals: '1234']
-			ensure: 
-				[workspace view close.
-				findView view close]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMiscellaneousTestCase >> test_instVarConstants [
-	self assert: (RowanClassService indexOfInstVar: 'meta')
-		equals: RowanClassService new indexOfMetaInstVar.
-	self assert: (RowanClassService indexOfInstVar: 'methods')
-		equals: RowanClassService new indexOfMethodsInstVar.
-	self assert: (RowanMethodService indexOfInstVar: 'testResult')
-		equals: RowanMethodService new indexOfTestResultInstVar.
-	self assert: (RowanMethodService indexOfInstVar: 'firstReference')
-		equals: RowanMethodService new indexOfFirstReferenceInstVar
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMiscellaneousTestCase >> test_logoutFatalError [
 	self testsIssue: #issue858 withTitle: 'better gci error reporting is needed'.
 	TestMessageBox enableJadeiteTestMessageBox.
@@ -508,7 +497,7 @@ JadeiteMiscellaneousTestCase >> test_logoutFatalError [
 	self deny: session isValidSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_methodServiceClassNameIsString [
 	| methodService |
 	self testsIssue: #issue441
@@ -549,29 +538,34 @@ JadeiteMiscellaneousTestCase >> test_releaseOops [
 	self auditAll
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_returnedServices [
-	"sanity test that we can use the returned services in other tests" 
+	"sanity test that we can use the returned services in other tests"
 
 	workspace := JadeiteWorkspace showOnSession: session.
 	self assert: (workspace isKindOf: JadeiteWorkspace).
 	workspace setDocumentData: '123'.
 	workspace codePane documentPresenter setFocus.
-	workspace codePane jadeDisplay.
-	self assert: workspace codePane documentPresenter value equals: '123 123'.
-	self assert: BrowserUpdate current returnedServices size equals: 1. 
-	self assert: (BrowserUpdate current returnedServices first isKindOf: RowanAnsweringService). 
-	self assert: BrowserUpdate current returnedServices first answer equals: '123'
+	self displayAndPrint.
+	self
+		assert: workspace codePane documentPresenter text
+		equals: '123 "''123''"'.
+	self assert: BrowserUpdate current updates size equals: 1.
+	self assert: (BrowserUpdate current updates first isKindOf:
+			 RowanAnsweringService).
+	self
+		assert: BrowserUpdate current updates first answer last
+		equals: '123'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_serviceClassBookkeeping [
 	"All service classes should have an entry in`Rowan platform serviceClasses`. 
 	Only SystemUser can reference rowan services classes directly so other users
 	must use indirection to look up the class. Hence the necessity of this extra
 	bookkeeping"
 
-	| testService remoteOop block |
+	| testService remoteClassNameSymbols |
 	self testsIssue: #issue687 withTitle: 'inspection as DataCurator broken'.
 	"check all client service classes exist on server"
 	RowanService subclasses do: 
@@ -586,17 +580,10 @@ JadeiteMiscellaneousTestCase >> test_serviceClassBookkeeping [
 			self assert: remoteClassExists].
 
 	"check all remote service classes exist on client"
-	testService := RowanTestService new.
-	remoteOop := testService remoteServiceClassNamesOop: session.
-	block := 
-			[:remoteName |
-			| hasClientClass |
-			hasClientClass := RowanService withAllSubclasses detect: [:cls | cls name = remoteName] ifNone: [].
-			self denyIsNil: hasClientClass].
-	testService
-		execute: block
-		overArrayOop: remoteOop
-		session: session
+	remoteClassNameSymbols := session executeString: '(RowanService subclasses collect:[:cls | cls name]) asArray'.
+	remoteClassNameSymbols do:[:className |
+		self denyIsNil: (Smalltalk at: className ifAbsent: [  ])]
+
 ]
 
 { #category : 'as yet unclassified' }

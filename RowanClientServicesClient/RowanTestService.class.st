@@ -10,6 +10,12 @@ Class {
 	#category : 'RowanClientServicesClient'
 }
 
+{ #category : 'rsr' }
+RowanTestService class >> templateClassName [ 
+
+	^#RowanTestService
+]
+
 { #category : 'displaying' }
 RowanTestService >> displayName [
 	"for logging. for now"
