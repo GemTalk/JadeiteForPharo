@@ -597,7 +597,7 @@ JadeiteConsole >> openJadeiteHelpFile [
 		directory: SessionManager current installationDirectory, 'Help\'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteConsole >> openServerFile [
 	| filePath |
 	filePath := JadeiteServerFileSelectorDialog showOnSession: gciSession

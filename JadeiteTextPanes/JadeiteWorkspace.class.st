@@ -41,9 +41,18 @@ JadeiteWorkspace >> initializeFileMenu [
 	^ self newMenu
 		  addItem: [ :item |
 			  item
-				  name: 'Save Server File ...';
+				  name: 'Open Server File';
+				  shortcut: $o shift meta;
+				  action: [ self openServerFile ] ];
+		  addItem: [ :item |
+			  item
+				  name: 'Save Server File';
 				  shortcut: $s meta;
 				  action: [ self saveServerFile ] ];
+		  addItem: [ :item2 |
+			  item2
+				  name: 'Save Server File As ...';
+				  action: [ self saveServerFileAs ] ];
 		  yourself
 ]
 
@@ -60,10 +69,15 @@ JadeiteWorkspace >> initializeMenubar [
 ]
 
 { #category : 'initialization' }
-JadeiteWorkspace >> initializePresenters [ 
+JadeiteWorkspace >> initializePresenters [
+
 	super initializePresenters.
-	self bindKeyCombination: $s meta asKeyCombination 
-			toAction: [ self saveServerFile ]
+	self
+		bindKeyCombination: $s meta asKeyCombination
+		toAction: [ self saveServerFile ].
+	self
+		bindKeyCombination: $o shift meta asKeyCombination
+		toAction: [ self openServerFile ]
 ]
 
 { #category : 'initialization' }
@@ -82,6 +96,24 @@ JadeiteWorkspace >> inspectOop: anOop [
 		  gciSession library
 ]
 
+{ #category : 'actions' }
+JadeiteWorkspace >> openServerFile [
+
+	| filePath service |
+	filePath := JadeiteServerFileSelectorDialog
+		            showOnSession: gciSession
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+	filePath ifNil: [ ^ self ].
+	filename := filePath.
+	service := RowanFileService new
+		           session: gciSession;
+		           path: filename.
+	service isDirectory ifTrue: [
+		^ MessageBox notify: 'Cannot open a directory' ].
+	codePane text: service fileContents.
+	self updateCaption. 
+]
+
 { #category : 'public' }
 JadeiteWorkspace >> queryCommand: aCommandQuery [
 
@@ -96,6 +128,13 @@ JadeiteWorkspace >> queryCommand: aCommandQuery [
 
 { #category : 'actions' }
 JadeiteWorkspace >> saveServerFile [
+
+	filename ifNil: [ ^ self saveServerFileAs ].
+	self writeDocumentTo: filename
+]
+
+{ #category : 'actions' }
+JadeiteWorkspace >> saveServerFileAs [
 
 	| filePath |
 	filePath := JadeiteServerFileSaveDialog

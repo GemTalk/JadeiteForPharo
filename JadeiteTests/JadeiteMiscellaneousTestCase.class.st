@@ -449,14 +449,13 @@ JadeiteMiscellaneousTestCase >> test_fileSaveWithUnicode [
 	workspace := JadeiteServerFileWorkspace showOnSession: session
 				path: '/export/uffda2/users/ewinger/logs//testJadeiteUnicodeFile.txt'.
 	
-	[self assert: workspace codePane documentPresenter value
+	[self assert: workspace codePane documentPresenter text
 		equals: 'This is some unicode text
   
 Ã½ Å¡
 
-Another extended char - Ã  aaa Å'
-				replaceCrLfWithLf.
-	workspace codePane documentPresenter value: 'Ã² Ã³ Ã´ Ãµ Ã¶ Ã· Ã¸ Ã¹ Ãº Ã»'.
+Another extended char - Ã  aaa Å' replaceCrWithLf.
+	workspace codePane documentPresenter text: 'Ã² Ã³ Ã´ Ãµ Ã¶ Ã· Ã¸ Ã¹ Ãº Ã»'.
 	workspace saveDocument]
 			ensure: [self destroy: workspace].
 	workspace := JadeiteServerFileWorkspace showOnSession: session
