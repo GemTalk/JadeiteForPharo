@@ -347,11 +347,11 @@ JadeiteConsole >> initializeAutoCommit [
 JadeiteConsole >> initializeFileMenu [
 
 	^ self newMenu
-		  addItem: [ :item | 
+		  addItem: [ :item |
 			  item
 				  name: 'Open Server File ...';
 				  action: [ self openServerFile ] ];
-		  yourself
+		  yourself 
 ]
 
 { #category : 'initialization' }

@@ -10,6 +10,14 @@ String >> replaceCrLfWithLf [
 ]
 
 { #category : '*JadeiteToolsSupportClasses' }
+String >> replaceCrWithLf [
+
+	^ self
+		  copyReplaceAll: Character cr asString
+		  with: Character lf asString
+]
+
+{ #category : '*JadeiteToolsSupportClasses' }
 String >> subStrings: aString [
 	
 	^self substrings: aString

@@ -4,6 +4,9 @@ model is an instance of GciSession
 Class {
 	#name : 'JadeiteWorkspace',
 	#superclass : 'JadeiteTextDocument',
+	#instVars : [
+		'filename'
+	],
 	#category : 'JadeiteTextPanes'
 }
 
@@ -27,6 +30,49 @@ JadeiteWorkspace >> editRevert [
 	codePane documentPresenter value: lastSave
 ]
 
+{ #category : 'accessing' }
+JadeiteWorkspace >> filename [ 
+	^filename
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspace >> initializeFileMenu [
+
+	^ self newMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Save Server File ...';
+				  shortcut: $s meta;
+				  action: [ self saveServerFile ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspace >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'File';
+						  subMenu: self initializeFileMenu ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspace >> initializePresenters [ 
+	super initializePresenters.
+	self bindKeyCombination: $s meta asKeyCombination 
+			toAction: [ self saveServerFile ]
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspace >> initializeWindow: aWindowPresenter [
+
+	super initializeWindow: aWindowPresenter. 
+	aWindowPresenter menu: self initializeMenubar. 
+]
+
 { #category : 'actions' }
 JadeiteWorkspace >> inspectOop: anOop [
 
@@ -46,6 +92,18 @@ JadeiteWorkspace >> queryCommand: aCommandQuery [
 	(cmd == #'setEnvironment1' and: [environment == 1]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
 	(cmd == #'setEnvironment2' and: [environment == 2]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
 	^super queryCommand: aCommandQuery
+]
+
+{ #category : 'actions' }
+JadeiteWorkspace >> saveServerFile [
+
+	| filePath |
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString
+		            defaultFileName: 'workspace.txt'.
+	filePath ifNil: [ ^ self ].
+	self writeDocumentTo: filePath
 ]
 
 { #category : 'public' }
@@ -91,4 +149,16 @@ JadeiteWorkspace >> updateCaption [
 { #category : 'accessing' }
 JadeiteWorkspace >> value [ 
 	^self
+]
+
+{ #category : 'actions' }
+JadeiteWorkspace >> writeDocumentTo: newPath [
+	| service |
+	service := RowanFileService new
+				command: #write:;
+				commandArgs: (Array with: codePane documentPresenter text replaceCrWithLf);
+				path: newPath.
+	self issueCommand: service.
+	filename := newPath. 
+	self updateCaption
 ]

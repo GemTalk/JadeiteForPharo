@@ -110,6 +110,17 @@ JadeiteBrowser >> initializeAutoCommitPresenter [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowser >> initializeBindings [
+
+	self
+		bindKeyCombination: $n meta asKeyCombination
+		toAction: [ self openBrowser ];
+		bindKeyCombination: $t meta asKeyCombination
+		toAction: [ self openBrowserTab ];
+		bindKeyCombination: $f shift ctrl toAction: [ self findClass ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowser >> initializeJadeiteMenu [
 
 	^ self newMenu
@@ -184,7 +195,8 @@ JadeiteBrowser >> initializePresenters [
 	tabs := self instantiate: JadeiteNotebookPresenter.
 	self openNewBrowserTab.
 	self layout add: tabs.
-	self initializeAutoCommitPresenter
+	self initializeAutoCommitPresenter.
+	self initializeBindings.
 ]
 
 { #category : 'initialization' }

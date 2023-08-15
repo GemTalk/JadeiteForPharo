@@ -79,7 +79,7 @@ JadeiteServerFileSaveDialog >> fileNamePresenter [
 	^fileNamePresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteServerFileSaveDialog >> goto [
 	model value path: fileSelectorPresenter pathText value.
 	self showDirectoryContents
@@ -117,7 +117,7 @@ JadeiteServerFileSaveDialog >> pop [
 	^fileSelectorPresenter pop
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteServerFileSaveDialog >> save [
 	model value path = fileSelectorPresenter pathText value ifFalse: [^self goto].
 	fileSelectorPresenter pathText
@@ -129,4 +129,10 @@ JadeiteServerFileSaveDialog >> save [
 JadeiteServerFileSaveDialog >> selectedFileOrDirectory [
 
 	^self fileSelectorPresenter selectedFileOrDirectory, '/', fileNamePresenter text
+]
+
+{ #category : 'accessing' }
+JadeiteServerFileSaveDialog >> shellName [
+
+	^ 'Jadeite Save File Dialog'
 ]
