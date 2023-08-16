@@ -151,16 +151,6 @@ JadeiteMethodSourcePane >> outerJadeiteBrowser [
 ]
 
 { #category : 'actions - saving methods' }
-JadeiteMethodSourcePane >> reportCompileError: gsArguments [
-
-	| selectionIndex |
-	selectionIndex := (gsArguments first at: 2) asInteger - 1 max: 1.
-	self selectionInterval: (selectionIndex to: selectionIndex).
-	self insertPrintPopoverAfterCurrentSelection:
-		(gsArguments first at: 3)
-]
-
-{ #category : 'actions - saving methods' }
 JadeiteMethodSourcePane >> saveMethodIn: classService category: category [
 
 	| methodSource1 |

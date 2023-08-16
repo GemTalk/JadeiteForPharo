@@ -269,11 +269,11 @@ JadeiteTextDocument >> environment: anInteger [
 
 { #category : 'Jade' }
 JadeiteTextDocument >> executeSelectionOrLine [
-	^self executeSelectionOrLine: self contextObject shouldDebug: false
+	^self executeSelectionOrLine: self contextObject shouldDebug: false  onCompileError: [^self]
 ]
 
 { #category : 'accessing' }
-JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug [
+JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock [
 
 	| answeringService answer oop |
 	oop := context ifNil: [ 20 ].
@@ -286,12 +286,9 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	answer := answeringService answer.
 	answer ifNil: [ ^ nil ].
 	answer first ifFalse: [
-		SyntaxErrorNotification
-			inClass: Object
-			withCode: answer last
-			doitFlag: false
-			errorMessage: ((answer at: 2) first at: 3)
-			location: ((answer at: 2) first at: 2) ].
+		self reportCompileError: answer.
+		^compileErrorBlock value
+		 ]. 
 	^ answer last
 ]
 
@@ -513,6 +510,19 @@ JadeiteTextDocument >> removeQuotesFromSelection [
 		with: ''''.
 	self activeTextEdit replaceSelection: string.
 
+]
+
+{ #category : 'actions - saving methods' }
+JadeiteTextDocument >> reportCompileError: gsArguments [
+
+	| selectionIndex | 
+	self selectionInterval isEmpty ifTrue: [
+		selectionIndex := ((gsArguments at: 2) first at: 2) asInteger - 1
+			                  max: 1.
+		self selectionInterval: (selectionIndex to: selectionIndex) ].
+	self insertPrintPopoverAfterCurrentSelection:
+		((gsArguments at: 2) first at: 3).
+	^ nil
 ]
 
 { #category : 'accessing' }

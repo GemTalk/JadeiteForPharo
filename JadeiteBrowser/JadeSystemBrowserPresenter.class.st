@@ -817,11 +817,6 @@ JadeSystemBrowserPresenter >> editUndo [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> executeSelectionOrLine [
-	^self executeSelectionOrLine: self contextObject shouldDebug: false
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> fileOutDictionary [
 
 	| dictionaryName path string file index |
@@ -1183,49 +1178,6 @@ JadeSystemBrowserPresenter >> jadeDisplay [
 { #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> jadeExecute [
 	self jadeExecuteAndDisplay: false shouldDebug: false
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> jadeExecuteAndDisplay: aBoolean shouldDebug: shouldDebug [
-	| textView result value selectionRange offset |
-	textView := View focus.
-	result := self executeSelectionOrLine: self contextObject shouldDebug: shouldDebug.
-	result key
-		ifTrue: 
-			["success"
-			value := result value.
-			result := ''.
-			aBoolean
-				ifTrue: 
-					[(self gciSession isOopType: value)
-						ifFalse: [result := ' ' , value printString]
-						ifTrue: [result := ' ' , (self gciSession printString: value)]].
-			selectionRange := textView selectionRange.
-			textView
-				caretPosition: selectionRange stop + 1;
-				replaceSelection: result;
-				selectionStart: textView caretPosition - result size length: result size.
-			^value]
-		ifFalse: 
-			[| string count |
-			"compile error"
-			(result := result value first) isNil ifTrue: [^self].
-			offset := result at: 2.
-			result := result at: 3.
-			selectionRange := textView selectionRange.
-			(string := textView text) size < selectionRange stop
-				ifTrue: 
-					[self error: 'Select beyond the end of the text!?'
-					"string := documentPresenter value."].
-			string := string copyFrom: selectionRange start to: selectionRange stop.
-			string := string replaceCrLfWithLf copyFrom: 1 to: offset - 1.
-			count := (string select: [:each | each = Character lf]) size.
-			offset := offset + count.
-			textView
-				caretPosition: selectionRange start + offset - 1;
-				replaceSelection: result;
-				selectionStart: textView caretPosition - result size length: result size.
-			^self]
 ]
 
 { #category : 'as yet unclassified' }

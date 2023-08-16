@@ -22,7 +22,7 @@ JadeiteTextDocument >> currentSelectionOrLine [
 
 { #category : '*JadeiteToolsSupportClasses' }
 JadeiteTextDocument >> evaluate: aString onCompileError: compileErrorBlock onError: errorBlock [ 
-	^self executeSelectionOrLine: aString shouldDebug: false
+	^self executeSelectionOrLine: aString shouldDebug: false onCompileError: compileErrorBlock
 ]
 
 { #category : '*JadeiteToolsSupportClasses' }

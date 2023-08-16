@@ -46,12 +46,12 @@ JadeiteWorkspace >> initializeFileMenu [
 				  action: [ self openServerFile ] ];
 		  addItem: [ :item |
 			  item
-				  name: 'Save Server File';
+				  name: 'Save On Server';
 				  shortcut: $s meta;
 				  action: [ self saveServerFile ] ];
 		  addItem: [ :item2 |
 			  item2
-				  name: 'Save Server File As ...';
+				  name: 'Save On Server As ...';
 				  action: [ self saveServerFileAs ] ];
 		  yourself
 ]

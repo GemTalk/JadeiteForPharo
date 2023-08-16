@@ -301,7 +301,7 @@ CodeSourcePresenter >> jadeExecute [
 { #category : 'Jade' }
 CodeSourcePresenter >> jadeExecuteAndDisplay: showResult shouldDebug: shouldDebug [
 	| result |
-	result := self executeSelectionOrLine: self parentPresenter contextObject shouldDebug: shouldDebug.
+	result := self executeSelectionOrLine: self parentPresenter contextObject shouldDebug: shouldDebug onCompileError:[^self].
 	result ifNil: [^self].
 	result key
 		ifTrue: 
