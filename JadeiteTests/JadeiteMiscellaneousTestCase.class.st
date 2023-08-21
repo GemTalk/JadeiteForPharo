@@ -22,6 +22,12 @@ JadeiteMiscellaneousTestCase >> displayAndPrint [
 ]
 
 { #category : 'support' }
+JadeiteMiscellaneousTestCase >> focusWidgetText [
+
+	^ UIManager default world activeHand keyboardFocus model model text
+]
+
+{ #category : 'support' }
 JadeiteMiscellaneousTestCase >> tearDown [
 	super tearDown.
 	workspace
@@ -30,14 +36,21 @@ JadeiteMiscellaneousTestCase >> tearDown [
 			self destroy: workspace]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_adHocCompileError [
-	self testsIssue: #issue688 withTitle: '(3.0.92) Compile Errors in Workspace broken'.
+	"When the popup is raised in the workspace, the focus widget should be the popover.
+	We try to get that based on which widget is active as the workspace has no memory of the popover"
+
+	self
+		testsIssue: #issue688
+		withTitle: '(3.0.92) Compile Errors in Workspace broken'.
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '#(1 2'.
 	workspace codePane documentPresenter setFocus.
 	workspace codePane jadeExecute.
-	self assert: workspace codePane documentPresenter value equals: '#(1 2expected a right parenthesis'
+	self
+		assert: self focusWidgetText
+		equals: '''expected a right parenthesis'''
 ]
 
 { #category : 'tests' }
@@ -314,7 +327,7 @@ JadeiteMiscellaneousTestCase >> test_autocompleteSymbolsNotAddedToIfAutocomplete
 	self assert: (JadeiteSearch allSelectorSymbols includes: #covid19)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_classServiceNameIsString [
 	| classService |
 	self testsIssue: #issue441

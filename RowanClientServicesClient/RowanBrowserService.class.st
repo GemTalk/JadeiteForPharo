@@ -210,8 +210,6 @@ RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presen
 	| selectedServices |
 	selectedServices := BrowserUpdate current selectedServices asSet
 		                    asOrderedCollection.
-	selectedServices isEmpty ifFalse:[
-	selectedServices removeAll: selectedProjectServices].
 	self
 		command: #reloadProjects:andUpdateServices:;
 		commandArgs: (Array

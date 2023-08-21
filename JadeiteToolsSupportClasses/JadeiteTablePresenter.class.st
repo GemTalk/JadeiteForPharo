@@ -4,6 +4,12 @@ Class {
 	#category : 'JadeiteToolsSupportClasses'
 }
 
+{ #category : 'instance creation' }
+JadeiteTablePresenter class >> new [
+
+	^super new beResizable 
+]
+
 { #category : 'displaying' }
 JadeiteTablePresenter >> invalidate [
 	self refresh.	

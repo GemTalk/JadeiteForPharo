@@ -1526,17 +1526,19 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: listPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializePresenters [
 
-	| listPresenters classColumn |
+	| listPresenters classColumn projectPanedLayout |
 	super initializePresenters.
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
-	self initializeProjectListPresenterIn: listPresenters.
-	self initializePackageDictionaryTabsIn: listPresenters.
+	projectPanedLayout := SpPanedLayout newHorizontal positionOfSlider: 0.5.
+	self initializeProjectListPresenterIn: projectPanedLayout.
+	self initializePackageDictionaryTabsIn: projectPanedLayout.
+	listPresenters add: projectPanedLayout.
 	classColumn := SpBoxLayout newVertical.
-	listPresenters add: classColumn.
 	self initializeClassTabs: classColumn.
 	self initializeDefinedClassPackageText: classColumn.
+	listPresenters add: classColumn. 
 	self initializeFilterTabs: listPresenters.
 	self initializeMethodList: listPresenters.
 	self initializeLowerTabs.
