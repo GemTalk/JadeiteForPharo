@@ -1479,8 +1479,7 @@ JadeiteBrowserPresenter >> initializeMethodList: listPresenters [
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 50 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
-	listPresenters add: methodsBox withConstraints: [ :constraints |
-		constraints width: 300 * self currentWorld displayScaleFactor ].
+	listPresenters add: methodsBox.
 	self initializeMethodListMenu
 ]
 
@@ -1526,12 +1525,12 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: listPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializePresenters [
 
-	| listPresenters classColumn projectPanedLayout |
+	| listPresenters classColumn projectPanedLayout methodPanedLayout |
 	super initializePresenters.
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
-	projectPanedLayout := SpPanedLayout newHorizontal positionOfSlider: 0.5.
+	projectPanedLayout := SpPanedLayout newHorizontal.
 	self initializeProjectListPresenterIn: projectPanedLayout.
 	self initializePackageDictionaryTabsIn: projectPanedLayout.
 	listPresenters add: projectPanedLayout.
@@ -1539,8 +1538,10 @@ JadeiteBrowserPresenter >> initializePresenters [
 	self initializeClassTabs: classColumn.
 	self initializeDefinedClassPackageText: classColumn.
 	listPresenters add: classColumn. 
-	self initializeFilterTabs: listPresenters.
-	self initializeMethodList: listPresenters.
+	methodPanedLayout := SpPanedLayout newHorizontal.
+	listPresenters add: methodPanedLayout. 
+	self initializeFilterTabs: methodPanedLayout.
+	self initializeMethodList: methodPanedLayout.
 	self initializeLowerTabs.
 	packageGroupPresenter := JadeiteListPresenter new.
 	packageMethodListPresenter := JadeiteListPresenter new.
