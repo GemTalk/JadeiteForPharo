@@ -59,6 +59,27 @@ JadeiteProjectsTrait >> dirtyDiskConfirmation [
 ]
 
 { #category : 'commands' }
+JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
+
+	| ws repositoryRoots |
+	ws := WriteStream on: String new.
+	repositoryRoots := RowanAnsweringService new projectRepositoryRoots: projectServices
+				session: self gciSession.
+	projectServices do: 
+			[:service |
+			ws
+				nextPutAll: service name;
+				space;
+				nextPut: $(;
+				nextPutAll: (repositoryRoots at: service name);
+				nextPut: $);
+				space].
+	projectServices do: [:service | service command: #write].
+	self issueCommands: projectServices.
+	MessageBox notify: 'Projects ' , ws contents , ' written to disk'
+]
+
+{ #category : 'commands' }
 JadeiteProjectsTrait >> gitCommit [
 
 	| projectName message |
@@ -95,6 +116,30 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 		'Project ' , projectName , ' committed to local repository!'
 ]
 
+{ #category : 'commands' }
+JadeiteProjectsTrait >> gitWriteProject [
+
+	| projectService ws repositoryRoots |
+	projectService := self projectListPresenter selectionIfNone: [
+		                  ^ MessageBox notify: 'No project selected' ].
+	ws := WriteStream on: String new.
+	repositoryRoots := RowanAnsweringService new
+		                   projectRepositoryRoots:
+		                   (Array with: projectService)
+		                   session: self gciSession.
+	ws
+		nextPutAll: projectService name;
+		space;
+		nextPut: $(;
+		nextPutAll: (repositoryRoots at: projectService name);
+		nextPut: $);
+		space.
+	(MessageBox confirm:
+		 'Write projects - ' , ws contents , 'to disk without committing?')
+		ifFalse: [ ^ false ].
+	^ self gitBasicWriteProject: (Array with: projectService)
+]
+
 { #category : 'menus' }
 JadeiteProjectsTrait >> initializeProjectListMenu [
 
@@ -127,6 +172,11 @@ JadeiteProjectsTrait >> newProjectMenu [
 				name: 'Commit to Git ...';
 				action: [ self gitCommit ];
 				enabled: [ self allSelectedProjectsDirty ] ].
+		group addItem: [ :item |
+			item
+				name: 'Write to Git ...';
+				action: [ self gitWriteProject ];
+				enabled: [ self projectListPresenter selectionOrNil notNil ] ].
 		group addItem: [ :item |
 			item
 				name: 'Push to GitHub';

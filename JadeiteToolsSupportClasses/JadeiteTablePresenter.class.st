@@ -70,6 +70,12 @@ JadeiteTablePresenter >> selectionByIndex: anIndex [
 ]
 
 { #category : 'api - selection' }
+JadeiteTablePresenter >> selectionIfNone: aBlock [
+
+	^self selectionOrNil ifNil: [ aBlock value ]
+]
+
+{ #category : 'api - selection' }
 JadeiteTablePresenter >> selectionOrNil [
 	model isNil ifTrue:[^nil]. 
 	model isEmpty ifTrue:[^nil]. 
