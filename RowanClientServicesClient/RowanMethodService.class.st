@@ -176,7 +176,7 @@ RowanMethodService >> appendToSourceMenu: aMenu presenter: methodSourcePresenter
 { #category : 'public' }
 RowanMethodService >> basicPrepareForReplication [
 	testRunClassName := nil.
-	stepPoints := nil
+	stepPoints := Array new
 ]
 
 { #category : 'public' }
