@@ -475,6 +475,12 @@ RowanService >> issueCommands: services session: session [
 	^BrowserUpdate current issueCommands: services session: session
 ]
 
+{ #category : 'public' }
+RowanService >> jadeiteShouldNotUpdateOnClient [
+	"something bad probably happened on the server in the services infrastructure
+	as the server told us not to do a client update. "
+]
+
 { #category : 'printing' }
 RowanService >> logOn: aStream [
 	aStream nextPutAll: self class name

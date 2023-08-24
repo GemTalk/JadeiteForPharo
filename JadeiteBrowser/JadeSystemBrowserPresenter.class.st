@@ -1798,32 +1798,6 @@ JadeSystemBrowserPresenter >> removeRepository [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> reportCompileError: anArrayOfArray [
-	| source position stream string indicators |
-	indicators := OrderedCollection new.
-	methodSourcePresenter view clearContainerIndicators.
-	source := self currentMethodSource , Character lf asString.
-	position := methodSourcePresenter view caretPosition.
-	methodSourcePresenter value: source.
-	methodSourcePresenter view caretPosition: position.
-	stream := WriteStream on: String new.
-	anArrayOfArray do: 
-			[:eachArray |
-			| start |
-			start := eachArray at: 2.
-			string := eachArray at: 3.
-			stream nextPutAll: string , '; '.
-			indicators add: (ScintillaIndicator
-						styleName: #compileError
-						range: (start to: (start + 10 min: source size))
-						tag: string)].
-	methodSourcePresenter view backcolor: JadeiteTextStyles default colorForCompileError.
-	methodSourcePresenter view indicators: indicators.
-	string := stream contents.
-	self statusBarText: (string copyFrom: 1 to: string size - 2)
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> requestString [
 
 	| stream |

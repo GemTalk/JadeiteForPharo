@@ -2932,6 +2932,7 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 	| projectService |
 	classService ifNil: [ ^ self ].
 	classService projectName ifNil: [ self updateService: classService ].
+	classService projectName ifNil: [ ^self "could not be updated" ].
 	projectService := projectListPresenter list
 		                  detect: [ :service |
 		                  service name = classService projectName ]

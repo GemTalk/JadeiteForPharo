@@ -398,7 +398,6 @@ JadeiteTextDocument >> jadeDebug [
 
 { #category : 'menu handlers' }
 JadeiteTextDocument >> jadeDisplay [
-
 	^ self insertPrintPopoverAfterCurrentSelection: (self
 			   evaluate: self selectedTextOrLine
 			   onCompileError: [ ^ self ]
