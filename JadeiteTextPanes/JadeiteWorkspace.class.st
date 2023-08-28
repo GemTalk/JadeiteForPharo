@@ -177,7 +177,7 @@ JadeiteWorkspace >> updateCaption [
 
 	| string |
 	string := self filename isNil
-		ifTrue: ['(Untitled)']
+		ifTrue: ['Jadeite Workspace']
 		ifFalse: [self filename].
 	string := gciSession titleBarFor: string.
 	environment ~~ 0 ifTrue: [string := string , ' @env' , environment printString].
