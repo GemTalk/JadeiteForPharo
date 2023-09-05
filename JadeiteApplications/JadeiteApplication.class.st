@@ -147,6 +147,12 @@ JadeiteApplication >> defaultBackgroundColor [
 	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
 ]
 
+{ #category : 'showing' }
+JadeiteApplication >> defaultWindowPresenterClass [
+		
+	^ JadeiteWindowPresenter
+]
+
 { #category : 'accessing' }
 JadeiteApplication >> gciSession [
 
