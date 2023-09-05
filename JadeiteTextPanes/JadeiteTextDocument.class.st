@@ -17,6 +17,12 @@ Class {
 	#category : 'JadeiteTextPanes'
 }
 
+{ #category : 'specs' }
+JadeiteTextDocument class >> adapterName [
+
+	^#JadeiteMorphicCodeAdapter
+]
+
 { #category : 'commands' }
 JadeiteTextDocument class >> codeSelectionActionCommandsGroupWith: presenter [
 	| group |
@@ -348,7 +354,7 @@ JadeiteTextDocument >> initialize [
 	super initialize.
 	environment := 0.
 	lastSave := String new.
-	self withoutSyntaxHighlight
+	"self withoutSyntaxHighlight"
 
 ]
 

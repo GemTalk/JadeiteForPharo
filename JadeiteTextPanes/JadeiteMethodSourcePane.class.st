@@ -126,7 +126,7 @@ JadeiteMethodSourcePane >> formatSource [
 JadeiteMethodSourcePane >> initialize [
 
 	super initialize. 
-	self withoutSyntaxHighlight
+	"self withoutSyntaxHighlight"
 ]
 
 { #category : 'accessing' }
