@@ -10,7 +10,7 @@ Class {
 { #category : 'private' }
 JadeiteMorphicCodeAdapter >> newCompletionEngine: anInteractionModel [
 
-	^ completionEngine ifNil: [Transcript cr; show: 'newCompletionEngine:'; flush. 
+	^ completionEngine ifNil: [
 		  completionEngine := JadeiteMorphicCodeCompletionEngine new
 			                      smartCharacters:
 				                      self presenter hasSmartCharacters;

@@ -4,6 +4,16 @@ Class {
 	#category : 'JadeiteToolsSupportClasses'
 }
 
+{ #category : 'testing' }
+JadeiteCompletionContext >> completion [
+
+	completion ifNotNil: [
+		completion filter completionString: self completionToken.
+		completion fetcher reset. 
+		^ completion ].
+	^ super completion
+]
+
 { #category : 'initialization' }
 JadeiteCompletionContext >> initialize [
 
