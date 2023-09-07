@@ -10,10 +10,7 @@ Class {
 { #category : 'enumerating' }
 JadeiteFetcher >> entriesDo: aBlock [
 
-	symbols do:[:symbol | 
-			| necEntry |
-			necEntry := JadeiteNECEntry contents: symbol node: nil. 
-			aBlock value: necEntry]
+	symbols do: [ :symbol | aBlock value: symbol ]
 ]
 
 { #category : 'accessing' }

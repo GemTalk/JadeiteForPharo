@@ -14,11 +14,25 @@ JadeiteResultSetBuilder >> buildCompletion [
 	BrowserUpdate current
 		issueCommand: answeringService
 		session: GciSession current.
-	[ answeringService answer first isNil ] whileTrue: [
-		(Delay forMilliseconds: 1) wait ].
-	rawSymbols := answeringService answer first
-	              , answeringService answer last.
+	rawSymbols := self waitForResult: answeringService.
+	fetcher := JadeiteFetcher new.
 	fetcher symbols: (rawSymbols asSortedCollection collect: [ :string |
 			 JadeiteNECEntry contents: string node: nil ]).
 	^ CoResultSet fetcher: fetcher
+]
+
+{ #category : 'API - building' }
+JadeiteResultSetBuilder >> waitForResult: answeringService [
+
+	| waitCount |
+	waitCount := 0.
+	[
+	answeringService answer first isNil and: [
+		(waitCount := waitCount + 1) <= 10 ] ] whileTrue: [
+		(Delay forMilliseconds: 1) wait ].
+
+	^ waitCount > 10
+		  ifTrue: [ Array new ]
+		  ifFalse: [
+		  answeringService answer first , answeringService answer last ]
 ]
