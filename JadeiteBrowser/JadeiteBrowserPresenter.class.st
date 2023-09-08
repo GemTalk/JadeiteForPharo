@@ -665,6 +665,16 @@ JadeiteBrowserPresenter >> componentPackageContainer [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenter >> connectCancelActions [
+
+	methodSourcePresenter whenResetDo: [
+		methodSourcePresenter text:
+			methodSourcePresenter methodService source ].
+	classCommentPresenter whenResetDo: [ self resetClassComment ].
+	classDefinitionPresenter whenResetDo: [ self resetClassTemplate ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter whenSelectionChangedDo: [ :selection |
@@ -705,9 +715,8 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 JadeiteBrowserPresenter >> connectPresenters [
 
 	self connectClassPresenters.
-	self connectPackageDictionaryPresenters
-	projectListPresenter whenSelectionChangedDo: [ :selection |
-		self updateProject ].
+	self connectPackageDictionaryPresenters projectListPresenter
+		whenSelectionChangedDo: [ :selection | self updateProject ].
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
@@ -717,10 +726,10 @@ JadeiteBrowserPresenter >> connectPresenters [
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
 		self filterTabChanged: selection ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	methodSourcePresenter whenResetDo: [ methodSourcePresenter text: methodSourcePresenter methodService source ]. 
+	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].
-	instanceRadioButton whenChangedDo: [ :selection | self refreshClass ].
+	instanceRadioButton whenChangedDo: [ :selection | self refreshClass ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2624,6 +2633,14 @@ JadeiteBrowserPresenter >> removeProjectTabs [
 	projectReadMeTab := nil
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> resetClassComment [
+
+	^ classCommentPresenter text: (self selectedClass
+			   ifNil: [ String new ]
+			   ifNotNil: [ :classService | classService comment ])
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenter >> resetClassTemplate [
 	"as yet unclassified"
@@ -3170,6 +3187,7 @@ JadeiteBrowserPresenter >> updateMethodSourceColor [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
+	self resetClassComment.
 	packageListPresenter selections isEmpty ifTrue:[^self]. 
 	classListPresenter model: ListModel new.
 	self todo:[classHierarchyPresenter model: JadeiteTreeModel new].
@@ -3177,7 +3195,7 @@ JadeiteBrowserPresenter >> updatePackage [
 	self isClassListTabSelected ifFalse: [self updateHierarchy].
 	self updatePackageInfo.
 	self resetSunitTestList.
-	packageListPresenter selectionIfNone: [self selectProjectTab]
+	packageListPresenter selectionIfNone: [self selectProjectTab].
 ]
 
 { #category : 'updates' }
