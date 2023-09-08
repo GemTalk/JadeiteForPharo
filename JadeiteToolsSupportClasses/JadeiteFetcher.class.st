@@ -9,7 +9,6 @@ Class {
 
 { #category : 'enumerating' }
 JadeiteFetcher >> entriesDo: aBlock [
-
 	symbols do: [ :symbol | aBlock value: symbol ]
 ]
 

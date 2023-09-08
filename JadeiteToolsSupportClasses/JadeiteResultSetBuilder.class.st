@@ -15,8 +15,8 @@ JadeiteResultSetBuilder >> buildCompletion [
 		issueCommand: answeringService
 		session: GciSession current.
 	rawSymbols := self waitForResult: answeringService.
-	fetcher := JadeiteFetcher new.
-	fetcher symbols: (rawSymbols asSortedCollection collect: [ :string |
+	fetcher := JadeiteFetcher new. 
+	fetcher symbols: (rawSymbols asSet asSortedCollection collect: [ :string |
 			 JadeiteNECEntry contents: string node: nil ]).
 	^ CoResultSet fetcher: fetcher
 ]
