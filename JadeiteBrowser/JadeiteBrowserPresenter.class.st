@@ -165,12 +165,14 @@ JadeiteBrowserPresenter >> addPackagePresenter [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> addStyle: aString [
 
-	methodSourcePresenter whenBuiltDo: [ 
+	methodSourcePresenter whenBuiltDo: [
 		methodSourcePresenter addStyle: 'jadedTextBackgroundColor' ].
-	classDefinitionPresenter whenBuiltDo: [ 
+	classDefinitionPresenter whenBuiltDo: [
 		classDefinitionPresenter addStyle: 'jadedTextBackgroundColor' ].
-	classCommentPresenter whenBuiltDo: [ 
-		classCommentPresenter addStyle: 'jadedTextBackgroundColor' ]
+	classCommentPresenter whenBuiltDo: [
+		classCommentPresenter addStyle: 'jadedTextBackgroundColor' ].
+	projectInfoList whenBuiltDo: [
+		projectInfoList addStyle: 'jadedTextBackgroundColor' ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -626,7 +628,7 @@ JadeiteBrowserPresenter >> cleanupProjectInfoTab [
 			[projectInfoTab
 				ifNotNil: 
 					[self clearProjectTabs.
-					addPackagePresenter view disable]]
+					]]
 ]
 
 { #category : 'as yet unclassified' }
@@ -649,8 +651,8 @@ JadeiteBrowserPresenter >> clearMethodPresenters [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> clearProjectTabs [
-	projectReadMeTab value: String new.
-	projectInfoList list: ListModel new
+	"projectReadMeTab value: String new.
+	projectInfoList list: ListModel new"
 ]
 
 { #category : 'as yet unclassified' }
@@ -1454,6 +1456,7 @@ JadeiteBrowserPresenter >> initializeLowerTabs [
 	self initializeClassDefinitionTab.
 	self initializeClassCommentTab.
 	self initializeMethodSourceTab.
+	self initializeProjectTab.
 	box add: textAreaTabs.
 	statusBarText := self newStatusBar.
 	box add: statusBarText height: 20.
@@ -1572,6 +1575,28 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 	projectListPresenter owner: self. 
 	tabs add: projectListPresenter.
 	self initializeProjectListMenu
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> initializeProjectTab [
+
+	projectInfoList := JadeiteTablePresenter new
+		                   addColumn:
+			                   (SpStringTableColumn evaluated: [ :array |
+					                    self projectInfoLabelDisplay: array ])
+				                   beNotExpandable;
+		                   addColumn:
+			                   (SpStringTableColumn evaluated: [ :array |
+					                    array last isEmpty ifFalse: [
+							                    array last = 'isDirty'
+								                    ifTrue: [ array first perform: #toolTip ]
+								                    ifFalse: [
+									                    array first perform: array last asSymbol ] ] ]).
+	projectInfoTab := JadeiteNotebookPage
+		                  title: 'Project'
+		                  icon: nil
+		                  provider: [ projectInfoList ].
+	textAreaTabs addPage: projectInfoTab
 ]
 
 { #category : 'as yet unclassified' }
@@ -2150,6 +2175,14 @@ JadeiteBrowserPresenter >> previousTopViewArrangement [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
 	previousTopViewArrangement := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> projectInfoLabelDisplay: array [
+
+	array last = 'isSkew' ifTrue: [ ^ 'Skew' ].
+	array last = 'isDirty' ifTrue: [ ^ 'Dirty State' ].
+	^ array last normalizeCamelCase capitalized
 ]
 
 { #category : 'as yet unclassified' }
@@ -3229,7 +3262,6 @@ JadeiteBrowserPresenter >> updatePackageMenu: menu [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProject [
-
 	self clearComponentList.
 	self projectListPresenter selectionIfNone: [
 		packageListPresenter clear.
@@ -3241,36 +3273,37 @@ JadeiteBrowserPresenter >> updateProject [
 	self packageListPresenter selectionIfNone: [
 		classListPresenter clear.
 		classHierarchyPresenter clear ].
-	self isNoneProjectSelected ifFalse: [
 		self buildPackageList.
 		self updateTabLabel.
-		self basicUpdateProject ]
+		self basicUpdateProject 
 ]
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfo [
+
 	| service |
-	self todo:[self removeAppropriateTab.
-	self isNoneProjectSelected ifTrue: [^self buildGlobalsTab].
-	projectInfoTab
-		ifNil: 
-			[self buildProjectTab.
-			self buildProjectReadMeTab].
-	service := projectListPresenter selectionIfNone: 
-					[self clearProjectTabs.
-					^self].
-	self updateTabLabel.
-	self updateProjectInfoTabFor: service.
-	self updateProjectReadMe.
-	addPackagePresenter view enable]
+	self todo: [
+		self removeAppropriateTab.
+		self isNoneProjectSelected ifTrue: [ ^ self buildGlobalsTab ].
+		projectInfoTab ifNil: [
+			self buildProjectTab.
+			self buildProjectReadMeTab ].
+		
+		self updateTabLabel.
+		self updateProjectReadMe.
+		addPackagePresenter view enable ].
+	service := projectListPresenter selectionIfNone: [
+			           self clearProjectTabs.
+			           ^ self ].
+	self updateProjectInfoTabFor: service
 ]
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 	| array |
-	array := Array writeStream: 1.
+	array := WriteStream on: Array new. 
 	array nextPut: (Array with: service with: 'rowanProjectsHome').
-	array nextPut: (Array with: RowanProjectService new with: nil).
+	array nextPut: (Array with: RowanProjectService new with: String new).
 	service wasUpdated
 		ifTrue: 
 			[array nextPut: (Array with: service with: 'name').
@@ -3282,7 +3315,7 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 			array nextPut: (Array with: service with: 'projectUrl').
 			array nextPut: (Array with: service with: 'packageConvention').
 			service == service ifFalse: [array nextPut: (Array with: RowanProjectService new with: nil)]].
-	projectInfoList list: array contents
+	projectInfoList items: array contents
 ]
 
 { #category : 'updates' }

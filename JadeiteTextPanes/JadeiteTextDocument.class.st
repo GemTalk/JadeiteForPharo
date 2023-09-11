@@ -521,13 +521,14 @@ JadeiteTextDocument >> removeQuotesFromSelection [
 { #category : 'actions - saving methods' }
 JadeiteTextDocument >> reportCompileError: gsArguments [
 
-	| selectionIndex | 
+	| selectionIndex argArray |
+	argArray := gsArguments first isArray
+		            ifTrue: [ gsArguments first ]
+		            ifFalse: [ (gsArguments at: 2) first ].
 	self selectionInterval isEmpty ifTrue: [
-		selectionIndex := ((gsArguments at: 2) first at: 2) asInteger - 1
-			                  max: 1.
+		selectionIndex := (argArray at: 2) asInteger - 1 max: 1.
 		self selectionInterval: (selectionIndex to: selectionIndex) ].
-	self insertPrintPopoverAfterCurrentSelection:
-		((gsArguments at: 2) first at: 3).
+	self insertPrintPopoverAfterCurrentSelection: (argArray at: 3).
 	^ nil
 ]
 

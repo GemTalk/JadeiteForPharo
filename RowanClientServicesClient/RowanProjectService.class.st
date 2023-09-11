@@ -521,7 +521,6 @@ RowanProjectService >> specService: anObject [
 { #category : 'accessing' }
 RowanProjectService >> toolTip [
 	| writeStream crNeeded |
-	BrowserUpdate current updateService: self session: GciSession current.
 	writeStream := WriteStream on: String new.
 	crNeeded := false.
 	(isDiskDirty not and: 
