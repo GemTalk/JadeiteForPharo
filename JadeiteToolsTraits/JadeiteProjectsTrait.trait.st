@@ -149,16 +149,14 @@ JadeiteProjectsTrait >> initializeProjectListMenu [
 { #category : 'messages' }
 JadeiteProjectsTrait >> mismatchedShasConfirmation [
 
-	| mb msg |
+	| msg |
 	msg := 'The most recently loaded sha differs from the sha of the git repository. It is not recommended to commit; if you are aware of the issues, you may continue to write and commit your image changes. Proceed?'.
-	self todo: [ 
-		mb := MessageBox new.
-		mb iconStyle: #warning.
-		msg := 'The most recently loaded sha differs from the sha of the git repository. It is not recommended to commit; if you are aware of the issues, you may continue to write and commit your image changes. Proceed?'.
-		mb caption: 'Confirm Git Commit'.
-		mb defaultButton: 2.
-		^ mb confirm: msg ].
-	MessageBox confirm: msg
+	^ JadeiteConfirmDialogDefaultCancel new
+		  title: 'Confirm Git Commit';
+		  label: msg;
+		  acceptLabel: 'Yes';
+		  cancelLabel: 'No';
+		  openModal
 ]
 
 { #category : 'menus' }
