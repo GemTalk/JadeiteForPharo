@@ -1580,11 +1580,14 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeProjectTab [
 
+	| column1 |
+	column1 := SpStringTableColumn evaluated: [ :array |
+		           self projectInfoLabelDisplay: array ].
+	column1
+		displayBold: [ true ];
+		beNotExpandable.
 	projectInfoList := JadeiteTablePresenter new
-		                   addColumn:
-			                   (SpStringTableColumn evaluated: [ :array |
-					                    self projectInfoLabelDisplay: array ])
-				                   beNotExpandable;
+		                   addColumn: column1;
 		                   addColumn:
 			                   (SpStringTableColumn evaluated: [ :array |
 					                    array last isEmpty ifFalse: [
