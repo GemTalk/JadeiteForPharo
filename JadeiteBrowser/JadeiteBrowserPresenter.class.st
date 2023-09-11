@@ -1590,11 +1590,7 @@ JadeiteBrowserPresenter >> initializeProjectTab [
 		                   addColumn: column1;
 		                   addColumn:
 			                   (SpStringTableColumn evaluated: [ :array |
-					                    array last isEmpty ifFalse: [
-							                    array last = 'isDirty'
-								                    ifTrue: [ array first perform: #toolTip ]
-								                    ifFalse: [
-									                    array first perform: array last asSymbol ] ] ]).
+					                    self projectInfoValueDisplay: array ]).
 	projectInfoTab := JadeiteNotebookPage
 		                  title: 'Project'
 		                  icon: nil
@@ -1758,7 +1754,7 @@ JadeiteBrowserPresenter >> isProjectItemEnabled: command [
 
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isRowanProjectSelected [
-	^projectListPresenter selections isEmpty
+	^projectListPresenter selections notEmpty
 ]
 
 { #category : 'testing' }
@@ -2180,7 +2176,7 @@ JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
 	previousTopViewArrangement := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'displaying' }
 JadeiteBrowserPresenter >> projectInfoLabelDisplay: array [
 
 	array last = 'isSkew' ifTrue: [ ^ 'Skew' ].
@@ -2214,6 +2210,15 @@ JadeiteBrowserPresenter >> projectInfoMenuStrings [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectInfoTab [
 	^projectInfoTab
+]
+
+{ #category : 'displaying' }
+JadeiteBrowserPresenter >> projectInfoValueDisplay: array [
+
+	^ array last isEmpty ifFalse: [
+		  array last = 'isDirty'
+			  ifTrue: [ array first perform: #toolTip ]
+			  ifFalse: [ array first perform: array last asSymbol ] ]
 ]
 
 { #category : 'as yet unclassified' }
