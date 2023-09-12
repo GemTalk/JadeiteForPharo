@@ -295,22 +295,6 @@ JadeSystemBrowserPresenter >> classCategoryPresenter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> classDefChanged [
-	inUpdate ifTrue: [^self].
-	classDefinitionPresenter value = classDefinition
-		ifTrue: 
-			[classDefinitionPresenter view
-				backcolor: JadeiteTextStyles default colorForNoEdits;
-				isModified: false;
-				yourself]
-		ifFalse: 
-			[classDefinitionPresenter view
-				backcolor: JadeiteTextStyles default colorForUnsavedEdits;
-				isModified: true;
-				yourself]
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> classHierarchyPresenter [
 
 	^classHierarchyPresenter
@@ -378,65 +362,6 @@ JadeSystemBrowserPresenter >> contextObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForClassCategoryList [
-
-	classCategoryPresenter		
-		when: #'dragOver:'			send: #'onDragOverClassCategory:'	to: self;
-		when: #'drop:'				send: #'onDropOnClassCategory:'	to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;		
-		when: #'selectionChanged'		send: #'updateAndSelect:'			to: self	with: classDefinitionPresenter;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForClassDefinition [
-
-	classDefinitionPresenter
-		when: #'valueChanged'	send: #'classDefChanged'	to: self;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForClassHierarchy [
-
-	classHierarchyPresenter	
-		when: #'drag:'				send: #'onDragClass:'		to: self;
-		when: #'dragCut:'			send: #'onDragCutClassHierarchy:'	to: self;
-		when: #'dragOver:'			send: #'onDragOverClassHierarchy:'	to: self;
-		when: #'drop:'				send: #'onDropOnClassHierarchy:'	to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanged'		send: #'selectedClassChanged:'		to: self	with: true;
-		when: #'selectionChanged'		send: #'updateAndSelect:'			to: self	with: classDefinitionPresenter;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForClassList [
-
-	classListPresenter				
-		when: #'drag:'					send: #'onDragClassList:'				to: self;
-		when: #'dragCut:'				send: #'onDragCutClassList:'			to: self;
-		when: #'dragOver:'				send: #'onDragOverClassList:'			to: self;
-		when: #'drop:'					send: #'onDropOnClassList:'			to: self;
-		when: #'keyTyped:'				send: #'delayUpdate'					to: self;
-		when: #'selectionChanging:'		send: #'aboutToChange:'				to: self;
-		when: #'selectionChanged'			send: #'selectedClassChanged:'			to: self	with: true;
-		when: #'selectionChanged'			send: #'updateAndSelect:'				to: self	with: classDefinitionPresenter;
-
-		when: #labelOf:changedTo: 		send: #labelOfClass:changedTo:			to: self;
-		when: #aboutToEditLabel:accept: 	send: #aboutToEditClassLabel:accept:	to: self;
-		when: #labelOf:editedTo:accept: 	send: #labelOfClass:editedTo:accept:		to: self;
-
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> createSchematicWiringForDictionaryList [
 
 	dictionaryListPresenter
@@ -445,17 +370,6 @@ JadeSystemBrowserPresenter >> createSchematicWiringForDictionaryList [
 		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
 		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
 		when: #'selectionChanged'		send: #'updateAndSelect:'			to: self	with: globalsPresenter;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForInstanceClassTabs [
-
-	classListHierarchyTabs
-		when: #'currentCardChanging:'	send: #'aboutToChange:'		to: self;
-		when: #'currentCardChanged'	send: #'selectedClassChanged:'	to: self	with: true;
-		when: #'currentCardChanged'	send: #'updateAndSelect:'		to: self	with: classDefinitionPresenter;
 		yourself.
 
 ]
@@ -972,34 +886,6 @@ JadeSystemBrowserPresenter >> globalsMenuStrings [
 		'&Browse References//browseGlobalReferences'
 		'&Remove//removeGlobals'
 	).
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> handleInvalidSession [
-
-	| hadDialog |
-	hadDialog := false.
-	inUpdate := true.
-	methodSourcePresenter view isModified ifTrue: [
-		self ensureVisible.
-		methodSourcePresenter ensureVisible.
-		methodSourcePresenter view isModified: false.
-		(MessageBox confirm: 'Copy unsaved method to clipboard?' caption: 'Invalid Session!') ifTrue: [
-			methodSourcePresenter view selectAll; copySelection.
-		].
-		hadDialog := true.
-	].
-	classDefinitionPresenter view isModified ifTrue: [
-		self ensureVisible.
-		classDefinitionPresenter ensureVisible.
-		classDefinitionPresenter view isModified: false.
-		(MessageBox confirm: 'Copy unsaved class definition to clipboard?' caption: 'Invalid Session!') ifTrue: [
-			classDefinitionPresenter view selectAll; copySelection.
-		].
-		hadDialog := true.
-	].
-	^hadDialog.
 
 ]
 

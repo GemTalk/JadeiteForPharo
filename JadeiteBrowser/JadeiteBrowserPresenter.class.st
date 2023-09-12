@@ -2677,7 +2677,7 @@ JadeiteBrowserPresenter >> removeProjectTabs [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> resetClassComment [
 
-	^ classCommentPresenter text: (self selectedClass
+	^ classCommentPresenter value: (self selectedClass
 			   ifNil: [ String new ]
 			   ifNotNil: [ :classService | classService comment ])
 ]
@@ -2687,12 +2687,9 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 	"as yet unclassified"
 
 	| presenter |
-	presenter := self isNoneProjectSelected
-		             ifTrue: [ dictionaryListPresenter ]
-		             ifFalse: [ packageListPresenter ].
+	presenter := packageListPresenter.
 	presenter list isEmpty ifTrue: [
 		classDefinitionPresenter value: String new.
-		classDefinitionPresenter view isModified: false.
 		^ self ].
 	classDefinitionPresenter value: (presenter selections isEmpty
 			 ifTrue: [ String new ]
@@ -2874,12 +2871,7 @@ JadeiteBrowserPresenter >> setCompileErrorColor [
 { #category : 'private' }
 JadeiteBrowserPresenter >> setDefaultMethod [
 
-	methodSourcePresenter  
-		text: self defaultMethod.
-		self todo:[
-		self isModified: false.
-		self isReadOnly: false
-		yourself.]
+	methodSourcePresenter value: self defaultMethod
 ]
 
 { #category : 'as yet unclassified' }

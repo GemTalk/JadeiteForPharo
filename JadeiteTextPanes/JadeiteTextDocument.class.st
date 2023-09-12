@@ -348,6 +348,12 @@ JadeiteTextDocument >> getDocumentData [
 
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> hasUnacceptedEdits: aBoolean [
+
+	super hasUnacceptedEdits: aBoolean
+]
+
 { #category : 'initialization' }
 JadeiteTextDocument >> initialize [
 
@@ -622,6 +628,11 @@ JadeiteTextDocument >> showText: aString [
 
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> text: aString [
+	super text: aString.
+]
+
 { #category : 'public' }
 JadeiteTextDocument >> undo [
 	documentPresenter undo
@@ -660,7 +671,8 @@ JadeiteTextDocument >> value [
 JadeiteTextDocument >> value: aString [
 	self todo: 'the nil check should not be needed?'. 
 	aString isNil ifTrue:[^self]. 
-	self text: aString
+	self text: aString.
+	self isModified: false. "I think it's ok to always mark the it not dirty if Jadeite changes the value directly "
 ]
 
 { #category : 'Jade' }

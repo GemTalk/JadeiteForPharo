@@ -1448,7 +1448,7 @@ JadeiteProjectsBrowserPresenter >> updateClassInfo [
 			[service template = classDefinition ifTrue: [^self].
 			(MessageBox confirm: 'Copy changes to clipboard?' caption: 'Class has unsaved changes!')
 				ifTrue: [classDefinitionPresenter text copyToClipboard]].
-	classDefinitionPresenter text: service template.
+	classDefinitionPresenter value: service template.
 	self resetClassDefinitionPane.
 	self todo: [self setTestClass: service.
 	self isSunitTabSelected ifFalse: [classDefinitionPresenter ensureVisible].
