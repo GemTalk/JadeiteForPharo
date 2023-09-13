@@ -1502,7 +1502,11 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 		                         self gciSession.
 	methodSourcePresenter
 		application: self application;
-		saveAction: [ self editSaveMethod ].
+		saveAction: [ self editSaveMethod ];
+		whenResetDo: [
+			methodSourcePresenter text:
+					methodSourcePresenter methodService source.
+			methodSourcePresenter isModified: false ].
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
 		                    icon: nil

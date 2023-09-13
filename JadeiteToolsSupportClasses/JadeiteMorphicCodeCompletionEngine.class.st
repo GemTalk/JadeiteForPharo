@@ -8,7 +8,7 @@ Class {
 JadeiteMorphicCodeCompletionEngine class >> initialize [
 
 	super initialize. 
-	RubSmalltalkEditor completionEngineClass: self
+	JaditeSmalltalkEditor completionEngineClass: self
 ]
 
 { #category : 'initialization' }

@@ -12,6 +12,12 @@ Class {
 	#category : 'JadeiteToolsSupportClasses'
 }
 
+{ #category : 'completion engine' }
+JaditeSmalltalkEditor class >> completionEngineClass [
+
+	^JadeiteMorphicCodeCompletionEngine
+]
+
 { #category : 'accessing' }
 JaditeSmalltalkEditor >> application [ 
 
