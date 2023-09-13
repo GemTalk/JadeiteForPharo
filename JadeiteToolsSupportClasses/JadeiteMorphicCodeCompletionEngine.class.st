@@ -5,6 +5,13 @@ Class {
 }
 
 { #category : 'initialization' }
+JadeiteMorphicCodeCompletionEngine class >> initialize [
+
+	super initialize. 
+	RubSmalltalkEditor completionEngineClass: self
+]
+
+{ #category : 'initialization' }
 JadeiteMorphicCodeCompletionEngine >> initialize [
 
 	super initialize.
