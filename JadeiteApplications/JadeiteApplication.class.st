@@ -186,7 +186,7 @@ JadeiteApplication >> initialize [
 JadeiteApplication >> initializeStyleSheet [
 
 	| classStyle |
-	classStyle := SpStyle newApplication.
+	classStyle := SpStyle newJadeiteApplication.
 	classStyle addClass: 'jadedTextBackgroundColor' with: [ :theClass | 
 		theClass addPropertyDrawWith: [ :draw | 
 			draw backgroundColor: self defaultBackgroundColor ] ].
