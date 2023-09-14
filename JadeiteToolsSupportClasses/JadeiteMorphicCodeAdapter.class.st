@@ -33,6 +33,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	self setEnabled: self presenter isEnabled to: newWidget.	
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.
+	newWidget textArea newJadeiteEditor. "<<<<<<Jadeite addition here"
 	self setText: self presenter text to: newWidget.
 	self presenter selectionInterval 
 		ifNotNil: [  :anInterval | self selectionInterval: anInterval on: newWidget ].
@@ -57,7 +58,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 JadeiteMorphicCodeAdapter >> newCompletionEngine: anInteractionModel [
 
 	^ completionEngine ifNil: [
-		  completionEngine := JadeiteMorphicCodeCompletionEngine new
+		  completionEngine := JadeiteCompletionEngine new
 			                      smartCharacters:
 				                      self presenter hasSmartCharacters;
 			                      scripting: anInteractionModel isScripting;

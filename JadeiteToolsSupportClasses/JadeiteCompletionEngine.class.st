@@ -1,25 +1,25 @@
 Class {
-	#name : 'JadeiteMorphicCodeCompletionEngine',
+	#name : 'JadeiteCompletionEngine',
 	#superclass : 'SpMorphicCodeCompletionEngine',
 	#category : 'JadeiteToolsSupportClasses'
 }
 
 { #category : 'initialization' }
-JadeiteMorphicCodeCompletionEngine >> initialize [
+JadeiteCompletionEngine >> initialize [
 
 	super initialize.
 	contextClass := JadeiteCompletionContext
 ]
 
 { #category : 'menu morph' }
-JadeiteMorphicCodeCompletionEngine >> menuClosed [
+JadeiteCompletionEngine >> menuClosed [
 	"don't nil the context"
 	menuMorph := nil.
 
 ]
 
 { #category : 'menu morph' }
-JadeiteMorphicCodeCompletionEngine >> openMenu [
+JadeiteCompletionEngine >> openMenu [
 	| theMenu |
 	self stopCompletionDelay.
 
@@ -34,7 +34,7 @@ JadeiteMorphicCodeCompletionEngine >> openMenu [
 ]
 
 { #category : 'keyboard' }
-JadeiteMorphicCodeCompletionEngine >> updateCompletionAfterEdition: aParagraphEditor [
+JadeiteCompletionEngine >> updateCompletionAfterEdition: aParagraphEditor [
 
 	(aParagraphEditor isNil or: [ self isMenuOpen not ]) ifTrue: [
 		^ self ].

@@ -15,7 +15,7 @@ Class {
 { #category : 'completion engine' }
 JaditeSmalltalkEditor class >> completionEngineClass [
 
-	^JadeiteMorphicCodeCompletionEngine
+	^JadeiteCompletionEngine
 ]
 
 { #category : 'accessing' }
@@ -45,6 +45,15 @@ JaditeSmalltalkEditor >> classCommentsContainingIt [
 JaditeSmalltalkEditor >> classNamesContainingIt [
 
 	MessageBox notify: 'Not implemented yet'
+]
+
+{ #category : 'completion engine' }
+JaditeSmalltalkEditor >> completionEngine [
+
+	^ completionEngine ifNil: [
+		CompletionEngineClass ifNotNil: [
+			self completionEngine: JadeiteCompletionEngine new.
+			completionEngine ] ]
 ]
 
 { #category : 'accessing' }
