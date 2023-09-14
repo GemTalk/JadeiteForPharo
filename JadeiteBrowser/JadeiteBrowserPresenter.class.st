@@ -671,9 +671,13 @@ JadeiteBrowserPresenter >> connectCancelActions [
 
 	methodSourcePresenter whenResetDo: [
 		methodSourcePresenter text:
-			methodSourcePresenter methodService source ].
-	classCommentPresenter whenResetDo: [ self resetClassComment ].
-	classDefinitionPresenter whenResetDo: [ self resetClassTemplate ]
+			methodSourcePresenter methodService source.
+		methodSourcePresenter isModified: false ].
+	classCommentPresenter whenResetDo: [
+		self resetClassComment.
+		classCommentPresenter isModified: false ].
+	classDefinitionPresenter whenResetDo: [
+		self resetClassTemplate classDefinitionPresenter isModified: false ]
 ]
 
 { #category : 'initialization' }

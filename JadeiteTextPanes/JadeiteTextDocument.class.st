@@ -157,6 +157,13 @@ JadeiteTextDocument >> commitTransaction [
 	self parentPresenter commitTransaction
 ]
 
+{ #category : 'initialization' }
+JadeiteTextDocument >> connectPresenters [ 
+
+	super connectPresenters. 
+	self whenResetDo: [ self isModified: false  ]
+]
+
 { #category : 'accessing' }
 JadeiteTextDocument >> context [
 
