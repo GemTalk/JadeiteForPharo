@@ -2,7 +2,7 @@
 Redirect Morphic menu items to a GemStone equivalent
 "
 Class {
-	#name : 'JaditeSmalltalkEditor',
+	#name : 'JadeiteSmalltalkEditor',
 	#superclass : 'RubSmalltalkEditor',
 	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait + JadeiteClassTrait',
 	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait',
@@ -13,19 +13,19 @@ Class {
 }
 
 { #category : 'completion engine' }
-JaditeSmalltalkEditor class >> completionEngineClass [
+JadeiteSmalltalkEditor class >> completionEngineClass [
 
 	^JadeiteCompletionEngine
 ]
 
 { #category : 'accessing' }
-JaditeSmalltalkEditor >> application [ 
+JadeiteSmalltalkEditor >> application [ 
 
 	^JadeiteApplication new
 ]
 
 { #category : 'editing keys' }
-JaditeSmalltalkEditor >> browseClassOfExpression [
+JadeiteSmalltalkEditor >> browseClassOfExpression [
 
 	self evaluateSelectionAndDo: [ :result |
 		| classService browser |
@@ -36,19 +36,19 @@ JaditeSmalltalkEditor >> browseClassOfExpression [
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> classCommentsContainingIt [
+JadeiteSmalltalkEditor >> classCommentsContainingIt [
 
 	MessageBox notify: 'Not implemented yet'
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> classNamesContainingIt [
+JadeiteSmalltalkEditor >> classNamesContainingIt [
 
 	MessageBox notify: 'Not implemented yet'
 ]
 
 { #category : 'completion engine' }
-JaditeSmalltalkEditor >> completionEngine [
+JadeiteSmalltalkEditor >> completionEngine [
 
 	^ completionEngine ifNil: [
 		CompletionEngineClass ifNotNil: [
@@ -57,44 +57,44 @@ JaditeSmalltalkEditor >> completionEngine [
 ]
 
 { #category : 'accessing' }
-JaditeSmalltalkEditor >> gciSession [
+JadeiteSmalltalkEditor >> gciSession [
 
 	^ gciSession
 ]
 
 { #category : 'accessing' }
-JaditeSmalltalkEditor >> gciSession: anObject [
+JadeiteSmalltalkEditor >> gciSession: anObject [
 
 	gciSession := anObject
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> implementorsOf: aSelector [
+JadeiteSmalltalkEditor >> implementorsOf: aSelector [
 
 	self browseImplementorsOf: aSelector
 ]
 
 { #category : 'menus' }
-JaditeSmalltalkEditor >> inspectIt [
+JadeiteSmalltalkEditor >> inspectIt [
 
 	self halt.
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> methodCaseSensitiveStringsContainingIt [
+JadeiteSmalltalkEditor >> methodCaseSensitiveStringsContainingIt [
 	self lineSelectAndEmptyCheck: [ ^ self ].
 	self browseLiteralReferences: self selection string
 	
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> methodNamesContainingIt [
+JadeiteSmalltalkEditor >> methodNamesContainingIt [
 
 	MessageBox notify: 'Not implemented yet'
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> methodSourceContainingIt [
+JadeiteSmalltalkEditor >> methodSourceContainingIt [
 	"Open a browser on methods which contain the current selection as part of a string constant."
 
 	self lineSelectAndEmptyCheck: [ ^ self ].
@@ -103,7 +103,7 @@ JaditeSmalltalkEditor >> methodSourceContainingIt [
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> methodStringsContainingit [
+JadeiteSmalltalkEditor >> methodStringsContainingit [
 	"for now, just do a case sensitive search"
 	self lineSelectAndEmptyCheck: [ ^ self ].
 	self browseLiteralReferences: self selection string
@@ -111,19 +111,19 @@ JaditeSmalltalkEditor >> methodStringsContainingit [
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> referencesTo: className [
+JadeiteSmalltalkEditor >> referencesTo: className [
 
 	self browseClassReferences: className
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> sendersOf: aSelector [
+JadeiteSmalltalkEditor >> sendersOf: aSelector [
 
 	self browseSendersOf: aSelector
 ]
 
 { #category : 'menu messages' }
-JaditeSmalltalkEditor >> sendersOfIt [
+JadeiteSmalltalkEditor >> sendersOfIt [
 
 	| selectedSelector |
 	(selectedSelector := self selectedSelector) ifNil: [

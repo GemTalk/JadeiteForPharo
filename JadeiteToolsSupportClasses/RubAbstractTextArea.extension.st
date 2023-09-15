@@ -8,6 +8,6 @@ RubAbstractTextArea >> editor: anEditor [
 { #category : '*JadeiteToolsSupportClasses' }
 RubAbstractTextArea >> newJadeiteEditor [
 
-	editor := JaditeSmalltalkEditor forTextArea: self.
+	editor := JadeiteSmalltalkEditor forTextArea: self.
 	editor gciSession: GciSession current 
 ]

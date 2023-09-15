@@ -29,7 +29,6 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		registerScrollChanges: #scrollValueChanged:;
 		hScrollbarShowWhenNeeded;
 		yourself.
-
 	self setEnabled: self presenter isEnabled to: newWidget.	
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.

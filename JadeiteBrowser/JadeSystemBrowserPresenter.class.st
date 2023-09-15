@@ -681,42 +681,6 @@ JadeSystemBrowserPresenter >> editSaveClassComment [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> editSaveMethod [
-	| stream caretPosition firstVisibleLine |
-	caretPosition := methodSourcePresenter view caretPosition.
-	firstVisibleLine := methodSourcePresenter view lineScroll.
-	(self isCategoryTabSelected and: [categoryListPresenter hasSelection])
-		ifTrue: [methodCategory := categoryListPresenter selection trimBlanks].
-	stream := (WriteStream on: String new)
-				nextPutAll: 'method';
-				tab;
-				nextPutAll: self selectedClassNameWithoutVersion;
-				tab;
-				nextPutAll: selectedClassOop printString;
-				tab;
-				nextPutAll: classListHierarchyTabs currentCard name;
-				tab;
-				nextPutAll: methodCategory;
-				tab;
-				lf;
-				nextPutAll: self currentMethodSource;
-				lf;
-				nextPut: $%;
-				lf;
-				yourself.
-	
-	[self updateCommand: stream contents , self requestString
-		onSuccessDo: 
-			[methodSourcePresenter view
-				isModified: false;
-				ensureVisible]]
-			on: GsCompileError
-			do: [:ex | self reportCompileError: ex list].
-	methodSourcePresenter view firstVisibleLine: firstVisibleLine.
-	methodSourcePresenter view goto: caretPosition
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> editSelectAll [
 
 	View focus selectAll.

@@ -78,10 +78,13 @@ JadeiteMethodListPresenter >> comparisonTab [
 JadeiteMethodListPresenter >> connectPresenters [
 
 	super connectPresenters.
-	methodListPresenter whenSelectionChangedDo: [ :selection | 
+	methodListPresenter whenSelectionChangedDo: [ :selection |
 		self updateMethodSource ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	methodSourcePresenter whenResetDo: [ methodSourcePresenter text: methodSourcePresenter methodService source ].
+	methodSourcePresenter whenResetDo: [
+		methodSourcePresenter text:
+			methodSourcePresenter methodService source.
+		methodSourcePresenter isModified: false ]
 ]
 
 { #category : 'as yet unclassified' }

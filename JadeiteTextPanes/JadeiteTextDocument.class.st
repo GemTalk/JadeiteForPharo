@@ -635,11 +635,6 @@ JadeiteTextDocument >> showText: aString [
 
 ]
 
-{ #category : 'accessing' }
-JadeiteTextDocument >> text: aString [
-	super text: aString.
-]
-
 { #category : 'public' }
 JadeiteTextDocument >> undo [
 	documentPresenter undo

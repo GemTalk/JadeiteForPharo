@@ -98,7 +98,8 @@ JadeiteDebuggerPresenter >> connectPresenters [
 	self methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	self methodSourcePresenter whenResetDo: [
 		self methodSourcePresenter text:
-			self methodSourcePresenter methodService source ]
+			self methodSourcePresenter methodService source.
+		self methodSourcePresenter isModified: false ]
 ]
 
 { #category : 'actions' }
