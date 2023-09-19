@@ -1544,24 +1544,37 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: listPresenters [
 
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializePresenters [
+	"in order to get scroll bars to (kind of) work, create a paned layout with 
+	project & package list. Then create a nother paned layout with the first
+	paned layout + the class list, etc.  Then add the final paned layout to the 
+	upper box layout. ... Seems unnecessarily complicated. Would be better if 
+	I could just add a resizer between two arbitrary widgets."
 
-	| listPresenters classColumn projectPanedLayout methodPanedLayout |
+	| listPresenters classColumn panedLayout1 filterLayout panedLayout2 panedLayout3 panedLayout4 methodLayout |
 	super initializePresenters.
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
-	projectPanedLayout := SpPanedLayout newHorizontal.
-	self initializeProjectListPresenterIn: projectPanedLayout.
-	self initializePackageDictionaryTabsIn: projectPanedLayout.
-	listPresenters add: projectPanedLayout.
+	panedLayout1 := SpPanedLayout newHorizontal.
+	self initializeProjectListPresenterIn: panedLayout1.
+	self initializePackageDictionaryTabsIn: panedLayout1.
+	panedLayout2 := SpPanedLayout newHorizontal.
+	panedLayout2 add: panedLayout1.
 	classColumn := SpBoxLayout newVertical.
+	panedLayout2 add: classColumn.
 	self initializeClassTabs: classColumn.
 	self initializeDefinedClassPackageText: classColumn.
-	listPresenters add: classColumn. 
-	methodPanedLayout := SpPanedLayout newHorizontal.
-	listPresenters add: methodPanedLayout. 
-	self initializeFilterTabs: methodPanedLayout.
-	self initializeMethodList: methodPanedLayout.
+	panedLayout3 := SpPanedLayout newHorizontal.
+	panedLayout3 add: panedLayout2.
+	filterLayout := SpBoxLayout newHorizontal.
+	self initializeFilterTabs: filterLayout.
+	panedLayout3 add: filterLayout.
+	panedLayout4 := SpPanedLayout newHorizontal.
+	panedLayout4 add: panedLayout3.
+	methodLayout := SpBoxLayout newHorizontal.
+	self initializeMethodList: methodLayout.
+	panedLayout4 add: methodLayout.
+	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
 	packageGroupPresenter := JadeiteListPresenter new.
 	packageMethodListPresenter := JadeiteListPresenter new.
