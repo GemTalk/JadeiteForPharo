@@ -34,7 +34,7 @@ JadeiteListPresenter >> invalidate [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteListPresenter >> jadedSelections [
+JadeiteListPresenter >> jadeiteSelections [
 
 	^self selectedItems
 ]

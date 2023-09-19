@@ -50,17 +50,23 @@ JadeiteClassTrait >> findClass [
 			                answeringService answer select: [ :substring |
 					                rxMatcher isString
 						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ rxMatcher matchesPrefix: substring ] "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher" ] ];
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
 		                displayBlock: [ :e | e ];
 		                doubleClickOk;
 		                title: 'Jadeite Regex Find Class';
 		                yourself.
 	selection := dialogWindow chooseFromOwner: self currentWorld.
-	selection ifNotNil: [
-		| classService |
-		classService := RowanClassService new name: selection.
-		Cursor wait showWhile: [
-			self activePresenter updateAfterFindClass: classService ] ]
+	selection ifNotNil: [ self findClassNamed: selection ]
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> findClassNamed: selection [
+
+	| classService |
+	classService := RowanClassService new name: selection.
+	^ Cursor wait showWhile: [
+		  self activePresenter updateAfterFindClass: classService ]
 ]
 
 { #category : 'private' }

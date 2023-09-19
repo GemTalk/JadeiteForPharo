@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteMethodListPresenter',
 	#superclass : 'RowanMethodListPresenter',
-	#traits : 'JadeiteMethodsTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait',
 	#instVars : [
 		'textAreaTabs',
 		'comparisonTab',
@@ -237,6 +237,7 @@ JadeiteMethodListPresenter >> initializeMethodSource [
 JadeiteMethodListPresenter >> initializePresenters [
 
 	super initializePresenters.
+	self initializeToolbar.
 	self initializeMethodListTable.
 	self initializeMethodListMenu.
 	self initializeMethodSource.

@@ -1519,7 +1519,7 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: listPresenters [
+JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 
 	| packageListPage dictionaryListPage |
 	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
@@ -1530,16 +1530,13 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: listPresenters [
 		                   provider: [ packageListPresenter ].
 	packageDictionaryTabs addPage: packageListPage.
 	self initializePackageMenu.
-
-	"temporarily make the dictionaryPresenter == dictionaryListPresenter until I can clean up the former."
-	dictionaryListPresenter := JadeiteListPresenter newNameSortedList. 
+	dictionaryListPresenter := JadeiteListPresenter newNameSortedList.
 	dictionaryListPage := JadeiteNotebookPage
 		                      title: 'Dictionary'
 		                      icon: nil
 		                      provider: [ dictionaryListPresenter ].
 	packageDictionaryTabs addPage: dictionaryListPage.
-
-	listPresenters add: packageDictionaryTabs
+	panedPresenter add: packageDictionaryTabs
 ]
 
 { #category : 'initialization' }

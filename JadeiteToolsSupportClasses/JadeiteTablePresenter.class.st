@@ -16,7 +16,7 @@ JadeiteTablePresenter >> invalidate [
 ]
 
 { #category : 'displaying' }
-JadeiteTablePresenter >> jadedSelections [
+JadeiteTablePresenter >> jadeiteSelections [
 
 	^self selectedItems
 ]

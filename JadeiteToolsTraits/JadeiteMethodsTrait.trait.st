@@ -16,6 +16,23 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 ]
 
 { #category : 'queries' }
+JadeiteMethodsTrait >> browseClass [
+
+	| classService className |
+	classService := RowanClassService new name:
+		                self methodListPresenter jadeiteSelections first.
+	classService meta:
+		self methodListPresenter jadeiteSelections first meta.
+	BrowserUpdate current
+		updateService: classService
+		session: self gciSession.
+	className := self methodListPresenter jadeiteSelections first
+		             className.
+	^ Cursor wait showWhile: [
+		  self openBrowser findClassNamed: className ]
+]
+
+{ #category : 'queries' }
 JadeiteMethodsTrait >> browseImplementors [
 
 	^ self browseImplementorsOf: self selectedMethodName
@@ -245,41 +262,46 @@ JadeiteMethodsTrait >> maxSymbolSize [
 JadeiteMethodsTrait >> newMethodListMenu [
 
 	^ SpMenuPresenter new
-		  addGroup: [ :group | 
+		  addGroup: [ :group |
 			  group
-				  addItem: [ :item | 
+				  addItem: [ :item |
+					  item
+						  name: 'Browse Class';
+						  action: [ self browseClass ];
+						  enabled: [ self methodListPresenter selections size = 1 ] ];
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Implementors';
 						  action: [ self browseImplementors ];
 						  enabled: [ self methodListPresenter selections size = 1 ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Implementors of ...';
 						  action: [ self browseImplementorsOf ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Senders';
 						  action: [ self browseSenders ];
 						  enabled: [ self methodListPresenter selections size = 1 ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Senders Of ...';
 						  action: [ self browseSendersOf ] ] ];
-		  addGroup: [ :group | 
+		  addGroup: [ :group |
 			  group
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Selected Methods';
 						  action: [ self browseSelectedMethods ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Method Containing ...';
 						  action: [ self browseMethodsContaining ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Browse Literal References ...';
 						  action: [ self browseLiteralReferences ] ] ];
-		  addItem: [ :item | 
+		  addItem: [ :item |
 			  item
 				  name: 'Remove Method(s) ...';
 				  action: [ self removeMethods ] ];
@@ -360,7 +382,7 @@ JadeiteMethodsTrait >> resetStatusBar [
 { #category : 'selections' }
 JadeiteMethodsTrait >> selectedMethodName [
 
-	^self methodListPresenter jadedSelections first selector
+	^self methodListPresenter jadeiteSelections first selector
 
 ]
 
