@@ -1430,7 +1430,7 @@ JadeiteBrowserPresenter >> initializeDefinedMethodPackageText: methodColumn [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> initializeFilterTabs: listPresenters [
+JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 
 	| categoryPage variablePage |
 	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
@@ -1448,7 +1448,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: listPresenters [
 		                provider: [ variableListPresenter ].
 	methodFilterTabs addPage: categoryPage.
 	methodFilterTabs addPage: variablePage.
-	listPresenters add: methodFilterTabs
+	methodPanedLayout add: methodFilterTabs
 ]
 
 { #category : 'initialization' }
@@ -1468,7 +1468,7 @@ JadeiteBrowserPresenter >> initializeLowerTabs [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> initializeMethodList: listPresenters [
+JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 
 	| methodsBox radioButtonBox |
 	methodsBox := SpBoxLayout newVertical.
@@ -1495,7 +1495,7 @@ JadeiteBrowserPresenter >> initializeMethodList: listPresenters [
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 50 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
-	listPresenters add: methodsBox.
+	methodPanedPresenter add: methodsBox.
 	self initializeMethodListMenu
 ]
 
