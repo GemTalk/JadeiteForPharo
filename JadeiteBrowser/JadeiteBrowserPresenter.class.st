@@ -1555,18 +1555,18 @@ JadeiteBrowserPresenter >> initializePresenters [
 	panedLayout1 := SpPanedLayout newHorizontal.
 	self initializeProjectListPresenterIn: panedLayout1.
 	self initializePackageDictionaryTabsIn: panedLayout1.
-	panedLayout2 := SpPanedLayout newHorizontal.
+	panedLayout2 := SpPanedLayout newHorizontal positionOfSlider: 0.66.
 	panedLayout2 add: panedLayout1.
 	classColumn := SpBoxLayout newVertical.
 	panedLayout2 add: classColumn.
 	self initializeClassTabs: classColumn.
 	self initializeDefinedClassPackageText: classColumn.
-	panedLayout3 := SpPanedLayout newHorizontal.
+	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
 	panedLayout3 add: panedLayout2.
 	filterLayout := SpBoxLayout newHorizontal.
 	self initializeFilterTabs: filterLayout.
 	panedLayout3 add: filterLayout.
-	panedLayout4 := SpPanedLayout newHorizontal.
+	panedLayout4 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
 	panedLayout4 add: panedLayout3.
 	methodLayout := SpBoxLayout newHorizontal.
 	self initializeMethodList: methodLayout.
