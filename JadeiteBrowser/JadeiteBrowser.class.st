@@ -211,6 +211,12 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 ]
 
 { #category : 'testing' }
+JadeiteBrowser >> isCategorySelected [
+
+	^self activePresenter isCategorySelected
+]
+
+{ #category : 'testing' }
 JadeiteBrowser >> isClassSelected [
 
 	^self activePresenter isClassSelected

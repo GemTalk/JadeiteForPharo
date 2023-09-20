@@ -8,6 +8,7 @@ Class {
 JadeiteConsoleApplication >> start [
 
 	| inst |
+	BrowserUpdate clearCurrent.
 	inst := self new: JadeiteConsole.
 	inst
 		addStyle: 'jadedTextBackgroundColor';
@@ -15,6 +16,5 @@ JadeiteConsoleApplication >> start [
 		installTranscript;
 		updateProjects;
 		initializeAutoCommit. 
-	BrowserUpdate clearCurrent.
-	inst open
+	inst open.
 ]

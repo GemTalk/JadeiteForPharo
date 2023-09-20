@@ -163,7 +163,7 @@ JadeiteFilterTrait >> newCategoryMenu [
 				  item
 					  name: 'Browse category methods';
 					  action: [ self browseSelectedCategoryMethods ];
-					  enabled: [ self isClassSelected ] ] ];
+					  enabled: [ self isClassSelected and:[self isCategorySelected] ] ] ];
 		  yourself
 ]
 

@@ -184,15 +184,10 @@ JadeiteProjectsTrait >> newProjectMenu [
 				name: 'Changes';
 				action: [ self projectChanges ] ] ].
 	menu addGroup: [ :group |
-		group
-			addItem: [ :item |
-				item
-					name: 'Refresh from Disk';
-					action: [ self reloadProject ] ];
-			addItem: [ :item |
-				item
-					name: 'Refresh';
-					action: [ self updateProjects ] ] ].
+		group addItem: [ :item |
+			item
+				name: 'Refresh from Disk';
+				action: [ self reloadProject ] ] ].
 	^ menu
 ]
 

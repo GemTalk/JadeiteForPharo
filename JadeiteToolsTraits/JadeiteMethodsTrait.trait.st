@@ -302,7 +302,8 @@ JadeiteMethodsTrait >> newMethodListMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Browse Selected Methods';
-						  action: [ self browseSelectedMethods ] ];
+						  action: [ self browseSelectedMethods ];
+						  enabled: [ self methodListPresenter selections notEmpty ] ];
 				  addItem: [ :item |
 					  item
 						  name: 'Browse Method Containing ...';

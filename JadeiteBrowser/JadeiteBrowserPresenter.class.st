@@ -1656,6 +1656,11 @@ JadeiteBrowserPresenter >> inspectorContextObject [
 ]
 
 { #category : 'testing' }
+JadeiteBrowserPresenter >> isCategorySelected [
+	^self categoryListPresenter selectedItem isNotNil
+]
+
+{ #category : 'testing' }
 JadeiteBrowserPresenter >> isClassDefinitionTabSelected [
 	^textAreaTabs currentCard name = 'classDefinition'
 ]
