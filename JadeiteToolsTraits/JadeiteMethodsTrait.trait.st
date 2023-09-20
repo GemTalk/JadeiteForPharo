@@ -41,10 +41,15 @@ JadeiteMethodsTrait >> browseImplementors [
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseImplementorsOf [
 
-	| selector |
-	selector := UIManager default
-		            request: 'Enter selector:'
-		            initialAnswer: String new.
+	| selector wildcardString listWindowTitle |
+	wildcardString := UIManager default
+		                  request: 'Enter wildcard string:'
+		                  initialAnswer: String new.
+	wildcardString ifNil: [ ^ self ].
+	listWindowTitle := 'Jadeite Browse Implementors'.
+	selector := self
+		            selectSymbolFrom: wildcardString
+		            titled: listWindowTitle.
 	selector ifNotNil: [ self browseImplementorsOf: selector ]
 ]
 
@@ -161,10 +166,15 @@ JadeiteMethodsTrait >> browseSenders [
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseSendersOf [
 
-	| selector |
-	selector := UIManager default
-		            request: 'Enter selector:'
-		            initialAnswer: String new.
+	| selector wildcardString listWindowTitle |
+	wildcardString := UIManager default
+		                  request: 'Enter wildcard string:'
+		                  initialAnswer: String new.
+	wildcardString ifNil: [ ^ self ].
+	listWindowTitle := 'Jadeite Browse Senders'.
+	selector := self
+		            selectSymbolFrom: wildcardString
+		            titled: listWindowTitle.
 	selector ifNotNil: [ self browseSendersOf: selector ]
 ]
 
@@ -377,6 +387,29 @@ JadeiteMethodsTrait >> resetStatusBar [
 
 	self removeCompileWarningColor.
 	self statusBarText pushMessage: String new
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle [
+
+	| dialogWindow answeringService |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		lowercaseSelectorsMatching: wildcardString
+		session: GciSession current.
+	answeringService answer size = 1 ifTrue:[^answeringService answer first].
+	dialogWindow := ListDialogWindow new
+		                getList: [ :rxMatcher |
+			                answeringService answer select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
+		                displayBlock: [ :e | e ];
+		                doubleClickOk;
+		                title: listWindowTitle;
+		                yourself.
+	^ dialogWindow chooseFromOwner: self currentWorld
 ]
 
 { #category : 'selections' }
