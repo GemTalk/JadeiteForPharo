@@ -73,6 +73,12 @@ JadeiteConsole >> auditProject [
 	projectListPresenter auditProject
 ]
 
+{ #category : 'accessing' }
+JadeiteConsole >> autoCommit: aBoolean [
+
+	"haven't put commit and transaction status in the console yet"
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> autoCompleteEnabled [
 	"for testing"
