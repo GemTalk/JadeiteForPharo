@@ -635,6 +635,15 @@ JadeiteTextDocument >> showText: aString [
 
 ]
 
+{ #category : 'api' }
+JadeiteTextDocument >> text [
+	"Answer current text. Currently there's a hidden bug that disconnected 
+	the spec widget from the underlying morphic widget. Once found, the 
+	`withWidgetDo:` code can be removed."
+	self withWidgetDo: [ :w | text := w editor text].
+	^ text
+]
+
 { #category : 'public' }
 JadeiteTextDocument >> undo [
 	documentPresenter undo
