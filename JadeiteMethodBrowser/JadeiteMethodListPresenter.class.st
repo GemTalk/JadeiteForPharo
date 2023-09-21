@@ -193,6 +193,17 @@ JadeiteMethodListPresenter >> getViews [
 ]
 
 { #category : 'initialization' }
+JadeiteMethodListPresenter >> initializeMenubar [
+
+	^ self newMenuBar
+		  addItem: [ :item |
+			  item
+				  name: 'Method';
+				  subMenu: self newMethodListMenu ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteMethodListPresenter >> initializeMethodListTable [
 
 	methodListPresenter := JadeiteTablePresenter new
@@ -255,8 +266,10 @@ JadeiteMethodListPresenter >> initializePresenters [
 JadeiteMethodListPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 1000 @ 600.
-	self updateCaption.
+	aWindowPresenter
+		initialExtent: 1000 @ 600;
+		menu: self initializeMenubar.
+	self updateCaption
 ]
 
 { #category : 'as yet unclassified' }
