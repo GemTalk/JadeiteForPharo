@@ -150,31 +150,6 @@ JadeMethodListPresenter >> codePresenterIsMethod [
 ]
 
 { #category : 'as yet unclassified' }
-JadeMethodListPresenter >> createComponents [
-
-	super createComponents.
-	methodListPresenter 	:= self add: MethodListPresenter	new name: 'methodList'.
-	methodSourcePresenter	:= (self add: MethodSourcePresenter	new name: 'methodSource') menuTitle: '&Method Source'; yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeMethodListPresenter >> createSchematicWiring [
-
-	super createSchematicWiring.
-	methodListPresenter
-		when: #'methodSelectionChanged'	send: #'updateSource'		to: self;
-		when: #'selectionChanging:'		send: #'selectionChanging:'	to: self;
-		when: #'leftButtonPressed:'		send: #'onLeftButtonPressed:'	to: self;
-		yourself.
-	methodSourcePresenter
-		when: #'needUser'				send: #'userSelection'			to: self;
-		when: #'savedMethod:inClass:' 		send: #'doSearch'			to: self;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodListPresenter >> doSearch [
 
 	searchBlock notNil ifTrue: [searchBlock value].
@@ -348,22 +323,4 @@ JadeMethodListPresenter >> updateSaveMethodOop: anInteger [
 
 	methodListPresenter primaryPresenter selection: newGsMethod.
 
-]
-
-{ #category : 'as yet unclassified' }
-JadeMethodListPresenter >> updateSource [
-	| gsClass gsMethod2 gsMethod |
-	(gsClass := self selectedClass)
-		ifNotNil: 
-			[(gsMethod2 := methodListPresenter selectedMethod)
-				ifNotNil: 
-					[gsMethod2 gsClass ~= gsClass ifTrue: [self error: 'Method not from selected class!'].
-					gsMethod := GsMethod fromOopType: gsMethod2 oopType session: gsMethod2 gciSession]].
-	gsMethod
-		ifNotNil: 
-			[methodSourcePresenter gsMethod: gsMethod.
-			self doSearch].
-	methodListPresenter selectedMethod ifNil: [^self].
-	self displayUncompilableSourceIn: methodSourcePresenter documentPresenter
-		
 ]

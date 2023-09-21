@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeMethodListBrowser',
-	#superclass : 'JadeiteShell',
+	#superclass : 'SpAbstractWidgetPresenter',
 	#category : 'JadeiteMethodBrowser'
 }
 

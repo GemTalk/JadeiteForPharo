@@ -19,7 +19,7 @@ Class {
 
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> addStyle: aString [
-	super addStyle: aString. 
+	"don't send the super because we don't want the toolbar to be the same color as source pane"
 	methodSourcePresenter addStyle: aString.
 ]
 
@@ -225,12 +225,16 @@ JadeiteMethodListPresenter >> initializeMethodListTable [
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> initializeMethodSource [
 
+	| box |
 	methodSourcePresenter := JadeiteMethodSourcePane new _gciSession:
 		                         self gciSession.
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ].
-	self layout add: methodSourcePresenter
+	box := SpBoxLayout newVertical.
+	box borderWidth: 2.
+	box add: methodSourcePresenter.
+	self layout add: box
 ]
 
 { #category : 'initialization' }

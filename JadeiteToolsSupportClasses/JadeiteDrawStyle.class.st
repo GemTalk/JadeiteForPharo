@@ -14,5 +14,5 @@ JadeiteDrawStyle >> applyTo: aMorph [
 			ifTrue: [ aMorph barFillStyle: aColor asStyleVariable valueAsColor ]
 			ifFalse: [ aMorph color: aColor asStyleVariable valueAsColor ] ].
 	self backgroundColor ifNotNil: [ :aColor |
-		aMorph fillStyle: aColor asStyleVariable valueAsColor ]
+		aMorph fillStyle: aColor asStyleVariable valueAsColor]
 ]
