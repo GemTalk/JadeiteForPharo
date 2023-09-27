@@ -4,18 +4,18 @@ Class {
 	#category : 'JadeiteToolsSupportClasses'
 }
 
-{ #category : 'printing' }
+{ #category : 'accessing' }
 MCRowanClassDefinition >> classDefinitionString [
 	^String new
 ]
 
-{ #category : 'printing' }
+{ #category : 'accessing' }
 MCRowanClassDefinition >> comment [
 
 	^String new
 ]
 
-{ #category : 'printing' }
+{ #category : 'accessing' }
 MCRowanClassDefinition >> commentStamp [
 
 	^String new

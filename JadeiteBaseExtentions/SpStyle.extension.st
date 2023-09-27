@@ -1,6 +1,6 @@
 Extension { #name : 'SpStyle' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 SpStyle class >> newJadeiteApplication [
 
 	^ JadeiteClassStyle new 

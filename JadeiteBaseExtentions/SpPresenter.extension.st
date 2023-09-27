@@ -1,13 +1,13 @@
 Extension { #name : 'SpPresenter' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 SpPresenter >> update: browserUpdate withSelector: selector [ 
 	browserUpdate
 		updatesPerform: selector
 		presenter: self.
 ]
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 SpPresenter >> update: browserUpdate withSelector: selector browser: browser [
 	browserUpdate
 		updatesPerform: selector

@@ -1,6 +1,6 @@
 Extension { #name : 'AbstractBinaryFileStream' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 AbstractBinaryFileStream >> space [
 
 	self nextPut: Character space asInteger

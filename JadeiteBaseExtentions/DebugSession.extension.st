@@ -1,9 +1,9 @@
 Extension { #name : 'DebugSession' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 DebugSession >> isContextPostMortem: selectedContext [
 	"return whether we're inspecting a frozen exception without a process attached"
-	"Jaded override - return false if interruptedProcess is nil"
+	"Jadeite override - return false if interruptedProcess is nil"
 	| suspendedContext |
 	interruptedProcess ifNil: [ ^false ].
 	suspendedContext := interruptedProcess suspendedContext.

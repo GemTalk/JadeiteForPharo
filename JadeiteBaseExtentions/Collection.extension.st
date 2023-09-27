@@ -1,6 +1,6 @@
 Extension { #name : 'Collection' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 Collection >> prepareForReplication [
 	self do: [:element | element prepareForReplication]
 ]

@@ -1,6 +1,6 @@
 Extension { #name : 'Date' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 Date >> shortString [
 
 	^self mmddyyyy 

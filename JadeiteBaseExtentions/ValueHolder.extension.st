@@ -1,6 +1,6 @@
 Extension { #name : 'ValueHolder' }
 
-{ #category : '*JadeiteToolsSupportClasses' }
+{ #category : '*JadeiteBaseExtentions' }
 ValueHolder class >> with: anObject [
 
 	^self new contents: anObject

@@ -37,7 +37,7 @@ JadeiteApplication class >> abortTransactionInSession: session [
 	self setInTransaction: RowanAnsweringService new session: session.
 	self todo: [ JadePresenter trigger: #abortedTransaction ].
 	UIManager default inform: 'Abort succeeded'.
-	Sound informationBeep
+	JadeiteSound informationBeep
 ]
 
 { #category : 'actions' }
@@ -55,7 +55,7 @@ JadeiteApplication class >> commitTransactionInSession: session [
 	commitResult
 		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
 		ifFalse: [ ^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
-	Sound informationBeep
+	JadeiteSound informationBeep
 ]
 
 { #category : 'public' }
@@ -118,7 +118,7 @@ JadeiteApplication >> abortTransaction [
 	self setInTransaction: RowanAnsweringService new session: gciSession.
 	self triggerEvent: #abortedTransaction.
 	UIManager default inform: 'Abort succeeded'.
-	Sound informationBeep
+	JadeiteSound informationBeep
 ]
 
 { #category : 'accessing' }
