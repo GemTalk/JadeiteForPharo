@@ -1,6 +1,6 @@
 Extension { #name : 'MCDefinition' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCDefinition class >> fromStream: aStream [
 
 	| char class |
@@ -16,13 +16,13 @@ MCDefinition class >> fromStream: aStream [
 		yourself.
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCDefinition >> packageName [
 
 	^packageName
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCDefinition >> selector [
 
 	^String new

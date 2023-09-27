@@ -1,6 +1,6 @@
 Extension { #name : 'String' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 String >> replaceCrLfWithLf [
 
 	^self 
@@ -9,7 +9,7 @@ String >> replaceCrLfWithLf [
 
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 String >> replaceCrWithLf [
 
 	^ self
@@ -17,7 +17,7 @@ String >> replaceCrWithLf [
 		  with: Character lf asString
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 String >> subStrings: aString [
 	
 	^self substrings: aString

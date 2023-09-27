@@ -1,11 +1,11 @@
 Extension { #name : 'RubAbstractTextArea' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 RubAbstractTextArea >> editor: anEditor [
 	editor := self newEditor
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 RubAbstractTextArea >> newJadeiteEditor [
 
 	editor := JadeiteSmalltalkEditor forTextArea: self.

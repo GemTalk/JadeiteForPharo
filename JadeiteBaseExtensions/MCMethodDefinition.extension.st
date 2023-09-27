@@ -1,12 +1,12 @@
 Extension { #name : 'MCMethodDefinition' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCMethodDefinition >> detailsString [
 
 	^category
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCMethodDefinition >> initialize: aStream [
 	| size |
 	timeStamp := aStream upTo: Character tab.

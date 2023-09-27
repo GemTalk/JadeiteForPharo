@@ -1,6 +1,6 @@
 Extension { #name : 'Array' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 Array >> key [
 
 	"For Jaded list elements that were associations in a former life"

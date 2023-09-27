@@ -1,12 +1,12 @@
 Extension { #name : 'MCClassDefinition' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCClassDefinition >> detailsString [
 
 	^ 'Class Definition'
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCClassDefinition >> initialize: aStream [
 	| i j | 
 	packageName := aStream upTo: Character tab.

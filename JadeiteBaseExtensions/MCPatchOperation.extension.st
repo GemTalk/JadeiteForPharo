@@ -1,12 +1,12 @@
 Extension { #name : 'MCPatchOperation' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCPatchOperation >> detailsString [
 
 	self subclassResponsibility 
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 MCPatchOperation >> typeString [
 	"This browser is going away someday. Do ugly string parsing for now to make modifications that are reverted more visible"
 

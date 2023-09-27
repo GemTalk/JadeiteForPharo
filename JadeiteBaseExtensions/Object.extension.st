@@ -1,10 +1,10 @@
 Extension { #name : 'Object' }
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 Object >> prepareForReplication [
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 Object >> todo: aString [
 
 	"place to leave a note to yourself to do something
@@ -12,7 +12,7 @@ Object >> todo: aString [
 	makes searching for unsent code easier"
 ]
 
-{ #category : '*JadeiteBaseExtentions' }
+{ #category : '*JadeiteBaseExtensions' }
 Object >> todo: aStringOrBlock inTheMeanTime: doThisInsteadBlock [
 
 	"place to leave a note to yourself to do something
