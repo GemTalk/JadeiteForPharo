@@ -19,6 +19,8 @@ BaselineOfJadeite >> baseline: spec [
 			package: 'JadeiteToolsSupportClasses'
 			with: [
 				spec requires: #( 'JadeiteTextPanes' 'RemoteServiceReplication' ) ];
+			package: 'JadeiteBaseExtensions'
+			with: [ spec requires: 'JadeiteToolsSupportClasses' ];
 			package: 'RowanClientServicesClient'
 			with: [ spec requires: 'JadeiteToolsSupportClasses' ];
 			package: 'JadeitePortedClasses'
