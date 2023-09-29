@@ -51,6 +51,18 @@ RowanService class >> icon [
 	^##(self) defaultIcon
 ]
 
+{ #category : 'ast' }
+RowanService class >> lookupVar: aName [
+	"Used for styling code in ast's (abstract syntax trees) 
+	For now just assume this is a class service.
+	Eventually, return a global service if it's not a class"
+
+	| classService |
+	classService := (RowanClassService named: aName). "command: #update; commandArgs: #().
+	BrowserUpdate current issueCommand: classService session: GciSession current. "
+	^ GlobalVariable key: aName asSymbol value: classService
+]
+
 { #category : 'initialization' }
 RowanService class >> new [
 	| rsrInstance |

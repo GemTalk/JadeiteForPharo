@@ -20,8 +20,8 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             ghostText: self placeholder;
 		             beWrapped;
 		             askBeforeDiscardingEdits: self askBeforeDiscardingEdits;
-		             autoAccept: false;
-		             "<<<<<<Jadeite change here"vResizing: #spaceFill;
+		             autoAccept: false;  "<<<<<<Jadeite change here"
+		            vResizing: #spaceFill;
 		             hResizing: #spaceFill;
 		             setBalloonText: self help;
 		             dragEnabled: self dragEnabled;
@@ -32,10 +32,10 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	self setEnabled: self presenter isEnabled to: newWidget.
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.
-	newWidget textArea newJadeiteEditor. "<<<<<<Jadeite addition here"
-	newWidget textArea shoutStyler styler:
+	newWidget textArea newJadeiteEditor. "<<<<<<start Jadeite changes  here"
+	newWidget textArea shoutStyler ifNotNil: [ :shoutStyler | shoutStyler styler:
 		(JadeiteCodeTextStyler newWithAttributeTableNamed:
-			 self presenter syntaxHighlightTheme).
+			 self presenter syntaxHighlightTheme)].
 	self setText: self presenter text to: newWidget.
 	model hasUnacceptedEdits: false. 
 	self presenter selectionInterval ifNotNil: [ :anInterval |

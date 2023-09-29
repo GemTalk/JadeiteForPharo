@@ -26,3 +26,8 @@ JadeiteCompiler >> parse [
 
 	^ ast
 ]
+
+{ #category : 'plugins' }
+JadeiteCompiler >> parserClass [
+	^JadeiteParser
+]

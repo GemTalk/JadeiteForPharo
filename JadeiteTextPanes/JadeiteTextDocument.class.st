@@ -367,7 +367,7 @@ JadeiteTextDocument >> initialize [
 	super initialize.
 	environment := 0.
 	lastSave := String new.
-	"self withoutSyntaxHighlight"
+	self withoutSyntaxHighlight
 
 ]
 

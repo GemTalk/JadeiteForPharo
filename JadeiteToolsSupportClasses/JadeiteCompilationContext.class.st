@@ -8,5 +8,5 @@ Class {
 JadeiteCompilationContext >> initialize [ 
 
 	super initialize. 
-	semanticScope := JadeiteMethodSemanticScope targetingClass: nil class
+	semanticScope := JadeiteMethodSemanticScope targetingClass: RowanService
 ]
