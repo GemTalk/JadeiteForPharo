@@ -994,10 +994,10 @@ JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
 		register: classHierarchyPresenter
 		selector: #updatedClassInHierarchy:browser:
 		browser: self.
-	BrowserUpdate current
+	"BrowserUpdate current
 		register: classHierarchyPresenter
 		selector: #updatedOneLevelInClassHierarchy:browser:
-		browser: self.
+		browser: self."
 	BrowserUpdate current register: classHierarchyPresenter selector: #removed:.
 	BrowserUpdate current
 		register: methodListPresenter

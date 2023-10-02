@@ -2535,10 +2535,10 @@ JadeiteBrowserPresenter >> registerClassHierarchyForUpdates [
 	BrowserUpdate current
 		register: classHierarchyPresenter
 		selector: #removed:.
-	BrowserUpdate current
+	"BrowserUpdate current
 		register: classHierarchyPresenter
 		selector: #updatedOneLevelInClassHierarchy:browser:
-		browser: self
+		browser: self <<< Needed?"
 ]
 
 { #category : 'registration' }
