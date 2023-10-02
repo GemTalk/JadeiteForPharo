@@ -152,11 +152,6 @@ JadeiteConsole >> browseJadeitePrefs [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> browseSendersOf [
-	^JadePresenter browseSendersIn: self gciSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> browseUsers [
 	^AllUsersShell showOnSession: gciSession.
 
