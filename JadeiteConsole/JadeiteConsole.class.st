@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteConsole',
 	#superclass : 'JadeTranscript',
-	#traits : 'JadeiteProjectsTrait + JadeiteToolbarTrait',
-	#classTraits : 'JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait',
+	#traits : 'JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteMethodsTrait + JadeiteClassTrait',
+	#classTraits : 'JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait',
 	#instVars : [
 		'projectListPresenter',
 		'isTranscriptInstalled',
@@ -152,16 +152,6 @@ JadeiteConsole >> browseJadeitePrefs [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> browseLiteralReferences [
-	^JadePresenter browseLiteralReferences: self gciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> browseMethodsContaining [
-	^JadePresenter browseMethodsContaining: self gciSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> browseSendersOf [
 	^JadePresenter browseSendersIn: self gciSession
 ]
@@ -271,6 +261,16 @@ JadeiteConsole >> editLoadSpecFromFile [
 	^JadeiteLoadSpecEditor editLoadSpecFromFileInSession: gciSession
 ]
 
+{ #category : 'actions' }
+JadeiteConsole >> findClassNamed: selection [
+
+	| classService browser |
+	browser := self openBrowser. 
+	classService := RowanClassService new name: selection.
+	^ Cursor wait showWhile: [
+		  browser activePresenter updateAfterFindClass: classService ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> flipAutocomplete [
 	| newValue confirmedValue |
@@ -350,6 +350,18 @@ JadeiteConsole >> initializeAutoCommit [
 ]
 
 { #category : 'initialization' }
+JadeiteConsole >> initializeBrowseMenu [
+
+	^ self newBrowseMethodListMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Find Class ...';
+				  shortcut: $f shift ctrl;
+				  action: [ self findClass ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteConsole >> initializeFileMenu [
 
 	^ self newMenu
@@ -361,14 +373,27 @@ JadeiteConsole >> initializeFileMenu [
 ]
 
 { #category : 'initialization' }
+JadeiteConsole >> initializeKeyBindings: aWindowPresenter [
+
+	aWindowPresenter
+		bindKeyCombination: $f shift ctrl
+		toAction: [ self findClass ]
+]
+
+{ #category : 'initialization' }
 JadeiteConsole >> initializeMenubar [
 
 	^ self newMenuBar
-		  addGroup: [ :group | 
-			  group addItem: [ :item | 
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
 					  item
 						  name: 'File';
-						  subMenu: self initializeFileMenu ] ];
+						  subMenu: self initializeFileMenu ];
+				  addItem: [ :item |
+					  item
+						  name: 'Browse';
+						  subMenu: self initializeBrowseMenu ] ];
 		  yourself
 ]
 
@@ -385,7 +410,7 @@ JadeiteConsole >> initializePresenters [
 	self initializeTranscriptPresenter: consoleTabs.
 	box add: consoleTabs.
 	lastKnownTransaction := self newStatusBar.
-	self layout addLast: lastKnownTransaction expand: false
+	self layout addLast: lastKnownTransaction expand: false.
 ]
 
 { #category : 'initialization' }
@@ -455,6 +480,7 @@ JadeiteConsole >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		initialExtent: 800 @ 500;
 		menu: self initializeMenubar.
+	self initializeKeyBindings: aWindowPresenter.
 	self updateCaption
 ]
 

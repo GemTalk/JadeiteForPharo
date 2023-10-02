@@ -3,6 +3,62 @@ Trait {
 	#category : 'JadeiteToolsTraits'
 }
 
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseImplementorsDialogItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse Implementors of ...';
+			action: [ self browseImplementorsOf ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseImplementorsItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse Implementors';
+			action: [ self browseImplementors ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseLiteralReferencesTo: group [
+
+	^ group addItem: [ :item |
+		  item
+			  name: 'Browse Literal References ...';
+			  action: [ self browseLiteralReferences ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseMethodsContainingTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse Method Containing ...';
+			action: [ self browseMethodsContaining ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseSendersDialogItemTo: group [
+
+	^ group addItem: [ :item |
+		  item
+			  name: 'Browse Senders Of ...';
+			  action: [ self browseSendersOf ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseSendersItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse Senders';
+			action: [ self browseSenders ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
 { #category : 'queries' }
 JadeiteMethodsTrait >> basicSendersOf: string [
 	| service shell |
@@ -269,49 +325,47 @@ JadeiteMethodsTrait >> maxSymbolSize [
 ]
 
 { #category : 'menus' }
+JadeiteMethodsTrait >> newBrowseMethodListMenu [
+
+	^ SpMenuPresenter new
+		  addGroup: [ :group |
+			  self addBrowseImplementorsDialogItemTo: group.
+			  self addBrowseSendersDialogItemTo: group.
+			  self addBrowseMethodsContainingTo: group.
+			  self addBrowseLiteralReferencesTo: group ];
+		  yourself
+]
+
+{ #category : 'menus' }
 JadeiteMethodsTrait >> newMethodListMenu [
 
 	^ SpMenuPresenter new
 		  addGroup: [ :group |
-			  group
-				  addItem: [ :item |
+			  group addItem: [ :item |
 					  item
 						  name: 'Browse Class';
 						  action: [ self browseClass ];
-						  enabled: [ self methodListPresenter selections size = 1 ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Implementors';
-						  action: [ self browseImplementors ];
-						  enabled: [ self methodListPresenter selections size = 1 ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Implementors of ...';
-						  action: [ self browseImplementorsOf ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Senders';
-						  action: [ self browseSenders ];
-						  enabled: [ self methodListPresenter selections size = 1 ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Senders Of ...';
-						  action: [ self browseSendersOf ] ] ];
+						  enabled: [ self methodListPresenter selections size = 1 ] ].
+			  group addItem: [ :item1 |
+				  item1
+					  name: 'Browse Implementors';
+					  action: [ self browseImplementors ];
+					  enabled: [ self methodListPresenter selections size = 1 ] ].
+			  self addBrowseImplementorsDialogItemTo: group.
+			  group addItem: [ :item2 |
+				  item2
+					  name: 'Browse Senders';
+					  action: [ self browseSenders ];
+					  enabled: [ self methodListPresenter selections size = 1 ] ].
+			  self addBrowseSendersDialogItemTo: group ];
 		  addGroup: [ :group |
-			  group
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Selected Methods';
-						  action: [ self browseSelectedMethods ];
-						  enabled: [ self methodListPresenter selections notEmpty ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Method Containing ...';
-						  action: [ self browseMethodsContaining ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Browse Literal References ...';
-						  action: [ self browseLiteralReferences ] ] ];
+			  group addItem: [ :item |
+				  item
+					  name: 'Browse Selected Methods';
+					  action: [ self browseSelectedMethods ];
+					  enabled: [ self methodListPresenter selections notEmpty ] ].
+			  self addBrowseMethodsContainingTo: group.
+			  self addBrowseLiteralReferencesTo: group ];
 		  addItem: [ :item |
 			  item
 				  name: 'Remove Method(s) ...';
