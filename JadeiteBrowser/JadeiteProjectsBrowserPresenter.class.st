@@ -1161,11 +1161,6 @@ JadeiteProjectsBrowserPresenter >> selectCategoryNamed: category [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> selectCategoryTab [
-	(self view viewNamed: 'categoryList') ensureVisible
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> selectClassDefinitionTab [
 	self selectSourceTabNamed: 'classDefinition'
 ]

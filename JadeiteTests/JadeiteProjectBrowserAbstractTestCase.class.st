@@ -130,7 +130,6 @@ JadeiteProjectBrowserAbstractTestCase >> selectSUnitTab [
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> setUp [
 	super setUp.
-	self disableTranscriptWrites.	"turn off gemstone transcript writes for performance"
 	self setupProjectBrowser
 ]
 

@@ -279,7 +279,7 @@ JadeiteAbstractTestCase >> enableBreakpoints [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureOneTab [
 	projectsBrowser ifNil: [^self].
-	[projectsBrowser cardsPresenter view cards size = 1] whileFalse: [projectsBrowser closeCard]
+	[projectsBrowser cards size = 1] whileFalse: [projectsBrowser closeCard]
 ]
 
 { #category : 'as yet unclassified' }
@@ -504,7 +504,7 @@ JadeiteAbstractTestCase >> projectListPresenter [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> projectsPresenter [
-	^projectsBrowser currentCard
+	^projectsBrowser tabs currentCard retrievePresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -796,13 +796,13 @@ JadeiteAbstractTestCase >> selectHierarchyTabIn: presenter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> selectInstanceTab [
-	self selectInstanceTabIn: self projectsPresenter
+JadeiteAbstractTestCase >> selectInstanceRadioButtonIn: presenter [
+	presenter setInstanceSide
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> selectInstanceTabIn: presenter [
-	presenter instanceClassTabs firstCard
+JadeiteAbstractTestCase >> selectInstanceSide [
+	self selectInstanceRadioButtonIn: self projectsPresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -990,7 +990,7 @@ JadeiteAbstractTestCase >> setupProjectBrowser [
 	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
 	self ensureOneTab.
 	self selectClassListTab.
-	self selectInstanceTab.
+	self selectInstanceSide.
 	self projectsPresenter selectCategoryTab.
 	self projectListPresenter resetSelection
 ]

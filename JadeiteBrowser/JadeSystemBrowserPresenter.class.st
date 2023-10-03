@@ -956,14 +956,6 @@ JadeSystemBrowserPresenter >> inspectGlobal [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> isCategoryTabSelected [
-	methodFilterTabs ifNil:[^true]. 
-	methodFilterTabs selectedPage ifNil:[^true]. 
-	^methodFilterTabs selectedPage title = 'Category'
-	
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> isClassListTabSelected [
 	classListHierarchyTabs currentCard ifNil: [ ^true ].
 	^classListHierarchyTabs currentCard name = 'Class'.

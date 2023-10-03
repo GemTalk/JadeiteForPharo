@@ -133,7 +133,7 @@ JadeiteSUnitSupportTestCase >> setupAbstractSuperWithTest [
 		^self name = #JadeiteTest'.
 	self methodSourcePresenter value: source.
 	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectInstanceTab.
+	self selectInstanceSide.
 	source := 'test_className
 		"fail in one subclass only" 
 		self assert: self class name = #JadeiteTestSubclass1'.
@@ -201,7 +201,7 @@ JadeiteSUnitSupportTestCase >> setupTestSuperclass [
 	self methodSourcePresenter value: 'testClassVar
 				^TestClassVar'.
 	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectInstanceTab.
+	self selectInstanceSide.
 	self methodSourcePresenter
 		value: 'test_method
 				self class setMyClassName: self class name. 

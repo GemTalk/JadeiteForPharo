@@ -1660,6 +1660,14 @@ JadeiteBrowserPresenter >> isCategorySelected [
 	^self categoryListPresenter selectedItem isNotNil
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> isCategoryTabSelected [
+	methodFilterTabs ifNil:[^true]. 
+	methodFilterTabs selectedPage ifNil:[^true]. 
+	^methodFilterTabs selectedPage title = 'Category'
+	
+]
+
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isClassDefinitionTabSelected [
 	^textAreaTabs currentCard name = 'classDefinition'
@@ -2484,6 +2492,18 @@ JadeiteBrowserPresenter >> refreshFromServerAfterAbort: browserService [
 			 ifFalse: [ self gciSession autoCommit value ])
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> refreshGlobalSelections [
+	"refresh selections in all browsers."
+
+	| browserService |
+	browserService := RowanBrowserService new
+				command: #findRemovedServices:;
+				commandArgs: (Array with: BrowserUpdate current activeServices asSet asArray).
+	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession.
+	self updateServices: BrowserUpdate current selectedServices
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 
@@ -2749,6 +2769,11 @@ JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> selectCategoryTab [
+	methodFilterTabs selectPageIndex: 1
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> selectClassHierarchyTab [
 	self todo:[classHierarchyTabs lastCard]
 ]
@@ -2895,6 +2920,12 @@ JadeiteBrowserPresenter >> setCompileErrorColor [
 JadeiteBrowserPresenter >> setDefaultMethod [
 
 	methodSourcePresenter value: self defaultMethod
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> setInstanceSide [
+
+	instanceRadioButton state: true
 ]
 
 { #category : 'as yet unclassified' }

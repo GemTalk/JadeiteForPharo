@@ -906,7 +906,7 @@ JadeiteProjectBrowserClassesTestCase >> test_dontDuplicateClasses [
 	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter. 
 	self assert: self classListPresenter list size equals: 1. 
 	self assert: self classListPresenter list first name equals: 'RowanSample1Test'. 
-	self selectInstanceTab. 
+	self selectInstanceSide. 
 	self assert: self classListPresenter list size equals: 1. 
 	self assert: self classListPresenter list first name equals: 'RowanSample1Test'. 
 	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter. 

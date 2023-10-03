@@ -54,7 +54,7 @@ JadeiteTestResource >> basicUnloadProjects: projectNames [
 	self refreshGlobalSelections
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> cloneRowanSample1 [
 	| sample1Path root service |
 	self disableInteractionsWhile: 
@@ -70,21 +70,29 @@ JadeiteTestResource >> cloneRowanSample1 [
 			JadePresenter issueCommands: (Array with: service) session: GciSession current]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> closeTranscript: aTranscript [
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #no.	"closing the transcript will logout the session. don't commit"
 	[aTranscript view close] ensure: [TestMessageBox disableJadeiteTestMessageBox]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> closeTranscripts [
 	self transcript ifNotNil: [self closeTranscript: self transcript].
 	JadeiteTranscript allInstances
 		do: [:transcript | self closeTranscript: transcript	"hopeful none, but just in case"]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
+JadeiteTestResource >> destroy: visualThing [
+	visualThing ifNil:[^self]. 
+	(Delay forMilliseconds: 200) wait.
+	visualThing window close.
+	(Delay forMilliseconds: 20) wait.
+]
+
+{ #category : 'support' }
 JadeiteTestResource >> disableInteractionsWhile: block [
 	"interactions like confirm: and notify: are enabled by 
 	default on all service commands. Disable for the duration
@@ -152,7 +160,7 @@ JadeiteTestResource >> gciSession [
 	^self session
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> hasValidSession [
 	| session |
 	session := GciSession current.
@@ -160,22 +168,22 @@ JadeiteTestResource >> hasValidSession [
 	^session isValidSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> isAvailable [
 	^self session notNil and: [self transcript notNil]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> issueCommand: service [
 	^JadePresenter issueCommands: (Array with: service) session: self session
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> jadeiteShell [
 	^jadeiteShell
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHomePath customConditionalAttributes: attributes componentNames: componentNames [
 	| projectService |
 	projectService := RowanProjectService new.
@@ -189,14 +197,14 @@ JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHom
 	JadePresenter issueCommands: (Array with: projectService) session: self session
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> loginAs: userName [
 	jadeiteShell := JadeiteLoginShell show.
 	jadeiteShell userIDPresenter value: userName.
 	jadeiteShell loginWithoutErrorHandling
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> loginWithRetry: loginShell [
 	| loginError |
 	loginError := true.
@@ -207,7 +215,7 @@ JadeiteTestResource >> loginWithRetry: loginShell [
 					do: [:ex | (Delay forMilliseconds: 100) wait]]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> logout [
 	"hopeful none, but just in case"
 	self closeTranscripts.
@@ -217,7 +225,7 @@ JadeiteTestResource >> logout [
 			(Delay forMilliseconds: 100) wait	"should save to the remote 'C:\Users\ewinger\AppData\Roaming\JadeDefaultConnection.gss' file"]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
 	"closing the transcript will logout the session. don't commit"
 
@@ -234,15 +242,14 @@ JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
 	self loginAs: userName]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> openProjectsBrowser [
 	((projectsBrowser isKindOf: JadeiteBrowser) not or: [projectsBrowser isOpen not])
-		ifTrue: [projectsBrowser := self openWindow: [self transcript openJadeiteProjectsBrowser]].
-	projectsBrowser := projectsBrowser topShell.
+		ifTrue: [projectsBrowser := self openWindow: [self transcript openBrowser]].
 	^projectsBrowser
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> openWindow: aBlock [
 	"evaluate a block which is expected to return an object that responds to #view.
 	Wait until the view affirms it is open before continuing"
@@ -257,9 +264,15 @@ JadeiteTestResource >> openWindow: aBlock [
 	^presenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> projectsBrowser: anObject [
 	projectsBrowser := anObject
+]
+
+{ #category : 'support' }
+JadeiteTestResource >> projectsPresenter [
+
+	^ projectsBrowser tabs currentCard retrievePresenter
 ]
 
 { #category : 'updates' }
@@ -274,7 +287,7 @@ JadeiteTestResource >> refreshGlobalSelections [
 	self updateServices: BrowserUpdate current selectedServices
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> refreshProjectNamed: projectName [
 	| projectService |
 	projectService := RowanProjectService new name: projectName.
@@ -284,7 +297,7 @@ JadeiteTestResource >> refreshProjectNamed: projectName [
 	JadePresenter issueCommands: (Array with: projectService) session: self session
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> reloadProjectNamed: projectName [
 	| projectService |
 	projectService := RowanProjectService new name: projectName.
@@ -339,13 +352,13 @@ JadeiteTestResource >> sampleProject9Name [
 	^self class sampleProject9Name
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> session [
 
 	^GciSession current
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> setUp [
 	super setUp.
 	self logoutThenLoginAs: 'SystemUser' forceClose: false.
@@ -357,33 +370,34 @@ JadeiteTestResource >> setUp [
 	self ensureRowanSampleProjectsLoaded
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #yes.	"confirm transaction mode switch"
 	[self transcript transactionMode: aSymbol] ensure: [TestMessageBox disableJadeiteTestMessageBox]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> tearDown [
+
 	super tearDown.
 	self logoutThenLoginAs: 'SystemUser' forceClose: false.
-	(projectsBrowser isKindOf: JadeiteBrowser)
-		ifTrue: 
-			[(projectsBrowser currentCard projectListPresenter list
-				detect: [:service | service name = self sampleProject1Name]
-				ifNone: [])
-					ifNotNil: [projectsBrowser currentCard basicUnloadProjects: (Array with: self sampleProject1Name)].
-			projectsBrowser destroy.
-			projectsBrowser := nil]
+	projectsBrowser ifNil: [ ^ self ].
+	(self projectsPresenter projectListPresenter list
+		 detect: [ :service | service name = self sampleProject1Name ]
+		 ifNone: [  ]) ifNotNil: [
+		self projectsPresenter basicUnloadProjects:
+			(Array with: self sampleProject1Name) ].
+	self destroy: projectsBrowser.
+	projectsBrowser := nil
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> transcript [
 	^self transcriptForCurrentSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
 JadeiteTestResource >> transcriptForCurrentSession [
 	| console |
 	console := JadeiteConsole allInstances

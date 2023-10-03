@@ -49,10 +49,22 @@ JadeiteBrowser >> cards [
 	^browserPresenters
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowser >> cardsPresenter [
+	"for legacy tests"
+	^self cards 
+]
+
 { #category : 'accessing' }
 JadeiteBrowser >> categoryListPresenter [
 
 	^ self activePresenter categoryListPresenter
+]
+
+{ #category : 'actions' }
+JadeiteBrowser >> closeCard [
+
+	self tabs removePage: self tabs currentCard
 ]
 
 { #category : 'actions' }

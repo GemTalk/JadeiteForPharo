@@ -2496,15 +2496,6 @@ JadeiteProjectBrowserTestCase >> test_openNewProjectTab [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_openProjectsBrowser [
-	"project browser opened in setup"
-
-	self assert: projectsBrowser class equals: JadeiteBrowser.
-	self
-		denyIsNil: (self projectList detect: [:projectService | projectService name = 'Rowan'] ifNone: [])
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_openProjectsBrowserFromMethodList [
 	| secondProjectsBrowser |
 	self testsIssue: #issue192
@@ -2964,7 +2955,7 @@ JadeiteProjectBrowserTestCase >> test_separationOfClassAndInstance [
 	self projectsPresenter selectCategoryNamed: 'tests'.	"select category in instance"
 	self assert: self methodListPresenter list notEmpty.
 	self assert: self methodListPresenter list first selector equals: #test1.
-	self selectInstanceTabIn: secondPresenter.
+	self selectInstanceRadioButtonIn: secondPresenter.
 	self assert: self methodListPresenter list notEmpty.
 	self assert: self methodListPresenter list first selector equals: #test1.
 	self assert: secondPresenter methodListPresenter list notEmpty.
@@ -3703,7 +3694,7 @@ JadeiteProjectBrowserTestCase >> test_unicodeSpecialMethodNotRed [
 	self deny: self methodSourcePresenter view backcolor
 		equals: JadeiteTextStyles default colorForUndisplayableSource]
 			ensure: 
-				[self selectInstanceTab.
+				[self selectInstanceSide.
 				self selectServiceNamed: 'Rowan-Services-Tests' in: self packageListPresenter.
 				self selectServiceNamed: 'RowanServicesTest' in: self classListPresenter.
 				self selectMethodNamed: #iAmAUnicodeMethod.
@@ -3744,7 +3735,7 @@ JadeiteProjectBrowserTestCase >> test_variableTabSortOrder2 [
 	projectsBrowser ifNotNil: [self assertVariableTabSorted].
 	self selectClassTab.
 	projectsBrowser ifNotNil: [self assertVariableTabSorted].
-	self selectInstanceTab.
+	self selectInstanceSide.
 	projectsBrowser ifNotNil: [self assertVariableTabSorted].
 	self selectHierarchyTab.
 	projectsBrowser ifNotNil: [self assertVariableTabSorted].
