@@ -197,25 +197,6 @@ JadeMethodListPresenter >> insertIfTrue [
 ]
 
 { #category : 'as yet unclassified' }
-JadeMethodListPresenter >> jadeMenuStrings [
-
-	false ifTrue: [
-		self abortTransaction; commitTransaction; beginTransaction; newWorkspace; newProjectsBrowser; exit
-	]. 
-	^#(
-		'&Jadeite'
-		'&Abort Transaction//abortTransaction'
-		'&Commit Transaction//commitTransaction'
-		'&Begin Transaction//beginTransaction'
-		'-'
-		'&New Workspace/Ctrl+N/newWorkspace'
-		'&Open Projects Browser/Ctrl+P/newProjectsBrowser'
-		'E&xit/Shift+F4/exit'
-	).
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodListPresenter >> methodListPresenter [
 
 	^methodListPresenter

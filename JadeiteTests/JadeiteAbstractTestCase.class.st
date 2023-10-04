@@ -504,7 +504,7 @@ JadeiteAbstractTestCase >> projectListPresenter [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> projectsPresenter [
-	^projectsBrowser tabs currentCard retrievePresenter
+	^projectsBrowser tabs currentCard activePresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -882,16 +882,18 @@ JadeiteAbstractTestCase >> selectServiceNamed: aString in: presenter [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> selectServicesNamed: anArray in: presenter [
+
 	presenter resetSelection.
-	anArray isEmpty ifTrue:[^self].
-	anArray do: 
-			[:name |
-			| service |
-			service := presenter list detect: [:svc | svc name = name]
-						ifNone: [self error: 'List element ' , name , ' not found'].
-			presenter selections: (presenter selections asOrderedCollection
-						add: service;
-						yourself)]
+	anArray isEmpty ifTrue: [ ^ self ].
+	anArray do: [ :name |
+		| service |
+		service := presenter list
+			           detect: [ :svc | svc name = name ]
+			           ifNone: [
+			           self error: 'List element ' , name , ' not found' ].
+		presenter selections: (presenter selections asOrderedCollection
+				 add: service;
+				 yourself)]
 ]
 
 { #category : 'as yet unclassified' }

@@ -32,7 +32,7 @@ JadeiteForPharoMiscellaneousTestCase >> tearDown [
 	super tearDown.
 	workspace
 		ifNotNil: 
-			[self todo:[workspace codePane documentPresenter view isModified: false].
+			[workspace isModified: false.
 			self destroy: workspace]
 ]
 

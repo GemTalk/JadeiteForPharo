@@ -552,32 +552,6 @@ JadeiteProjectsBrowserPresenter >> jadeExecute [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> jadeMenuStrings [
-	false ifTrue: [
-		self abortTransaction; commitTransaction; beginTransaction; newBrowser; addSystemBrowser; maximizeCode; findClass; gotoClass; refreshFromServer; exit.
-	]. 
-	^#(
-		'&Jadeite'
-		'&Abort Transaction//abortTransaction'
-		'&Commit Transaction//commitTransaction' 
-		'&Begin Transaction//beginTransaction'
-		'-'
-		'&New Projects Browser/Ctrl+N/newBrowser'
-		'&New Projects Tab/Ctrl+T/addSystemBrowser'
-		'&Maximize Code/Ctrl+M/maximizeCode'
-		'-'
-		'&Find Class.../Ctrl+Shift+F/findClass' 
-		'&Go To Class In New Browser.../Ctrl+Shift+G/gotoClass' 
-		'&Save Class Tabs to Preferences File//saveCurrentClassTabsToPreferencesFile'
-		'-'
-		'&Refresh/Ctrl+R/refreshFromServer'
-		'-'
-		'E&xit/Shift+F4/exit'
-	).
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> methodCategoryText [
 	^methodCategoryText
 ]

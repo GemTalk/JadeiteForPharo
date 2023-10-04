@@ -1023,27 +1023,6 @@ JadeSystemBrowserPresenter >> jadeExecute [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> jadeMenuStrings [
-
-	false ifTrue: [
-		self abortTransaction; commitTransaction; newWorkspace; newProjectBrowser; rename; exit.
-	].
-	^#(
-		'&Jade'
-		'&Abort Transaction//abortTransaction'
-		'&CommitTransaction//commitTransaction'
-		'-'
-		'&New Workspace/Ctrl+N/newWorkspace'
-		'&Open Projects Browser/Ctrl+B/newProjectBrowser'
-		'-'
-		'&Rename Selection/F2/rename'
-		'-'
-		'E&xit/Shift+F4/exit'
-	).
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> jumpToHistoryIndex: anInteger [
 
 	| commandString historyEntry |
