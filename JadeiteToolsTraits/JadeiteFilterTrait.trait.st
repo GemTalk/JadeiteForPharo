@@ -172,6 +172,12 @@ JadeiteFilterTrait >> newVariableMenu [
 
 	^ SpMenuPresenter new
 		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Add Accessors';
+						  action: [ self addVariableAccessors ];
+						  enabled: [ self isVariableSelected ] ] ];
+		  addGroup: [ :group |
 			  group
 				  addItem: [ :item |
 					  item
