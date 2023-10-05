@@ -17,6 +17,17 @@ JadeiteProjectsTrait >> basicAllSelectedProjectsDirty: aProjectListPresenter [
 	^false
 ]
 
+{ #category : 'commands' }
+JadeiteProjectsTrait >> basicUnloadProjects: projectNames [
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #unloadProjectsNamed:;
+		commandArgs: (Array with: projectNames).
+	self issueCommand: browserService.
+	self refreshGlobalSelections.
+]
+
 { #category : 'testing' }
 JadeiteProjectsTrait >> canCommit [
 	| projectService |
@@ -146,6 +157,45 @@ JadeiteProjectsTrait >> initializeProjectListMenu [
 	self projectListPresenter contextMenu: self newProjectMenu
 ]
 
+{ #category : 'commands' }
+JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath [
+
+	self
+		installProjectFromPath: path
+		projectsHome: projectsHomePath
+		componentNames: #(  )
+		attributes: #(  )
+		resolveStrict: false
+]
+
+{ #category : 'commands' }
+JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: resolveStrict [
+	| projectService |
+	projectService := RowanProjectService new.
+	projectService
+		command: #installProjectFromFile:projectsHome:componentNames:attributes:resolveStrict:;
+		commandArgs: (Array
+					with: 'file:' , path
+					with: projectsHomePath
+					with: componentNames
+					with: attributes
+					with: resolveStrict).
+	self issueCommand: projectService
+]
+
+{ #category : 'commands' }
+JadeiteProjectsTrait >> loadProject [
+
+	| filePath |
+	filePath := JadeiteServerFileSelectorDialog
+		            showOnSession: self gciSession
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+	filePath ifNil: [ ^ self ].
+	^ self
+		  installProjectFromPath: filePath
+		  projectsHome: JadePresenter rowanProjectsHomeEnvVarString
+]
+
 { #category : 'messages' }
 JadeiteProjectsTrait >> mismatchedShasConfirmation [
 
@@ -167,6 +217,10 @@ JadeiteProjectsTrait >> newProjectMenu [
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
+				name: 'Load ...';
+				action: [ self loadProject ] ].
+		group addItem: [ :item |
+			item
 				name: 'Commit to Git ...';
 				action: [ self gitCommit ];
 				enabled: [ self allSelectedProjectsDirty ] ].
@@ -182,7 +236,12 @@ JadeiteProjectsTrait >> newProjectMenu [
 		group addItem: [ :item |
 			item
 				name: 'Changes';
-				action: [ self projectChanges ] ] ].
+				action: [ self projectChanges ] ].
+		group addItem: [ :item |
+			item
+				name: 'Unload ...';
+				action: [ self unloadProject ];
+				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
@@ -226,6 +285,18 @@ JadeiteProjectsTrait >> pushToGit [
 ]
 
 { #category : 'commands' }
+JadeiteProjectsTrait >> refreshGlobalSelections [
+	"refresh selections in all browsers."
+
+	| browserService |
+	browserService := RowanBrowserService new
+				command: #findRemovedServices:;
+				commandArgs: (Array with: BrowserUpdate current activeServices asSet asArray).
+	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession.
+	self updateServices: BrowserUpdate current selectedServices 
+]
+
+{ #category : 'commands' }
 JadeiteProjectsTrait >> reloadProject [
 
 	| selections |
@@ -236,6 +307,15 @@ JadeiteProjectsTrait >> reloadProject [
 	BrowserUpdate current selectedServices do: [ :service | 
 		service postReload ].
 	self projectListPresenter update. 
+]
+
+{ #category : 'commands' }
+JadeiteProjectsTrait >> unloadProject [
+
+	(MessageBox confirm: 'Really unload selected projects?') ifFalse: [
+		^ self ].
+	self basicUnloadProjects:
+		(self projectListPresenter selections collect: [ :service | service name ])
 ]
 
 { #category : 'updates' }
