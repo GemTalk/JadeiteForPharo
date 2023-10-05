@@ -15,6 +15,7 @@ JadeiteConsoleApplication >> start [
 		gciSession: gciSession;
 		installTranscript;
 		updateProjects;
-		initializeAutoCommit. 
-	inst open.
+		initializeAutoCommit.
+	JadeiteConsole currentConsole: inst.
+	inst open
 ]

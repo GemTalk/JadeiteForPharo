@@ -11,6 +11,6 @@ GsFatalError >> defaultAction [
 	MessageBox errorMsg: ws contents caption: 'Fatal GemStone Error'.
 	self gciSession beInvalidSession.
 	self gciSession trigger: #forceJadeiteWindowClose.
-	JadeiteConsole allInstances do: [:transcript | transcript view destroy].	"should be only one"
+	JadeiteConsole currentConsole close.
 	TerminateProcess signal
 ]

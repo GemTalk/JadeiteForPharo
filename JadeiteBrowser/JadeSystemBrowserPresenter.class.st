@@ -1135,8 +1135,8 @@ JadeSystemBrowserPresenter >> methodFilterListPresenter [
 
 	| name |
 	name := methodFilterTabs currentCard name.
-	name = 'categoryList' ifTrue: [^categoryListPresenter].
-	name = 'variableList' ifTrue: [^variableListPresenter].
+	name = 'Category' ifTrue: [^categoryListPresenter].
+	name = 'Variable' ifTrue: [^variableListPresenter].
 	name = 'pragmaList' ifTrue: [^pragmaListPresenter].
 	self error: 'Unrecognized method filter name'.
 

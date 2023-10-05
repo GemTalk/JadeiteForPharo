@@ -1249,7 +1249,7 @@ JadeiteProjectsBrowserPresenter >> selectSourceTabNamed: tabName [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> selectVariableTab [
-	(self view viewNamed: 'variableList') ensureVisible
+	methodFilterTabs selectPageIndex: 2
 ]
 
 { #category : 'as yet unclassified' }

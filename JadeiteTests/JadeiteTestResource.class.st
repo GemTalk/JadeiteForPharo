@@ -400,9 +400,7 @@ JadeiteTestResource >> transcript [
 { #category : 'support' }
 JadeiteTestResource >> transcriptForCurrentSession [
 	| console |
-	console := JadeiteConsole allInstances
-				detect: [:aConsole | aConsole gciSession == GciSession current]
-				ifNone: [].
+	console := JadeiteConsole currentConsole.
 	console
 		ifNil: 
 			["somehow we have a transcript disconnected from the current session or no session at all. 

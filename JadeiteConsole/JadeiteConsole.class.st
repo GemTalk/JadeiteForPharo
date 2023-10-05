@@ -15,8 +15,23 @@ Class {
 		'transcriptService',
 		'consoleTabs'
 	],
+	#classVars : [
+		'CurrentConsole'
+	],
 	#category : 'JadeiteConsole'
 }
+
+{ #category : 'accessing' }
+JadeiteConsole class >> currentConsole [
+
+	^ CurrentConsole
+]
+
+{ #category : 'accessing' }
+JadeiteConsole class >> currentConsole: anObject [
+
+	CurrentConsole := anObject
+]
 
 { #category : 'as yet unclassified' }
 JadeiteConsole class >> defaultAdditionalAccelerators [
@@ -476,7 +491,8 @@ JadeiteConsole >> initializeWindow: aWindowPresenter [
 		initialExtent: 800 @ 500;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
-	self updateCaption
+	self updateCaption.
+	aWindowPresenter whenClosedDo: [ self class currentConsole: nil ]
 ]
 
 { #category : 'actions' }

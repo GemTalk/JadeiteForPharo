@@ -1030,7 +1030,7 @@ JadeiteBrowserPresenter >> editSaveClass [
 	browserService := RowanBrowserService new.
 	browserService
 		command: #compileClass:;
-		commandArgs: (Array with: classDefinitionPresenter text).
+		commandArgs: (Array with: classDefinitionPresenter text asString).
 	self selectedClass ifNotNil: [:classService | browserService selectedClass: classService name]. 
 	[self issueCommand: browserService] on: Error
 		do: 
@@ -2517,6 +2517,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 				ifTrue: [ classService filters: variableListPresenter selections ]
 				ifFalse: [
 				classService filters: packageMethodListPresenter selections ] ].
+	self updateService: classService. 
 	classService displayMethodsOn: presenter browser: self.
 	
 	methodListPresenter selections 
