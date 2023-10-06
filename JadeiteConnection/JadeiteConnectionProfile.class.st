@@ -31,3 +31,9 @@ JadeiteConnectionProfile >> host: anObject [
 
 	host := anObject
 ]
+
+{ #category : 'testing' }
+JadeiteConnectionProfile >> isGciConnection [
+
+	^false
+]

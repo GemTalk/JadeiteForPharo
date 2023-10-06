@@ -54,7 +54,8 @@ JadeiteGCIConnectionProfile >> connect [
 		           netldi: netldi.
 	session loginWithGsUser: user password: password. "need to analyze result b4 proceeding"
 	connection := self setupRSRConnection.
-	JadeiteConsoleApplication showOnSession: connection
+	GciSession current library: connection. 
+	^connection
 ]
 
 { #category : 'actions' }
@@ -63,6 +64,12 @@ JadeiteGCIConnectionProfile >> disconnect [
 	session logout.
 	session := nil.
 	connection := nil
+]
+
+{ #category : 'testing' }
+JadeiteGCIConnectionProfile >> isGciConnection [
+
+	^true
 ]
 
 { #category : 'accessing' }

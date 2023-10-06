@@ -17,8 +17,7 @@ JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSess
 JadeiteInspectorApplication class >> show: oop onSession: aConnection [
 
 	| inst |
-	inst := self new gciSession: GciSession current.
-	inst gciSession library: aConnection.
+	inst := super show: oop onSession: aConnection.
 	inst startOn: oop.
 	^ inst
 ]

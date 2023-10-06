@@ -111,7 +111,7 @@ GciSession >> library: anObject [
 { #category : 'actions' }
 GciSession >> logout [
 
-	library disconnect
+	library close
 ]
 
 { #category : 'accessing' }

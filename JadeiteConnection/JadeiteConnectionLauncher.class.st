@@ -59,7 +59,10 @@ JadeiteConnectionLauncher >> connect [
 	| shouldDebug |
 	self populateConnectionProfile.
 	[
-	[ connectionProfile connect ] ensure: [
+	[
+	| connection |
+	connection := connectionProfile connect.
+	JadeiteConsoleApplication showOnSession: connection ] ensure: [
 		self class lastConnectionProfile: connectionProfile.
 		self enableButtons ] ]
 		on: Error
