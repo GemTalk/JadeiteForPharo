@@ -48,7 +48,7 @@ JadeiteConsole class >> showOnSession: aGciSession [
 	^theConsole
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'transactions' }
 JadeiteConsole >> abortTransaction [
 	^self application abortTransaction.
 ]
@@ -203,12 +203,12 @@ JadeiteConsole >> colorForUnsavedEdits [
 	newColor ifNotNil: [JadeiteTextStyles default colorForUnsavedEdits: newColor]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'transactions' }
 JadeiteConsole >> commitTransaction [
 	^self application commitTransaction.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'transactions' }
 JadeiteConsole >> committedTransaction [
 	self displayLastKnownCommitOrAbort
 ]

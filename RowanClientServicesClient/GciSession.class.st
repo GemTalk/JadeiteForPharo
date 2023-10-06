@@ -97,6 +97,12 @@ GciSession >> isValidSession [
 	^library notNil
 ]
 
+{ #category : 'actions' }
+GciSession >> issueCommand: service [
+
+	BrowserUpdate current issueCommand: service session: self
+]
+
 { #category : 'accessing' }
 GciSession >> library [ 
 	^library
