@@ -7,7 +7,7 @@ Class {
 { #category : 'private' }
 JadeiteCodeTextStyler >> privateStyle: aText [
 	| compiler |
-
+	true ifTrue:[^super privateStyle: aText]. 
 	aText ifEmpty: [ ^ self ].
 	compiler := JadeiteCompiler new
 		source: aText asString;

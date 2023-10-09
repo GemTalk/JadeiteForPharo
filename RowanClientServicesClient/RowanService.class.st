@@ -54,6 +54,7 @@ RowanService class >> lookupVar: aName [
 	Eventually, return a global service if it's not a class"
 
 	| classService |
+	true ifTrue:[^super lookupVar: aName]. 
 	classService := (RowanClassService named: aName). "command: #update; commandArgs: #().
 	BrowserUpdate current issueCommand: classService session: GciSession current. "
 	^ GlobalVariable key: aName asSymbol value: classService
@@ -128,7 +129,7 @@ RowanService >> classCategoryUpdate: presenter [
 ]
 
 { #category : 'public' }
-RowanService >> classCommentUpdate: presenter [
+RowanService >> classCommentUpdate: presenter [  
 	
 	
 ]

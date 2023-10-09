@@ -11,6 +11,7 @@ Class {
 JadeiteMorphicCodeAdapter >> buildWidget [
 
 	| newWidget |
+	true ifTrue:[^super buildWidget]. 
 	newWidget := (JadeiteScrolledTextMorph on: self)
 		             getTextSelector: #getText;
 		             setTextSelector: #accept:notifying:;
