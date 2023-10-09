@@ -176,7 +176,7 @@ JadeiteInspector >> basicRemoveOop: oop [
 JadeiteInspector >> browseClass [
 	| shell classService |
 	classService := RowanClassService new name: className subStrings first.	"strip off 'class' if meta"
-	BrowserUpdate current updateService: classService session: gciSession.
+	RowanServiceUpdater current updateService: classService session: gciSession.
 	shell := JadeiteBrowser showOnSession: gciSession.
 	shell currentCard updateAfterFindClass: classService.
 	^shell
@@ -654,7 +654,7 @@ JadeiteInspector >> multipleInstVarsSelected [
 	answeringService
 		command: #printStringOfOops:toMaxSize:;
 		commandArgs: (Array with: oops with: self maxPrintStringSize).
-	BrowserUpdate current issueCommand: answeringService session: gciSession. 
+	RowanServiceUpdater current issueCommand: answeringService session: gciSession. 
 	computedSelections := self computedListSelections.
 	boldNeeded := OrderedCollection new.
 	computedSelections do: 
@@ -720,7 +720,7 @@ JadeiteInspector >> objectIndex: anObject [
 JadeiteInspector >> objectIsVariable [
 	| answeringService |
 	model command: #isVariable.
-	answeringService := BrowserUpdate current issueCommands: (Array with: self) session: gciSession.
+	answeringService := RowanServiceUpdater current issueCommands: (Array with: self) session: gciSession.
 	^answeringService answer
 ]
 
@@ -755,7 +755,7 @@ JadeiteInspector >> printInstVar [
 	  answeringService
 		  command: #printStringOf:toMaxSize:;
 		  commandArgs: (Array with: oop with: self maxPrintStringSize).
-	  BrowserUpdate current issueCommand: answeringService session: gciSession. 
+	  RowanServiceUpdater current issueCommand: answeringService session: gciSession. 
 	  answeringService answer ]
 		  on: Error
 		  do: [ :ex | 

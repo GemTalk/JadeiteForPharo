@@ -1098,14 +1098,14 @@ JadeiteSUnitSupportTestCase >> test_refresh [
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_registeredPresentersInSUnitBrowserCleanedUp [
 	| registeredPresentersSize secondBrowser |
-	registeredPresentersSize := BrowserUpdate current registeredPresenters size.
+	registeredPresentersSize := RowanServiceUpdater current registeredPresenters size.
 	secondBrowser := self openWindow: [transcript jadeBrowseTests].
-	self assert: BrowserUpdate current registeredPresenters size > registeredPresentersSize.
+	self assert: RowanServiceUpdater current registeredPresenters size > registeredPresentersSize.
 	self destroy: secondBrowser.
 	self verifyWindowClosed: secondBrowser.
 	secondBrowser := nil.
 	MemoryManager current collectGarbage.
-	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresentersSize
+	self assert: RowanServiceUpdater current registeredPresenters size equals: registeredPresentersSize
 ]
 
 { #category : 'as yet unclassified' }

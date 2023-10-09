@@ -225,14 +225,14 @@ JadeitePreferencesTestCase >> test_handleMalformedPreference [
 JadeitePreferencesTestCase >> test_loggingEnabled [
 	| prefs loggingWasEnabled |
 	self testsIssue: #issue553 withTitle: 'Jadeite settings in preferences file (3.0.78)'.
-	loggingWasEnabled := BrowserUpdate current isLogging.
+	loggingWasEnabled := RowanServiceUpdater current isLogging.
 	
 	[prefs := JadeitePreferences new session: session.
 	prefs applyPreference: 'loggingEnabled: true'.
-	self assert: BrowserUpdate current isLogging.
+	self assert: RowanServiceUpdater current isLogging.
 	prefs applyPreference: 'loggingEnabled: false'.
-	self deny: BrowserUpdate current isLogging]
-			ensure: [BrowserUpdate current isLogging: loggingWasEnabled]
+	self deny: RowanServiceUpdater current isLogging]
+			ensure: [RowanServiceUpdater current isLogging: loggingWasEnabled]
 ]
 
 { #category : 'as yet unclassified' }

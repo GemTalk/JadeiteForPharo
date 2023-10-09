@@ -7,7 +7,7 @@ Class {
 { #category : 'private' }
 JadeProcessBrowser >> update [
 	| string lines priorities |
-	BrowserUpdate current inUpdateWhile: [string := gciSession serverPerform: #processes].
+	RowanServiceUpdater current inUpdateWhile: [string := gciSession serverPerform: #processes].
 	lines := (string subStrings: Character lf) asOrderedCollection.
 	priorities := lines removeFirst subStrings: Character tab.
 	priorities := priorities collect: 

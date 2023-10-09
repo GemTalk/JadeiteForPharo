@@ -48,7 +48,7 @@ JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: s
 	instVarName ifNil: [^nil].
 	service := RowanQueryService command: #instVarReaders:in:
 				withArgs: (Array with: instVarName with: className).
-	BrowserUpdate current issueCommands: (Array with: service) session: self gciSession.
+	RowanServiceUpdater current issueCommands: (Array with: service) session: self gciSession.
 	shell := self
 				openMethodListOn: service
 				selectingAnyMatch: instVarName
@@ -72,7 +72,7 @@ JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: s
 	instVarName ifNil: [^nil].
 	service := RowanQueryService command: #instVarWriters:in:
 				withArgs: (Array with: instVarName with: className).
-	BrowserUpdate current issueCommands: (Array with: service) session: self gciSession.
+	RowanServiceUpdater current issueCommands: (Array with: service) session: self gciSession.
 	shell := self
 				openMethodListOn: service
 				selectingAnyMatch: instVarName

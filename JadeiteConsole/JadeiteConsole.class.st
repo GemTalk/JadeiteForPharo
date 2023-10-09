@@ -306,7 +306,7 @@ JadeiteConsole >> flipDebugger [
 
 { #category : 'as yet unclassified' }
 JadeiteConsole >> flipLogging [
-	BrowserUpdate current isLogging: BrowserUpdate current isLogging not
+	RowanServiceUpdater current isLogging: RowanServiceUpdater current isLogging not
 ]
 
 { #category : 'as yet unclassified' }
@@ -592,9 +592,9 @@ JadeiteConsole >> onCloseRequested: boolValueHolder [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> onViewClosed [
 	super onViewClosed.
-	BrowserUpdate current logComment: 'Closing Transcript {' , self identityHash printString , '}'.
-	BrowserUpdate current removeEventsTriggeredFor: self.
-	BrowserUpdate current removeEventsTriggeredFor: projectListPresenter projectListPresenter.
+	RowanServiceUpdater current logComment: 'Closing Transcript {' , self identityHash printString , '}'.
+	RowanServiceUpdater current removeEventsTriggeredFor: self.
+	RowanServiceUpdater current removeEventsTriggeredFor: projectListPresenter projectListPresenter.
 	JadePresenter removeEventsTriggeredFor: self. 
 	GciSession current: nil
 ]
@@ -614,7 +614,7 @@ JadeiteConsole >> onViewOpened [
 	isTranscriptInstalled value: installed.
 	areBreakpointsEnabled
 		value: (breakPointsEnabled := answeringService breakPointsAreEnabled: self gciSession).
-	BrowserUpdate current breakpointsEnabled: breakPointsEnabled.
+	RowanServiceUpdater current breakpointsEnabled: breakPointsEnabled.
 	self registerPresentersForUpdates.
 	self autoCommit: (RowanAnsweringService new autoCommitIn: self gciSession)
 ]
@@ -693,7 +693,7 @@ JadeiteConsole >> queryCommand: aCommandQuery [
 			^true].
 	aCommandQuery commandSymbol = #flipLogging
 		ifTrue: 
-			[aCommandQuery isChecked: BrowserUpdate current isLogging.
+			[aCommandQuery isChecked: RowanServiceUpdater current isLogging.
 			^true].
 	aCommandQuery commandSymbol = #flipBreakpointsEnabled
 		ifTrue: 
@@ -736,7 +736,7 @@ JadeiteConsole >> refreshProjectInfoTab [
 
 { #category : 'registration' }
 JadeiteConsole >> registerPresentersForUpdates [
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: self selector: #autoCommitUpdate:;
 		register: self selector: #breakpointSettingChanged:;
 		register: self selector: #updateSymbols:;
@@ -906,6 +906,6 @@ JadeiteConsole >> updateProjects [
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateProjects.
-	BrowserUpdate current issueCommand: browserService  session: gciSession.
+	RowanServiceUpdater current issueCommand: browserService  session: gciSession.
 	projectListPresenter items: browserService projects
 ]

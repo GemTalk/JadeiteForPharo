@@ -109,26 +109,26 @@ RowanSystemBrowserPresenter >> methodListSelection [
 { #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> onViewClosed [
 	super onViewClosed.
-	subPresenters do: [:presenter | BrowserUpdate current removeEventsTriggeredFor: presenter]
+	subPresenters do: [:presenter | RowanServiceUpdater current removeEventsTriggeredFor: presenter]
 ]
 
 { #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> registerPresentersForUpdates [
-	BrowserUpdate current register: dictionaryListPresenter selector: #dictionaryUpdate:.
-	BrowserUpdate current register: globalsPresenter selector: #globalsUpdate:.
-	BrowserUpdate current register: classCategoryPresenter selector: #classCategoryUpdate:.
-	BrowserUpdate current register: classListPresenter selector: #classesUpdate:.
-	BrowserUpdate current register: classDefinitionPresenter selector: #classDefinitionUpdate:.
-	BrowserUpdate current register: classCommentPresenter selector: #classCommentUpdate:.
-	BrowserUpdate current register: classHierarchyPresenter selector: #classHierarchyUpdate:.
-	BrowserUpdate current register: superclassListPresenter selector: #superclassListUpdate:.
-	BrowserUpdate current register: methodListPresenter selector: #methodsUpdate:.
-	BrowserUpdate current register: methodSourcePresenter selector: #updateSelectorFor:
+	RowanServiceUpdater current register: dictionaryListPresenter selector: #dictionaryUpdate:.
+	RowanServiceUpdater current register: globalsPresenter selector: #globalsUpdate:.
+	RowanServiceUpdater current register: classCategoryPresenter selector: #classCategoryUpdate:.
+	RowanServiceUpdater current register: classListPresenter selector: #classesUpdate:.
+	RowanServiceUpdater current register: classDefinitionPresenter selector: #classDefinitionUpdate:.
+	RowanServiceUpdater current register: classCommentPresenter selector: #classCommentUpdate:.
+	RowanServiceUpdater current register: classHierarchyPresenter selector: #classHierarchyUpdate:.
+	RowanServiceUpdater current register: superclassListPresenter selector: #superclassListUpdate:.
+	RowanServiceUpdater current register: methodListPresenter selector: #methodsUpdate:.
+	RowanServiceUpdater current register: methodSourcePresenter selector: #updateSelectorFor:
 ]
 
 { #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> registerTabPresentersForUpdates [
-	BrowserUpdate current register: self methodFilterListPresenter selector: #methodFilterUpdate:
+	RowanServiceUpdater current register: self methodFilterListPresenter selector: #methodFilterUpdate:
 ]
 
 { #category : 'as yet unclassified' }

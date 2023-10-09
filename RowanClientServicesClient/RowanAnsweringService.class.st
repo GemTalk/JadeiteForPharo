@@ -30,14 +30,14 @@ RowanAnsweringService >> answer: anObject [
 { #category : 'commands' }
 RowanAnsweringService >> autoCommitIn: session [ 
 	command := #autoCommit.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> breakPointsAreEnabled: session [
 	command := #breakPointsAreEnabled.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -46,14 +46,14 @@ RowanAnsweringService >> breakpointSettingChanged: transcript [
 	updateType
 		ifNotNil: 
 			[transcript areBreakpointsEnabled value: answer.
-			BrowserUpdate current breakpointsEnabled: answer]
+			RowanServiceUpdater current breakpointsEnabled: answer]
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> canAccessServiceClasses: session [
 	command := #canAccessServiceClasses.
 	self commandArgs: Array new.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -61,7 +61,7 @@ RowanAnsweringService >> canAccessServiceClasses: session [
 RowanAnsweringService >> exec: string in: session [
 	command := #exec:.
 	commandArgs := Array with: string.
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'commands' }
@@ -72,28 +72,28 @@ RowanAnsweringService >> execReturningObject: string in: session [
 
 	command := #execReturningObject:.
 	commandArgs := Array with: string.
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> expressionSelector: string session: session [
 	command := #expressionSelector:.
 	commandArgs := Array with: string.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> flipAutoCommitFor: session [
 	command := #flipAutoCommit.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> flipTranscriptIn: session [
 	command := #flipTranscript.
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'public' }
@@ -116,7 +116,7 @@ RowanAnsweringService >> isDeafObject [
 { #category : 'commands' }
 RowanAnsweringService >> isTranscriptInstalledIn: session [
 	command := #transcriptInstalled.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -137,7 +137,7 @@ RowanAnsweringService >> lowercaseSelectorsMatching: string session: session [
 
 	command := #lowercaseSelectorsMatching:.
 	commandArgs := Array with: string.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -145,7 +145,7 @@ RowanAnsweringService >> lowercaseSelectorsMatching: string session: session [
 RowanAnsweringService >> needsCommit: session [
 	command := #needsCommit.
 	self commandArgs: Array new.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -172,7 +172,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices session: sessio
 	self
 		command: #projectsRepositoryRoots:;
 		commandArgs: (Array with: (projectServices collect: [:projectService | projectService name])).
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -180,7 +180,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices session: sessio
 RowanAnsweringService >> setAutoCommit: boolean for: session [
 	command := #setAutoCommit:.
 	self commandArgs: (Array with: boolean).
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -188,7 +188,7 @@ RowanAnsweringService >> setAutoCommit: boolean for: session [
 RowanAnsweringService >> setBreakpointsEnabled: boolean session: session [
 	command := #setBreakPointsAreEnabled:.
 	commandArgs := Array with: boolean.
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'commands' }
@@ -196,7 +196,7 @@ RowanAnsweringService >> symbolDictionaryNames: session [
 	self
 		command: #symbolDictionaryNames;
 		commandArgs: Array new.
-	BrowserUpdate current issueCommand: self session: session.
+	RowanServiceUpdater current issueCommand: self session: session.
 	^answer
 ]
 
@@ -204,7 +204,7 @@ RowanAnsweringService >> symbolDictionaryNames: session [
 RowanAnsweringService >> symbolExists: aSymbol session: session [
 	command := #symbolExists:.
 	commandArgs := Array with: aSymbol.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 
@@ -212,7 +212,7 @@ RowanAnsweringService >> symbolExists: aSymbol session: session [
 RowanAnsweringService >> symbolsMatching: string session: session [
 	command := #symbolsMatching:.
 	commandArgs := Array with: string.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer
 ]
 

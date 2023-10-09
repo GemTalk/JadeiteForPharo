@@ -408,7 +408,7 @@ JadeiteTextDocument >> isModified: aBoolean [
 { #category : 'as yet unclassified' }
 JadeiteTextDocument >> issueCommand: service [
 
-	^BrowserUpdate current issueCommand: service session: gciSession.
+	^RowanServiceUpdater current issueCommand: service session: gciSession.
 ]
 
 { #category : 'menu handlers' }

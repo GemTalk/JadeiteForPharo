@@ -2752,25 +2752,25 @@ JadeiteProjectBrowserTestCase >> test_refreshAfterReloadWithAddedMethod [
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_registeredPresentersInMethodBrowserCleanedUp [
 	| registeredPresenters |
-	registeredPresenters := BrowserUpdate current registeredPresenters.
+	registeredPresenters := RowanServiceUpdater current registeredPresenters.
 	methodListBrowser := self projectsPresenter browseImplementorsOf: #size.
-	self assert: BrowserUpdate current registeredPresenters size > registeredPresenters size.
+	self assert: RowanServiceUpdater current registeredPresenters size > registeredPresenters size.
 	methodListBrowser view close.
 	self verifyWindowClosed: methodListBrowser.
 	methodListBrowser := nil.
-	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresenters size
+	self assert: RowanServiceUpdater current registeredPresenters size equals: registeredPresenters size
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_registeredPresentersInProjectBrowserCleanedUp [
 	| registeredPresenters |
-	registeredPresenters := BrowserUpdate current registeredPresenters.
+	registeredPresenters := RowanServiceUpdater current registeredPresenters.
 	secondBrowser := JadeiteBrowser showOnSession: session.
-	self assert: BrowserUpdate current registeredPresenters size > registeredPresenters size.
+	self assert: RowanServiceUpdater current registeredPresenters size > registeredPresenters size.
 	self destroy: secondBrowser.
 	self verifyWindowClosed: secondBrowser.
 	secondBrowser := nil.
-	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresenters size
+	self assert: RowanServiceUpdater current registeredPresenters size equals: registeredPresenters size
 ]
 
 { #category : 'as yet unclassified' }

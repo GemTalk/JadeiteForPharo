@@ -94,16 +94,16 @@ JadeiteForPharoMiscellaneousTestCase >> test_autoCommitDoesNotMakeRoundTripWhenO
 	"Not a very good test but the last service logged should not be an #updateAutoCommit command which was the bug"
 
 	| loggingState |
-	loggingState := BrowserUpdate current isLogging.
-	BrowserUpdate current isLogging: true.
+	loggingState := RowanServiceUpdater current isLogging.
+	RowanServiceUpdater current isLogging: true.
 	
 	[projectsBrowser
 		ifNil: [projectsBrowser := self openWindow: [transcript openBrowser]].
 	
-	[BrowserUpdate current loggingService services
+	[RowanServiceUpdater current loggingService services
 		do: [:service | self deny: (service updateType includes: #updateAutoCommitButton)]]
 			ensure: [self destroy: projectsBrowser]]
-			ensure: [BrowserUpdate current isLogging: loggingState]
+			ensure: [RowanServiceUpdater current isLogging: loggingState]
 ]
 
 { #category : 'tests' }
@@ -266,11 +266,11 @@ JadeiteForPharoMiscellaneousTestCase >> test_returnedServices [
 	self
 		assert: workspace codePane documentPresenter text
 		equals: '123 "''123''"'.
-	self assert: BrowserUpdate current updates size equals: 1.
-	self assert: (BrowserUpdate current updates first isKindOf:
+	self assert: RowanServiceUpdater current updates size equals: 1.
+	self assert: (RowanServiceUpdater current updates first isKindOf:
 			 RowanAnsweringService).
 	self
-		assert: BrowserUpdate current updates first answer last
+		assert: RowanServiceUpdater current updates first answer last
 		equals: '123'
 ]
 

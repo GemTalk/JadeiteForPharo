@@ -139,7 +139,7 @@ JadeInspector >> model: anObject [
 
 { #category : 'event handlers' }
 JadeInspector >> onViewClosed [
-	BrowserUpdate current logComment: 'Closing Inspector {' , self identityHash printString , '}'.
+	RowanServiceUpdater current logComment: 'Closing Inspector {' , self identityHash printString , '}'.
 	RowanBrowserService new releaseWindow: self view handle value session: self gciSession.
 	super onViewClosed
 ]
@@ -148,7 +148,7 @@ JadeInspector >> onViewClosed [
 JadeInspector >> onViewOpened [
 	super onViewOpened.
 	self updateCaption.
-	BrowserUpdate current logComment: 'Opening Inspector {' , self identityHash printString , '}'
+	RowanServiceUpdater current logComment: 'Opening Inspector {' , self identityHash printString , '}'
 ]
 
 { #category : 'as yet unclassified' }

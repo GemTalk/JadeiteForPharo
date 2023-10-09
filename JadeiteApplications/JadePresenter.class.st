@@ -201,7 +201,7 @@ JadePresenter class >> transactionModeValueHolder [
 { #category : 'events' }
 JadePresenter class >> trigger: aSymbol [
 
-	BrowserUpdate current trigger: aSymbol
+	RowanServiceUpdater current trigger: aSymbol
 ]
 
 { #category : 'public' }

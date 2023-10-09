@@ -75,7 +75,7 @@ RowanInspectorService >> executeThenInspect: string context: anOop session: sess
 					with: string
 					with: anOop
 					with: handle).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'inspecting' }
@@ -88,7 +88,7 @@ RowanInspectorService >> executeThenInspect: string context: anOop session: sess
 					with: debugger gsProcess oop
 					with: anOop
 					with: handle).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'comparison' }
@@ -127,7 +127,7 @@ RowanInspectorService >> inspect: oopOrObject session: session [
 	self
 		command: #inspect:;
 		commandArgs: (Array with: oop).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'inspecting' }
@@ -137,7 +137,7 @@ RowanInspectorService >> inspect: theOop session: session inWindow: handle [
 	self
 		command: #inspect:inWindow:;
 		commandArgs: (Array with: oop with: handle).
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: self)
 		session: session
 ]
@@ -152,7 +152,7 @@ RowanInspectorService >> inspectBytes: oopOrObject session: session inWindow: ha
 	self
 		command: #inspectBytes:inWindow:;
 		commandArgs: (Array with: oop with: handle).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'accessing' }
@@ -271,7 +271,7 @@ RowanInspectorService >> nextIndexedVarsFrom: indexStart to: indexStop session: 
 	self
 		command: #nextIndexedVarsFrom:to:;
 		commandArgs: (Array with: indexStart with: indexStop).
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^nextIndices
 ]
 
@@ -333,7 +333,7 @@ RowanInspectorService >> removeDynamicInstVarsNamed: dynamicInstVarNames session
 	self
 		command: #removeDynamicInstVars:;
 		commandArgs: (Array with: dynamicInstVarNames).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'operations' }
@@ -341,7 +341,7 @@ RowanInspectorService >> removeIndexedInstVarsAt: indices session: session [
 	self
 		command: #removeIndexedInstVarsAt:;
 		commandArgs: (Array with: indices).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'operations' }
@@ -349,7 +349,7 @@ RowanInspectorService >> removeKeys: keyOops session: session [
 	self
 		command: #removeKeys:;
 		commandArgs: (Array with: keyOops).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'operations' }
@@ -357,7 +357,7 @@ RowanInspectorService >> removeOop: theOop session: session [
 	self
 		command: #removeOop:;
 		commandArgs: (Array with: theOop).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'accessing' }

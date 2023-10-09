@@ -1671,16 +1671,16 @@ JadeiteInspectorDataCuratorTestCase >> test_registeredPresentersInInspectorClean
 	That will remind us to make sure they're cleaned up"
 
 	| registeredPresenters remoteObject |
-	registeredPresenters := BrowserUpdate current registeredPresenters size.
+	registeredPresenters := RowanServiceUpdater current registeredPresenters size.
 	remoteObject := session
 				executeString: 'Array new'
 				fromContext: nil
 				environment: 0.
 	inspector := JadeInspector showOn: remoteObject session: session.
-	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresenters.
+	self assert: RowanServiceUpdater current registeredPresenters size equals: registeredPresenters.
 	self destroy: inspector.
 	inspector := nil.
-	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresenters
+	self assert: RowanServiceUpdater current registeredPresenters size equals: registeredPresenters
 ]
 
 { #category : 'as yet unclassified' }

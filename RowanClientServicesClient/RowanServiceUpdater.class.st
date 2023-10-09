@@ -4,7 +4,7 @@ Coordinate client presenters with updates from the server.
 returnedServices are the last services returned from the server. Handy for testing. 
 "
 Class {
-	#name : 'BrowserUpdate',
+	#name : 'RowanServiceUpdater',
 	#superclass : 'Model',
 	#instVars : [
 		'updates',
@@ -22,7 +22,7 @@ Class {
 }
 
 { #category : 'accessing' }
-BrowserUpdate class >> clearCurrent [
+RowanServiceUpdater class >> clearCurrent [
 "
 	BrowserUpdate clearCurrent.
 "
@@ -30,37 +30,37 @@ BrowserUpdate class >> clearCurrent [
 ]
 
 { #category : 'accessing' }
-BrowserUpdate class >> current [
+RowanServiceUpdater class >> current [
 	^Current ifNil: [Current := self new]
 ]
 
 { #category : 'logging' }
-BrowserUpdate class >> startLogging [
+RowanServiceUpdater class >> startLogging [
 	Current startLogging
 ]
 
 { #category : 'logging' }
-BrowserUpdate class >> stopLogging [
+RowanServiceUpdater class >> stopLogging [
 	Current stopLogging
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> activeClassServices [
+RowanServiceUpdater >> activeClassServices [
 	^self registeredListServices select: [:service | service isService and: [ service isClassService]]
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> activeMethodServices [
+RowanServiceUpdater >> activeMethodServices [
 	^self registeredListServices select: [:service | service isService and: [service isMethodService]]
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> activePackageServices [
+RowanServiceUpdater >> activePackageServices [
 	^self registeredListServices select: [:service | service isService and:[service isPackageService]]
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> activeServices [
+RowanServiceUpdater >> activeServices [
 	"services which are open in windows in list browsers"
 
 	| services |
@@ -72,7 +72,7 @@ BrowserUpdate >> activeServices [
 ]
 
 { #category : 'public' }
-BrowserUpdate >> applyUpdateWhile: block [
+RowanServiceUpdater >> applyUpdateWhile: block [
 	applyingUpdates := true.
 	block ensure: 
 			[applyingUpdates := false.
@@ -80,7 +80,7 @@ BrowserUpdate >> applyUpdateWhile: block [
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> applyUpdatesFromReturnedServices: aCollection [
+RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"
 	self applyUpdateWhile: 
@@ -90,7 +90,7 @@ BrowserUpdate >> applyUpdatesFromReturnedServices: aCollection [
 ]
 
 { #category : 'commands' }
-BrowserUpdate >> basicIssueCommand: services session: session [
+RowanServiceUpdater >> basicIssueCommand: services session: session [
 
 	| updateResult loggedServices newLoggingService |
 	self todo: [ 
@@ -110,23 +110,23 @@ BrowserUpdate >> basicIssueCommand: services session: session [
 ]
 
 { #category : 'private' }
-BrowserUpdate >> basicUpdateServices: services session: session [
+RowanServiceUpdater >> basicUpdateServices: services session: session [
 	services do: [:service | service command: #update].
 	^self basicIssueCommand: services session: session
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> breakpointsEnabled [
+RowanServiceUpdater >> breakpointsEnabled [
 	^breakpointsEnabled
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> breakpointsEnabled: anObject [
+RowanServiceUpdater >> breakpointsEnabled: anObject [
 	breakpointsEnabled := anObject
 ]
 
 { #category : 'conversion' }
-BrowserUpdate >> convertEventSymbolToClass: aSymbol [
+RowanServiceUpdater >> convertEventSymbolToClass: aSymbol [
 
 	"conversion from Dolphin-style symbol events to Pharo-style class events"
 
@@ -139,12 +139,12 @@ BrowserUpdate >> convertEventSymbolToClass: aSymbol [
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> debug [
+RowanServiceUpdater >> debug [
 	^debug
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> debug: aBoolean [
+RowanServiceUpdater >> debug: aBoolean [
 	aBoolean
 		ifTrue: 
 			[Smalltalk at: #roundTrips put: 0].
@@ -152,22 +152,22 @@ BrowserUpdate >> debug: aBoolean [
 ]
 
 { #category : 'as yet unclassified' }
-BrowserUpdate >> getEvents [
+RowanServiceUpdater >> getEvents [
 
 	^ nil
 ]
 
 { #category : 'private' }
-BrowserUpdate >> inUpdate [
+RowanServiceUpdater >> inUpdate [
 	^inUpdate ifNil: [inUpdate := RowanSemaphore forMutualExclusion]
 ]
 
 { #category : 'commands' }
-BrowserUpdate >> inUpdateWhile: block [
+RowanServiceUpdater >> inUpdateWhile: block [
 
 	| result |
 	result := "self inUpdate critical: [ "
-		          self todo: [BrowserUpdate current logComment:
+		          self todo: [RowanServiceUpdater current logComment:
 			          'Process: {'
 			          , Processor activeProcess identityHash printString
 			          , '} gets inUpdate semaphore.  [' , block printString
@@ -180,24 +180,24 @@ BrowserUpdate >> inUpdateWhile: block [
 ]
 
 { #category : 'initialization' }
-BrowserUpdate >> initialize [ 
+RowanServiceUpdater >> initialize [ 
 	super initialize. 
 	self initializeUpdates.
 	debug := false.
 	inUpdate := Mutex new.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
-	announcer := BrowserUpdateAnnouncer new browserUpdate: self. 
+	announcer := RowanServiceUpdaterAnnouncer new browserUpdate: self. 
 ]
 
 { #category : 'initialization' }
-BrowserUpdate >> initializeUpdates [
+RowanServiceUpdater >> initializeUpdates [
 	updates := OrderedCollection new.
 	
 ]
 
 { #category : 'public' }
-BrowserUpdate >> isApplyingUpdates [
+RowanServiceUpdater >> isApplyingUpdates [
 	"we've come back from the server and
 	are in the middle of updating browsers. 
 	Send this to avoid untimely updates to
@@ -207,81 +207,81 @@ BrowserUpdate >> isApplyingUpdates [
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> isLogging [
+RowanServiceUpdater >> isLogging [
 
 	^logger isLogging
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> isLogging: boolean [
+RowanServiceUpdater >> isLogging: boolean [
 	boolean ifTrue: [self startLogging] ifFalse: [self stopLogging]
 ]
 
 { #category : 'commands' }
-BrowserUpdate >> issueCommand: service session: session [
+RowanServiceUpdater >> issueCommand: service session: session [
 	^self issueCommands: (Array with: service) session: session
 ]
 
 { #category : 'commands' }
-BrowserUpdate >> issueCommands: services session: session [
+RowanServiceUpdater >> issueCommands: services session: session [
 	self inUpdateWhile: 
 			[| commandResult |
 			session
 				ifNotNil: 
 					[commandResult := self basicIssueCommand: services session: session.
-					BrowserUpdate current logComment: 'Released inUpdate semaphore'.
+					RowanServiceUpdater current logComment: 'Released inUpdate semaphore'.
 					^commandResult]]
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> logComment: string [
+RowanServiceUpdater >> logComment: string [
 	logger logComment: string
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> logFileName [
+RowanServiceUpdater >> logFileName [
 
 	^logger logFileName
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> logFileName: string [
+RowanServiceUpdater >> logFileName: string [
 
 	^logger logFileName: string
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> logReceivedServices: services [
+RowanServiceUpdater >> logReceivedServices: services [
 	logger logReceivedServices: services.
 	logger shouldGetNewLoggerGroup: true
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> logSentServices: services [
+RowanServiceUpdater >> logSentServices: services [
 	logger logSentServices: services
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> logger [
+RowanServiceUpdater >> logger [
 	"Private - for testing"
 
 	^logger
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> logger: anObject [
+RowanServiceUpdater >> logger: anObject [
 	logger := anObject
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> loggingService [
+RowanServiceUpdater >> loggingService [
 	"for testing"
 
 	^logger loggingService
 ]
 
 { #category : 'private' }
-BrowserUpdate >> performUpdate: updateBlock with: selector [
+RowanServiceUpdater >> performUpdate: updateBlock with: selector [
 	updates do: 
 			[:update | 
 			update updateType
@@ -293,7 +293,7 @@ BrowserUpdate >> performUpdate: updateBlock with: selector [
 ]
 
 { #category : 'public' }
-BrowserUpdate >> register: presenter selector: selector [
+RowanServiceUpdater >> register: presenter selector: selector [
 	"send the update to the presenter so that when the presenter gets
 	removed, it's events go with it."
 
@@ -305,7 +305,7 @@ BrowserUpdate >> register: presenter selector: selector [
 ]
 
 { #category : 'public' }
-BrowserUpdate >> register: presenter selector: selector browser: browser [
+RowanServiceUpdater >> register: presenter selector: selector browser: browser [
 	"send the update to the presenter so that when the presenter gets
 	removed, it's events go with it."
 
@@ -320,12 +320,12 @@ BrowserUpdate >> register: presenter selector: selector browser: browser [
 ]
 
 { #category : 'private' }
-BrowserUpdate >> registeredListPresenters [
+RowanServiceUpdater >> registeredListPresenters [
 	^self registeredPresenters select: [:presenter | presenter class canUnderstand: #list]
 ]
 
 { #category : 'private' }
-BrowserUpdate >> registeredListServices [
+RowanServiceUpdater >> registeredListServices [
 	| listServices |
 	listServices := OrderedCollection new.
 	self registeredListPresenters do: [:listPresenter | listServices addAll: listPresenter list].
@@ -334,7 +334,7 @@ BrowserUpdate >> registeredListServices [
 ]
 
 { #category : 'public' }
-BrowserUpdate >> registeredPresenters [
+RowanServiceUpdater >> registeredPresenters [
 
 	| presenters |
 	presenters := Set new.
@@ -345,12 +345,12 @@ BrowserUpdate >> registeredPresenters [
 ]
 
 { #category : 'private' }
-BrowserUpdate >> registeredTreePresenters [
+RowanServiceUpdater >> registeredTreePresenters [
 	^self registeredPresenters select: [:presenter | presenter isKindOf: TreePresenter]
 ]
 
 { #category : 'public' }
-BrowserUpdate >> removeEventsTriggeredFor: anObject [
+RowanServiceUpdater >> removeEventsTriggeredFor: anObject [
 	super removeEventsTriggeredFor: anObject.
 	"self
 		logComment: 'Remove events triggered for ' , anObject printString , ' {'
@@ -358,29 +358,29 @@ BrowserUpdate >> removeEventsTriggeredFor: anObject [
 ]
 
 { #category : 'private' }
-BrowserUpdate >> resetInUpdate [
+RowanServiceUpdater >> resetInUpdate [
 	inUpdate := RowanSemaphore forMutualExclusion
 ]
 
 { #category : 'initialization' }
-BrowserUpdate >> resetLoggingService [
+RowanServiceUpdater >> resetLoggingService [
 	logger loggingService: nil. 
 	logger newLoggingService
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> returnedServices [
+RowanServiceUpdater >> returnedServices [
 
 	^returnedServices
 ]
 
 { #category : 'public' }
-BrowserUpdate >> rowanPostUpdate [
+RowanServiceUpdater >> rowanPostUpdate [
 	updates do: [:service | service postUpdateBlock ifNotNil: [:block | block value]]
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> selectedServices [
+RowanServiceUpdater >> selectedServices [
 	| services potentialSelections |
 	services := OrderedCollection new.
 	self registeredPresenters do: 
@@ -394,7 +394,7 @@ BrowserUpdate >> selectedServices [
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> selectedServicesForConnection: theConnection [
+RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 
 	| services potentialSelections |
 	services := OrderedCollection new.
@@ -410,36 +410,36 @@ BrowserUpdate >> selectedServicesForConnection: theConnection [
 ]
 
 { #category : 'private' }
-BrowserUpdate >> shouldApply: selector forSelector: service [
+RowanServiceUpdater >> shouldApply: selector forSelector: service [
 	^service updateType isNil or: 
 			[service updateType == selector
 				or: [service updateType isEmpty or: [service updateType includes: selector]]]
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> shouldGetNewLoggerGroup: boolean [
+RowanServiceUpdater >> shouldGetNewLoggerGroup: boolean [
 
 	logger shouldGetNewLoggerGroup: boolean
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> startLogging [
+RowanServiceUpdater >> startLogging [
 	logger startLogging
 ]
 
 { #category : 'logging' }
-BrowserUpdate >> stopLogging [
+RowanServiceUpdater >> stopLogging [
 	logger stopLogging
 ]
 
 { #category : 'updating' }
-BrowserUpdate >> trigger: aSymbol [
+RowanServiceUpdater >> trigger: aSymbol [
 
 	self triggerEvent: aSymbol "(self convertEventSymbolToClass: aSymbol)"
 ]
 
 { #category : 'public' }
-BrowserUpdate >> update: services afterStonReplication: stonResults [
+RowanServiceUpdater >> update: services afterStonReplication: stonResults [
 	"assume we get back the 'same' services as we sent"
 
 	self initializeUpdates.
@@ -454,12 +454,12 @@ BrowserUpdate >> update: services afterStonReplication: stonResults [
 ]
 
 { #category : 'updating' }
-BrowserUpdate >> update: browserUpdate withSelector: selector [
+RowanServiceUpdater >> update: browserUpdate withSelector: selector [
 	browserUpdate updatesPerform: selector presenter: self. 
 ]
 
 { #category : 'updating' }
-BrowserUpdate >> update: browserUpdate withSelector: selector browser: browser [
+RowanServiceUpdater >> update: browserUpdate withSelector: selector browser: browser [
 	browserUpdate
 		updatesPerform: selector
 		presenter: self
@@ -468,27 +468,27 @@ BrowserUpdate >> update: browserUpdate withSelector: selector browser: browser [
 ]
 
 { #category : 'public' }
-BrowserUpdate >> updateService: service session: session [
+RowanServiceUpdater >> updateService: service session: session [
 	^self updateServices: (Array with: service) session: session
 ]
 
 { #category : 'public' }
-BrowserUpdate >> updateServices: services session: session [
+RowanServiceUpdater >> updateServices: services session: session [
 	| commandResult |
 	services isEmpty ifTrue: [^self].
 	self inUpdateWhile: 
 			[commandResult := self basicUpdateServices: services session: session.
-			BrowserUpdate current logComment: 'Released inUpdate semaphore'.
+			RowanServiceUpdater current logComment: 'Released inUpdate semaphore'.
 			^commandResult]
 ]
 
 { #category : 'accessing' }
-BrowserUpdate >> updates [
+RowanServiceUpdater >> updates [
 	^updates
 ]
 
 { #category : 'public' }
-BrowserUpdate >> updatesPerform: selector presenter: presenter [
+RowanServiceUpdater >> updatesPerform: selector presenter: presenter [
 	"the update may know which client updates 
 	it wants us to care about. Respect that."
 
@@ -501,7 +501,7 @@ BrowserUpdate >> updatesPerform: selector presenter: presenter [
 ]
 
 { #category : 'public' }
-BrowserUpdate >> updatesPerform: selector presenter: presenter browser: browser [
+RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: browser [
 	"the update may know which client updates 
 	it wants us to care about if updateType is set. 
 	Respect the server's wishes."
@@ -520,6 +520,6 @@ BrowserUpdate >> updatesPerform: selector presenter: presenter browser: browser 
 ]
 
 { #category : 'public' }
-BrowserUpdate >> updatesReadyToApply [
+RowanServiceUpdater >> updatesReadyToApply [
 	updates isEmpty ifFalse: [self trigger: #updatesReadyToApply]
 ]

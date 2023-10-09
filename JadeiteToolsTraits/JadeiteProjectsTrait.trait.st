@@ -118,7 +118,7 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 	service
 		command: #commitWithMessage:;
 		commandArgs: (Array with: message value asString).
-	BrowserUpdate current issueCommand: service session: self gciSession. 
+	RowanServiceUpdater current issueCommand: service session: self gciSession. 
 	RowanBrowserService new
 		reloadProjects: self projectListPresenter selections
 		presenter: self.
@@ -280,7 +280,7 @@ JadeiteProjectsTrait >> pushToGit [
 		confirm: 'Push projects - ' , ws contents , '- from the local repository to the remote server?')
 			ifFalse: [^self].
 	projectService command: #pushToGit.
-	BrowserUpdate current issueCommand: projectService session: self gciSession.
+	RowanServiceUpdater current issueCommand: projectService session: self gciSession.
 	MessageBox notify: 'Project ' , projectService name , ' pushed to remote repository!'
 ]
 
@@ -291,9 +291,9 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 	| browserService |
 	browserService := RowanBrowserService new
 				command: #findRemovedServices:;
-				commandArgs: (Array with: BrowserUpdate current activeServices asSet asArray).
-	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession.
-	self updateServices: BrowserUpdate current selectedServices 
+				commandArgs: (Array with: RowanServiceUpdater current activeServices asSet asArray).
+	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession.
+	self updateServices: RowanServiceUpdater current selectedServices 
 ]
 
 { #category : 'commands' }
@@ -304,7 +304,7 @@ JadeiteProjectsTrait >> reloadProject [
 	(self confirmReloadProjects: selections) ifFalse: [ ^ self ].
 
 	RowanBrowserService new reloadProjects: selections presenter: self.
-	BrowserUpdate current selectedServices do: [ :service | 
+	RowanServiceUpdater current selectedServices do: [ :service | 
 		service postReload ].
 	self projectListPresenter update. 
 ]
@@ -326,7 +326,7 @@ JadeiteProjectsTrait >> updateServices: services [
 		service
 			command: #update;
 			commandArgs: #(  ) ].
-	BrowserUpdate current 
+	RowanServiceUpdater current 
 		issueCommands: services
 		session: self gciSession
 ]

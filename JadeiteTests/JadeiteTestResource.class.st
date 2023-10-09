@@ -282,9 +282,9 @@ JadeiteTestResource >> refreshGlobalSelections [
 	| browserService |
 	browserService := RowanBrowserService new
 				command: #findRemovedServices:;
-				commandArgs: (Array with: BrowserUpdate current activeServices asSet asArray).
-	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession.
-	self updateServices: BrowserUpdate current selectedServices
+				commandArgs: (Array with: RowanServiceUpdater current activeServices asSet asArray).
+	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession.
+	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
 { #category : 'support' }
@@ -436,7 +436,7 @@ JadeiteTestResource >> unloadSampleProject: sampleProject [
 { #category : 'updates' }
 JadeiteTestResource >> updateServices: services [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		updateServices: services asSet asArray
 		session: self gciSession
 ]

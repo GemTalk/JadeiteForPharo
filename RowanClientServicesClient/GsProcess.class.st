@@ -9,7 +9,7 @@ GsProcess >> frameForLevel: anInteger [
 	| string |
 	anInteger = 0 ifTrue: [self error: 'No such frame level!'].
 	
-	[BrowserUpdate current inUpdateWhile: 
+	[RowanServiceUpdater current inUpdateWhile: 
 			[string := gciSession
 						serverPerform: #sourceForProcess:frame:
 						with: self
@@ -32,7 +32,7 @@ Maybe an object got an error on a #printString method.
 GsProcess >> stack [
 	stack notNil ifTrue: [^stack].
 	self oopType = (gciSession oopTypeFor: nil) ifTrue: [^#()].
-	BrowserUpdate current
+	RowanServiceUpdater current
 		inUpdateWhile: [stack := gciSession serverPerform: #stackForProcess: with: oopType].
 	stack := stack copyReplaceAll: ' | ' with: '>>#'.
 	stack := stack subStrings: Character lf.

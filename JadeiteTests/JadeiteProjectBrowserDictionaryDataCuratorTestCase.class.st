@@ -678,7 +678,7 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_minimumProjectList [
 JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_noneProjectNotRemovedOnUpdate [
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self selectNoneProject.
-	BrowserUpdate current updateService: self projectListPresenter selection session: session.
+	RowanServiceUpdater current updateService: self projectListPresenter selection session: session.
 	self assert: (self projectListPresenter list includes: RowanProjectService noneProject).
 	self assert: self projectListPresenter selection name equals: RowanProjectService noneProject name
 ]

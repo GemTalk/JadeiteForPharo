@@ -21,7 +21,7 @@ MySessionPresenter >> fillSessionInfo [
 	stoneSessionIDPresenter value: gciSession stoneSessionID.
 	stoneSerialPresenter value: gciSession stoneSerial.
 	gciSessionIdPresenter value: gciSession gciSessionId.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		inUpdateWhile: [stream := ReadStream on: (gciSession serverPerform: #mySessionInfo)].
 	logPathPresenter value: stream nextLine.
 	list := OrderedCollection new.

@@ -58,10 +58,10 @@ JadeiteMethodListBrowser >> methods: methodServices selection: stringOrIndex [
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowser >> onViewClosed [
 	super onViewClosed.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		logComment: 'Closing Method List Browser {' , self identityHash printString , '}'.
-	BrowserUpdate current removeEventsTriggeredFor: self primaryPresenter.
-	BrowserUpdate current removeEventsTriggeredFor: self primaryPresenter methodSourcePresenter documentPresenter.  
+	RowanServiceUpdater current removeEventsTriggeredFor: self primaryPresenter.
+	RowanServiceUpdater current removeEventsTriggeredFor: self primaryPresenter methodSourcePresenter documentPresenter.  
 	self primaryPresenter removeEventsTriggeredFor: self. 
 ]
 
@@ -74,7 +74,7 @@ JadeiteMethodListBrowser >> onViewDestroyed [
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowser >> onViewOpened [
 	super onViewOpened.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		logComment: 'Opening Method List Browser {' , self identityHash printString , '}'
 ]
 

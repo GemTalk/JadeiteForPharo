@@ -37,7 +37,7 @@ JadeiteAddPackageDialog >> allPackages [
 	| browserService packageServices |
 	browserService := RowanBrowserService new.
 	browserService command: #allPackages.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession. "get the projects and extract the packages"
 	packageServices := SortedCollection new.

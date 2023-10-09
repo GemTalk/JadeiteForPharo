@@ -10,7 +10,7 @@ JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 	service := RowanQueryService
 		           command: #browseClassReferences:
 		           withArgs: (Array with: className).
-	BrowserUpdate current issueCommands: (Array with: service) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: service) session: session.
 	^ service 
 ]
 
@@ -42,7 +42,7 @@ JadeiteClassTrait >> findClass [
 	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession.
 	dialogWindow := ListDialogWindow new
@@ -76,7 +76,7 @@ JadeiteClassTrait >> findPackage [
 	browserService := RowanBrowserService new
 		                  command: #allPackages;
 		                  commandArgs: Array new.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession.
 	packageServices := browserService projects
@@ -129,7 +129,7 @@ JadeiteClassTrait >> moveClassToPackageNamed: packageName [
 	self selectedClass
 		command: #moveToPackageNamed:;
 		commandArgs: (Array with: packageName).
-	BrowserUpdate current issueCommand: self selectedClass session: self gciSession.
+	RowanServiceUpdater current issueCommand: self selectedClass session: self gciSession.
 	self updateAfterFindClassInPackage: self selectedClass
 ]
 

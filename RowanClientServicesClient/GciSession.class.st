@@ -64,7 +64,7 @@ GciSession >> executeString: aString [
 	answeringService
 		command: #exec:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: false).
-	BrowserUpdate current issueCommand: answeringService session: self.
+	RowanServiceUpdater current issueCommand: answeringService session: self.
 	answer := answeringService answer.
 	answer first ifFalse: [ ^ answer at: 2 ].
 	^ answer last
@@ -78,7 +78,7 @@ GciSession >> flipAutoCommit [
 	autoCommitService
 		command: #flipAutoCommit;
 		commandArgs: Array new.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: autoCommitService)
 		session: self.
 	self autoCommit value: autoCommitService autoCommit
@@ -100,7 +100,7 @@ GciSession >> isValidSession [
 { #category : 'actions' }
 GciSession >> issueCommand: service [
 
-	BrowserUpdate current issueCommand: service session: self
+	RowanServiceUpdater current issueCommand: service session: self
 ]
 
 { #category : 'accessing' }
@@ -144,7 +144,7 @@ GciSession >> serverPerformInterpreted: a with: b with: c [
 GciSession >> setInitials: initials [
 	| pieces string |
 	server isNil ifTrue: [^self].
-	BrowserUpdate current inUpdateWhile: [string := self serverPerform: #mcInitials: with: initials].
+	RowanServiceUpdater current inUpdateWhile: [string := self serverPerform: #mcInitials: with: initials].
 	pieces := string subStrings collect: [:each | each asNumber].
 	stoneSessionID := pieces at: 1.
 	stoneSerial := pieces at: 2

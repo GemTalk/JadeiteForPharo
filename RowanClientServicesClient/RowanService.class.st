@@ -326,7 +326,7 @@ RowanService >> executeCommand [
 		on: Error
 		do: [ :ex |
 			activeProcess terminate.
-			BrowserUpdate current resetInUpdate.
+			RowanServiceUpdater current resetInUpdate.
 			^ ex pass ].
 	command := nil.
 	commandArgs := nil.
@@ -481,7 +481,7 @@ RowanService >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanService >> issueCommands: services session: session [
-	^BrowserUpdate current issueCommands: services session: session
+	^RowanServiceUpdater current issueCommands: services session: session
 ]
 
 { #category : 'public' }
@@ -909,7 +909,7 @@ RowanService >> updateForSession: session [
 	self
 		command: #update;
 		commandArgs: Array new. 
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'private' }

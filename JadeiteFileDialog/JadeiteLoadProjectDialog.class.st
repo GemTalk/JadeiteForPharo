@@ -259,7 +259,7 @@ JadeiteLoadProjectDialog >> updateProperties [
 	fileSelectorPresenter directoryContentsList selectionOrNil ifNil: [^self].
 	loadSpecService := RowanLoadSpecService new loadSpecPath: fileSelectorPresenter pathText value , '/'
 						, fileSelectorPresenter directoryContentsList selection key.
-	[BrowserUpdate current updateService: loadSpecService session: session] on: Error
+	[RowanServiceUpdater current updateService: loadSpecService session: session] on: Error
 		do: 
 			[:ex |
 			customAttributesList list: OrderedCollection new.

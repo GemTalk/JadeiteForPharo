@@ -11,7 +11,7 @@ JadeiteResultSetBuilder >> buildCompletion [
 	answeringService := RowanAnsweringService new
 		                    command: #autocompleteSymbols;
 		                    commandArgs: Array new.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: GciSession current.
 	rawSymbols := self waitForResult: answeringService.

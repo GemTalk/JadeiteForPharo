@@ -421,7 +421,7 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectListToolTip [
 	self testsIssue: #issue withTitle: ''.
 	self projectListPresenter list do: 
 			[:projectService |
-			BrowserUpdate current updateService: projectService session: session.
+			RowanServiceUpdater current updateService: projectService session: session.
 			projectService isDirty ifTrue: [self assert: ('*Dirty in image*' match: projectService toolTip)].
 			projectService isDiskDirty ifTrue: [self assert: ('*Dirty on disk*' match: projectService toolTip)].
 			projectService isSkew ifTrue: [self assert: ('*Skew in sha*' match: projectService toolTip)].

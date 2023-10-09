@@ -2162,11 +2162,11 @@ JadeiteDebuggerTestCase >> test_reformatSourceIsUndoable [
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_registeredPresentersInProjectBrowserCleanedUp [
 	| registeredPresenters  |
-	registeredPresenters := BrowserUpdate current registeredPresenters size.
+	registeredPresenters := RowanServiceUpdater current registeredPresenters size.
 	self openDebuggerOn: 'nil halt'.
-	self assert: BrowserUpdate current registeredPresenters size > registeredPresenters.
+	self assert: RowanServiceUpdater current registeredPresenters size > registeredPresenters.
 	self tearDown.  "this will close the debugger and do proper cleanup" 
-	self assert: BrowserUpdate current registeredPresenters size equals: registeredPresenters
+	self assert: RowanServiceUpdater current registeredPresenters size equals: registeredPresenters
 ]
 
 { #category : 'as yet unclassified' }

@@ -28,7 +28,7 @@ JadeiteApplication class >> abortTransactionInSession: session [
 
 	| browserService services |
 	self todo: 'use instance method #abortTransaction?'.
-	services := (BrowserUpdate current selectedServicesForConnection:
+	services := (RowanServiceUpdater current selectedServicesForConnection:
 		             session library) asSet asArray.
 	browserService := RowanBrowserService new
 		                  command: #abortTransactionAndUpdateServices:;
@@ -71,7 +71,7 @@ JadeiteApplication class >> inTransaction: aBoolean [
 
 { #category : 'added manually from Dolphin' }
 JadeiteApplication class >> issueCommands: services session: session [
-	^BrowserUpdate current issueCommands: services session: session
+	^RowanServiceUpdater current issueCommands: services session: session
 ]
 
 { #category : 'instance creation' }
@@ -107,12 +107,12 @@ JadeiteApplication >> abortTransaction [
 	all aborts in Jadeite pass through here"
 
 	| browserService services |
-	services := (BrowserUpdate current selectedServicesForConnection:
+	services := (RowanServiceUpdater current selectedServicesForConnection:
 		             gciSession library) asSet asArray.
 	browserService := RowanBrowserService new
 		                  command: #abortTransactionAndUpdateServices:;
 		                  commandArgs: (Array with: services).
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: browserService)
 		session: gciSession.
 	self setInTransaction: RowanAnsweringService new session: gciSession.

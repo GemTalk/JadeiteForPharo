@@ -335,25 +335,25 @@ JadeiteSUnitPresenter >> refreshFromServerAfterAbort: browserService [
 
 { #category : 'registration' }
 JadeiteSUnitPresenter >> registerPresentersForUpdates [
-	BrowserUpdate current register: packageListPresenter selector: #testPackages:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: packageListPresenter selector: #testPackages:.
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #testClasses:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #renamedClass:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #classesUpdate:browser:
 		browser: self.
-	BrowserUpdate current register: classListPresenter selector: #removedClass:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: classListPresenter selector: #removedClass:.
+	RowanServiceUpdater current
 		register: methodListPresenter
 		selector: #sunitMethodsUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: methodListPresenter
 		selector: #testResultUpdate:browser:
 		browser: self

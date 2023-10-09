@@ -62,7 +62,7 @@ RowanTestService >> remoteServiceClassNamesOop: session [
 	answeringService
 		command: #exec:context:;
 		commandArgs: (Array with: 'Rowan platform serviceClasses collect:[:cls | cls name]' with: session oopNil value).
-	BrowserUpdate current issueCommand: answeringService session: session.
+	RowanServiceUpdater current issueCommand: answeringService session: session.
 	^answeringService answer value "key is whether result compiled" 
 ]
 

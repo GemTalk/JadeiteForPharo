@@ -697,7 +697,7 @@ RowanClassService >> saveMethod: source category: category session: session [
 	self
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: source with: category).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'accessing' }
@@ -774,7 +774,7 @@ RowanClassService >> silentlyExpandHierarchyOneLevel: treeView [
 			[| selection |
 			treeView model removeChildrenOf: self.
 			self command: #oneLevelClassHierarchy.
-			BrowserUpdate current issueCommand: self session: GciSession current.
+			RowanServiceUpdater current issueCommand: self session: GciSession current.
 			selection := treeView model asBag detect: [:classService | classService name = self name] ifNone: [].
 			selection ifNotNil: [presenter selection: selection]]
 ]

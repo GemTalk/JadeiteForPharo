@@ -122,7 +122,7 @@ RowanBrowserService >> newProjectNamed: projectName session: session windowHandl
 	self
 		command: #newProjectNamed:windowHandle:;
 		commandArgs: (Array with: projectName with: handle).
-	BrowserUpdate current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session
 ]
 
 { #category : 'public' }
@@ -183,7 +183,7 @@ RowanBrowserService >> projectsUpdate: presenter browser: browser [
 
 { #category : 'commands' }
 RowanBrowserService >> registerWindow: handle rootObject: oop session: session [
-	BrowserUpdate current
+	RowanServiceUpdater current
 		logComment: 'Register window handle: ' , handle printString , ' {' , self identityHash printString
 				, '}'.
 	self
@@ -208,14 +208,14 @@ RowanBrowserService >> releaseWindow: handle session: session [
 RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presenter [
 
 	| selectedServices |
-	selectedServices := BrowserUpdate current selectedServices asSet
+	selectedServices := RowanServiceUpdater current selectedServices asSet
 		                    asOrderedCollection.
 	self
 		command: #reloadProjects:andUpdateServices:;
 		commandArgs: (Array
 				 with: selectedProjectServices asSet asArray
 				 with: selectedServices).
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: self)
 		session: presenter gciSession
 ]

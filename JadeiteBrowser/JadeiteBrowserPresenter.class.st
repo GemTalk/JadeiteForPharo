@@ -58,13 +58,13 @@ JadeiteBrowserPresenter class >> downArrowIcon [
 { #category : 'utility' }
 JadeiteBrowserPresenter class >> issueCommand: service session: gciSession [
 
-	^BrowserUpdate current issueCommand: service session: gciSession
+	^RowanServiceUpdater current issueCommand: service session: gciSession
 ]
 
 { #category : 'utility' }
 JadeiteBrowserPresenter class >> issueCommands: service session: gciSession [
 
-	^BrowserUpdate current issueCommands: service session: gciSession
+	^RowanServiceUpdater current issueCommands: service session: gciSession
 ]
 
 { #category : 'utility' }
@@ -259,7 +259,7 @@ JadeiteBrowserPresenter >> basicAddVariableAccessors [
 JadeiteBrowserPresenter >> basicBrowseClassReferences: className session: session [
 	| service |
 	service := RowanQueryService command: #browseClassReferences: withArgs: (Array with: className).
-	BrowserUpdate current issueCommands: (Array with: service) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: service) session: session.
 	^service
 ]
 
@@ -1165,7 +1165,7 @@ JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 { #category : 'api-events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 	self isClassSelected
-		ifTrue: [BrowserUpdate current updateService: self selectedClass session: gciSession]
+		ifTrue: [RowanServiceUpdater current updateService: self selectedClass session: gciSession]
 		ifFalse: 
 			[self clearFilterLists.
 			^self].
@@ -1186,8 +1186,8 @@ JadeiteBrowserPresenter >> findRemovedServices [
 	| browserService |
 	browserService := RowanBrowserService new
 				command: #findRemovedServices:;
-				commandArgs: (Array with: BrowserUpdate current activeServices asArray).
-	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession
+				commandArgs: (Array with: RowanServiceUpdater current activeServices asArray).
+	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession
 ]
 
 { #category : 'accessing' }
@@ -1809,12 +1809,12 @@ JadeiteBrowserPresenter >> isValidClassService: classService [
 { #category : 'services' }
 JadeiteBrowserPresenter >> issueCommand: service [
 
-	^BrowserUpdate current issueCommand: service session: gciSession
+	^RowanServiceUpdater current issueCommand: service session: gciSession
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> jadeDebug [
-	BrowserUpdate current inUpdateWhile: [self jadeExecuteAndDisplay: false shouldDebug: true]
+	RowanServiceUpdater current inUpdateWhile: [self jadeExecuteAndDisplay: false shouldDebug: true]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2113,13 +2113,13 @@ JadeiteBrowserPresenter >> onDropOnPackageList: aSession [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> onViewClosed [
 	super onViewClosed.
-	BrowserUpdate current removeEventsTriggeredFor: packageGroupPresenter
+	RowanServiceUpdater current removeEventsTriggeredFor: packageGroupPresenter
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> onViewOpened [
 	super onViewOpened.
-	BrowserUpdate current logComment: 'Opening Projects Browser {' , self identityHash printString , '}'.
+	RowanServiceUpdater current logComment: 'Opening Projects Browser {' , self identityHash printString , '}'.
 	self registerPresentersForUpdates.
 	projectListPresenter view contextMenu: self class projectMenu.
 	self setupPackageMenu.
@@ -2449,7 +2449,7 @@ JadeiteBrowserPresenter >> refreshClass [
 		             ^ self noClassSelectedInEitherPresenter ifTrue: [
 			               self resetClassTemplate.
 			               self resetDefinedClassPackage ] ].
-	BrowserUpdate current isApplyingUpdates ifTrue: [ ^ self ].
+	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
 	selection wasRemoved ifTrue: [ ^ self ].
 	selection meta: self isClassSideSelected.
 	self isNoneProjectSelected ifFalse: [
@@ -2499,9 +2499,9 @@ JadeiteBrowserPresenter >> refreshGlobalSelections [
 	| browserService |
 	browserService := RowanBrowserService new
 				command: #findRemovedServices:;
-				commandArgs: (Array with: BrowserUpdate current activeServices asSet asArray).
-	BrowserUpdate current issueCommands: (Array with: browserService) session: self gciSession.
-	self updateServices: BrowserUpdate current selectedServices
+				commandArgs: (Array with: RowanServiceUpdater current activeServices asSet asArray).
+	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession.
+	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
 { #category : 'as yet unclassified' }
@@ -2538,22 +2538,22 @@ JadeiteBrowserPresenter >> refreshProjectInfoTab [
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerClassHierarchyForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #classHierarchyUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedClass:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedClassInHierarchy:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #removedClass:.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #removed:.
 	"BrowserUpdate current
@@ -2565,7 +2565,7 @@ JadeiteBrowserPresenter >> registerClassHierarchyForUpdates [
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerClassListForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #classesUpdate:browser:
 		browser: self.
@@ -2574,11 +2574,11 @@ JadeiteBrowserPresenter >> registerClassListForUpdates [
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerFilterListsForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: categoryListPresenter
 		selector: #filterUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: variableListPresenter
 		selector: #filterUpdate:browser:
 		browser: self
@@ -2587,7 +2587,7 @@ JadeiteBrowserPresenter >> registerFilterListsForUpdates [
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerMethodPresentersForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: methodListPresenter
 		selector: #classMethodsUpdate:browser:
 		browser: self;
@@ -2603,11 +2603,11 @@ JadeiteBrowserPresenter >> registerMethodPresentersForUpdates [
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerPackageDictionaryListsForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: packageListPresenter
 		selector: #projectPackagesUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: dictionaryListPresenter
 		selector: #dictionaryListUpdate:
 ]
@@ -2626,7 +2626,7 @@ JadeiteBrowserPresenter >> registerPresentersForUpdates [
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerProjectListForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: projectListPresenter
 		selector: #projectsUpdate:browser:
 		browser: self;
@@ -3174,7 +3174,7 @@ JadeiteBrowserPresenter >> updateHierarchy [
 	Cursor wait showWhile: [
 		service := classListPresenter selectionOrNil ifNil: [
 			           ^ self updateHierarchyForPacktionaries ].
-		BrowserUpdate current applyUpdateWhile: [
+		RowanServiceUpdater current applyUpdateWhile: [
 			service
 				updateAfterCommand: false;
 				command: #classHierarchy.
@@ -3225,7 +3225,7 @@ JadeiteBrowserPresenter >> updateMenuBar [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateMethodSource [
 
-	BrowserUpdate current isApplyingUpdates ifTrue: [
+	RowanServiceUpdater current isApplyingUpdates ifTrue: [
 		^ self ].
 	methodSourcePresenter view isModified ifTrue: [ ^ self ].
 	self sundryCleanup.
@@ -3388,7 +3388,7 @@ JadeiteBrowserPresenter >> updateProjects [
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateProjects.
-	BrowserUpdate current issueCommand: browserService  session: gciSession.
+	RowanServiceUpdater current issueCommand: browserService  session: gciSession.
 	projectListPresenter items: browserService projects
 ]
 

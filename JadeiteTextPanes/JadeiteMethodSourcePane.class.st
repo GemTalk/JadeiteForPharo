@@ -213,7 +213,7 @@ JadeiteMethodSourcePane >> setBreakPointAt: stepPoint [
 	self methodService
 		command: #setBreakAt:;
 		commandArgs: (Array with: stepPoint).
-	BrowserUpdate current issueCommand: self methodService session: self gciSession.
+	RowanServiceUpdater current issueCommand: self methodService session: self gciSession.
 ]
 
 { #category : 'commands' }

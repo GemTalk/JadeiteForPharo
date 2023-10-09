@@ -82,7 +82,7 @@ RowanProjectService >> allClasses [
 RowanProjectService >> basicChangesUsing: session [
 	| operations |
 	command := #changes.
-	BrowserUpdate current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	operations := OrderedCollection new.
 	changes
 		do: [:changeString | operations addAll: (RowanPatch fromString: changeString session: session) operations].
@@ -103,7 +103,7 @@ RowanProjectService >> basicCheckoutTag: tag using: session [
 	self
 		command: #checkoutTag:;
 		commandArgs: (Array with: tag).
-	BrowserUpdate current issueCommand: self session: session
+	RowanServiceUpdater current issueCommand: self session: session
 ]
 
 { #category : 'presenter support' }
@@ -245,7 +245,7 @@ RowanProjectService >> gitTags: session [
 	query := RowanQueryService new
 				command: #gitTagListUsing:;
 				commandArgs: (Array with: self).
-	tags := (BrowserUpdate current issueCommand: query session: session) first answer.
+	tags := (RowanServiceUpdater current issueCommand: query session: session) first answer.
 	^tags
 ]
 
@@ -397,7 +397,7 @@ RowanProjectService >> performGitCommand: gitCommand with: argsString in: sessio
 	self
 		command: #performGitCommand:with:;
 		commandArgs: (Array with: gitCommand with: argsString).
-	BrowserUpdate current issueCommand: self session: session
+	RowanServiceUpdater current issueCommand: self session: session
 ]
 
 { #category : 'public' }

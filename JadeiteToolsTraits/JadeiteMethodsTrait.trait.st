@@ -79,7 +79,7 @@ JadeiteMethodsTrait >> browseClass [
 		                self methodListPresenter jadeiteSelections first.
 	classService meta:
 		self methodListPresenter jadeiteSelections first meta.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		updateService: classService
 		session: self gciSession.
 	className := self methodListPresenter jadeiteSelections first
@@ -121,7 +121,7 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 	service := RowanQueryService
 		           command: #implementorsOf:
 		           withArgs: (Array with: string asSymbol).
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: service)
 		session: self gciSession.
 	shell := self
@@ -148,7 +148,7 @@ JadeiteMethodsTrait >> browseLiteralReferences: string [
 	service := RowanQueryService
 		           command: #literalReferences:
 		           withArgs: (Array with: string).
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: service)
 		session: self gciSession.
 	shell := self openMethodListOn: service selecting: string.
@@ -191,7 +191,7 @@ JadeiteMethodsTrait >> browseMethodsContaining: string [
 	service := RowanQueryService
 		           command: #methodsContaining:
 		           withArgs: (Array with: string).
-	BrowserUpdate current
+	RowanServiceUpdater current
 		issueCommands: (Array with: service)
 		session: self gciSession.
 	shell := self openMethodListOn: service selecting: string.
@@ -315,7 +315,7 @@ JadeiteMethodsTrait >> issueCommand: service [
 { #category : 'commands' }
 JadeiteMethodsTrait >> issueCommands: services [
 
-	BrowserUpdate current issueCommands: services session: self gciSession
+	RowanServiceUpdater current issueCommands: services session: self gciSession
 ]
 
 { #category : 'constants' }

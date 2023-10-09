@@ -629,9 +629,9 @@ JadeiteProjectsBrowserPresenter >> onViewClosed [
 	"the sunitPresenter doesn't seem to get it's events cleaned up on 
 	a normal window exit. Help it out."
 	super onViewClosed.
-	BrowserUpdate current logComment: 'Closing Projects Browser {' , self identityHash printString, '}'.
-	BrowserUpdate current removeEventsTriggeredFor: sunitPresenter methodListPresenter.
-	BrowserUpdate current removeEventsTriggeredFor: self.
+	RowanServiceUpdater current logComment: 'Closing Projects Browser {' , self identityHash printString, '}'.
+	RowanServiceUpdater current removeEventsTriggeredFor: sunitPresenter methodListPresenter.
+	RowanServiceUpdater current removeEventsTriggeredFor: self.
 	JadePresenter transactionModeValueHolder removeEventsTriggeredFor: self. 
 ]
 
@@ -915,56 +915,56 @@ JadeiteProjectsBrowserPresenter >> registerClassData [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: projectListPresenter
 		selector: #projectsUpdate:browser:
 		browser: self.
-	BrowserUpdate current register: projectListPresenter selector: #removedProject:.
-	BrowserUpdate current register: projectListPresenter selector: #newProject:.
-	BrowserUpdate current register: projectListPresenter selector: #projectsUpdate:.
-	BrowserUpdate current register: projectListPresenter selector: #removed:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: projectListPresenter selector: #removedProject:.
+	RowanServiceUpdater current register: projectListPresenter selector: #newProject:.
+	RowanServiceUpdater current register: projectListPresenter selector: #projectsUpdate:.
+	RowanServiceUpdater current register: projectListPresenter selector: #removed:.
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #classesUpdate:browser:
 		browser: self.
-	BrowserUpdate current register: classListPresenter selector: #removedClass:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: classListPresenter selector: #removedClass:.
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #updatedClass:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classDefinitionPresenter
 		selector: #updatedClassDefinition:browser:
 		browser: self.
-	BrowserUpdate current register: classListPresenter selector: #removed:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: classListPresenter selector: #removed:.
+	RowanServiceUpdater current
 		register: packageListPresenter
 		selector: #projectPackagesUpdate:browser:
 		browser: self.
-	BrowserUpdate current register: packageListPresenter selector: #removed:.
-	BrowserUpdate current register: packageListPresenter selector: #packageUpdate:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: packageListPresenter selector: #removed:.
+	RowanServiceUpdater current register: packageListPresenter selector: #packageUpdate:.
+	RowanServiceUpdater current
 		register: categoryListPresenter
 		selector: #filterUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: variableListPresenter
 		selector: #filterUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #classHierarchyUpdate:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #updatedClass:browser:
 		browser: self.
-	BrowserUpdate current register: classHierarchyPresenter selector: #removedClass:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: classHierarchyPresenter selector: #removedClass:.
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedClass:browser:
 		browser: self.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedClassInHierarchy:browser:
 		browser: self.
@@ -972,17 +972,17 @@ JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
 		register: classHierarchyPresenter
 		selector: #updatedOneLevelInClassHierarchy:browser:
 		browser: self."
-	BrowserUpdate current register: classHierarchyPresenter selector: #removed:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: classHierarchyPresenter selector: #removed:.
+	RowanServiceUpdater current
 		register: methodListPresenter
 		selector: #classMethodsUpdate:browser:
 		browser: self.
-	BrowserUpdate current register: methodListPresenter selector: #removed:.
-	BrowserUpdate current
+	RowanServiceUpdater current register: methodListPresenter selector: #removed:.
+	RowanServiceUpdater current
 		register: methodSourcePresenter
 		selector: #methodSourceUpdate:browser:
 		browser: self.
-	BrowserUpdate current register: self selector: #autoCommitUpdate:
+	RowanServiceUpdater current register: self selector: #autoCommitUpdate:
 ]
 
 { #category : 'as yet unclassified' }
@@ -1435,7 +1435,7 @@ JadeiteProjectsBrowserPresenter >> updateCommand: aString onSuccessDo: aBlock [
 	stonCritical critical: 
 			[
 			[| stonResults update |
-			update := BrowserUpdate current initializeUpdates.
+			update := RowanServiceUpdater current initializeUpdates.
 			stonResults := self gciSession serverPerform: #systemBrowserSTON:
 						with: environment printString , ' ' , aString.
 			update applyUpdatesFromReturnedServices: (STON fromString: stonResults).

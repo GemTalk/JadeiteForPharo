@@ -7,7 +7,7 @@ Class {
 { #category : 'public' }
 StoneInfoPresenter >> fillSessionInfo [
 	| line list stream |
-	BrowserUpdate current
+	RowanServiceUpdater current
 		inUpdateWhile: [stream := ReadStream on: (gciSession serverPerform: #stoneInfo)].
 	streamTypePresenter value: (stream upTo: Character tab).
 	stringTypePresenter value: (stream upTo: Character tab).

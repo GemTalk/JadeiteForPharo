@@ -307,7 +307,7 @@ JadeiteMiscellaneousTestCase >> test_releaseOops [
 	remoteObject := session executeString: 'Object new'.
 	self assert: (session executeString: 'System hiddenSetSize: 39') = 1.
 	service := RowanProjectService new name: 'Rowan'.
-	BrowserUpdate current updateServices: (Array with: service) session: session.
+	RowanServiceUpdater current updateServices: (Array with: service) session: session.
 	self assert: (session executeString: 'System hiddenSetSize: 39') equals: 0.
 	self auditAll
 ]

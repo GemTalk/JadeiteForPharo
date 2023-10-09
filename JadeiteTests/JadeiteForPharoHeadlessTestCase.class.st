@@ -105,3 +105,13 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	self assert: connectionProfile connection isNil.
 	self assert: connectionProfile session isNil
 ]
+
+{ #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
+
+	| serviceUpdater registeredPresenters initialSize |
+	serviceUpdater := RowanServiceUpdater current. 
+	self assert: (serviceUpdater isKindOf: RowanServiceUpdater). 
+	registeredPresenters := serviceUpdater registeredPresenters. 
+	initialSize := registeredPresenters size. 
+]

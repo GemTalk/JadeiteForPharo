@@ -336,8 +336,8 @@ JadeiteMethodListPresenter >> onDragMethod: aSession [
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> onViewClosed [
 	super onViewClosed.
-	BrowserUpdate current removeEventsTriggeredFor: methodListPresenter methodListPresenter.
-	BrowserUpdate current removeEventsTriggeredFor: self.
+	RowanServiceUpdater current removeEventsTriggeredFor: methodListPresenter methodListPresenter.
+	RowanServiceUpdater current removeEventsTriggeredFor: self.
 	methodListPresenter removeEventsTriggeredFor: self.
 	methodSourcePresenter removeEventsTriggeredFor: self.
 	autoCommit removeEventsTriggeredFor: self.
@@ -395,7 +395,7 @@ JadeiteMethodListPresenter >> queryCommand: aCommandQuery [
 { #category : 'registration' }
 JadeiteMethodListPresenter >> registerMethodPresentersForUpdates [
 
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: methodListPresenter selector: #removed:;
 		register: methodListPresenter
 		selector: #methodUpdate:browser:
@@ -405,7 +405,7 @@ JadeiteMethodListPresenter >> registerMethodPresentersForUpdates [
 { #category : 'registration' }
 JadeiteMethodListPresenter >> registerPresentersForUpdates [
 	super registerPresentersForUpdates.
-	BrowserUpdate current
+	RowanServiceUpdater current
 		register: methodListPresenter selector: #removed:;
 		register: methodListPresenter
 		selector: #methodUpdate:browser:
