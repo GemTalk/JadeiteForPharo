@@ -40,10 +40,6 @@ RowanService class >> defaultIconName [
 	^File composeStem: 'Model' extension: 'ico'.
 ]
 
-{ #category : 'as yet unclassified' }
-RowanService class >> guid: id [
-]
-
 { #category : 'private' }
 RowanService class >> icon [
 	"Answers an Icon that can be used to represent this class"
