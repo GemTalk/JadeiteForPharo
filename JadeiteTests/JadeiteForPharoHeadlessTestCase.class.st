@@ -5,7 +5,8 @@ Class {
 	#name : 'JadeiteForPharoHeadlessTestCase',
 	#superclass : 'TestCase',
 	#instVars : [
-		'existingConnection'
+		'existingConnection',
+		'connectionProfile'
 	],
 	#category : 'JadeiteTests'
 }
@@ -30,7 +31,6 @@ JadeiteForPharoHeadlessTestCase class >> defaultGciConnectionProfile [
 JadeiteForPharoHeadlessTestCase >> connect [
 	"The copy of the connection profile might have an existing session and connection. However, `connect` should replace existing session and connection objects so we won't disturb other tests that assume a connection."
 
-	| connectionProfile |
 	connectionProfile := self getConnectionProfile.
 	connectionProfile connect.
 	^ connectionProfile
@@ -39,7 +39,6 @@ JadeiteForPharoHeadlessTestCase >> connect [
 { #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> getConnectionProfile [
 
-	| connectionProfile |
 	connectionProfile := JadeiteConnectionLauncher lastConnectionProfile
 		                     copy.
 	connectionProfile ifNil: [
@@ -51,18 +50,22 @@ JadeiteForPharoHeadlessTestCase >> getConnectionProfile [
 JadeiteForPharoHeadlessTestCase >> setUp [ 
 	
 	existingConnection := GciSession current library. 
+	connectionProfile := self getConnectionProfile.
+	connectionProfile isGciConnection ifFalse: [ ^ self ].
+	connectionProfile connect.
 ]
 
 { #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> tearDown [
-	
-	GciSession current library: existingConnection. 
+
+	GciSession current library: existingConnection.
+	connectionProfile ifNotNil: [ connectionProfile disconnect ]
 ]
 
 { #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_abort [
 
-	| connectionProfile service |
+	| service |
 	connectionProfile := self connect.
 	service := RowanAnsweringService new
 		           exec: 'UserGlobals at: #jadeite_test_abort put: true'
@@ -74,7 +77,8 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
 	GciSession current issueCommand: service.
 	self assert: service answer.
-	(JadeiteApplication new gciSession: GciSession current) abortTransaction.
+	(JadeiteApplication new gciSession: GciSession current)
+		abortTransaction.
 	service := RowanAnsweringService new
 		           command: #execReturningObject:;
 		           commandArgs:
@@ -82,16 +86,18 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
 	GciSession current issueCommand: service.
 	self deny: service answer.
-	connectionProfile disconnect
+	connectionProfile disconnect.
+	connectionProfile := nil
 ]
 
 { #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	"will need customization if Jadeite for Pharo tests are ever run in github's CI space"
 
-	| connectionProfile service |
-	connectionProfile := self getConnectionProfile. 
-	connectionProfile isGciConnection ifFalse:[^self].
+	| service |
+	connectionProfile disconnect. "setUp is assumed to connect"
+	connectionProfile := self getConnectionProfile.
+	connectionProfile isGciConnection ifFalse: [ ^ self ].
 	connectionProfile connect.
 	[
 	self assert: connectionProfile connection isOpen.
@@ -99,19 +105,39 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	service := RowanAnsweringService new
 		           command: #execReturningObject:;
 		           commandArgs: (Array with: '3 + 4').
-	GciSession current issueCommand: service. 
+	GciSession current issueCommand: service.
 	self assert: service answer equals: 7 ] ensure: [
 		connectionProfile disconnect ].
 	self assert: connectionProfile connection isNil.
-	self assert: connectionProfile session isNil
+	self assert: connectionProfile session isNil. 
+	connectionProfile := nil
 ]
 
 { #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 
-	| serviceUpdater registeredPresenters initialSize |
-	serviceUpdater := RowanServiceUpdater current. 
-	self assert: (serviceUpdater isKindOf: RowanServiceUpdater). 
-	registeredPresenters := serviceUpdater registeredPresenters. 
-	initialSize := registeredPresenters size. 
+	| serviceUpdater oc testService initialSize |
+	serviceUpdater := RowanServiceUpdater current.
+	self assert: (serviceUpdater isKindOf: RowanServiceUpdater).
+	initialSize := serviceUpdater registeredPresenters size.
+	oc := OrderedCollection new.
+	RowanServiceUpdater current
+		register: oc
+		selector: #testServiceUpdate:.
+	self
+		assert: serviceUpdater registeredPresenters size
+		equals: initialSize + 1.
+	self assert: (serviceUpdater registeredPresenters includes: oc).
+	testService := RowanTestService
+		               command: #isClassService
+		               withArgs: Array new.
+	self assert: oc isEmpty.
+	GciSession current issueCommand: testService.
+	self assert: oc first equals: #testServiceUpdate:.
+	RowanServiceUpdater current removeEventsTriggeredFor: oc. "in theory, this eventually goes away on it's own"
+	oc := nil.
+	testService := nil. 
+	self
+		assert: serviceUpdater registeredPresenters size
+		equals: initialSize
 ]

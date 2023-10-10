@@ -187,7 +187,7 @@ RowanServiceUpdater >> initialize [
 	inUpdate := Mutex new.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
-	announcer := RowanServiceUpdaterAnnouncer new browserUpdate: self. 
+	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
 ]
 
 { #category : 'initialization' }
@@ -351,10 +351,7 @@ RowanServiceUpdater >> registeredTreePresenters [
 
 { #category : 'public' }
 RowanServiceUpdater >> removeEventsTriggeredFor: anObject [
-	super removeEventsTriggeredFor: anObject.
-	"self
-		logComment: 'Remove events triggered for ' , anObject printString , ' {'
-				, anObject identityHash printString , '}'"
+	RowanServiceUpdater current removeActionsWithReceiver: anObject
 ]
 
 { #category : 'private' }

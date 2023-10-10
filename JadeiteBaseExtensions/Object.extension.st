@@ -21,3 +21,10 @@ Object >> todo: aStringOrBlock inTheMeanTime: doThisInsteadBlock [
 	
 	^doThisInsteadBlock value
 ]
+
+{ #category : '*JadeiteBaseExtensions' }
+Object >> update: browserUpdate withSelector: selector [ 
+	browserUpdate
+		updatesPerform: selector
+		presenter: self.
+]

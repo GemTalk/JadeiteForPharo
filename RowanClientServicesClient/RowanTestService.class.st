@@ -71,3 +71,15 @@ RowanTestService >> sortAspect [
 
 	^name
 ]
+
+{ #category : 'updates' }
+RowanTestService >> testServiceUpdate: anOrderedCollection [
+
+	"Jadeite usually registers Presenters to receive updates from services,
+	but there are no prohibitions on registering a non-presenter to receive 
+	updates. So we will pass in anOrderedCollection, manipulate it in this 
+	method and ensure that the collection is appropriately modified."
+
+	anOrderedCollection add: #testServiceUpdate:. 
+	
+]

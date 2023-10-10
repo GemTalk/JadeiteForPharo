@@ -8,13 +8,7 @@ Class {
 }
 
 { #category : 'accessing' }
-RowanServiceUpdaterAnnouncer >> browserUpdate [
-
-	^ serviceUpdater
-]
-
-{ #category : 'accessing' }
-RowanServiceUpdaterAnnouncer >> browserUpdate: anObject [
+RowanServiceUpdaterAnnouncer >> serviceUpdater: anObject [
 
 	serviceUpdater := anObject
 ]
