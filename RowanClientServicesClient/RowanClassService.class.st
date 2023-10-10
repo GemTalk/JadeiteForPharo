@@ -154,6 +154,12 @@ RowanClassService >> categories [
 	^categories
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> categories: aCollection [
+	" for testing"
+	categories := aCollection
+]
+
 { #category : 'public' }
 RowanClassService >> classHierarchyUpdate: presenter browser: browser [
 	| treeModel subclasses parent selectedPath |

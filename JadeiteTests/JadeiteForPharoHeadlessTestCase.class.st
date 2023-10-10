@@ -91,6 +91,60 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_basicReplicate [
+
+	"Jadeite for Pharo doesn't yet take advantage of RSR's replication mechanism."
+
+	| service  replicatedService |
+	service := RowanClassService new name: 'TestReplication'; meta: false.
+	replicatedService := RowanClassService new name: 'TestReplication'; meta: false.
+	service categories: #('abc' 'def'); comment: 'this is a test'; hasSubclasses: true. 
+	replicatedService basicReplicateFrom: service.
+	self assert: replicatedService categories equals: #('abc' 'def').
+	self assert: replicatedService comment equals: 'this is a test'. 
+	self assert: replicatedService hasSubclasses. 
+	
+]
+
+{ #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_cleanUpServiceOnDisconnect [
+	"ensure the hook to cleanup after disconnect gets run"
+	| service |
+	service := RowanClassService new
+		           name: 'RowanService';
+		           meta: false.
+	service
+		command: #update;
+		commandArgs: Array new.
+	GciSession current issueCommand: service.
+	"make sure a few random fields are filled in so we know the update succeeded"
+	self assert: service comment notEmpty.
+	self assert: service packageName equals: 'Rowan-Services-Core'.
+	self assert: service oop isInteger.
+	[ connectionProfile disconnect ] ensure: [ connectionProfile := nil ].
+	1 to: RowanClassService instSize do: [ :index |
+	self assert: (service instVarAt: index) isNil ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_execution [
+	
+	| service |
+	service := RowanAnsweringService new.
+	service exec: '3+4' in: GciSession current.
+	self assert: service answer equals: '7'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_executionReturningObject [
+	
+	| service |
+	service := RowanAnsweringService new.
+	service execReturningObject: '3+4' in: GciSession current.
+	self assert: service answer equals: 7
+]
+
+{ #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	"will need customization if Jadeite for Pharo tests are ever run in github's CI space"
 

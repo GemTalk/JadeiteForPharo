@@ -351,7 +351,7 @@ RowanServiceUpdater >> registeredTreePresenters [
 
 { #category : 'public' }
 RowanServiceUpdater >> removeEventsTriggeredFor: anObject [
-	RowanServiceUpdater current removeActionsWithReceiver: anObject
+	self removeActionsWithReceiver: anObject
 ]
 
 { #category : 'private' }
