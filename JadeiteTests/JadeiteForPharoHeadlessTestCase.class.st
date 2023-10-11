@@ -66,7 +66,6 @@ JadeiteForPharoHeadlessTestCase >> tearDown [
 JadeiteForPharoHeadlessTestCase >> test_abort [
 
 	| service |
-	connectionProfile := self connect.
 	service := RowanAnsweringService new
 		           exec: 'UserGlobals at: #jadeite_test_abort put: true'
 		           in: GciSession current.
@@ -86,8 +85,6 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
 	GciSession current issueCommand: service.
 	self deny: service answer.
-	connectionProfile disconnect.
-	connectionProfile := nil
 ]
 
 { #category : 'tests' }
@@ -194,4 +191,25 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 	self
 		assert: serviceUpdater registeredPresenters size
 		equals: initialSize
+]
+
+{ #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_updates [
+	"updates should be added to the service. Those updates are other 
+	services which will update the gui. For instance, a query service 
+	returns method services in the updates"
+
+	| service |
+	service := RowanAnsweringService new.
+	service execReturningObject: '3+4' in: GciSession current.
+	self assert: service answer equals: 7.
+	self assert: service updates isEmpty.
+	service := RowanQueryService
+		           command: #implementorsOf:
+		           withArgs: (Array with: #size).
+	GciSession current issueCommand: service.
+	self assert: service returnedServices first identicalTo: service.
+	self assert: service updates notEmpty.
+	service updates do: [ :theUpdate |
+		self assert: theUpdate class = RowanMethodServiceClient ]
 ]

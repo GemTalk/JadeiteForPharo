@@ -408,6 +408,7 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 
 { #category : 'private' }
 RowanServiceUpdater >> shouldApply: selector forSelector: service [
+	service isNil ifTrue:[^false]. "if a service is gc'd we could possibly end up with a nil here"
 	^service updateType isNil or: 
 			[service updateType == selector
 				or: [service updateType isEmpty or: [service updateType includes: selector]]]
