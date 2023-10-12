@@ -519,5 +519,6 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 
 { #category : 'public' }
 RowanServiceUpdater >> updatesReadyToApply [
-	updates isEmpty ifFalse: [self trigger: #updatesReadyToApply]
+	updates isEmpty ifFalse: [self trigger: #updatesReadyToApply].
+	MorphicRenderLoop new doOneCycle.
 ]
