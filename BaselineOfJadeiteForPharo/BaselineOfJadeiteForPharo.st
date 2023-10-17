@@ -1,11 +1,11 @@
 Class {
-	#name : 'BaselineOfJadeite',
+	#name : 'BaselineOfJadeiteForPharo',
 	#superclass : 'BaselineOf',
-	#category : 'BaselineOfJadeite'
+	#category : 'BaselineOfJadeiteForPharo'
 }
 
 { #category : 'baselines' }
-BaselineOfJadeite >> baseline: spec [
+BaselineOfJadeiteForPharo >> baseline: spec [
 
 	<baseline>
 	spec for: #pharo do: [
@@ -56,29 +56,29 @@ BaselineOfJadeite >> baseline: spec [
 ]
 
 { #category : 'baselines' }
-BaselineOfJadeite >> githubUrlForGemTalkProject: projectName [
+BaselineOfJadeiteForPharo >> githubUrlForGemTalkProject: projectName [
 
 	^ 'github://GemTalk/' , projectName , ':main'
 ]
 
 { #category : 'baselines' }
-BaselineOfJadeite >> pharoGemStoneFFIUrl [
+BaselineOfJadeiteForPharo >> pharoGemStoneFFIUrl [
 
 	^ self urlForProject: 'PharoGemStoneFFI'
 ]
 
 { #category : 'actions' }
-BaselineOfJadeite >> postload: loader package: packageSpec [
+BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 ]
 
 { #category : 'baselines' }
-BaselineOfJadeite >> rsrUrl [
+BaselineOfJadeiteForPharo >> rsrUrl [
 
 	^ self urlForProject: 'RemoteServiceReplication'
 ]
 
 { #category : 'baselines' }
-BaselineOfJadeite >> urlForProject: projectName [
+BaselineOfJadeiteForPharo >> urlForProject: projectName [
 
 	| projectsHome path |
 	projectsHome := OSEnvironment current
