@@ -7,11 +7,20 @@ Class {
 	#category : 'JadeiteToolsSupportClasses'
 }
 
+{ #category : 'initialization' }
+JadeiteMorphicCodeAdapter >> addKeyBindingsTo: aMorph [
+	"commented code is just to remind me how to override text editor character key bindings"
+	super addKeyBindingsTo: aMorph.
+	"self
+		bindKeyCombination: Character end toAction: [ aMorph textArea editor atEndOfLineInsertAndSelect: String new ];
+		bindKeyCombination: Character home toAction: [ aMorph moveCursorToIndex: 0 ]"
+]
+
 { #category : 'factory' }
 JadeiteMorphicCodeAdapter >> buildWidget [
 
 	| newWidget |
-	true ifTrue:[^super buildWidget]. 
+	true ifTrue:[^super buildWidget]. "not using for now"
 	newWidget := (JadeiteScrolledTextMorph on: self)
 		             getTextSelector: #getText;
 		             setTextSelector: #accept:notifying:;
@@ -75,7 +84,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 
 { #category : 'private' }
 JadeiteMorphicCodeAdapter >> newCompletionEngine: anInteractionModel [
-
+	true ifTrue:[^super newCompletionEngine: anInteractionModel]. 
 	^ completionEngine ifNil: [
 		  completionEngine := JadeiteCompletionEngine new
 			                      smartCharacters:
@@ -91,7 +100,7 @@ JadeiteMorphicCodeAdapter >> newCompletionEngine: anInteractionModel [
 { #category : 'private' }
 JadeiteMorphicCodeAdapter >> setSyntaxHighlightThemeFor: textArea [
 	| theme |
-	
+	true ifTrue:[^super setSyntaxHighlightThemeFor: textArea]. 
 	theme := self presenter syntaxHighlightTheme.
 	theme ifNil: [ ^ self ].
 

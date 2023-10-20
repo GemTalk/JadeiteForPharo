@@ -18,6 +18,22 @@ String >> replaceCrWithLf [
 ]
 
 { #category : '*JadeiteBaseExtensions' }
+String >> replaceLfWithCr [
+
+	^self 
+		copyReplaceAll: Character lf asString 
+		with: Character cr asString
+]
+
+{ #category : '*JadeiteBaseExtensions' }
+String >> replaceLfWithCrLf [
+
+	^self 
+		copyReplaceAll: Character lf asString 
+		with: Character cr asString , Character lf asString.
+]
+
+{ #category : '*JadeiteBaseExtensions' }
 String >> subStrings: aString [
 	
 	^self substrings: aString

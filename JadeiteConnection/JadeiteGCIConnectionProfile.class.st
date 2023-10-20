@@ -146,6 +146,9 @@ JadeiteGCIConnectionProfile >> setupRSRConnection [
 	session executeStringNb: '| connection |
 		connection := (SessionTemps current at: #PendingConnectionAcceptor) waitForConnection.
 		SessionTemps current removeKey: #PendingConnectionAcceptor.
+		"UNCOMMENT THESE LINES TO ADD TRACING TO RSR
+		connection log addSink: (RsrCustomSink action: [:message | GsFile gciLogServer: message ]).
+		connection log verbosity: connection log levelTrace." 
 		connection waitUntilClose.'.
 	thePort := detailBytes unsignedShortAt: 1 bigEndian: true.
 	token := RsrToken bytes: (detailBytes copyFrom: 3 to: 18).
