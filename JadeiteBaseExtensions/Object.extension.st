@@ -1,6 +1,12 @@
 Extension { #name : 'Object' }
 
 { #category : '*JadeiteBaseExtensions' }
+Object >> isRowanService [
+
+	^false
+]
+
+{ #category : '*JadeiteBaseExtensions' }
 Object >> prepareForReplication [
 ]
 

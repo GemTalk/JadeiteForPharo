@@ -276,5 +276,5 @@ RowanBrowserService >> testPackages: presenter [
 			updatedPackage ifNotNil: [updatedPackage replicateFrom: newPackageService]].
 	presenter model addAll: additions.
 	presenter model copy do:[:oldPackageService |
-		(testPackages includes: oldPackageService) ifFalse:[presenter model remove: oldPackageService]]. 
+		(testPackages includes: oldPackageService) ifFalse:[oldPackageService ifNotNil: [presenter model remove: oldPackageService]]]. 
 ]

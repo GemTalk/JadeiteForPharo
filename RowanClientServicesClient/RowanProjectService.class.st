@@ -64,7 +64,9 @@ RowanProjectService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanProjectService >> = projectService [
-	^projectService isProjectService ifTrue: [name = projectService name] ifFalse: [^false]
+
+	^ super = projectService and: [
+		  projectService isProjectService and: [ name = projectService name ] ]
 ]
 
 { #category : 'accessing' }

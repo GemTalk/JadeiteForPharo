@@ -88,9 +88,12 @@ RowanMethodService >> <= methodService [
 
 { #category : 'comparing' }
 RowanMethodService >> = methodService [
-	methodService isMethodService ifFalse: [^false].
-	^selector = methodService selector
-		and: [className = methodService className and: [meta = methodService meta]]
+
+	^ super = methodService and: [
+		  methodService isMethodService and: [
+			  selector = methodService selector and: [
+				  className = methodService className and: [
+					  meta = methodService meta ] ] ] ]
 ]
 
 { #category : 'comparing' }

@@ -30,7 +30,9 @@ RowanPackageService >> <= packageService [
 
 { #category : 'comparing' }
 RowanPackageService >> = packageService [
-	^packageService isPackageService ifTrue: [name = packageService name] ifFalse: [^false]
+
+	^ super = packageService and: [
+		  packageService isPackageService and: [ name = packageService name ] ]
 ]
 
 { #category : 'private' }

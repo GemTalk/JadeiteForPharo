@@ -79,10 +79,11 @@ RowanClassService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanClassService >> = classService [
-	(classService class canUnderstand: #isClassService) ifFalse:[^false].
-	^classService isClassService
-		ifTrue: [self name asString = classService name asString and: [meta isNil or: [classService meta = meta]]]
-		ifFalse: [^false]
+
+	^ super = classService and: [
+		  classService isClassService and: [
+			  self name asString = classService name asString and: [
+				  meta isNil or: [ classService meta = meta ] ] ] ]
 ]
 
 { #category : 'private' }

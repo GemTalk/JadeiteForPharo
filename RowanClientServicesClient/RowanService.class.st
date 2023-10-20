@@ -84,6 +84,12 @@ RowanService class >> templateClassName [
 	^#RowanService
 ]
 
+{ #category : 'comparing' }
+RowanService >> = aService [
+
+	^aService isRowanService
+]
+
 { #category : 'public' }
 RowanService >> addCachedSymbols: unused [
 	
@@ -456,6 +462,12 @@ RowanService >> isPackageService [
 RowanService >> isProjectService [
 
 	^false
+]
+
+{ #category : 'testing' }
+RowanService >> isRowanService [
+
+	^true
 ]
 
 { #category : 'public' }
