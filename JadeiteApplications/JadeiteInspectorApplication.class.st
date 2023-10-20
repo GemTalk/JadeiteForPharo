@@ -14,10 +14,10 @@ JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSess
 ]
 
 { #category : 'instance creation' }
-JadeiteInspectorApplication class >> show: oop onSession: aConnection [
+JadeiteInspectorApplication class >> show: oop onSession: gciSession [
 
 	| inst |
-	inst := super show: oop onSession: aConnection.
+	inst := self new gciSession: gciSession.
 	inst startOn: oop.
 	^ inst
 ]

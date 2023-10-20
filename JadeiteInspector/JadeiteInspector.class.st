@@ -349,7 +349,8 @@ JadeiteInspector >> executeThenInspect: aString inContext: context [
 			doitFlag: false
 			errorMessage: (service compileErrorArray first at: 3)
 			location: (service compileErrorArray first at: 2) ].
-	^self show: window on: service
+	service oop ifNil: [ ^self].
+ 	^self show: window on: service
 ]
 
 { #category : 'as yet unclassified' }
@@ -415,7 +416,7 @@ JadeiteInspector >> initializeInstVarList: box [
 					action: [ 
 						JadeiteInspectorApplication
 							show: instVarListPresenter selectedItem last
-							onSession: gciSession library ];
+							onSession: gciSession ];
 					enabled:
 						(self isSelectionComputed: instVarListPresenter selectedItem) not] ].
 	box add: instVarListPresenter
@@ -943,7 +944,6 @@ JadeiteInspector >> selectedInstVar [
 			[codePane text: String new.
 			^self].
 	instVarListPresenter selectedItems size > 1 ifTrue: [ ^self multipleInstVarsSelected].
-	"documentPresenter view stylerClass: SmalltalkExpressionStyler."
 	key := instVarListPresenter selectedItems first first.
 	(key = 'self' or: [key = '-.asOop'])
 		ifTrue: 
