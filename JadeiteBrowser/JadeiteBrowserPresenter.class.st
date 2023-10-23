@@ -2281,7 +2281,7 @@ JadeiteBrowserPresenter >> projectTabLabel [
 
 	| cardNumber labelString numberedLabelString label |
 	labelString := self basicProjectTabLabel. 
-	cardNumber := self parentPresenter view cards indexOf: self view.
+	cardNumber := self parentPresenter view cards size + 1.
 	numberedLabelString := cardNumber printString , ' ' , labelString.
 	label := CardLabel text: numberedLabelString iconBlock: nil. 
 	methodSourcePresenter view isModified ifTrue: [ 
