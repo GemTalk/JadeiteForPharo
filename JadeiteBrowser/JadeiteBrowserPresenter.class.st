@@ -272,7 +272,7 @@ JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 	self updateAfterFindClass: (RowanClassService new name: newClassName)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tab labels' }
 JadeiteBrowserPresenter >> basicDictionaryTabLabel [
 
 	| label | 
@@ -314,7 +314,7 @@ JadeiteBrowserPresenter >> basicOnDropClassList: dragDropSession [
 	^failedCompilations
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tab labels' }
 JadeiteBrowserPresenter >> basicProjectTabLabel [
 
 	^ self isDictionaryTabSelected
@@ -664,6 +664,18 @@ JadeiteBrowserPresenter >> comparisonPresenter [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> componentPackageContainer [
 	^componentPackageContainer
+]
+
+{ #category : 'tab labels' }
+JadeiteBrowserPresenter >> computeNumberedLabelUsing: labelString [
+
+	| numberedLabelString cardNumber |
+	cardNumber := (self parentPresenter cards collect: [ :page |
+		               page activePresenter ]) indexOf: self.
+	cardNumber = 0 ifTrue: [
+		cardNumber := self parentPresenter cards size ].
+	numberedLabelString := cardNumber printString , ' ' , labelString.
+	^ numberedLabelString
 ]
 
 { #category : 'initialization' }
@@ -2273,21 +2285,19 @@ JadeiteBrowserPresenter >> projectReadmePath [
 	^JadePresenter rowanProjectsHomeEnvVarString , '/' , self selectedProjectName , '/README.md'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tab labels' }
 JadeiteBrowserPresenter >> projectTabLabel [
-
 	"Selections get mixed up switching between system presenters unless the tabs
 	have a unique label. Rather silly, but we'll give the tab a unique number"
 
-	| cardNumber labelString numberedLabelString label |
-	labelString := self basicProjectTabLabel. 
-	cardNumber := self parentPresenter view cards size + 1.
-	numberedLabelString := cardNumber printString , ' ' , labelString.
-	label := CardLabel text: numberedLabelString iconBlock: nil. 
-	methodSourcePresenter view isModified ifTrue: [ 
+	| labelString numberedLabelString label |
+	labelString := self basicProjectTabLabel.
+	numberedLabelString := self computeNumberedLabelUsing: labelString.
+	label := CardLabel text: numberedLabelString iconBlock: nil.
+	methodSourcePresenter view isModified ifTrue: [
 		label := CardLabel
 			         text: numberedLabelString
-			         iconBlock: [ Icon fromId: 'Changed.ico' ] ]. 
+			         iconBlock: [ Icon fromId: 'Changed.ico' ] ].
 	^ label
 ]
 
@@ -2439,8 +2449,8 @@ JadeiteBrowserPresenter >> refreshClass [
 	classTabPresenter := self selectedClassTab activePresenter ifNil: [
 		                     self selectedClassTab retrievePresenter ].
 	classTabPresenter selectedItem ifNil: [ self clearMethodPresenters ].
-	methodListPresenter selectedItem ifNil: [ 
-	textAreaTabs selectPage: classDefinitionPage].
+	methodListPresenter selectedItem ifNil: [
+		textAreaTabs selectPage: classDefinitionPage ].
 	presenter := self isClassListTabSelected
 		             ifTrue: [ classListPresenter ]
 		             ifFalse: [ classHierarchyPresenter ].
@@ -2465,7 +2475,8 @@ JadeiteBrowserPresenter >> refreshClass [
 	selection updateAfterCommand: true.
 
 	self updateClassInfo.
-	self methodSelectionChanged
+	self methodSelectionChanged.
+	self updateTabLabel
 ]
 
 { #category : 'as yet unclassified' }
@@ -2769,22 +2780,22 @@ JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 		scrollBar setValue: scrollBar scrollDelta * sum ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoryTab [
 	methodFilterTabs selectPageIndex: 1
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassHierarchyTab [
 	self todo:[classHierarchyTabs lastCard]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassListTab [
 	self todo:[classHierarchyTabs firstCard]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 	| dictionaryService |
 	dictionaryService := dictionaryListPresenter list detect: [:service | service name = dictionaryName]
@@ -2792,7 +2803,7 @@ JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 	dictionaryListPresenter selections: (Array with: dictionaryService)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectMethodSourceTab [
 	| methodSourceTab selection |
 	methodListPresenter selectionOrNil ifNotNil: [ textAreaTabs  selectPage: methodSourcePage].
@@ -2807,7 +2818,7 @@ JadeiteBrowserPresenter >> selectMethodSourceTab [
 			methodListPresenter selectionOrNil ifNil: [methodSourcePresenter setDefaultMethod]]]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectNewPackage: newPackage [
 	| thePackageService | 
 	thePackageService := packageListPresenter list
@@ -2815,14 +2826,14 @@ JadeiteBrowserPresenter >> selectNewPackage: newPackage [
 	packageListPresenter selection: thePackageService
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectNoneProject [
 	"get rid of none project"
 	self todo:[projectListPresenter selection: (projectListPresenter list
 				detect: [:projectService | projectService name = RowanProjectService noneProject name])]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 	| answeringService service |
 	answeringService := RowanAnsweringService new.
@@ -2834,7 +2845,7 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 	service selectIn: self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 	| answeringService service |
 	answeringService := RowanAnsweringService new.
@@ -2846,7 +2857,7 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 	service selectIn: self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectProjectNamed: projectName [
 	| projectService |
 	projectService := projectListPresenter list detect: [:service | service name = projectName]
@@ -2855,30 +2866,30 @@ JadeiteBrowserPresenter >> selectProjectNamed: projectName [
 	^projectService "return for testing"
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectProjectTab [
 	self selectSourceTabNamed: 'projectInfoTab'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedClassTab [
 
 	^ classListHierarchyTabs ifNotNil: [ classListHierarchyTabs currentCard ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedDictionaryNames [
 	^dictionaryListPresenter selections collect: [:dictionaryService | dictionaryService name]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedDictionaryOrPackage [
 	^self isNoneProjectSelected
 		ifTrue: [dictionaryListPresenter selectedItem]
 		ifFalse: [packageListPresenter selectedItem]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedFilters [
 	^self isCategoryTabSelected
 		ifTrue: [categoryListPresenter selections]
@@ -2888,7 +2899,7 @@ JadeiteBrowserPresenter >> selectedFilters [
 				ifFalse: [packageMethodListPresenter selections]]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedGlobalName: selection [
 	| string rs |
 	rs := ReadStream on: (selection at: 1).
@@ -2897,17 +2908,17 @@ JadeiteBrowserPresenter >> selectedGlobalName: selection [
 	^string
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedPackageNames [
 	^packageListPresenter selections collect: [:packageService | packageService name]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedPackageServices [
 	^packageListPresenter selectedItems
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedProjectName [
 	^(projectListPresenter selectionOrNil ifNil: [^nil]) name
 ]
@@ -3284,6 +3295,7 @@ JadeiteBrowserPresenter >> updatePackage [
 	self updatePackageInfo.
 	self resetSunitTestList.
 	packageListPresenter selectionIfNone: [self selectProjectTab].
+	self updateTabLabel
 ]
 
 { #category : 'updates' }
@@ -3317,6 +3329,7 @@ JadeiteBrowserPresenter >> updatePackageMenu: menu [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProject [
+
 	self clearComponentList.
 	self projectListPresenter selectionIfNone: [
 		packageListPresenter clear.
@@ -3328,9 +3341,9 @@ JadeiteBrowserPresenter >> updateProject [
 	self packageListPresenter selectionIfNone: [
 		classListPresenter clear.
 		classHierarchyPresenter clear ].
-		self buildPackageList.
-		self updateTabLabel.
-		self basicUpdateProject 
+	self buildPackageList.
+	self updateTabLabel.
+	self basicUpdateProject
 ]
 
 { #category : 'updates' }
@@ -3397,21 +3410,20 @@ JadeiteBrowserPresenter >> updateService: service [
 	^self updateServices: (Array with: service) 
 ]
 
-{ #category : 'updates' }
+{ #category : 'tab labels' }
 JadeiteBrowserPresenter >> updateSystemTab [
 	| projectTabLabel | 
 	projectTabLabel := self projectTabLabel.
-	self view arrangement: projectTabLabel.
-	self parentPresenter view updateTabs
+	self arrangement: projectTabLabel.
 ]
 
-{ #category : 'updates' }
+{ #category : 'tab labels' }
 JadeiteBrowserPresenter >> updateTabLabel [
  	self owner ifNotNil:[
 		self updateSystemTab]
 ]
 
-{ #category : 'updates' }
+{ #category : 'tab labels' }
 JadeiteBrowserPresenter >> updateTabs [
 	self halt. 
 ]

@@ -7,7 +7,6 @@ Class {
 		'tabs',
 		'toolbar',
 		'gciSession',
-		'browserPresenters',
 		'autoCommitButton'
 	],
 	#category : 'JadeiteBrowser'
@@ -27,8 +26,8 @@ JadeiteBrowser >> activePresenter [
 { #category : 'initialization' }
 JadeiteBrowser >> addStyle: aString [
 	super addStyle: aString. 
-	browserPresenters do:[:browserPresenter |
-		browserPresenter addStyle: aString ]
+	self cards do:[:notebookPage |
+		notebookPage activePresenter addStyle: aString ]
 ]
 
 { #category : 'commands' }
@@ -46,7 +45,7 @@ JadeiteBrowser >> caption: aString [
 { #category : 'initialization' }
 JadeiteBrowser >> cards [
 
-	^browserPresenters
+	^tabs pages
 ]
 
 { #category : 'initialization' }
@@ -70,6 +69,15 @@ JadeiteBrowser >> closeCard [
 { #category : 'actions' }
 JadeiteBrowser >> commitTransaction [
 	^self application commitTransaction.
+]
+
+{ #category : 'initialization' }
+JadeiteBrowser >> connectPresenters [
+
+	super connectPresenters.
+	tabs whenPageRemovedDo: [ :removedPage |
+		tabs pages do: [ :openPage |
+			openPage activePresenter updateSystemTab ] ]
 ]
 
 { #category : 'layout' }
@@ -97,12 +105,6 @@ JadeiteBrowser >> gciSession: anObject [
 		whenChangedSend: #updateAutoCommitButton
 		to: self.
 	self updateAutoCommitButton
-]
-
-{ #category : 'initialization' }
-JadeiteBrowser >> initialize [ 
-	super initialize. 
-	browserPresenters := OrderedCollection new.
 ]
 
 { #category : 'initialization' }
@@ -243,13 +245,13 @@ JadeiteBrowser >> isRowanProjectSelected [
 { #category : 'accessing' }
 JadeiteBrowser >> methodListPresenter [
 
-	^ (browserPresenters at: tabs selectedPageIndex) methodListPresenter
+	^ (tabs pages at: tabs selectedPageIndex) methodListPresenter
 ]
 
 { #category : 'accessing' }
 JadeiteBrowser >> methodsListPresenter [
 
-	^ (browserPresenters at: tabs selectedPageIndex) methodListPresenter
+	^ (tabs pages at: tabs selectedPageIndex) methodListPresenter
 ]
 
 { #category : 'actions' }
@@ -271,7 +273,7 @@ JadeiteBrowser >> openNewBrowserPresenter [
 		owner: self;
 		build.
 	self application registerBrowserEventsFor: browserPresenter.
-	browserPresenters add: browserPresenter.
+	"browserPresenters add: browserPresenter."
 	^ browserPresenter
 ]
 
@@ -297,7 +299,7 @@ JadeiteBrowser >> packageListPresenter [
 { #category : 'accessing' }
 JadeiteBrowser >> projectListPresenter [
 
-	^(browserPresenters at: tabs selectedPageIndex) projectListPresenter 
+	^(tabs pages at: tabs selectedPageIndex) projectListPresenter 
 ]
 
 { #category : 'commands' }
@@ -309,7 +311,7 @@ JadeiteBrowser >> selectedClass [
 { #category : 'accessing' }
 JadeiteBrowser >> selectedClassTab [
 
-	^ (browserPresenters at: tabs selectedPageIndex) selectedClassTab
+	^ (tabs pages at: tabs selectedPageIndex) selectedClassTab
 ]
 
 { #category : 'constants' }
@@ -349,7 +351,7 @@ JadeiteBrowser >> updateCaption [
 	self caption: (self gciSession titleBarFor: self shellName)
 ]
 
-{ #category : 'displaying' }
+{ #category : 'tabs' }
 JadeiteBrowser >> updateLabel: aString [
 	
 	tabs selectedPage title: aString. 
@@ -357,13 +359,13 @@ JadeiteBrowser >> updateLabel: aString [
 	
 ]
 
-{ #category : 'displaying' }
+{ #category : 'tabs' }
 JadeiteBrowser >> updateLabel: aString for: tabbedPresenter [
 	
 	tabs selectedPage title: aString. 
 	
 ]
 
-{ #category : 'updates' }
+{ #category : 'tabs' }
 JadeiteBrowser >> updateTabs [
 ]
