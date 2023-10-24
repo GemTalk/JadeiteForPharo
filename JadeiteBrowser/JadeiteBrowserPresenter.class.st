@@ -736,7 +736,8 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectPackageDictionaryPresenters projectListPresenter
 		whenSelectionChangedDo: [ :selection | self updateProject ].
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
-		self refreshMethodsOn: methodListPresenter ].
+		self refreshMethodsOn: methodListPresenter.
+		self selectMethodSourceTab. ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter ].
 	methodListPresenter whenSelectionChangedDo: [ :selection |
@@ -1003,6 +1004,36 @@ JadeiteBrowserPresenter >> displayVariable: displayThing [
 			(selectedClass instVarNames includes: displayThing item asSymbol)
 				ifTrue: [displayThing font beBold]].
 	^displayThing
+]
+
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classService [
+
+	| failedCompilations selection |
+	failedCompilations := OrderedCollection new.
+	methodServices do: [ :methodService |
+		[
+		classService
+			saveMethod: methodService source
+			category: methodService category
+			session: GciSession current ]
+			on: GsCompileError
+			do: [ :ex | failedCompilations add: methodService ] ].
+	failedCompilations ifNotEmpty: [
+		| ws |
+		ws := WriteStream on: String new.
+		ws nextPutAll: 'Methods failing compilation:'.
+		failedCompilations do: [ :methodService |
+			ws
+				cr;
+				nextPutAll: methodService selectorPrintString ].
+		UIManager default alert: ws contents ].
+	selection := methodServices
+		             detect: [ :service |
+		             (failedCompilations includes: service) not ]
+		             ifNone: [ ^ self ].
+	self selectClassNamed: classService name.
+	self selectMethod: selection
 ]
 
 { #category : 'as yet unclassified' }
@@ -1380,8 +1411,7 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 
 	| classHierarchyPage |
 	classHierarchyPresenter := JadeiteTreePresenter new
-		                           display: [ :m |
-			                           m displayString ];
+		                           display: [ :m | m displayString ];
 		                           displayColor: [ :classService |
 			                           self classDisplayColor: classService ];
 		                           children: [ :service |
@@ -1389,6 +1419,13 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 					                           service command:
 							                           #oneLevelClassHierarchy.
 					                           self issueCommand: service ] ].
+	classHierarchyPresenter
+		wantsDrop: [ :transfer |
+			transfer passenger allSatisfy: #isMethodService ];
+		acceptDrop: [ :transfer |
+			self
+				dropMethods: transfer passenger
+				onSelectedClass: transfer target ].
 	classHierarchyPage := JadeiteNotebookPage
 		                      title: 'Hierarchy'
 		                      icon: nil
@@ -1401,7 +1438,16 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 
 	| classListPage |
 	classListHierarchyTabs := self instantiate: JadeiteNotebookPresenter.
-	classListPresenter := JadeiteListPresenter newNameSortedList.
+	classListPresenter := JadeiteListPresenter newNameSortedList
+		                      wantsDrop: [ :transfer |
+			                      transfer passenger allSatisfy:
+					                      #isMethodService ];
+		                      acceptDrop: [ :transfer |
+			                      self
+				                      dropMethods: transfer passenger
+				                      onSelectedClass:
+					                      (self classListPresenter items at:
+							                       transfer index) ].
 	classListPresenter beSingleSelection.
 	classListPresenter displayColor: [ :classService |
 		self classDisplayColor: classService ].
@@ -2804,11 +2850,15 @@ JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectMethod: methodSelection [
+
+	self selectMethods: (Array with: methodSelection)
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectMethodSourceTab [
 	| methodSourceTab selection |
-	methodListPresenter selectionOrNil ifNotNil: [ textAreaTabs  selectPage: methodSourcePage].
-	
-	
+	textAreaTabs  selectPage: methodSourcePage.
 	self todo:[selection := self isCategoryTabSelected
 				ifTrue: [categoryListPresenter selectionOrNil]
 				ifFalse: [variableListPresenter selectionOrNil].

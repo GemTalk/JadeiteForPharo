@@ -730,6 +730,18 @@ RowanMethodService >> selector: anObject [
 	selector := anObject
 ]
 
+{ #category : 'printing' }
+RowanMethodService >> selectorPrintString [
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: className;
+		nextPutAll: '>>';
+		nextPutAll: selector.
+	^ ws contents
+]
+
 { #category : 'displaying' }
 RowanMethodService >> selectorsDisplayString [
 

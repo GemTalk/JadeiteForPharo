@@ -1116,30 +1116,30 @@ JadeiteProjectsBrowserPresenter >> savePackage [
 	MessageBox notify: 'This feature is not yet available'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCategoriesNamed: array [
 	| selections |
 	selections := categoryListPresenter list select: [:category | array includes: category].
 	categoryListPresenter selections: selections
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCategoryFrom: methodService [
 	^categoryListPresenter selectionOrNil = methodService category
 		ifFalse: [categoryListPresenter selection: methodService category]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCategoryNamed: category [
 	^self selectCategoriesNamed: (Array with: category)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassDefinitionTab [
 	self selectSourceTabNamed: 'classDefinition'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassInClassHierarchyNamed: className [
 	| selection service path |
 	service := RowanClassService new name: className. 
@@ -1149,7 +1149,7 @@ JadeiteProjectsBrowserPresenter >> selectClassInClassHierarchyNamed: className [
 	expandPath: path. 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassInClassListNamed: className [
 	| selection |
 	selection := classListPresenter list detect: [:classService | classService name = className]
@@ -1159,48 +1159,53 @@ JadeiteProjectsBrowserPresenter >> selectClassInClassListNamed: className [
 	^selection
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassNamed: className [
 	self isClassListTabSelected
 		ifTrue: [self selectClassInClassListNamed: className]
 		ifFalse: [self selectClassInClassHierarchyNamed: className]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassTab [
 	classListHierarchyTabs lastCard.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCommentTab [
 	self selectSourceTabNamed: 'classDocumentation'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectComparisonTab [
 	self selectSourceTabNamed: 'comparisonTab'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectGlobalsTab [
 	| tab |
 	tab := self view viewNamed: 'globalsTab' ifNone:[^nil].
 	^tab ensureVisible
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectMethods: methodSelections [
+
 	| newMethodSelections newSelection |
 	newMethodSelections := OrderedCollection new.
-	methodSelections do: 
-			[:methodSelection |
-			newSelection := methodListPresenter list detect: [:svc | svc selector = methodSelection selector]
-						ifNone: [].
-			newSelection ifNotNil: [newMethodSelections add: newSelection]].
-	^methodListPresenter selections: newMethodSelections
+	methodSelections do: [ :methodSelection |
+		newSelection := methodListPresenter list
+			                detect: [ :svc |
+			                svc selector = methodSelection selector ]
+			                ifNone: [  ].
+		newSelection ifNotNil: [ newMethodSelections add: newSelection ] ].
+	^ methodListPresenter
+		  selectIndexes: (newMethodSelections collect: [ :methodService |
+				   methodListPresenter items indexOf: methodService ])
+		  scrollToSelection: true
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectMethodsFrom: classService [
 
 	| selections selectedMethods |
@@ -1224,7 +1229,7 @@ JadeiteProjectsBrowserPresenter >> selectMethodsFrom: classService [
 	methodListPresenter selections: selections
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectPackage: newPackageSelection [
 	| methodSelection classSelection |
 	methodSelection := methodListPresenter selectionOrNil.
@@ -1235,60 +1240,60 @@ JadeiteProjectsBrowserPresenter >> selectPackage: newPackageSelection [
 	methodSelection ifNotNil: [self selectionMethod: methodSelection]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectSUnitTab [
 	self selectSourceTabNamed: 'sunit'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectSourceTabNamed: tabName [
 	| tab |
 	tab := self view viewNamed: tabName.
 	tab ensureVisible
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectVariableTab [
 	methodFilterTabs selectPageIndex: 2
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedClass [
 	^self isClassListTabSelected
 		ifTrue: [classListPresenter selectionIfNone: []]
 		ifFalse: [classHierarchyPresenter selectionIfNone: []]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedClassName [
 	^self selectedClass name
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedClasses [
 	^self isClassListTabSelected
 		ifTrue: [classListPresenter selections]
 		ifFalse: [classHierarchyPresenter selections]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedMethodCategory [
 	^methodListPresenter selectionOrNil ifNotNil: [:methodService | methodService category]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedMethodNames [
 
 	^methodListPresenter selections collect:[:methodService | methodService selector]
 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedPackageNames [
 	^packageListPresenter selections collect: [:packageService | packageService name]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectionMethod: methodSelection [
 	| newMethodSelection |
 	newMethodSelection := methodListPresenter list
