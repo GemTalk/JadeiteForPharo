@@ -299,7 +299,7 @@ JadeiteBrowser >> packageListPresenter [
 { #category : 'accessing' }
 JadeiteBrowser >> projectListPresenter [
 
-	^(tabs pages at: tabs selectedPageIndex) projectListPresenter 
+	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
 ]
 
 { #category : 'commands' }
