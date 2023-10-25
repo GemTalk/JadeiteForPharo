@@ -188,11 +188,10 @@ JadeiteMethodSourcePane >> selectMessageAt: sourceOffset [
 { #category : 'accessing' }
 JadeiteMethodSourcePane >> selectedSelector [
 	"simplified from superclass - always find the true selector and not the selection"
-	| extractor selectedText fullSource index |
+	| extractor fullSource index |
 	fullSource := self text.
 	fullSource ifNil: [ ^ nil ].
-	extractor := CNSelectorExtractor new.
-	selectedText := self selectedText.
+	extractor := CNSelectorExtractor new. 
 	index := self cursorPositionIndex ifNil: [ 1 ].
 	^ extractor
 		  extractSelectorFromAST: (RBParser parseFaultyMethod: fullSource)

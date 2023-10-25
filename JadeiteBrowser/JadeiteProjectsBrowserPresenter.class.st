@@ -1377,8 +1377,7 @@ JadeiteProjectsBrowserPresenter >> sunitPresenter [
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> targetCategory [
 	self isVariablesTabSelected ifTrue: [^self selectedMethodCategory].
-	categoryListPresenter hasSelection ifTrue: [^self selectedMethodCategory].
-	categoryListPresenter selections size > 1 ifTrue: [^self selectedMethodCategory].
+	categoryListPresenter hasSelection ifTrue: [^categoryListPresenter selectedItem].
 	self methodListPresenter selectedItem ifNil: [ 
 	^'as yet unclassified'].
 	^self methodListPresenter selectedItem category

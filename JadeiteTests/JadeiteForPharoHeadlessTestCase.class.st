@@ -175,6 +175,7 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 	RowanServiceUpdater current
 		register: oc
 		selector: #testServiceUpdate:.
+	[
 	self
 		assert: serviceUpdater registeredPresenters size
 		equals: initialSize + 1.
@@ -184,10 +185,10 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 		               withArgs: Array new.
 	self assert: oc isEmpty.
 	GciSession current issueCommand: testService.
-	self assert: oc first equals: #testServiceUpdate:.
-	RowanServiceUpdater current removeEventsTriggeredFor: oc. "in theory, this eventually goes away on it's own"
+	self assert: oc first equals: #testServiceUpdate: ] ensure: [
+		RowanServiceUpdater current removeEventsTriggeredFor: oc "in theory, this eventually goes away on it's own" ].
 	oc := nil.
-	testService := nil. 
+	testService := nil.
 	self
 		assert: serviceUpdater registeredPresenters size
 		equals: initialSize
