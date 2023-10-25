@@ -13,7 +13,8 @@ Class {
 		'cardContainer',
 		'toolbar',
 		'transcriptService',
-		'consoleTabs'
+		'consoleTabs',
+		'autoCommitButton'
 	],
 	#classVars : [
 		'CurrentConsole'
@@ -281,6 +282,11 @@ JadeiteConsole >> findClassNamed: selection [
 		  browser activePresenter updateAfterFindClass: classService ]
 ]
 
+{ #category : 'actions' }
+JadeiteConsole >> flipAutoCommit [
+	self gciSession flipAutoCommit
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> flipAutocomplete [
 	| newValue confirmedValue |
@@ -336,11 +342,6 @@ JadeiteConsole >> gciSession: aGciSession [
 			send: #exit
 			to: self;
 		yourself.
-	"mySessionPresenter gciSession: aGciSession.
-	allSessionsPresenter gciSession: aGciSession.
-	stoneInfoPresenter gciSession: aGciSession.
-	toolbarPresenter gciSession: aGciSession.
-	transcriptPresenter gciSession: aGciSession."
 ]
 
 { #category : 'as yet unclassified' }
@@ -356,7 +357,27 @@ JadeiteConsole >> hidePackageList [
 { #category : 'initialization' }
 JadeiteConsole >> initializeAutoCommit [
 
-	self gciSession initializeAutoCommit
+	self gciSession initializeAutoCommit.
+	self	gciSession autoCommit
+		whenChangedSend: #updateAutoCommitButton
+		to: self.
+	self updateAutoCommitButton
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeAutoCommitPresenter [
+
+	| autoCommitBox |
+	autoCommitBox := SpBoxLayout newHorizontal.
+	autoCommitButton := SpButtonPresenter new.
+	autoCommitButton action: [ self flipAutoCommit ].
+	autoCommitBox
+		add: autoCommitButton
+		withConstraints: [ :constraints | 
+			constraints
+				height: 25;
+				width: 150 ].
+	self layout add: autoCommitBox expand: false
 ]
 
 { #category : 'initialization' }
@@ -419,6 +440,7 @@ JadeiteConsole >> initializePresenters [
 	self initializeProjectListPresenter: consoleTabs.
 	self initializeTranscriptPresenter: consoleTabs.
 	box add: consoleTabs.
+	self initializeAutoCommitPresenter.
 	lastKnownTransaction := self newStatusBar.
 	self layout addLast: lastKnownTransaction expand: false.
 ]
@@ -894,6 +916,22 @@ JadeiteConsole >> transactionMode: aSymbol [
 			[self basicTransactionMode: aSymbol.
 			JadePresenter trigger: #abortedTransaction]
 		ifFalse: [self resetTransactionModeRadioButtons]
+]
+
+{ #category : 'updates' }
+JadeiteConsole >> updateAutoCommitButton [
+
+	self gciSession autoCommit value == #failed ifTrue: [ 
+		autoCommitButton label: 'Auto Commit - failed'.
+		^ autoCommitButton color: Color red ].
+	self gciSession autoCommit value
+		ifTrue: [ 
+			autoCommitButton color: Color green.
+			autoCommitButton label: 'Auto Commit - true' ]
+		ifFalse: [ 
+			autoCommitButton color: autoCommitButton defaultColor.
+			autoCommitButton label: 'Auto Commit - false' ].
+	WorldMorph doOneCycle.
 ]
 
 { #category : 'updates' }

@@ -344,6 +344,7 @@ JadeiteBrowser >> updateAutoCommitButton [
 		ifFalse: [ 
 			autoCommitButton color: autoCommitButton defaultColor.
 			autoCommitButton label: 'Auto Commit - false' ].
+	WorldMorph doOneCycle.
 ]
 
 { #category : 'initialization' }
