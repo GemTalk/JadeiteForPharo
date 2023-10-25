@@ -24,6 +24,31 @@ JadeiteTextDocument class >> adapterName [
 ]
 
 { #category : 'commands' }
+JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
+	| group |
+	"copied from super class implementation"
+	group := (CmCommandGroup named: 'Code search') asSpecGroup
+		description: 'Search the system from code selection.';
+		beDisplayedAsSubMenu;
+		yourself.
+		
+	self flag: #TODO. "This looks like a very bad way to do this :P"	
+	{ 
+		SpBrowseClassCommand.		
+		JadeiteBrowseImplementorsCommand.
+		JadeiteBrowseSendersCommand.
+		SpBrowseMethodReferencesCommand.	
+		SpBrowseMethodsMatchingStringInsensitiveCommand.
+		SpBrowseMethodsMatchingStringSensitiveCommand.
+		SpBrowseMethodsContainingStringCommand.
+	 } 
+	do:[ :commandClass | 
+		group register: (commandClass forSpecContext: aPresenter) ].
+	
+	^ group
+]
+
+{ #category : 'commands' }
 JadeiteTextDocument class >> codeSelectionActionCommandsGroupWith: presenter [
 	| group |
 	

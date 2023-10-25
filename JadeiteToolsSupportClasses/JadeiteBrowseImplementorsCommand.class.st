@@ -1,10 +1,12 @@
 Class {
 	#name : 'JadeiteBrowseImplementorsCommand',
-	#superclass : 'JadeiteCommand',
+	#superclass : 'SpBrowseImplementorsCommand',
 	#category : 'JadeiteToolsSupportClasses'
 }
 
-{ #category : 'execution' }
-JadeiteBrowseImplementorsCommand >> execute [
-	^context browseImplementors 
+{ #category : 'accessing' }
+JadeiteBrowseImplementorsCommand >> name [
+	| dynamicName |
+	dynamicName := self context selectedSelector ifNil: [ 'it' ].
+	^'Implementors of ', dynamicName 
 ]
