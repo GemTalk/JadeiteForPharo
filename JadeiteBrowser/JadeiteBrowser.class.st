@@ -302,6 +302,13 @@ JadeiteBrowser >> projectListPresenter [
 	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
 ]
 
+{ #category : 'updates' }
+JadeiteBrowser >> redrawAutoCommitButton [
+
+	autoCommitButton withAdapterDo: [ :a |
+		a widgetDo: [ :w | w changed ] ]
+]
+
 { #category : 'commands' }
 JadeiteBrowser >> selectedClass [
 
@@ -334,17 +341,17 @@ JadeiteBrowser >> tabs: anObject [
 { #category : 'updates' }
 JadeiteBrowser >> updateAutoCommitButton [
 
-	self gciSession autoCommit value == #failed ifTrue: [ 
+	self gciSession autoCommit value == #failed ifTrue: [
 		autoCommitButton label: 'Auto Commit - failed'.
 		^ autoCommitButton color: Color red ].
 	self gciSession autoCommit value
-		ifTrue: [ 
+		ifTrue: [
 			autoCommitButton color: Color green.
 			autoCommitButton label: 'Auto Commit - true' ]
-		ifFalse: [ 
+		ifFalse: [
 			autoCommitButton color: autoCommitButton defaultColor.
 			autoCommitButton label: 'Auto Commit - false' ].
-	WorldMorph doOneCycle.
+	self redrawAutoCommitButton
 ]
 
 { #category : 'initialization' }

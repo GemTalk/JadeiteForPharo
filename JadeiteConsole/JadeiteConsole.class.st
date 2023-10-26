@@ -746,6 +746,13 @@ JadeiteConsole >> queryCommand: aCommandQuery [
 	^false
 ]
 
+{ #category : 'updates' }
+JadeiteConsole >> redrawAutoCommitButton [
+
+	autoCommitButton withAdapterDo: [ :a |
+		a widgetDo: [ :w | w changed ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> refreshFromServer [
 	self updateServices: projectListPresenter selections. 
@@ -921,17 +928,17 @@ JadeiteConsole >> transactionMode: aSymbol [
 { #category : 'updates' }
 JadeiteConsole >> updateAutoCommitButton [
 
-	self gciSession autoCommit value == #failed ifTrue: [ 
+	self gciSession autoCommit value == #failed ifTrue: [
 		autoCommitButton label: 'Auto Commit - failed'.
 		^ autoCommitButton color: Color red ].
 	self gciSession autoCommit value
-		ifTrue: [ 
+		ifTrue: [
 			autoCommitButton color: Color green.
 			autoCommitButton label: 'Auto Commit - true' ]
-		ifFalse: [ 
+		ifFalse: [
 			autoCommitButton color: autoCommitButton defaultColor.
 			autoCommitButton label: 'Auto Commit - false' ].
-	WorldMorph doOneCycle.
+	self redrawAutoCommitButton
 ]
 
 { #category : 'updates' }
