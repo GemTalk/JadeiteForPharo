@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteConsole',
-	#superclass : 'JadeTranscript',
+	#superclass : 'JadeitePresenterWithAutoCommitButton',
 	#traits : 'JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteMethodsTrait + JadeiteClassTrait',
 	#classTraits : 'JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait',
 	#instVars : [
@@ -14,7 +14,7 @@ Class {
 		'toolbar',
 		'transcriptService',
 		'consoleTabs',
-		'autoCommitButton'
+		'toolbarPresenter'
 	],
 	#classVars : [
 		'CurrentConsole'
@@ -282,11 +282,6 @@ JadeiteConsole >> findClassNamed: selection [
 		  browser activePresenter updateAfterFindClass: classService ]
 ]
 
-{ #category : 'actions' }
-JadeiteConsole >> flipAutoCommit [
-	self gciSession flipAutoCommit
-]
-
 { #category : 'as yet unclassified' }
 JadeiteConsole >> flipAutocomplete [
 	| newValue confirmedValue |
@@ -362,22 +357,6 @@ JadeiteConsole >> initializeAutoCommit [
 		whenChangedSend: #updateAutoCommitButton
 		to: self.
 	self updateAutoCommitButton
-]
-
-{ #category : 'initialization' }
-JadeiteConsole >> initializeAutoCommitPresenter [
-
-	| autoCommitBox |
-	autoCommitBox := SpBoxLayout newHorizontal.
-	autoCommitButton := SpButtonPresenter new.
-	autoCommitButton action: [ self flipAutoCommit ].
-	autoCommitBox
-		add: autoCommitButton
-		withConstraints: [ :constraints | 
-			constraints
-				height: 25;
-				width: 150 ].
-	self layout add: autoCommitBox expand: false
 ]
 
 { #category : 'initialization' }
@@ -746,13 +725,6 @@ JadeiteConsole >> queryCommand: aCommandQuery [
 	^false
 ]
 
-{ #category : 'updates' }
-JadeiteConsole >> redrawAutoCommitButton [
-
-	autoCommitButton withAdapterDo: [ :a |
-		a widgetDo: [ :w | w changed ] ]
-]
-
 { #category : 'as yet unclassified' }
 JadeiteConsole >> refreshFromServer [
 	self updateServices: projectListPresenter selections. 
@@ -923,22 +895,6 @@ JadeiteConsole >> transactionMode: aSymbol [
 			[self basicTransactionMode: aSymbol.
 			JadePresenter trigger: #abortedTransaction]
 		ifFalse: [self resetTransactionModeRadioButtons]
-]
-
-{ #category : 'updates' }
-JadeiteConsole >> updateAutoCommitButton [
-
-	self gciSession autoCommit value == #failed ifTrue: [
-		autoCommitButton label: 'Auto Commit - failed'.
-		^ autoCommitButton color: Color red ].
-	self gciSession autoCommit value
-		ifTrue: [
-			autoCommitButton color: Color green.
-			autoCommitButton label: 'Auto Commit - true' ]
-		ifFalse: [
-			autoCommitButton color: autoCommitButton defaultColor.
-			autoCommitButton label: 'Auto Commit - false' ].
-	self redrawAutoCommitButton
 ]
 
 { #category : 'updates' }

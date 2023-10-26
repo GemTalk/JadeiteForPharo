@@ -1,13 +1,11 @@
 Class {
 	#name : 'JadeiteBrowser',
-	#superclass : 'SpAbstractWidgetPresenter',
+	#superclass : 'JadeitePresenterWithAutoCommitButton',
 	#traits : 'JadeiteMethodsTrait + JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteClassTrait + JadeiteFilterTrait + JadeitePackageTrait',
 	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFilterTrait classTrait + JadeitePackageTrait classTrait',
 	#instVars : [
 		'tabs',
-		'toolbar',
-		'gciSession',
-		'autoCommitButton'
+		'toolbar'
 	],
 	#category : 'JadeiteBrowser'
 }
@@ -86,11 +84,6 @@ JadeiteBrowser >> defaultLayout [
 	^SpBoxLayout newVertical
 ]
 
-{ #category : 'actions' }
-JadeiteBrowser >> flipAutoCommit [
-	self gciSession flipAutoCommit
-]
-
 { #category : 'accessing' }
 JadeiteBrowser >> gciSession [
 
@@ -105,22 +98,6 @@ JadeiteBrowser >> gciSession: anObject [
 		whenChangedSend: #updateAutoCommitButton
 		to: self.
 	self updateAutoCommitButton
-]
-
-{ #category : 'initialization' }
-JadeiteBrowser >> initializeAutoCommitPresenter [
-
-	| autoCommitBox |
-	autoCommitBox := SpBoxLayout newHorizontal.
-	autoCommitButton := SpButtonPresenter new.
-	autoCommitButton action: [ self flipAutoCommit ].
-	autoCommitBox
-		add: autoCommitButton
-		withConstraints: [ :constraints | 
-			constraints
-				height: 25;
-				width: 150 ].
-	self layout add: autoCommitBox expand: false
 ]
 
 { #category : 'initialization' }
@@ -302,13 +279,6 @@ JadeiteBrowser >> projectListPresenter [
 	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
 ]
 
-{ #category : 'updates' }
-JadeiteBrowser >> redrawAutoCommitButton [
-
-	autoCommitButton withAdapterDo: [ :a |
-		a widgetDo: [ :w | w changed ] ]
-]
-
 { #category : 'commands' }
 JadeiteBrowser >> selectedClass [
 
@@ -336,22 +306,6 @@ JadeiteBrowser >> tabs [
 JadeiteBrowser >> tabs: anObject [
 
 	tabs := anObject
-]
-
-{ #category : 'updates' }
-JadeiteBrowser >> updateAutoCommitButton [
-
-	self gciSession autoCommit value == #failed ifTrue: [
-		autoCommitButton label: 'Auto Commit - failed'.
-		^ autoCommitButton color: Color red ].
-	self gciSession autoCommit value
-		ifTrue: [
-			autoCommitButton color: Color green.
-			autoCommitButton label: 'Auto Commit - true' ]
-		ifFalse: [
-			autoCommitButton color: autoCommitButton defaultColor.
-			autoCommitButton label: 'Auto Commit - false' ].
-	self redrawAutoCommitButton
 ]
 
 { #category : 'initialization' }

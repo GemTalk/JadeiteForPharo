@@ -257,7 +257,7 @@ JadeiteTestResource >> openWindow: aBlock [
 	| presenter count |
 	presenter := aBlock value.
 	count := 0.
-	[presenter view isOpen] whileFalse: 
+	[presenter window isOpen] whileFalse: 
 			[(Delay forMilliseconds: 50) wait.
 			count := count + 1.
 			count > 10 ifTrue: [^presenter]].

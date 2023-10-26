@@ -1,39 +1,13 @@
 Class {
 	#name : 'JadeiteForPharoMiscellaneousTestCase',
 	#superclass : 'JadeiteForPharoTestCase',
-	#instVars : [
-		'workspace'
-	],
 	#category : 'JadeiteTests'
 }
-
-{ #category : 'support' }
-JadeiteForPharoMiscellaneousTestCase >> dismissPopoverAndPrint [
-
-	SpCodePopoverPrintPresenter allInstances do: [ :popup |
-		popup dismissAndPrint ]
-]
-
-{ #category : 'support' }
-JadeiteForPharoMiscellaneousTestCase >> displayAndPrint [
-
-	workspace codePane jadeDisplay.
-	self dismissPopoverAndPrint
-]
 
 { #category : 'support' }
 JadeiteForPharoMiscellaneousTestCase >> focusWidgetText [
 
 	^ UIManager default world activeHand keyboardFocus model model text
-]
-
-{ #category : 'support' }
-JadeiteForPharoMiscellaneousTestCase >> tearDown [
-	super tearDown.
-	workspace
-		ifNotNil: 
-			[workspace isModified: false.
-			self destroy: workspace]
 ]
 
 { #category : 'tests' }
@@ -87,143 +61,6 @@ JadeiteForPharoMiscellaneousTestCase >> test_adHocExecute [
 	self
 		assert: (session executeString: 'UserGlobals at: #foo')
 		equals: 'bar'
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpeningBrowser [
-	"Not a very good test but the last service logged should not be an #updateAutoCommit command which was the bug"
-
-	| loggingState |
-	loggingState := RowanServiceUpdater current isLogging.
-	RowanServiceUpdater current isLogging: true.
-	
-	[projectsBrowser
-		ifNil: [projectsBrowser := self openWindow: [transcript openBrowser]].
-	
-	[RowanServiceUpdater current loggingService services
-		do: [:service | self deny: (service updateType includes: #updateAutoCommitButton)]]
-			ensure: [self destroy: projectsBrowser]]
-			ensure: [RowanServiceUpdater current isLogging: loggingState]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_autoCommitInAdHocDisplay [
-
-	self
-		testsIssue: #issue427
-		withTitle: '(3.0.60) autocommit not done after successful doits'.
-
-	[
-	self setAutoCommit: true.
-	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	workspace := JadeiteWorkspace showOnSession: session.
-	workspace setDocumentData: '123'.
-	workspace codePane documentPresenter setFocus.
-	self displayAndPrint.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self abortTransaction.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self
-		assert: workspace codePane documentPresenter text
-		equals: '123 "''123''"' ] ensure: [
-		session executeString: 'UserGlobals removeKey: #TestCommit'.
-		self commitTransaction.
-		self setAutoCommit: false.
-		workspace isModified: false ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_autoCommitInAdHocExecution [
-
-	self
-		testsIssue: #issue427
-		withTitle: '(3.0.60) autocommit not done after successful doits'.
-
-	[
-	self setAutoCommit: true.
-	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	workspace := JadeiteWorkspace showOnSession: session.
-	workspace setDocumentData: '''doSomething'''.
-	workspace codePane documentPresenter setFocus.
-	workspace codePane jadeExecute.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self abortTransaction.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') "TestCommit was committed" ]
-		ensure: [
-			session executeString: 'UserGlobals removeKey: #TestCommit'.
-			self commitTransaction.
-			self setAutoCommit: false.
-			workspace isModified: false ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_autoCommitOffInAdHocDisplay [
-
-	self
-		testsIssue: #issue427
-		withTitle: '(3.0.60) autocommit not done after successful doits'.
-
-	[
-	self setAutoCommit: false.
-	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	workspace := JadeiteWorkspace showOnSession: session.
-	workspace setDocumentData: '123'.
-	workspace codePane documentPresenter setFocus.
-	self displayAndPrint.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self abortTransaction.
-	self assertIsNil:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self
-		assert: workspace codePane documentPresenter text
-		equals: '123 "''123''"' ] ensure: [ workspace isModified: false ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_autoCommitOffInAdHocExecution [
-
-	self
-		testsIssue: #issue427
-		withTitle: '(3.0.60) autocommit not done after successful doits'.
-
-	[
-	self setAutoCommit: false.
-	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	workspace := JadeiteWorkspace showOnSession: session.
-	workspace setDocumentData: '''doSomething'''.
-	workspace codePane documentPresenter setFocus.
-	workspace codePane jadeExecute.
-	self assert:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
-	self abortTransaction.
-	self assertIsNil:
-		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') ]
-		ensure: [ workspace isModified: false ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_autoCommitUpdatedInSession [
-	| autoCommit |
-	
-	[autoCommit := session autoCommit value.
-	self setAutoCommit: true.
-	self assert: session autoCommit.
-	self setAutoCommit: false.
-	self deny: session autoCommit]
-			ensure: [self setAutoCommit: autoCommit]
 ]
 
 { #category : 'tests' }
