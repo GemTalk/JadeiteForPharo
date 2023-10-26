@@ -63,6 +63,13 @@ RowanProjectService class >> templateClassName [
 ]
 
 { #category : 'comparing' }
+RowanProjectService >> <= projectService [
+
+	^ super = projectService and: [
+		  projectService isProjectService and: [ name <= projectService name ] ]
+]
+
+{ #category : 'comparing' }
 RowanProjectService >> = projectService [
 
 	^ super = projectService and: [

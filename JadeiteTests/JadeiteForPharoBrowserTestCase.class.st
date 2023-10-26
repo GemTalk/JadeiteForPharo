@@ -55,6 +55,29 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_loadProjectAddedInAlphabeticalOrder [
+
+	| projects |
+	self
+		testsJadeiteForPharoIssue: #issue21
+		withTitle:
+		'loading a new project externally and then aborting ends up with new project at bottom of console'.
+	JadeiteApplication abortTransactionInSession: session. 
+	projects := self projectList collect: [ :projectService |
+		            projectService name ].
+	self deny: (projects includes: 'RowanSample1').
+	projectsBrowser
+		installProjectFromPath:
+		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
+		projectsHome: '$ROWAN_PROJECTS_HOME'.
+	projects := self projectList collect: [ :projectService |
+		            projectService name ].
+	self
+		assert: projects
+		equals: projects asSortedCollection asOrderedCollection
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_openProjectsBrowser [
 	"project browser opened in setup"
 

@@ -86,7 +86,7 @@ RowanService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanService >> = aService [
-
+	"subclasses should do that actual equality test as RowanService is abstract"
 	^aService isRowanService
 ]
 
@@ -925,19 +925,23 @@ RowanService >> updateForSession: session [
 ]
 
 { #category : 'private' }
-RowanService >> updateList: presenter whilePreservingSelections: updates browser: anObject [
+RowanService >> updateList: presenter whilePreservingSelections: theUpdates browser: anObject [
+
 	| replicate bag |
 	bag := presenter list asBag.
-	bag do: 
-			[:service |
-			replicate := updates detect: [:update | update = service] ifNone: [nil].
-			replicate notNil ifTrue: [service replicateFrom: replicate]].
-	updates
-		do: [:update | ((bag includes: update) and: [update wasRenamed not]) ifFalse: [presenter model add: update]].
-	bag do: 
-			[:service |
-			(updates includes: service)
-				ifFalse: [service = RowanProjectService noneProject ifFalse: [presenter model remove: service]]]
+	bag do: [ :service |
+		replicate := theUpdates
+			             detect: [ :update | update = service ]
+			             ifNone: [ nil ].
+		replicate notNil ifTrue: [ service replicateFrom: replicate ] ].
+	theUpdates do: [ :update |
+		((bag includes: update) and: [ update wasRenamed not ]) ifFalse: [
+			presenter model add: update ] ].
+	bag do: [ :service |
+		(theUpdates includes: service) ifFalse: [
+			service = RowanProjectService noneProject ifFalse: [
+				presenter model remove: service ] ] ].
+	presenter model beSorted
 ]
 
 { #category : 'public' }

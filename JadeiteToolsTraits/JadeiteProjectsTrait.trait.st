@@ -185,7 +185,7 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 
 { #category : 'commands' }
 JadeiteProjectsTrait >> loadProject [
-
+	"the gui is updated in RowanBrowserService>>projectsUpdate:browser:"
 	| filePath |
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: self gciSession
