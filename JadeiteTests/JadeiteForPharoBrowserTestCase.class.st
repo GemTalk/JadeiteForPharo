@@ -58,7 +58,11 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 JadeiteForPharoBrowserTestCase >> test_openProjectsBrowser [
 	"project browser opened in setup"
 
+	projectsBrowser ifNotNil: [
+		self closeBrowser: projectsBrowser.
+		self setupProjectBrowser ].
 	self assert: projectsBrowser class equals: JadeiteBrowser.
-	self
-		denyIsNil: (self projectList detect: [:projectService | projectService name = 'Rowan'] ifNone: [])
+	self denyIsNil: (self projectList
+			 detect: [ :projectService | projectService name = 'Rowan' ]
+			 ifNone: [  ])
 ]

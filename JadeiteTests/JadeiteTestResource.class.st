@@ -244,7 +244,7 @@ JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
 
 { #category : 'support' }
 JadeiteTestResource >> openProjectsBrowser [
-	((projectsBrowser isKindOf: JadeiteBrowser) not or: [projectsBrowser isOpen not])
+	((projectsBrowser isKindOf: JadeiteBrowser) not or: [projectsBrowser window isOpen not])
 		ifTrue: [projectsBrowser := self openWindow: [self transcript openBrowser]].
 	^projectsBrowser
 ]

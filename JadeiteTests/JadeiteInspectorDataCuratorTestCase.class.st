@@ -411,7 +411,7 @@ JadeiteInspectorDataCuratorTestCase >> test_autoCommitInAdHocInspect [
 	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
 	workspace := JadeiteWorkspace showOnSession: session.
 	
-	[self setAutoCommit: true.
+	[self setRemoteAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace setDocumentData: '123'.
@@ -423,7 +423,7 @@ JadeiteInspectorDataCuratorTestCase >> test_autoCommitInAdHocInspect [
 				[self closeBrowser: inspector topShell primaryPresenter.
 				workspace isModified: false.
 				self closeBrowser: workspace.
-				self setAutoCommit: false	"should have committed already"].
+				self setRemoteAutoCommit: false	"should have committed already"].
 	
 	[self abortTransaction.
 	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')]
@@ -438,7 +438,7 @@ JadeiteInspectorDataCuratorTestCase >> test_autoCommitOffInAdHocInspect [
 	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
 	workspace := JadeiteWorkspace showOnSession: session.
 	
-	[self setAutoCommit: false.
+	[self setRemoteAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace setDocumentData: '123'.

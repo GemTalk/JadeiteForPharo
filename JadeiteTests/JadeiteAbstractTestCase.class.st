@@ -151,8 +151,8 @@ JadeiteAbstractTestCase >> closeBrowser: theBrowser [
 	maxTries := 10.
 	theBrowser
 		ifNotNil: 
-			[theBrowser view close.
-			[theBrowser view isOpen not and: [count > maxTries]] whileFalse: 
+			[theBrowser window close.
+			[theBrowser window isOpen not and: [count > maxTries]] whileFalse: 
 					[(Delay forMilliseconds: 10) wait.
 					count := count + 1]].
 	self assert: count > maxTries description: theBrowser printString , ' did not close quickly enough'
@@ -952,17 +952,17 @@ JadeiteAbstractTestCase >> serviceNamed: name in: presenter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> setAutoCommit: aBoolean [
+JadeiteAbstractTestCase >> setBreakAt: anInteger [
+	self projectsPresenter setBreakPointAt: anInteger in: self projectsPresenter
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> setRemoteAutoCommit: aBoolean [
 	| autoCommitService |
 	autoCommitService := RowanAutoCommitService new
 				command: #autoCommit:;
 				commandArgs: (Array with: aBoolean).
 	self issueCommand: autoCommitService
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> setBreakAt: anInteger [
-	self projectsPresenter setBreakPointAt: anInteger in: self projectsPresenter
 ]
 
 { #category : 'support' }
@@ -973,7 +973,7 @@ JadeiteAbstractTestCase >> setUp [
 	self logoutThenLoginAs: user forceClose: false.
 	session := JadeiteTestResource current session.
 	transcript := JadeiteTestResource current transcript.
-	self setAutoCommit: false.
+	self setRemoteAutoCommit: false.
 	self switchTransactionModeTo: #autoBegin.	"Ensure tests start with transaction mode that is predictable - most tests assume #autoBegin"
 	self ensureRowanSampleProjectsLoaded.
 	JadeiteLoginShell allInstances size > 1
@@ -1053,6 +1053,18 @@ JadeiteAbstractTestCase >> test_globalAdditionalAccelerators [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> testsIssue: aSymbol withTitle: anObject [
+	"send this to help identify which tests test which issues"
+
+	" a helpful parameter format is #issue<issueNumber>"
+
+	"Issues currently reside in: 
+		https://github.com/GemTalk/Jadeite/issues"
+
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> testsJadeiteForPharoIssue: aSymbol withTitle: anObject [
 	"send this to help identify which tests test which issues"
 
 	" a helpful parameter format is #issue<issueNumber>"

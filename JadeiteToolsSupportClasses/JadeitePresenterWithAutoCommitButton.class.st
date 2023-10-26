@@ -7,6 +7,12 @@ Class {
 	#category : 'JadeiteToolsSupportClasses'
 }
 
+{ #category : 'accessing' }
+JadeitePresenterWithAutoCommitButton >> autoCommitButton [
+	"for testing"
+	^ autoCommitButton
+]
+
 { #category : 'autocommit' }
 JadeitePresenterWithAutoCommitButton >> flipAutoCommit [
 	self gciSession flipAutoCommit

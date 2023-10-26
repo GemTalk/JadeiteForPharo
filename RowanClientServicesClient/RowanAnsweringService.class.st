@@ -84,13 +84,6 @@ RowanAnsweringService >> expressionSelector: string session: session [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> flipAutoCommitFor: session [
-	command := #flipAutoCommit.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
-]
-
-{ #category : 'commands' }
 RowanAnsweringService >> flipTranscriptIn: session [
 	command := #flipTranscript.
 	RowanServiceUpdater current issueCommands: (Array with: self) session: session
@@ -178,7 +171,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices session: sessio
 
 { #category : 'commands' }
 RowanAnsweringService >> setAutoCommit: boolean for: session [
-	command := #setAutoCommit:.
+	command := #setRemoteAutoCommit:.
 	self commandArgs: (Array with: boolean).
 	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
 	^answer

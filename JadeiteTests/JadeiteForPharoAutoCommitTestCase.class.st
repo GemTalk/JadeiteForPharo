@@ -1,3 +1,6 @@
+"
+This class contains auto commit tests. 
+"
 Class {
 	#name : 'JadeiteForPharoAutoCommitTestCase',
 	#superclass : 'JadeiteForPharoTestCase',
@@ -30,7 +33,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocDisplay [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setAutoCommit: true.
+	self setRemoteAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -48,7 +51,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocDisplay [
 		equals: '123 "''123''"' ] ensure: [
 		session executeString: 'UserGlobals removeKey: #TestCommit'.
 		self commitTransaction.
-		self setAutoCommit: false.
+		self setRemoteAutoCommit: false.
 		workspace isModified: false ]
 ]
 
@@ -60,7 +63,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocExecution [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setAutoCommit: true.
+	self setRemoteAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -76,7 +79,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocExecution [
 		ensure: [
 			session executeString: 'UserGlobals removeKey: #TestCommit'.
 			self commitTransaction.
-			self setAutoCommit: false.
+			self setRemoteAutoCommit: false.
 			workspace isModified: false ]
 ]
 
@@ -88,7 +91,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocDisplay [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setAutoCommit: false.
+	self setRemoteAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -114,7 +117,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocExecution [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setAutoCommit: false.
+	self setRemoteAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -132,12 +135,46 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocExecution [
 
 { #category : 'tests' }
 JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatedInSession [
-	| autoCommit |
-	
-	[autoCommit := session autoCommit value.
-	self setAutoCommit: true.
+
+	self setRemoteAutoCommit: false.
+	session flipAutoCommit.
 	self assert: session autoCommit.
-	self setAutoCommit: false.
-	self deny: session autoCommit]
-			ensure: [self setAutoCommit: autoCommit]
+	session flipAutoCommit.
+	self deny: session autoCommit
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatesButtons [
+
+	self
+		testsJadeiteForPharoIssue: #issue20
+		withTitle: 'Could us an autocommit status indication in Console'.
+
+
+	self setRemoteAutoCommit: false.
+	[
+	session flipAutoCommit.
+	self assert: session autoCommit value.
+	JadeiteConsole allInstances do: [ :console |
+		console window isOpen ifTrue: [
+			self
+				assert: console autoCommitButton label
+				equals: 'Auto Commit - true' ] ].
+	JadeiteBrowser allInstances do: [ :browser |
+		browser window isOpen ifTrue: [
+			self
+				assert: browser autoCommitButton label
+				equals: 'Auto Commit - true' ] ] ] ensure: [
+		session flipAutoCommit.
+		self deny: session autoCommit value.
+		JadeiteConsole allInstances do: [ :console |
+			console window isOpen ifTrue: [
+				self
+					assert: console autoCommitButton label
+					equals: 'Auto Commit - false' ] ].
+		JadeiteBrowser allInstances do: [ :browser |
+			browser window isOpen ifTrue: [
+				self
+					assert: browser autoCommitButton label
+					equals: 'Auto Commit - false' ] ] ]
 ]

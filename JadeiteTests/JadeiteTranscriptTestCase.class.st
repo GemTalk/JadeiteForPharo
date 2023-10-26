@@ -146,7 +146,7 @@ JadeiteTranscriptTestCase >> test_autoCommitMenuItem [
 JadeiteTranscriptTestCase >> test_autoCommitOff [
 	| answeringService |
 	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
-	self setAutoCommit: false.
+	self setRemoteAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
@@ -175,7 +175,7 @@ JadeiteTranscriptTestCase >> test_autoCommitOn [
 	| answeringService |
 	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
 	
-	[self setAutoCommit: true.
+	[self setRemoteAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
@@ -195,16 +195,16 @@ JadeiteTranscriptTestCase >> test_autoCommitOn [
 			ensure: 
 				[session executeString: 'UserGlobals removeKey: #TestCommit'.
 				self commitTransaction.
-				self setAutoCommit: false]
+				self setRemoteAutoCommit: false]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_autoCommitSet [
 	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
-	self setAutoCommit: false.
+	self setRemoteAutoCommit: false.
 	self assert: (session executeString: 'SessionTemps current at: #''Jadeite_AutoCommit''')
 		equals: false.
-	self setAutoCommit: true.
+	self setRemoteAutoCommit: true.
 	
 	[self assert: (session executeString: 'SessionTemps current at: #''Jadeite_AutoCommit''')
 		equals: true]
