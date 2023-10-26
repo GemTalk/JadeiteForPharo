@@ -222,7 +222,7 @@ JadeiteBrowser >> isRowanProjectSelected [
 { #category : 'accessing' }
 JadeiteBrowser >> methodListPresenter [
 
-	^ (tabs pages at: tabs selectedPageIndex) methodListPresenter
+	^ (tabs pages at: tabs selectedPageIndex) activePresenter methodListPresenter
 ]
 
 { #category : 'accessing' }
