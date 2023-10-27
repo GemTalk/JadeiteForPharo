@@ -75,7 +75,13 @@ JadeiteListPresenter >> parentPresenter [
 { #category : 'api' }
 JadeiteListPresenter >> removeAll [
 
-	self collection removeAllItems 
+	self model removeAllItems 
+]
+
+{ #category : 'api' }
+JadeiteListPresenter >> removeAll: collection [ 
+
+	self model removeAll: collection
 ]
 
 { #category : 'api' }

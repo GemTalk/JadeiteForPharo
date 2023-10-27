@@ -281,7 +281,7 @@ RowanMethodService >> copyBasicsFrom: oldService [
 RowanMethodService >> debuggerMethodSourceUpdate: presenter browser: browser [
 	"don't replicate the method - debugger is debugging the old method"
 
-	^browser refreshBreakPointsIn: presenter
+	self todo:[^browser refreshBreakPointsIn: presenter]
 ]
 
 { #category : 'accessing' }

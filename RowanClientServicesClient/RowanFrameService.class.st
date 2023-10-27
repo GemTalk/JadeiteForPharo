@@ -21,6 +21,12 @@ RowanFrameService class >> templateClassName [
 	^#RowanFrameService
 ]
 
+{ #category : 'comparing' }
+RowanFrameService >> = anObject [
+
+	^super = anObject and:[self printString = anObject printString]
+]
+
 { #category : 'public' }
 RowanFrameService >> breaks [
 
@@ -50,6 +56,12 @@ RowanFrameService >> displayName [
 RowanFrameService >> gsMethod [
 
 	^method
+]
+
+{ #category : 'comparing' }
+RowanFrameService >> hash [
+
+	^self printString
 ]
 
 { #category : 'accessing' }

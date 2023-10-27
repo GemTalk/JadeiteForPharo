@@ -181,9 +181,12 @@ JadeiteDebuggerPresenter >> editSave [
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> editSaveMethod [
-
+	| source |
+	source := codePane text asString. 
 	frameListPresenter selectedItem ifNotNil: [ :selection |
-		self editSaveMethod: selection method classService ]
+		self editSaveMethod: selection method classService ].
+	self trimStack.
+	codePane value: source. 
 ]
 
 { #category : 'actions' }
@@ -391,6 +394,14 @@ JadeiteDebuggerPresenter >> newVariableListMenu [
 		  yourself
 ]
 
+{ #category : 'registration' }
+JadeiteDebuggerPresenter >> registerPresentersForUpdates [
+	RowanServiceUpdater  current
+		register: codePane
+		selector: #debuggerMethodSourceUpdate:browser:
+		browser: self
+]
+
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> selectHomeMethod [
 	frameListPresenter selection: self homeFrame
@@ -502,10 +513,15 @@ JadeiteDebuggerPresenter >> suspendedProcess: anObject [
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> trimStack [
 
+	| selectionIndex |
 	answer := Array
 		          with: #trimStackToLevel:
 		          with: frameListPresenter selection selectedIndex.
-	suspendedProcess resume
+	selectionIndex := frameListPresenter selection selectedIndex.
+	frameListPresenter removeAll:
+		(frameListPresenter list copyFrom: 1 to: selectionIndex - 1).
+	frameListPresenter updateList.
+	self selectInitialFrame. 
 ]
 
 { #category : 'initialization' }
@@ -517,6 +533,6 @@ JadeiteDebuggerPresenter >> updateCaption [
 JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
 	codePane context: frameListPresenter selectedItem oop. 
 	codePane methodService: selection selectedItem method.
-	codePane text: selection selectedItem source.
+	codePane value: selection selectedItem source.
 	codePane showStepPoint: frameListPresenter selectedItem stepPoint
 ]
