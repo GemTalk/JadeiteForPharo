@@ -231,7 +231,7 @@ JadeiteMethodListPresenter >> initializeMethodListTable [
 				                        service packageName ]) beSortable;
 		                       addColumn: (SpStringTableColumn
 				                        title: 'Class'
-				                        evaluated: [ :service | service className ])
+				                        evaluated: [ :service | service displayClassName ])
 				                       beSortable;
 		                       addColumn: (SpStringTableColumn
 				                        title: 'Category'

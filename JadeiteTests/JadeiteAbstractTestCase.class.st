@@ -703,8 +703,14 @@ JadeiteAbstractTestCase >> saveMethod: source in: className [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveMethod: source in: className category: category [
+	^self saveMethod: source in: className category: category meta: false
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> saveMethod: source in: className category: category meta: meta [
 	| classService |
 	classService := RowanClassService named: className.
+	classService meta: meta. 
 	classService
 		saveMethod: source
 		category: category
@@ -744,7 +750,7 @@ JadeiteAbstractTestCase >> saveTestClassWithInstVars: instVars package: aString 
 		package: aString
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectCategoriesNamed: categories [
 	self categoryListPresenter selections: Array new. 
 	categories do: 
@@ -758,59 +764,69 @@ JadeiteAbstractTestCase >> selectCategoriesNamed: categories [
 						yourself)]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectCategoryNamed: category [
 	self selectCategoriesNamed: (Array with: category)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectClassInHierarchyNamed: className [
 	self selectTreeServicesNamed: (Array with: className) in: self classHierarchyPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectClassListTab [
 	self projectsPresenter selectClassListTab.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
+JadeiteAbstractTestCase >> selectClassRadioButtonIn: presenter [
+	presenter setClassSide
+]
+
+{ #category : 'selection' }
+JadeiteAbstractTestCase >> selectClassSide [
+	self selectClassRadioButtonIn: self projectsPresenter
+]
+
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectClassTab [
 	self selectClassTabIn: self projectsPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectClassTabIn: presenter [
 	presenter instanceClassTabs lastCard
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectHierarchyTab [
 	self selectHierarchyTabIn: self projectsPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectHierarchyTabIn: presenter [
 	presenter classHierarchyTabs
 		lastCard;
 		onTabChanged
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectInstanceRadioButtonIn: presenter [
 	presenter setInstanceSide
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectInstanceSide [
 	self selectInstanceRadioButtonIn: self projectsPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectMethodNamed: selector [
 	^self selectMethodsNamed: (Array with: selector)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectMethodNamedInProjectBrowser: selector [
 	| methodServices |
 	self projectsPresenter methodListPresenter resetSelection.
@@ -819,7 +835,7 @@ JadeiteAbstractTestCase >> selectMethodNamedInProjectBrowser: selector [
 	^methodServices
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectMethodsNamed: selectors [
 	| methodServices |
 	self methodListPresenter resetSelection.
@@ -829,7 +845,7 @@ JadeiteAbstractTestCase >> selectMethodsNamed: selectors [
 	^methodServices
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectMethodsNamed: selectors in: presenter [
 	| methodServices |
 	presenter resetSelection.
@@ -839,12 +855,12 @@ JadeiteAbstractTestCase >> selectMethodsNamed: selectors in: presenter [
 	^methodServices
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectNoneProject [
 	self selectServiceNamed: RowanProjectService noneProject name in: self projectListPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Class [
 	"big assumption - RowanSample1 class will allways be in RowanSample1 project"
 
@@ -853,7 +869,7 @@ JadeiteAbstractTestCase >> selectRowanSample1Class [
 	self selectServiceNamed: self sampleClassName in: self classListPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Test [
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
 	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
@@ -863,24 +879,24 @@ JadeiteAbstractTestCase >> selectRowanSample1Test [
 		ifFalse: [self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanServicesPackage [
 	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
 	self selectServiceNamed: 'Rowan-Services-Core' in: self packageListPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanServicesTestsPackage [
 	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
 	self selectServiceNamed: 'Rowan-Services-Tests' in: self packageListPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectServiceNamed: aString in: presenter [
 	self selectServicesNamed: (Array with: aString) in: presenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectServicesNamed: anArray in: presenter [
 
 	presenter resetSelection.
@@ -896,7 +912,7 @@ JadeiteAbstractTestCase >> selectServicesNamed: anArray in: presenter [
 				 yourself)]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectTreeServicesNamed: anArray in: presenter [
 	| bag |
 	bag := presenter model asBag.
@@ -911,7 +927,7 @@ JadeiteAbstractTestCase >> selectTreeServicesNamed: anArray in: presenter [
 						yourself)]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectVariableNamed: aSymbol [
 	| variable |
 	variable := self projectsPresenter variableListPresenter list detect: [:var | aSymbol = var]
@@ -921,7 +937,7 @@ JadeiteAbstractTestCase >> selectVariableNamed: aSymbol [
 	self assert: self projectsPresenter variableListPresenter selection equals: aSymbol
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selection' }
 JadeiteAbstractTestCase >> selectWithChangeEventMethodNamed: selector [
 	"foolishly, the selection changing event which needs testing
 	is only sent through a button click in Dolphin. We need to 

@@ -99,12 +99,12 @@ RowanService >> addCachedSymbols: unused [
 RowanService >> autoCommitUpdate: browser [
 ]
 
-{ #category : 'public' }
+{ #category : 'replication' }
 RowanService >> basicPrepareForReplication [
 	"don't call anything potentially recursive here"
 ]
 
-{ #category : 'public' }
+{ #category : 'replication' }
 RowanService >> basicReplicateFrom: newService [
 	1 to: self class instSize
 		do: 
@@ -802,7 +802,7 @@ RowanService >> renamedClassInHierarchy: presenter browser: anObject [
 	
 ]
 
-{ #category : 'public' }
+{ #category : 'replication' }
 RowanService >> replicateFrom: newService [
 	(newService class = self class and: [newService name = self name])
 		ifTrue: [self basicReplicateFrom: newService]

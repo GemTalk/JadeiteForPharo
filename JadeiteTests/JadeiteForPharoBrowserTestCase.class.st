@@ -62,7 +62,8 @@ JadeiteForPharoBrowserTestCase >> test_loadProjectAddedInAlphabeticalOrder [
 		testsJadeiteForPharoIssue: #issue21
 		withTitle:
 		'loading a new project externally and then aborting ends up with new project at bottom of console'.
-	JadeiteApplication abortTransactionInSession: session. 
+	JadeiteApplication abortTransactionInSession: session.
+	[
 	projects := self projectList collect: [ :projectService |
 		            projectService name ].
 	self deny: (projects includes: 'RowanSample1').
@@ -74,7 +75,47 @@ JadeiteForPharoBrowserTestCase >> test_loadProjectAddedInAlphabeticalOrder [
 		            projectService name ].
 	self
 		assert: projects
-		equals: projects asSortedCollection asOrderedCollection
+		equals: projects asSortedCollection asOrderedCollection ] ensure: [
+		JadeiteTestResource current
+			tearDown;
+			"reset the world after abort. Need to improve this. "setUp ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
+
+	| methodList classMethod instanceMethod|
+	self
+		testsJadeiteForPharoIssue: #issue10
+		withTitle:
+		'changed method in method browsers reverts to original source after save'.
+	self selectRowanSample1Class.
+	self selectClassSide.
+	self
+		saveMethod: 'foo  ^''class side'''
+		in: 'RowanSample1'
+		category: 'dontcare'
+		meta: true.
+	self selectMethodNamed: 'foo'.
+	methodListBrowser := projectsBrowser browseImplementorsOf: 'foo'.
+	methodList := methodListBrowser methodListPresenter list asOrderedCollection.
+	self assert: methodList size equals: 2.
+	methodList do: [ :methodService |
+		self assert: methodService className equals: 'RowanSample1' ].
+	classMethod := methodList detect: [ :methodService | methodService meta ]. 
+	instanceMethod := methodList detect: [ :methodService | methodService meta not ].
+	self deny: classMethod equals: instanceMethod. 
+	self assert: classMethod displayClassName equals: 'RowanSample1 class'. 
+	self assert: instanceMethod displayClassName equals: 'RowanSample1'.
+	methodListBrowser methodListPresenter selectItem: instanceMethod. 
+	self assert: methodListBrowser methodSourcePresenter text asString equals: 'foo ^''foo'''.
+	self
+		saveMethod: 'foo  ^''the class side'''
+		in: 'RowanSample1'
+		category: 'dontcare'
+		meta: true. "this should not write over the method list source pane"
+	self deny: methodListBrowser methodListPresenter selectedItem meta. 
+	self assert: methodListBrowser methodSourcePresenter text asString equals: 'foo ^''foo'''.
 ]
 
 { #category : 'tests' }

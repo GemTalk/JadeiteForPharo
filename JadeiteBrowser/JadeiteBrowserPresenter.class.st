@@ -2973,6 +2973,12 @@ JadeiteBrowserPresenter >> selectedProjectName [
 	^(projectListPresenter selectionOrNil ifNil: [^nil]) name
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> setClassSide [
+
+	classRadioButton state: true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> setCompileErrorColor [
 	statusBarText view backcolor: Color red faded

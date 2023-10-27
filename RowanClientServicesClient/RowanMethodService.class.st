@@ -686,12 +686,12 @@ RowanMethodService >> renamedName: anObject [
 
 { #category : 'public' }
 RowanMethodService >> replicateFrom: newService [
-	^(self isMethodService and: [newService isMethodService])
-		ifTrue: 
-			[(self = newService or: [newService equalBeforeRename: self])
-				ifTrue: 
-					[super replicateFrom: newService.
-					renamedName := nil]]
+
+	^ self = newService and: [
+		  (self = newService or: [ newService equalBeforeRename: self ])
+			  ifTrue: [
+				  super replicateFrom: newService.
+				  renamedName := nil ] ]
 ]
 
 { #category : 'public' }

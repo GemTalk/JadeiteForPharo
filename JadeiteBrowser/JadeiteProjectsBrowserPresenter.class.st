@@ -1168,7 +1168,7 @@ JadeiteProjectsBrowserPresenter >> selectClassNamed: className [
 
 { #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassTab [
-	classListHierarchyTabs lastCard.
+	classListHierarchyTabs pages last.
 ]
 
 { #category : 'selections' }
