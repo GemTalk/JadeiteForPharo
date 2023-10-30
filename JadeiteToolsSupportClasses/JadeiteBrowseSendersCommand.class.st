@@ -6,7 +6,6 @@ Class {
 
 { #category : 'accessing' }
 JadeiteBrowseSendersCommand >> name [
-	| dynamicName |
-	dynamicName := self context selectedSelector ifNil: [ 'it' ].
-	^'Senders of ', dynamicName 
+
+	^ 'Senders of ' , self jadeiteMenuNameFromSelector
 ]

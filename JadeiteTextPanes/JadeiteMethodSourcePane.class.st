@@ -117,9 +117,9 @@ JadeiteMethodSourcePane >> formatSource [
 	| answeringService |
 	answeringService := RowanAnsweringServiceClient new
 		                    command: #formatSource:;
-		                    commandArgs: (Array with: self text).
+		                    commandArgs: (Array with: self text asString replaceCrWithLf).
 	self issueCommand: answeringService.
-	self text: answeringService answer
+	self text: answeringService answer replaceLfWithCr
 ]
 
 { #category : 'initialization' }

@@ -425,16 +425,18 @@ JadeiteInspector >> initializeInstVarList: box [
 { #category : 'initialization' }
 JadeiteInspector >> initializePresenters [
 
-	| box |
+	| box panedLayout |
 	super initializePresenters.
 	self initializeToolbar.
 	box := SpBoxLayout newHorizontal.
 	box spacing: 10.
 	self layout add: box.
-	self initializeInstVarList: box.
-	box add:
+	panedLayout := SpPanedLayout newHorizontal positionOfSlider: 0.30. 
+	self initializeInstVarList: panedLayout.
+	panedLayout add:
 		(documentPresenter := codePane := JadeiteTextDocument new _gciSession:
 			                                  self gciSession).
+	box add: panedLayout. 
 	statusTextPresenter := self newStatusBar.
 	self layout addLast: statusTextPresenter expand: false
 ]
