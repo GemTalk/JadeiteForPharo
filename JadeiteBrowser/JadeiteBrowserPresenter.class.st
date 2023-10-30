@@ -2490,7 +2490,7 @@ JadeiteBrowserPresenter >> refresh [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> refreshClass [
 
-	| selection presenter classTabPresenter |
+	| selection presenter classTabPresenter selectedMethod |
 	self selectedClassTab ifNil: [ ^ self ].
 	classTabPresenter := self selectedClassTab activePresenter ifNil: [
 		                     self selectedClassTab retrievePresenter ].
@@ -2512,6 +2512,8 @@ JadeiteBrowserPresenter >> refreshClass [
 		selection
 			selectedPackageServices: packageListPresenter selections
 			browser: self ].
+	selectedMethod := methodListPresenter selectedItem.
+	methodListPresenter unselectAll.
 	selection
 		updateAfterCommand: false;
 		command: #fastRefresh.
@@ -2521,7 +2523,7 @@ JadeiteBrowserPresenter >> refreshClass [
 	selection updateAfterCommand: true.
 
 	self updateClassInfo.
-	self methodSelectionChanged.
+	self selectMethodWithSameSelectorAs: selectedMethod.
 	self updateTabLabel
 ]
 
@@ -2866,6 +2868,21 @@ JadeiteBrowserPresenter >> selectMethodSourceTab [
 		ifNotNil: 
 			[methodSourceTab ensureVisible.
 			methodListPresenter selectionOrNil ifNil: [methodSourcePresenter setDefaultMethod]]]
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectMethodWithSameSelectorAs: selectedMethod [
+	"if possible, after a class selection, select a method of the same name 
+	for convenience. Otherwise, don't select anything."
+
+	selectedMethod ifNil: [ self methodSelectionChanged ] ifNotNil: [
+		| sameNameMethod |
+		sameNameMethod := methodListPresenter list
+			                  detect: [ :methodService |
+			                  methodService selector = selectedMethod selector ]
+			                  ifNone: [  ].
+		sameNameMethod ifNotNil: [ :match |
+			methodListPresenter selectItem: match ] ]
 ]
 
 { #category : 'selections' }
