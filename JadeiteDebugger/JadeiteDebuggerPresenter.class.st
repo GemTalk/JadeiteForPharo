@@ -313,7 +313,9 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	self layout add: topPanes.
 	codePane := JadeiteMethodSourcePane new.
 	codePane application: self application.
-	codePane saveAction: [ self editSaveMethod ].
+	codePane saveAction: [
+		self editSaveMethod.
+		suspendedProcess resume ].
 	self layout add: codePane.
 	statusBarText := self newStatusBar.
 	self layout
@@ -514,14 +516,10 @@ JadeiteDebuggerPresenter >> suspendedProcess: anObject [
 JadeiteDebuggerPresenter >> trimStack [
 
 	| selectionIndex |
+	selectionIndex := frameListPresenter selection selectedIndex.
 	answer := Array
 		          with: #trimStackToLevel:
-		          with: frameListPresenter selection selectedIndex.
-	selectionIndex := frameListPresenter selection selectedIndex.
-	frameListPresenter removeAll:
-		(frameListPresenter list copyFrom: 1 to: selectionIndex - 1).
-	frameListPresenter updateList.
-	self selectInitialFrame. 
+		          with: selectionIndex.
 ]
 
 { #category : 'initialization' }
