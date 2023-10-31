@@ -219,20 +219,18 @@ JadeiteMethodListPresenter >> initializeMenubar [
 JadeiteMethodListPresenter >> initializeMethodListTable [
 
 	methodListPresenter := JadeiteTablePresenter new
-		                       addColumn: ((SpStringTableColumn
-				                         title: 'Project'
-				                         evaluated: [ :service | 
-					                         service projectName ])
-				                        beNotExpandable;
-				                        beSortable);
+		                       addColumn: (SpStringTableColumn
+				                        title: 'Project'
+				                        evaluated: [ :service |
+					                        service projectName ]) beSortable;
 		                       addColumn: (SpStringTableColumn
 				                        title: 'Package'
-				                        evaluated: [ :service | 
-				                        service packageName ]) beSortable;
+				                        evaluated: [ :service |
+					                        service packageName ]) beSortable;
 		                       addColumn: (SpStringTableColumn
 				                        title: 'Class'
-				                        evaluated: [ :service | service displayClassName ])
-				                       beSortable;
+				                        evaluated: [ :service |
+					                        service displayClassName ]) beSortable;
 		                       addColumn: (SpStringTableColumn
 				                        title: 'Category'
 				                        evaluated: [ :service | service category ])

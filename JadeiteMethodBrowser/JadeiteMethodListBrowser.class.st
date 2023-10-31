@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteMethodListBrowser',
-	#superclass : 'RowanMethodListBrowser',
+	#superclass : 'JadeMethodListBrowser',
 	#instVars : [
 		'firstReferenceString'
 	],
