@@ -4,8 +4,8 @@ This class probably should not have any subclasses except Workspace (and Transcr
 Class {
 	#name : 'JadeiteTextDocument',
 	#superclass : 'TextDocument',
-	#traits : 'JadeiteToolbarTrait',
-	#classTraits : 'JadeiteToolbarTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait',
 	#instVars : [
 		'gciSession',
 		'codePane',
@@ -217,6 +217,43 @@ JadeiteTextDocument >> continueTransaction [
 { #category : 'accessing' }
 JadeiteTextDocument >> defaultColor [
 	^ Color purple muchDarker
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseClass [
+
+	MessageBox notify: 'Should implement this'.
+	self todo: 'to do'
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseImplementors [
+
+	^ self browseImplementorsOf: self selectedSelector 
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseMethodReferences [
+
+	^ self browseClassReferences: self selectedSelector 
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseMethodsContainingString [
+	
+	self browseLiteralReferences: self selectedTextOrLine 
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseMethodsMatchingStringSensitive [
+	
+	self browseMethodsContaining: self selectedTextOrLine 
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseSenders [
+
+	^ self browseSendersOf: self selectedSelector 
 ]
 
 { #category : 'accessing' }

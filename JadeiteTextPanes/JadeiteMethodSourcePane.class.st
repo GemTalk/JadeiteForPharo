@@ -68,43 +68,6 @@ JadeiteMethodSourcePane >> currentMethodSourceFrom: sourceString [
 
 ]
 
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> doBrowseClass [
-
-	MessageBox notify: 'Should implement this'.
-	self todo: 'to do'
-]
-
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> doBrowseImplementors [
-
-	^ self browseImplementorsOf: self selectedSelector 
-]
-
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> doBrowseMethodReferences [
-
-	^ self browseClassReferences: self selectedSelector 
-]
-
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> doBrowseMethodsContainingString [
-	
-	self browseLiteralReferences: self selectedTextOrLine 
-]
-
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> doBrowseMethodsMatchingStringSensitive [
-	
-	self browseMethodsContaining: self selectedTextOrLine 
-]
-
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> doBrowseSenders [
-
-	^ self browseSendersOf: self selectedSelector 
-]
-
 { #category : 'as yet unclassified' }
 JadeiteMethodSourcePane >> ensureVisible [
 
