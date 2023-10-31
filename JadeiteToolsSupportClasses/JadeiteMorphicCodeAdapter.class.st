@@ -20,7 +20,9 @@ JadeiteMorphicCodeAdapter >> addKeyBindingsTo: aMorph [
 JadeiteMorphicCodeAdapter >> buildWidget [
 
 	| newWidget |
-	true ifTrue:[^super buildWidget]. "not using for now"
+	newWidget := super buildWidget. 
+	newWidget autoAccept: false. 
+	true ifTrue:[^newWidget]. "not using for now"
 	newWidget := (JadeiteScrolledTextMorph on: self)
 		             getTextSelector: #getText;
 		             setTextSelector: #accept:notifying:;
