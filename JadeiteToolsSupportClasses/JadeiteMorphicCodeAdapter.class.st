@@ -20,9 +20,6 @@ JadeiteMorphicCodeAdapter >> addKeyBindingsTo: aMorph [
 JadeiteMorphicCodeAdapter >> buildWidget [
 
 	| newWidget |
-	newWidget := super buildWidget. 
-	newWidget autoAccept: false. 
-	true ifTrue:[^newWidget]. "not using for now"
 	newWidget := (JadeiteScrolledTextMorph on: self)
 		             getTextSelector: #getText;
 		             setTextSelector: #accept:notifying:;
@@ -44,12 +41,12 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	self setEnabled: self presenter isEnabled to: newWidget.
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.
-	newWidget textArea newJadeiteEditor. "<<<<<<start Jadeite changes  here"
+	"newWidget textArea newJadeiteEditor. <<<<<<more Jadeite changes  here but not used yet
 	newWidget textArea shoutStyler ifNotNil: [ :shoutStyler | shoutStyler styler:
 		(JadeiteCodeTextStyler newWithAttributeTableNamed:
 			 self presenter syntaxHighlightTheme)].
 	self setText: self presenter text to: newWidget.
-	model hasUnacceptedEdits: false. 
+	model hasUnacceptedEdits: false. "
 	self presenter selectionInterval ifNotNil: [ :anInterval |
 		self selectionInterval: anInterval on: newWidget ].
 	self presenter hasLineNumbers ifTrue: [ 
@@ -71,7 +68,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	self setWrapWord: self presenter isWrapWord to: newWidget.
 	self setUndoRedo: self presenter hasUndoRedoHistory to: newWidget.
 	self presenter whenTextChangedDo: [ :text |
-		text ifNotNil: [self setText: text to: newWidget ]].
+		text ifNotNil: [self setText: text to: newWidget]].
 	self presenter whenSelectionChangedDo: [ :selectionInterval |
 		self selectionInterval: selectionInterval ].
 	self presenter whenPlaceholderChangedDo: [ :text |

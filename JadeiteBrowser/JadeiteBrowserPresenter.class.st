@@ -2886,6 +2886,31 @@ JadeiteBrowserPresenter >> selectMethodWithSameSelectorAs: selectedMethod [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectMethodsFrom: classService [
+
+	| selections selectedMethods |
+	selections := OrderedCollection new.
+	selectedMethods := classService selectedMethods.
+	classListPresenter selectedItem name = selectedMethods first className asString ifFalse:[
+	self selectClassNamed: selectedMethods first className asString].
+	(selectedMethods size = 1 and: [ self isCategoryTabSelected ]) 
+		ifTrue: [ 
+			| category |
+			category := selectedMethods first category.
+			(categoryListPresenter model includes: category) ifFalse: [ 
+				categoryListPresenter model add: category ].
+			categoryListPresenter selection: category ].
+	selectedMethods do: [ :methodService | 
+		| selection |
+		selection := methodListPresenter list
+			             detect: [ :svc | 
+			             svc selector == methodService selector ]
+			             ifNone: [  ].
+		selection ifNotNil: [ :sel | selections add: sel ] ].
+	methodListPresenter selections: selections
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectNewPackage: newPackage [
 	| thePackageService | 
 	thePackageService := packageListPresenter list
