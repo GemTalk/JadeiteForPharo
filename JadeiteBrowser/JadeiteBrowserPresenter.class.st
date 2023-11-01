@@ -681,10 +681,7 @@ JadeiteBrowserPresenter >> computeNumberedLabelUsing: labelString [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectCancelActions [
 
-	methodSourcePresenter whenResetDo: [
-		methodSourcePresenter text:
-			methodSourcePresenter methodService source.
-		methodSourcePresenter isModified: false ].
+	methodSourcePresenter whenResetDo: [ self resetMethodSource ].
 	classCommentPresenter whenResetDo: [
 		self resetClassComment.
 		classCommentPresenter isModified: false ].
@@ -1565,10 +1562,7 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ];
-		whenResetDo: [
-			methodSourcePresenter text:
-					methodSourcePresenter methodService source.
-			methodSourcePresenter isModified: false ].
+		whenResetDo: [ self resetMethodSource ].
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
 		                    icon: nil
@@ -2801,6 +2795,14 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 					  presenter selectedItem defaultTemplate ]
 					 ifNotNil: [ self selectedClassTab activePresenter selectedItem template ] ]).
 	self resetClassDefinitionPane
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> resetMethodSource [
+
+	methodSourcePresenter text:
+		methodSourcePresenter methodService source.
+	^ methodSourcePresenter isModified: false
 ]
 
 { #category : 'as yet unclassified' }

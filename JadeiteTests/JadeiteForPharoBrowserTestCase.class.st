@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
+
+	^self methodSourcePresenter withAdapterDo: [ :adapter | adapter widgetDo:[:widget | widget hasUnacceptedEdits ] ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> projectList [
 	^self projectListPresenter list
 ]
@@ -116,6 +122,29 @@ JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 		meta: true. "this should not write over the method list source pane"
 	self deny: methodListBrowser methodListPresenter selectedItem meta. 
 	self assert: methodListBrowser methodSourcePresenter text asString equals: 'foo ^''foo'''.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodSourcechangeIndicator [
+	"It's hard to test that a glyph is displayed but we can test 
+	the state that changes when the indicator is turned on and off"
+
+	self selectRowanSample1Class.
+	self selectMethodNamed: #foo.
+	self deny: self morphicMethodSourceHasUnacceptedEdits.
+	self methodSourcePresenter text: 'foo  ^''instance side'''.
+	self assert: self morphicMethodSourceHasUnacceptedEdits.
+	self 
+		saveMethod: 'foo  ^''instance side'''
+		in: 'RowanSample1'
+		category: 'dontcare'
+		meta: false.
+	self deny: self morphicMethodSourceHasUnacceptedEdits.
+	self methodSourcePresenter text: 'foo  ^''dontcare'''.
+	self assert: self morphicMethodSourceHasUnacceptedEdits.	
+	self projectsPresenter resetMethodSource. 
+	self assert: self methodSourcePresenter text = 'foo  ^''instance side'''. 
+	self deny: self morphicMethodSourceHasUnacceptedEdits.
 ]
 
 { #category : 'tests' }
