@@ -939,8 +939,7 @@ RowanClassService >> updatedClassInHierarchy: classHierarchyPresenter browser: p
 
 { #category : 'public' }
 RowanClassService >> updatedOneLevelInClassHierarchy: classHierarchyPresenter browser: projectBrowser [
-
-	updateType = #updatedOneLevelInClassHierarchy:browser: ifFalse: [ 
+	updateType = #updatedOneLevelInClassHierarchy:browser: ifFalse: [ "must be specifically requested by server"
 		^ self ].
 	self subclassServices = (hierarchyServices at: #expand) ifTrue: [ 
 		^ self ].

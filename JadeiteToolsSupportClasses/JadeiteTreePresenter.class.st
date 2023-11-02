@@ -34,6 +34,14 @@ JadeiteTreePresenter >> model [
 	^roots
 ]
 
+{ #category : 'actions' }
+JadeiteTreePresenter >> recalculateChildrenFor: path [
+	"This will nil out the children for the FTBasicItem at the path so 
+	a lazy initialization is done again. Not very good hooks to make trees dynamic. "
+	self withAdapterDo:[:anAdapter |
+		anAdapter widgetDo:[:w | (w dataSource itemAtPath: path) updateData]]
+]
+
 { #category : 'selection' }
 JadeiteTreePresenter >> scrollToSelection [
 	self withAdapterPerformOrDefer: [ :anAdapter |

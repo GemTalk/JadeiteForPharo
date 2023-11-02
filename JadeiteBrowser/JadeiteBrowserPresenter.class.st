@@ -696,10 +696,14 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		self
 			refreshClass;
 			updateTabLabel ].
-	classHierarchyPresenter whenSelectionChangedDo: [ :selection |
-		self
-			refreshClass;
-			updateTabLabel ].
+	classHierarchyPresenter
+		whenSelectionChangedDo: [ :selection |
+			selection selectedItem ifNotNil: [
+					self
+						refreshClass;
+						updateTabLabel ] ];
+		whenActivatedDo: [ :selection |
+		self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
 		self updateHierarchy ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
@@ -1136,20 +1140,28 @@ JadeiteBrowserPresenter >> editSaveReadMe [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> expandFullAt: classService [
-	Cursor wait showWhile: 
-			[classHierarchyPresenter model removeChildrenOf: classService.
-			classService command: #fullHierarchy.
-			self issueCommand: classService.
-			self selectClassNamed: classService name.
-			classHierarchyPresenter view expandAll: classService ]
+JadeiteBrowserPresenter >> expandAt: classService [
+
+	| path |
+	classService subclassServices: Array new.
+	classService
+		command: #oneLevelClassHierarchy;
+		commandArgs: Array new.
+	self issueCommand: classService.
+	classHierarchyPresenter childrenFor: classService.
+	path := 	classHierarchyPresenter selection selectedPath.
+	classHierarchyPresenter recalculateChildrenFor: path.
+	classHierarchyPresenter
+		collapsePath: 	path;
+		expandPath: path.
+	classHierarchyPresenter selectItem: classService. 
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> expandFullHierarchy [
 	self selectClassHierarchyTab.
 	self selectClassInClassHierarchyNamed: self selectedClass. 
-	self expandFullAt: self selectedClass. 
+	self expandAt: self selectedClass. 
 	classHierarchyPresenter view ensureSelectionVisible
 ]
 
@@ -1412,11 +1424,9 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 		                           displayColor: [ :classService |
 			                           self classDisplayColor: classService ];
 		                           children: [ :service |
-			                           service subclassServices ifNil: [
-					                           service command:
-							                           #oneLevelClassHierarchy.
-					                           self issueCommand: service ] ].
+			                           service subclassServices ].
 	classHierarchyPresenter
+		isActiveOnDoubleClick;
 		wantsDrop: [ :transfer |
 			transfer passenger allSatisfy: #isMethodService ];
 		acceptDrop: [ :transfer |
@@ -2512,8 +2522,8 @@ JadeiteBrowserPresenter >> refreshClass [
 		updateAfterCommand: false;
 		command: #fastRefresh.
 	self issueCommand: selection.
-	self isHierarchyTabSelected ifTrue: [
-		self expandSelectionOneLevel: selection ].
+	"self isHierarchyTabSelected ifTrue: [
+		self expandSelectionOneLevel: selection ]."
 	selection updateAfterCommand: true.
 
 	self updateClassInfo.
@@ -2609,10 +2619,10 @@ JadeiteBrowserPresenter >> registerClassHierarchyForUpdates [
 	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #removed:.
-	"BrowserUpdate current
+	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedOneLevelInClassHierarchy:browser:
-		browser: self <<< Needed?"
+		browser: self
 ]
 
 { #category : 'registration' }
@@ -2837,12 +2847,13 @@ JadeiteBrowserPresenter >> selectCategoryTab [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassHierarchyTab [
-	self todo:[classHierarchyTabs lastCard]
+	classListHierarchyTabs selectPageIndex: 2
 ]
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassListTab [
-	self todo:[classHierarchyTabs firstCard]
+	
+	classListHierarchyTabs selectPageIndex: 1
 ]
 
 { #category : 'selections' }
@@ -3386,15 +3397,17 @@ JadeiteBrowserPresenter >> updateMethodSourceColor [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
+
 	self resetClassComment.
-	packageListPresenter selections isEmpty ifTrue:[^self]. 
+	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
-	self todo:[classHierarchyPresenter model: JadeiteTreeModel new].
+	classHierarchyPresenter clear.
+	self selectClassListTab.
 	self updateClasses.
-	self isClassListTabSelected ifFalse: [self updateHierarchy].
+	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
 	self updatePackageInfo.
 	self resetSunitTestList.
-	packageListPresenter selectionIfNone: [self selectProjectTab].
+	packageListPresenter selectionIfNone: [ self selectProjectTab ].
 	self updateTabLabel
 ]
 
@@ -3437,7 +3450,8 @@ JadeiteBrowserPresenter >> updateProject [
 		self cleanupProjectInfoTab.
 		self updateTabLabel.
 		^ self ].
-	self todo: [ classHierarchyPresenter model: JadeiteTreeModel new ].
+	classHierarchyPresenter clear.
+	self selectClassListTab.
 	self packageListPresenter selectionIfNone: [
 		classListPresenter clear.
 		classHierarchyPresenter clear ].
