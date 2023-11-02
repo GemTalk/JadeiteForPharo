@@ -705,8 +705,12 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenActivatedDo: [ :selection |
 		self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
-		self updateHierarchy ].
-	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
+		self isHierarchyTabSelected
+			ifTrue: [ self updateHierarchy ]
+			ifFalse: [
+				classHierarchyPresenter selectedItem ifNotNil: [ :sel |
+					classListPresenter selectIndex: (classListPresenter items indexOf: sel)
+		  scrollToSelection: true ] ] .
 		self refreshClass ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
@@ -2852,7 +2856,10 @@ JadeiteBrowserPresenter >> selectClassHierarchyTab [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassListTab [
-	
+
+	self isHierarchyTabSelected ifTrue: [
+		classHierarchyPresenter selectedItem ifNotNil: [ :selection |
+			classListPresenter selectedItem: selection ] ].
 	classListHierarchyTabs selectPageIndex: 1
 ]
 
