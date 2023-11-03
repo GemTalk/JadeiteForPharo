@@ -5,6 +5,28 @@ Class {
 }
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> addChildrenOf: item to: items [
+	| children |
+	children := self classHierarchyPresenter childrenFor: item.
+	children isEmpty ifTrue:[^self].
+	children do:[:child |
+		items add: child. 
+		self addChildrenOf: child to: items]
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserTestCase >> hierarchyVisibleItems [
+	"return a collection of all visible items in the tree"
+	| items |
+
+	items := OrderedCollection new. 
+	items add: self classHierarchyPresenter roots first. 
+	self addChildrenOf: self classHierarchyPresenter roots first to: items. 
+	^items
+
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
 
 	^self methodSourcePresenter withAdapterDo: [ :adapter | adapter widgetDo:[:widget | widget hasUnacceptedEdits ] ]
@@ -58,6 +80,39 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 			 ifNone: [  ]) ] ensure: [
 		self projectsPresenter basicRemoveClass:
 			self projectsPresenter selectedClass ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
+
+	| rowanService answeringService rowanServicePath rowanServiceChildren |
+	self selectRowanServicesPackage.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter.
+	self selectHierarchyTab.
+	answeringService := self projectsPresenter selectedClass.
+	self assert: answeringService name equals: 'RowanAnsweringService'.
+	rowanService := self hierarchyVisibleItems detect: [ :service |
+		                service name = 'RowanService' ].
+	self classHierarchyPresenter selectItem: rowanService.
+	rowanServiceChildren := self classHierarchyPresenter childrenFor:
+		                        rowanService.
+	self assert: rowanServiceChildren size equals: 1.
+	self assert: rowanServiceChildren first equals: answeringService. "don't expect full RowanService hierarchy to be there yet."
+	rowanServicePath := self classHierarchyPresenter selection
+		                    selectedPath.
+	self classHierarchyPresenter doubleClickAtPath: rowanServicePath.
+	rowanServiceChildren := self classHierarchyPresenter childrenFor:
+		                        rowanService.
+	self assert: rowanServiceChildren size > 1.
+	self assert: (rowanServiceChildren includes: answeringService).
+	self assert: (rowanServiceChildren includes:
+			 (self hierarchyVisibleItems detect: [ :service |
+		                service name = 'RowanPackageService' ])).
+	self assert: (rowanServiceChildren includes:
+			 (self hierarchyVisibleItems detect: [ :service |
+		                service name = 'RowanProjectService' ])).
 ]
 
 { #category : 'tests' }

@@ -1140,16 +1140,6 @@ JadeiteProjectsBrowserPresenter >> selectClassDefinitionTab [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectClassInClassHierarchyNamed: className [
-	| selection service path |
-	service := RowanClassService new name: className. 
-	path := (classHierarchyPresenter pathIndexOf: (Array with: service)) first. 
-	path = 0 ifTrue:[^self]. 
-	classHierarchyPresenter selectPath: path scrollToSelection: true;
-	expandPath: path. 
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassInClassListNamed: className [
 	| selection |
 	selection := classListPresenter list detect: [:classService | classService name = className]

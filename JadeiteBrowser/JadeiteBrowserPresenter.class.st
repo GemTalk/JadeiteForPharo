@@ -2855,6 +2855,16 @@ JadeiteBrowserPresenter >> selectClassHierarchyTab [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassInClassHierarchyNamed: className [
+	| service path |
+	service := RowanClassService new name: className. 
+	path := (classHierarchyPresenter pathIndexOf: (Array with: service)) first. 
+	path = 0 ifTrue:[^self]. 
+	classHierarchyPresenter selectPath: path scrollToSelection: true;
+	expandPath: path. 
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassListTab [
 
 	self isHierarchyTabSelected ifTrue: [

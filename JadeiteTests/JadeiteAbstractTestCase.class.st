@@ -806,9 +806,7 @@ JadeiteAbstractTestCase >> selectHierarchyTab [
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectHierarchyTabIn: presenter [
-	presenter classHierarchyTabs
-		lastCard;
-		onTabChanged
+	presenter selectClassHierarchyTab
 ]
 
 { #category : 'selection' }

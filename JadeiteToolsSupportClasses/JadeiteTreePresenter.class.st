@@ -43,6 +43,11 @@ JadeiteTreePresenter >> recalculateChildrenFor: path [
 ]
 
 { #category : 'selection' }
+JadeiteTreePresenter >> resetSelection [ 
+	self unselectAll
+]
+
+{ #category : 'selection' }
 JadeiteTreePresenter >> scrollToSelection [
 	self withAdapterPerformOrDefer: [ :anAdapter |
 		adapter scrollToSelection  ]
