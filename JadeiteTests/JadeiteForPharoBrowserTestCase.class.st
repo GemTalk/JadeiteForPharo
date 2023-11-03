@@ -91,6 +91,7 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 		selectServiceNamed: 'RowanAnsweringService'
 		in: self classListPresenter.
 	self selectHierarchyTab.
+	[
 	answeringService := self projectsPresenter selectedClass.
 	self assert: answeringService name equals: 'RowanAnsweringService'.
 	rowanService := self hierarchyVisibleItems detect: [ :service |
@@ -109,37 +110,11 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 	self assert: (rowanServiceChildren includes: answeringService).
 	self assert: (rowanServiceChildren includes:
 			 (self hierarchyVisibleItems detect: [ :service |
-		                service name = 'RowanPackageService' ])).
+				  service name = 'RowanPackageService' ])).
 	self assert: (rowanServiceChildren includes:
 			 (self hierarchyVisibleItems detect: [ :service |
-		                service name = 'RowanProjectService' ])).
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_loadProjectAddedInAlphabeticalOrder [
-
-	| projects |
-	self
-		testsJadeiteForPharoIssue: #issue21
-		withTitle:
-		'loading a new project externally and then aborting ends up with new project at bottom of console'.
-	JadeiteApplication abortTransactionInSession: session.
-	[
-	projects := self projectList collect: [ :projectService |
-		            projectService name ].
-	self deny: (projects includes: 'RowanSample1').
-	projectsBrowser
-		installProjectFromPath:
-		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
-		projectsHome: '$ROWAN_PROJECTS_HOME'.
-	projects := self projectList collect: [ :projectService |
-		            projectService name ].
-	self
-		assert: projects
-		equals: projects asSortedCollection asOrderedCollection ] ensure: [
-		JadeiteTestResource current
-			tearDown;
-			"reset the world after abort. Need to improve this. "setUp ]
+				  service name = 'RowanProjectService' ])) ] ensure: [
+		self selectClassListTab ]
 ]
 
 { #category : 'tests' }
@@ -213,4 +188,55 @@ JadeiteForPharoBrowserTestCase >> test_openProjectsBrowser [
 	self denyIsNil: (self projectList
 			 detect: [ :projectService | projectService name = 'Rowan' ]
 			 ifNone: [  ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
+
+	| projects |
+	self
+		testsJadeiteForPharoIssue: #issue21
+		withTitle:
+		'loading a new project externally and then aborting ends up with new project at bottom of console'.
+	JadeiteApplication abortTransactionInSession: session.
+	[
+	projects := self projectList collect: [ :projectService |
+		            projectService name ].
+	self deny: (projects includes: 'RowanSample1').
+	projectsBrowser
+		installProjectFromPath:
+		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
+		projectsHome: '$ROWAN_PROJECTS_HOME'.
+	projects := self projectList collect: [ :projectService |
+		            projectService name ].
+	self
+		assert: projects
+		equals: projects asSortedCollection asOrderedCollection ] ensure: [
+		JadeiteTestResource current
+			tearDown;
+			"reset the world after abort. Need to improve this. "setUp ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
+
+	| projectsBefore projectsAfter |
+	self
+		testsJadeiteForPharoIssue: #issue21
+		withTitle:
+		'loading a new project externally and then aborting ends up with new project at bottom of console'.
+	projectsBefore := self projectList collect: [ :projectService |
+		                  projectService name ].
+	JadeiteApplication abortTransactionInSession: session.
+	[
+	projectsBrowser
+		installProjectFromPath:
+		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
+		projectsHome: '$ROWAN_PROJECTS_HOME'.
+	projectsAfter := self projectList collect: [ :projectService |
+		                 projectService name ].
+	self assert: projectsBefore equals: projectsAfter ] ensure: [
+		JadeiteTestResource current
+			tearDown;
+			"reset the world after abort. Need to improve this. "setUp ]
 ]

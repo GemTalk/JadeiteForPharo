@@ -37,7 +37,7 @@ ListModel >> asOrderedCollection [
 { #category : 'converting' }
 ListModel >> asSortedCollection [ 
 
-	self beSorted
+	^collection asSortedCollection
 ]
 
 { #category : 'accessing' }
@@ -49,7 +49,7 @@ ListModel >> at: anIndex [
 { #category : 'converting' }
 ListModel >> beSorted [
 
-	self collection: self collection asSortedCollection 
+	self collection: self collection sorted 
 ]
 
 { #category : 'enumerating' }

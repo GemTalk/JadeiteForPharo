@@ -148,7 +148,7 @@ RowanBrowserService >> printOn: aStream [
 
 { #category : 'accessing' }
 RowanBrowserService >> projects [
-	^projects
+	^projects sorted
 ]
 
 { #category : 'public' }

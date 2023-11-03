@@ -2869,7 +2869,7 @@ JadeiteBrowserPresenter >> selectClassListTab [
 
 	self isHierarchyTabSelected ifTrue: [
 		classHierarchyPresenter selectedItem ifNotNil: [ :selection |
-			classListPresenter selectedItem: selection ] ].
+			classListPresenter selectItem: selection ] ].
 	classListHierarchyTabs selectPageIndex: 1
 ]
 

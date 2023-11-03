@@ -429,7 +429,6 @@ JadeiteTestResource >> unloadSampleProject9 [
 { #category : 'projects' }
 JadeiteTestResource >> unloadSampleProject: sampleProject [
 	sampleProject ifNil:[^self]. 
-	sampleProject isDirty ifFalse: [^self].
 	self basicUnloadProjects: (Array with: sampleProject name).
 ]
 
