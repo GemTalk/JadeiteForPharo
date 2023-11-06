@@ -1,6 +1,6 @@
 Extension { #name : 'GciError' }
 
-{ #category : '*JadeiteBaseExtensions' }
+{ #category : '*PharoGemStoneFFIExtensions' }
 GciError >> message [
 
 	^ message skinnyPrintOn: (WriteStream on: String new)
