@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoMiscellaneousTestCase',
-	#superclass : 'JadeiteForPharoTestCase',
+	#superclass : 'JadeiteForPharoGUITestCase',
 	#category : 'JadeiteTests'
 }
 

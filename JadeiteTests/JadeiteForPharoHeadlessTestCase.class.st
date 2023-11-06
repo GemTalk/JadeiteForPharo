@@ -3,7 +3,7 @@ These tests should not assume a connection to the server is present.
 "
 Class {
 	#name : 'JadeiteForPharoHeadlessTestCase',
-	#superclass : 'TestCase',
+	#superclass : 'JadeiteForPharoTestCase',
 	#instVars : [
 		'existingConnection',
 		'connectionProfile'

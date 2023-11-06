@@ -3,7 +3,7 @@ This class contains auto commit tests.
 "
 Class {
 	#name : 'JadeiteForPharoAutoCommitTestCase',
-	#superclass : 'JadeiteForPharoTestCase',
+	#superclass : 'JadeiteForPharoGUITestCase',
 	#category : 'JadeiteTests'
 }
 

@@ -263,10 +263,16 @@ RowanBrowserService >> testCount: anObject [
 ]
 
 { #category : 'public' }
+RowanBrowserService >> testPackages [
+
+	^testPackages ifNil: [ testPackages := OrderedCollection new ]
+]
+
+{ #category : 'public' }
 RowanBrowserService >> testPackages: presenter [
 	| additions |
 	additions := OrderedCollection new.
-	testPackages do: 
+	self testPackages do: 
 			[:newPackageService |
 			| updatedPackage |
 			updatedPackage := presenter model detect: [:packageService | packageService = newPackageService]

@@ -1,6 +1,12 @@
 Extension { #name : 'String' }
 
 { #category : '*JadeiteBaseExtensions' }
+String >> maxSkinnyPrintWidth [
+
+	^ 75
+]
+
+{ #category : '*JadeiteBaseExtensions' }
 String >> replaceCrLfWithLf [
 
 	^self 
@@ -31,6 +37,21 @@ String >> replaceLfWithCrLf [
 	^self 
 		copyReplaceAll: Character lf asString 
 		with: Character cr asString , Character lf asString.
+]
+
+{ #category : '*JadeiteBaseExtensions' }
+String >> skinnyPrintOn: writeStream [
+
+	| lookingForSeparator |
+	lookingForSeparator := false.
+	self doWithIndex: [ :element :index |
+		(lookingForSeparator and: [ element isSeparator ]) ifTrue: [
+			writeStream nextPut: Character cr.
+			lookingForSeparator := false ].
+		writeStream nextPut: element.
+		index \\\ self maxSkinnyPrintWidth = 0 ifTrue: [
+			lookingForSeparator := true ] ].
+	^ writeStream contents
 ]
 
 { #category : '*JadeiteBaseExtensions' }

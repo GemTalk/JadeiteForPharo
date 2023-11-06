@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoBrowserAbstractTestCase',
-	#superclass : 'JadeiteForPharoTestCase',
+	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
 		'secondBrowser',
 		'methodListBrowser',
