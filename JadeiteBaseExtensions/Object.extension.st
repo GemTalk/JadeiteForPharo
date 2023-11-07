@@ -1,6 +1,12 @@
 Extension { #name : 'Object' }
 
 { #category : '*JadeiteBaseExtensions' }
+Object >> isBrowserService [	
+
+	^false
+]
+
+{ #category : '*JadeiteBaseExtensions' }
 Object >> isRowanService [
 
 	^false

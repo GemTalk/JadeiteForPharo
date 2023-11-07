@@ -24,7 +24,7 @@ RowanBrowserService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanBrowserService >> = browserService [
-	^browserService isBrowserService and: [name = browserService name]
+	^super isService and:[browserService isBrowserService]
 ]
 
 { #category : 'accessing' }
@@ -86,11 +86,6 @@ RowanBrowserService >> displayName [
 { #category : 'public' }
 RowanBrowserService >> excludedInstVars [
 	^super excludedInstVars , #('hierarchyServices')
-]
-
-{ #category : 'comparing' }
-RowanBrowserService >> hash [
-	^name hash
 ]
 
 { #category : 'initialization' }
