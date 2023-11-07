@@ -317,16 +317,3 @@ JadeiteProjectsTrait >> unloadProject [
 	self basicUnloadProjects:
 		(self projectListPresenter selections collect: [ :service | service name ])
 ]
-
-{ #category : 'updates' }
-JadeiteProjectsTrait >> updateServices: services [
-
-	services isEmpty ifTrue: [ ^ self ].
-	services do: [ :service | 
-		service
-			command: #update;
-			commandArgs: #(  ) ].
-	RowanServiceUpdater current 
-		issueCommands: services
-		session: self gciSession
-]

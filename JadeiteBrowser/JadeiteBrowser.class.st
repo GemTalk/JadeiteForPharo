@@ -250,7 +250,6 @@ JadeiteBrowser >> openNewBrowserPresenter [
 		owner: self;
 		build.
 	self application registerBrowserEventsFor: browserPresenter.
-	"browserPresenters add: browserPresenter."
 	^ browserPresenter
 ]
 

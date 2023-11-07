@@ -496,3 +496,21 @@ JadeiteMethodsTrait >> updateMethodSourceGlyphs [
 	self displayMethodSourceStepPoints.
 	self displayBreakpoints
 ]
+
+{ #category : 'updates' }
+JadeiteMethodsTrait >> updateService: service [
+	^self updateServices: (Array with: service) 
+]
+
+{ #category : 'updates' }
+JadeiteMethodsTrait >> updateServices: services [
+
+	services isEmpty ifTrue: [ ^ self ].
+	services do: [ :service | 
+		service
+			command: #update;
+			commandArgs: #(  ) ].
+	RowanServiceUpdater current 
+		issueCommands: services
+		session: self gciSession
+]

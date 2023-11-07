@@ -3002,7 +3002,7 @@ JadeiteBrowserPresenter >> selectProjectTab [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectedClass [
 
-	^self selectedClassTab ifNotNil: [:tab | tab activePresenter selectedItem]
+	^self selectedClassTab ifNotNil: [:tab | tab activePresenter ifNotNil: [ :pres | pres  selectedItem]]
 ]
 
 { #category : 'selections' }
@@ -3541,16 +3541,16 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjects [
+	"updates"
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateProjects.
-	RowanServiceUpdater current issueCommand: browserService  session: gciSession.
-	projectListPresenter items: browserService projects
-]
-
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> updateService: service [
-	^self updateServices: (Array with: service) 
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: gciSession.
+	browserService projects ifNotNil: [ :projects |
+		projectListPresenter items: projects ]
 ]
 
 { #category : 'tab labels' }
