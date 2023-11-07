@@ -240,7 +240,7 @@ RowanMethodService >> classMethodDisplayString [
 
 { #category : 'accessing' }
 RowanMethodService >> className [
-	^className
+	^className asString
 ]
 
 { #category : 'accessing' }
