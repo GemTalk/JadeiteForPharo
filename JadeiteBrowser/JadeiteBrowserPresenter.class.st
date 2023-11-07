@@ -584,13 +584,11 @@ JadeiteBrowserPresenter >> classContainer [
 
 { #category : 'accessing' }
 JadeiteBrowserPresenter >> classDisplayColor: classService [
- 
+
 	| color |
 	(classService shouldColorAsExtension: self) ifTrue: [
-		color := Color magenta twiceDarker ].
-	"classService isInSymbolList == true ifFalse: [
-		color := Color red twiceDarker ]."
-	^color
+		color := self extensionColor ].
+	^ color
 ]
 
 { #category : 'as yet unclassified' }
@@ -1182,6 +1180,12 @@ JadeiteBrowserPresenter >> expandSelectionOneLevel: selection [
 	self scrollToClassHierarchySelection: thePath
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> extensionColor [
+
+	^ Color purple twiceLighter 
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> fileOutCategoriesOnPath: path [
 	| service |
@@ -1547,7 +1551,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                       beMultipleSelection;
 		                       displayColor: [ :methodService |
 			                       methodService isExtension
-				                       ifTrue: [ Color magenta twiceDarker ]
+				                       ifTrue: [ self extensionColor ]
 				                       ifFalse: [ Color black ] ];
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [

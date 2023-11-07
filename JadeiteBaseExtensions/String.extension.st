@@ -3,7 +3,7 @@ Extension { #name : 'String' }
 { #category : '*JadeiteBaseExtensions' }
 String >> maxSkinnyPrintWidth [
 
-	^ 75
+	^ 80
 ]
 
 { #category : '*JadeiteBaseExtensions' }

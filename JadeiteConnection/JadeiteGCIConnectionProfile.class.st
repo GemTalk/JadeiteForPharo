@@ -43,8 +43,8 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
-
 	"initialize gci library"
+
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -52,10 +52,14 @@ JadeiteGCIConnectionProfile >> connect [
 		           stone: stone
 		           host: host
 		           netldi: netldi.
-	session loginWithGsUser: user password: password. "need to analyze result b4 proceeding"
+	[
+	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
+		on: GciError
+		do: [ :ex |
+			^ JadeiteGciError signal: ex message ].
 	connection := self setupRSRConnection.
-	GciSession current library: connection. 
-	^connection
+	GciSession current library: connection.
+	^ connection
 ]
 
 { #category : 'actions' }
