@@ -1183,7 +1183,7 @@ JadeiteBrowserPresenter >> expandSelectionOneLevel: selection [
 { #category : 'accessing' }
 JadeiteBrowserPresenter >> extensionColor [
 
-	^ Color purple twiceLighter 
+	^ Color purple lighter 
 ]
 
 { #category : 'as yet unclassified' }
