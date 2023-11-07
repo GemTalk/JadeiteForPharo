@@ -52,7 +52,10 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			with: [ spec repository: self rsrUrl ].
 		spec
 			baseline: 'PharoGemStoneFFI'
-			with: [ spec repository: self pharoGemStoneFFIUrl ] ]
+			with: [ spec repository: self pharoGemStoneFFIUrl ].
+		spec
+			package: 'JadeitePharoGemStoneFFIExtensions'
+			with: [ spec requires: 'PharoGemStoneFFI' ]]
 ]
 
 { #category : 'baselines' }

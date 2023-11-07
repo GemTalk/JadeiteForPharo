@@ -1,7 +1,7 @@
 Class {
 	#name : 'JadeiteGciError',
 	#superclass : 'GciError',
-	#category : 'JadeiteBaseExtensions'
+	#category : 'JadeitePharoGemStoneFFIExtensions'
 }
 
 { #category : 'exceptioninstantiator' }
