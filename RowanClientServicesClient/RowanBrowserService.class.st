@@ -24,7 +24,7 @@ RowanBrowserService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanBrowserService >> = browserService [
-	^super isService and:[browserService isBrowserService]
+	^browserService isService and:[browserService isBrowserService]
 ]
 
 { #category : 'accessing' }

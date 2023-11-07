@@ -80,16 +80,18 @@ RowanMethodService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanMethodService >> <= methodService [
-	(methodService isKindOf: RowanMethodService) ifFalse: [^false].
-	^className = methodService className
-		ifTrue: [selector <= methodService selector]
-		ifFalse: [className <= methodService className]
+
+	^ methodService isService and: [
+		  methodService isMethodService and: [
+			  className = methodService className
+				  ifTrue: [ selector <= methodService selector ]
+				  ifFalse: [ className <= methodService className ] ] ]
 ]
 
 { #category : 'comparing' }
 RowanMethodService >> = methodService [
 
-	^ super = methodService and: [
+	^ methodService isService and: [
 		  methodService isMethodService and: [
 			  selector = methodService selector and: [
 				  className = methodService className and: [
@@ -98,10 +100,12 @@ RowanMethodService >> = methodService [
 
 { #category : 'comparing' }
 RowanMethodService >> >= methodService [
-	(methodService isKindOf: RowanMethodService) ifFalse: [^false].
-	^className = methodService className
-		ifTrue: [selector >= methodService selector]
-		ifFalse: [className >= methodService className]
+
+	^ methodService isService and: [
+		  methodService isMethodService and: [
+			  className = methodService className
+				  ifTrue: [ selector >= methodService selector ]
+				  ifFalse: [ className >= methodService className ] ] ]
 ]
 
 { #category : 'accessing' }

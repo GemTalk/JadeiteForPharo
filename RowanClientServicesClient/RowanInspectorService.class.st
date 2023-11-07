@@ -32,7 +32,10 @@ RowanInspectorService class >> templateClassName [
 
 { #category : 'comparison' }
 RowanInspectorService >> = inspectorService [
-	^inspectorService isInspectorService ifTrue: [oop = inspectorService oop] ifFalse: [false]
+
+	^ inspectorService isService and: [
+		  inspectorService isInspectorService and: [
+			  oop = inspectorService oop ] ]
 ]
 
 { #category : 'accessing' }

@@ -25,13 +25,16 @@ RowanPackageService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanPackageService >> <= packageService [
-	^packageService isPackageService ifTrue: [name <= packageService name] ifFalse: [^false]
+
+	^ packageService isService and: [
+		  packageService isPackageService and: [
+			  name <= packageService name ] ]
 ]
 
 { #category : 'comparing' }
 RowanPackageService >> = packageService [
 
-	^ super = packageService and: [
+	^ packageService isService and: [
 		  packageService isPackageService and: [ name = packageService name ] ]
 ]
 

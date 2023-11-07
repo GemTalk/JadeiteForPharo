@@ -19,8 +19,10 @@ RowanComponentService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanComponentService >> = componentService [
-	^componentService isService
-		and: [componentService isComponentService and: [name = componentService name]]
+
+	^ componentService isService and: [
+		  componentService isComponentService and: [
+			  name = componentService name ] ]
 ]
 
 { #category : 'accessing' }

@@ -84,12 +84,6 @@ RowanService class >> templateClassName [
 	^#RowanService
 ]
 
-{ #category : 'comparing' }
-RowanService >> = aService [
-	"subclasses should do that actual equality test as RowanService is abstract"
-	^aService isRowanService
-]
-
 { #category : 'public' }
 RowanService >> addCachedSymbols: unused [
 	
@@ -381,19 +375,19 @@ RowanService >> initializePresenterList: presenter [
 	self todo:[presenter list: ListModel new "needed?"]
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isAnsweringService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isBrowserService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isClassService [
 
 	^false
@@ -405,24 +399,24 @@ RowanService >> isCompileError [
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isComponentService [
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isDefinedProject [
 
 	^true
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isDefinitionService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isDictionaryService [
 
 	^false
@@ -434,54 +428,48 @@ RowanService >> isFiller [
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isInspectorService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isLoggingService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isMethodService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isPackageService [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isProjectService [
 
 	^false
 ]
 
 { #category : 'testing' }
-RowanService >> isRowanService [
-
-	^true
-]
-
-{ #category : 'public' }
 RowanService >> isService [
 	^true
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isTestCase [
 
 	^false
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanService >> isUpdatableService [
 	^true
 ]

@@ -24,7 +24,7 @@ RowanFrameService class >> templateClassName [
 { #category : 'comparing' }
 RowanFrameService >> = anObject [
 
-	^super = anObject and:[self printString = anObject printString]
+	^ anObject isService and: [ self printString = anObject printString ]
 ]
 
 { #category : 'public' }

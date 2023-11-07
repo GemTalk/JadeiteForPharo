@@ -43,8 +43,10 @@ RowanLoggingService class >> newWithGroupId: integer logger: logger [
 
 { #category : 'comparing' }
 RowanLoggingService >> = methodService [
-	(methodService isKindOf: RowanService) ifFalse: [^false].
-	^methodService isLoggingService and: [groupId = methodService groupId and: [id = methodService id]]
+
+	^ methodService isService and: [
+		  methodService isLoggingService and: [
+			  groupId = methodService groupId and: [ id = methodService id ] ] ]
 ]
 
 { #category : 'accessing' }

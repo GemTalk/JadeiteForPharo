@@ -7,6 +7,12 @@ Object >> isBrowserService [
 ]
 
 { #category : '*JadeiteBaseExtensions' }
+Object >> isInspectorService [	
+
+	^false
+]
+
+{ #category : '*JadeiteBaseExtensions' }
 Object >> isRowanService [
 
 	^false

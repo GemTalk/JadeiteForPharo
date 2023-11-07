@@ -80,7 +80,7 @@ RowanClassService class >> templateClassName [
 { #category : 'comparing' }
 RowanClassService >> = classService [
 
-	^ super = classService and: [
+	^ classService isService and: [
 		  classService isClassService and: [
 			  self name asString = classService name asString and: [
 				  meta isNil or: [ classService meta = meta ] ] ] ]

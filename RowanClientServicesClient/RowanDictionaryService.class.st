@@ -33,7 +33,11 @@ RowanDictionaryService class >> templateClassName [
 
 { #category : 'comparing' }
 RowanDictionaryService >> = dictionaryService [
-	^dictionaryService isDictionaryService ifTrue: [name = dictionaryService name] ifFalse: [^false]
+
+	^ dictionaryService isService and: [
+		  dictionaryService isDictionaryService
+			  ifTrue: [ name = dictionaryService name ]
+			  ifFalse: [ ^ false ] ]
 ]
 
 { #category : 'public' }
