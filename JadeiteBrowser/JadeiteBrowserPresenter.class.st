@@ -595,8 +595,7 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 JadeiteBrowserPresenter >> classSelected: selection [
 
 	^ selection selectedItem ifNotNil: [
-		  self methodCategoryText text: 'Category: '.
-		  categoryListPresenter unselectAll.
+		  self clearMethodPresenters.
 		  self
 			  refreshClass;
 			  updateTabLabel ]
@@ -1086,26 +1085,29 @@ JadeiteBrowserPresenter >> editSaveClass [
 	browserService
 		command: #compileClass:;
 		commandArgs: (Array with: classDefinitionPresenter text asString).
-	self selectedClass ifNotNil: [:classService | browserService selectedClass: classService name]. 
-	[self issueCommand: browserService] on: Error
-		do: 
-			[:ex |
+	self selectedClass ifNotNil: [ :classService |
+		browserService selectedClass: classService name ].
+	[
+	[ self issueCommand: browserService ]
+		on: Error
+		do: [ :ex |
 			(ex isKindOf: GsCompileError)
-				ifTrue: [self handleClassCompileError: ex]
-				ifFalse: [self statusBarText: 'ERROR: ' , ex messageText].
-			^self].
-	
-	[browserService
+				ifTrue: [ self handleClassCompileError: ex ]
+				ifFalse: [ self statusBarText: 'ERROR: ' , ex messageText ].
+			^ self ].
+
+	[
+	browserService
 		command: #recompileMethodsAfterClassCompilation;
-		commandArgs: #().
-	self issueCommand: browserService]
-			on: GsApplicationError, GsCompileError
-			do: 
-				[:ex |
-				('*poolDictionaries not supported yet*' match: ex description)
-					ifTrue: [^MessageBox notify: 'Pool Dictionaries not supported yet'].
-				^self showMethodRecompilationError: ex].
-	self resetClassDefinitionPane.
+		commandArgs: #(  ).
+	self issueCommand: browserService ]
+		on: GsApplicationError , GsCompileError
+		do: [ :ex |
+			('*poolDictionaries not supported yet*' match: ex description)
+				ifTrue: [
+				^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
+			^ self showMethodRecompilationError: ex ] ] ensure: [
+		self resetClassDefinitionPane ].
 	self updateAfterFindClass: browserService selectedClass
 ]
 
@@ -2033,7 +2035,7 @@ JadeiteBrowserPresenter >> methodsMenuStrings [
 	'Run All Tests/Ctrl+Shift+A/runAll' 'Run Selected Test(s)/Ctrl+Shift+S/runMethodTests' 'Debug Selected &Test(s)/Ctrl+Shift+B/runMethodTests' '-' 'Go To Defining Package//gotoMethodDefinedPackage')
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> methodsUpdate: classService [
 
 	classService meta = self isClassSideSelected ifFalse: [ ^ self ].
@@ -2524,7 +2526,6 @@ JadeiteBrowserPresenter >> refreshClass [
 	presenter := self isClassListTabSelected
 		             ifTrue: [ classListPresenter ]
 		             ifFalse: [ classHierarchyPresenter ].
-	self todo: [ self setMethodFilterFor: presenter ].
 	selection := presenter selectionIfNone: [
 		             ^ self noClassSelectedInEitherPresenter ifTrue: [
 			               self resetClassTemplate.
@@ -2537,15 +2538,11 @@ JadeiteBrowserPresenter >> refreshClass [
 			selectedPackageServices: packageListPresenter selections
 			browser: self ].
 	selectedMethod := methodListPresenter selectedItem.
-	methodListPresenter unselectAll.
 	selection
 		updateAfterCommand: false;
 		command: #fastRefresh.
 	self issueCommand: selection.
-	"self isHierarchyTabSelected ifTrue: [
-		self expandSelectionOneLevel: selection ]."
 	selection updateAfterCommand: true.
-
 	self updateClassInfo.
 	self selectMethodWithSameSelectorAs: selectedMethod.
 	self updateTabLabel
@@ -2601,8 +2598,6 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 				ifFalse: [
 				classService filters: packageMethodListPresenter selections ] ].
 	self updateService: classService. 
-	classService displayMethodsOn: presenter browser: self.
-	
 	methodListPresenter selections 
 		isEmpty ifTrue: [
 			self resetCategoryText.

@@ -271,45 +271,6 @@ JadeiteProjectsBrowserPresenter >> createSchematicWiringForInstanceClassTabs [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForMethodCategoryList [
-	categoryListPresenter
-		when: #dragOver:
-			send: #onDragOverMethodCategory:
-			to: self;
-		when: #drop:
-			send: #onDropOnMethodCategory:
-			to: self;
-		when: #keyTyped:
-			send: #delayUpdate
-			to: self;
-		when: #selectionChanging:
-			send: #aboutToChange:
-			to: self;
-		when: #selectionChanged
-			send: #updateTabLabel
-			to: self;
-		when: #selectionChanged
-			send: #selectMethodSourceTab
-			to: self;
-		when: #selectionChanged
-			send: #refreshMethodsOn:
-			to: self
-			with: methodListPresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForMethodFilterTabs [
-	methodFilterTabs
-		when: #currentCardChanged
-			send: #filterTabChanged
-			to: self;
-		when: #currentCardChanged
-			send: #refreshMethodsOn:
-			to: self
-			with: methodListPresenter
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> createSchematicWiringForPackageDictionaryTabs [
 
 	"Yes, I know. Subclasses should not remove behavior."
@@ -330,14 +291,6 @@ JadeiteProjectsBrowserPresenter >> createSchematicWiringForPackageList [
 		when: #keyTyped: 			send: #selectServiceStartingWith: 		to: packageListPresenter;
 		when: #aboutToDisplayMenu: send: #updatePackageMenu: 		to: self
 
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForVariableList [
-	variableListPresenter
-		when: #selectionChanging: send: #aboutToChange: to: self;
-		when: #selectionChanged send: #selectMethodSourceTab to: self;
-		when: #selectionChanged send: #refreshMethodsOn: to: self with: methodListPresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -968,15 +921,7 @@ JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
 		register: classHierarchyPresenter
 		selector: #updatedClassInHierarchy:browser:
 		browser: self.
-	"BrowserUpdate current
-		register: classHierarchyPresenter
-		selector: #updatedOneLevelInClassHierarchy:browser:
-		browser: self."
 	RowanServiceUpdater current register: classHierarchyPresenter selector: #removed:.
-	RowanServiceUpdater current
-		register: methodListPresenter
-		selector: #classMethodsUpdate:browser:
-		browser: self.
 	RowanServiceUpdater current register: methodListPresenter selector: #removed:.
 	RowanServiceUpdater current
 		register: methodSourcePresenter
@@ -1031,10 +976,8 @@ JadeiteProjectsBrowserPresenter >> renameClass [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> resetClassDefinitionPane [
-	self todo:[classDefinitionPresenter view
-		isModified: false;
-		backcolor: JadeiteTextStyles default colorForNoEdits;
-		isReadOnly: false]
+
+	classDefinitionPresenter isModified: false
 ]
 
 { #category : 'as yet unclassified' }

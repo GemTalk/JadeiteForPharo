@@ -113,20 +113,6 @@ RowanSystemBrowserPresenter >> onViewClosed [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> registerPresentersForUpdates [
-	RowanServiceUpdater current register: dictionaryListPresenter selector: #dictionaryUpdate:.
-	RowanServiceUpdater current register: globalsPresenter selector: #globalsUpdate:.
-	RowanServiceUpdater current register: classCategoryPresenter selector: #classCategoryUpdate:.
-	RowanServiceUpdater current register: classListPresenter selector: #classesUpdate:.
-	RowanServiceUpdater current register: classDefinitionPresenter selector: #classDefinitionUpdate:.
-	RowanServiceUpdater current register: classCommentPresenter selector: #classCommentUpdate:.
-	RowanServiceUpdater current register: classHierarchyPresenter selector: #classHierarchyUpdate:.
-	RowanServiceUpdater current register: superclassListPresenter selector: #superclassListUpdate:.
-	RowanServiceUpdater current register: methodListPresenter selector: #methodsUpdate:.
-	RowanServiceUpdater current register: methodSourcePresenter selector: #updateSelectorFor:
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> registerTabPresentersForUpdates [
 	RowanServiceUpdater current register: self methodFilterListPresenter selector: #methodFilterUpdate:
 ]
