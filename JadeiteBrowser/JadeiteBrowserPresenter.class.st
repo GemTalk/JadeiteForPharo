@@ -122,7 +122,7 @@ JadeiteBrowserPresenter >> abortTransaction [
 			 ifFalse: [ self gciSession autoCommit value ])
 ]
 
-{ #category : 'api-events' }
+{ #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
 
 	self selectedClass ifNotNil: [ :classService |
@@ -591,6 +591,17 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 	^ color
 ]
 
+{ #category : 'events' }
+JadeiteBrowserPresenter >> classSelected: selection [
+
+	^ selection selectedItem ifNotNil: [
+		  self methodCategoryText text: 'Category: '.
+		  categoryListPresenter unselectAll.
+		  self
+			  refreshClass;
+			  updateTabLabel ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> classesMenuStrings [
 	| definedLabel containedDictionaryLabel menuStrings |
@@ -644,7 +655,7 @@ JadeiteBrowserPresenter >> clearMethodPresenters [
 	methodListPresenter clear.
 	methodSourcePresenter value: String new. 
 	definedMethodPackageText text: String new.
-	methodCategoryText text: String new. 
+	self resetCategoryText
 ]
 
 { #category : 'as yet unclassified' }
@@ -691,24 +702,20 @@ JadeiteBrowserPresenter >> connectCancelActions [
 JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter whenSelectionChangedDo: [ :selection |
-		self
-			refreshClass;
-			updateTabLabel ].
+		self classSelected: selection ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
-			selection selectedItem ifNotNil: [
-					self
-						refreshClass;
-						updateTabLabel ] ];
+			self classSelected: selection ];
 		whenActivatedDo: [ :selection |
-		self expandAt: selection selectedItem ].
+			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
 			ifFalse: [
 				classHierarchyPresenter selectedItem ifNotNil: [ :sel |
-					classListPresenter selectIndex: (classListPresenter items indexOf: sel)
-		  scrollToSelection: true ] ] .
+					classListPresenter
+						selectIndex: (classListPresenter items indexOf: sel)
+						scrollToSelection: true ] ].
 		self refreshClass ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
@@ -740,7 +747,9 @@ JadeiteBrowserPresenter >> connectPresenters [
 		whenSelectionChangedDo: [ :selection | self updateProject ].
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter.
-		self selectMethodSourceTab. ].
+		self selectMethodSourceTab.
+		selection ifNotNil: [selection selectedItem ifNotNil: [ :sel |
+			methodCategoryText text: 'Category: ' , sel ]]  ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter ].
 	methodListPresenter whenSelectionChangedDo: [ :selection |
@@ -1222,7 +1231,7 @@ JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 	service fileOutMethods: methodListPresenter selections
 ]
 
-{ #category : 'api-events' }
+{ #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 	self isClassSelected
 		ifTrue: [RowanServiceUpdater current updateService: self selectedClass session: gciSession]
@@ -1938,13 +1947,16 @@ JadeiteBrowserPresenter >> methodMenu: aMenu [
 	self methodMenuBreak: aMenu
 ]
 
-{ #category : 'api-events' }
+{ #category : 'events' }
 JadeiteBrowserPresenter >> methodSelectionChanged [
 
 	self resetStatusBar.
 	self updateMethodSource.
-	[self methodSourcePresenter methodService:
-		self methodListPresenter selectedItem] on: Error do:[:ex | ^self "spec2 has bugs"].
+	[
+	self methodSourcePresenter methodService:
+		self methodListPresenter selectedItem ]
+		on: Error
+		do: [ :ex | ^ self "spec2 has bugs" ].
 	methodListPresenter selections isEmpty ifTrue: [
 		^ textAreaTabs selectPage: classDefinitionPage ].
 	methodListPresenter selections size = 1 ifTrue: [
@@ -1957,7 +1969,7 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 			self selectComparisonTab ] ].
 	methodListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
-		methodCategoryText text: String new ]
+		self resetCategoryText ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2031,7 +2043,7 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 	methodListPresenter selections isEmpty ifTrue: [
 		self setDefaultMethod.
 		definedMethodPackageText text: String new.
-		methodCategoryText text: String new ]
+		self resetCategoryText. ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2593,7 +2605,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 	
 	methodListPresenter selections 
 		isEmpty ifTrue: [
-			methodCategoryText text: String new.
+			self resetCategoryText.
 			definedMethodPackageText text: String new ]
 		ifFalse: [ self updateMethodSource ]
 ]
@@ -2787,6 +2799,11 @@ JadeiteBrowserPresenter >> removeProjectTabs [
 	projectReadMeView := self view viewNamed: 'projectReadMeTab' ifNone: [nil].
 	projectReadMeView ifNotNil: [self textAreaTabs removeSubView: projectReadMeView].
 	projectReadMeTab := nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> resetCategoryText [
+	methodCategoryText text: 'Category: '. String new. 
 ]
 
 { #category : 'initialization' }
@@ -3382,7 +3399,7 @@ JadeiteBrowserPresenter >> updateMethodSource [
 	self sundryCleanup.
 	methodListPresenter selections isEmpty ifTrue: [
 		definedMethodPackageText text: String new.
-		methodCategoryText text: 'Category: '.
+		self resetCategoryText.
 		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
 	self updateServices: methodListPresenter selections.
 	methodListPresenter selections isEmpty ifTrue: [ ^ self ].

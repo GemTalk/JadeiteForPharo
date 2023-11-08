@@ -1030,11 +1030,6 @@ JadeiteProjectsBrowserPresenter >> renameClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> resetCategoryText [
-	self todo:[methodCategoryText value: String new]. 
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> resetClassDefinitionPane [
 	self todo:[classDefinitionPresenter view
 		isModified: false;
