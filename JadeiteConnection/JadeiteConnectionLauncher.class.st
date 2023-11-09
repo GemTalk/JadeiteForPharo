@@ -12,7 +12,8 @@ Class {
 		'hostText',
 		'connectButton',
 		'disconnectButton',
-		'setPathButton'
+		'setPathButton',
+		'connection'
 	],
 	#classVars : [
 		'LastConnectionProfile'
@@ -44,13 +45,36 @@ JadeiteConnectionLauncher >> addStyle: style [
 	pathText addStyle: style. 
 ]
 
+{ #category : 'commit id' }
+JadeiteConnectionLauncher >> clientCommitIdDescription [
+
+	| ws | 
+	ws := WriteStream on: String new. 
+	self clientCommitIdDescriptionOn: ws. 
+	^ws contents
+]
+
+{ #category : 'commit id' }
+JadeiteConnectionLauncher >> clientCommitIdDescriptionOn: ws [
+
+	self jadeiteClientGitRepositories doWithIndex: [ :repoName :index |
+		| repo |
+		repo := IceRepository registry detect: [ :ea | ea name = repoName ].
+		index = 1 ifFalse:[ws cr]. 
+		ws
+			nextPutAll: repoName;
+			space;
+			nextPutAll: repo properties commitish shortId ]
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> closeConnectionWindows [
 
-	| connection connectedPresenters |
+	| connectedPresenters |
 	connection := connectionProfile connection.
 	connectedPresenters := self jadeiteWindowsFor: connection.
-	connectedPresenters do: [ :presenter | presenter window ifNotNil: [:window | window close] ]
+	connectedPresenters do: [ :presenter |
+		presenter window ifNotNil: [ :window | window close ] ]
 ]
 
 { #category : 'actions' }
@@ -60,7 +84,6 @@ JadeiteConnectionLauncher >> connect [
 	self populateConnectionProfile.
 	[
 	[
-	| connection |
 	connection := connectionProfile connect.
 	JadeiteConsoleApplication showOnSession: connection ] ensure: [
 		self class lastConnectionProfile: connectionProfile.
@@ -117,9 +140,32 @@ JadeiteConnectionLauncher >> defaultVerticalSpacing [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> disconnect [
 
+	[
 	self closeConnectionWindows.
 	connectionProfile disconnect.
-	self enableButtons
+	self enableButtons ] ensure: [ connection := nil ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> displayClientCommitId: workspace [
+
+	| commitIdDescription |
+	commitIdDescription := self clientCommitIdDescription.
+	^ workspace text: commitIdDescription
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> displayClientandServerCommitIds: workspace [
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: self clientCommitIdDescription;
+		cr;
+		nextPutAll: '---------------------------------------------';
+		cr;
+		nextPutAll: self serverCommitIdDescription.
+	^ workspace text: ws contents
 ]
 
 { #category : 'actions' }
@@ -137,6 +183,17 @@ JadeiteConnectionLauncher >> initialize [
 	connectionProfile := self class lastConnectionProfile copy ifNil: [
 		                     JadeiteGCIConnectionProfile new ].
 	self populateTextFields.
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeAboutMenu [
+
+	^ self newMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Git Commit Ids';
+				  action: [ self openCommitIdWindow ] ];
+		  yourself 
 ]
 
 { #category : 'initialization' }
@@ -171,6 +228,18 @@ JadeiteConnectionLauncher >> initializeHostPresenter [
 	self layout
 		add: hostText
 		withConstraints: [ :constraints | constraints height: 30 ]
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group | 
+			  group addItem: [ :item | 
+					  item
+						  name: 'About';
+						  subMenu: self initializeAboutMenu  ] ];
+		  yourself
 ]
 
 { #category : 'initialization' }
@@ -277,8 +346,22 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 400 @ 500.
+		initialExtent: 400 @ 550;
+		menu: self initializeMenubar.
 	self updateCaption
+
+]
+
+{ #category : 'constants' }
+JadeiteConnectionLauncher >> jadeiteClientGitRepositories [
+
+	^ #( 'JadeiteForPharo' 'PharoGemStoneFFI' 'RemoteServiceReplication' )
+]
+
+{ #category : 'constants' }
+JadeiteConnectionLauncher >> jadeiteServerGitRepositories [
+
+	^ #( 'RowanClientServices' )
 ]
 
 { #category : 'accessing' }
@@ -291,6 +374,22 @@ JadeiteConnectionLauncher >> jadeiteWindowsFor: connection [
 		  presenter gciSession
 			  ifNil: [ false ]
 			  ifNotNil: [ :sess | sess library == connection ] ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> openCommitIdWindow [
+
+	| workspace windowCaption |
+	windowCaption := 'Jadeite Git Commit Ids'.
+	connection
+		ifNil: [
+			workspace := JadeiteNonSessionApplication new start.
+			self displayClientCommitId: workspace ]
+		ifNotNil: [
+			workspace := JadeiteWorkspaceApplication showOnSession: connection.
+			self displayClientandServerCommitIds: workspace ].
+	workspace setCaption: windowCaption.
+	workspace hasUnacceptedEdits: false
 ]
 
 { #category : 'actions' }
@@ -316,6 +415,35 @@ JadeiteConnectionLauncher >> populateTextFields [
 	versionText text: connectionProfile version.
 	netldiText text: connectionProfile netldi.
 	pathText text: connectionProfile path
+]
+
+{ #category : 'commit id' }
+JadeiteConnectionLauncher >> serverCommitIdDescription [
+
+	| ws | 
+	ws := WriteStream on: String new. 
+	self serverCommitIdDescriptionOn: ws. 
+	^ws contents
+]
+
+{ #category : 'commit id' }
+JadeiteConnectionLauncher >> serverCommitIdDescriptionOn: ws [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService command: #updateProjects.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: (GciSession new library: connection).
+	self jadeiteServerGitRepositories do: [ :projectName |
+		| project |
+		project := browserService projects detect: [ :projectService |
+			           projectService name = projectName ].
+		ws
+			nextPutAll: projectName;
+			space;
+			nextPutAll: project sha;
+			cr ]
 ]
 
 { #category : 'initialization' }

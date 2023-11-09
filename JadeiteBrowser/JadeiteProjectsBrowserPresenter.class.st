@@ -260,17 +260,6 @@ JadeiteProjectsBrowserPresenter >> createSchematicWiringForClassHierarchyTabs [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForInstanceClassTabs [
-	classListHierarchyTabs
-		when: #currentCardChanging:
-			send: #aboutToChange:
-			to: self;
-		when: #currentCardChanged
-			send: #refreshClass
-			to: self
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> createSchematicWiringForPackageDictionaryTabs [
 
 	"Yes, I know. Subclasses should not remove behavior."

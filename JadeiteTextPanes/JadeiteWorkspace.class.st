@@ -145,6 +145,14 @@ JadeiteWorkspace >> saveServerFileAs [
 	self writeDocumentTo: filePath
 ]
 
+{ #category : 'private' }
+JadeiteWorkspace >> setCaption: string [
+
+	| theString |
+	theString := gciSession titleBarFor: string.
+	self caption: theString
+]
+
 { #category : 'public' }
 JadeiteWorkspace >> setEnvironment0 [
 
