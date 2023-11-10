@@ -725,33 +725,6 @@ JadeiteProjectBrowserTestCase >> test_addPackageReloadProject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_addRemoveCategory [
-	self selectRowanSample1Class.
-	self deny: (self categoryListPresenter list includes: 'jadeite test').
-	self projectsPresenter basicAddMethodCategory: 'jadeite test'.
-	self assert: (self categoryListPresenter list includes: 'jadeite test').
-	self assert: self categoryListPresenter selection = 'jadeite test'.
-	self projectsPresenter basicRemoveMethodCategories.
-	self deny: (self categoryListPresenter list includes: 'jadeite test')
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_addStarredCategory [
-	self testsIssue: #issue956
-		withTitle: '[3.2.12] Use of *category to specify package depends on a repository quality that needs to be visible'.
-	self selectRowanSample1Class.
-	self projectsPresenter basicAddMethodCategory: '*blasdfqewr'.
-	
-	[self assert: (self categoryListPresenter list includes: '*blasdfqewr').
-	self assert: self categoryListPresenter selectionOrNil equals: '*blasdfqewr']
-			ensure: 
-				["there's currently a bug in rowan #875 that affects removal of starred categories. Use abort temporarily instead."
-				self abortTransaction.
-				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_additionalAccelerators [
 	"No way yet to adequately test accelerators function
 	but we can assert that we tell Dolphin to set them up"

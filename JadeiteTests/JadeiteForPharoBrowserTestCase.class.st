@@ -37,6 +37,53 @@ JadeiteForPharoBrowserTestCase >> projectList [
 	^self projectListPresenter list
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_abortRemovesClassAndMethod [
+	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestAbortRemovesClass'
+		superclass: 'Object'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	
+	[self
+		saveMethod: 'terrific ^''yippee'''
+		in: 'TestAbortRemovesClass'
+		category: 'deleteme'.
+	self denyIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'TestAbortRemovesClass']
+				ifNone: []).
+	self abortTransaction.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'TestAbortRemovesClass']
+				ifNone: [])]
+			ensure: 
+				[self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
+	self selectRowanSample1Test.
+	[self denyIsNil: (self projectListPresenter list
+				detect: [:projectService | projectService name = 'RowanSample1']
+				ifNone: []).
+	self denyIsNil: (self packageListPresenter list
+				detect: [:packageService | packageService name = 'RowanSample1-Tests']
+				ifNone: []).
+	self abortTransaction.
+	self assertIsNil: (self projectListPresenter list
+				detect: [:projectService | projectService name = 'RowanSample1']
+				ifNone: []).
+	self assertIsNil: (self packageListPresenter list
+				detect: [:packageService | packageService name = 'RowanSample1-Tests']
+				ifNone: [])]
+			ensure: 
+				[self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addAccessors [
 
@@ -80,6 +127,33 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 			 ifNone: [  ]) ] ensure: [
 		self projectsPresenter basicRemoveClass:
 			self projectsPresenter selectedClass ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
+	self selectRowanSample1Class.
+	self deny: (self categoryListPresenter list includes: 'jadeite test').
+	self projectsPresenter basicAddMethodCategory: 'jadeite test'.
+	self assert: (self categoryListPresenter list includes: 'jadeite test').
+	self assert: self categoryListPresenter selectedItem = 'jadeite test'.
+	self projectsPresenter basicRemoveMethodCategories.
+	self deny: (self categoryListPresenter list includes: 'jadeite test')
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
+	self testsIssue: #issue956
+		withTitle: '[3.2.12] Use of *category to specify package depends on a repository quality that needs to be visible'.
+	self selectRowanSample1Class.
+	self projectsPresenter basicAddMethodCategory: '*blasdfqewr'.
+	
+	[self assert: (self categoryListPresenter list includes: '*blasdfqewr').
+	self assert: self categoryListPresenter selectionOrNil equals: '*blasdfqewr']
+			ensure: 
+				["there's currently a bug in rowan #875 that affects removal of starred categories. Use abort temporarily instead."
+				self abortTransaction.
+				self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
 ]
 
 { #category : 'tests' }

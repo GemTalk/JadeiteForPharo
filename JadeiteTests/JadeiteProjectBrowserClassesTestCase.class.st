@@ -18,54 +18,6 @@ JadeiteProjectBrowserClassesTestCase >> expectedGrandchildrenNames [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserClassesTestCase >> test_abortRemovesClassAndMethod [
-	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
-	self selectRowanSample1Test.
-	self
-		saveClass: 'TestAbortRemovesClass'
-		superclass: 'Object'
-		instVars: #()
-		package: 'RowanSample1-Tests'.
-	
-	[self
-		saveMethod: 'terrific ^''yippee'''
-		in: 'TestAbortRemovesClass'
-		category: 'deleteme'.
-	self denyIsNil: (self classListPresenter list
-				detect: [:classService | classService name = 'TestAbortRemovesClass']
-				ifNone: []).
-	self abortTransaction.
-	self assertIsNil: (self classListPresenter list
-				detect: [:classService | classService name = 'TestAbortRemovesClass']
-				ifNone: [])]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserClassesTestCase >> test_abortRemovesProjectAndPackage [
-	self selectRowanSample1Test.
-	
-	[self denyIsNil: (self projectListPresenter list
-				detect: [:projectService | projectService name = 'RowanSample1']
-				ifNone: []).
-	self denyIsNil: (self packageListPresenter list
-				detect: [:packageService | packageService name = 'RowanSample1-Tests']
-				ifNone: []).
-	self abortTransaction.
-	self assertIsNil: (self projectListPresenter list
-				detect: [:projectService | projectService name = 'RowanSample1']
-				ifNone: []).
-	self assertIsNil: (self packageListPresenter list
-				detect: [:packageService | packageService name = 'RowanSample1-Tests']
-				ifNone: [])]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_abortRemovesSelectedChildHierarchyTab [
 	self testsIssue: #issue891 withTitle: 'class hierarchy not quite right'.
 	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.

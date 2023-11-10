@@ -124,7 +124,7 @@ JadeiteBrowserPresenter >> abortTransaction [
 
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
-
+	self updateProjects. 
 	self selectedClass ifNotNil: [ :classService |
 		self updateAfterFindClass: classService ].
 	self resetClassTemplate.
@@ -594,8 +594,9 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 { #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: selection [
 
+	self clearFilterLists.
+	self clearMethodLists.
 	^ selection selectedItem ifNotNil: [
-		  self clearMethodPresenters.
 		  self
 			  refreshClass;
 			  updateTabLabel ]
@@ -647,9 +648,14 @@ JadeiteBrowserPresenter >> clearComponentList [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> clearMethodPresenters [
+JadeiteBrowserPresenter >> clearFilterLists [
 	categoryListPresenter clear.
-	variableListPresenter clear.
+	variableListPresenter clear
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> clearMethodLists [
+	self clearFilterLists. 
 	packageMethodListPresenter clear.
 	methodListPresenter clear.
 	methodSourcePresenter value: String new. 
@@ -726,7 +732,7 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 	packageListPresenter whenSelectionChangedDo: [ :selection |
 		self updatePackage ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
-		self classListPresenter list: ListModel new.
+		self classListPresenter clear.
 		self classHierarchyPresenter roots: Array new.
 		self isDictionaryTabSelected
 			ifTrue: [ self updateDictionaries ]
@@ -742,13 +748,15 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 JadeiteBrowserPresenter >> connectPresenters [
 
 	self connectClassPresenters.
-	self connectPackageDictionaryPresenters projectListPresenter
-		whenSelectionChangedDo: [ :selection | self updateProject ].
+	self connectPackageDictionaryPresenters.
+	projectListPresenter whenSelectionChangedDo: [ :selection |
+		self updateProject ].
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter.
 		self selectMethodSourceTab.
-		selection ifNotNil: [selection selectedItem ifNotNil: [ :sel |
-			methodCategoryText text: 'Category: ' , sel ]]  ].
+		selection ifNotNil: [
+			selection selectedItem ifNotNil: [ :sel |
+				methodCategoryText text: 'Category: ' , sel ] ] ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter ].
 	methodListPresenter whenSelectionChangedDo: [ :selection |
@@ -2432,7 +2440,7 @@ JadeiteBrowserPresenter >> refreshClass [
 	self selectedClassTab ifNil: [ ^ self ].
 	classTabPresenter := self selectedClassTab activePresenter ifNil: [
 		                     self selectedClassTab retrievePresenter ].
-	classTabPresenter selectedItem ifNil: [ self clearMethodPresenters ].
+	classTabPresenter selectedItem ifNil: [ self clearMethodLists ].
 	methodListPresenter selectedItem ifNil: [
 		textAreaTabs selectPage: classDefinitionPage ].
 	presenter := self isClassListTabSelected

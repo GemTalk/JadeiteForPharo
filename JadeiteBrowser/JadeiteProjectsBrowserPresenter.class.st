@@ -163,12 +163,6 @@ JadeiteProjectsBrowserPresenter >> cleanupComparisonBrowser [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> clearFilterLists [
-	categoryListPresenter model: ListModel new.
-	variableListPresenter model: ListModel new
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> clearMethodBreakpoints [
 	^JadePresenter clearMethodBreakpoints: methodListPresenter selections in: self gciSession
 ]
@@ -234,52 +228,6 @@ JadeiteProjectsBrowserPresenter >> copyClass [
 			validClassNameSelected := self symbolExists: newClassName.
 			validClassNameSelected ifFalse: [MessageBox notify: 'Symbol exists. Please retry.']].
 	self basicCopyClass: oldClassService to: newClassName
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	self
-		createSchematicWiringForProjectList;
-		createSchematicWiringForMethodFilterTabs.
-	JadePresenter transactionModeValueHolder
-		when: #valueChanged
-		send: #updateAutoCommitButton
-		to: self
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForClassHierarchyTabs [
-	classHierarchyTabs
-		when: #currentCardChanging:
-			send: #aboutToChange:
-			to: self;
-		when: #currentCardChanged
-			send: #refreshClassListOrHierarchy
-			to: self
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForPackageDictionaryTabs [
-
-	"Yes, I know. Subclasses should not remove behavior."
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> createSchematicWiringForPackageList [
-
-	packageListPresenter
-		when: #'drag:'				send: #'onDragPackageList:'			to: self;
-		when: #'dragCut:'			send: #'onDragCutPackageList:'		to: self;
-		when: #'dragOver:'			send: #'onDragOverPackageList:'		to: self;
-		when: #'drop:'				send: #'onDropOnPackageList:'		to: self; 
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanging:'	send: #'releasedReferencedServices:'	to: self;
-		when: #'selectionChanged'		send: #'updatePackage' 			to: self;
-		when: #keyTyped: 			send: #selectServiceStartingWith: 		to: packageListPresenter;
-		when: #aboutToDisplayMenu: send: #updatePackageMenu: 		to: self
-
 ]
 
 { #category : 'as yet unclassified' }

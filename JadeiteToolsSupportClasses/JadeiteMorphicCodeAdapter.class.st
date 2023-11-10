@@ -40,13 +40,13 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             yourself.
 	self setEnabled: self presenter isEnabled to: newWidget.
 	self setEditable: self presenter isEditable to: newWidget.
-	self setEditingModeFor: newWidget.
-	"newWidget textArea newJadeiteEditor. <<<<<<more Jadeite changes  here but not used yet
+	self setEditingModeFor: newWidget. 
+	newWidget textArea newJadeiteEditor. "<<<<<<more Jadeite changes  (not fully implemented)"
 	newWidget textArea shoutStyler ifNotNil: [ :shoutStyler | shoutStyler styler:
 		(JadeiteCodeTextStyler newWithAttributeTableNamed:
 			 self presenter syntaxHighlightTheme)].
 	self setText: self presenter text to: newWidget.
-	model hasUnacceptedEdits: false. "
+	model hasUnacceptedEdits: false. 
 	self presenter selectionInterval ifNotNil: [ :anInterval |
 		self selectionInterval: anInterval on: newWidget ].
 	self presenter hasLineNumbers ifTrue: [ 
