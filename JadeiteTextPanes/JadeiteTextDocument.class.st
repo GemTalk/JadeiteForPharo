@@ -602,7 +602,8 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 		            ifFalse: [ (gsArguments at: 2) first ].
 	self selectionInterval isEmpty ifTrue: [
 		selectionIndex := (argArray at: 2) asInteger - 1 max: 1.
-		self selectionInterval: (selectionIndex to: selectionIndex) ].
+		self selectionInterval: (selectionIndex to: selectionIndex) ]
+	ifFalse: [selectionIndex := self selectionInterval last].
 	self withAdapterDo: [ :theAdapter | 
 		theAdapter widgetDo: [ :widget | 
 			 widget notify: (argArray at: 3) at: selectionIndex in: self text asString replaceLfWithCr] ].

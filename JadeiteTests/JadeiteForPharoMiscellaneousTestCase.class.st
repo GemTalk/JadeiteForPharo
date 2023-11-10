@@ -23,8 +23,8 @@ JadeiteForPharoMiscellaneousTestCase >> test_adHocCompileError [
 	workspace codePane documentPresenter setFocus.
 	workspace codePane jadeExecute.
 	self
-		assert: self focusWidgetText
-		equals: '''expected a right parenthesis'''
+		assert: self focusWidgetText asString
+		equals: '#(1  expected a right parenthesis2'
 ]
 
 { #category : 'tests' }
