@@ -75,6 +75,48 @@ JadeiteForPharoMiscellaneousTestCase >> test_classServiceNameIsString [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
+
+	| connectionLauncher jfpSha gemstoneFFISha rsrSha clientServicesSha browserService desiredWorkspaceText |
+	self
+		testsIssue: #issue29
+		withTitle:
+		'Need a report to show what all git repository shas I have loaded'.
+	connectionLauncher := JadeiteConnectionLauncher allInstances first.
+	self deny: connectionLauncher connection isNil. "assume connection has been established but verify"
+	workspace := connectionLauncher
+		             openCommitIdWindow.
+	[
+	jfpSha := (IceRepository registry detect: [ :ea |
+		           ea name = 'JadeiteForPharo' ]) properties commitish
+		          shortId.
+	gemstoneFFISha := (IceRepository registry detect: [ :ea |
+		                   ea name = 'PharoGemStoneFFI' ]) properties
+		                  commitish shortId.
+	rsrSha := (IceRepository registry detect: [ :ea |
+		           ea name = 'RemoteServiceReplication' ]) properties
+		          commitish shortId.
+	browserService := RowanBrowserService new.
+	browserService command: #updateProjects.
+	browserService command: #updateProjects.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: (GciSession new library: connectionLauncher connection).
+	clientServicesSha := (browserService projects detect: [
+		                      :projectService |
+		                      projectService name = 'RowanClientServices' ])
+		                     sha.
+	desiredWorkspaceText := 'JadeiteForPharo ' , jfpSha asString , '
+PharoGemStoneFFI ' , gemstoneFFISha asString , '
+RemoteServiceReplication ' , rsrSha asString , '
+---------------------------------------------
+RowanClientServices ' , clientServicesSha asString , '
+'.
+	self assert: workspace text asString equals: desiredWorkspaceText ] ensure: [
+		self destroy: workspace ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMiscellaneousTestCase >> test_methodServiceClassNameIsString [
 	| methodService |
 	self testsIssue: #issue441

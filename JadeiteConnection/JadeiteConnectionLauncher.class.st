@@ -113,6 +113,18 @@ JadeiteConnectionLauncher >> connectPresenters [
 ]
 
 { #category : 'accessing' }
+JadeiteConnectionLauncher >> connection [
+
+	^ connection
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> connection: anObject [
+
+	^ connection := anObject
+]
+
+{ #category : 'accessing' }
 JadeiteConnectionLauncher >> connectionProfile [
 
 	^ connectionProfile ifNil: [
@@ -389,7 +401,8 @@ JadeiteConnectionLauncher >> openCommitIdWindow [
 			workspace := JadeiteWorkspaceApplication showOnSession: connection.
 			self displayClientandServerCommitIds: workspace ].
 	workspace setCaption: windowCaption.
-	workspace hasUnacceptedEdits: false
+	workspace hasUnacceptedEdits: false.
+	^workspace
 ]
 
 { #category : 'actions' }
