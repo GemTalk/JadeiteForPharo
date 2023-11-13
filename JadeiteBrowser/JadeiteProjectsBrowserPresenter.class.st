@@ -95,22 +95,6 @@ JadeiteProjectsBrowserPresenter >> basicRemoveMethods [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> basicUnloadProjects: projectNames [
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService
-		command: #unloadProjectsNamed:;
-		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService.
-	packageListPresenter model: ListModel new.
-	classListPresenter model: ListModel new.
-	categoryListPresenter model: (ListModel new searchPolicy: SearchPolicy equality).
-	variableListPresenter model: (ListModel new searchPolicy: SearchPolicy equality).
-	methodListPresenter model: ListModel new.
-	self refreshGlobalSelections
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> behaviorIdentifier [
 	^self selectedClass behaviorIdentifier
 ]

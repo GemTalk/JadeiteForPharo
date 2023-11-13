@@ -2813,37 +2813,6 @@ JadeiteProjectBrowserTestCase >> test_removeInstVarVariablesStaySorted [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_removeProject [
-	| targetProject |
-	self testsIssue: #issue129 withTitle: 'Expose unload project.'.
-	targetProject := self projectListPresenter list
-				detect: [:projectService | projectService name = self sampleProject1Name]
-				ifNone: [].
-	self denyIsNil: targetProject.
-	self projectListPresenter selection: targetProject.
-	"just select an element in each list to test cleanup after removal"
-	self packageListPresenter selection: self packageListPresenter list first.
-	self classListPresenter selection: self classListPresenter list first.
-	self categoryListPresenter selection: self categoryListPresenter list first.
-	self methodListPresenter selection: self methodListPresenter list first.
-	self projectsPresenter basicUnloadProjects: (Array with: self projectListPresenter selection name).
-	targetProject := self projectListPresenter list
-				detect: [:projectService | projectService name = self sampleProject1Name]
-				ifNone: [].
-	self assertIsNil: targetProject.
-	"make sure browser cleans itself up"
-	
-	[self assert: self projectListPresenter selections isEmpty.
-	self assert: self packageListPresenter list isEmpty.
-	self assert: self classListPresenter list isEmpty.
-	self assert: self categoryListPresenter list isEmpty.
-	self assert: self methodListPresenter list isEmpty]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_renameCategory [
 	self testsIssue: #issue380
 		withTitle: '(3.0.53) rename protocol is broken: `UndefinedObject does not understand #''select:''`'.

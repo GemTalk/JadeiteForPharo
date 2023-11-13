@@ -373,8 +373,18 @@ JadeiteBrowserPresenter >> basicRemoveGlobal: qualifiedString [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
-	super basicUnloadProjects: projectNames.
-	dictionaryListPresenter model: ListModel new
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #unloadProjectsNamed:;
+		commandArgs: (Array with: projectNames).
+	self issueCommand: browserService.
+	projectListPresenter unselectAll. 
+	packageListPresenter clear.
+	classListPresenter clear.
+	self clearMethodLists.
+	self refreshGlobalSelections.
+	dictionaryListPresenter clear
 ]
 
 { #category : 'as yet unclassified' }
