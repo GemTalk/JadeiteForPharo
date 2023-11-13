@@ -184,7 +184,9 @@ JadeiteDebuggerPresenter >> editSaveMethod [
 	| source |
 	source := codePane text asString. 
 	frameListPresenter selectedItem ifNotNil: [ :selection |
-		self editSaveMethod: selection method classService ].
+		self selectHomeMethod.
+		codePane text: source. "because we potentiall switched frames"
+		self editSaveMethod: frameListPresenter selectedItem method classService ].
 	self trimStack.
 	codePane value: source. 
 ]
@@ -249,7 +251,7 @@ JadeiteDebuggerPresenter >> gsProcess: anObject [
 
 { #category : 'accessing' }
 JadeiteDebuggerPresenter >> homeFrame [
-	^frameListPresenter list detect: [:str | str = (self homeFrameOf: frame) printString]
+	^self homeFrameOf: frameListPresenter selectedItem
 ]
 
 { #category : 'accessing' }
