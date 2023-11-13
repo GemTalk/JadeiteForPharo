@@ -69,15 +69,6 @@ JadeiteProjectBrowserAbstractTestCase >> issue170methodCreation [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserAbstractTestCase >> openSecondBrowser [
-	secondBrowser := (self openWindow: [transcript openJadeiteProjectsBrowser]) topShell.
-	secondBrowser caption: 'second browser'.
-	secondPresenter := secondBrowser currentCard.
-	secondPresenter selectClassListTab.
-	^secondBrowser
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> primaryTestWindow [
 	"Every test should have a primary window it is testing. 
 	If not, just return nil"

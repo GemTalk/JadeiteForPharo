@@ -78,6 +78,12 @@ JadeiteBrowser >> connectPresenters [
 			openPage activePresenter updateSystemTab ] ]
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowser >> currentCard [ 
+	"for ported test support (only?)"
+	^self activePresenter
+]
+
 { #category : 'layout' }
 JadeiteBrowser >> defaultLayout [ 
 

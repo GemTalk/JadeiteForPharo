@@ -33,6 +33,15 @@ JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> openSecondBrowser [
+	secondBrowser := JadeiteTestResource current openWindow: [self transcript openBrowser].
+	secondBrowser caption: 'second browser'.
+	secondPresenter := secondBrowser currentCard.
+	secondPresenter selectClassListTab.
+	^secondBrowser
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> projectList [
 	^self projectListPresenter list
 ]
@@ -344,4 +353,42 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 			ensure: 
 				[self cloneRowanSample1.
 				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
+
+	self
+		testsIssue: #issue418
+		withTitle:
+			'Navigating and category creation in class hiearchy view can''t keep class side/instance side straight';
+		selectRowanSample1Test;
+		selectHierarchyTab;
+		openSecondBrowser;
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter;
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: secondPresenter packageListPresenter;
+		selectServiceNamed: 'RowanSample1Test'
+		in: secondPresenter classListPresenter;
+		selectHierarchyTabIn: secondPresenter;
+		selectClassSide;
+		deny:
+			(self projectsPresenter categoryListPresenter list includes:
+					 'fnoodle');
+		deny:
+			(secondPresenter categoryListPresenter list includes: 'fnoodle').
+	self assert: self projectsPresenter isClassSideSelected.
+	self projectsPresenter basicAddMethodCategory: 'fnoodle'.
+	self
+		assert: self projectsPresenter categoryListPresenter selectedItem
+		equals: 'fnoodle';
+		deny:
+			(secondPresenter categoryListPresenter list includes: 'fnoodle').
+	self deny: secondPresenter isClassSideSelected.
+	secondPresenter basicAddMethodCategory: 'fnoodle'.
+	self
+		assert: secondPresenter categoryListPresenter selectedItem
+		equals: 'fnoodle';
+		assert: (self categoryListPresenter list includes: 'fnoodle')
 ]

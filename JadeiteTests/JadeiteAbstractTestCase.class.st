@@ -791,12 +791,12 @@ JadeiteAbstractTestCase >> selectClassSide [
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectClassTab [
-	self selectClassTabIn: self projectsPresenter
+	self selectClassRadioButtonIn: self projectsPresenter
 ]
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectClassTabIn: presenter [
-	presenter instanceClassTabs lastCard
+	presenter selectClassListTab 
 ]
 
 { #category : 'selection' }
@@ -806,7 +806,12 @@ JadeiteAbstractTestCase >> selectHierarchyTab [
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectHierarchyTabIn: presenter [
-	presenter selectClassHierarchyTab
+
+	self todo: [ "Not sure yet why but selecting class does not seem to finish dependencies without higher priority"
+		 ].
+	[ presenter selectClassHierarchyTab ] forkAt:
+		Processor activePriority + 1.
+	(Delay forSeconds: 0.25) wait
 ]
 
 { #category : 'selection' }
