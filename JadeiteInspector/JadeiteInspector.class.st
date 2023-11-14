@@ -174,12 +174,17 @@ JadeiteInspector >> basicRemoveOop: oop [
 
 { #category : 'browsing' }
 JadeiteInspector >> browseClass [
-	| shell classService |
-	classService := RowanClassService new name: className subStrings first.	"strip off 'class' if meta"
-	RowanServiceUpdater current updateService: classService session: gciSession.
-	shell := JadeiteBrowser showOnSession: gciSession.
+
+	| shell classService  |
+	
+	classService := RowanClassService new name:
+			                className substrings first "strip off 'class' if meta" .
+	RowanServiceUpdater current
+		updateService: classService
+		session: gciSession.
+	shell := self openBrowser.
 	shell currentCard updateAfterFindClass: classService.
-	^shell
+	^ shell
 ]
 
 { #category : 'as yet unclassified' }
@@ -398,6 +403,17 @@ JadeiteInspector >> initialize [
 ]
 
 { #category : 'initialization' }
+JadeiteInspector >> initializeBrowseMenu [
+
+	^ self newMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Browse Class';
+				  action: [ self browseClass ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteInspector >> initializeInstVarList: box [
 
 	instVarListPresenter := (JadeiteListPresenter new display: #first)
@@ -420,6 +436,18 @@ JadeiteInspector >> initializeInstVarList: box [
 					enabled:
 						(self isSelectionComputed: instVarListPresenter selectedItem) not] ].
 	box add: instVarListPresenter
+]
+
+{ #category : 'initialization' }
+JadeiteInspector >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group | 
+			  group addItem: [ :item | 
+					  item
+						  name: 'Browse';
+						  subMenu: self initializeBrowseMenu  ] ];
+		  yourself
 ]
 
 { #category : 'initialization' }
@@ -469,8 +497,10 @@ JadeiteInspector >> initializeToolbar [
 JadeiteInspector >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 800 @ 500.
-	self updateCaption.
+	aWindowPresenter
+		initialExtent: 800 @ 500;
+		menu: self initializeMenubar.
+	self updateCaption
 ]
 
 { #category : 'inspecting' }
@@ -593,6 +623,7 @@ JadeiteInspector >> isProtectedItemSelected [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> isSelectionComputed: assoc [
+	assoc ifNil: [ ^false ].
 	^assoc key = 'self' or: [assoc key = '-.asOop']
 ]
 
@@ -940,26 +971,29 @@ JadeiteInspector >> selectedDynamicInstVars [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> selectedInstVar [
-	| string key | 
-	instVarListPresenter selectedItems isEmpty
-		ifTrue: 
-			[codePane text: String new.
-			^self].
-	instVarListPresenter selectedItems size > 1 ifTrue: [ ^self multipleInstVarsSelected].
+
+	| string key |
+	instVarListPresenter selectedItems isEmpty ifTrue: [
+		codePane text: String new.
+		^ self ].
+	instVarListPresenter selectedItems size > 1 ifTrue: [
+		^ self multipleInstVarsSelected ].
 	key := instVarListPresenter selectedItems first first.
-	(key = 'self' or: [key = '-.asOop'])
-		ifTrue: 
-			[codePane text: instVarListPresenter selectedItems first last.
-			^self].
-	 [string := self printInstVar] on: GsRuntimeError
-				do: 
-					[:ex |
-					ex errorReport number == 2106
-						ifTrue: 
-							["Forward reference error"
-							ex return: 'an invalid or hidden object (perhaps a LargeObjectNode)'].
-					ex pass].
-	codePane text: string
+	(key = 'self' or: [ key = '-.asOop' ]) ifTrue: [
+		codePane
+			text: instVarListPresenter selectedItems first last;
+			hasUnacceptedEdits: false.
+		^ self ].
+	[ string := self printInstVar ]
+		on: GsRuntimeError
+		do: [ :ex |
+			ex errorReport number == 2106 ifTrue: [ "Forward reference error"
+				ex return:
+					'an invalid or hidden object (perhaps a LargeObjectNode)' ].
+			ex pass ].
+	codePane
+		text: string;
+		hasUnacceptedEdits: false
 ]
 
 { #category : 'as yet unclassified' }
