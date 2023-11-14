@@ -18,6 +18,23 @@ JadeiteProjectsTrait >> basicAllSelectedProjectsDirty: aProjectListPresenter [
 ]
 
 { #category : 'commands' }
+JadeiteProjectsTrait >> basicReloadProject [
+
+	| selections |
+	selections := self projectListPresenter selections.
+	self basicReloadProject: selections
+]
+
+{ #category : 'commands' }
+JadeiteProjectsTrait >> basicReloadProject: selections [
+
+	RowanBrowserService new reloadProjects: selections presenter: self.
+	RowanServiceUpdater current selectedServices do: [ :service |
+		service postReload ].
+	self projectListPresenter update
+]
+
+{ #category : 'commands' }
 JadeiteProjectsTrait >> basicUnloadProjects: projectNames [
 	| browserService |
 	browserService := RowanBrowserService new.
@@ -122,7 +139,7 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 	RowanBrowserService new
 		reloadProjects: self projectListPresenter selections
 		presenter: self.
-	self reloadProject.
+	self basicReloadProject.
 	MessageBox notify:
 		'Project ' , projectName , ' committed to local repository!'
 ]
@@ -302,11 +319,7 @@ JadeiteProjectsTrait >> reloadProject [
 	| selections |
 	selections := self projectListPresenter selections.
 	(self confirmReloadProjects: selections) ifFalse: [ ^ self ].
-
-	RowanBrowserService new reloadProjects: selections presenter: self.
-	RowanServiceUpdater current selectedServices do: [ :service | 
-		service postReload ].
-	self projectListPresenter update. 
+	self basicReloadProject: selections
 ]
 
 { #category : 'commands' }
