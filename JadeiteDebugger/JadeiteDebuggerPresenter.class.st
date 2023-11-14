@@ -185,9 +185,8 @@ JadeiteDebuggerPresenter >> editSaveMethod [
 	source := codePane text asString. 
 	frameListPresenter selectedItem ifNotNil: [ :selection |
 		self selectHomeMethod.
-		codePane text: source. "because we potentiall switched frames"
+		codePane text: source. "because we potentially switched frames"
 		self editSaveMethod: frameListPresenter selectedItem method classService ].
-	self trimStack.
 	codePane value: source. 
 ]
 
@@ -195,8 +194,6 @@ JadeiteDebuggerPresenter >> editSaveMethod [
 JadeiteDebuggerPresenter >> editSaveMethod: classService [
 
 	| compileResult |
-	frameListPresenter selectedItem isExecutedBlockContext ifTrue: [
-		self selectHomeMethod ].
 	compileResult := self
 		                 editSaveMethod: classService
 		                 in: self methodSourcePresenter
