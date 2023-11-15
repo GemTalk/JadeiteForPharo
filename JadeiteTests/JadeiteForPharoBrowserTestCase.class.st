@@ -47,6 +47,26 @@ JadeiteForPharoBrowserTestCase >> projectList [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
+
+	self unloadSampleProject1.
+	self commitTransaction. "if sample project was loaded and committed outside test, test will fail"
+	self cloneRowanSample1.
+	self ensureRowanSampleProjectsLoaded.
+	self selectRowanSample1Test.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selectIndex: 1.
+	self abortTransaction.
+
+	[
+	self assert:
+		self projectsPresenter variableListPresenter list isEmpty.
+	self assert: self classListPresenter list isEmpty.
+	self assert: self packageListPresenter list isEmpty ] ensure: [
+		self ensureRowanSampleProjectsLoaded ]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_abortRemovesClassAndMethod [
 	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
 	self selectRowanSample1Test.

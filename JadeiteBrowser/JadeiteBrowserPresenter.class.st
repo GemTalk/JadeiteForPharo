@@ -716,8 +716,10 @@ JadeiteBrowserPresenter >> connectCancelActions [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectClassPresenters [
 
-	classListPresenter whenSelectionChangedDo: [ :selection |
-		self classSelected: selection ].
+	classListPresenter
+		whenSelectionChangedDo: [ :selection |
+			self classSelected: selection ];
+		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
 			self classSelected: selection ];
@@ -739,8 +741,9 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 
-	packageListPresenter whenSelectionChangedDo: [ :selection |
-		self updatePackage ].
+	packageListPresenter
+		whenSelectionChangedDo: [ :selection | self updatePackage ];
+		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 		self classListPresenter clear.
 		self classHierarchyPresenter roots: Array new.
@@ -759,8 +762,9 @@ JadeiteBrowserPresenter >> connectPresenters [
 
 	self connectClassPresenters.
 	self connectPackageDictionaryPresenters.
-	projectListPresenter whenSelectionChangedDo: [ :selection |
-		self updateProject ].
+	projectListPresenter
+		whenSelectionChangedDo: [ :selection | self updateProject ];
+		whenNoneSelectedDo: [ self clearMethodLists ].
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		self refreshMethodsOn: methodListPresenter.
 		self selectMethodSourceTab.
@@ -2152,6 +2156,12 @@ JadeiteBrowserPresenter >> onViewOpened [
 	JadePresenter packageGroupsVisible
 		ifTrue: [self showPackageGroups]
 		ifFalse: [self hidePackageGroups].
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> openBrowser [
+
+	^self parentPresenter openBrowser
 ]
 
 { #category : 'as yet unclassified' }

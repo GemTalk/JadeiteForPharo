@@ -392,25 +392,6 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindowStayOnMetho
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_abortOnVariablesTab [
-	self unloadSampleProject1.
-	self commitTransaction.	"if sample project was loaded and committed outside test, test will fail"
-	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
-	self selectRowanSample1Test.
-	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selectionByIndex: 1.
-	self abortTransaction.
-	
-	[self assert: self projectsPresenter variableListPresenter list isEmpty.
-	self assert: self classListPresenter list isEmpty.
-	self assert: self packageListPresenter list isEmpty]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self testsIssue: #issue375
 		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.

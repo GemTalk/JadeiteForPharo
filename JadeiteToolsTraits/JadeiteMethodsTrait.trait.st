@@ -360,12 +360,12 @@ JadeiteMethodsTrait >> newMethodListMenu [
 			  self addBrowseSendersDialogItemTo: group ];
 		  addGroup: [ :group |
 			  group addItem: [ :item |
+				  self addBrowseMethodsContainingTo: group.
+				  self addBrowseLiteralReferencesTo: group.
 				  item
 					  name: 'Browse Selected Methods';
 					  action: [ self browseSelectedMethods ];
-					  enabled: [ self methodListPresenter selections notEmpty ] ].
-			  self addBrowseMethodsContainingTo: group.
-			  self addBrowseLiteralReferencesTo: group ];
+					  enabled: [ self methodListPresenter selections notEmpty ] ] ];
 		  addItem: [ :item |
 			  item
 				  name: 'Remove Method(s) ...';

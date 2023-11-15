@@ -238,32 +238,34 @@ JadeiteProjectsTrait >> newProjectMenu [
 				action: [ self loadProject ] ].
 		group addItem: [ :item |
 			item
+				name: 'Refresh from Disk';
+				action: [ self reloadProject ] ].
+		group addItem: [ :item |
+			item
+				name: 'Unload';
+				action: [ self unloadProject ];
+				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
 				name: 'Commit to Git ...';
 				action: [ self gitCommit ];
 				enabled: [ self allSelectedProjectsDirty ] ].
 		group addItem: [ :item |
 			item
-				name: 'Write to Git ...';
-				action: [ self gitWriteProject ];
-				enabled: [ self projectListPresenter selectionOrNil notNil ] ].
-		group addItem: [ :item |
-			item
-				name: 'Push to GitHub';
-				action: [ self pushToGit ] ].
+				name: 'Push to Git';
+				action: [ self pushToGit ] ] ].
+	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
 				name: 'Changes';
 				action: [ self projectChanges ] ].
 		group addItem: [ :item |
 			item
-				name: 'Unload ...';
-				action: [ self unloadProject ];
+				name: 'Write';
+				action: [ self gitWriteProject ];
 				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
-	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Refresh from Disk';
-				action: [ self reloadProject ] ] ].
+	menu addGroup: [ :group |  ].
 	^ menu
 ]
 

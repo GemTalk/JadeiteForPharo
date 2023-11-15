@@ -125,12 +125,12 @@ JadeiteBrowser >> initializeJadeiteMenu [
 			  group
 				  addItem: [ :item | 
 					  item
-						  name: 'New Browser';
+						  name: 'New Projects Browser';
 						  shortcut: $n meta;
 						  action: [ self openBrowser ] ];
 				  addItem: [ :item | 
 					  item
-						  name: 'New Browser Tab';
+						  name: 'New Projects Tab';
 						  shortcut: $t meta;
 						  action: [ self openBrowserTab ] ] ];
 		  addItem: [ :item | 
