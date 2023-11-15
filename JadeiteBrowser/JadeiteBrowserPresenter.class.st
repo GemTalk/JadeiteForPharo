@@ -2517,19 +2517,25 @@ JadeiteBrowserPresenter >> refreshGlobalSelections [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 
-	| classService | 
+	| classService |
 	classService := self selectedClass ifNil: [ ^ self ].
 	classService meta: self isClassSideSelected.
 	self isCategoryTabSelected
-		ifTrue: [ classService filters: categoryListPresenter selections ]
+		ifTrue: [
+			classService filters: categoryListPresenter selections.
+			categoryListPresenter selectedItems isEmpty ifTrue: [
+				self clearMethodLists ] ]
 		ifFalse: [
 			self isVariablesTabSelected
-				ifTrue: [ classService filters: variableListPresenter selections ]
+				ifTrue: [
+					classService filters: variableListPresenter selections.
+					variableListPresenter selectedItems isEmpty ifTrue: [
+						self clearMethodLists ] ]
 				ifFalse: [
 				classService filters: packageMethodListPresenter selections ] ].
-	self updateService: classService. 
-	methodListPresenter selections 
-		isEmpty ifTrue: [
+	self updateService: classService.
+	methodListPresenter selections isEmpty
+		ifTrue: [
 			self resetCategoryText.
 			definedMethodPackageText text: String new ]
 		ifFalse: [ self updateMethodSource ]
