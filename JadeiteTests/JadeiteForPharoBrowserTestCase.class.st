@@ -159,6 +159,50 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_addAccessorsClassTab [
+	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #()
+		package: 'RowanSample1-Core'.
+	
+	[self projectsPresenter selectClassTab.
+	self projectsPresenter selectVariableTab.
+	self variableListPresenter selections: #('format').
+	self projectsPresenter addVariableAccessors.
+	self selectMethodNamed: #format.
+	self assert: self methodListPresenter selections first selector equals: #format.
+	self selectMethodNamed: #format:.
+	self assert: self methodListPresenter selections first selector equals: #format:]
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
+	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('var1' 'var2' 'var3')
+		package: 'RowanSample1-Core'.
+	
+	[self projectsPresenter selectVariableTab.
+	self variableListPresenter selections: #('var1').
+	self projectsPresenter addVariableAccessors.
+	self selectMethodNamed: #var1.
+	self assert: self methodSourcePresenter text equals: 'var1
+	^var1' .
+	self selectMethodNamed: #var1:.
+	self assert: self methodSourcePresenter text
+		equals: 'var1: object
+	var1 := object' replaceCrLfWithLf]
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
 	self selectRowanSample1Class.
 	self deny: (self categoryListPresenter list includes: 'jadeite test').
@@ -218,6 +262,98 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 			 (self hierarchyVisibleItems detect: [ :service |
 				  service name = 'RowanProjectService' ])) ] ensure: [
 		self selectClassListTab ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_instVarReaders [
+	"should browse the whole hierarchy"
+
+	| list |
+	self selectRowanSample1Class.
+	self
+		saveClass: 'Foo'
+		superclass: 'Object'
+		instVars: (Array with: 'fooInstVar')
+		package: 'RowanSample1-Core'.
+	self selectServiceNamed: 'Foo' in: self classListPresenter.
+	self
+		saveClass: 'FooSub'
+		superclass: 'Foo'
+		instVars: Array new
+		package: 'RowanSample1-Core'.
+	self selectServiceNamed: 'Foo' in: self classListPresenter.
+	self
+		saveMethod: 'fooInstVar ^fooInstVar'
+		in: 'Foo'
+		category: 'other'.
+	self
+		saveMethod: 'fooInstVarSize ^fooInstVar size'
+		in: 'Foo'
+		category: 'other'.
+	self selectServiceNamed: 'FooSub' in: self classListPresenter.
+	self
+		saveMethod: 'fooInstVarSubSize ^fooInstVar size'
+		in: 'FooSub'
+		category: 'other'.
+	self
+		saveMethod: 'doesNotShowUpInList ^1'
+		in: 'FooSub'
+		category: 'other'.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selection: 'fooInstVar'.
+	methodListBrowser := self projectsPresenter browseInstVarReaders.
+	list := methodListBrowser methodListPresenter list collection.
+	self assert: list size equals: 3.
+	self assert: (list select: [:methodService | methodService className = 'Foo']) size equals: 2.
+	self assert: (list select: [:methodService | methodService className = 'FooSub']) size equals: 1.
+	self assert: (list collect: [:methodService | methodService selector]) asArray
+		equals: #(#fooInstVar #fooInstVarSize #fooInstVarSubSize)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_instVarWriters [
+	"should browse the whole hierarchy"
+
+	| list |
+	self selectRowanSample1Class.
+	self
+		saveClass: 'Foo'
+		superclass: 'Object'
+		instVars: (Array with: 'fooInstVar')
+		package: 'RowanSample1-Core'.
+	self selectServiceNamed: 'Foo' in: self classListPresenter.
+	self
+		saveClass: 'FooSub'
+		superclass: 'Foo'
+		instVars: Array new
+		package: 'RowanSample1-Core'.
+	self selectServiceNamed: 'Foo' in: self classListPresenter.
+	self
+		saveMethod: 'fooInstVar: anObject fooInstVar := anObject'
+		in: 'Foo'
+		category: 'other'.
+	self
+		saveMethod: 'fooInstVarSize fooInstVar := fooInstVar size'
+		in: 'Foo'
+		category: 'other'.
+	self selectServiceNamed: 'FooSub' in: self classListPresenter.
+	self
+		saveMethod: 'fooInstVarSubSize fooInstVar := fooInstVar size'
+		in: 'FooSub'
+		category: 'other'.
+	self
+		saveMethod: 'doesNotShowUpInList ^1'
+		in: 'FooSub'
+		category: 'other'.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selection: 'fooInstVar'.
+	methodListBrowser := self projectsPresenter browseInstVarWriters.
+	list := methodListBrowser methodListPresenter list collection.
+	self assert: list size equals: 3.
+	self assert: (list select: [:methodService | methodService className = 'Foo']) size equals: 2.
+	self assert: (list select: [:methodService | methodService className = 'FooSub']) size equals: 1.
+	self assert: (list collect: [:methodService | methodService selector]) asArray
+		equals: #(#fooInstVar: #fooInstVarSize #fooInstVarSubSize)
 ]
 
 { #category : 'tests' }
@@ -373,6 +509,19 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 			ensure: 
 				[self cloneRowanSample1.
 				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_selectVariable [
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selection: 'instVarNames'.
+	self methodListPresenter list
+		do: [:methodService | self assert: (methodService source substrings includes: 'instVarNames')].
+	self projectsPresenter variableListPresenter selection: 'isNewClass'.
+	self methodListPresenter list
+		do: [:methodService | self assert: (methodService source substrings includes: 'isNewClass')]
 ]
 
 { #category : 'tests' }

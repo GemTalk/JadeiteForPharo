@@ -1016,11 +1016,6 @@ JadeiteProjectsBrowserPresenter >> selectClassNamed: className [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectClassTab [
-	classListHierarchyTabs pages last.
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCommentTab [
 	self selectSourceTabNamed: 'classDocumentation'
 ]

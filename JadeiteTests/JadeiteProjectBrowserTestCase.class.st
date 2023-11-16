@@ -522,57 +522,6 @@ JadeiteProjectBrowserTestCase >> test_adHocInspectComplexObjectInProjectBrowser2
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_addAccessors [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
-	self selectRowanSample1Class.
-	self
-		saveClass: 'TestClass'
-		superclass: 'Object'
-		instVars: #('var1' 'var2' 'var3')
-		package: 'RowanSample1-Core'.
-	
-	[self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('var1' 'var3').
-	self projectsPresenter addVariableAccessors.
-	self selectMethodNamed: #var1.
-	self assert: self methodListPresenter selections first selector equals: #var1.
-	self selectMethodNamed: #var1:.
-	self assert: self methodListPresenter selections first selector equals: #var1:.
-	self selectMethodNamed: #var3.
-	self assert: self methodListPresenter selections first selector equals: #var3.
-	self selectMethodNamed: #var3:.
-	self assert: self methodListPresenter selections first selector equals: #var3:.
-	self
-		assertIsNil: (self methodListPresenter list detect: [:methodService | methodService selector = #var2]
-				ifNone: []).
-	self assertIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #var2:]
-				ifNone: [])]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_addAccessorsClassTab [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
-	self selectRowanSample1Class.
-	self
-		saveClass: 'TestClass'
-		superclass: 'Object'
-		instVars: #()
-		package: 'RowanSample1-Core'.
-	
-	[self projectsPresenter selectClassTab.
-	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('format').
-	self projectsPresenter addVariableAccessors.
-	self selectMethodNamed: #format.
-	self assert: self methodListPresenter selections first selector equals: #format.
-	self selectMethodNamed: #format:.
-	self assert: self methodListPresenter selections first selector equals: #format:]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_addAccessorsVariablesStaySelected [
 	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
@@ -586,29 +535,6 @@ JadeiteProjectBrowserTestCase >> test_addAccessorsVariablesStaySelected [
 	self variableListPresenter selections: #('var1' 'var3').
 	self projectsPresenter addVariableAccessors.
 	self assert: self variableListPresenter selections equals: #('var1' 'var3')]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_addAccessorsVerifySource [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
-	self selectRowanSample1Class.
-	self
-		saveClass: 'TestClass'
-		superclass: 'Object'
-		instVars: #('var1' 'var2' 'var3')
-		package: 'RowanSample1-Core'.
-	
-	[self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('var1').
-	self projectsPresenter addVariableAccessors.
-	self selectMethodNamed: #var1.
-	self assert: self methodSourcePresenter value equals: 'var1
-	^var1' replaceCrLfWithLf.
-	self selectMethodNamed: #var1:.
-	self assert: self methodSourcePresenter value
-		equals: 'var1: object
-	var1 := object' replaceCrLfWithLf]
 			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
 ]
 
@@ -756,8 +682,7 @@ JadeiteProjectBrowserTestCase >> test_auditProject [
 JadeiteProjectBrowserTestCase >> test_autoCommit [
 	| methodListPresenter autoCommit |
 	self testsIssue: #issue421 withTitle: 'Need a way to know if you are in autocommit'.
-	methodListBrowser := JadePresenter browseImplementorsOf: #size session: session.
-	methodListPresenter := methodListBrowser primaryPresenter.
+	methodListPresenter := self projectsPresenter browseImplementorsOf: #size.
 	autoCommit := self projectsPresenter remoteAutoCommit.
 	self assert: self projectsPresenter autoCommit equals: autoCommit.
 	self assert: methodListPresenter autoCommit equals: autoCommit.
@@ -2221,98 +2146,6 @@ JadeiteProjectBrowserTestCase >> test_implementorsSendersCaption [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_instVarReaders [
-	"should browse the whole hierarchy"
-
-	| list |
-	self selectRowanSample1Class.
-	self
-		saveClass: 'Foo'
-		superclass: 'Object'
-		instVars: (Array with: 'fooInstVar')
-		package: 'RowanSample1-Core'.
-	self selectServiceNamed: 'Foo' in: self classListPresenter.
-	self
-		saveClass: 'FooSub'
-		superclass: 'Foo'
-		instVars: Array new
-		package: 'RowanSample1-Core'.
-	self selectServiceNamed: 'Foo' in: self classListPresenter.
-	self
-		saveMethod: 'fooInstVar ^fooInstVar'
-		in: 'Foo'
-		category: 'other'.
-	self
-		saveMethod: 'fooInstVarSize ^fooInstVar size'
-		in: 'Foo'
-		category: 'other'.
-	self selectServiceNamed: 'FooSub' in: self classListPresenter.
-	self
-		saveMethod: 'fooInstVarSubSize ^fooInstVar size'
-		in: 'FooSub'
-		category: 'other'.
-	self
-		saveMethod: 'doesNotShowUpInList ^1'
-		in: 'FooSub'
-		category: 'other'.
-	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection: 'fooInstVar'.
-	methodListBrowser := self projectsPresenter browseInstVarReaders.
-	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
-	self assert: list size equals: 3.
-	self assert: (list select: [:methodService | methodService className = 'Foo']) size equals: 2.
-	self assert: (list select: [:methodService | methodService className = 'FooSub']) size equals: 1.
-	self assert: (list collect: [:methodService | methodService selector]) asArray
-		equals: #(#fooInstVar #fooInstVarSize #fooInstVarSubSize)
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_instVarWriters [
-	"should browse the whole hierarchy"
-
-	| list |
-	self selectRowanSample1Class.
-	self
-		saveClass: 'Foo'
-		superclass: 'Object'
-		instVars: (Array with: 'fooInstVar')
-		package: 'RowanSample1-Core'.
-	self selectServiceNamed: 'Foo' in: self classListPresenter.
-	self
-		saveClass: 'FooSub'
-		superclass: 'Foo'
-		instVars: Array new
-		package: 'RowanSample1-Core'.
-	self selectServiceNamed: 'Foo' in: self classListPresenter.
-	self
-		saveMethod: 'fooInstVar: anObject fooInstVar := anObject'
-		in: 'Foo'
-		category: 'other'.
-	self
-		saveMethod: 'fooInstVarSize fooInstVar := fooInstVar size'
-		in: 'Foo'
-		category: 'other'.
-	self selectServiceNamed: 'FooSub' in: self classListPresenter.
-	self
-		saveMethod: 'fooInstVarSubSize fooInstVar := fooInstVar size'
-		in: 'FooSub'
-		category: 'other'.
-	self
-		saveMethod: 'doesNotShowUpInList ^1'
-		in: 'FooSub'
-		category: 'other'.
-	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection: 'fooInstVar'.
-	methodListBrowser := self projectsPresenter browseInstVarWriters.
-	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
-	self assert: list size equals: 3.
-	self assert: (list select: [:methodService | methodService className = 'Foo']) size equals: 2.
-	self assert: (list select: [:methodService | methodService className = 'FooSub']) size equals: 1.
-	self assert: (list collect: [:methodService | methodService selector]) asArray
-		equals: #(#fooInstVar: #fooInstVarSize #fooInstVarSubSize)
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_issue261 [
 	"create a loaded project and test the info display"
 
@@ -2839,19 +2672,6 @@ JadeiteProjectBrowserTestCase >> test_selectMultiplePackages [
 	self serviceNamed: 'Rowan-Services-Core' in: self packageListPresenter.
 	self serviceNamed: 'Rowan-JadeServer' in: self packageListPresenter.
 	self selectServicesNamed: #('Rowan-Services-Core' 'Rowan-JadeServer') in: self packageListPresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_selectVariable [
-	self selectRowanServicesPackage.
-	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
-	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection: 'instVarNames'.
-	self methodListPresenter list
-		do: [:methodService | self assert: (methodService source subStrings includes: 'instVarNames')].
-	self projectsPresenter variableListPresenter selection: 'isNewClass'.
-	self methodListPresenter list
-		do: [:methodService | self assert: (methodService source subStrings includes: 'isNewClass')]
 ]
 
 { #category : 'as yet unclassified' }

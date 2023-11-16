@@ -2836,6 +2836,11 @@ JadeiteBrowserPresenter >> selectClassListTab [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassTab [
+	self setClassSide
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 	| dictionaryService |
 	dictionaryService := dictionaryListPresenter list detect: [:service | service name = dictionaryName]
