@@ -392,26 +392,6 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindowStayOnMetho
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
-	self testsIssue: #issue375
-		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: self classListPresenter.
-	self selectMethodNamed: #foo.	"select a method defined in it's class package while the extension class is selected"
-	self methodSourcePresenter value: 'foo   ^foot'.
-	self assert: self methodSourcePresenter value equals: 'foo   ^foot'.
-	self assert: self methodListPresenter selection selector equals: #foo.
-	self assert: self classListPresenter selection name equals: 'RowanSample1'.
-	self assert: self packageListPresenter selection name equals: 'RowanSample1-Extensions'.
-	self methodSourcePresenter value: 'foo   ^footy'.
-	self assert: self methodSourcePresenter value equals: 'foo   ^footy'.
-	self assert: self methodListPresenter selection selector equals: #foo.
-	self assert: self classListPresenter selection name equals: 'RowanSample1'.
-	self assert: self packageListPresenter selection name equals: 'RowanSample1-Extensions'
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_adHocContextClassSide [
 	| classService |
 	self testsIssue: #issue517 withTitle: 'Context of non-debugger source panes should be the class'.
@@ -536,32 +516,6 @@ JadeiteProjectBrowserTestCase >> test_addAccessorsVariablesStaySelected [
 	self projectsPresenter addVariableAccessors.
 	self assert: self variableListPresenter selections equals: #('var1' 'var3')]
 			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_addDuplicatePackage [
-	| projectService addPackageResult packageName |
-	self testsIssue: #issue266
-		withTitle: 'Add package with existing name results in package in two projects'.
-	
-	[packageName := 'NewPackage'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	projectService := self projectListPresenter selection.
-	self addPackageNamed: packageName.
-	self assert: self packageListPresenter selection name equals: packageName.
-	self assert: (self packageListPresenter list select: [:service | service name = packageName]) size
-		equals: 1.
-	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[TestMessageBox plannedResult: #failed.
-	self addPackageNamed: packageName.
-	self assert: (self packageListPresenter list select: [:service | service name = packageName]) size
-		equals: 1]
-			ensure: [TestMessageBox disableJadeiteTestMessageBox]]
-			ensure: 
-				[self unloadSampleProject1.	"we can't yet unload packages so unload the project and reload"
-				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -988,31 +942,6 @@ JadeiteProjectBrowserTestCase >> test_browseClass [
 	dictionaryPresenter := self projectsPresenter browseSelectedClass.
 	[self assert: ('String*' match: dictionaryPresenter selectedClassName)]
 		ensure: [self destroy: dictionaryPresenter topShell]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_browseLiteralReferences [
-	| methodListPresenter source |
-	self testsIssue: #issue256
-		withTitle: 'Find string literals in addition to ''methods containing string'' would be useful'.
-	self selectRowanSample1Class.
-	source := 'theAString ^''apple'''.
-	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	source := 'invokeA ^self apple'.
-	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	source := 'theASymbol ^#apple'.
-	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectMethodNamed: #theAString.
-	self selectMethodNamed: #invokeA.
-	methodListBrowser := JadePresenter browseLiteralReferences: '''apple''' session: session.
-	methodListPresenter := methodListBrowser primaryPresenter methodListPresenter methodListPresenter.
-	self assert: methodListPresenter list size equals: 1.
-	self assert: methodListPresenter selection selector equals: #theAString.
-	methodListPresenter list
-		do: [:methodService | self assert: ('*''apple''*' match: methodService source)]
 ]
 
 { #category : 'as yet unclassified' }

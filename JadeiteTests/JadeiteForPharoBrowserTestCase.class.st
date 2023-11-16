@@ -113,6 +113,26 @@ JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 				self ensureRowanSampleProjectsLoaded]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
+	self testsIssue: #issue375
+		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
+	self selectServiceNamed: self sampleClassName in: self classListPresenter.
+	self selectMethodNamed: #foo.	"select a method defined in it's class package while the extension class is selected"
+	self methodSourcePresenter value: 'foo   ^foot'.
+	self assert: self methodSourcePresenter text equals: 'foo   ^foot'.
+	self assert: self methodListPresenter selectedItem selector equals: #foo.
+	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
+	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'.
+	self methodSourcePresenter text: 'foo   ^footy'.
+	self assert: self methodSourcePresenter text equals: 'foo   ^footy'.
+	self assert: self methodListPresenter selectedItem selector equals: #foo.
+	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
+	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addAccessors [
 
@@ -203,6 +223,48 @@ JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_addDuplicatePackage [
+	"don't open the add package dialog window as it's hard to test a modal window,
+	just fill in the values so the browser can extract them and do the actual work."
+
+	| projectService packageName modalWindow |
+	self
+		testsIssue: #issue266
+		withTitle:
+		'Add package with existing name results in package in two projects'.
+
+	packageName := 'NewPackage'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	projectService := self projectListPresenter selection.
+	modalWindow := JadeiteAddPackageDialog
+		               newModalWindowOn: session
+		               projectService:
+		               self projectListPresenter selectedItem.
+	modalWindow presenter packageNamePresenter: packageName.
+	self projectsPresenter basicAddPackage: modalWindow.
+	self
+		assert: self packageListPresenter selectedItem name
+		equals: packageName.
+	self
+		assert: (self packageListPresenter list select: [ :service |
+				 service name = packageName ]) size
+		equals: 1.
+	modalWindow := JadeiteAddPackageDialog
+		               newModalWindowOn: session
+		               projectService:
+		               self projectListPresenter selectedItem.
+	modalWindow presenter packageNamePresenter: packageName.
+	self projectsPresenter basicAddPackage: modalWindow. "should just select the project in the list"
+	self
+		assert: self packageListPresenter selectedItem name
+		equals: packageName.
+	self
+		assert: (self packageListPresenter list select: [ :service |
+				 service name = packageName ]) size
+		equals: 1
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
 	self selectRowanSample1Class.
 	self deny: (self categoryListPresenter list includes: 'jadeite test').
@@ -227,6 +289,41 @@ JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
 				self abortTransaction.
 				self cloneRowanSample1.
 				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
+
+	| methodListPresenter source |
+	self
+		testsIssue: #issue256
+		withTitle:
+		'Find string literals in addition to ''methods containing string'' would be useful'.
+	self selectRowanSample1Class.
+	source := 'theAString ^''apple'''.
+	self methodSourcePresenter text: source.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selectedItem.
+	source := 'invokeA ^self apple'.
+	self methodSourcePresenter text: source.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selectedItem.
+	source := 'theASymbol ^#apple'.
+	self methodSourcePresenter text: source.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selectedItem.
+	self selectMethodNamed: #theAString.
+	self selectMethodNamed: #invokeA.
+	methodListPresenter := self projectsPresenter
+		                       browseLiteralReferences: '''apple'''.
+	[
+	self assert: methodListPresenter list size equals: 1.
+	self
+		assert: methodListPresenter listPresenter selectedItem selector
+		equals: #theAString.
+	methodListPresenter list do: [ :methodService |
+		self assert: ('*''apple''*' match: methodService source) ] ]
+		ensure: [ self destroy: methodListPresenter ]
 ]
 
 { #category : 'tests' }

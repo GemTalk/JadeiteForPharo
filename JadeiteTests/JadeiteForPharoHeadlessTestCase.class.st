@@ -124,6 +124,21 @@ JadeiteForPharoHeadlessTestCase >> test_cleanUpServiceOnDisconnect [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_copyToClipboard [
+	"added a convenience extension method to Text to copy to the clipboard "
+
+	| text string |
+	string := 'will this get to the clipboard?'.
+	text := Text fromString: string.
+	text copyToClipboard.
+	self assert: Clipboard clipboardText equals: string.
+	string := 'its probably working'.
+	text := Text fromString: string.
+	text copyToClipboard.
+	self assert: Clipboard clipboardText equals: string.
+]
+
+{ #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_execution [
 	
 	| service |

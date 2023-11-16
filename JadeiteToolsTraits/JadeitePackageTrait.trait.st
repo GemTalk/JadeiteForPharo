@@ -6,15 +6,25 @@ Trait {
 { #category : 'actions' }
 JadeitePackageTrait >> addPackage [
 
-	| inst packageName componentName symbolDictionaryName |
+	| inst |
 	inst := JadeiteAddPackageDialog
 		        showOnSession: GciSession current
 		        projectService: self projectListPresenter selectedItem.
-	inst isOk ifFalse:[^self]. 
-	packageName := inst presenter packageName. 
-	componentName := inst presenter componentName. 
+	inst isOk ifFalse: [ ^ self ].
+	self basicAddPackage: inst
+]
+
+{ #category : 'actions' }
+JadeitePackageTrait >> basicAddPackage: inst [
+
+	| componentName symbolDictionaryName packageName |
+	packageName := inst presenter packageName.
+	componentName := inst presenter componentName.
 	symbolDictionaryName := inst presenter symbolDictionaryName.
-	self basicAddPackageNamed: packageName symbolDictionary: symbolDictionaryName componentName: componentName
+	self
+		basicAddPackageNamed: packageName
+		symbolDictionary: symbolDictionaryName
+		componentName: componentName
 ]
 
 { #category : 'actions' }

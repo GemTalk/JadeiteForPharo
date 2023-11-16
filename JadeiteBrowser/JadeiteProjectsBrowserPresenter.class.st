@@ -1228,31 +1228,6 @@ JadeiteProjectsBrowserPresenter >> updateAndSelectA: aView [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> updateClassInfo [
-	| service |
-	self resetCategoryText.
-	service := self selectedClass
-				ifNil: 
-					[self resetDefinedClassPackage.
-					^self].
-	classCommentPresenter text: service comment.
-	classDefinitionPresenter view isModified
-		ifTrue: 
-			[service template = classDefinition ifTrue: [^self].
-			(MessageBox confirm: 'Copy changes to clipboard?' caption: 'Class has unsaved changes!')
-				ifTrue: [classDefinitionPresenter text copyToClipboard]].
-	classDefinitionPresenter value: service template.
-	self resetClassDefinitionPane.
-	self todo: [self setTestClass: service.
-	self isSunitTabSelected ifFalse: [classDefinitionPresenter ensureVisible].
-	self updateClassMenu: nil.
-	self updateSUnitTab.].
-	definedClassPackageText view text: 'Defined Package: ' , self selectedClass definedPackageName.
-	self sundryCleanup.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> updateCommand: aString onSuccessDo: aBlock [
 	"Only use STON to update in our new browser"
 

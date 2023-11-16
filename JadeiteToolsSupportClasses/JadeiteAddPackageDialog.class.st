@@ -11,6 +11,20 @@ Class {
 }
 
 { #category : 'instance creation' }
+JadeiteAddPackageDialog class >> newModalWindowOn: aGciSession projectService: theProjectService [
+
+	| inst modalWindow |
+	inst := self new.
+	modalWindow := inst
+		               gciSession: aGciSession;
+		               projectService: theProjectService;
+		               initializeLists;
+		               asModalWindow.
+	modalWindow closeOnBackdropClick: true.
+	^ modalWindow
+]
+
+{ #category : 'instance creation' }
 JadeiteAddPackageDialog class >> showOnSession: aGciSession [
 
 	^self new 
@@ -23,12 +37,11 @@ JadeiteAddPackageDialog class >> showOnSession: aGciSession [
 { #category : 'instance creation' }
 JadeiteAddPackageDialog class >> showOnSession: aGciSession projectService: theProjectService [
 
-	^self new 
-		gciSession: aGciSession;
-		projectService: theProjectService;
-		initializeLists;
-		openModal
-
+	| modalWindow |
+	modalWindow := self
+		               newModalWindowOn: aGciSession
+		               projectService: theProjectService.
+	^ modalWindow open
 ]
 
 { #category : 'accessing' }
