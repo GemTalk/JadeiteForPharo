@@ -1,0 +1,11 @@
+Class {
+	#name : 'JadeiteBrowseSendersCommand',
+	#superclass : 'SpBrowseSendersCommand',
+	#category : 'Jadeite-ToolsSupportClasses'
+}
+
+{ #category : 'accessing' }
+JadeiteBrowseSendersCommand >> name [
+
+	^ 'Senders of ' , self jadeiteMenuNameFromSelector
+]

@@ -1,0 +1,1535 @@
+Class {
+	#name : 'JadeiteProjectBrowserLowerTabsTestCase',
+	#superclass : 'JadeiteProjectBrowserAbstractTestCase',
+	#category : 'Jadeite-Tests'
+}
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> cardMenuItemForCommand: command in: toolbar [
+	| query item |
+	item := toolbar items
+				detect: [:theItem | theItem isDivider not and: [theItem commandDescription command = command]].
+	query := CommandQuery commandDescription: item commandDescription source: projectsBrowser view.
+	projectsBrowser queryCommand: query.
+	^query
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_abstractTestsShown [
+	| commandQuery methodService |
+	self testsIssue: #issue336
+		withTitle: 'S-Unit Tests In an abstract class and its subclasses are not managed properly'.
+	self selectRowanServicesTestsPackage.
+	self selectServiceNamed: 'RowanServicesTest' in: self classListPresenter.
+	self assert: (session executeString: 'RowanServicesTest isAbstract').
+	self selectCategoryNamed: 'tests'.
+	methodService := self methodListPresenter list
+				detect: [:method | method selector == #test_isAbstract]
+				ifNone: [].
+	self denyIsNil: methodService.
+	self methodListPresenter selection: methodService.
+	commandQuery := self
+				queryCommand: #runMethodTests
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled	"run test menu item disabled in the abstract class"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_additionalAccelerators [
+	"No way yet to adequately test accelerators function
+	but we can assert that we tell Dolphin to set them up"
+
+	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
+	self selectRowanSample1Class.
+	self selectServiceNamed: 'foo' in: self methodListPresenter.
+	self assert: (self projectsPresenter class defaultAdditionalAccelerators
+				includes: #(#insertIfFalse 'Ctrl+Shift+D')).
+	self assert: (self projectsPresenter class defaultAdditionalAccelerators
+				includes: #(#insertIfTrue 'Ctrl+Shift+T')).
+	self assert: self projectsPresenter class defaultAdditionalAccelerators size equals: 3.	"if a new accelerator gets added, fail test so it gets updated."
+	
+	[| command sourcePresenter |
+	sourcePresenter := self projectsPresenter methodSourcePresenter.
+	sourcePresenter topShell view buildCombinedAcceleratorTable.	"lazily done by Dolphin when view is engaged"
+	command := sourcePresenter topShell view combinedAcceleratorTable commands values
+				detect: [:ea | ea command = #insertIfFalse]
+				ifNone: [].
+	self denyIsNil: command.
+	command := sourcePresenter topShell view combinedAcceleratorTable commands values
+				detect: [:ea | ea command = #insertIfTrue]
+				ifNone: [].
+	self denyIsNil: command]
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_breakAtDisplaysOneTime [
+	"make sure to properly remove menu item before adding a new one based on caret position"
+
+	| breakAtMenuOptions |
+	self testsIssue: #issue599
+		withTitle: 'PB Method drop-down menu intermittently loses "Go to defining package" (3.0.82)'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self methodSourcePresenter view goto: 0.
+	breakAtMenuOptions := self methodSourcePresenter view queryContextMenu items
+				select: [:menu | '*Break at*' match: menu text].
+	self assert: breakAtMenuOptions size equals: 0.
+	self methodSourcePresenter view goto: 40.	"put caret on #foo send"
+	10 timesRepeat: 
+			["should never find more than 1 menu item"
+			self methodListPresenter selection
+				appendToSourceMenu: self methodSourcePresenter view queryContextMenu
+				presenter: self methodSourcePresenter.
+			breakAtMenuOptions := self methodSourcePresenter view queryContextMenu items
+						select: [:menu | '*Break at*' match: menu text].
+			breakAtMenuOptions
+				do: [:messageSend | self assert: messageSend command selector equals: #setBreakPointAt:in:].
+			self assert: breakAtMenuOptions size equals: 1]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_breakpointDisabledHighlighting [
+	| indicator |
+	self testsIssue: #issue597
+		withTitle: 'Disabled Breakpoints only disables existing, doesn''t impact one set later; why in preferences?'.
+	self enableBreakpoints.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self setBreakAt: 2.
+	self projectsPresenter refreshBreakPointsIn: self methodSourcePresenter.  "just force the breakpoint refresh to happen. Done with deferred processing now" 
+	indicator := self projectsPresenter methodSourcePresenter view indicators at: 2.
+	self assert: indicator range = (35 to: 37).
+	self assert: indicator styleName = #breakPoint.
+	self assert: indicator tag = 'Break at step point #2'.
+	
+	[self disableBreakpoints.
+	(Delay forMilliseconds: 1000) wait.
+	indicator := self projectsPresenter methodSourcePresenter view indicators at: 2.
+	self assert: indicator range = (35 to: 37).
+	self assert: indicator styleName = #disabledBreakPoint.
+	self assert: indicator tag = 'Break at step point #2'.
+	self setBreakAt: 3.
+	indicator := self projectsPresenter methodSourcePresenter view indicators at: 3.
+	self assert: indicator range = (39 to: 41).
+	self assert: indicator styleName = #disabledBreakPoint.
+	self assert: indicator tag = 'Break at step point #3']
+			ensure: 
+				[self clearBreakAt: 2.
+				self clearBreakAt: 3.
+				self enableBreakpoints]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseHierarchyImplementorsEnablement [
+	| commandQuery |
+	self testsIssue: #issue399
+		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
+	self selectRowanSample1Test.
+	self selectCategoryNamed: 'tests'.
+	self selectMethodNamed: #test1.
+	commandQuery := self
+				queryCommand: #browseHierarchyImplementors
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	self selectMethodsNamed: #(#test1 #test2).
+	commandQuery := self
+				queryCommand: #browseHierarchyImplementors
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled.
+	self selectMethodsNamed: #().
+	commandQuery := self
+				queryCommand: #browseHierarchyImplementors
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseHierarchySendersEnablement [
+	| commandQuery |
+	self testsIssue: #issue399
+		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
+	self selectRowanSample1Test.
+	self selectCategoryNamed: 'tests'.
+	self selectMethodNamed: #test1.
+	commandQuery := self
+				queryCommand: #browseHierarchySenders
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	self selectMethodsNamed: #(#test1 #test2).
+	commandQuery := self
+				queryCommand: #browseHierarchySenders
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled.
+	self selectMethodsNamed: #().
+	commandQuery := self
+				queryCommand: #browseHierarchySenders
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseImplementorsDisplaysOneTime [
+	"make sure to properly remove menu item before adding a new one based on caret position"
+
+	| browseImplementorsMenuOptions |
+	self testsIssue: #issue599
+		withTitle: 'PB Method drop-down menu intermittently loses "Go to defining package" (3.0.82)'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	browseImplementorsMenuOptions := self methodSourcePresenter view queryContextMenu items
+				select: [:menu | '*Browser Implementors*' match: menu text].
+	self assert: browseImplementorsMenuOptions size equals: 0.	"caret not on a selector yet"
+	self methodSourcePresenter view goto: 40.	"put caret on #foo send"
+	10 timesRepeat: 
+			["should never find more than 1 menu item"
+			self methodListPresenter selection
+				appendToSourceMenu: self methodSourcePresenter view queryContextMenu
+				presenter: self methodSourcePresenter.
+			browseImplementorsMenuOptions := self methodSourcePresenter view queryContextMenu items
+						select: [:menu | '*Browse Implementors*' match: menu text].
+			browseImplementorsMenuOptions
+				do: [:messageSend | self assert: messageSend command selector equals: #browseImplementorsOf:].
+			self assert: browseImplementorsMenuOptions size equals: 1]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseImplementorsEnablement [
+	| commandQuery |
+	self testsIssue: #issue399
+		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
+	self selectRowanSample1Test.
+	self selectCategoryNamed: 'tests'.
+	self selectMethodNamed: #test1.
+	commandQuery := self
+				queryCommand: #browseImplementors
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	self selectMethodsNamed: #(#test1 #test2).
+	commandQuery := self
+				queryCommand: #browseImplementors
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled.
+	self selectMethodsNamed: #().
+	commandQuery := self
+				queryCommand: #browseImplementors
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseSendersDisplaysOneTime [
+	"make sure to properly remove menu item before adding a new one based on caret position"
+
+	| browseSendersMenuOptions |
+	self testsIssue: #issue599
+		withTitle: 'PB Method drop-down menu intermittently loses "Go to defining package" (3.0.82)'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	browseSendersMenuOptions := self methodSourcePresenter view queryContextMenu items
+				select: [:menu | '*Browser Senders*' match: menu text].
+	self assert: browseSendersMenuOptions size equals: 0.	"caret not on a selector yet"
+	self methodSourcePresenter view goto: 40.	"put caret on #foo send"
+	10 timesRepeat: 
+			["should never find more than 1 menu item"
+			self methodListPresenter selection
+				appendToSourceMenu: self methodSourcePresenter view queryContextMenu
+				presenter: self methodSourcePresenter.
+			browseSendersMenuOptions := self methodSourcePresenter view queryContextMenu items
+						select: [:menu | '*Browse Senders*' match: menu text].
+			browseSendersMenuOptions
+				do: [:messageSend | self assert: messageSend command selector equals: #browseSendersOf:].
+			self assert: browseSendersMenuOptions size equals: 1]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseSendersEnablement [
+	| commandQuery |
+	self testsIssue: #issue399
+		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
+	self selectRowanSample1Test.
+	self selectCategoryNamed: 'tests'.
+	self selectMethodNamed: #test1.
+	commandQuery := self
+				queryCommand: #browseSenders
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self assert: commandQuery isEnabled.
+	self selectMethodsNamed: #(#test1 #test2).
+	commandQuery := self
+				queryCommand: #browseSenders
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled.
+	self selectMethodsNamed: #().
+	commandQuery := self
+				queryCommand: #browseSenders
+				inPresenter: self projectsPresenter
+				view: self methodListPresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_browseTestSelectorsInSUnitTab [
+	self testsIssue: #issue565
+		withTitle: 'Would like "browse selected" in the SUnit tab of the Project Browser (3.0.79)'.
+	self selectRowanServicesTestsPackage.
+	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
+	self selectSUnitTab.
+	self projectsPresenter sunitPresenter editSelectAll.
+	methodListBrowser := self projectsPresenter sunitPresenter browseSelectedMethods.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list asArray
+		equals: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list asArray
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_canOpenSystemBrowserWithAddPackageShowing [
+	"discovered that pressing addSystemBrowser might get routed to the add package presenter
+	in the project tab. Test that addPackagePresenter reroutes message to browser" 
+
+	| previousSize newSize |
+	previousSize := projectsBrowser cardsPresenter view tabs size.
+	self selectServiceNamed: 'RowanSample9' in: self projectListPresenter.
+	self projectsPresenter selectProjectTab.  
+	self projectsPresenter addPackagePresenter addSystemBrowser. 
+	newSize := projectsBrowser cardsPresenter view tabs size.
+	self assert: newSize = (previousSize + 1)
+
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_classCopy [
+	self testsIssue: #issue506 withTitle: 'Usefful to be able to copy a class ...'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self projectsPresenter isHierarchyTabSelected
+		ifTrue: [self selectTreeServicesNamed: (Array with: 'RowanSample1') in: self classHierarchyPresenter]
+		ifFalse: [self selectServiceNamed: 'RowanSample1' in: self classListPresenter].
+	self projectsPresenter basicCopyClass: self projectsPresenter selectedClass to: 'Fnoodle'.
+	self assert: self projectsPresenter selectedClass name equals: 'Fnoodle'.
+	self assert: self categoryListPresenter list first equals: 'accessing'.
+	self assert: self methodListPresenter list first selector equals: #foo.
+	self selectClassTab.
+	self assert: self categoryListPresenter list first equals: '*rowansample1-extensions'.
+	self assert: self methodListPresenter list first selector equals: #bar
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonPresenterEvents [
+	"don't remove the events by mistake"
+
+	self testsIssue: #issue752 withTitle: '(3.0.93) nice if I could compare two arbitrary methods'.
+	(self projectsPresenter comparisonPresenter afterPresenter getEvents at: #dragOver:)
+		messagesDo: [:message | self assert: message asSymbol equals: #onDragOverSource:].
+	(self projectsPresenter comparisonPresenter beforePresenter getEvents at: #dragOver:)
+		messagesDo: [:message | self assert: message asSymbol equals: #onDragOverSource:].
+	(self projectsPresenter comparisonPresenter afterPresenter getEvents at: #drop:)
+		messagesDo: [:message | self assert: message asSymbol equals: #onDropOnAfter:].
+	(self projectsPresenter comparisonPresenter beforePresenter getEvents at: #drop:)
+		messagesDo: [:message | self assert: message asSymbol equals: #onDropOnBefore:]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonTabMultimethod [
+	self testsIssue: #issue264
+		withTitle: 'Method List Browser Comparison tab contents are sticky (3.0.74)'.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanAnsweringService' in: self classListPresenter.
+	self selectMethodsNamed: #(#answer #answer:).
+	self projectsPresenter selectComparisonTab.
+	self assert: self projectsPresenter comparisonPresenter beforeTitlePresenter value
+		equals: 'RowanAnsweringService>>answer'.
+	self assert: self projectsPresenter comparisonPresenter beforePresenter value
+		equals: 'answer
+
+	^answer' replaceCrLfWithLf.
+	self assert: self projectsPresenter comparisonPresenter afterTitlePresenter value
+		equals: 'RowanAnsweringService>>answer:'.
+	self assert: self projectsPresenter comparisonPresenter afterPresenter value
+		equals: 'answer: anObject
+
+	answer := anObject' replaceCrLfWithLf
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonTabNoMethodSelected [
+	self testsIssue: #issue264
+		withTitle: 'Method List Browser Comparison tab contents are sticky (3.0.74)'.
+	self selectRowanSample1Test.
+	self projectsPresenter selectComparisonTab.
+	self assert: self projectsPresenter comparisonPresenter beforeTitlePresenter value
+		equals: String new.
+	self assert: self projectsPresenter comparisonPresenter beforePresenter value equals: String new.
+	self assert: self projectsPresenter comparisonPresenter afterTitlePresenter value equals: String new.
+	self assert: self projectsPresenter comparisonPresenter afterPresenter value equals: String new
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonTabSuperclass [
+	self testsIssue: #issue264
+		withTitle: 'Method List Browser Comparison tab contents are sticky (3.0.74)'.
+	self setupSupclassComparisonMethods.
+	self selectServiceNamed: 'RowanSubClass' in: self classListPresenter.
+	self selectMethodNamed: #comparisonMethod.
+	self projectsPresenter selectComparisonTab.
+	self assert: self projectsPresenter comparisonPresenter beforeTitlePresenter value
+		equals: 'RowanSubClass>>comparisonMethod'.	"selected class on left"
+	self assert: self projectsPresenter comparisonPresenter beforePresenter value
+		equals: 'comparisonMethod  ^3 + 4'.
+	self assert: self projectsPresenter comparisonPresenter afterTitlePresenter value
+		equals: 'RowanSample1>>comparisonMethod'.	"superclass on left"
+	self assert: self projectsPresenter comparisonPresenter afterPresenter value
+		equals: 'comparisonMethod  ^self subclassResponsibility'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileClass [
+	self testsIssue: #issue390 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('abc')
+		package: 'RowanSample1-Core'.
+	[self assert: self projectsPresenter selectedClass name = 'TestClass']
+		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassCompilerError [
+	"class definition string has a compile error. 
+	Should get handled by the project browser"
+
+	self testsIssue: #issue390 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Class.
+	self projectsPresenter classDefinitionPresenter
+		value: 'Object rwSubclass: ''TestClass''
+	instVarNames: # abc )
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()'.
+	self projectsPresenter editSaveClass.
+	
+	[self assert: self projectsPresenter classDefinitionPresenter value
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames:  invalid pound sign # abc )
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()']
+			ensure: 
+				[self projectsPresenter classDefinitionPresenter view isModified: false.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassDirtiesPackageAndProject [
+	self ensureRowanSampleProjectsLoaded.	"reload to control dirty state"
+	self selectRowanSample1Class.
+	self deny: self projectListPresenter selection isDirty.
+	self deny: self packageListPresenter selection isDirty.
+	self
+		saveClass: 'RowanSample1'
+		superclass: 'Object'
+		instVars: #('abc')
+		package: 'RowanSample1-Core'.
+	self assert: self projectListPresenter selection isDirty.
+	self assert: self packageListPresenter selection isDirty
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassExistingInAnotherPackage [
+	self testsIssue: #issue516 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self
+		assert: (session executeString: '(Rowan image symbolList resolveSymbol: #RowanSample1Test) notNil').
+	self selectRowanSample1Class.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #yes.	"create and move class"
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'Object'
+		instVars: #('erbleldy')
+		package: 'RowanSample1-Core'.	"this will force a confirmation dialog"
+	self
+		assert: (session executeString: '(Rowan image symbolList resolveSymbol: #RowanSample1Test) notNil').
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
+	self assertIsNil: (self classListPresenter list
+				detect: [:classService | classService name = 'RowanSample1Test']
+				ifNone: []).
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter.	"class has moved"
+	self assert: (self classListPresenter selection instVarNames includes: #erbleldy)]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassWithFailingMethods [
+	| failedMethodService |
+	self testsIssue: #issue692 withTitle: 'removing instance variables from class definition (3.0.92)'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #('abc')
+		package: 'RowanSample1-Core'.
+	
+	[self projectsPresenter selectVariableTab.
+	self assert: (self variableListPresenter list includes: 'abc').
+	self variableListPresenter selections: #('abc').
+	self projectsPresenter addVariableAccessors.
+	methodListBrowser := self
+				saveClass: 'TestClass'
+				superclass: 'Object'
+				instVars: #()
+				package: 'RowanSample1-Core'.
+	failedMethodService := methodListBrowser primaryPresenter methodListPresenter methodListPresenter
+				list first.
+	self assert: ('abc*' match: failedMethodService selector). 
+	self assert: failedMethodService projectName equals: 'RowanSample1'.
+	self assert: failedMethodService packageName equals: 'RowanSample1-Core'.
+	self assert: failedMethodService className equals: 'TestClass'.
+	self assert: self projectsPresenter selectedClass name = 'TestClass']
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassWithMethodWarnings [
+	self testsIssue: #issue569
+		withTitle: 'Method Compile on class update should not warn about unused temps (3.0.79)'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #yes.
+	self selectRowanSample1Class.
+	self assertIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #methodWithUnusedTemp]
+				ifNone: []).
+	self
+		saveMethod: 'methodWithUnusedTemp  | unused | ^123'
+		in: 'RowanSample1'
+		category: 'other'.
+	self
+		saveClass: 'RowanSample1'
+		superclass: 'Object'
+		instVars: #('abc')
+		package: 'RowanSample1-Core'.
+	self assert: TestMessageBox plannedResult equals: #yes.	"no dialog was raised"
+	
+	[self denyIsNil: (self methodListPresenter list
+				detect: [:methodService | methodService selector = #methodWithUnusedTemp]
+				ifNone: [])]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_compileErrorDisplay [
+	| source |
+	self testsIssue: #issue459 withTitle: 'CompileWarnings should be more noticable ... '.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	source := 'test1 self assert: RowanSample1 new foo = ''abc'.	"won't compile"
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod.
+	
+	[self assert: self methodSourcePresenter view selectionRange equals: (37 to: 47).
+	self assert: self projectsPresenter statusBarText view forecolor equals: Color black.
+	self assert: self projectsPresenter statusBarText view backcolor equals: Color red faded]
+			ensure: 
+				[self methodSourcePresenter isModified: false.
+				self selectMethodNamed: #test2.
+				self selectMethodNamed: #test1	"reset the display"]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_confirmationDialogDuringCompileClassExistingInAnotherPackage [
+	self testsIssue: #issue516 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self
+		assert: (session executeString: '(Rowan image symbolList resolveSymbol: #RowanSample1Test) notNil').
+	self selectRowanSample1Class.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #no.	"don't create class"
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'Object'
+		instVars: #('erbleldy')
+		package: 'RowanSample1-Core'.	"this will force a confirmation dialog"
+	self
+		assert: (session executeString: '(Rowan image symbolList resolveSymbol: #RowanSample1Test) notNil').	"class still exists"
+	self selectRowanSample1Test.
+	self assert: self classListPresenter selection name equals: 'RowanSample1Test'.
+	self assert: self packageListPresenter selection name equals: 'RowanSample1-Tests'	"class still in test package"]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_deselectPackageShowsProjectTab [
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self assert: self projectsPresenter isProjectInfoTabSelected.
+	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self deny: self projectsPresenter isProjectInfoTabSelected.
+	self packageListPresenter selectionByIndex: 0.	"deselect"
+	self assert: self projectsPresenter isProjectInfoTabSelected
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_dontDuplicateBreakpoints [
+	| breakpointBrowser |
+	self testsIssue: #issue533
+		withTitle: 'Breakpoint browser seems muddled: method browser with duplicate methods'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self projectsPresenter setBreakPointAt: 1 in: self projectsPresenter.
+	self projectsPresenter setBreakPointAt: 2 in: self projectsPresenter.
+	self assert: self methodListPresenter selection breakPoints size = 2.
+	self assert: self methodListPresenter selection breakPoints = #(1 2) asOrderedCollection.
+	
+	[breakpointBrowser := self projectsPresenter browseBreakpointList.
+	self assert: breakpointBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	breakpointBrowser primaryPresenter methodListPresenter methodListPresenter selectionByIndex: 1.
+	self assert: breakpointBrowser primaryPresenter methodListPresenter selection selector = #test1.
+	self assert: breakpointBrowser primaryPresenter methodListPresenter selection breakPoints
+				= #(1 2) asOrderedCollection]
+			ensure: 
+				[breakpointBrowser view close.
+				self projectsPresenter clearMethodBreakpoints]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_doubleClickIncludesColon [
+	"It's difficult to fake up a mouse event so ensure the method that grabs the colon
+	is setup as an event and includes the colon after being called"
+
+	self testsIssue: #issue301 withTitle: '(3.0.50) inconsistent selector selection on double-click'.
+	self
+		assert: (self methodSourcePresenter events at: #leftButtonDoubleClicked:) messages first asSymbol
+		equals: #methodDoubleClicked:.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self methodSourcePresenter selectionRange: (14 to: 19).
+	self assert: self methodSourcePresenter selection equals: 'assert'.
+	self projectsPresenter methodDoubleClicked: nil.
+	self assert: self methodSourcePresenter selectionRange equals: (14 to: 20).
+	self assert: self methodSourcePresenter selection equals: 'assert:'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_dragMethodOntoComparisonTextPanes [
+	| dragDropSession draggedService source methodListPresenter |
+	self testsIssue: #issue752 withTitle: '(3.0.93) nice if I could compare two arbitrary methods'.
+	self selectRowanSample1Test.
+	self selectMethodsNamed: #(#test1 #test2).
+	methodListBrowser := JadePresenter browseImplementorsOf: 'size' session: session.
+	
+	[methodListPresenter := methodListBrowser listPresenter.
+	dragDropSession := InternalDragDropSession dragSource: methodListPresenter view
+				item: methodListPresenter selections first.
+	methodListBrowser primaryPresenter onDragMethod: dragDropSession.
+	self assert: dragDropSession dragObjects size equals: 1.
+	draggedService := dragDropSession dragObjects first object.
+	self assert: draggedService isKindOf: RowanMethodService.
+	self assert: draggedService selector equals: #size.
+	self projectsPresenter selectComparisonTab.
+	self projectsPresenter comparisonPresenter onDragOverSource: dragDropSession.
+	source := draggedService source.
+	self projectsPresenter comparisonPresenter onDropOnAfter: dragDropSession.
+	self assert: self projectsPresenter comparisonPresenter afterPresenter value equals: source.
+	self projectsPresenter comparisonPresenter onDropOnBefore: dragDropSession.
+	self assert: self projectsPresenter comparisonPresenter beforePresenter value equals: source]
+			ensure: [methodListBrowser view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_enablementOfCardTabsWithSUnitTabSelected [
+	| toolbar |
+	self testsIssue: #issue556 withTitle: 'Funny orange boxes enabled for Sunit tab, but error'.
+	self selectRowanSample1Test.
+	[projectsBrowser cardsPresenter view cards size > 1] whileTrue: [projectsBrowser closeCard].
+	self assert: projectsBrowser cardsPresenter view cards size equals: 1.
+	toolbar := projectsBrowser view viewNamed: 'rightToolbar'.
+	self selectLowerTabsThenDo: 
+			[:tab |
+			#(#closeCard #moveCardLeft #moveCardRight) do: 
+					[:command |
+					| query |
+					query := self cardMenuItemForCommand: command in: toolbar.
+					self deny: query isEnabled]].
+	projectsBrowser addSystemBrowser.
+	self selectLowerTabsThenDo: 
+			[:tab |
+			#(#closeCard #moveCardLeft #moveCardRight) do: 
+					[:command |
+					| query |
+					query := self cardMenuItemForCommand: command in: toolbar.
+					self assert: query isEnabled]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_findMethodDisabled [
+	| commandQuery |
+	self testsIssue: #issue420 withTitle: 'Customer requests "Find Method" feature'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
+	commandQuery := self
+				queryCommand: #findMethod
+				inPresenter: self projectsPresenter
+				view: self classListPresenter view.
+	self deny: commandQuery isEnabled.
+	self selectRowanSample1Test.
+	commandQuery := self
+				queryCommand: #findMethod
+				inPresenter: self projectsPresenter
+				view: self classListPresenter view.
+	self assert: commandQuery isEnabled.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_inspectShowsCompileError [
+	self testsIssue: #issue730 withTitle: 'Inspect uncompilable code in project browser - get walkback'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self methodSourcePresenter value: '''abc'.
+	self methodSourcePresenter view selectAll.
+	self projectsPresenter jadeInspect.
+	self assert: self methodSourcePresenter value equals: '''abcmissing end of literal mark (prime)'.
+	self methodSourcePresenter view isModified: false. 
+	self projectsPresenter updateMethodSource
+	
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_modifiedSourceShouldNotChange [
+	| source originalSource |
+	self testsIssue: #issue400
+		withTitle: '(3.0.55) Selecting class in one project browser loses method edits in another'.
+	self selectRowanSample1Class.
+	self selectMethodNamed: #foo.
+	originalSource := 'foo ^''foo'''.
+	self assert: self methodSourcePresenter value equals: originalSource.
+	source := 'foo  ^''I am changed'''.
+	self methodSourcePresenter value: source.
+	self methodSourcePresenter view isModified: true.
+	self openSecondBrowser.
+	
+	[| methodServices |
+	self selectServiceNamed: 'RowanSample1' in: secondBrowser currentCard projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: secondBrowser currentCard packageListPresenter.
+	self selectServiceNamed: self sampleClassName in: secondBrowser currentCard classListPresenter.
+	self assert: self methodSourcePresenter value equals: source.	"unchanged"
+	secondBrowser currentCard methodListPresenter resetSelection.
+	methodServices := (Array with: #foo)
+				collect: [:selector | secondBrowser currentCard methodListPresenter list detect: [:svc | svc selector = selector]].
+	secondBrowser currentCard methodListPresenter selections: methodServices.
+	self assert: self methodSourcePresenter value equals: source.	"unchanged"
+	self assert: secondBrowser currentCard methodSourcePresenter value equals: originalSource]
+			ensure: 
+				[self methodSourcePresenter value: originalSource.
+				self methodSourcePresenter view isModified: false.
+				secondBrowser topShell exit]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_modifiedSourceShouldNotChangeMethodList [
+	| source originalSource |
+	self testsIssue: #issue400
+		withTitle: '(3.0.55) Selecting class in one project browser loses method edits in another'.
+	self selectRowanSample1Class.
+	self selectMethodNamed: #foo.
+	originalSource := 'foo ^''foo'''.
+	self assert: self methodSourcePresenter value equals: originalSource.
+	source := 'foo  ^''I am changed'''.
+	self methodSourcePresenter value: source.
+	self methodSourcePresenter view isModified: true.
+	
+	[methodListBrowser := self projectsPresenter browseImplementorsOf: #foo.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection
+				selector
+		equals: #foo.
+	self assert: self methodSourcePresenter value equals: source.	"unchanged"
+	self assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter value
+		equals: originalSource]
+			ensure: 
+				[self methodSourcePresenter value: originalSource.
+				self methodSourcePresenter view isModified: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_okayToChangeBeforeFindClass [
+	self testsIssue: #issue835
+		withTitle: 'Doing a Find Class with unsaved method changes should confirm then save changes'.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	self methodSourcePresenter value: 'abc'.
+	self methodSourcePresenter isModified: true.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.	"Keep unsaved changes"
+	
+	[self projectsPresenter findClass.
+	self assert: self methodSourcePresenter value equals: 'abc'	"no change"]
+			ensure: 
+				[self methodSourcePresenter isModified: false.
+				self destroy: projectsBrowser.
+				TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_openComparisonTabWhenTwoMethodsSelected [
+	self testsIssue: #issue752 withTitle: '(3.0.93) nice if I could compare two arbitrary methods'.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanAnsweringService' in: self classListPresenter.
+	self selectMethodsNamed: #().
+	self projectsPresenter selectMethodSourceTab.
+	self selectMethodsNamed: #(#answer).
+	self assert: self methodListPresenter view selections first selector equals: #answer.
+	self assert: self projectsPresenter isMethodSourceTabSelected.
+	self deny: self projectsPresenter isComparisonTabSelected.
+	self selectMethodsNamed: #(#answer #answer:).
+	self assert: self projectsPresenter isComparisonTabSelected.
+	self deny: self projectsPresenter isMethodSourceTabSelected
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_openMethodTabWhenOneMethodsSelected [
+	self testsIssue: #issue752 withTitle: '(3.0.93) nice if I could compare two arbitrary methods'.
+	self selectRowanServicesPackage.
+	self selectServiceNamed: 'RowanAnsweringService' in: self classListPresenter.
+	self selectMethodsNamed: #().
+	self projectsPresenter selectMethodSourceTab.
+	self selectMethodsNamed: #(#answer).
+	self assert: self methodListPresenter view selections first selector equals: #answer.
+	self assert: self projectsPresenter isMethodSourceTabSelected.
+	self deny: self projectsPresenter isComparisonTabSelected.
+	self selectMethodsNamed: #(#answer #answer:).
+	self assert: self projectsPresenter isComparisonTabSelected.
+	self deny: self projectsPresenter isMethodSourceTabSelected.
+	self selectMethodsNamed: #(#answer).
+	self deny: self projectsPresenter isComparisonTabSelected.
+	self assert: self projectsPresenter isMethodSourceTabSelected.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_openNewBrowserTabWhileSUnitTabSelected [
+	| addBrowserButton jadeMenu cards index |
+	self testsIssue: #issue389 withTitle: 'Add Browser Panel (Tab) when in Sunit Subpanel fails'.
+	[self projectsPresenter parentPresenter view cards size > 1] whileTrue:[projectsBrowser closeCard]. 
+	self selectRowanSample1Class.
+	self selectSUnitTab.
+	jadeMenu := projectsBrowser view menuBar items detect: [:menu | '*Jadeite*' match: menu text]
+				ifNone: [].
+	addBrowserButton := jadeMenu items
+				detect: [:item | #addSystemBrowser == item commandDescription command]
+				ifNone: [].
+	addBrowserButton commandDescription performAgainst: self projectsPresenter.
+	cards := self projectsPresenter parentPresenter view cards.
+	self assert: cards size equals: 2.
+	index := cards indexOf: self projectsPresenter view.
+	self assert: index equals: 2.
+	self assert: self projectsPresenter view arrangement text equals: '2 RowanSample1' "retain the selections from tab 1" 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_redoUndoEnablement [
+	| commandQuery methodSourcePresenter menuItem |
+	self testsIssue: #issue583 withTitle: 'Undo/Redo in method list browser (3.0.81) '.
+	methodSourcePresenter := self projectsPresenter methodSourcePresenter.
+	menuItem := methodSourcePresenter view contextMenu items detect: [:item | item command == #editUndo]
+				ifNone: [].
+	self denyIsNil: menuItem.
+	commandQuery := self
+				queryCommand: #editUndo
+				inPresenter: methodSourcePresenter
+				view: methodSourcePresenter view.
+	self deny: commandQuery isEnabled.
+	menuItem := methodSourcePresenter view contextMenu items detect: [:item | item command == #editRedo]
+				ifNone: [].
+	self denyIsNil: menuItem.
+	commandQuery := self
+				queryCommand: #editRedo
+				inPresenter: methodSourcePresenter
+				view: methodSourcePresenter view.
+	self deny: commandQuery isEnabled.
+	menuItem := methodSourcePresenter view contextMenu items
+				detect: [:item | item command == #editRevert]
+				ifNone: [].
+	self denyIsNil: menuItem.
+	commandQuery := self
+				queryCommand: #editRevert
+				inPresenter: methodSourcePresenter
+				view: methodSourcePresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_reformatIllegalSource [
+	self testsIssue: #issue345 withTitle: 'Jadeite format option (server ready) #345'.
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod ^#test'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	self selectMethodNamed: #reformatSourceTemporaryMethod.
+	
+	[self assert: self methodSourcePresenter value equals: 'reformatSourceTemporaryMethod ^#test'.
+	self methodSourcePresenter value: 'reformatSourceTemporaryMethod ^#'.
+	self projectsPresenter reformatSource.
+	self assert: self projectsPresenter statusBarText value
+		equals: 'Reformat failed. Illegal source - a UserDefinedError occurred (error 2318), reason:halt, Expecting a literal type' replaceCrLfWithLf.
+	self assert: self projectsPresenter statusBarText view backcolor equals: Color red faded.
+	self assert: self methodSourcePresenter value equals: 'reformatSourceTemporaryMethod ^#'	"unchanged"]
+			ensure: [self methodSourcePresenter view isModified: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_reformatMenuItemEnabled [
+	"reformat should be enabled even when methods aren't selected
+	else it's not always possible to reformat a new method"
+
+	| reformatMenuOption query |
+	self selectRowanSample1Test.
+	reformatMenuOption := self methodSourcePresenter view queryContextMenu items
+				detect: [:menu | '*Reformat Source*' match: menu text]
+				ifNone: [].
+	self denyIsNil: reformatMenuOption.
+	self assert: reformatMenuOption command equals: #reformatSource.
+	self assert: (self projectsPresenter class canUnderstand: #reformatSource).
+	query := CommandQuery commandDescription: reformatMenuOption source: self methodSourcePresenter view.
+	self methodListPresenter list do: 
+			[:methodService |
+			self selectMethodNamed: methodService selector.
+			self projectsPresenter queryCommand: query.
+			self assert: query isEnabled].
+	self methodListPresenter resetSelection.
+	self projectsPresenter queryCommand: query.
+	self assert: query isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_reformatSource [
+	self testsIssue: #issue345 withTitle: 'Jadeite format option (server ready) #345'.
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod ^#test'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	
+	[self selectMethodNamed: #reformatSourceTemporaryMethod.
+	self assert: self methodSourcePresenter value equals: 'reformatSourceTemporaryMethod ^#test'.
+	self projectsPresenter reformatSource.
+	self assert: self methodSourcePresenter view isModified.
+	self assert: self methodSourcePresenter value
+				equals: 'reformatSourceTemporaryMethod
+	^ #''test''' replaceCrLfWithLf]
+			ensure: [self projectsPresenter removeMethods: self classListPresenter selections]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_reformatSourceAppliesOnlyToCurrentBrowser [
+	| methodServices |
+	self testsIssue: #issue345 withTitle: 'Jadeite format option (server ready) #345'.
+	self selectRowanSample1Class.
+	self methodSourcePresenter value: nil.
+	self methodSourcePresenter isModified: false.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod ^#test2'
+		in: 'RowanSample1'
+		category: 'other'.
+	self selectMethodNamed: #reformatSourceTemporaryMethod.
+	self assert: self methodSourcePresenter value equals: 'reformatSourceTemporaryMethod ^#test2'.
+	self openSecondBrowser.
+	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
+	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	methodServices := (Array with: #reformatSourceTemporaryMethod)
+				collect: [:selector | secondPresenter methodListPresenter list detect: [:svc | svc selector = selector]].
+	secondPresenter methodListPresenter selections: methodServices.
+	self assert: secondPresenter methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod ^#test2'.
+	self projectsPresenter reformatSource.
+	self assert: self methodSourcePresenter view isModified.
+	self assert: self methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod
+	^ #''test2''' replaceCrLfWithLf.
+	self assert: secondPresenter methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod ^#test2'.
+	self methodSourcePresenter isModified: false.
+	self projectsPresenter removeMethods: self classListPresenter selections
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_reformatSourceIsUndoable [
+	self testsIssue: #issue550
+		withTitle: '"Reformat source" without save is not working right in method browsers (3.0.78)'.
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'reformatSourceTemporaryMethod | abc | abc := #abc. ^abc'
+		in: 'RowanSample1Test'
+		category: 'other'.
+	
+	[self selectMethodNamed: #reformatSourceTemporaryMethod.
+	self assert: self methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod | abc | abc := #abc. ^abc'.
+	self projectsPresenter reformatSource.
+	self assert: self methodSourcePresenter view isModified.
+	self assert: self methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod
+	| abc |
+	abc := #''abc''.
+	^ abc' replaceCrLfWithLf.
+	self methodSourcePresenter view undo.
+	self assert: self methodSourcePresenter value
+		equals: 'reformatSourceTemporaryMethod | abc | abc := #abc. ^abc']
+			ensure: [self projectsPresenter removeMethods: self classListPresenter selections]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_reloadAfterClassCompile [
+	| version |
+	self testsIssue: #issue516 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Test.
+	version := self classListPresenter selection version.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestMessageBox plannedResult: #yes.
+	self
+		saveClass: 'RowanSample1Test'
+		superclass: 'TestCase'
+		instVars: #('erbleldy')
+		package: 'RowanSample1-Tests'.
+	self assert: self classListPresenter selection version equals: version + 1.
+	self projectsPresenter reloadProject.
+	self assert: self classListPresenter selection version equals: version + 2	"see https://github.com/GemTalk/Rowan/issues/506"]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_revertSource [
+	| source originalSource |
+	self methodSourcePresenter view isModified: false. 
+	self selectRowanSample1Class.
+	self selectMethodNamed: #foo.
+	originalSource := 'foo ^''foo'''.
+	self saveMethod: originalSource in: 'RowanSample1' category: 'other'. 
+	self assert: self methodSourcePresenter value equals: originalSource.
+	source := 'foo  ^''I am changed'''.
+	self methodSourcePresenter value: source.
+	self methodSourcePresenter view isModified: true.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #no.
+	
+	[self projectsPresenter editRevert.
+	self assert: self methodSourcePresenter value equals: source.
+	self assert: self methodSourcePresenter view isModified.
+	TestMessageBox plannedResult: #yes.
+	self projectsPresenter editRevert]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox].
+	self assert: self methodSourcePresenter value equals: originalSource.
+	self deny: self methodSourcePresenter view isModified
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sUnitTabHandlesShortSelector [
+	self testsIssue: #issue173 withTitle: 'new SUnit browser code walksback on short selector'.
+	self selectRowanServicesTestsPackage.
+	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
+	self selectHierarchyTab.
+	self selectClassInHierarchyNamed: 'TestCase'.	"<<< bug occurred here"
+	self assert: self projectsPresenter selectedClass name = 'TestCase'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sUnitTabRefresh [
+	| jadeiteMenu refreshItem |
+	self testsIssue: #issue263 withTitle: 'With class selected, but not method selected, in SUnit tab, project refresh gets error'.
+	self selectRowanServicesTestsPackage. 
+	self selectServiceNamed: 'RowanServicesTest' in: self classListPresenter.
+	self projectsPresenter selectSUnitTab.
+	jadeiteMenu := self itemNamed: 'Jadeite' in: projectsBrowser view menuBar. 
+	refreshItem := self itemNamed: 'Refresh' in: jadeiteMenu.
+	refreshItem commandDescription performAgainst: self projectsPresenter. "<<< walkback occurred here"
+	self assert: self projectsPresenter selectedClass name equals: 'RowanServicesTest'.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list isEmpty "no tests in the abstract class" 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_saveMethodKeepsAlphabetizedList [
+	| methodSelectorsList newMethodSelectorsList originalSource |
+	self testsIssue: #issue770 withTitle: 'Ensure new method is alphabetized after compile'.
+	self selectRowanSample1Test.
+	methodSelectorsList := (self methodListPresenter list
+				collect: [:methodService | methodService selector]) asArray.
+	self assert: methodSelectorsList equals: #(#test1 #test2 #testError #testFailure).
+	originalSource := 'fooble  | array | array := Array new. ^''foo'''.
+	self projectsPresenter selectMethodSourceTab.
+	self selectCategoryNamed: 'tests'.
+	self methodSourcePresenter value: originalSource.
+	self methodSourcePresenter view isModified: true.
+	self projectsPresenter editSaveMethod.
+	newMethodSelectorsList := (self methodListPresenter list
+				collect: [:methodService | methodService selector]) asArray.
+	self assert: newMethodSelectorsList equals: #(#fooble #test1 #test2 #testError #testFailure)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_saveMethodResetsIndicators [
+	| source originalSource |
+	self testsIssue: #issue608 withTitle: 'Mysteriously vanishing underlines (3.0.84)'.
+	self methodSourcePresenter view isModified: false.
+	self selectRowanSample1Class.
+	self selectMethodNamed: #foo.
+	originalSource := 'fooble  | array | array := Array new. ^''foo'''.
+	self
+		saveMethod: originalSource
+		in: 'RowanSample1'
+		category: 'other'.
+	self denyIsNil: self methodSourcePresenter view indicators.
+	methodListBrowser := JadePresenter browseImplementorsOf: 'fooble' session: session.
+	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+		equals: 1.
+	self assert: methodListBrowser primaryPresenter methodSourcePresenter value equals: originalSource.
+	self denyIsNil: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter view
+				indicators.
+	source := 'fooble  ^''I am changed'''.
+	self
+		saveMethod: source
+		in: 'RowanSample1'
+		category: 'other'.
+	self denyIsNil: self methodSourcePresenter view indicators.
+	self denyIsNil: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter view
+				indicators.
+	methodListBrowser primaryPresenter methodSourcePresenter documentPresenter value: originalSource.
+	methodListBrowser primaryPresenter methodSourcePresenter editSaveMethod.
+	self denyIsNil: self methodSourcePresenter view indicators.
+	self denyIsNil: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter view
+				indicators
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sortedTestSelectorsInSUnitTab [
+	| sortedSelectors selectors |
+	self selectRowanServicesTestsPackage.
+	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
+	self selectSUnitTab. 
+	selectors := self projectsPresenter sunitPresenter methodListPresenter list collect:[:methodService | methodService selector]. 
+	sortedSelectors := SortedCollection sortBlock: [:x :y | x < y ]. 
+	sortedSelectors addAll: selectors. 
+	self assert: selectors asArray equals: sortedSelectors asArray. 
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_stepPoint1 [
+	"Always a step point at the selector"
+
+	| classService methodService |
+	self selectRowanSample1Class.
+	classService := self projectsPresenter selectedClass.
+	classService
+		command: #saveMethodSource:category:;
+		commandArgs: (Array with: 'abc' with: 'test step points').
+	self issueCommand: classService.
+	methodService := (self selectMethodNamed: #abc) first.
+	self assert: methodService stepPoints size equals: 1.
+	self assert: methodService stepPoints first key equals: (1 to: 3)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_stepPoint2 [
+	"see corresponding server test. Character ranges should be the same."
+
+	"test broken"
+
+	| sourceString classService methodService |
+	self selectRowanSample1Class.
+	sourceString := session executeString: 'RowanMethodServiceTest new stepPoint1Source'.
+	classService := self projectsPresenter selectedClass.
+	classService
+		command: #saveMethodSource:category:;
+		commandArgs: (Array with: sourceString with: 'test step points').
+	self issueCommand: classService.
+	methodService := (self selectMethodNamed: #simpleMethod) first.
+	self assert: methodService stepPoints size equals: 7.
+	self assert: (methodService stepPoints at: 2) key equals: (42 to: 44).
+	self assert: (methodService stepPoints at: 2) value equals: #new.
+	self assert: (methodService stepPoints at: 3) key equals: (33 to: 34).
+	self assert: (methodService stepPoints at: 3) value equals: String new.	"might be a server bug"
+	self assert: (methodService stepPoints at: 4) key equals: (92 to: 94).
+	self assert: (methodService stepPoints at: 4) value equals: #new.
+	self assert: (methodService stepPoints at: 5) key equals: (69 to: 72).
+	self assert: (methodService stepPoints at: 5) value equals: #add:.
+	self assert: (methodService stepPoints at: 6) key equals: (124 to: 127).
+	self assert: (methodService stepPoints at: 6) value equals: #size.
+	self assert: (methodService stepPoints at: 7) key equals: (139 to: 140).
+	self assert: (methodService stepPoints at: 7) value equals: String new	"might be a server bug"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitBarEnabledOnEntry [
+	self testsIssue: #issue179 withTitle: 'SUnit tab issues'.
+	self selectRowanSample1Test.
+	self selectSUnitTab.
+	self assert: self projectsPresenter textAreaTabs currentCard name equals: 'sunit'.
+	"this is a proxy for testing the enablement of the sunit bar. We just have
+	to trust that when the methodListPresenter is enabled, the sunit bar is enabled."
+	self assert: self projectsPresenter sunitPresenter methodListPresenter view hasFocus
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitBarEnabledOnReEntry [
+	self testsIssue: #issue179 withTitle: 'SUnit tab issues'.
+	self selectRowanSample1Test.
+	self selectSUnitTab.
+	self assert: self projectsPresenter textAreaTabs currentCard name equals: 'sunit'.
+	"this is a proxy for testing the enablement of the sunit bar. We just have
+	to trust that when the methodListPresenter is enabled, the sunit bar is enabled."
+	self assert: self projectsPresenter sunitPresenter methodListPresenter view hasFocus.
+	self projectsPresenter selectCommentTab.
+	self selectSUnitTab.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter view hasFocus
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitBrowserForTestClass [
+	| sunitItem sunitBrowser |
+	self testsIssue: #issue336
+		withTitle: 'S-Unit Tests In an abstract class and its subclasses are not managed properly'.
+	self selectRowanSample1Test.
+	sunitItem := self classListPresenter view queryContextMenu items
+				detect: [:menuItem | menuItem command == #showSUnitBrowserOnClass].
+	sunitBrowser := sunitItem commandDescription performAgainst: self projectsPresenter.
+	
+	[self assert: (sunitBrowser isKindOf: JadeiteSUnitBrowser).
+	self assert: sunitBrowser primaryPresenter classListPresenter selection name
+		equals: 'RowanSample1Test'.
+	self assert: sunitBrowser primaryPresenter packageListPresenter selection name
+		equals: 'RowanSample1-Tests']
+			ensure: [self destroy: sunitBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitBrowserIsEnabledForTestClass [
+	| commandQuery |
+	self testsIssue: #issue336
+		withTitle: 'S-Unit Tests In an abstract class and its subclasses are not managed properly'.
+	self selectRowanSample1Test.
+	commandQuery := self
+				queryCommand: #showSUnitBrowserOnClass
+				inPresenter: self projectsPresenter
+				view: self classListPresenter view.
+	self assert: commandQuery isEnabled.
+	self selectRowanSample1Class.
+	commandQuery := self
+				queryCommand: #showSUnitBrowserOnClass
+				inPresenter: self projectsPresenter
+				view: self classListPresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitBrowserNoSelectedTest [
+	"If there is no selected class, the menu item should not be enabled"
+
+	| commandQuery |
+	self testsIssue: #issue336
+		withTitle: 'S-Unit Tests In an abstract class and its subclasses are not managed properly'.
+	self deselectProjects.
+	self assertIsNil: self projectsPresenter selectedClass.
+	commandQuery := self
+				queryCommand: #showSUnitBrowserOnClass
+				inPresenter: self projectsPresenter
+				view: self classListPresenter view.
+	self deny: commandQuery isEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitCtrlB [
+	self testsIssue: #issue218 withTitle: 'Ctl-B does not `debug` selected test in SUnit browser'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter.
+	self selectSUnitTab.
+	self projectsPresenter sunitPresenter methodListPresenter selectionByIndex: #(1).	"test1 - select by index implicitly tests sorted order"
+	self projectsPresenter sunitPresenter jadeDebug.	"What is sent when Ctrl-B is pressed."
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selection first testResult
+		equals: 'passed'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitInheritedTests [
+	| classTestSelectors testClassTestSelectors |
+	self testsIssue: #issue211
+		withTitle: 'SUnit browser and SUnit tab in Project browser missing inherited test cases'.
+	self selectRowanServicesTestsPackage.
+	self selectServiceNamed: 'RowanClassServiceTest' in: self classListPresenter.
+	self selectSUnitTab.
+	classTestSelectors := self projectsPresenter sunitPresenter methodListPresenter list
+				collect: [:service | service selector].
+	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
+	testClassTestSelectors := self projectsPresenter sunitPresenter methodListPresenter list
+				collect: [:service | service selector].
+	self assert: testClassTestSelectors size > classTestSelectors size.	"the subclass inherits the super class's tests"
+	classTestSelectors do: [:selector | self assert: (testClassTestSelectors includes: selector)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitOnlyRunTestMethods [
+	self testsIssue: #issue218 withTitle: 'Ctl-B does not `debug` selected test in SUnit browser'.
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'nonTestMethod  ^123'
+		in: 'RowanSample1Test'
+		category: 'deleteMe'.
+	
+	[self selectMethodsNamed: #(#nonTestMethod #test1).
+	self projectsPresenter runMethodTests.
+	self assert: self projectsPresenter isSunitTabSelected.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections size equals: 1.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first selector
+		equals: #test1.
+	self assert: self projectsPresenter sunitPresenter textResultPresenter value
+		equals: '1 run, 1 passed, 0 failures, 0 errors']
+			ensure: 
+				[self selectMethodNamed: #nonTestMethod.
+				self projectsPresenter removeMethods: self classListPresenter selections]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitResetTestResultOnClassChange [
+	"reset test results when classes changed"
+
+	self selectRowanServicesTestsPackage.
+	self projectsPresenter selectClassNamed: 'RowanDictionaryServiceTest'.
+	self projectsPresenter selectSUnitTab.
+	self projectsPresenter sunitPresenter methodListPresenter list
+		do: [:methodService | self assert: methodService testResult isNil].
+	self projectsPresenter runAll.
+	[self projectsPresenter sunitPresenter testProcess isNil]
+		whileFalse: [(Delay forMilliseconds: 10) wait].
+	self projectsPresenter sunitPresenter methodListPresenter list
+		do: [:methodService | self assert: methodService testResult equals: 'passed'].
+	self projectsPresenter selectClassNamed: 'RowanMethodServiceTest'.
+	self projectsPresenter selectSUnitTab.
+	self projectsPresenter sunitPresenter methodListPresenter list
+		do: [:methodService | self assert: methodService testResult isNil].
+	self projectsPresenter selectClassNamed: 'RowanDictionaryServiceTest'.
+	self projectsPresenter selectSUnitTab.
+	self projectsPresenter sunitPresenter methodListPresenter list
+		do: [:methodService | self assert: methodService testResult isNil]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunAllDoesNotLoseSelections [
+	self testsIssue: #issue591
+		withTitle: 'Project Brower run-all menu item leaves all tests selected (3.0.82)'.
+	self selectRowanSample1Test.
+	self selectSUnitTab.
+	self projectsPresenter sunitPresenter methodListPresenter selectionByIndex: #(1).	"test1 - select by index implicitly tests sorted order"
+	self projectsPresenter runAll.
+	[self projectsPresenter sunitPresenter testProcess isNil]
+		whileFalse: [(Delay forMilliseconds: 10) wait].
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selection first testResult
+		equals: 'passed'.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selectionByIndex equals: #(1)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunAndMeasureTime [
+	| runSelectedItem selection |
+	self testsIssue: #issue391 withTitle: '(3.0.53) SUnit browser running test method in wrong class'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[self selectRowanSample1Test.
+	self selectSUnitTab.
+	self projectsPresenter sunitPresenter reset.
+	runSelectedItem := self projectsPresenter sunitPresenter methodListPresenter view queryContextMenu
+				items detect: [:menuItem | menuItem command == #runAndMesureTime].
+	selection := self projectsPresenter sunitPresenter methodListPresenter list
+				detect: [:methodService | methodService selector = #test1].
+	self projectsPresenter sunitPresenter methodListPresenter selections: (Array with: selection).
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first testResult
+		equals: nil.
+	TestMessageBox plannedResult: #ok.
+	runSelectedItem commandDescription performAgainst: self projectsPresenter sunitPresenter.
+	[self projectsPresenter sunitPresenter testProcess isNil]
+		whileFalse: [(Delay forMilliseconds: 10) wait].
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first testResult
+		equals: 'passed']
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunSelected [
+	| runSelectedItem selection |
+	self testsIssue: #issue391 withTitle: '(3.0.53) SUnit browser running test method in wrong class'.
+	self selectRowanSample1Test.
+	self selectSUnitTab.
+	runSelectedItem := self projectsPresenter sunitPresenter methodListPresenter view queryContextMenu
+				items detect: [:menuItem | menuItem command == #runSelected].
+	selection := self projectsPresenter sunitPresenter methodListPresenter list
+				detect: [:methodService | methodService selector = #test1].
+	self projectsPresenter sunitPresenter methodListPresenter selections: (Array with: selection).
+	self projectsPresenter sunitPresenter reset. 
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first testResult equals: nil. 
+	runSelectedItem commandDescription performAgainst: self projectsPresenter sunitPresenter.
+	[self projectsPresenter sunitPresenter testProcess isNil]
+		whileFalse: [(Delay forMilliseconds: 10) wait].
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first testResult equals: 'passed'.
+	
+	runSelectedItem := self projectsPresenter methodListPresenter view queryContextMenu
+				items detect: [:menuItem | menuItem command == #runMethodTests].
+	self selectMethodNamed: #test2. 
+	runSelectedItem commandDescription performAgainst: self projectsPresenter.
+	[self projectsPresenter sunitPresenter testProcess isNil]
+		whileFalse: [(Delay forMilliseconds: 10) wait].
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first testResult equals: 'passed'.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter selections first selector equals: #test2. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunTestAsSelectedSubclass [
+	| runSelectedItem selection errorOccurred |
+	self testsIssue: #issue731
+		withTitle: 'On error when Sunit debug of inherited test, walkback displays class confusion (new in 3.0.93-6)'.
+	self selectRowanSample1Test.
+	
+	[self
+		saveClass: 'LisaTest'
+		superclass: 'TestCase'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'test_error
+	self zork.
+	self assert: false'
+		in: 'LisaTest'
+		category: 'tests'.
+	self
+		saveMethod: 'test_okay
+	self zork.
+	self assert: true'
+		in: 'LisaTest'
+		category: 'tests'.
+	self
+		saveMethod: 'zork
+	^self subclassResponsibility: ''not supposed to run this kind of zork'''
+		in: 'LisaTest'
+		category: 'other'.
+	self
+		saveClass: 'LisaSubTest'
+		superclass: 'LisaTest'
+		instVars: #()
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'zork
+	^true'
+		in: 'LisaSubTest'
+		category: 'other'.
+	self selectSUnitTab.
+	runSelectedItem := self projectsPresenter sunitPresenter methodListPresenter view queryContextMenu
+				items detect: [:menuItem | menuItem command == #debug].
+	selection := self projectsPresenter sunitPresenter methodListPresenter list
+				detect: [:methodService | methodService selector = #test_error].
+	self projectsPresenter sunitPresenter methodListPresenter selections: (Array with: selection).
+	self projectsPresenter sunitPresenter reset.
+	errorOccurred := false.
+	[runSelectedItem commandDescription performAgainst: self projectsPresenter sunitPresenter] on: Error
+		do: 
+			[:ex |
+			| matchString |
+			errorOccurred := true.
+			matchString := 'a TestFailure occurred (error *), Assertion failed'.
+			self assert: (matchString match: ex description)].
+	self assert: errorOccurred]
+			ensure: 
+				[self selectServiceNamed: 'LisaSubTest' in: self classListPresenter.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+				self selectServiceNamed: 'LisaTest' in: self classListPresenter.
+				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitTabCanRefresh [
+	self testsIssue: #issue279 withTitle: 'Sunit browser refresh, auto or manual'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter.
+	self selectSUnitTab.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 4. 
+	self projectsPresenter sunitPresenter refresh. "sent by context menu"
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 4.  "just make sure we have a refresh available that doesn't blow up"
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_sunitUpdatesProperly [
+	| secondBrowser source newMethodService |
+	self testsIssue: #issue279 withTitle: 'Sunit browser refresh, auto or manual'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter.
+	self selectSUnitTab.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 4.	"should be four after project load"
+	secondBrowser := self openWindow: [transcript openJadeiteProjectsBrowser].
+	secondBrowser := secondBrowser topShell. 
+	
+	[self selectServiceNamed: 'RowanSample1' in: secondBrowser currentCard projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Tests' in: secondBrowser currentCard packageListPresenter.
+	self selectServiceNamed: 'RowanSample1Test' in: secondBrowser currentCard classListPresenter.
+	secondBrowser currentCard selectCategoryNamed: 'tests'.
+	source := 'testMethod  
+		self assert: true'.
+	secondBrowser currentCard methodSourcePresenter value: source.
+	secondBrowser currentCard editSaveMethod: secondBrowser currentCard classListPresenter selection.
+	self assert: self projectsPresenter textAreaTabs currentCard name = 'sunit'.
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 5.
+	newMethodService := self projectsPresenter sunitPresenter methodListPresenter list
+				detect: [:methodService | methodService selector == #testMethod]
+				ifNone: [].
+	self denyIsNil: newMethodService.
+	"select a method in first browser and add another method"
+	self selectMethodNamed: #test1.
+	secondBrowser currentCard selectCategoryNamed: 'tests'.
+	source := 'testMethod2
+		self assert: true'.
+	secondBrowser currentCard methodSourcePresenter value: source.
+	secondBrowser currentCard editSaveMethod: secondBrowser currentCard classListPresenter selection.
+	"self assert: self projectsPresenter textAreaTabs currentCard name = 'sunit'."
+	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 6.
+	newMethodService := self projectsPresenter sunitPresenter methodListPresenter list
+				detect: [:methodService | methodService selector == #testMethod2]
+				ifNone: [].
+	self denyIsNil: newMethodService]
+			ensure: [self destroy: secondBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserLowerTabsTestCase >> test_unloadProjectClearsProjectTab [
+	self cloneRowanSample1.
+	self ensureRowanSampleProjectsLoaded.
+	self selectRowanSample1Class.
+	self unloadSampleProject1.
+	self projectsPresenter projectInfoTab model size >= 8.	"sanity test. presume that we won't remove info from this tab"
+	
+	[self assertIsNil: (self projectListPresenter selectionIfNone: []).
+	self assert: self projectsPresenter projectInfoList list isEmpty.
+	self assert: self projectsPresenter projectReadMeTab value isEmpty]
+			ensure: 
+				[self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]

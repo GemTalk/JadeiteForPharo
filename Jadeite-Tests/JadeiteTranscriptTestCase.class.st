@@ -1,0 +1,1145 @@
+Class {
+	#name : 'JadeiteTranscriptTestCase',
+	#superclass : 'JadeiteAbstractTestCase',
+	#category : 'Jadeite-Tests'
+}
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> allTranscriptPresenters [
+	" presenters that may care about menu enablement" 
+	| presenters |
+	presenters := OrderedCollection new.
+	presenters add: transcript.
+	presenters add: transcript allSessionsPresenter.
+	presenters add: transcript mySessionPresenter.
+	presenters add: transcript stoneInfoPresenter.
+	presenters add: transcript transcriptPresenter.
+	presenters add: transcript projectListPresenter.
+	^presenters
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> browseMenu [
+	^transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: []
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> checkAutoCommitMenuItemCheckmark: commandQuery [
+	transcript autoCommit: true.
+	transcript queryCommand: commandQuery.
+	self assert: commandQuery isChecked.
+	transcript autoCommit: false.
+	transcript queryCommand: commandQuery.
+	self deny: commandQuery isChecked
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> extendedCharacters [
+	^'( ) * +  - / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G
+H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f
+g h i j k l m n o p q r s t u v w x y z { | } ~   Â¡ Â¢ Â£ Â¤ Â¥ Â¦ Â§ Â¨ Â© Âª
+Â« Â¬ Â­ Â® Â¯ Â° Â± Â² Â³ Â´ Âµ Â¶ Â· Â¸ Â¹ Âº Â» Â¼ Â½ Â¾ Â¿ Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã
+Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã Ã  Ã¡ Ã¢ Ã£ Ã¤ Ã¥ Ã¦
+Ã§ Ã¨ Ã© Ãª Ã« Ã¬ Ã­ Ã® Ã¯ Ã° Ã± Ã² Ã³ Ã´ Ãµ Ã¶ Ã· Ã¸ Ã¹ Ãº Ã» Ã¼ Ã½ Ã¾ Ã¿  Ä± Å Å Å Å Å  Å¡'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> jadeitePrefsFilePath [
+	^SessionManager current imageBase , 'Jadeite.prefs'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> menuItemIsEnabledInAllPresenters: aSymbol [
+	| commandQuery |
+	self allTranscriptPresenters do: 
+			[:presenter |
+			commandQuery := self
+						queryCommand: aSymbol
+						inPresenter: presenter
+						view: presenter view.
+			self assert: commandQuery isEnabled]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> tearDown [
+	super tearDown.
+	projectsBrowser ifNotNil: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_abortRemovesProjectsInAllBrowsers [
+	| sunitBrowser |
+	projectsBrowser := self openWindow: [JadeiteBrowser showOnSession: session].
+	sunitBrowser := self openWindow: [transcript jadeBrowseTests].
+	
+	[self denyIsNil: (self projectListPresenter list
+				detect: [:projectService | projectService name = 'RowanSample1']
+				ifNone: []).
+	self denyIsNil: (transcript projectListPresenter projectListPresenter list
+				detect: [:projectService1 | projectService1 name = 'RowanSample1']
+				ifNone: []).
+	self denyIsNil: (sunitBrowser primaryPresenter packageListPresenter list
+				detect: [:projectService1 | projectService1 name = 'RowanSample1-Tests']
+				ifNone: []).
+	transcript toolbarPresenter abort.
+	self assertIsNil: (self projectListPresenter list
+				detect: [:projectService | projectService name = 'RowanSample1']
+				ifNone: []).
+	self assertIsNil: (transcript projectListPresenter projectListPresenter list
+				detect: [:projectService2 | projectService2 name = 'RowanSample1']
+				ifNone: []).
+	self assertIsNil: (sunitBrowser primaryPresenter packageListPresenter list
+				detect: [:projectService1 | projectService1 name = 'RowanSample1-Tests']
+				ifNone: []).
+	self cloneRowanSample1.
+	self ensureRowanSampleProjectsLoaded]
+			ensure: 
+				[SessionManager inputState pumpMessages.
+				self destroy: projectsBrowser.
+				self destroy: sunitBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_abortTransaction [
+	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
+	transcript projectListPresenter refresh.
+	self assertProjectInList: 'RowanSample1'.
+	transcript toolbarPresenter abort.
+	self denyProjectInList: 'RowanSample1'.
+	self cloneRowanSample1.
+	self ensureRowanSampleProjectsLoaded
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_autoCommitMenuItem [
+	| autoCommit jadeiteMenu autoCompleteMenuItem commandQuery |
+	self testsIssue: #issue650
+		withTitle: '(3.0.89) `Jadeite>>Auto Commit enabled` menu out of sync with auto commit state'.
+	autoCommit := transcript autoCommit.
+	
+	[jadeiteMenu := transcript view menuBar items detect: [:menu | '*Jadeite*' match: menu text]
+				ifNone: [].
+	self denyIsNil: jadeiteMenu.
+	autoCompleteMenuItem := jadeiteMenu items
+				detect: [:command | '*AutoCommit enabled*' match: command text]
+				ifNone: [].
+	commandQuery := CommandQuery commandDescription: autoCompleteMenuItem commandDescription
+				source: transcript projectListPresenter view.
+	transcript transcriptPresenter ensureVisible.
+	self checkAutoCommitMenuItemCheckmark: commandQuery.
+	transcript historyPresenter ensureVisible.
+	self checkAutoCommitMenuItemCheckmark: commandQuery.
+	transcript stoneInfoPresenter ensureVisible.
+	self checkAutoCommitMenuItemCheckmark: commandQuery.
+	transcript mySessionPresenter ensureVisible.
+	self checkAutoCommitMenuItemCheckmark: commandQuery.
+	transcript allSessionsPresenter ensureVisible.
+	self checkAutoCommitMenuItemCheckmark: commandQuery.
+	transcript codePane ensureVisible.	"selecting the code pane was the immediate cause of the bug"
+	self checkAutoCommitMenuItemCheckmark: commandQuery.
+	transcript  projectListPresenter ensureVisible. self rowanFixMe. "doesn't actually change view yet. View is DeafObject" 
+	self checkAutoCommitMenuItemCheckmark: commandQuery]
+			ensure: [transcript autoCommit: autoCommit]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_autoCommitOff [
+	| answeringService |
+	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
+	self setRemoteAutoCommit: false.
+	session executeString: 'UserGlobals at: #TestCommit put: true'.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self abortTransaction.
+	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	"any service call will commit the transaction"
+	session executeString: 'UserGlobals at: #TestCommit put: true'.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #exec:;
+		commandArgs: (Array with: '3+4').
+	self issueCommand: answeringService.
+	self assert: answeringService answer equals: '7'.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self abortTransaction.
+	
+	[self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')	"autoCommit off. TestCommit was not committed"]
+			ensure: 
+				[session executeString: 'UserGlobals removeKey: #TestCommit ifAbsent:[]'.
+				self cloneRowanSample1.
+				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_autoCommitOn [
+	| answeringService |
+	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
+	
+	[self setRemoteAutoCommit: true.
+	session executeString: 'UserGlobals at: #TestCommit put: true'.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self abortTransaction.
+	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	"any service call will commit the transaction"
+	session executeString: 'UserGlobals at: #TestCommit put: true'.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #exec:;
+		commandArgs: (Array with: '3+4').
+	self issueCommand: answeringService.
+	self assert: answeringService answer equals: '7'.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self abortTransaction.
+	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')	"TestCommit was committed"]
+			ensure: 
+				[session executeString: 'UserGlobals removeKey: #TestCommit'.
+				self commitTransaction.
+				self setRemoteAutoCommit: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_autoCommitSet [
+	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
+	self setRemoteAutoCommit: false.
+	self assert: (session executeString: 'SessionTemps current at: #''Jadeite_AutoCommit''')
+		equals: false.
+	self setRemoteAutoCommit: true.
+	
+	[self assert: (session executeString: 'SessionTemps current at: #''Jadeite_AutoCommit''')
+		equals: true]
+			ensure: [transcript autoCommit: false]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_autoCompletionMenuItem [
+	| autoCompletion jadeiteMenu autoCompleteMenuItem commandQuery |
+	self testsIssue: #issue524 withTitle: 'autocompletion'.
+	autoCompletion := JadeiteSearch autoCompleteEnabled.
+	
+	[jadeiteMenu := transcript view menuBar items detect: [:menu | '*Jadeite*' match: menu text]
+				ifNone: [].
+	self denyIsNil: jadeiteMenu.
+	autoCompleteMenuItem := jadeiteMenu items
+				detect: [:command | '*Autocomplete enabled*' match: command text]
+				ifNone: [].
+	commandQuery := CommandQuery commandDescription: autoCompleteMenuItem commandDescription
+				source: transcript projectListPresenter view.
+	transcript autoCompleteEnabled: true.
+	transcript queryCommand: commandQuery.
+	self assert: commandQuery isChecked.
+	transcript autoCompleteEnabled: false.
+	transcript queryCommand: commandQuery.
+	self deny: commandQuery isChecked]
+			ensure: [transcript autoCompleteEnabled: autoCompletion]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_breakpointBrowserMenuItem [
+	| browseMenu browseClassReferencesItem |
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseClassReferencesItem := browseMenu items
+				detect: [:command | 'Browse Breakpoints' match: command text]
+				ifNone: [].
+	self denyIsNil: browseClassReferencesItem.
+	self assert: browseClassReferencesItem command equals: #browseBreakpoints.
+	self assert: (transcript class canUnderstand: #browseBreakpoints)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseClassMenuItem [
+	| browseMenu browseClassItem |
+	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseClassItem := browseMenu items detect: [:command | '*Find*Class*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseClassItem.
+	self assert: browseClassItem command equals: #browseClass.
+	self assert: (transcript class canUnderstand: #browseClass)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseClassReferencesMenuItem [
+	| browseMenu browseClassReferencesItem |
+	self testsIssue: #issue300
+		withTitle: '`would be nice to have `browse references to class` here as well'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseClassReferencesItem := browseMenu items
+				detect: [:command | '*Browse*Class*References*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseClassReferencesItem.
+	self assert: browseClassReferencesItem command equals: #browseClassReferences.
+	self assert: (transcript class canUnderstand: #browseClassReferences)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseClassReferencesMenuItemIsEnabled [
+	"these presenters either inherit from JadePresenter or
+	(somehow) test the menu enablement through JadeTranscript"
+
+	| commandQuery presenters |
+	self testsIssue: #issue300
+		withTitle: '`would be nice to have `browse references to class` here as well'.
+	presenters := OrderedCollection new.
+	presenters add: transcript.
+	presenters add: transcript allSessionsPresenter.
+	presenters add: transcript mySessionPresenter.
+	presenters add: transcript stoneInfoPresenter.
+	presenters add: transcript transcriptPresenter.
+	presenters do: 
+			[:presenter |
+			commandQuery := self
+						queryCommand: #browseClassReferences
+						inPresenter: presenter
+						view: presenter view.
+			self assert: commandQuery isEnabled]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseFindClassMenuItem [
+	| browseMenu findClassMenuItem |
+	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	findClassMenuItem := browseMenu items detect: [:command | '*Find*Class*' match: command text]
+				ifNone: [].
+	self denyIsNil: findClassMenuItem.
+	self assert: findClassMenuItem command equals: #browseClass.
+	self assert: (transcript class canUnderstand: #browseClass)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseImplementors [
+	| methodListBrowser methodList |
+	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestPrompter plannedResult: 'size'.
+	methodListBrowser := transcript browseImplementorsOf.
+	methodList := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	self assert: methodList notEmpty.
+	self assert: ('Implementors of ''size'' for*' match: methodListBrowser caption)]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.
+				self destroy: methodListBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseImplementorsMenuItem [
+	| browseMenu browseImplementorsItem |
+	self testsIssue: #issue251 withTitle: '`Browse Methods Containing` available from Console menu'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseImplementorsItem := browseMenu items
+				detect: [:command | '*Browse*Implementors*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseImplementorsItem.
+	self assert: browseImplementorsItem command equals: #browseImplementorsOf.
+	self assert: (transcript class canUnderstand: #browseMethodsContaining)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseLiteralsReferencesMenuItem [
+	| browseMenu browseLiteralReferencesItem |
+	self testsIssue: #issue251 withTitle: '`Browse Methods Containing` available from Console menu'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseLiteralReferencesItem := browseMenu items
+				detect: [:command | '*Browse*Literal*References*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseLiteralReferencesItem.
+	self assert: browseLiteralReferencesItem command equals: #browseLiteralReferences.
+	self assert: (transcript class canUnderstand: #browseLiteralReferences)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseMethodsContainingMenuItem [
+	| browseMenu browseMethodsContainingItem |
+	self testsIssue: #issue251 withTitle: '`Browse Methods Containing` available from Console menu'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseMethodsContainingItem := browseMenu items
+				detect: [:command | '*Browse*Methods*Containing*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseMethodsContainingItem.
+	self assert: browseMethodsContainingItem command equals: #browseMethodsContaining.
+	self assert: (transcript class canUnderstand: #browseMethodsContaining)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseProjectsMenuItem [
+	| browseMenu browseProjectsMenuItem |
+	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseProjectsMenuItem := browseMenu items
+				detect: [:command | '*Browse*Projects*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseProjectsMenuItem.
+	self assert: browseProjectsMenuItem command equals: #openJadeiteProjectsBrowser.
+	self assert: (transcript class canUnderstand: #openJadeiteProjectsBrowser)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseSenders [
+	| methodListBrowser methodList |
+	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestPrompter plannedResult: 'abort'.
+	methodListBrowser := transcript browseSendersOf.
+	methodList := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	self assert: methodList notEmpty.
+	self assert: ('Senders of ''abort'' for*' match: methodListBrowser caption)]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.
+				self destroy: methodListBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_browseSendersMenuItem [
+	| browseMenu browseSendersItem |
+	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	self denyIsNil: browseMenu.
+	browseSendersItem := browseMenu items detect: [:command | '*Browse*Senders*' match: command text]
+				ifNone: [].
+	self denyIsNil: browseSendersItem.
+	self assert: browseSendersItem command equals: #browseSendersOf.
+	self assert: (transcript class canUnderstand: #browseSendersOf)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_checkoutTagRefresh [
+	| projectService |
+	self testsIssue: #issue425
+		withTitle: 'Jadeite should be able to check out a git tag not just branch'.
+	self rowanFixMe.
+	true ifTrue:[^self].  "Checking out different versions of a critical project is not a good idea. Need sample project with tag" 
+	projectService := transcript projectListPresenter projectListPresenter list
+				detect: [:service | service name = 'Rowan'].
+	transcript projectListPresenter basicCheckoutTagAndRefresh: 'Oscar-3.0.93' for: projectService.
+	self assert: projectService branch equals: '(HEAD detached at Oscar-3.0.93)'.
+	self assert: projectService isSkew.
+	#('Cypress' 'STON' 'Tonel') do: 
+			[:projectName |
+			| dependentService |
+			dependentService := transcript projectListPresenter projectListPresenter list
+						detect: [:service | service name = projectName].
+			self assert: dependentService branch equals: '(HEAD detached at Oscar-3.0.93)'.
+			self assert: dependentService isSkew].
+	projectService basicCheckout: 'oscar' using: transcript projectListPresenter.
+	self assert: projectService branch equals: 'oscar'.
+	self deny: projectService isSkew.
+	#('Cypress' 'STON' 'Tonel') do: 
+			[:projectName |
+			| dependentService |
+			dependentService := transcript projectListPresenter projectListPresenter list
+						detect: [:service | service name = projectName].
+			self assert: dependentService branch equals: 'oscar'.
+			self deny: dependentService isSkew]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_closeConsoleNeedingCommit [
+	"expect dialog asking for commit"
+
+	self testsIssue: #issue267 withTitle: 'logout closes project browsers but not method list browsers'.
+	self cleanupExistingWindows.
+	session executeString: 'UserGlobals at: #test_closeConsoleNeedingCommit put: 123'.	"we now need a commit"
+	
+	[TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #yes.	"commit"
+	[[transcript view close] ensure: [TestMessageBox disableJadeiteTestMessageBox]] ensure: 
+			[self loginWithRetry: JadeiteLoginShell allInstances first.
+			self resources do: 
+					[:resource |
+					resource current
+						tearDown;
+						setUp.
+					self setUp]].
+	self
+		denyIsNil: (session executeString: 'UserGlobals at: #test_closeConsoleNeedingCommit ifAbsent:[]').
+	self assert: (session executeString: 'UserGlobals at: #test_closeConsoleNeedingCommit') equals: 123]
+			ensure: 
+				[session executeString: 'UserGlobals removeKey: #test_closeConsoleNeedingCommit'.
+				self commitTransaction]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_closeConsoleNoCommitNeeded [
+	"expect dialog asking for commit"
+
+	self testsIssue: #issue267 withTitle: 'logout closes project browsers but not method list browsers'.
+	self cleanupExistingWindows.
+	self abortTransaction.
+	self deny: (session executeString: 'System needsCommit').
+	[transcript view close	"no dialog appears. test would hang otherwise"] ensure: 
+			[self loginWithRetry: JadeiteLoginShell allInstances first.
+			self resources do: 
+					[:resource |
+					resource current
+						tearDown;
+						setUp]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_commitTransaction [
+	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
+	self cloneRowanSample1.
+	self ensureRowanSampleProjectsLoaded.
+	transcript projectListPresenter refresh.
+	self assertProjectInList: 'RowanSample1'.
+	transcript toolbarPresenter commit.
+	self assertProjectInList: 'RowanSample1'.
+	transcript toolbarPresenter abort.
+	self assertProjectInList: 'RowanSample1'.
+	self unloadSampleProject1.
+	transcript toolbarPresenter commit.
+	self denyProjectInList: 'RowanSample1'.
+	self cloneRowanSample1.
+	self ensureRowanSampleProjectsLoaded
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_createProject [
+	"sanity test - do we open the right browser?"
+
+	| createProjectsBrowser |
+	createProjectsBrowser := transcript createNewProject.
+	[self assert: createProjectsBrowser isKindOf: JadeiteCreateProjectEditor]
+		ensure: [self destroy: createProjectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_displayConfigOptions [
+	"sanity test just to make sure displaying configuration details doesn't break - code is old Jade code and is rather brittle"
+
+	| gemFailSafeNscEnumerate configurationPresenter readStream workspace lastLine |
+	self testsIssue: #issue854 withTitle: 'https://github.com/GemTalk/Jadeite/issues/854'.
+	(transcript view viewNamed: 'cardContainer') tabs selectionByIndex: 4.	"My Session tab needs to be lazily initialized"
+	configurationPresenter := transcript mySessionPresenter configurationReportPresenter.
+	gemFailSafeNscEnumerate := configurationPresenter list
+				detect: [:array | array first = 'GemFailSafeNscEnumerate'].
+	configurationPresenter selection: gemFailSafeNscEnumerate.
+	workspace := configurationPresenter trigger: #actionPerformed.
+	readStream := ReadStream on: workspace model value.
+	
+	[self assert: readStream nextLine = '# GemFailSafeNscEnumerate'.
+	[readStream atEnd] whileFalse: [lastLine := readStream nextLine].
+	self assert: ('System gemConfigurationAt: #GemFailSafeNscEnumerate*' match: lastLine)]
+			ensure: 
+				[readStream close.
+				(transcript view viewNamed: 'cardContainer') tabs selectionByIndex: 7.	"show project list again"
+				self destroy: workspace]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_doubleClickOpenProjectBrowser [
+	| randomIndex projectPresenter projectName |
+	randomIndex := (Random new next * 4) ceiling.
+	transcript projectListPresenter projectListPresenter selectionByIndex: randomIndex.
+	projectName := transcript projectListPresenter projectListPresenter selection name.
+	projectPresenter := transcript projectListPresenter projectListPresenter trigger: #actionPerformed.	"simulates double click"
+	[self assert: projectPresenter projectListPresenter selection name equals: projectName]
+		ensure: [projectPresenter topShell view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_fileIn [
+	| path className |
+	self openProjectBrowser.
+	
+	[path := '/home/ewinger/temp/TestFileIn.gs'.
+	(session executeString: '''' , path , ''' asFileReference exists')
+		ifTrue: [session executeString: '''' , path , ''' asFileReference delete'].
+	
+	[className := 'TestFileIn'.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #('instVarA')
+		package: 'RowanSample1-Core'.
+	self saveMethod: 'method1 ^true' in: 'TestFileIn'.
+	self saveMethod: 'method2 ^true' in: 'TestFileIn'.
+	self saveMethod: 'method3 ^true' in: 'TestFileIn'.
+	self projectsPresenter fileOutClassOnPath: path.
+	self assert: (session executeString: '''' , path , ''' asFileReference exists')]
+			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass].
+	
+	[self assertIsNil: (session executeString: 'Rowan globalNamed: ''' , className , '''').
+	transcript basicFileInFromFile: path.
+	self denyIsNil: (session executeString: 'Rowan globalNamed: ''' , className , '''').
+	self assert: (session executeString: 'TestFileIn new method1').
+	self assert: (session executeString: 'TestFileIn new method2').
+	self assert: (session executeString: 'TestFileIn new method3')]
+			ensure: [session executeString: '''' , path , ''' asFileReference delete']]
+			ensure: [self destroy: projectsBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_flipBreakPointsDisabled [
+	| breakPointsEnabled |
+	self testsIssue: #issue515 withTitle: '(3.0.77) clear all breakpoints menu item would be useful'.
+	
+	[breakPointsEnabled := transcript areBreakpointsEnabled value.
+	transcript flipBreakpointsEnabled.
+	self assert: transcript areBreakpointsEnabled value equals: breakPointsEnabled not.
+	self assert: (session executeString: 'SessionTemps current at: #Jadeite_BreakPointsAreEnabled')
+		equals: breakPointsEnabled not.
+	transcript flipBreakpointsEnabled.
+	self assert: transcript areBreakpointsEnabled value equals: breakPointsEnabled.
+	self assert: (session executeString: 'SessionTemps current at: #Jadeite_BreakPointsAreEnabled')
+		equals: breakPointsEnabled]
+			ensure: [transcript areBreakpointsEnabled value: breakPointsEnabled]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_implementorsSendersSearchList [
+	| selection |
+	self testsIssue: #issue581
+		withTitle: '(3.0.81) Implementors Of.../Senders Of... doesn''t show selection list'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestPrompter plannedResult: 'sub*'.
+	TestChoicePrompter plannedResult: #subclasses.
+	selection := JadePresenter
+				promptForMatchingSymbolsIn: session
+				actionBlock: [:sel | sel]
+				promptCaption: 'Test search selectors:'
+				searchType: 'prompt:'
+				searchString: nil.
+	self assert: selection equals: #subclasses.
+	"the code above doesn't really test that our list is populated. Hence the assertions below.
+	JadeiteSearch is referenced from #promptFor*"
+	(JadeiteSearch
+		selectorsFrom: ('sub*' copyWithout: $*)
+		session: session
+		trailingWildcard: true) do: [:string | self assert: ('sub*' match: string)].
+	self
+		denyIsNil: ((JadeiteTranscriptTestCase methodDictionary at: #test_implementorsSendersSearchList)
+				literalsDetect: [:literal | (literal isKindOf: Association) and: [literal value = JadeiteSearch]]
+				ifNone: [])]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_implementorsSenders_SearchList [
+	"searches starting with _"
+
+	| selection |
+	self testsIssue: #issue581
+		withTitle: '(3.0.81) Implementors Of.../Senders Of... doesn''t show selection list'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	
+	[TestPrompter plannedResult: '_*'.
+	TestChoicePrompter plannedResult: #subclasses.
+	selection := JadePresenter
+				promptForMatchingSymbolsIn: session
+				actionBlock: [:sel | sel]
+				promptCaption: 'Test search selectors:'
+				searchType: 'prompt:'
+				searchString: nil.
+	self assert: selection equals: #subclasses.
+	"the code above doesn't really test that our list is populated. Hence the assertions below.
+	JadeiteSearch is referenced from #promptFor*"
+	(JadeiteSearch
+		selectorsFrom: ('_*' copyWithout: $*)
+		session: session
+		trailingWildcard: true) do: [:string | self assert: (string beginsWith: '_')].
+	self
+		denyIsNil: ((JadeiteTranscriptTestCase methodDictionary at: #test_implementorsSendersSearchList)
+				literalsDetect: [:literal | (literal isKindOf: Association) and: [literal value = JadeiteSearch]]
+				ifNone: [])]
+			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_jadeiteMenuAdHocExecutionItems [
+	| editMenu debugMenuItem executeMenuItem inspectMenuItem displayMenuItem |
+	self testsIssue: #issue474 withTitle: '(3.0.69) inconsistent debug menu on workspaces'.
+	editMenu := transcript view menuBar items detect: [:menu | '*Edit*' match: menu text] ifNone: [].
+	self denyIsNil: editMenu.
+	debugMenuItem := editMenu items detect: [:command | '*Debug*' match: command text] ifNone: [].
+	self denyIsNil: debugMenuItem.
+	self assert: debugMenuItem command equals: #jadeDebug.
+	self assert: (transcript class canUnderstand: #jadeDebug).
+	self assert: debugMenuItem commandDescription acceleratorKey = 4674.	"Ctrl-B"
+	executeMenuItem := editMenu items detect: [:command | '*Execute*' match: command text] ifNone: [].
+	self denyIsNil: executeMenuItem.
+	self assert: executeMenuItem command equals: #jadeExecute.
+	self assert: (transcript class canUnderstand: #jadeExecute).
+	self assert: executeMenuItem commandDescription acceleratorKey = 4677.	"Ctrl-E"
+	inspectMenuItem := editMenu items detect: [:command | '*Inspect*' match: command text] ifNone: [].
+	self denyIsNil: inspectMenuItem.
+	self assert: inspectMenuItem command equals: #jadeInspect.
+	self assert: (transcript class canUnderstand: #jadeInspect).
+	self assert: inspectMenuItem commandDescription acceleratorKey = 4689.	"Ctrl-Q"
+	displayMenuItem := editMenu items detect: [:command | '*Display*' match: command text] ifNone: [].
+	self denyIsNil: displayMenuItem.
+	self assert: displayMenuItem command equals: #jadeDisplay.
+	self assert: (transcript class canUnderstand: #jadeDisplay).
+	self assert: displayMenuItem commandDescription acceleratorKey = 4676	"Ctrl-D"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_menuBarBrowseProjectsHonorsSelection [
+	| randomIndex projectName browseMenu browseProjectsMenuItem projectsPresenter |
+	randomIndex := (Random new next * 4) ceiling.
+	transcript projectListPresenter projectListPresenter selectionByIndex: randomIndex.
+	projectName := transcript projectListPresenter projectListPresenter selection name.
+	browseMenu := transcript view menuBar items detect: [:menu | '*Browse*' match: menu text] ifNone: [].
+	browseProjectsMenuItem := browseMenu items
+				detect: [:command | '*Browse*Projects*' match: command text]
+				ifNone: [].
+	self assert: browseProjectsMenuItem command equals: #openJadeiteProjectsBrowser.
+	projectsPresenter := transcript openJadeiteProjectsBrowser.
+	[self assert: projectsPresenter projectListPresenter selection name equals: projectName]
+		ensure: [projectsPresenter topShell view close].
+	transcript projectListPresenter projectListPresenter selectionByIndex: 0.
+	projectsPresenter := transcript openJadeiteProjectsBrowser currentCard.
+	[self assertIsNil: (projectsPresenter projectListPresenter selectionIfNone: [])]
+		ensure: [projectsPresenter topShell view close]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_menuNames [
+	| commitMenuItem checkoutMenuItem contextMenu |
+	self testsIssue: #issue342 withTitle: 'Console menu items not matching projects browser'.
+	contextMenu := transcript projectListPresenter projectListPresenter view queryContextMenu.
+	commitMenuItem := contextMenu items detect: [:menu | 'Commit to Git ...' = menu text] ifNone: [].
+	self denyIsNil: commitMenuItem.
+	self assert: commitMenuItem command equals: #gitCommit.
+	self assert: (transcript projectListPresenter class canUnderstand: #gitCommit).
+	checkoutMenuItem := contextMenu items detect: [:menu | 'Checkout Git Branch ...' = menu text]
+				ifNone: [].
+	self denyIsNil: checkoutMenuItem.
+	self assert: checkoutMenuItem command equals: #checkout.
+	self assert: (transcript projectListPresenter class canUnderstand: #checkout)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_menuSaveOnlyEnabledOnWorkspace [
+	| fileMenu fileSaveItem fileSaveQuery fileSaveAsItem fileSaveAsQuery |
+	self testsIssue: #issue953 withTitle: 'File Browser for server files'.
+	fileMenu := transcript view menuBar items detect: [:menu | '*File*' match: menu text] ifNone: [].
+	fileSaveItem := fileMenu items detect: [:command | command command = #fileSave] ifNone: [].
+	fileSaveQuery := CommandQuery commandDescription: fileSaveItem commandDescription
+				source: transcript view.
+	fileSaveAsItem := fileMenu items detect: [:command | command command = #fileSaveAs] ifNone: [].
+	fileSaveAsQuery := CommandQuery commandDescription: fileSaveAsItem commandDescription
+				source: transcript view.
+	transcript cardContainer view cardLayout firstCard.
+	self assert: transcript cardContainer view currentCard name = 'Transcript'.
+	transcript queryCommand: fileSaveQuery.
+	self deny: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self deny: fileSaveAsQuery isEnabled.
+
+	transcript cardContainer view cardLayout nextCard.
+	self assert: transcript cardContainer view currentCard name = 'history'.
+	transcript queryCommand: fileSaveQuery.
+	self deny: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self deny: fileSaveAsQuery isEnabled.	
+
+	transcript cardContainer view cardLayout nextCard.
+	self assert: transcript cardContainer view currentCard name = 'Stone'.
+	transcript queryCommand: fileSaveQuery.
+	self deny: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self deny: fileSaveAsQuery isEnabled.	
+
+	transcript cardContainer view cardLayout nextCard.
+	self assert: transcript cardContainer view currentCard name = 'My Session'.
+	transcript queryCommand: fileSaveQuery.
+	self deny: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self deny: fileSaveAsQuery isEnabled.	
+
+	transcript cardContainer view cardLayout nextCard.
+	self assert: transcript cardContainer view currentCard name = 'All Sessions'.
+	transcript queryCommand: fileSaveQuery.
+	self deny: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self deny: fileSaveAsQuery isEnabled.	
+
+	transcript cardContainer view cardLayout nextCard.
+	self assert: transcript cardContainer view currentCard name = 'codePane'.
+	transcript queryCommand: fileSaveQuery.
+	self assert: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self assert: fileSaveAsQuery isEnabled.	
+
+	transcript cardContainer view cardLayout nextCard.
+	self assert: transcript cardContainer view currentCard name = 'projectsList'.
+	transcript queryCommand: fileSaveQuery.
+	self deny: fileSaveQuery isEnabled.
+	transcript queryCommand: fileSaveAsQuery.
+	self deny: fileSaveAsQuery isEnabled.	
+
+
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_multiSelectProject [
+	| projectServices projectCount |
+	self testsIssue: #issue163
+		withTitle: 'Project list in transcript/console should be multi-select for multi-load'.
+	projectServices := transcript projectListPresenter projectListPresenter list.
+	projectCount := projectServices size.
+	transcript projectListPresenter projectListPresenter selections: projectServices.
+	self assert: transcript projectListPresenter projectListPresenter selections size equals: projectCount
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_openChangesBrowser [
+	| changesBrowser changesItem projectService |
+	self testsIssue: #issue384
+		withTitle: '(3.0.53) sort by `type` in changes view does not do complete job'.
+	projectService := transcript projectListPresenter projectListPresenter list first.
+	transcript projectListPresenter projectListPresenter selection: projectService.
+	changesItem := transcript projectListPresenter projectListPresenter view queryContextMenu items
+				detect: [:menuItem | menuItem command == #projectChanges].
+	changesBrowser := changesItem commandDescription performAgainst: transcript projectListPresenter.
+	[self assert: (changesBrowser isKindOf: JadeiteChangesBrowser)]
+		ensure: [self destroy: changesBrowser]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_openPreferencesFile [
+	| prefsWorkspace prefsItem |
+	self testsIssue: #issue522 withTitle: 'hook to open desired set of windows at startup'.
+	prefsItem := self browseMenu items detect: [:menuItem | menuItem command == #browseJadeitePrefs].
+	prefsWorkspace := prefsItem commandDescription performAgainst: transcript.
+	[self assert: (prefsWorkspace isKindOf: JadeiteWorkspace)] ensure: [prefsWorkspace view close]
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_openPreferencesFileCreatePrefsFile [
+	| prefsWorkspace prefsItem path prefsExists |
+	self testsIssue: #issue522 withTitle: 'hook to open desired set of windows at startup'.
+	path := SessionManager current imageBase , 'Jadeite.prefs'.
+	prefsExists := File exists: path.
+	prefsExists
+		ifTrue: 
+			[self savePrefsBackup.
+			(File open: path) delete].
+	self deny: (File exists: path).
+	
+	[prefsItem := self browseMenu items detect: [:menuItem | menuItem command == #browseJadeitePrefs].
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #yes.
+	prefsWorkspace := prefsItem commandDescription performAgainst: transcript.
+	self assert: (File exists: self jadeitePrefsFilePath)]
+			ensure: 
+				[TestMessageBox disableJadeiteTestMessageBox.
+				prefsWorkspace view close.
+				self restoreBackupPrefsFile: prefsExists.
+				self assert: (File exists: path) equals: prefsExists]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_openServerFile [
+	| editor |
+	self testsIssue: #issue954 withTitle: 'Need online help; our formatting is somewhat opaque'.
+	editor := transcript basicOpenServerFile: '$ROWAN_PROJECTS_HOME/RowanSample1/LICENSE'.
+	[self assert: (editor codePane documentPresenter value copyFrom: 1 to: 11) equals: 'MIT License']
+		ensure: [self destroy: editor]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_packageGroupsVisibility [
+	| packageGroupsWereVisible |
+	self testsIssue: #issue887
+		withTitle: '(Oscar V3.2) consider having the Preferences>>Package list visible menu apply to all tabs in a browser'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	packageGroupsWereVisible := JadePresenter packageGroupsVisible.
+	
+	[JadePresenter packageGroupsVisible
+		ifTrue: 
+			[self assert: self projectsPresenter packageGroupPresenter view isWindowVisible.
+			transcript togglePackageGroups.
+			self deny: self projectsPresenter packageGroupPresenter view isWindowVisible]
+		ifFalse: 
+			[self deny: self projectsPresenter packageGroupPresenter view isWindowVisible.
+			transcript togglePackageGroups.
+			self assert: self projectsPresenter packageGroupPresenter view isWindowVisible]]
+			ensure: [JadePresenter packageGroupsVisible: packageGroupsWereVisible]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_packageListVisibility [
+	| packageListWasVisible |
+	self testsIssue: #issue887
+		withTitle: '(Oscar V3.2) consider having the Preferences>>Package list visible menu apply to all tabs in a browser'.
+	self openProjectBrowser.
+	self selectRowanSample1Test.
+	packageListWasVisible := JadePresenter packageListVisible.
+	
+	[JadePresenter packageListVisible
+		ifTrue: 
+			[self assert: self projectsPresenter packageListPresenter view isWindowVisible.
+			transcript togglePackageList.
+			self deny: self projectsPresenter packageListPresenter view isWindowVisible]
+		ifFalse: 
+			[self deny: self projectsPresenter packageListPresenter view isWindowVisible.
+			transcript togglePackageList.
+			self assert: self projectsPresenter packageListPresenter view isWindowVisible]]
+			ensure: [JadePresenter packageListVisible: packageListWasVisible]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_popupMenuHasBrowseClass [
+	| browseClassItem |
+	self testsIssue: #issue429 withTitle: '(3.0.60) ''Browse Class'' on Transcript gets walkback'.
+	browseClassItem := transcript transcriptPresenter documentPresenter view contextMenu items
+				detect: [:menu | 'Browse Class' match: menu text]
+				ifNone: [].
+	self denyIsNil: browseClassItem.
+	self assert: browseClassItem command equals: #browseSelectedClass.
+	self assert: (transcript transcriptPresenter class canUnderstand: #browseSelectedClass)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_popupMenuHasBrowseImplementors [
+	| browseClassItem |
+	self testsIssue: #issue429 withTitle: '(3.0.60) ''Browse Class'' on Transcript gets walkback'.
+	browseClassItem := transcript transcriptPresenter documentPresenter view contextMenu items
+				detect: [:menu | 'Browse Implementors' match: menu text]
+				ifNone: [].
+	self denyIsNil: browseClassItem.
+	self assert: browseClassItem command equals: #browseImplementors.
+	self assert: (transcript transcriptPresenter class canUnderstand: #browseImplementors)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_popupMenuHasBrowseSenders [
+	| browseClassItem |
+	self testsIssue: #issue429 withTitle: '(3.0.60) ''Browse Class'' on Transcript gets walkback'.
+	browseClassItem := transcript transcriptPresenter documentPresenter view contextMenu items
+				detect: [:menu | 'Browse Senders' match: menu text]
+				ifNone: [].
+	self denyIsNil: browseClassItem.
+	self assert: browseClassItem command equals: #browseSenders.
+	self assert: (transcript transcriptPresenter class canUnderstand: #browseSenders)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_projectMenuCheckoutMenuItemsEnablement [
+	| checkoutMenuItem query projectService |
+	self testsIssue: #issue425
+		withTitle: 'Jadeite should be able to check out a git tag not just branch'.
+	checkoutMenuItem := transcript projectListPresenter projectListPresenter view queryContextMenu
+				items detect: [:item | #checkout == item command] ifNone: [].
+	self denyIsNil: checkoutMenuItem.
+	self assert: (transcript projectListPresenter class canUnderstand: #gitCommit).
+	query := CommandQuery commandDescription: checkoutMenuItem
+				source: transcript projectListPresenter view.
+	projectService := transcript projectListPresenter projectListPresenter list first.
+	transcript projectListPresenter projectListPresenter selection: projectService.
+	transcript projectListPresenter queryCommand: query.
+	self assert: query isEnabled. 
+	transcript projectListPresenter projectListPresenter selections: transcript projectListPresenter projectListPresenter list.
+	transcript projectListPresenter queryCommand: query.
+	self deny: query isEnabled. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_projectMenuCheckoutTagMenuItemsEnablement [
+	| checkoutMenuItem query projectService |
+	self testsIssue: #issue425
+		withTitle: 'Jadeite should be able to check out a git tag not just branch'.
+	checkoutMenuItem := transcript projectListPresenter projectListPresenter view queryContextMenu
+				items detect: [:item | #checkoutTag == item command] ifNone: [].
+	self denyIsNil: checkoutMenuItem.
+	self assert: (transcript projectListPresenter class canUnderstand: #gitCommit).
+	query := CommandQuery commandDescription: checkoutMenuItem
+				source: transcript projectListPresenter view.
+	projectService := transcript projectListPresenter projectListPresenter list first.
+	transcript projectListPresenter projectListPresenter selection: projectService.
+	transcript projectListPresenter queryCommand: query.
+	self assert: query isEnabled. 
+	transcript projectListPresenter projectListPresenter selections: transcript projectListPresenter projectListPresenter list.
+	transcript projectListPresenter queryCommand: query.
+	self deny: query isEnabled. 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_projectMenuGitCommitMenuItem [
+	| gitCommitMenuItem query |
+	self testsIssue: #issue317 withTitle: 'Commit when no changes results in walkback'.
+	gitCommitMenuItem := transcript projectListPresenter projectListPresenter view queryContextMenu
+				items detect: [:menu | '*Commit to Git*' match: menu text] ifNone: [].
+	self denyIsNil: gitCommitMenuItem.
+	self assert: gitCommitMenuItem command equals: #gitCommit.
+	self assert: (transcript projectListPresenter class canUnderstand: #gitCommit).
+	query := CommandQuery commandDescription: gitCommitMenuItem
+				source: transcript projectListPresenter view.
+	transcript projectListPresenter projectListPresenter list do: 
+			[:projectService |
+			transcript projectListPresenter projectListPresenter selection: projectService.
+			transcript projectListPresenter queryCommand: query.
+			projectService isDirty ifTrue: [self assert: query isEnabled] ifFalse: [self deny: query isEnabled]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_queryCommandHandlesNilSession [
+	| flipAutoCommitItem jadeiteMenu query previousAutoCommit |
+	self testsIssue: #issue773
+		withTitle: 'Answer no to "Unsaved Changes" on logout does not work as planned (3.1pr4)'.
+	jadeiteMenu := transcript view menuBar items detect: [:menu | '*Jadeite*' match: menu text]
+				ifNone: [].
+	flipAutoCommitItem := jadeiteMenu items detect: [:command | command command = #flipAutoCommit]
+				ifNone: [].
+	query := CommandQuery commandDescription: flipAutoCommitItem commandDescription
+				source: transcript view.
+	previousAutoCommit := session autoCommit.
+	session autoCommit: true.
+	
+	[transcript queryCommand: query.
+	self assert: query isChecked.
+	session := GciSession current.
+	GciSession current: nil.
+	
+	[transcript queryCommand: query.
+	self deny: query isChecked] ensure: [GciSession current: session]]
+			ensure: [session autoCommit: previousAutoCommit]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_raiseConsole [
+	| browser remoteObject |
+	self testsIssue: #issue603
+		withTitle: 'When opening multiple browsers on startup, keep console first (3.0.83)'.
+	transcript raiseConsole.
+	self assert: transcript view hasFocus.
+	browser := transcript browseJadeitePrefs.
+	browser raiseConsole.
+	[self assert: transcript view hasFocus] ensure: [browser view close].
+	browser := transcript openJadeiteProjectsBrowser.
+	browser raiseConsole.
+	[self assert: transcript view hasFocus] ensure: [browser topShell view close].
+	browser := JadePresenter browseImplementorsOf: #size session: session.
+	browser primaryPresenter raiseConsole.
+	[self assert: transcript view hasFocus] ensure: [browser topShell view close].
+	browser := (JadeiteWorkspace showOnSession: session) caption: 'Jade Workspace - Test Raise Console'.
+	browser raiseConsole.
+	[self assert: transcript view hasFocus] ensure: [browser view close].
+	remoteObject := session
+				executeString: 'Array new'
+				fromContext: nil
+				environment: 0.
+	browser := JadeInspector showOn: remoteObject session: session.
+	browser raiseConsole.
+	[self assert: transcript view hasFocus] ensure: [browser view close].
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_selectorsList [
+	"selects list is shown during wildcard implementors/senders searches"
+
+	| list |
+	self testsIssue: #issue615
+		withTitle: 'Leading * in find implementors... worked in 3.0.65 but not in 3.0.85'.
+	list := JadeiteSearch
+				selectorsFrom: '*ize'
+				session: session
+				trailingWildcard: false.
+	list do: [:symbol | self assert: ('*ize' match: symbol)].
+	list := JadeiteSearch
+				selectorsFrom: 'size'
+				session: session
+				trailingWildcard: false.
+	list do: [:symbol | self assert: ('size' match: symbol)].
+	list := JadeiteSearch
+				selectorsFrom: 'siz*'
+				session: session
+				trailingWildcard: false.
+	list do: [:symbol | self assert: ('siz*' match: symbol)]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_transcriptNamedConsole [
+	| clearTranscriptMenuItem wasInstalled |
+	(wasInstalled := transcript isTranscriptInstalled) ifFalse: [transcript flipTranscript].
+	
+	[clearTranscriptMenuItem := transcript transcriptPresenter documentPresenter view queryContextMenu
+				items detect: [:menuItem | menuItem command == #clearTranscript].
+	clearTranscriptMenuItem commandDescription performAgainst: transcript transcriptPresenter.
+	self assert: transcript transcriptPresenter documentPresenter value isEmpty.
+	self assert: transcript transcriptPresenter documentPresenter view displayValue isEmpty.
+	session executeString: 'Transcript show: ''wroteOnTranscript'''.
+	self assert: transcript transcriptPresenter documentPresenter value equals: '''wroteOnTranscript'''.
+	clearTranscriptMenuItem commandDescription performAgainst: transcript transcriptPresenter.
+	self assert: transcript transcriptPresenter documentPresenter value isEmpty.
+	self assert: transcript transcriptPresenter documentPresenter view displayValue isEmpty]
+			ensure: [wasInstalled ifFalse: [transcript flipTranscript	"turn back off"]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_unicodeCharactersDisplay [
+	| service |
+	self testsIssue: #issue963
+		withTitle: '[3.2.12] Filein/fileout need to behave correctly in the presence of Characters [128..254] and [255+]'.	"not exactly the issue, but need to connect the test to something"
+	self extendedCharacters do: 
+			[:char |
+			char isSeparator
+				ifFalse: 
+					[session executeString: 'Transcript cr; show: ''' , char printString , '''; flush'.
+					self assert: self transcriptLastLine equals: '''' , char printString , '''']].
+	service := RowanAnsweringService new.
+	self extendedCharacters do: 
+			[:char |
+			char isSeparator
+				ifFalse: 
+					[service exec: 'Transcript cr; show: ''' , char printString , '''; flush' in: session.
+					self assert: self transcriptLastLine equals: '''' , char printString , '''']]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_unicodeStringDisplay [
+	self testsIssue: #issue963
+		withTitle: '[3.2.12] Filein/fileout need to behave correctly in the presence of Characters [128..254] and [255+]'.	"not exactly the issue, but need to connect the test to something"
+	session
+		executeString: 'Transcript cr; show: ''This was written by test JadeiteTranscriptTest>>test_unicodeCharactersDisplay - Å¡''; flush. '.
+	self assert: self transcriptLastLine
+		equals: '''This was written by test JadeiteTranscriptTest>>test_unicodeCharactersDisplay - Å¡'''.
+	session executeString: 'Transcript cr; show: (Character codePoint: 16r161) printString; flush'.	"$Å¡"
+	self assert: self transcriptLastLine equals: '''$Å¡'''.
+	session executeString: 'Transcript cr; show: (Character codePoint: 16rA2) printString; flush'.	"$Â¢"
+	self assert: self transcriptLastLine equals: '''$Â¢'''
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> test_validateHelpFiles [
+	"need both .html & .css file to properly display Jadeite help file in a browser"
+
+	self testsIssue: #issue954 withTitle: 'Need online help; our formatting is somewhat opaque'.
+	self assert: (File
+				exists: SessionManager current installationDirectory , '\help\' , transcript jadeiteHelpFileName).
+	self assert: (File
+				exists: SessionManager current installationDirectory , '\help\' , transcript jadeiteHelpFileNameRoot
+						, transcript jadeiteHelpFileCSSExtension)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> transcriptLastLine [
+	| lastLine readStream |
+	readStream := ReadStream on: transcript transcriptPresenter documentPresenter value.
+	[readStream atEnd] whileFalse: [lastLine := readStream nextLine].
+	^lastLine
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTranscriptTestCase >> writeToPrefsFile: string [
+	| fileStream |
+	fileStream := FileStream read: SessionManager current imageBase , 'Jadeite.prefs'.
+	[fileStream nextPutAll: string] ensure: [fileStream close]
+]

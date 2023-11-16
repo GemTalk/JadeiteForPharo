@@ -1,0 +1,912 @@
+Class {
+	#name : 'JadeiteConsole',
+	#superclass : 'JadeitePresenterWithAutoCommitButton',
+	#traits : 'JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteMethodsTrait + JadeiteClassTrait',
+	#classTraits : 'JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait',
+	#instVars : [
+		'projectListPresenter',
+		'isTranscriptInstalled',
+		'areBreakpointsEnabled',
+		'autoCompleteEnabled',
+		'transactionModePresenter',
+		'lastKnownTransaction',
+		'cardContainer',
+		'toolbar',
+		'transcriptService',
+		'consoleTabs',
+		'toolbarPresenter'
+	],
+	#classVars : [
+		'CurrentConsole'
+	],
+	#category : 'Jadeite-Console'
+}
+
+{ #category : 'accessing' }
+JadeiteConsole class >> currentConsole [
+
+	^ CurrentConsole
+]
+
+{ #category : 'accessing' }
+JadeiteConsole class >> currentConsole: anObject [
+
+	CurrentConsole := anObject
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole class >> defaultAdditionalAccelerators [
+	"Private - Even though this is specified in the context menu in JadeiteTranscript, the accelerator key is not recognized"
+
+	^super defaultAdditionalAccelerators , #(#(#jadeExecute 'Ctrl+E'))
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole class >> showOnSession: aGciSession [
+	| theConsole |
+	theConsole := super showOnSession: aGciSession.
+	theConsole setTransactionModeFromServer.
+	^theConsole
+]
+
+{ #category : 'transactions' }
+JadeiteConsole >> abortTransaction [
+	^self application abortTransaction.
+]
+
+{ #category : 'events' }
+JadeiteConsole >> abortedTransaction [
+	self todo: [self displayLastKnownCommitOrAbort].
+	self projectListPresenter invalidate. 
+]
+
+{ #category : 'updates' }
+JadeiteConsole >> addNoneProject [
+	"project list does not add a none project"
+
+	
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> addStyle: aString [
+	
+	super addStyle: aString. 
+	transcriptPresenter addStyle: aString
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> additionalAccelerators [
+	^super additionalAccelerators , #(#(#raiseConsole 'Ctrl+F7'))
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> areBreakpointsEnabled [
+	^areBreakpointsEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> auditProject [
+	projectListPresenter auditProject
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> autoCommit: aBoolean [
+
+	"haven't put commit and transaction status in the console yet"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> autoCompleteEnabled [
+	"for testing"
+
+	^autoCompleteEnabled value
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> autoCompleteEnabled: boolean [
+	"for testing"
+
+	JadeiteSearch autoCompleteEnabled: boolean.
+	autoCompleteEnabled value: boolean
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> basicOpenServerFile: filePath [
+	^JadeiteServerFileWorkspace showOnSession: gciSession path: filePath
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> basicSetFont: newFont [
+	JadeitePreferences displayFontFrom: newFont.
+	JadeitePreferences current currentFont: newFont
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> basicSetTextFont: newFont [
+	JadeiteScintillaView allInstances do: [:scintillaView | scintillaView font: newFont].
+	JadeitePreferences current currentTextFont: newFont
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> basicTransactionMode: aSymbol [
+	self parentPresenter transactionMode: aSymbol session: gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> beginTransaction [
+	self parentPresenter beginTransaction
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseBreakpointList [
+	^JadePresenter browseBreakpointsIn: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseBreakpoints [
+	^JadeiteBreakpointBrowser showOnSession: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseClass [
+	^JadePresenter browseClassIn: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseClassReferences [
+	^JadePresenter browseClassReferencesInSession: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseJadeiteLogs [
+	^JadeiteLoggerShell showOnSession: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseJadeitePrefs [
+	^JadeitePreferencesWorkspace browseJadeitePrefs: gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> browseUsers [
+	^AllUsersShell showOnSession: gciSession.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> cardContainer [
+	^cardContainer
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> cardContainer: anObject [
+	cardContainer := anObject
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> colorForCompileError [
+	| newColor |
+	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForNoEdits.
+	newColor ifNotNil: [JadeiteTextStyles default colorForCompileError: newColor]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> colorForNoEdits [
+	| newColor |
+	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForNoEdits.
+	newColor ifNotNil: [JadeiteTextStyles default colorForNoEdits: newColor]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> colorForUnsavedEdits [
+	| newColor |
+	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForUnsavedEdits.
+	newColor ifNotNil: [JadeiteTextStyles default colorForUnsavedEdits: newColor]
+]
+
+{ #category : 'transactions' }
+JadeiteConsole >> commitTransaction [
+	^self application commitTransaction.
+]
+
+{ #category : 'transactions' }
+JadeiteConsole >> committedTransaction [
+	self displayLastKnownCommitOrAbort
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> connectPresenters [ 
+
+	super connectPresenters. 
+	self application
+		when: #abortedTransaction
+		send: #abortedTransaction
+		to: self.
+	self application
+		when: #committedTransaction
+		send: #committedTransaction
+		to: self
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> createComponents [
+	super createComponents.
+	projectListPresenter := self add: JadeiteProjectListPresenter new name: 'Projects'.
+	lastKnownTransaction := self add: TextPresenter new name: 'lastKnownTransaction'.
+	lastKnownTransaction value: 'Last Known Commit or Abort: (unknown)'. 
+	transactionModePresenter := self add: RadioButtonSetPresenter new name: 'transactionMode'.
+	transactionModePresenter model: (self aspectValue: #transactionMode).
+	cardContainer := self add: Presenter new name: 'cardContainer'. "for testing"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> createNewProject [
+	^projectListPresenter createNewProject
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> defaultLayout [ 
+
+	^SpBoxLayout newVertical
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> displayLastKnownCommitOrAbort [
+	| writeStream |
+	writeStream := WriteStream on: String new.
+	TimeStamp current printOn: writeStream format: 'M/d/yyyy h:mm:ss tt'.
+	lastKnownTransaction value: 'Last Known Commit or Abort: ' , writeStream contents
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> editComponents [
+	| projectName |
+	projectName := projectListPresenter projectListPresenter selectionOrNil
+				ifNil: [^self]
+				ifNotNil: [:projectService | projectService name].
+	^JadeiteComponentEditor showOn: projectName session: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> editLoadSpecFromFile [
+	^JadeiteLoadSpecEditor editLoadSpecFromFileInSession: gciSession
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> findClassNamed: selection [
+
+	| classService browser |
+	browser := self openBrowser. 
+	classService := RowanClassService new name: selection.
+	^ Cursor wait showWhile: [
+		  browser activePresenter updateAfterFindClass: classService ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> flipAutocomplete [
+	| newValue confirmedValue |
+	newValue := JadeiteSearch autoCompleteEnabled not.
+	confirmedValue := JadeiteSearch confirmAutoCompleteEnabled: newValue in: self gciSession.
+	"confirmedValue results in no change if user declines to continue"
+	autoCompleteEnabled value: confirmedValue
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> flipBreakpointsEnabled [
+	| answeringService | 
+	answeringService := RowanAnsweringService new.
+	answeringService setBreakpointsEnabled: areBreakpointsEnabled value not session: self gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> flipDebugger [
+	JadeiteDebugger debuggerClass == JadeiteDebugger
+		ifTrue: [JadeiteDebugger debuggerClass: JadeDebugger]
+		ifFalse: [JadeiteDebugger debuggerClass: JadeiteDebugger]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> flipLogging [
+	RowanServiceUpdater current isLogging: RowanServiceUpdater current isLogging not
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> flipTranscript [
+	| answeringService |
+	answeringService := RowanAnsweringService new.
+	answeringService flipTranscriptIn: self gciSession.
+	isTranscriptInstalled := isTranscriptInstalled value: isTranscriptInstalled value not
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> gciSession [
+
+	^gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> gciSession: aGciSession [
+	"don't do the force logout. We'll close us ourselves"
+
+	gciSession := aGciSession.
+	gciSession
+		when: #logoutRequested:
+			send: #logoutRequested:
+			to: self;
+		when: #logoutPending
+			send: #exit
+			to: self;
+		yourself.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> hidePackageGroups [
+	^JadePresenter hidePackageGroups
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> hidePackageList [
+	^JadePresenter hidePackageList
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeAutoCommit [
+
+	self gciSession initializeAutoCommit.
+	self	gciSession autoCommit
+		whenChangedSend: #updateAutoCommitButton
+		to: self.
+	self updateAutoCommitButton
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeBrowseMenu [
+
+	^ self newBrowseMethodListMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Find Class ...';
+				  shortcut: $f shift ctrl;
+				  action: [ self findClass ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeFileMenu [
+
+	^ self newMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Open Server File ...';
+				  action: [ self openServerFile ] ];
+		  yourself 
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeKeyBindings: aWindowPresenter [
+
+	aWindowPresenter
+		bindKeyCombination: $f shift ctrl
+		toAction: [ self findClass ]
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'File';
+						  subMenu: self initializeFileMenu ];
+				  addItem: [ :item |
+					  item
+						  name: 'Browse';
+						  subMenu: self initializeBrowseMenu ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializePresenters [
+
+	| box |
+	super initializePresenters.
+	self initializeToolbar.
+	box := SpBoxLayout newVertical.
+	self layout add: box.
+	consoleTabs := SpTabLayout new.
+	self initializeProjectListPresenter: consoleTabs.
+	self initializeTranscriptPresenter: consoleTabs.
+	box add: consoleTabs.
+	self initializeAutoCommitPresenter.
+	lastKnownTransaction := self newStatusBar.
+	self layout addLast: lastKnownTransaction expand: false.
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeProjectListPresenter: tabs [
+
+	| column1 column2 column3 |
+	projectListPresenter := JadeiteTablePresenter new.
+	projectListPresenter addColumn: (column1 := SpStringTableColumn
+			            title: 'Project Name'
+			            evaluated: [ :projectService | 
+			            projectService displayName ]).
+	column1
+		displayBold: [ :projectService | projectService isDirty ];
+		displayColor: [ :projectService | 
+			projectService isSkew
+				ifTrue: [ Color red ]
+				ifFalse: [ Smalltalk ui theme textColor ] ].
+	projectListPresenter addColumn: (column2 := SpStringTableColumn
+			            title: 'Loaded Sha'
+			            evaluated: [ :projectService | projectService sha ]).
+	column2
+		displayBold: [ :projectService | projectService isDirty ];
+		displayColor: [ :projectService | 
+			projectService isSkew
+				ifTrue: [ Color red ]
+				ifFalse: [ Smalltalk ui theme textColor ] ].
+	projectListPresenter addColumn: (column3 := SpStringTableColumn
+			            title: 'Branch'
+			            evaluated: [ :projectService | projectService branch ]).
+	column3
+		displayBold: [ :projectService | projectService isDirty ];
+		displayColor: [ :projectService | 
+			projectService isSkew
+				ifTrue: [ Color red ]
+				ifFalse: [ Smalltalk ui theme textColor ] ].
+	projectListPresenter items:
+		(Array with: RowanProjectService new with: RowanProjectService new).
+	tabs add: projectListPresenter label: 'Projects'.
+	self initializeProjectListMenu
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> initializeTransactionModeSettings [
+	self transactionMode
+		ifNil: 
+			[self setTransactionModeFromServer	"should have already been set when window was created ... but just in case"]
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeTranscriptPresenter: tabs [
+
+	tabs add: (transcriptPresenter := (JadeiteTextDocument new _gciSession:
+			                         self application gciSession) beNotEditable)
+			label: 'Transcript'.
+	transcriptPresenter contextMenu: [ 
+		SpMenuPresenter new addItem: [ :item | 
+			item
+				name: 'Clear';
+				action: [ transcriptPresenter clearContent ];
+				enabled: true ] ]
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> initializeWindow: aWindowPresenter [
+
+	super initializeWindow: aWindowPresenter.
+	aWindowPresenter
+		initialExtent: 800 @ 500;
+		menu: self initializeMenubar.
+	self initializeKeyBindings: aWindowPresenter.
+	self updateCaption.
+	aWindowPresenter whenClosedDo: [ self class currentConsole: nil ]
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> installTranscript [
+
+	transcriptService := RowanTranscriptServiceClient new registerWith:
+		                     gciSession library.
+	transcriptService transcriptPresenter: transcriptPresenter. 
+	transcriptService installTranscript.
+
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> isBeginTransactionEnabled [
+	^self parentPresenter isBeginTransactionEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> isCommitEnabled [
+	^self parentPresenter isCommitEnabled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> isTranscriptInstalled [
+	^isTranscriptInstalled value
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> isTranscriptInstalledValueHolder [
+	^isTranscriptInstalled
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> jadeiteHelpFileCSSExtension [
+	"for testing"
+
+	^'.css'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> jadeiteHelpFileExtension [
+	^'.html'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> jadeiteHelpFileName [
+	^self jadeiteHelpFileNameRoot , self jadeiteHelpFileExtension
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> jadeiteHelpFileNameRoot [
+	^'JadeiteHelp'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> lastKnownTransaction [
+	^lastKnownTransaction
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> onCloseRequested: boolValueHolder [
+	| answer |
+	self onPromptToSaveChanges: boolValueHolder.
+	boolValueHolder value ifFalse: [^self].
+	gciSession isNil ifTrue: [^self].
+	gciSession isValidSession
+		ifFalse: 
+			[gciSession trigger: #forceJadeiteWindowClose.
+			^self].
+	gciSession logoutRequested
+		ifFalse: 
+			[boolValueHolder value: false.
+			^self].
+	(RowanAnsweringService new needsCommit: self gciSession)
+		ifTrue: 
+			[self shouldAskToCommitOnLogout
+				ifTrue: 
+					[answer := MessageBox new
+								caption: 'Close Requested';
+								confirmOrCancel: 'Commit current transaction?'.
+					boolValueHolder value: (#(#yes #no) includes: answer).
+					answer = #yes ifTrue: [gciSession commit]]].
+	boolValueHolder value ifFalse: [^self].
+	allSessionsPresenter aboutToClose.
+	gciSession notNil
+		ifTrue: 
+			[| temp |
+			JadePresenter
+				stopListeningForSigAborts;
+				resetSigAbortProcessEnablement;
+				resetSigAbortProcessInterval.
+			temp := gciSession.	"I'm getting closed so make sure session gets logged out"
+			gciSession := nil.
+			temp forceLogout]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> onViewClosed [
+	super onViewClosed.
+	RowanServiceUpdater current logComment: 'Closing Transcript {' , self identityHash printString , '}'.
+	RowanServiceUpdater current removeEventsTriggeredFor: self.
+	RowanServiceUpdater current removeEventsTriggeredFor: projectListPresenter projectListPresenter.
+	JadePresenter removeEventsTriggeredFor: self. 
+	GciSession current: nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> onViewOpened [
+	| answeringService installed breakPointsEnabled |
+	super onViewOpened.
+	self setRowanProjectsHomeIfNecessary: gciSession.
+	self initializeTransactionModeSettings.	"should have already been set when window was created ... but just in case"
+	projectListPresenter
+		gciSession: gciSession;
+		updateProjects.
+	JadeiteTextStyles default resetColors.	"reset colors on login"
+	answeringService := RowanAnsweringService new.
+	installed := answeringService isTranscriptInstalledIn: self gciSession.
+	isTranscriptInstalled value: installed.
+	areBreakpointsEnabled
+		value: (breakPointsEnabled := answeringService breakPointsAreEnabled: self gciSession).
+	RowanServiceUpdater current breakpointsEnabled: breakPointsEnabled.
+	self registerPresentersForUpdates.
+	self autoCommit: (RowanAnsweringService new autoCommitIn: self gciSession)
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> openDictionaryBrowser [
+	gciSession hasServer ifTrue: [^JadeiteBrowser showOnSession: gciSession]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> openGitHubJadeiteProject [
+	^JadePresenter openGitHubJadeiteProject
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> openGitHubRowanProject [
+	^JadePresenter openGitHubRowanProject
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> openJadeiteHelpFile [
+	^ShellLibrary default shellOpen: self jadeiteHelpFileName
+		directory: SessionManager current installationDirectory, 'Help\'
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> openServerFile [
+	| filePath |
+	filePath := JadeiteServerFileSelectorDialog showOnSession: gciSession
+				defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+	filePath ifNil: [^self].
+	^self basicOpenServerFile: filePath
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> openSourceStyler [
+	JadeiteScintillaView openSourceStyler
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> projectListPresenter [
+	^projectListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> queryCommand: aCommandQuery [
+	super queryCommand: aCommandQuery.
+	aCommandQuery commandSymbol = #loadProject
+		ifTrue: 
+			[aCommandQuery isEnabled: true.
+			^true].
+	aCommandQuery commandSymbol = #reloadProject
+		ifTrue: 
+			[aCommandQuery isEnabled: projectListPresenter projectListPresenter selections notEmpty.
+			^true].
+	aCommandQuery commandSymbol = #begin
+		ifTrue: 
+			[aCommandQuery isEnabled: self isBeginTransactionEnabled.
+			^true].
+	aCommandQuery commandSymbol = #commitTransaction
+		ifTrue: 
+			[aCommandQuery isEnabled: self isCommitEnabled.
+			^true].
+	aCommandQuery commandSymbol = #flipTranscript
+		ifTrue: 
+			[aCommandQuery isChecked: self isTranscriptInstalled.
+			^true].
+	aCommandQuery commandSymbol = #flipAutoCommit
+		ifTrue: 
+			[aCommandQuery
+				isChecked: (GciSession current ifNil: [false] ifNotNil: [:session | session autoCommit == true]).
+			^true].
+	aCommandQuery commandSymbol = #flipDebugger
+		ifTrue: 
+			[aCommandQuery isChecked: JadeiteDebugger debuggerClass = JadeiteDebugger.
+			^true].
+	aCommandQuery commandSymbol = #flipLogging
+		ifTrue: 
+			[aCommandQuery isChecked: RowanServiceUpdater current isLogging.
+			^true].
+	aCommandQuery commandSymbol = #flipBreakpointsEnabled
+		ifTrue: 
+			[aCommandQuery isChecked: areBreakpointsEnabled value.
+			^true].
+	aCommandQuery commandSymbol = #flipAutocomplete
+		ifTrue: 
+			[aCommandQuery isChecked: autoCompleteEnabled value.
+			^true].
+	aCommandQuery commandSymbol = #fileSave
+		ifTrue: 
+			[aCommandQuery isEnabled: codePane view hasFocus.
+			^true].
+	aCommandQuery commandSymbol = #fileSaveAs
+		ifTrue: 
+			[aCommandQuery isEnabled: codePane view hasFocus.
+			^true].
+	#togglePackageList == aCommandQuery command
+		ifTrue: 
+			[ aCommandQuery isEnabled: true.
+			aCommandQuery isChecked: JadePresenter packageListVisible.
+			^true].
+	#togglePackageGroups == aCommandQuery command
+		ifTrue: 
+			[aCommandQuery isEnabled: true.
+			aCommandQuery isChecked: JadePresenter packageGroupsVisible.
+			^true].
+	^false
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> refreshFromServer [
+	self updateServices: projectListPresenter selections. 
+	
+]
+
+{ #category : 'updates' }
+JadeiteConsole >> refreshProjectInfoTab [
+]
+
+{ #category : 'registration' }
+JadeiteConsole >> registerPresentersForUpdates [
+	RowanServiceUpdater current
+		register: self selector: #autoCommitUpdate:;
+		register: self selector: #breakpointSettingChanged:;
+		register: self selector: #updateSymbols:;
+		register: projectListPresenter selector: #projectsUpdate:;
+		register: projectListPresenter selector: #newProject:;
+		register: self selector: #addCachedSymbols:;
+		register: projectListPresenter
+		selector: #projectsUpdate:browser:
+		browser: self
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> remoteAutoCommit [
+	| answeringService |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #autoCommit;
+		commandArgs: Array new.
+	self issueCommand: answeringService.
+	^answeringService answer
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> resetColors [
+	JadeiteTextStyles default resetColors
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> resetFonts [
+	JadeitePreferences current resetFont.
+	JadeitePreferences current resetTextFont
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> resetTransactionModeRadioButtons [
+	#(#autoBegin #manualBegin #transactionless)
+		do: [:aSymbol | (transactionModePresenter view viewNamed: aSymbol asString) displayValue: false].
+	(transactionModePresenter view viewNamed: self transactionMode asString) displayValue: true
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> setFont [
+	| newFont currentFont |
+	currentFont := JadeitePreferences current currentFont ifNil: [JadeitePreferences defaultFont].
+	newFont := FontDialog showModalOn: currentFont.
+	newFont ifNil: [^self].
+	self basicSetFont: newFont
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> setRowanProjectsHome [
+	self setRowanProjectsHome: gciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> setRowanProjectsHome: aGciSession [
+	| varString |
+	varString := JadeiteServerFileSelectorDialog showOnSession: aGciSession
+				defaultPath: JadePresenter homeEnvVarString.
+	varString isNil ifTrue: [^MessageBox notify: '$ROWAN_PROJECTS_HOME was not set.'].
+	aGciSession
+		executeString: '(System gemEnvironmentVariable: ''ROWAN_PROJECTS_HOME'' put: ''' , varString , ''')'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> setRowanProjectsHomeIfNecessary: aGciSession [
+	| varSet shouldSet |
+	varSet := aGciSession
+				executeString: '(System gemEnvironmentVariable: ''ROWAN_PROJECTS_HOME'') notNil'.
+	varSet ifTrue: [^self].
+	shouldSet := MessageBox
+				confirm: '$ROWAN_PROJECTS_HOME is not set. Would you like to set it? (Failure to do so will result in Jadeite errors)'.
+	shouldSet ifFalse: [^self].
+	self setRowanProjectsHome: aGciSession
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> setTextFont [
+	| newFont currentFont |
+	currentFont := JadeitePreferences current currentTextFont
+				ifNil: [JadeitePreferences defaultTextFont].
+	newFont := FontDialog showModalOn: currentFont.
+	newFont ifNil: [^self].
+	self basicSetTextFont: newFont
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> setTransactionModeFromServer [
+	"Only run this when opening the transcript.  We don't use the service mutex so it's mildly dangerous."
+	self parentPresenter transactionMode: (gciSession executeString: 'System transactionMode').
+	self resetTransactionModeRadioButtons.
+	self parentPresenter inTransaction: (gciSession executeString: 'System inTransaction').
+	self parentPresenter resetListeningForSigAborts: gciSession
+]
+
+{ #category : 'constants' }
+JadeiteConsole >> shellName [
+	^'Jadeite Console for '
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> shouldAskToCommitOnLogout [
+	^self transactionMode = #autoBegin
+		or: [self transactionMode = #manualBegin and: [self parentPresenter inTransaction]]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> showPackageGroups [
+	^JadePresenter showPackageGroups
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> showPackageList [
+	^JadePresenter showPackageList
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> togglePackageGroups [
+	JadePresenter packageGroupsVisible
+		ifTrue: 
+			[JadePresenter packageGroupsVisible: false.
+			JadePresenter hidePackageGroups]
+		ifFalse: 
+			[JadePresenter packageGroupsVisible: true.
+			JadePresenter showPackageGroups]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> togglePackageList [
+	JadePresenter packageListVisible
+		ifTrue: 
+			[JadePresenter packageListVisible: false.
+			JadePresenter hidePackageList]
+		ifFalse: 
+			[JadePresenter packageListVisible: true.
+			JadePresenter showPackageList]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> toolbarPresenter [
+	^toolbarPresenter
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> transactionMode [
+	^self parentPresenter transactionMode
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConsole >> transactionMode: aSymbol [
+	"It seems Dolphin should have an event like 'aboutToChangeRadioButton' to avoid having to muck with the low level view"
+
+	(MessageBox confirm: 'Switching transaction modes will cause an abort. Continue?')
+		ifTrue: 
+			[self basicTransactionMode: aSymbol.
+			JadePresenter trigger: #abortedTransaction]
+		ifFalse: [self resetTransactionModeRadioButtons]
+]
+
+{ #category : 'updates' }
+JadeiteConsole >> updateProjectPackages [
+	"no op for project list"
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> updateProjects [
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService command: #updateProjects.
+	RowanServiceUpdater current issueCommand: browserService  session: gciSession.
+	projectListPresenter items: browserService projects
+]
