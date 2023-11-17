@@ -43,7 +43,7 @@ JadeiteTestResource class >> signalInitializationError [
 	^TestResult signalErrorWith: 'Resource ' , self name , ' could not be initialized'
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> basicUnloadProjects: projectNames [
 	| browserService |
 	browserService := RowanBrowserService new.
@@ -84,6 +84,21 @@ JadeiteTestResource >> closeTranscripts [
 		do: [:transcript | self closeTranscript: transcript	"hopeful none, but just in case"]
 ]
 
+{ #category : 'projects creating' }
+JadeiteTestResource >> createRowanSample1Project [
+	"Don't get RowanSample1 project from disk.
+	It's good not to rely on an external git project which can be 
+	changed anytime (unless necessary for the test)"
+
+	| testService |
+	testService := RowanTestService new.
+	testService command:
+		#createRowanSample1Project.
+	testService commandArgs: Array new.
+	self issueCommand: testService.
+
+]
+
 { #category : 'actions' }
 JadeiteTestResource >> destroy: visualThing [
 	visualThing ifNil:[^self]. 
@@ -116,7 +131,7 @@ JadeiteTestResource >> disableInteractionsWhile: block [
 			self issueCommand: answeringService]
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> ensureRowanSample1Loaded [
 
 	self
@@ -124,21 +139,22 @@ JadeiteTestResource >> ensureRowanSample1Loaded [
 		path: self rowanSample1Path
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> ensureRowanSample9Loaded [
 	self todo:[self
 		ensureSampleProjectLoaded: [ self unloadSampleProject9 ]
 		path: self rowanSample9Path]
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> ensureRowanSampleProjectsLoaded [
 	"make sure we have the correct server state in the browser"
-	self ensureRowanSample1Loaded.
+	self unloadSampleProject1.
+	self createRowanSample1Project.
 	self ensureRowanSample9Loaded
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath [
 
 	self todo:[self switchTransactionModeTo: #autoBegin. "Initializing the resource will do a commit. Make sure we can commit."].
@@ -175,7 +191,7 @@ JadeiteTestResource >> isAvailable [
 
 { #category : 'support' }
 JadeiteTestResource >> issueCommand: service [
-	^JadePresenter issueCommands: (Array with: service) session: self session
+	^RowanServiceUpdater current issueCommand: service session: self session
 ]
 
 { #category : 'support' }
@@ -414,19 +430,19 @@ JadeiteTestResource >> transcriptForCurrentSession [
 	^console
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> unloadSampleProject1 [
 
 	self unloadSampleProject: self rowanSample1Project
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> unloadSampleProject9 [
 
 	self unloadSampleProject: self rowanSample9Project
 ]
 
-{ #category : 'projects' }
+{ #category : 'projects loading' }
 JadeiteTestResource >> unloadSampleProject: sampleProject [
 	sampleProject ifNil:[^self]. 
 	self basicUnloadProjects: (Array with: sampleProject name).
