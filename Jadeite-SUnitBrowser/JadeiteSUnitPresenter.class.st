@@ -86,25 +86,25 @@ JadeiteSUnitPresenter >> createComponents [
 	self initializeClassList
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteSUnitPresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	packageListPresenter
-		when: #selectionChanged
-		send: #onPackageChanged
-		to: self.
-	classListPresenter
-		when: #selectionChanged
-		send: #onClassesChanged
-		to: self
-]
-
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteSUnitPresenter >> debug [ 
 	self debugTests: methodListPresenter selections
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
+JadeiteSUnitPresenter >> debugAll [
+	testProcess := 
+			[
+			[self reset.
+			methodListPresenter resetSelection.
+			testResults := self debugTests: methodListPresenter model]
+					ensure: 
+						[testProcess := nil.
+						shouldStopTestRun := false]]
+					fork.
+]
+
+{ #category : 'actions' }
 JadeiteSUnitPresenter >> debugTests: methodServices [
 	| className |
 	className := classListPresenter selections size = 1
@@ -246,20 +246,33 @@ JadeiteSUnitPresenter >> methodListPresenter [
 JadeiteSUnitPresenter >> newJadedSUnitToolbar [
 
 	| theToolbar |
-	theToolbar := self newJadeiteToolbar. 
-	theToolbar addItem: (SpToolbarButtonPresenter new
+	theToolbar := self newJadeiteToolbar.
+	theToolbar
+		addItem: (SpToolbarButtonPresenter new
 				 label: 'Run All';
 				 icon: (self iconNamed: #glamorousSpawn);
 				 help: 'run all tests in the selected classes';
 				 action: [ self runAll ];
 				 yourself);
-		 addItem: (SpToolbarButtonPresenter new
+		addItem: (SpToolbarButtonPresenter new
 				 label: 'Run Selected';
 				 icon: (self iconNamed: #glamorousGo);
 				 help: 'run selected tests';
 				 action: [ self runSelected ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Debug All';
+				 icon: (self iconNamed: #glamorousSpawn);
+				 help: 'debug all tests in the selected classes';
+				 action: [ self debugAll ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Debug Selected';
+				 icon: (self iconNamed: #glamorousGo);
+				 help: 'debug selected tests';
+				 action: [ self debug ];
 				 yourself).
-	^theToolbar 
+	^ theToolbar
 ]
 
 { #category : 'as yet unclassified' }
@@ -359,7 +372,7 @@ JadeiteSUnitPresenter >> registerPresentersForUpdates [
 		browser: self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteSUnitPresenter >> runAll [
 	testProcess := 
 			[
@@ -374,7 +387,7 @@ JadeiteSUnitPresenter >> runAll [
 					fork.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteSUnitPresenter >> runSelected [
 	"if multiple classes are selected, we really don't know which test class
 	the user intended for the test to be run so pick the class the test is defined in"
