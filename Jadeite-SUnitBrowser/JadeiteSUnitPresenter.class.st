@@ -106,11 +106,13 @@ JadeiteSUnitPresenter >> debugAll [
 
 { #category : 'actions' }
 JadeiteSUnitPresenter >> debugTests: methodServices [
+
 	| className |
+	classListPresenter selections isEmpty ifTrue: [ ^ self ].
 	className := classListPresenter selections size = 1
-				ifTrue: [classListPresenter selections first name]
-				ifFalse: [].
-	^self debugTestMethodServices: methodServices className: className
+		             ifTrue: [ classListPresenter selections first name ]
+		             ifFalse: [ self todo: [ "make work" ] ].
+	^ self debugTestMethodServices: methodServices className: className
 ]
 
 { #category : 'initialization' }
@@ -392,15 +394,23 @@ JadeiteSUnitPresenter >> runSelected [
 	"if multiple classes are selected, we really don't know which test class
 	the user intended for the test to be run so pick the class the test is defined in"
 
-	testProcess := 
-			[
-			[testResults := classListPresenter selections size > 1
-						ifTrue: [self runTests: methodListPresenter selections]
-						ifFalse: [self runTests: methodListPresenter selections in: classListPresenter selections first name]]
-					ensure: 
-						[testProcess := nil.
-						shouldStopTestRun := false]]
-					fork
+	classListPresenter selectedItems isEmpty ifTrue: [ ^ self ].
+	testProcess := [
+	               [
+	               testResults := classListPresenter selections size = 1
+		                              ifTrue: [
+			                              self
+				                              runTests:
+				                              methodListPresenter selections
+				                              in:
+				                              classListPresenter selections first
+					                              name ]
+		                              ifFalse: [
+		                              self runTests:
+			                              methodListPresenter selections ] ]
+		               ensure: [
+			               testProcess := nil.
+			               shouldStopTestRun := false ] ] fork
 ]
 
 { #category : 'as yet unclassified' }

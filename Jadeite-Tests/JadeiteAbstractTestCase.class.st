@@ -291,6 +291,14 @@ JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoaded [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoadedFromDisk [
+	JadeiteTestResource current unloadSampleProject1.
+	JadeiteTestResource current unloadSampleProject9.
+	session commit. 
+	JadeiteTestResource current ensureRowanSampleProjectsLoadedFromDisk
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureTestIsSetUpAfterLogout [
 	projectsBrowser := nil.
 	GciSession current: nil.

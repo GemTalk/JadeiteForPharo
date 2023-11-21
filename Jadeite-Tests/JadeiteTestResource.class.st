@@ -155,6 +155,13 @@ JadeiteTestResource >> ensureRowanSampleProjectsLoaded [
 ]
 
 { #category : 'projects loading' }
+JadeiteTestResource >> ensureRowanSampleProjectsLoadedFromDisk [
+	"make sure we have the correct server state in the browser"
+	self ensureRowanSample1Loaded. 
+	self ensureRowanSample9Loaded
+]
+
+{ #category : 'projects loading' }
 JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath [
 
 	self todo:[self switchTransactionModeTo: #autoBegin. "Initializing the resource will do a commit. Make sure we can commit."].

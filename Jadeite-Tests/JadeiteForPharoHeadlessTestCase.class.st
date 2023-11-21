@@ -229,3 +229,17 @@ JadeiteForPharoHeadlessTestCase >> test_updates [
 	service updates do: [ :theUpdate |
 		self assert: theUpdate class = RowanMethodServiceClient ]
 ]
+
+{ #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_workspaceSelectedSelectorNotInteger [
+
+	"The pharo extractor will return an integer which seems wrong. Make sure we return a string or nil."
+	| workspace | 
+	workspace := JadeiteWorkspace new. 
+	self assert: workspace selectedSelector isNil.
+	workspace text: '123'. 
+	workspace selectionInterval: (1 to: 3). 
+	self assert: workspace selectedSelector = '123'. "pharo would return an integer breaking Jadeite's menu creation code."
+
+	
+]

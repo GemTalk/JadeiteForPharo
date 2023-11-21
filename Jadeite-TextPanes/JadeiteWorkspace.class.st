@@ -145,6 +145,12 @@ JadeiteWorkspace >> saveServerFileAs [
 	self writeDocumentTo: filePath
 ]
 
+{ #category : 'command support' }
+JadeiteWorkspace >> selectedSelector [
+
+	^super selectedSelector ifNotNil: [:obj | obj asString]
+]
+
 { #category : 'private' }
 JadeiteWorkspace >> setCaption: string [
 
