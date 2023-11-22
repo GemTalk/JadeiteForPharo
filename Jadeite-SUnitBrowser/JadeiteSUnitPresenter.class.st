@@ -93,15 +93,10 @@ JadeiteSUnitPresenter >> debug [
 
 { #category : 'actions' }
 JadeiteSUnitPresenter >> debugAll [
-	testProcess := 
-			[
-			[self reset.
-			methodListPresenter resetSelection.
-			testResults := self debugTests: methodListPresenter model]
-					ensure: 
-						[testProcess := nil.
-						shouldStopTestRun := false]]
-					fork.
+
+	self reset.
+	methodListPresenter resetSelection.
+	testResults := self debugTests: methodListPresenter model
 ]
 
 { #category : 'actions' }
