@@ -106,7 +106,7 @@ JadeiteSUnitPresenter >> debugTests: methodServices [
 	classListPresenter selections isEmpty ifTrue: [ ^ self ].
 	className := classListPresenter selections size = 1
 		             ifTrue: [ classListPresenter selections first name ]
-		             ifFalse: [ self todo: [ "make work" ] ].
+		             ifFalse: [ nil ].
 	^ self debugTestMethodServices: methodServices className: className
 ]
 
@@ -287,11 +287,13 @@ JadeiteSUnitPresenter >> onClassesChanged [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> onPackageChanged [
-	Cursor wait showWhile: 
-			[self updateClasses.
-			self todo: [status value: nil.
-			status value: self].
-			self reset]
+
+	self updateClasses.
+	self todo: [
+		status value: nil.
+		status value: self ].
+	self reset.
+	classListPresenter unselectAll
 ]
 
 { #category : 'as yet unclassified' }
