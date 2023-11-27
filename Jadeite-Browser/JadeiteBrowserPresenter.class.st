@@ -1279,6 +1279,11 @@ JadeiteBrowserPresenter >> gotoPackageDictionary [
 	dictionaryListPresenter selections: (Array with: dictionaryService)
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> handleClassCompileError: ex [
+	classDefinitionPresenter reportCompileError: ex gsArguments
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> hasCategorySelected [
 

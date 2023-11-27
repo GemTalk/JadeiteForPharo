@@ -28,7 +28,7 @@ JadeiteSUnitPresenter >> abortTransaction [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> addUpdatedTestClasses: classServices [
-	"don't add class that the package doesn't think should be shown"
+	"don't show class unless the package concurs"
 
 	| inSelectedPackage |
 	inSelectedPackage := OrderedCollection new.
@@ -355,10 +355,6 @@ JadeiteSUnitPresenter >> registerPresentersForUpdates [
 	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #renamedClass:browser:
-		browser: self.
-	RowanServiceUpdater current
-		register: classListPresenter
-		selector: #classesUpdate:browser:
 		browser: self.
 	RowanServiceUpdater current register: classListPresenter selector: #removedClass:.
 	RowanServiceUpdater current

@@ -797,10 +797,6 @@ JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
 	RowanServiceUpdater current register: projectListPresenter selector: #newProject:.
 	RowanServiceUpdater current register: projectListPresenter selector: #projectsUpdate:.
 	RowanServiceUpdater current register: projectListPresenter selector: #removed:.
-	RowanServiceUpdater current
-		register: classListPresenter
-		selector: #classesUpdate:browser:
-		browser: self.
 	RowanServiceUpdater current register: classListPresenter selector: #removedClass:.
 	RowanServiceUpdater current
 		register: classListPresenter
