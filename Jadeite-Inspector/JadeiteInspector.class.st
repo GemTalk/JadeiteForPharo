@@ -418,23 +418,29 @@ JadeiteInspector >> initializeInstVarList: box [
 
 	instVarListPresenter := (JadeiteListPresenter new display: #first)
 		                        beMultipleSelection.
-	instVarListPresenter contextMenu: [ 
+	instVarListPresenter contextMenu: [
 		SpMenuPresenter new
-			addItem: [ :item | 
+			addItem: [ :item |
 				item
 					name: 'Dive';
 					action: [ self inspectInstVar ];
 					enabled:
-						(self isSelectionComputed: instVarListPresenter selectedItem) not];
-			addItem: [ :item | 
+						(self isSelectionComputed: instVarListPresenter selectedItem)
+							not ];
+			addItem: [ :item |
 				item
 					name: 'Inspect';
-					action: [ 
+					action: [
 						JadeiteInspectorApplication
 							show: instVarListPresenter selectedItem last
 							onSession: gciSession ];
 					enabled:
-						(self isSelectionComputed: instVarListPresenter selectedItem) not] ].
+						(self isSelectionComputed: instVarListPresenter selectedItem)
+							not ];
+			addItem: [ :item |
+				item
+					name: 'Select All';
+					action: [ instVarListPresenter selectAll ] ] ].
 	box add: instVarListPresenter
 ]
 

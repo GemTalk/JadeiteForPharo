@@ -30,23 +30,6 @@ JadeInspector >> contextObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeInspector >> createComponents [
-
-	super createComponents.
-	instVarListPresenter := self add: ListPresenter new name: 'instVarList'.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeInspector >> createSchematicWiring [
-
-	super createSchematicWiring.
-	instVarListPresenter 	when: #'selectionChanged' 	send: #'selectedInstVar' 	to: self.
-	instVarListPresenter 	when: #'actionPerformed' 	send: #'inspectInstVar' 	to: self.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeInspector >> createView: string [
 	| newView |
 	newView := super createView: string.
