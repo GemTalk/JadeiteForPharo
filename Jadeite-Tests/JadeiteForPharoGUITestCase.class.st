@@ -16,6 +16,8 @@ Class {
 JadeiteForPharoGUITestCase >> dismissPopoverAndPrint [
 
 	SpCodePopoverPrintPresenter allInstances do: [ :popup |
+		popup dismissAndPrint ].
+	JadeitePopoverPrintPresenter allInstances do: [ :popup |
 		popup dismissAndPrint ]
 ]
 

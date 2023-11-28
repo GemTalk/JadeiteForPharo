@@ -451,10 +451,16 @@ JadeiteTextDocument >> initializeWindow: aWindowPresenter [
 		toolbar: self newJadeiteToolbar
 ]
 
-{ #category : 'actions' }
+{ #category : 'printing' }
 JadeiteTextDocument >> insertPrintPopoverAfterCurrentSelection: anObject [
-	"Jadeite will return a nil to this method if a compiler error occurred"
-	anObject ifNotNil: [ super insertPrintPopoverAfterCurrentSelection: anObject]  
+	"Inserts a print-it result popover. 
+	 This is for use of SpCodePrintItCommand"
+
+	self 
+		insertPopoverAfterCurrentSelection: (JadeitePopoverPrintPresenter 
+			newCode: self
+			object: anObject)
+		style: 'print'
 ]
 
 { #category : 'testing' }
