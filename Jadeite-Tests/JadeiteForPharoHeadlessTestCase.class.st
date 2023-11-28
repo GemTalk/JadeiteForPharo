@@ -180,6 +180,20 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoHeadlessTestCase >> test_noSearchMatchesFoundMessage [
+
+	| browser message |
+	browser := JadeiteBrowserPresenter new.
+	message := browser noMatchesFoundMessageFor: 'siz'.
+	self assert: message equals: 'No matches found for ''siz''.
+Perhaps include a wildcard in search?'.
+	message := browser noMatchesFoundMessageFor: 'xssrrsss*ssxxx'.
+	self
+		assert: message
+		equals: 'No matches found for ''xssrrsss*ssxxx''.'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 
 	| serviceUpdater oc testService initialSize |

@@ -286,6 +286,14 @@ JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 				 interval: range) ]
 ]
 
+{ #category : 'queries' }
+JadeiteMethodsTrait >> displayNoMatchesFoundMessageFor: wildcardString [
+
+	| message |
+	message := self noMatchesFoundMessageFor: wildcardString.
+	UIManager inform: message
+]
+
 { #category : 'actions' }
 JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: category [
 
@@ -374,6 +382,17 @@ JadeiteMethodsTrait >> newMethodListMenu [
 ]
 
 { #category : 'queries' }
+JadeiteMethodsTrait >> noMatchesFoundMessageFor: wildcardString [
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws nextPutAll: 'No matches found for <1p>.'.
+	(wildcardString includes: $*) ifFalse: [
+		ws nextPutAll: '<r>Perhaps include a wildcard in search?' ].
+	^ ws contents expandMacrosWith: wildcardString
+]
+
+{ #category : 'queries' }
 JadeiteMethodsTrait >> openMethodListOn: service selecting: string [
 	| selectionString |
 	selectionString := (ReadStream on: string) upTo: $:.
@@ -447,20 +466,25 @@ JadeiteMethodsTrait >> resetStatusBar [
 { #category : 'queries' }
 JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle [
 
-	| dialogWindow answeringService |
+	| dialogWindow answeringService possibleSelectors |
 	answeringService := RowanAnsweringService new.
 	answeringService
 		lowercaseSelectorsMatching: wildcardString
 		session: GciSession current.
-	answeringService answer size = 1 ifTrue:[^answeringService answer first].
+	possibleSelectors := answeringService answer.
+	possibleSelectors isEmpty ifTrue: [
+		self displayNoMatchesFoundMessageFor: wildcardString.
+		^ nil ].
+	possibleSelectors size = 1 ifTrue: [ ^ possibleSelectors first ].
 	dialogWindow := ListDialogWindow new
 		                getList: [ :rxMatcher |
-			                answeringService answer select: [ :substring |
+			                possibleSelectors select: [ :substring |
 					                rxMatcher isString
 						                ifTrue: [ rxMatcher , '*' match: substring ]
 						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
 							                rxMatcher matchesPrefix: substring ] ] ];
 		                displayBlock: [ :e | e ];
+		                browseBlock: [ :arg | arg halt ];
 		                doubleClickOk;
 		                title: listWindowTitle;
 		                yourself.
