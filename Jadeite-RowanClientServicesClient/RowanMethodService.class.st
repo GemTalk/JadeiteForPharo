@@ -551,7 +551,8 @@ RowanMethodService >> methodSourceUpdate: presenter browser: browserPresenter [
 	selection ifNil: [ ^ self ].
 	selection = self ifTrue: [
 		selection replicateFrom: self.
-		presenter value: source.
+		presenter isModified ifFalse:[
+ 		presenter value: source].
 		"for some strange reason, doing this code here (which is duplicated in 
 		#updateMethodSource) creates screen artifacts. Still haven't figured out why. 
 		The downside of not doing it here is that decorations are lost when some

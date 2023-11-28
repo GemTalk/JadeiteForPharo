@@ -105,7 +105,8 @@ JadeiteMethodsTrait >> browseImplementorsOf [
 	listWindowTitle := 'Jadeite Browse Implementors'.
 	selector := self
 		            selectSymbolFrom: wildcardString
-		            titled: listWindowTitle.
+		            titled: listWindowTitle
+		            browseAction: #implementorsOfAll:.
 	selector ifNotNil: [ self browseImplementorsOf: selector ]
 ]
 
@@ -230,7 +231,8 @@ JadeiteMethodsTrait >> browseSendersOf [
 	listWindowTitle := 'Jadeite Browse Senders'.
 	selector := self
 		            selectSymbolFrom: wildcardString
-		            titled: listWindowTitle.
+		            titled: listWindowTitle
+		            browseAction: #sendersOfAll:.
 	selector ifNotNil: [ self browseSendersOf: selector ]
 ]
 
@@ -464,7 +466,7 @@ JadeiteMethodsTrait >> resetStatusBar [
 ]
 
 { #category : 'queries' }
-JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle [
+JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle browseAction: browseAction [
 
 	| dialogWindow answeringService possibleSelectors |
 	answeringService := RowanAnsweringService new.
@@ -484,7 +486,15 @@ JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle 
 						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
 							                rxMatcher matchesPrefix: substring ] ] ];
 		                displayBlock: [ :e | e ];
-		                browseBlock: [ :arg | arg halt ];
+		                browseBlock: [ :arg |
+			                | queryService |
+			                queryService := RowanQueryService new
+				                                perform: browseAction
+				                                with: possibleSelectors.
+			                JadeiteMethodListBrowser
+				                openOn: queryService
+				                selecting: wildcardString
+				                session: self gciSession ];
 		                doubleClickOk;
 		                title: listWindowTitle;
 		                yourself.
