@@ -362,46 +362,6 @@ JadeSystemBrowserPresenter >> contextObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForDictionaryList [
-
-	dictionaryListPresenter
-		when: #'dragOver:'			send: #'onDragOverDictionary:'		to: self;
-		when: #'drop:'				send: #'onDropOnDictionary:'		to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanged'		send: #'updateAndSelect:'			to: self	with: globalsPresenter;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForMethodCategoryList [
-
-	categoryListPresenter
-		when: #'dragOver:'			send: #'onDragOverMethodCategory:'	to: self;
-		when: #'drop:'				send: #'onDropOnMethodCategory:'	to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanged'		send: #'updateAndSelect:'			to: self	with: methodSourcePresenter;
-		when: #'selectionChanged'		send: #'updateTabLabel'			to: self;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForMethodList [
-
-	methodListPresenter			
-		when: #'drag:'				send: #'onDragMethod:'			to: self;
-		when: #'dragCut:'			send: #'onDragCutMethod:'			to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanged'		send: #'selectedMethodChanged'		to: self;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> createSchematicWiringForMethodSource [
 
 	methodSourcePresenter 	
@@ -412,78 +372,6 @@ JadeSystemBrowserPresenter >> createSchematicWiringForMethodSource [
 		when: #'focusLost'				send: #'cancelCallTip'			to: methodSourcePresenter view;
 		yourself.
 	
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForOverrideList [
-
-	overrideListPresenter		
-		when: #'keyTyped:'			send: #'delayUpdate'		to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'	to: self;		
-		when: #'selectionChanged'		send: #'updateAndSelect:'	to: self	with: methodSourcePresenter;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForPackageDictionaryTabs [
-
-	packageDictionaryTabs
-		when: #'currentCardChanging:'	send: #'aboutToChange:'	to: self;
-		when: #'currentCardChanged'	send: #'pkgDictChanged'	to: self;
-		yourself.
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForPackageList [
-
-	packageListPresenter
-		when: #'drag:'				send: #'onDragPackageList:'		to: self;
-		when: #'dragCut:'			send: #'onDragCutPackageList:'		to: self;
-		when: #'dragOver:'			send: #'onDragOverPackageList:'	to: self;
-		when: #'drop:'				send: #'onDropOnPackageList:'		to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanged' 		send: #'ensureVisible'				to: packageInfoTab;
-		when: #'selectionChanged' 		send: #'list:' 					to: globalsPresenter 	with: #();
-		when: #'selectionChanged'		send: #'updateAndSelect:'			to: self			with: packageInfoTab;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForPragmaList [
-
-	pragmaListPresenter
-		when: #'keyTyped:'			send: #'delayUpdate'		to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'	to: self;
-		when: #'selectionChanged'		send: #'updateAndSelect:'	to: self	with: methodSourcePresenter;
-		when: #'selectionChanged'		send: #'updateTabLabel'	to: self;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForSuperClassList [
-
-	superclassListPresenter		
-		when: #'keyTyped:'			send: #'delayUpdate'		to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'	to: self;		
-		when: #'selectionChanged'		send: #'updateAndSelect:'	to: self	with: methodSourcePresenter;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> createSchematicWiringForVariableList [
-
-	variableListPresenter
-		when: #'keyTyped:'			send: #'delayUpdate'		to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'	to: self;
-		when: #'selectionChanged'		send: #'updateAndSelect:'	to: self	with: methodSourcePresenter;
-		when: #'selectionChanged'		send: #'updateTabLabel'	to: self;
-		yourself.
-
 ]
 
 { #category : 'as yet unclassified' }

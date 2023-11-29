@@ -10,7 +10,7 @@ Class {
 { #category : 'initialization' }
 JadeiteCommitCommand class >> defaultIconName [ 
 
-	^#thumbsUp
+	^#glamorousRefresh
 ]
 
 { #category : 'default' }

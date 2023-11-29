@@ -59,21 +59,6 @@ MethodListPresenter >> createComponents [
 
 ]
 
-{ #category : 'as yet unclassified' }
-MethodListPresenter >> createSchematicWiring [
-
-	super createSchematicWiring.
-	methodListPresenter	
-		when: #actionPerformed	 		send: #browseClass				to: self;
-		when: #selectionChanged			send: #methodSelectionChanged	to: self;
-		when: #selectionChanging: 		send: #selectionChanging:			to: self;
-		when: #labelOf:editedTo:accept: 	send: #labelOf:editedTo:accept: 	to: self;
-		when: #'leftButtonPressed:'		send: #'onLeftButtonPressed:'	to: self;
-		yourself.
-	self createDragDropSchematicWiringFor: methodListPresenter.
-
-]
-
 { #category : 'initialization' }
 MethodListPresenter >> initializeMethodListTable [
 

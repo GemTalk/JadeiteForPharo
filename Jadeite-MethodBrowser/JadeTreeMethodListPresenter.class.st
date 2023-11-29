@@ -96,20 +96,6 @@ JadeTreeMethodListPresenter >> createComponents [
 ]
 
 { #category : 'as yet unclassified' }
-JadeTreeMethodListPresenter >> createSchematicWiring [
-
-	super createSchematicWiring.
-
-	treeMethodsPresenter 
-		when: #selectionChanged send: #onTreeListChanged to: self;
-		when: #dragOver: send: #onDragOverMethodsTree: to: self;
-		when: #drop: send: #onDropMethodsTree: to: self;
-		when: #drag: send: #onDragMethodsTree: to: self.
-
-	methodListPresenter when: #methodSelectionChanged send: #onMethodSelectionChanged to: self.
-]
-
-{ #category : 'as yet unclassified' }
 JadeTreeMethodListPresenter >> deleteHistory [
 
 	historyEntries := OrderedCollection new.

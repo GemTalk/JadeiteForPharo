@@ -718,7 +718,8 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
 		whenSelectionChangedDo: [ :selection |
-			self classSelected: selection ];
+			self shouldDiscardMethodChanges ifTrue: [
+					self classSelected: selection ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
@@ -826,18 +827,6 @@ JadeiteBrowserPresenter >> createListViewFor: newCard [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> createSchematicWiringForMethodList [
-	methodListPresenter
-		when: #drag: 				send: #onDragMethod: 			to: self; 
-		when: #dragCut: 			send: #onDragCutMethod: 			to: self; 
-		when: #keyTyped: 			send: #delayUpdate 				to: self; 
-		when: #aboutToDisplayMenu: 	send: #updateMethodMenu:		to: self;
-		when: #selectionChanging:		send: #aboutToChange:			to: self; 
-		when: #keyTyped: 			send: #selectServiceStartingWith: 	to: methodListPresenter; 
-		when: #selectionChanged 		send: #methodSelectionChanged 	to: self
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> createSchematicWiringForMethodSource [
 	super createSchematicWiringForMethodSource.
 	methodSourcePresenter
@@ -856,22 +845,6 @@ JadeiteBrowserPresenter >> createSchematicWiringForMethodSource [
 		when: #charAdded:
 			send: #onCharAdded:
 			to: self search
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> createSchematicWiringForProjectList [
-
-	projectListPresenter 
-		when: #'drag:'				send: #'onDragPackageList:'		to: self;
-		when: #'dragCut:'			send: #'onDragCutPackageList:'		to: self;
-		when: #'dragOver:'			send: #'onDragOverPackageList:'	to: self;
-		when: #'drop:'				send: #'onDropOnPackageList:'		to: self;
-		when: #'keyTyped:'			send: #'delayUpdate'				to: self;
-		when: #'selectionChanging:'	send: #'aboutToChange:'			to: self;
-		when: #'selectionChanging:'	send: #'releasedReferencedServices:'	to: self;
-		when: #'selectionChanged' 		send: #'ensureVisible'				to: projectListPresenter;
-		when: #'selectionChanged'		send: #'updateProject' 			to: self
-
 ]
 
 { #category : 'private' }
@@ -1533,7 +1506,7 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ];
-		whenResetDo: [ self resetMethodSource ].
+		whenResetDo: [ self resetMethodSource ]. 
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
 		                    icon: nil
@@ -1894,6 +1867,7 @@ JadeiteBrowserPresenter >> methodMenu: aMenu [
 { #category : 'events' }
 JadeiteBrowserPresenter >> methodSelectionChanged [
 
+	self shouldDiscardMethodChanges ifFalse:[^self]. 
 	self resetStatusBar.
 	self updateMethodSource.
 	[
@@ -3054,6 +3028,19 @@ JadeiteBrowserPresenter >> setInstanceSide [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> setStatusBarDefault [
 	self todo:[statusBarText view backcolor: statusBarText view defaultBackcolor]
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> shouldDiscardMethodChanges [
+
+	methodSourcePresenter hasUnacceptedEdits ifTrue: [
+		(UIManager default confirm:
+			 'You have unsaved changes. Discard changes and continue?')
+			ifTrue: [
+				methodSourcePresenter hasUnacceptedEdits: false.
+				^ true ]
+			ifFalse: [ ^ false ] ].
+	^ true
 ]
 
 { #category : 'as yet unclassified' }

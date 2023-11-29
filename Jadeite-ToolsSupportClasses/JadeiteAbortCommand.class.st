@@ -10,7 +10,7 @@ Class {
 { #category : 'default' }
 JadeiteAbortCommand class >> defaultIconName [ 
 
-	^#thumbsDown
+	^#flag
 ]
 
 { #category : 'default' }

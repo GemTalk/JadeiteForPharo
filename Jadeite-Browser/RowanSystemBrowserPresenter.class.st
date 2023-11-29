@@ -48,22 +48,6 @@ RowanSystemBrowserPresenter >> classService [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> createSchematicWiringForClassHierarchyTabs [
-	classHierarchyTabs
-		when: #currentCardChanging:
-			send: #aboutToChange:
-			to: self;
-		when: #currentCardChanged
-			send: #selectedClassChanged:
-			to: self
-			with: true;
-		when: #currentCardChanged
-			send: #updateAndSelect:
-			to: self
-			with: classDefinitionPresenter
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> createSchematicWiringForPackageDictionaryTabs [
 
 	

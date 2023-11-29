@@ -220,15 +220,6 @@ JadeiteInspector >> createComponents [
 
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteInspector >> createSchematicWiring [
-	super createSchematicWiring.
-	instVarListPresenter
-		when: #selectionChanging:
-		send: #aboutToChange:
-		to: self
-]
-
 { #category : 'initialization' }
 JadeiteInspector >> defaultLayout [ 
 

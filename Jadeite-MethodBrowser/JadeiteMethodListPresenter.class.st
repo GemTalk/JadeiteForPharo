@@ -116,34 +116,6 @@ JadeiteMethodListPresenter >> createComponents [
 	comparisonPresenter := self add: JadeiteDifferencesPresenter new name: 'comparisonTab'.
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	self getViews.
-	methodListPresenter
-		when: #methodSelectionChanged
-		send: #updateMethodSource
-		to: self.
-	autoCommit
-		when: #valueChanged
-		send: #updateAutoCommitButton
-		to: self.
-	JadePresenter transactionModeValueHolder
-		when: #valueChanged
-		send: #updateAutoCommitButton
-		to: self.
-	methodSourcePresenter documentPresenter
-		when: #autoComplete:startingAt:accept:
-			send: #onAutoComplete:startingAt:accept:
-			to: self search;
-		when: #timerTick:
-			send: #onTimerTick:
-			to: self search;
-		when: #charAdded:
-			send: #onCharAdded:
-			to: self search
-]
-
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> defaultLayout [ 
 
