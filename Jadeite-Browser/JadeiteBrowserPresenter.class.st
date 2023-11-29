@@ -718,8 +718,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
 		whenSelectionChangedDo: [ :selection |
-			self shouldDiscardMethodChanges ifTrue: [
-					self classSelected: selection ] ];
+			self classSelected: selection ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
@@ -3028,19 +3027,6 @@ JadeiteBrowserPresenter >> setInstanceSide [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> setStatusBarDefault [
 	self todo:[statusBarText view backcolor: statusBarText view defaultBackcolor]
-]
-
-{ #category : 'actions' }
-JadeiteBrowserPresenter >> shouldDiscardMethodChanges [
-
-	methodSourcePresenter hasUnacceptedEdits ifTrue: [
-		(UIManager default confirm:
-			 'You have unsaved changes. Discard changes and continue?')
-			ifTrue: [
-				methodSourcePresenter hasUnacceptedEdits: false.
-				^ true ]
-			ifFalse: [ ^ false ] ].
-	^ true
 ]
 
 { #category : 'as yet unclassified' }

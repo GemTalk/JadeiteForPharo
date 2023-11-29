@@ -394,6 +394,19 @@ JadeiteMethodsTrait >> noMatchesFoundMessageFor: wildcardString [
 	^ ws contents expandMacrosWith: wildcardString
 ]
 
+{ #category : 'testing' }
+JadeiteMethodsTrait >> okToDiscardMethodChanges [
+
+	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
+		(UIManager default confirm:
+			 'You have unsaved changes. Discard changes and continue?')
+			ifTrue: [
+				self methodSourcePresenter hasUnacceptedEdits: false.
+				^ true ]
+			ifFalse: [ ^ false ] ].
+	^ true
+]
+
 { #category : 'queries' }
 JadeiteMethodsTrait >> openMethodListOn: service selecting: string [
 	| selectionString |

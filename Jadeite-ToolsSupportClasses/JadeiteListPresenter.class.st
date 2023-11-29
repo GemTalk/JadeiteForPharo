@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : 'instance creation' }
+JadeiteListPresenter class >> adapterName [
+
+	^ #JadeiteListAdapter
+]
+
+{ #category : 'instance creation' }
 JadeiteListPresenter class >> newNameSortedList [
 
 	| inst |
@@ -14,7 +20,7 @@ JadeiteListPresenter class >> newNameSortedList [
 	^ inst
 ]
 
-{ #category : 'api-selection' }
+{ #category : 'selection' }
 JadeiteListPresenter >> clear [
 	
 	self model removeAll.
@@ -66,6 +72,12 @@ JadeiteListPresenter >> newEmptyModel [
 	^ ListModel on: OrderedCollection new
 ]
 
+{ #category : 'testing' }
+JadeiteListPresenter >> okToDiscardMethodChanges [
+
+	^self owner okToDiscardMethodChanges
+]
+
 { #category : 'api' }
 JadeiteListPresenter >> parentPresenter [
 
@@ -101,18 +113,18 @@ JadeiteListPresenter >> retrievePresenter [
 	^self
 ]
 
-{ #category : 'api-selection' }
+{ #category : 'selection' }
 JadeiteListPresenter >> selection: anObject [
 	^self selectItem: anObject 
 ]
 
-{ #category : 'api-selection' }
+{ #category : 'selection' }
 JadeiteListPresenter >> selectionIfNone: aBlock [
 self hasSelection ifFalse: [ ^aBlock value ].
 	^self selectedItem ifNil: [ aBlock value ]
 ]
 
-{ #category : 'api-selection' }
+{ #category : 'selection' }
 JadeiteListPresenter >> selectionOrNil [
 	model isNil ifTrue:[^nil]. 
 	model isEmpty ifTrue:[^nil]. 
@@ -121,7 +133,7 @@ JadeiteListPresenter >> selectionOrNil [
  	^self selectedItem
 ]
 
-{ #category : 'api-selection' }
+{ #category : 'selection' }
 JadeiteListPresenter >> selections [
 	"there are bugs in the Spec2 lists"
  	model isEmpty ifTrue:[^OrderedCollection new]. 
@@ -130,7 +142,7 @@ JadeiteListPresenter >> selections [
  	^self selectionMode selectedItems
 ]
 
-{ #category : 'api-selection' }
+{ #category : 'selection' }
 JadeiteListPresenter >> selections: aCollection [ 
 	self selectItems: aCollection 
 ]

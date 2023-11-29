@@ -8,3 +8,9 @@ Class {
 JadeiteNotebookPresenter >> currentCard [
 	^self selectedPage
 ]
+
+{ #category : 'testing' }
+JadeiteNotebookPresenter >> okToDiscardMethodChanges [
+
+	^self owner okToDiscardMethodChanges
+]

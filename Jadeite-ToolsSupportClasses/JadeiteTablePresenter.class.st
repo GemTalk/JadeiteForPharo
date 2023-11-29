@@ -4,6 +4,11 @@ Class {
 	#category : 'Jadeite-ToolsSupportClasses'
 }
 
+{ #category : 'specs' }
+JadeiteTablePresenter class >> adapterName [ 
+	^#JadeiteTableAdapter
+]
+
 { #category : 'instance creation' }
 JadeiteTablePresenter class >> new [
 
@@ -43,6 +48,12 @@ JadeiteTablePresenter >> list: aListModel [
 JadeiteTablePresenter >> newEmptyModel [
 
 	^ ListModel on: OrderedCollection new
+]
+
+{ #category : 'testing' }
+JadeiteTablePresenter >> okToDiscardMethodChanges [
+
+	^self owner okToDiscardMethodChanges
 ]
 
 { #category : 'api - selection' }
