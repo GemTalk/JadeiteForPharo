@@ -16,7 +16,7 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			with: [ spec requires: 'Jadeite-Applications' ];
 			package: 'Jadeite-TextPanes'
 			with: [ spec requires: 'Jadeite-Traits' ];
-			package: 'Jadeite-ToolsSupportClasses'
+			package: 'Jadeite-SupportClasses'
 			with: [
 				spec requires: #( 'Jadeite-TextPanes' 'RemoteServiceReplication' ) ];
 			package: 'Jadeite-BaseExtensions'
