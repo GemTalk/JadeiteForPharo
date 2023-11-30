@@ -4,13 +4,13 @@ Class {
 	#category : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'testing' }
+JadeiteNotebookPresenter >> canDiscardEdits [
+
+	^self owner canDiscardEdits
+]
+
 { #category : 'accessing' }
 JadeiteNotebookPresenter >> currentCard [
 	^self selectedPage
-]
-
-{ #category : 'testing' }
-JadeiteNotebookPresenter >> okToChangeSelections [
-
-	^self owner okToChangeSelections
 ]

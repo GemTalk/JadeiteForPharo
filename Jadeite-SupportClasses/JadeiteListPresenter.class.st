@@ -20,6 +20,12 @@ JadeiteListPresenter class >> newNameSortedList [
 	^ inst
 ]
 
+{ #category : 'testing' }
+JadeiteListPresenter >> canDiscardEdits [
+
+	^self owner canDiscardEdits
+]
+
 { #category : 'selection' }
 JadeiteListPresenter >> clear [
 	
@@ -72,12 +78,6 @@ JadeiteListPresenter >> newEmptyModel [
 	^ ListModel on: OrderedCollection new
 ]
 
-{ #category : 'testing' }
-JadeiteListPresenter >> okToChangeSelections [
-
-	^self owner okToChangeSelections
-]
-
 { #category : 'api' }
 JadeiteListPresenter >> parentPresenter [
 
@@ -116,13 +116,13 @@ JadeiteListPresenter >> retrievePresenter [
 { #category : 'testing' }
 JadeiteListPresenter >> selectIndex: anArray [
 
-	self okToChangeSelections ifFalse: [ ^ self ].
+	self canDiscardEdits ifFalse: [ ^ self ].
 	^ super selectIndex: anArray
 ]
 
 { #category : 'selection' }
 JadeiteListPresenter >> selection: anObject [
-	self okToChangeSelections ifFalse:[^self]. 
+	self canDiscardEdits ifFalse:[^self]. 
 	^self selectItem: anObject 
 ]
 
@@ -152,7 +152,7 @@ JadeiteListPresenter >> selections [
 
 { #category : 'selection' }
 JadeiteListPresenter >> selections: aCollection [ 
-	self okToChangeSelections ifFalse:[^self]. 
+	self canDiscardEdits ifFalse:[^self]. 
 	self selectItems: aCollection 
 ]
 

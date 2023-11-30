@@ -237,6 +237,12 @@ JadeiteBrowser >> methodsListPresenter [
 	^ (tabs pages at: tabs selectedPageIndex) methodListPresenter
 ]
 
+{ #category : 'testing' }
+JadeiteBrowser >> okToClose [ 
+
+	^self activePresenter canDiscardEdits
+]
+
 { #category : 'actions' }
 JadeiteBrowser >> openBrowserTab [
 

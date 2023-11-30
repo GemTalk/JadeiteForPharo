@@ -539,6 +539,19 @@ JadeiteBrowserPresenter >> buildProjectTab [
 		name: 'projectInfoTab'
 ]
 
+{ #category : 'testing' }
+JadeiteBrowserPresenter >> canDiscardEdits [
+
+	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
+		(MessageBox confirm:
+			 'You have unsaved changes. Discard changes and continue?')
+			ifTrue: [
+				self methodSourcePresenter hasUnacceptedEdits: false.
+				^ true ].
+		^ false ].
+	^ true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> categoriesMenuStrings [
 

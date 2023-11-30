@@ -11,7 +11,7 @@ JadeiteListAdapter >> buildWidget [
 	datasource := SpMorphicListDataSource new.
 	datasource model: self model.
 	widget := JadeiteTableMorph new  "<<<Jadeite change here"
-		selectionConfirmationBlock: [ self presenter okToChangeSelections ]; "<<<Jadeite change here"
+		selectionConfirmationBlock: [ self presenter canDiscardEdits ]; "<<<Jadeite change here"
 		dataSource: datasource;
 		hideColumnHeaders;
 		enableSearch;

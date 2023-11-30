@@ -48,6 +48,19 @@ JadeiteMethodListPresenter >> browseMethodHistory [
 	^JadeiteMethodHistoryBrowser showOnClass: methodService classService selector: methodService
 ]
 
+{ #category : 'testing' }
+JadeiteMethodListPresenter >> canDiscardEdits [
+
+	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
+		(MessageBox confirm:
+			 'You have unsaved changes. Discard changes and continue?')
+			ifTrue: [
+				self methodSourcePresenter hasUnacceptedEdits: false.
+				^ true ]
+			ifFalse: [ ^ false ] ].
+	^ true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> cleanupComparisonBrowser [
 	self todo:[comparisonPresenter

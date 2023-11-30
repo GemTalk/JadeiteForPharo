@@ -15,6 +15,12 @@ JadeiteTablePresenter class >> new [
 	^super new beResizable 
 ]
 
+{ #category : 'testing' }
+JadeiteTablePresenter >> canDiscardEdits [
+
+	^self owner canDiscardEdits
+]
+
 { #category : 'displaying' }
 JadeiteTablePresenter >> invalidate [
 	self refresh.	
@@ -48,12 +54,6 @@ JadeiteTablePresenter >> list: aListModel [
 JadeiteTablePresenter >> newEmptyModel [
 
 	^ ListModel on: OrderedCollection new
-]
-
-{ #category : 'testing' }
-JadeiteTablePresenter >> okToChangeSelections [
-
-	^self owner okToChangeSelections
 ]
 
 { #category : 'api - selection' }
