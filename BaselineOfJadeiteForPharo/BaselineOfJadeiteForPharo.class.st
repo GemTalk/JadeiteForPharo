@@ -12,17 +12,17 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 		spec
 			postLoadDoIt: #postload:package:;
 			package: 'Jadeite-Applications';
-			package: 'Jadeite-ToolsTraits'
+			package: 'Jadeite-Traits'
 			with: [ spec requires: 'Jadeite-Applications' ];
 			package: 'Jadeite-TextPanes'
-			with: [ spec requires: 'Jadeite-ToolsTraits' ];
+			with: [ spec requires: 'Jadeite-Traits' ];
 			package: 'Jadeite-ToolsSupportClasses'
 			with: [
 				spec requires: #( 'Jadeite-TextPanes' 'RemoteServiceReplication' ) ];
 			package: 'Jadeite-BaseExtensions'
-			with: [ spec requires: 'Jadeite-ToolsSupportClasses' ];
+			with: [ spec requires: 'Jadeite-SupportClasses' ];
 			package: 'Jadeite-RowanClientServicesClient'
-			with: [ spec requires: 'Jadeite-ToolsSupportClasses' ];
+			with: [ spec requires: 'Jadeite-SupportClasses' ];
 			package: 'Jadeite-PortedClasses'
 			with: [ spec requires: 'Jadeite-RowanClientServicesClient' ];
 			package: 'Jadeite-Browser'
