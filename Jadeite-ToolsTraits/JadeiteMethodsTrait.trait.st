@@ -395,10 +395,10 @@ JadeiteMethodsTrait >> noMatchesFoundMessageFor: wildcardString [
 ]
 
 { #category : 'testing' }
-JadeiteMethodsTrait >> okToDiscardMethodChanges [
+JadeiteMethodsTrait >> okToChangeSelections [
 
 	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
-		(UIManager default confirm:
+		(MessageBox confirm:
 			 'You have unsaved changes. Discard changes and continue?')
 			ifTrue: [
 				self methodSourcePresenter hasUnacceptedEdits: false.

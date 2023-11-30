@@ -10,7 +10,7 @@ JadeiteNotebookPresenter >> currentCard [
 ]
 
 { #category : 'testing' }
-JadeiteNotebookPresenter >> okToDiscardMethodChanges [
+JadeiteNotebookPresenter >> okToChangeSelections [
 
-	^self owner okToDiscardMethodChanges
+	^self owner okToChangeSelections
 ]

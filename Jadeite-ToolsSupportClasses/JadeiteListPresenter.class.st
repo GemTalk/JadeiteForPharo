@@ -73,9 +73,9 @@ JadeiteListPresenter >> newEmptyModel [
 ]
 
 { #category : 'testing' }
-JadeiteListPresenter >> okToDiscardMethodChanges [
+JadeiteListPresenter >> okToChangeSelections [
 
-	^self owner okToDiscardMethodChanges
+	^self owner okToChangeSelections
 ]
 
 { #category : 'api' }
@@ -113,8 +113,16 @@ JadeiteListPresenter >> retrievePresenter [
 	^self
 ]
 
+{ #category : 'testing' }
+JadeiteListPresenter >> selectIndex: anArray [
+
+	self okToChangeSelections ifFalse: [ ^ self ].
+	^ super selectIndex: anArray
+]
+
 { #category : 'selection' }
 JadeiteListPresenter >> selection: anObject [
+	self okToChangeSelections ifFalse:[^self]. 
 	^self selectItem: anObject 
 ]
 
@@ -144,6 +152,7 @@ JadeiteListPresenter >> selections [
 
 { #category : 'selection' }
 JadeiteListPresenter >> selections: aCollection [ 
+	self okToChangeSelections ifFalse:[^self]. 
 	self selectItems: aCollection 
 ]
 

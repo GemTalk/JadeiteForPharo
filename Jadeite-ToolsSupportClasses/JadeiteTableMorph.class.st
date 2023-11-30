@@ -9,8 +9,11 @@ Class {
 
 { #category : 'selection' }
 JadeiteTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
-	self selectionConfirmationBlock value ifFalse:[^self]. 
-	^super selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection
+
+	self selectionConfirmationBlock value ifFalse: [ ^ self ].
+	^ super
+		  selectIndexes: anArray
+		  andMakeVisibleIf: shouldEnsureVisibleSelection
 ]
 
 { #category : 'accessing' }

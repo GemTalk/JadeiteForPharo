@@ -51,9 +51,9 @@ JadeiteTablePresenter >> newEmptyModel [
 ]
 
 { #category : 'testing' }
-JadeiteTablePresenter >> okToDiscardMethodChanges [
+JadeiteTablePresenter >> okToChangeSelections [
 
-	^self owner okToDiscardMethodChanges
+	^self owner okToChangeSelections
 ]
 
 { #category : 'api - selection' }

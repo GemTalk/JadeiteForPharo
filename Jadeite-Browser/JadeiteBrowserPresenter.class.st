@@ -1866,7 +1866,6 @@ JadeiteBrowserPresenter >> methodMenu: aMenu [
 { #category : 'events' }
 JadeiteBrowserPresenter >> methodSelectionChanged [
 
-	self shouldDiscardMethodChanges ifFalse:[^self]. 
 	self resetStatusBar.
 	self updateMethodSource.
 	[

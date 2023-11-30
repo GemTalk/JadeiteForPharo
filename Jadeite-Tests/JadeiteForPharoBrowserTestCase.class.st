@@ -327,6 +327,62 @@ JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
+	"The list selection code is what is run if the user clicks on a list item ... at least currently"
+	| changedMethodSource |
+	self
+		testsJadeiteForPharoIssue: #issue44
+		withTitle:
+		'While editing a method, can click on other methods, but method text pane not updated'.
+	self selectRowanSample1Test.
+	self selectMethodNamedInProjectBrowser: #test1.
+	changedMethodSource := 'test1
+	
+	self assert: RowanSample1 new foo = ''foo''
+	"add this line to make a change"'.
+	self methodSourcePresenter text: changedMethodSource.
+	MessageBox expectResult: [ true ] during: [
+		self projectsPresenter methodListPresenter withAdapterDo: [ :adapter | "manipulate the underlying morph widget where the confirmation is done"
+			adapter widgetDo: [ :w |
+				w selectIndexes: #( 2 ) andMakeVisibleIf: true ] ].
+		self
+			assert:
+			self projectsPresenter methodListPresenter selectedItem selector
+			equals: #test2 "selected method" ].
+	self selectMethodNamedInProjectBrowser: #test1.
+	self methodSourcePresenter text: changedMethodSource.
+	MessageBox expectResult: [ false ] during: [
+		self projectsPresenter methodListPresenter withAdapterDo: [ :adapter |
+			adapter widgetDo: [ :w |
+				w selectIndexes: #( 2 ) andMakeVisibleIf: true ] ].
+		self
+			assert:
+			self projectsPresenter methodListPresenter selectedItem selector
+			equals: #test1. "did not select method"
+		self
+			assert: self methodSourcePresenter text asString
+			equals: changedMethodSource ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
+	self todo:["(1) why does selecting methods take progressively longer times. 
+					(2) test took too much time"]. 
+	self
+		testsJadeiteForPharoIssue: #issue44
+		withTitle:
+		'While editing a method, can click on other methods, but method text pane not updated'.
+	self selectRowanServicesPackage.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter.
+	1 to: self projectsPresenter methodListPresenter list size do: [
+		:index |
+		self projectsPresenter methodListPresenter resetSelection.
+		self projectsPresenter methodListPresenter selectIndex: index ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
