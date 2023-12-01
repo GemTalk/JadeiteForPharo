@@ -35,12 +35,12 @@ JadeiteForPharoMiscellaneousTestCase >> test_adHocDisplay [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 	workspace := JadeiteWorkspace showOnSession: session.
 	self assert: (workspace isKindOf: JadeiteWorkspace).
-	workspace setDocumentData: '123'.
+	workspace text: '123'.
 	workspace codePane documentPresenter setFocus.
 	self displayAndPrint.
 	self
-		assert: workspace codePane documentPresenter text
-		equals: '123 "''123''"'
+		assert: workspace codePane documentPresenter text asString
+		equals: '123 "123"'
 ]
 
 { #category : 'tests' }
@@ -139,12 +139,12 @@ JadeiteForPharoMiscellaneousTestCase >> test_returnedServices [
 
 	workspace := JadeiteWorkspace showOnSession: session.
 	self assert: (workspace isKindOf: JadeiteWorkspace).
-	workspace setDocumentData: '123'.
+	workspace text: '123'.
 	workspace codePane documentPresenter setFocus.
 	self displayAndPrint.
 	self
-		assert: workspace codePane documentPresenter text
-		equals: '123 "''123''"'.
+		assert: workspace codePane documentPresenter text asString
+		equals: '123 "123"'.
 	self assert: RowanServiceUpdater current updates size equals: 1.
 	self assert: (RowanServiceUpdater current updates first isKindOf:
 			 RowanAnsweringService).

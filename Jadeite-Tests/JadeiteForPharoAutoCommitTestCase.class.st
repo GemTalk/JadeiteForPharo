@@ -38,7 +38,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocDisplay [
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace := JadeiteWorkspace showOnSession: session.
-	workspace setDocumentData: '123'.
+	workspace text: '123'.
 	workspace codePane documentPresenter setFocus.
 	self displayAndPrint.
 	self assert:
@@ -47,8 +47,8 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocDisplay [
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self
-		assert: workspace codePane documentPresenter text
-		equals: '123 "''123''"' ] ensure: [
+		assert: workspace codePane documentPresenter text asString
+		equals: '123 "123"' ] ensure: [
 		session executeString: 'UserGlobals removeKey: #TestCommit'.
 		self commitTransaction.
 		self setRemoteAutoCommit: false.
@@ -96,7 +96,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocDisplay [
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace := JadeiteWorkspace showOnSession: session.
-	workspace setDocumentData: '123'.
+	workspace text: '123'.
 	workspace codePane documentPresenter setFocus.
 	self displayAndPrint.
 	self assert:
@@ -106,7 +106,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocDisplay [
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self
 		assert: workspace codePane documentPresenter text
-		equals: '123 "''123''"' ] ensure: [ workspace isModified: false ]
+		equals: '123 "123"' ] ensure: [ workspace isModified: false ]
 ]
 
 { #category : 'tests' }
