@@ -129,8 +129,7 @@ JadeiteMethodSourcePane >> saveMethodIn: classService category: category [
 			self reportCompileError: ex gsArguments.
 			^ false ].
 	self value: methodSource1.
-	self todo: [
-		self displayNoMods: self "When we get change markers showing in the source pane, make this work" ].
+	self hasUnacceptedEdits: false. 
 	^true
 ]
 

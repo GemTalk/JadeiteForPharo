@@ -557,11 +557,7 @@ JadeiteForPharoBrowserTestCase >> test_methodSourcechangeIndicator [
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
 	self methodSourcePresenter text: 'foo  ^''instance side'''.
 	self assert: self morphicMethodSourceHasUnacceptedEdits.
-	self 
-		saveMethod: 'foo  ^''instance side'''
-		in: 'RowanSample1'
-		category: 'dontcare'
-		meta: false.
+	self projectsPresenter editSaveMethod. 
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
 	self methodSourcePresenter text: 'foo  ^''dontcare'''.
 	self assert: self morphicMethodSourceHasUnacceptedEdits.	
