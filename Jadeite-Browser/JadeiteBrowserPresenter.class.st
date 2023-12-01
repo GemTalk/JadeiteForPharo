@@ -614,7 +614,7 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 	^ color
 ]
 
-{ #category : 'events' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> classSelected: selection [
 
 	self clearFilterLists.
@@ -1494,7 +1494,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];
-									dragEnabled: true.
+		                       dragEnabled: true.
 	methodsBox add: methodListPresenter.
 	radioButtonBox := SpBoxLayout newHorizontal.
 	instanceRadioButton := self newRadioButton label: 'Instance'.
@@ -2330,115 +2330,12 @@ JadeiteBrowserPresenter >> pullFromGit [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> queryCommand: aCommandQuery [
-	| command |
-	command := aCommandQuery command.
-	#openJadeiteProjectsBrowser = command
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			^true].
-	#loadProject = command
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			^true].
-	command = #beginTransaction
-		ifTrue: 
-			[aCommandQuery isEnabled: self isBeginTransactionEnabled.
-			^true].
-	command = #flipAutoCommit
-		ifTrue: 
-			[aCommandQuery isEnabled: self transactionMode = #autoBegin.
-			^true].
-	command = #beginTransaction
-		ifTrue: 
-			[aCommandQuery isEnabled: self isBeginTransactionEnabled.
-			^true].
-	command = #commitTransaction
-		ifTrue: 
-			[aCommandQuery isEnabled: self isCommitEnabled.
-			^true].
-	(#(#inspectGlobal #browseGlobalClass #browseGlobalReferences) includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: globalsTab selections isEmpty not.
-			^true].
-	(#(#removeDictionaries) includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: self dictionaryPresenter selections notEmpty.
-			^true].
-	#browseMethodHistory = command
-		ifTrue: 
-			[| selections |
-			selections := self methodListPresenter selections.
-			aCommandQuery isEnabled: (selections size = 1 and: [selections first hasMethodHistory]).
-			^true].
-	(#(#reformatSource) includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: self methodListPresenter selections size <= 1.
-			^true].
-	#gitCommit == command
-		ifTrue: 
-			[aCommandQuery isEnabled: self allSelectedProjectsDirty.
-			^true].
-	#createNewProject = command
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			^true].
-	(self projectMenuCommands includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: (self isProjectItemEnabled: command).
-			^true].
-	#gotoDictionary = command
-		ifTrue: 
-			[self updateClassMenu: nil.
-			self selectedClass
-				ifNil: 
-					[aCommandQuery isEnabled: false.
-					^true].
-			self isNoneProjectSelected
-				ifTrue: 
-					[aCommandQuery isEnabled: false.
-					^true].
-			aCommandQuery isEnabled: true.
-			^true].
-	(#(#browseInstVarReaders #browseInstVarWriters) includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: self variableListPresenter selections size = 1.
-			^true].
-	#expandFullHierarchy = command
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			^true].
-	(#browseSelectedCategoryMethods = command or: [#fileOutCategories = command])
-		ifTrue: 
-			[aCommandQuery isEnabled: categoryListPresenter selections notEmpty.
-			^true].
-	#inspectMethod = command
-		ifTrue: 
-			[aCommandQuery isEnabled: methodListPresenter selections size = 1.
-			^true].
-	#fileOutSelectedMethods = command
-		ifTrue: 
-			[aCommandQuery isEnabled: methodListPresenter selections notEmpty.
-			^true].
-	command == #editDelete
-		ifTrue: 
-			[aCommandQuery isEnabled: methodSourcePresenter hasSelection.
-			^true].
-	#checkoutTag == aCommandQuery command
-		ifTrue: 
-			[aCommandQuery isEnabled: self isNoneProjectSelected not.
-			^true].
-	#gotoPackageDictionary = aCommandQuery command
-		ifTrue: 
-			[aCommandQuery isEnabled: (packageListPresenter selectionIfNone: []) ~~ nil.
-			^true].
-	(#(#unloadProjects #reloadProject) includes: aCommandQuery command)
-		ifTrue: 
-			[self halt.
-			aCommandQuery isEnabled: ((Array with: RowanService notRowanizedPackageName with: 'UnPackaged')
-						includes: self selectedProjectName).
-			^true].
-	^super queryCommand: aCommandQuery
+JadeiteBrowserPresenter >> redrawAllViews [
+	"for now, just update a few views. Not sure if there's a better way to do this."
+	projectListPresenter view invalidate.
+	packageListPresenter view invalidate.
+	classListPresenter view invalidate.
+	methodListPresenter view invalidate. 
 ]
 
 { #category : 'as yet unclassified' }

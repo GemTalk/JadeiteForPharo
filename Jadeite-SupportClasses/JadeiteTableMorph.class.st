@@ -7,6 +7,11 @@ Class {
 	#category : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'accessing' }
+JadeiteTableMorph class >> defaultSecondarySelectionColor [
+	^ self defaultSelectionColor
+]
+
 { #category : 'selection' }
 JadeiteTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
 

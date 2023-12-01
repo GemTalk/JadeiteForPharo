@@ -741,14 +741,6 @@ JadeiteProjectsBrowserPresenter >> queryCommand: aCommandQuery [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> redrawAllViews [
-	"for now, just update a few views. Not sure if there's a better way to do this."
-	projectListPresenter view invalidate.
-	packageListPresenter view invalidate.
-	classListPresenter view invalidate
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> refreshClassListOrHierarchy [
 	| newSelection listSelection hierarchySelection |
 	(textAreaTabs currentCard name = 'classDefinition' and: [self selectedClass isNil])

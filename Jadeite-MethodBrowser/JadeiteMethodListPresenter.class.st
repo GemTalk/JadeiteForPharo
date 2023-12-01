@@ -204,6 +204,7 @@ JadeiteMethodListPresenter >> initializeMenubar [
 JadeiteMethodListPresenter >> initializeMethodListTable [
 
 	methodListPresenter := JadeiteTablePresenter new
+		                       beMultipleSelection;
 		                       addColumn: (SpStringTableColumn
 				                        title: 'Project'
 				                        evaluated: [ :service |
@@ -550,12 +551,12 @@ JadeiteMethodListPresenter >> updateMethodSource [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateMultiMethodComparison [
-	self selectComparisonTab.
+	self todo:[self selectComparisonTab.
 	comparisonPresenter
 		beforeTitle: (methodListPresenter selections at: 1) classMethodDisplayString;
 		afterTitle: (methodListPresenter selections at: 2) classMethodDisplayString;
 		compare: (methodListPresenter selections at: 1) source
-			with: (methodListPresenter selections at: 2) source.
+			with: (methodListPresenter selections at: 2) source].
 ]
 
 { #category : 'as yet unclassified' }
