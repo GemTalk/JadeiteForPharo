@@ -34,11 +34,13 @@ MessageBox class >> expectResult: resultBlock during: aBlock [
 { #category : 'pharo specific layer' }
 MessageBox class >> notify: aString [
 
-	^UIManager default inform: aString
+	ExpectedResult ifNotNil: [ ^ ExpectedResult ].
+	^ UIManager default inform: aString
 ]
 
 { #category : 'pharo specific layer' }
 MessageBox class >> warning: aString [
 
-	^UIManager default alert: aString
+	ExpectedResult ifNotNil: [ ^ ExpectedResult ].
+	^ UIManager default alert: aString
 ]

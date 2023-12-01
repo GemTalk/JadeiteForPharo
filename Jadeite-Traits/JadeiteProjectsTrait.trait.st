@@ -82,8 +82,11 @@ JadeiteProjectsTrait >> confirmReloadProjects: selections [
 
 { #category : 'messages' }
 JadeiteProjectsTrait >> dirtyDiskConfirmation [
-	^MessageBox
-		confirm: 'The on-disk state of the git repository is dirty. This may be due to a previous project write without commit, or change to the repository outside Jadeite. It is recommended to check status on the git command line before committing. Proceed?' 
+
+	| ws message |
+	ws := WriteStream on: String new.
+	message := 'The on-disk state of the git repository is dirty. This may be due to a previous project write without commit, or change to the repository outside Jadeite. It is recommended to check status on the git command line before committing. Proceed?'.
+	^ MessageBox confirm: (message skinnyPrintOn: ws) contents
 ]
 
 { #category : 'commands' }
