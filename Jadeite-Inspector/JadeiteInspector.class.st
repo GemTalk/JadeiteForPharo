@@ -278,6 +278,18 @@ JadeiteInspector >> displayObjectSelecting: selectionIndex [
 	"documentPresenter view isModified: false"
 ]
 
+{ #category : 'inspecting' }
+JadeiteInspector >> dive [
+	| oop |
+	"instVarListPresenter selection is <anAssociation>"
+	(self isSelfSelected or:[self isAsOopSelected]) ifTrue:[^self]. 
+	oop := instVarListPresenter selections first value.
+	(oop isKindOf: Array) ifTrue: [oop := oop last].	"a dictionary entry will hold oop of key and oop of value"
+	objectIndex = oopsCollection size
+		ifFalse: [(oopsCollection at: objectIndex + 1) = oop ifTrue: [^self getNextObject]].
+	self inspectOop: oop
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector >> dynamicInstVars [
 	^instVarListPresenter list select: [:instVar | '--*' match: instVar key]
@@ -413,26 +425,33 @@ JadeiteInspector >> initializeInstVarList: box [
 		SpMenuPresenter new
 			addItem: [ :item |
 				item
+					name: 'Back';
+					action: [ self getPreviousObject ] ];
+			addItem: [ :item |
+				item
 					name: 'Dive';
-					action: [ self inspectInstVar ];
-					enabled:
-						(self isSelectionComputed: instVarListPresenter selectedItem)
-							not ];
+					action: [ self dive ];
+					enabled: self isInstVarComputed not ];
 			addItem: [ :item |
 				item
 					name: 'Inspect';
-					action: [
-						JadeiteInspectorApplication
-							show: instVarListPresenter selectedItem last
-							onSession: gciSession ];
-					enabled:
-						(self isSelectionComputed: instVarListPresenter selectedItem)
-							not ];
+					shortcut: $i meta;
+					action: [ self inspectInstVar ];
+					enabled: self isSelfOrNoncomputed ];
 			addItem: [ :item |
 				item
 					name: 'Select All';
+					shortcut: $a meta;
 					action: [ instVarListPresenter selectAll ] ] ].
 	box add: instVarListPresenter
+]
+
+{ #category : 'initialization' }
+JadeiteInspector >> initializeKeyBindings: aWindowPresenter [
+
+	aWindowPresenter
+		bindKeyCombination: $i meta
+		toAction: [ self inspectInstVar ]
 ]
 
 { #category : 'initialization' }
@@ -480,7 +499,7 @@ JadeiteInspector >> initializeToolbar [
 				            label: 'Dive';
 				            icon: (self iconNamed: #glamorousRight);
 				            help: 'dives into selected object';
-				            action: [ self inspectInstVar ];
+				            action: [ self dive ];
 				            yourself);
 		           yourself.
 	self layout
@@ -497,6 +516,7 @@ JadeiteInspector >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		initialExtent: 800 @ 500;
 		menu: self initializeMenubar.
+	self initializeKeyBindings: aWindowPresenter.
 	self updateCaption
 ]
 
@@ -542,16 +562,16 @@ JadeiteInspector >> inspectInNewWindow [
 	^inspector inspect: (OopType64  fromInteger: oop) inContext: gciSession oopNil value
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspecting' }
 JadeiteInspector >> inspectInstVar [
-	| oop |
-	"instVarListPresenter selection is <anAssociation>"
-	(self isSelfSelected or:[self isAsOopSelected]) ifTrue:[^self]. 
-	oop := instVarListPresenter selections first value.
-	(oop isKindOf: Array) ifTrue: [oop := oop last].	"a dictionary entry will hold oop of key and oop of value"
-	objectIndex = oopsCollection size
-		ifFalse: [(oopsCollection at: objectIndex + 1) = oop ifTrue: [^self getNextObject]].
-	self inspectOop: oop
+
+	| key oop |
+	self isInstVarComputed ifTrue: [ ^ self ].
+	key := instVarListPresenter selections first key.
+	oop := key = 'self'
+		       ifTrue: [ model oop ]
+		       ifFalse: [ instVarListPresenter selectedItem last ].
+	^ JadeiteInspectorApplication show: oop onSession: gciSession
 ]
 
 { #category : 'as yet unclassified' }
@@ -596,6 +616,12 @@ JadeiteInspector >> isDynamicInstVarSelected [
 	^'--*' match: instVarListPresenter selections first key
 ]
 
+{ #category : 'initialization' }
+JadeiteInspector >> isInstVarComputed [
+
+	^ self isSelectionComputed: instVarListPresenter selectedItem
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector >> isNamedInstVarSelected [
 	^model instVarNames includesAnyOf: self selectedNamedInstVars
@@ -622,6 +648,13 @@ JadeiteInspector >> isProtectedItemSelected [
 JadeiteInspector >> isSelectionComputed: assoc [
 	assoc ifNil: [ ^false ].
 	^assoc key = 'self' or: [assoc key = '-.asOop']
+]
+
+{ #category : 'initialization' }
+JadeiteInspector >> isSelfOrNoncomputed [
+
+	^ instVarListPresenter selections first key = 'self' or: [
+		  self isInstVarComputed not ]
 ]
 
 { #category : 'as yet unclassified' }

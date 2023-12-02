@@ -66,6 +66,9 @@ JadeiteTextDocument class >> registerFileActionsWithCommandGroup: commandGroup [
 
 { #category : '*Jadeite-SupportClasses' }
 JadeiteTextDocument class >> registerSourceActionsWithCommandGroup: commandGroup [
+	| command |
+	command := JadeiteSelectAllCommand new.
+	commandGroup register: command asSpecCommand
 ]
 
 { #category : '*Jadeite-SupportClasses' }
