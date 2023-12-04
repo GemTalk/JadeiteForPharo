@@ -166,3 +166,10 @@ JadeiteListPresenter >> sortBlock: aBlock [
 JadeiteListPresenter >> update [
 	self refresh.	
 ]
+
+{ #category : 'private - utilities' }
+JadeiteListPresenter >> withWidgetDo: aValuable [
+
+	^self withAdapterDo: [ :adaptor |
+			adaptor widgetDo: aValuable]
+]

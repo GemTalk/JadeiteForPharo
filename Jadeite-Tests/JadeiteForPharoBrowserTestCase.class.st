@@ -366,9 +366,10 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
-	self todo:["(1) why does selecting methods take progressively longer times. 
-					(2) test took too much time"]. 
-	true ifTrue:[^self]. 
+
+	self todo: [ "(1) why does selecting methods take progressively longer times. -- Not reproducing 12/4/23
+					(2) test took too much time"
+		 ].
 	self
 		testsJadeiteForPharoIssue: #issue44
 		withTitle:
@@ -380,7 +381,8 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
 	1 to: self projectsPresenter methodListPresenter list size do: [
 		:index |
 		self projectsPresenter methodListPresenter resetSelection.
-		self projectsPresenter methodListPresenter selectIndex: index ]
+		self projectsPresenter methodListPresenter withWidgetDo: [ :widget |
+			widget selectIndexes: { index } andMakeVisibleIf: true ] ]
 ]
 
 { #category : 'tests' }
