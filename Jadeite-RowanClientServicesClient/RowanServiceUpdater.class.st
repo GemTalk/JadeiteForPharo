@@ -159,7 +159,7 @@ RowanServiceUpdater >> getEvents [
 
 { #category : 'private' }
 RowanServiceUpdater >> inUpdate [
-	^inUpdate ifNil: [inUpdate := RowanSemaphore forMutualExclusion]
+	^inUpdate
 ]
 
 { #category : 'commands' }
@@ -184,7 +184,7 @@ RowanServiceUpdater >> initialize [
 	super initialize. 
 	self initializeUpdates.
 	debug := false.
-	inUpdate := Mutex new.
+	inUpdate := false.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
@@ -352,11 +352,6 @@ RowanServiceUpdater >> registeredTreePresenters [
 { #category : 'public' }
 RowanServiceUpdater >> removeEventsTriggeredFor: anObject [
 	self removeActionsWithReceiver: anObject
-]
-
-{ #category : 'private' }
-RowanServiceUpdater >> resetInUpdate [
-	inUpdate := RowanSemaphore forMutualExclusion
 ]
 
 { #category : 'initialization' }

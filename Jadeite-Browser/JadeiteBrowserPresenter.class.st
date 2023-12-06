@@ -617,7 +617,6 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> classSelected: selection [
 
-	self clearFilterLists.
 	self clearMethodLists.
 	^ selection selectedItem ifNotNil: [
 		  self
@@ -752,6 +751,21 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenter >> connectFilterPresenters [
+
+	categoryListPresenter whenSelectionChangedDo: [ :selection |
+		selection isEmpty ifFalse: [
+			self refreshMethodsOn: methodListPresenter.
+			self selectMethodSourceTab.
+			selection ifNotNil: [
+				selection selectedItem ifNotNil: [ :sel |
+					methodCategoryText text: 'Category: ' , sel ] ] ] ].
+	variableListPresenter whenSelectionChangedDo: [ :selection |
+		selection isEmpty ifFalse: [
+			self refreshMethodsOn: methodListPresenter ] ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 
 	packageListPresenter
@@ -778,14 +792,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 	projectListPresenter
 		whenSelectionChangedDo: [ :selection | self updateProject ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
-	categoryListPresenter whenSelectionChangedDo: [ :selection |
-		self refreshMethodsOn: methodListPresenter.
-		self selectMethodSourceTab.
-		selection ifNotNil: [
-			selection selectedItem ifNotNil: [ :sel |
-				methodCategoryText text: 'Category: ' , sel ] ] ].
-	variableListPresenter whenSelectionChangedDo: [ :selection |
-		self refreshMethodsOn: methodListPresenter ].
+	self connectFilterPresenters.
 	methodListPresenter whenSelectionChangedDo: [ :selection |
 		self methodSelectionChanged ].
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |

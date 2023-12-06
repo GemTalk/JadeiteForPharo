@@ -326,7 +326,6 @@ RowanService >> executeCommand [
 		on: Error
 		do: [ :ex |
 			activeProcess terminate.
-			RowanServiceUpdater current resetInUpdate.
 			^ ex pass ].
 	command := nil.
 	commandArgs := nil.

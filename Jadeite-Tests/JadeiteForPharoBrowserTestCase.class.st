@@ -366,10 +366,11 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
+	"This test doesn't appear to do much but it does exercise
+	list selection aggressively. There have been occassions when
+	selecting methods was progressively getting slower with no 
+	explanation. This might catch one of those occasions for debugging."
 
-	self todo: [ "(1) why does selecting methods take progressively longer times. -- Not reproducing 12/4/23
-					(2) test took too much time"
-		 ].
 	self
 		testsJadeiteForPharoIssue: #issue44
 		withTitle:
@@ -382,7 +383,10 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
 		:index |
 		self projectsPresenter methodListPresenter resetSelection.
 		self projectsPresenter methodListPresenter withWidgetDo: [ :widget |
-			widget selectIndexes: { index } andMakeVisibleIf: true ] ]
+			widget selectIndexes: { index } andMakeVisibleIf: true.
+			self
+				assert: self projectsPresenter methodListPresenter selection selectedIndex
+				equals: index ] ]
 ]
 
 { #category : 'tests' }
@@ -515,7 +519,7 @@ JadeiteForPharoBrowserTestCase >> test_instVarWriters [
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 
-	| methodList classMethod instanceMethod|
+	| methodList classMethod instanceMethod |
 	self
 		testsJadeiteForPharoIssue: #issue10
 		withTitle:
@@ -529,24 +533,34 @@ JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 		meta: true.
 	self selectMethodNamed: 'foo'.
 	methodListBrowser := projectsBrowser browseImplementorsOf: 'foo'.
-	methodList := methodListBrowser methodListPresenter list asOrderedCollection.
+	methodList := methodListBrowser methodListPresenter list
+		              asOrderedCollection.
 	self assert: methodList size equals: 2.
 	methodList do: [ :methodService |
 		self assert: methodService className equals: 'RowanSample1' ].
-	classMethod := methodList detect: [ :methodService | methodService meta ]. 
-	instanceMethod := methodList detect: [ :methodService | methodService meta not ].
-	self deny: classMethod equals: instanceMethod. 
-	self assert: classMethod displayClassName equals: 'RowanSample1 class'. 
+	classMethod := methodList detect: [ :methodService |
+		               methodService meta ].
+	instanceMethod := methodList detect: [ :methodService |
+		                  methodService meta not ].
+	self deny: classMethod equals: instanceMethod.
+	self
+		assert: classMethod displayClassName
+		equals: 'RowanSample1 class'.
 	self assert: instanceMethod displayClassName equals: 'RowanSample1'.
-	methodListBrowser methodListPresenter selectItem: instanceMethod. 
-	self assert: methodListBrowser methodSourcePresenter text asString equals: 'foo ^''foo'''.
+	methodListBrowser methodListPresenter resetSelection.
+	methodListBrowser methodListPresenter selectItem: instanceMethod.
+	self
+		assert: methodListBrowser methodSourcePresenter text asString
+		equals: 'foo ^''foo'''.
 	self
 		saveMethod: 'foo  ^''the class side'''
 		in: 'RowanSample1'
 		category: 'dontcare'
 		meta: true. "this should not write over the method list source pane"
-	self deny: methodListBrowser methodListPresenter selectedItem meta. 
-	self assert: methodListBrowser methodSourcePresenter text asString equals: 'foo ^''foo'''.
+	self deny: methodListBrowser methodListPresenter selectedItem meta.
+	self
+		assert: methodListBrowser methodSourcePresenter text asString
+		equals: 'foo ^''foo'''
 ]
 
 { #category : 'tests' }
