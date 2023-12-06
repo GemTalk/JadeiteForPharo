@@ -755,13 +755,15 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
-			self refreshMethodsOn: methodListPresenter.
-			self selectMethodSourceTab.
-			selection ifNotNil: [
-				selection selectedItem ifNotNil: [ :sel |
-					methodCategoryText text: 'Category: ' , sel ] ] ] ].
+			self refreshCategoryListWithSelection: selection ] ].
+	categoryListPresenter whenNoneSelectedDo: [
+		categoryListPresenter list notEmpty ifTrue: [
+			self refreshMethodsOn: methodListPresenter ] ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
+			self refreshMethodsOn: methodListPresenter ] ].
+	variableListPresenter whenNoneSelectedDo: [
+		variableListPresenter list notEmpty ifTrue: [
 			self refreshMethodsOn: methodListPresenter ] ]
 ]
 
@@ -2350,6 +2352,18 @@ JadeiteBrowserPresenter >> refresh [
 	self refreshFromServer
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
+
+	| methodSelections |
+	methodSelections := methodListPresenter selections.
+	self refreshMethodsOn: methodListPresenter.
+	methodListPresenter selections: methodSelections. 
+	self selectMethodSourceTab.
+	^ selection selectedItem ifNotNil: [ :sel |
+		  methodCategoryText text: 'Category: ' , sel ]
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenter >> refreshClass [
 
@@ -2445,7 +2459,8 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 		ifTrue: [
 			self resetCategoryText.
 			definedMethodPackageText text: String new ]
-		ifFalse: [ self updateMethodSource ]
+		ifFalse: [ self updateMethodSource ].
+	methodListPresenter withWidgetDo: [ :w | w resetPosition ].
 ]
 
 { #category : 'as yet unclassified' }
