@@ -23,7 +23,8 @@ Class {
 		'methodSourcePage',
 		'classDefinitionPage',
 		'instanceRadioButton',
-		'classRadioButton'
+		'classRadioButton',
+		'classCommentTab'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -128,6 +129,7 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self selectedClass ifNotNil: [ :classService |
 		self updateAfterFindClass: classService ].
 	self resetClassTemplate.
+	self resetClassComment. 
 	self projectListPresenter invalidate
 ]
 
@@ -1040,6 +1042,22 @@ JadeiteBrowserPresenter >> editSaveClass [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> editSaveClassComment [
+
+	| classService |
+	classService := self selectedClass ifNil: [ ^ self ].
+	classService
+		command: #classComment:;
+		commandArgs: (Array with: classCommentPresenter text asString trimBoth).
+	self issueCommand: classService.
+	self refreshFromServer.
+	classCommentPresenter view
+		isModified: false.
+	self todo:[	
+		classCommentPresenter backcolor: JadeiteTextStyles default colorForNoEdits]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> editSaveMethod [
 	| selection |
 	selection := self selectedClass.
@@ -1345,10 +1363,11 @@ JadeiteBrowserPresenter >> initializeCategoryText: methodColumn [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeClassCommentTab [
 
-	| classCommentTab |
 	classCommentPresenter := JadeiteTextDocument new _gciSession:
 		                         self gciSession.
-	classCommentPresenter saveAction: [ self editSaveClass ].
+	classCommentPresenter
+		saveAction: [ self editSaveClassComment ];
+		whenResetDo: [ self resetClassComment ].
 	classCommentTab := JadeiteNotebookPage
 		                   title: 'Class Comment'
 		                   icon: nil
@@ -1896,7 +1915,7 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 		on: Error
 		do: [ :ex | ^ self "spec2 has bugs" ].
 	methodListPresenter selections isEmpty ifTrue: [
-		^ textAreaTabs selectPage: classDefinitionPage ].
+		^self selectClassDefinitionTab ].
 	methodListPresenter selections size = 1 ifTrue: [
 		self selectMethodSourceTab ].
 	self isComparisonTabSelected ifTrue: [ ^ self ].
@@ -2723,6 +2742,16 @@ JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoryTab [
 	methodFilterTabs selectPageIndex: 1
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassCommentTab [
+	textAreaTabs selectPage: classCommentTab 
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassDefinitionTab [
+	textAreaTabs selectPage: classDefinitionPage
 ]
 
 { #category : 'selections' }

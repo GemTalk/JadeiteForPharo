@@ -59,3 +59,9 @@ String >> subStrings: aString [
 	
 	^self substrings: aString
 ]
+
+{ #category : '*Jadeite-BaseExtensions' }
+String >> trimBlanks [
+
+	^ self trimBoth
+]

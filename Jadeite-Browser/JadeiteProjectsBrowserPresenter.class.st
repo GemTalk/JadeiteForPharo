@@ -266,21 +266,6 @@ JadeiteProjectsBrowserPresenter >> editReplace [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> editSaveClassComment [
-	| classService |
-	classService := self selectedClass ifNil: [^self].
-	classService
-		command: #classComment:;
-		commandArgs: (Array with: classCommentPresenter value trimBlanks).
-	self issueCommand: classService.
-	classCommentPresenter ensureVisible.
-	self refreshFromServer.
-	classCommentPresenter view
-		isModified: false;
-		backcolor: JadeiteTextStyles default colorForNoEdits
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> filterTabChanged [
 	self isClassSelected
 		ifTrue: [self updateService: self selectedClass]
@@ -979,11 +964,6 @@ JadeiteProjectsBrowserPresenter >> selectCategoryFrom: methodService [
 { #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCategoryNamed: category [
 	^self selectCategoriesNamed: (Array with: category)
-]
-
-{ #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectClassDefinitionTab [
-	self selectSourceTabNamed: 'classDefinition'
 ]
 
 { #category : 'selections' }

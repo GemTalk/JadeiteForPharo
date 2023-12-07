@@ -395,6 +395,64 @@ JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
 	self assert: self methodListPresenter selectedItems isEmpty "#answer is not in private category so no selection should be made"
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classCommentReset [
+	"also tests that abort restores original comment from class service"
+
+	| originalComment |
+	self
+		testsJadeiteForPharoIssue: #issue49
+		withTitle: 'Class Comment tab doesn''t work correctly'.
+	self selectRowanSample1Class.
+	self projectsPresenter selectClassCommentTab.
+	originalComment := self projectsPresenter selectedClass comment.
+	self
+		assert: self projectsPresenter classCommentPresenter text asString
+		equals: originalComment.
+	self projectsPresenter classCommentPresenter text: 'test comment'.
+	self
+		assert: self projectsPresenter classCommentPresenter text asString
+		equals: 'test comment'.
+	self projectsPresenter resetClassComment.
+	self
+		assert: self projectsPresenter classCommentPresenter text asString
+		equals: originalComment
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classCommentSave [
+	"also tests that abort restores original comment from class service"
+	| originalComment |
+	self
+		testsJadeiteForPharoIssue: #issue49
+		withTitle: 'Class Comment tab doesn''t work correctly'.
+	self ensureRowanSampleProjectsLoadedFromDisk.
+	self commitTransaction.
+	self selectRowanSample1Class.
+	self projectsPresenter selectClassCommentTab.
+	originalComment := self projectsPresenter selectedClass comment.
+	self
+		assert: self projectsPresenter classCommentPresenter text asString
+		equals: originalComment.
+	self projectsPresenter classCommentPresenter text: 'test comment'.
+	self projectsPresenter editSaveClassComment.
+	self
+		assert: self projectsPresenter classCommentPresenter text asString
+		equals: self projectsPresenter selectedClass comment.
+	[
+	self abortTransaction.
+	self selectRowanSample1Class.
+	self
+		assert: self projectsPresenter classCommentPresenter text asString
+		equals: originalComment.
+	self
+		assert: self projectsPresenter selectedClass comment
+		equals: originalComment ] ensure: [
+		JadeiteTestResource current unloadSampleProject1.
+		self commitTransaction.
+		self ensureRowanSampleProjectsLoaded ]
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 	"The list selection code is what is run if the user clicks on a list item ... at least currently"

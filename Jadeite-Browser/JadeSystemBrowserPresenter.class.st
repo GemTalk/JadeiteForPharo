@@ -551,24 +551,6 @@ JadeSystemBrowserPresenter >> editSaveClassA [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> editSaveClassComment [
-
-	| stream |
-	stream := (WriteStream on: String new)
-		nextPutAll: 'classComment'; tab;
-		nextPutAll: self selectedClassNameWithoutVersion; tab;
-		nextPutAll: selectedClassOop printString; tab;
-		nextPutAll: classListHierarchyTabs currentCard name; lf;
-		nextPutAll: classCommentPresenter value trimBlanks; lf;
-		nextPut: $%; lf;
-		yourself.
-	self 
-		updateCommand: stream contents , self requestString
-		onSuccessDo: [classCommentPresenter view isModified: false].
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> editSelectAll [
 
 	View focus selectAll.
@@ -2199,33 +2181,6 @@ JadeSystemBrowserPresenter >> updateSuperclassList [
 	(selected = superclassListPresenter selectionOrNil) ifFalse: [
 		superclassListPresenter selection: selected.
 	].
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updateTabLabel [
-
-	| cardNumber newLabel | 
-	cardNumber := self parentPresenter view cards indexOf: self view.
-	(newLabel := self selectedClassNameWithoutVersion) notEmpty ifTrue: [
-		classListHierarchyTabs currentCard name = 'classTab' ifTrue: [
-			newLabel := newLabel , ' class'.
-		].
-		0 < environment ifTrue: [newLabel := newLabel , ' [' , environment printString , ']'].
-	] ifFalse: [
-		| tabName selections |
-		tabName := packageDictionaryTabs currentCard name.
-		tabName = 'packageList' ifTrue: [
-			newLabel := 'Packages'.
-			selections := packageListPresenter selections.
-		] ifFalse: [
-			newLabel := 'Dictionaries'.
-			selections := dictionaryListPresenter selections.
-		].
-		selections size = 1 ifTrue: [newLabel := selections first key].
-	].
-	self view arrangement: cardNumber printString , ' ' , newLabel.
-	self parentPresenter view updateTabs.
 
 ]
 

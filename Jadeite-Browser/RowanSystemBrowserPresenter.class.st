@@ -426,20 +426,3 @@ RowanSystemBrowserPresenter >> updateSelectionsForUpdate: update [
 	update updateMethodSelectionFor: self methodListPresenter.
 	
 ]
-
-{ #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updateTabLabel [
-	| cardNumber newLabel |
-	cardNumber := self parentPresenter view cards indexOf: self view.
-	(newLabel := self selectedClassNameWithoutVersion) notEmpty
-		ifTrue: 
-			[classListHierarchyTabs currentCard name = 'classTab' ifTrue: [newLabel := newLabel , ' class'].
-			0 < environment ifTrue: [newLabel := newLabel , ' [' , environment printString , ']']]
-		ifFalse: 
-			[| selections |
-			newLabel := 'Dictionaries'.
-			selections := dictionaryListPresenter selections.
-			selections size = 1 ifTrue: [newLabel := selections first key]].
-	self view arrangement: cardNumber printString , ' ' , newLabel.
-	self parentPresenter view updateTabs
-]
