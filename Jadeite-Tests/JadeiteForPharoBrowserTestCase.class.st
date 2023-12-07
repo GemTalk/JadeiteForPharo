@@ -46,6 +46,20 @@ JadeiteForPharoBrowserTestCase >> projectList [
 	^self projectListPresenter list
 ]
 
+{ #category : 'support' }
+JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Core'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter
+]
+
 { #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 
@@ -324,6 +338,61 @@ JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 	methodListPresenter list do: [ :methodService |
 		self assert: ('*''apple''*' match: methodService source) ] ]
 		ensure: [ self destroy: methodListPresenter ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_categorySelection [
+
+	self
+		testsJadeiteForPharoIssue: #issue24
+		withTitle: 'Selected category pane wrong if no category selected'.
+	self selectRowanAnsweringService.
+	self
+		assert: self methodListPresenter list size
+		equals: self projectsPresenter selectedClass methods size. "no category - all methods in list."
+	self selectCategoryNamed: 'client commands'.
+	self methodListPresenter list do: [ :methodService |
+		self assert: methodService category equals: 'client commands' ]. "only category methods in list"
+	self categoryListPresenter unselectAll.
+	self
+		assert: self methodListPresenter list size
+		equals: self projectsPresenter selectedClass methods size. "no category - all methods in list."
+	self
+		selectMethodsNamed: {#transcriptObject} 
+		in: self methodListPresenter. "no category selected still"
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #transcriptObject.
+	self selectCategoryNamed: 'private'. "select category of selected method retains method selection."
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #transcriptObject.
+	self methodListPresenter list do: [ :methodService |
+		self assert: methodService category equals: 'private' ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
+	"method selection was retained incorrectly on category changes.
+	Method selection should only be retained if selected method is 
+	in post category selection method list."
+
+	| updatingCategoryIndex |
+	self
+		testsJadeiteForPharoIssue: #issue24
+		withTitle: 'Selected category pane wrong if no category selected'.
+	self selectRowanAnsweringService.
+	self selectCategoryNamed: 'accessing'.
+	self selectMethodsNamed: { #answer } in: self methodListPresenter.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #answer.
+	updatingCategoryIndex := self categoryListPresenter list indexOf:
+		                         'Updating'.
+	"select a different category with the underlying morphic code. That exposes the bug. "
+	self categoryListPresenter withWidgetDo: [ :w |
+		w selectIndexes: { updatingCategoryIndex } andMakeVisibleIf: true ].
+	self assert: self methodListPresenter selectedItems isEmpty "#answer is not in private category so no selection should be made"
 ]
 
 { #category : 'tests' }

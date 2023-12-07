@@ -2358,7 +2358,9 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 	| methodSelections |
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
-	methodListPresenter selections: methodSelections. 
+	methodListPresenter selections:
+		(methodSelections select: [ :methodService |
+			 methodListPresenter list includes: methodService ]).
 	self selectMethodSourceTab.
 	^ selection selectedItem ifNotNil: [ :sel |
 		  methodCategoryText text: 'Category: ' , sel ]
