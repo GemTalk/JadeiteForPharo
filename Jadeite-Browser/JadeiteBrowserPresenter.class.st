@@ -1522,6 +1522,8 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];
+		                       displayIcon: [ :methodService |
+			                       self testResultIconFor: methodService ];
 		                       dragEnabled: true.
 	methodsBox add: methodListPresenter.
 	radioButtonBox := SpBoxLayout newHorizontal.
@@ -2720,6 +2722,18 @@ JadeiteBrowserPresenter >> runAll [
 	self sunitPresenter runAll
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> runMethodTests [
+
+	self selectedMethods do: [ :methodService |
+		methodService
+			command: #debugTest:inClassName:;
+			commandArgs:
+				(Array with: methodService selector with: self selectedClass name).
+		self issueCommand: methodService ].
+	methodListPresenter invalidate
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> runSelected [
 	^self runMethodTests. 
@@ -2948,6 +2962,12 @@ JadeiteBrowserPresenter >> selectedGlobalName: selection [
 	^string
 ]
 
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> selectedMethods [
+
+	^ methodListPresenter selectedItems
+]
+
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectedPackageNames [
 	^packageListPresenter selections collect: [:packageService | packageService name]
@@ -3049,6 +3069,38 @@ JadeiteBrowserPresenter >> statusBarText: string [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> symbolExists: newClassName [
 	^(RowanAnsweringService new symbolExists: newClassName asSymbol session: self gciSession) not
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> testItemButtonWithIconNamed: iconName [
+
+	^ IconicButtonMorph new
+		  target: self;
+		  labelGraphic: (self iconNamed: iconName);
+		  actionSelector: #runMethodTests;
+		  color: Color transparent;
+		  helpText: 'Run Tests';
+		  borderWidth: 0;
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> testResultIconFor: methodService [
+
+	^ methodService isTestMethod
+		  ifTrue: [
+			  | testResult |
+			  testResult := methodService testResult.
+			  testResult = 'passed'
+				  ifTrue: [ self testItemButtonWithIconNamed: #testGreen ]
+				  ifFalse: [
+					  testResult = 'failure'
+						  ifTrue: [ self testItemButtonWithIconNamed: #testYellow ]
+						  ifFalse: [
+							  testResult = 'failure'
+								  ifTrue: [ self testItemButtonWithIconNamed: #testRed ]
+								  ifFalse: [ self testItemButtonWithIconNamed: #testNotRun ] ] ] ]
+		  ifFalse: [ nil ]
 ]
 
 { #category : 'as yet unclassified' }
