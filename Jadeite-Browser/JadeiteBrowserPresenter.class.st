@@ -2727,14 +2727,19 @@ JadeiteBrowserPresenter >> runAll [
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> runMethodTests: methodServices [
 
+	methodServices do: [ :methodService | methodService testResult: nil ].
+	methodListPresenter refresh.
+	[
 	methodServices do: [ :methodService |
 		methodService
 			command: #debugTest:inClassName:;
-			commandArgs: (Array with: methodService selector with: methodService className).
-		self issueCommand: methodService ].
-	classListPresenter refresh.
-	classHierarchyPresenter refresh.
-	methodListPresenter refresh
+			commandArgs:
+				(Array with: methodService selector with: methodService className).
+		self issueCommand: methodService.
+		methodService testResult = 'passed' ifFalse: [ ^ self ] ] ] ensure: [
+		classListPresenter refresh.
+		classHierarchyPresenter refresh.
+		methodListPresenter refresh ]
 ]
 
 { #category : 'as yet unclassified' }
