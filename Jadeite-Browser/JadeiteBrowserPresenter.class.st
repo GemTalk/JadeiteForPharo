@@ -1423,6 +1423,8 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 		                      wantsDrop: [ :transfer |
 			                      transfer passenger allSatisfy:
 					                      #isMethodService ];
+		                      displayIcon: [ :classService |
+			                      self testClassResultIconFor: classService ];
 		                      acceptDrop: [ :transfer |
 			                      self
 				                      dropMethods: transfer passenger
@@ -1523,7 +1525,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];
 		                       displayIcon: [ :methodService |
-			                       self testResultIconFor: methodService ];
+			                       self testMethodResultIconFor: methodService ];
 		                       dragEnabled: true.
 	methodsBox add: methodListPresenter.
 	radioButtonBox := SpBoxLayout newHorizontal.
@@ -2722,16 +2724,17 @@ JadeiteBrowserPresenter >> runAll [
 	self sunitPresenter runAll
 ]
 
-{ #category : 'actions' }
-JadeiteBrowserPresenter >> runMethodTests [
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> runMethodTests: methodServices [
 
-	self selectedMethods do: [ :methodService |
+	methodServices do: [ :methodService |
 		methodService
 			command: #debugTest:inClassName:;
-			commandArgs:
-				(Array with: methodService selector with: self selectedClass name).
+			commandArgs: (Array with: methodService selector with: methodService className).
 		self issueCommand: methodService ].
-	methodListPresenter invalidate
+	classListPresenter refresh.
+	classHierarchyPresenter refresh.
+	methodListPresenter refresh
 ]
 
 { #category : 'as yet unclassified' }
@@ -3071,35 +3074,90 @@ JadeiteBrowserPresenter >> symbolExists: newClassName [
 	^(RowanAnsweringService new symbolExists: newClassName asSymbol session: self gciSession) not
 ]
 
-{ #category : 'initialization' }
-JadeiteBrowserPresenter >> testItemButtonWithIconNamed: iconName [
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> testClassResultIconFor: classService [
 
+	^ classService isTestCase
+		  ifTrue: [
+			  | testResult |
+			  testResult := (classService visibleTests collect: [
+				                 :methodService | methodService testResult ])
+				                asSet asArray.
+			  testResult size = 1 ifFalse: [
+				  testResult := testResult copyWithout: 'passed' ].
+			  testResult := testResult isEmpty
+				                ifTrue: [  ]
+				                ifFalse: [ testResult first ].
+			  testResult = 'passed'
+				  ifTrue: [
+				  self
+					  testItemButtonWithIconNamed: #testGreen
+					  service: classService ]
+				  ifFalse: [
+					  testResult = 'failure'
+						  ifTrue: [
+						  self
+							  testItemButtonWithIconNamed: #testYellow
+							  service: classService ]
+						  ifFalse: [
+							  testResult = 'failure'
+								  ifTrue: [
+								  self
+									  testItemButtonWithIconNamed: #testRed
+									  service: classService ]
+								  ifFalse: [
+								  self
+									  testItemButtonWithIconNamed: #testNotRun
+									  service: classService ] ] ] ]
+		  ifFalse: [ nil ]
+]
+
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> testItemButtonWithIconNamed: iconName service: clickedService [
+
+	| methodServices |
+	methodServices := clickedService isClassService
+		                  ifTrue: [ clickedService visibleTests ]
+		                  ifFalse: [ { clickedService } ].
 	^ IconicButtonMorph new
 		  target: self;
 		  labelGraphic: (self iconNamed: iconName);
-		  actionSelector: #runMethodTests;
+		  actionSelector: #runMethodTests:;
+		  arguments: (Array with: methodServices);
 		  color: Color transparent;
 		  helpText: 'Run Tests';
 		  borderWidth: 0;
 		  yourself
 ]
 
-{ #category : 'initialization' }
-JadeiteBrowserPresenter >> testResultIconFor: methodService [
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> testMethodResultIconFor: methodService [
 
 	^ methodService isTestMethod
 		  ifTrue: [
 			  | testResult |
 			  testResult := methodService testResult.
 			  testResult = 'passed'
-				  ifTrue: [ self testItemButtonWithIconNamed: #testGreen ]
+				  ifTrue: [
+					  self
+						  testItemButtonWithIconNamed: #testGreen
+						  service: methodService ]
 				  ifFalse: [
 					  testResult = 'failure'
-						  ifTrue: [ self testItemButtonWithIconNamed: #testYellow ]
+						  ifTrue: [
+							  self
+								  testItemButtonWithIconNamed: #testYellow
+								  service: methodService ]
 						  ifFalse: [
 							  testResult = 'failure'
-								  ifTrue: [ self testItemButtonWithIconNamed: #testRed ]
-								  ifFalse: [ self testItemButtonWithIconNamed: #testNotRun ] ] ] ]
+								  ifTrue: [
+									  self
+										  testItemButtonWithIconNamed: #testRed
+										  service: methodService ]
+								  ifFalse: [
+									  self
+										  testItemButtonWithIconNamed: #testNotRun
+										  service: methodService ] ] ] ]
 		  ifFalse: [ nil ]
 ]
 
