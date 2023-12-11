@@ -677,6 +677,18 @@ JadeiteBrowserPresenter >> clearFilterLists [
 	variableListPresenter clear
 ]
 
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> clearMethodListTestResultIn: methodServices [
+
+	methodServices do: [ :methodService |
+		| listedService |
+		listedService := methodListPresenter list
+			                 detect: [ :methodListService |
+			                 methodListService = methodService ]
+			                 ifNone: [  ].
+		listedService ifNotNil: [ listedService testResult: nil ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> clearMethodLists [
 	self clearFilterLists. 
@@ -902,6 +914,22 @@ JadeiteBrowserPresenter >> currentMethodSourceFrom: sourceString [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> debug [
 	self jadeDebug
+]
+
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> debugMethodTests: methodServices [
+
+	self clearMethodListTestResultIn: methodServices.
+	self refreshClassAndMethodPresenters.
+	[
+	methodServices do: [ :methodService |
+		methodService
+			command: #debugTest:inClassName:;
+			commandArgs:
+				(Array with: methodService selector with: methodService className).
+		self issueCommand: methodService.
+		methodService testResult = 'passed' ifFalse: [ ^ self ] ] ] ensure: [
+		self refreshClassAndMethodPresenters ]
 ]
 
 { #category : 'initialization' }
@@ -2424,6 +2452,14 @@ JadeiteBrowserPresenter >> refreshClass [
 	self updateTabLabel
 ]
 
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> refreshClassAndMethodPresenters [
+
+	classListPresenter refresh.
+	classHierarchyPresenter refresh.
+	^ methodListPresenter refresh
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshFromServer [
 	| services |
@@ -2722,24 +2758,6 @@ JadeiteBrowserPresenter >> resetMethodSource [
 JadeiteBrowserPresenter >> runAll [
 	self selectSUnitTab.
 	self sunitPresenter runAll
-]
-
-{ #category : 'sunit support' }
-JadeiteBrowserPresenter >> runMethodTests: methodServices [
-
-	methodServices do: [ :methodService | methodService testResult: nil ].
-	methodListPresenter refresh.
-	[
-	methodServices do: [ :methodService |
-		methodService
-			command: #debugTest:inClassName:;
-			commandArgs:
-				(Array with: methodService selector with: methodService className).
-		self issueCommand: methodService.
-		methodService testResult = 'passed' ifFalse: [ ^ self ] ] ] ensure: [
-		classListPresenter refresh.
-		classHierarchyPresenter refresh.
-		methodListPresenter refresh ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3127,7 +3145,7 @@ JadeiteBrowserPresenter >> testItemButtonWithIconNamed: iconName service: clicke
 	^ IconicButtonMorph new
 		  target: self;
 		  labelGraphic: (self iconNamed: iconName);
-		  actionSelector: #runMethodTests:;
+		  actionSelector: #debugMethodTests:;
 		  arguments: (Array with: methodServices);
 		  color: Color transparent;
 		  helpText: 'Run Tests';
