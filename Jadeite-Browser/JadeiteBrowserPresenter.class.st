@@ -782,6 +782,12 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenter >> connectMethodPresenters [
+
+	methodSourcePresenter whenSubmitDo: [ :text | self editSave ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 
 	packageListPresenter
@@ -813,18 +819,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 		self methodSelectionChanged ].
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
 		self filterTabChanged: selection ].
-	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	methodSourcePresenter whenTextChangedDo: [ :new :old |
-		methodSourcePresenter isBuilt ifTrue: [
-			methodSourcePresenter hasUnacceptedEdits
-				ifTrue: [
-					methodSourcePresenter removeStyle: 'jadeiteTextBackgroundColor'.
-					methodSourcePresenter addStyle:
-						'jadeiteChangedTextBackgroundColor' ]
-				ifFalse: [
-					methodSourcePresenter removeStyle:
-						'jadeiteChangedTextBackgroundColor'.
-					methodSourcePresenter addStyle: 'jadeiteTextBackgroundColor' ] ] ].
+	self connectMethodPresenters.
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].

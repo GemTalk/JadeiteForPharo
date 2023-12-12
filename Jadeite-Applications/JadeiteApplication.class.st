@@ -40,6 +40,12 @@ JadeiteApplication class >> abortTransactionInSession: session [
 	JadeiteSound informationBeep
 ]
 
+{ #category : 'constants' }
+JadeiteApplication class >> changedTextBackgroundColor [ 
+
+	^Color r: 0.96 g: 1 b: 0.8
+]
+
 { #category : 'actions' }
 JadeiteApplication class >> commitTransactionInSession: session [
 
@@ -56,6 +62,12 @@ JadeiteApplication class >> commitTransactionInSession: session [
 		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
 		ifFalse: [ ^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
 	JadeiteSound informationBeep
+]
+
+{ #category : 'constants' }
+JadeiteApplication class >> defaultBackgroundColor [  
+
+	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
 ]
 
 { #category : 'public' }
@@ -124,7 +136,7 @@ JadeiteApplication >> abortTransaction [
 { #category : 'constants' }
 JadeiteApplication >> changedTextBackgroundColor [ 
 
-	^Color r: 0.96 g: 1 b: 0.8
+	^self class changedTextBackgroundColor
 ]
 
 { #category : 'accessing' }
@@ -150,7 +162,7 @@ JadeiteApplication >> commitTransaction [
 { #category : 'constants' }
 JadeiteApplication >> defaultBackgroundColor [ 
 
-	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
+	^self class defaultBackgroundColor
 ]
 
 { #category : 'showing' }

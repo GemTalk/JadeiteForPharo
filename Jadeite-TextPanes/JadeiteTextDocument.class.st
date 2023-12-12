@@ -417,12 +417,6 @@ JadeiteTextDocument >> getDocumentData [
 
 ]
 
-{ #category : 'accessing' }
-JadeiteTextDocument >> hasUnacceptedEdits: aBoolean [
-
-	super hasUnacceptedEdits: aBoolean
-]
-
 { #category : 'initialization' }
 JadeiteTextDocument >> initialize [
 

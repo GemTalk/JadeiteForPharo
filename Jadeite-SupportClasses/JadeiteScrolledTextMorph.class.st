@@ -4,6 +4,18 @@ Class {
 	#category : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'drawing' }
+JadeiteScrolledTextMorph >> drawOn: aCanvas [
+
+	super drawOn: aCanvas.
+	self hasUnacceptedEdits
+		ifTrue: [
+		aCanvas fillColor: JadeiteApplication changedTextBackgroundColor ]
+		ifFalse: [
+		aCanvas fillColor: JadeiteApplication defaultBackgroundColor ].
+	self drawHighlightsOn: aCanvas
+]
+
 { #category : 'model protocol' }
 JadeiteScrolledTextMorph >> resetState [
 
