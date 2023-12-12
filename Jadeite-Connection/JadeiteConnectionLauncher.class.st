@@ -1,6 +1,8 @@
 Class {
 	#name : 'JadeiteConnectionLauncher',
 	#superclass : 'JadeitePresenter',
+	#traits : 'JadeiteToolbarTrait',
+	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
 		'connectionProfile',
 		'versionText',
@@ -43,28 +45,6 @@ JadeiteConnectionLauncher >> addStyle: style [
 	versionText addStyle: style. 
 	netldiText addStyle: style. 
 	pathText addStyle: style. 
-]
-
-{ #category : 'commit id' }
-JadeiteConnectionLauncher >> clientCommitIdDescription [
-
-	| ws | 
-	ws := WriteStream on: String new. 
-	self clientCommitIdDescriptionOn: ws. 
-	^ws contents
-]
-
-{ #category : 'commit id' }
-JadeiteConnectionLauncher >> clientCommitIdDescriptionOn: ws [
-
-	self jadeiteClientGitRepositories doWithIndex: [ :repoName :index |
-		| repo |
-		repo := IceRepository registry detect: [ :ea | ea name = repoName ].
-		index = 1 ifFalse:[ws cr]. 
-		ws
-			nextPutAll: repoName;
-			space;
-			nextPutAll: repo properties commitish shortId ]
 ]
 
 { #category : 'actions' }
@@ -364,18 +344,6 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 ]
 
-{ #category : 'constants' }
-JadeiteConnectionLauncher >> jadeiteClientGitRepositories [
-
-	^ #( 'JadeiteForPharo' 'PharoGemStoneFFI' 'RemoteServiceReplication' )
-]
-
-{ #category : 'constants' }
-JadeiteConnectionLauncher >> jadeiteServerGitRepositories [
-
-	^ #( 'RowanClientServices' )
-]
-
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> jadeiteWindowsFor: connection [
 
@@ -386,23 +354,6 @@ JadeiteConnectionLauncher >> jadeiteWindowsFor: connection [
 		  presenter gciSession
 			  ifNil: [ false ]
 			  ifNotNil: [ :sess | sess library == connection ] ]
-]
-
-{ #category : 'actions' }
-JadeiteConnectionLauncher >> openCommitIdWindow [
-
-	| workspace windowCaption |
-	windowCaption := 'Jadeite Git Commit Ids'.
-	connection
-		ifNil: [
-			workspace := JadeiteNonSessionApplication new start.
-			self displayClientCommitId: workspace ]
-		ifNotNil: [
-			workspace := JadeiteWorkspaceApplication showOnSession: connection.
-			self displayClientandServerCommitIds: workspace ].
-	workspace setCaption: windowCaption.
-	workspace hasUnacceptedEdits: false.
-	^workspace
 ]
 
 { #category : 'actions' }
@@ -428,35 +379,6 @@ JadeiteConnectionLauncher >> populateTextFields [
 	versionText text: connectionProfile version.
 	netldiText text: connectionProfile netldi.
 	pathText text: connectionProfile path
-]
-
-{ #category : 'commit id' }
-JadeiteConnectionLauncher >> serverCommitIdDescription [
-
-	| ws | 
-	ws := WriteStream on: String new. 
-	self serverCommitIdDescriptionOn: ws. 
-	^ws contents
-]
-
-{ #category : 'commit id' }
-JadeiteConnectionLauncher >> serverCommitIdDescriptionOn: ws [
-
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService command: #updateProjects.
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: (GciSession new library: connection).
-	self jadeiteServerGitRepositories do: [ :projectName |
-		| project |
-		project := browserService projects detect: [ :projectService |
-			           projectService name = projectName ].
-		ws
-			nextPutAll: projectName;
-			space;
-			nextPutAll: project sha;
-			cr ]
 ]
 
 { #category : 'initialization' }
