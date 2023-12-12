@@ -228,6 +228,12 @@ JadeiteConsole >> connectPresenters [
 		to: self
 ]
 
+{ #category : 'accessing' }
+JadeiteConsole >> connection [
+
+	^self gciSession library
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> createComponents [
 	super createComponents.
@@ -339,6 +345,18 @@ JadeiteConsole >> gciSession: aGciSession [
 		yourself.
 ]
 
+{ #category : 'actions' }
+JadeiteConsole >> gotoJfPGitHubProject [
+
+	WebBrowser openOn: 'https://github.com/GemTalk/JadeiteForPharo'
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> gotoRowanGitHubProject [
+
+	WebBrowser openOn: 'https://github.com/GemTalk/Rowan'
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> hidePackageGroups [
 	^JadePresenter hidePackageGroups
@@ -383,6 +401,28 @@ JadeiteConsole >> initializeFileMenu [
 ]
 
 { #category : 'initialization' }
+JadeiteConsole >> initializeHelpMenu [
+
+	^ self newMenu
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'Jadeite for Pharo GitHub Project';
+						  action: [ self gotoJfPGitHubProject ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Rowan GitHub Project';
+						  action: [ self gotoRowanGitHubProject ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'About Jadeite';
+					  action: [ self openCommitIdWindow ] ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteConsole >> initializeKeyBindings: aWindowPresenter [
 
 	aWindowPresenter
@@ -403,7 +443,11 @@ JadeiteConsole >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'Browse';
-						  subMenu: self initializeBrowseMenu ] ];
+						  subMenu: self initializeBrowseMenu ];
+					addItem: [ :item |
+					  item
+						  name: 'Help';
+						  subMenu: self initializeHelpMenu ]];
 		  yourself
 ]
 
