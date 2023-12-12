@@ -10,7 +10,7 @@ JadeiteDebuggerApplication >> start [
 	| inst |
 	inst := self new: JadeiteDebuggerPresenter.
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
 	inst open.
 	^inst

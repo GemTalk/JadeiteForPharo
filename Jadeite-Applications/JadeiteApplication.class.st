@@ -121,6 +121,12 @@ JadeiteApplication >> abortTransaction [
 	JadeiteSound informationBeep
 ]
 
+{ #category : 'constants' }
+JadeiteApplication >> changedTextBackgroundColor [ 
+
+	^Color r: 0.96 g: 1 b: 0.8
+]
+
 { #category : 'accessing' }
 JadeiteApplication >> classToInstantiate [
 
@@ -187,13 +193,19 @@ JadeiteApplication >> initializeStyleSheet [
 
 	| classStyle |
 	classStyle := SpStyle newJadeiteApplication.
-	classStyle addClass: 'jadedTextBackgroundColor' with: [ :theClass | 
-		theClass addPropertyDrawWith: [ :draw | 
-			draw backgroundColor: self defaultBackgroundColor ] ].
-	self addStyleSheet: classStyle.
-	classStyle addClass: 'jadedRedBackgroundColor' with: [ :theClass | 
-		theClass addPropertyDrawWith: [ :draw | 
+	classStyle
+		addClass: 'jadeiteTextBackgroundColor'
+		with: [ :theClass |
+			theClass addPropertyDrawWith: [ :draw |
+				draw backgroundColor: self defaultBackgroundColor ] ].
+	classStyle addClass: 'jadeiteRedBackgroundColor' with: [ :theClass |
+		theClass addPropertyDrawWith: [ :draw |
 			draw backgroundColor: Color lightRed ] ].
+	classStyle
+		addClass: 'jadeiteChangedTextBackgroundColor'
+		with: [ :theClass |
+			theClass addPropertyDrawWith: [ :draw |
+				draw backgroundColor: self changedTextBackgroundColor ] ].
 	self addStyleSheet: classStyle.
 	^ classStyle
 ]

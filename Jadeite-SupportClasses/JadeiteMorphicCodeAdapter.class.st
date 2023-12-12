@@ -29,7 +29,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             ghostText: self placeholder;
 		             beWrapped;
 		             askBeforeDiscardingEdits: self askBeforeDiscardingEdits;
-		             autoAccept: false;  "<<<<<<Jadeite change here"
+		             autoAccept: false;  
 		            vResizing: #spaceFill;
 		             hResizing: #spaceFill;
 		             setBalloonText: self help;

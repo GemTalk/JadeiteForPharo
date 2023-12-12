@@ -168,13 +168,13 @@ JadeiteBrowserPresenter >> addPackagePresenter [
 JadeiteBrowserPresenter >> addStyle: aString [
 
 	methodSourcePresenter whenBuiltDo: [
-		methodSourcePresenter addStyle: 'jadedTextBackgroundColor' ].
+		methodSourcePresenter addStyle: 'jadeiteTextBackgroundColor'. ].
 	classDefinitionPresenter whenBuiltDo: [
-		classDefinitionPresenter addStyle: 'jadedTextBackgroundColor' ].
+		classDefinitionPresenter addStyle: 'jadeiteTextBackgroundColor' ].
 	classCommentPresenter whenBuiltDo: [
-		classCommentPresenter addStyle: 'jadedTextBackgroundColor' ].
+		classCommentPresenter addStyle: 'jadeiteTextBackgroundColor' ].
 	projectInfoList whenBuiltDo: [
-		projectInfoList addStyle: 'jadedTextBackgroundColor' ]
+		projectInfoList addStyle: 'jadeiteTextBackgroundColor' ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -814,6 +814,17 @@ JadeiteBrowserPresenter >> connectPresenters [
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
 		self filterTabChanged: selection ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
+	methodSourcePresenter whenTextChangedDo: [ :new :old |
+		methodSourcePresenter isBuilt ifTrue: [
+			methodSourcePresenter hasUnacceptedEdits
+				ifTrue: [
+					methodSourcePresenter removeStyle: 'jadeiteTextBackgroundColor'.
+					methodSourcePresenter addStyle:
+						'jadeiteChangedTextBackgroundColor' ]
+				ifFalse: [
+					methodSourcePresenter removeStyle:
+						'jadeiteChangedTextBackgroundColor'.
+					methodSourcePresenter addStyle: 'jadeiteTextBackgroundColor' ] ] ].
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].
@@ -1382,7 +1393,7 @@ JadeiteBrowserPresenter >> initializeCategoryText: methodColumn [
 		                           beNotEditable;
 		                           beWrapWord;
 		                           withoutScrollBars.
-	methodCategoryText addStyle: 'jadedTextBackgroundColor'.
+	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
 	methodColumn
 		add: methodCategoryText
 		withConstraints: [ :c | c height: 30 ]
@@ -1479,7 +1490,7 @@ JadeiteBrowserPresenter >> initializeDefinedClassPackageText: classColumn [
 		                           beNotEditable;
 		                           beNotWrapWord;
 		                           withoutScrollBars.
-	definedClassPackageText addStyle: 'jadedTextBackgroundColor'.
+	definedClassPackageText addStyle: 'jadeiteTextBackgroundColor'.
 	classColumn
 		add: definedClassPackageText
 		withConstraints: [ :c | c height: 30 ]
@@ -1492,7 +1503,7 @@ JadeiteBrowserPresenter >> initializeDefinedMethodPackageText: methodColumn [
 		                           beNotEditable;
 		                           beWrapWord;
 		                           withoutScrollBars.
-	definedMethodPackageText addStyle: 'jadedTextBackgroundColor'.
+	definedMethodPackageText addStyle: 'jadeiteTextBackgroundColor'.
 	methodColumn
 		add: definedMethodPackageText
 		withConstraints: [ :c | c height: 30 ]
@@ -1581,8 +1592,8 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 		whenResetDo: [ self resetMethodSource ]. 
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
-		                    icon: nil
-		                    provider: [ methodSourcePresenter ].
+		                    icon: "(self iconNamed: #protocolPrivate)" nil
+ 		                    provider: [ methodSourcePresenter ].
 	textAreaTabs addPage: methodSourcePage
 ]
 
@@ -1643,7 +1654,7 @@ JadeiteBrowserPresenter >> initializePresenters [
 	self initializeLowerTabs.
 	packageGroupPresenter := JadeiteListPresenter new.
 	packageMethodListPresenter := JadeiteListPresenter new.
-	self whenBuiltDo: [ self addStyle: 'jadedTextBackgroundColor' ]
+	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ]
 ]
 
 { #category : 'initialization' }

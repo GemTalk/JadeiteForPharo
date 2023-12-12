@@ -10,7 +10,7 @@ JadeiteWorkspaceApplication >> start [
 	| inst |
 	inst := self new: JadeiteWorkspace.
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
 	inst open.
 	^inst

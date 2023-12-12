@@ -28,7 +28,7 @@ JadeiteInspectorApplication >> executeThenInspect: aString inContext: context [
 	| inst |
 	inst := self new: JadeiteInspector. 
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
 	^inst executeThenInspect: aString inContext: context
 ]
@@ -39,7 +39,7 @@ JadeiteInspectorApplication >> start [
 	| inst |
 	inst := self new: JadeiteInspector. 
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
 	inst open
 ]
@@ -50,7 +50,7 @@ JadeiteInspectorApplication >> startOn: oop [
 	| inst |
 	inst := self new: JadeiteInspector. 
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
 	inst inspect: oop inContext: nil
 ]

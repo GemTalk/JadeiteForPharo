@@ -11,7 +11,7 @@ JadeiteConsoleApplication >> start [
 	RowanServiceUpdater clearCurrent.
 	inst := self new: JadeiteConsole.
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession;
 		installTranscript;
 		updateProjects;

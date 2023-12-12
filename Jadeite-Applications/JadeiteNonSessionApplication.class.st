@@ -9,7 +9,7 @@ JadeiteNonSessionApplication >> start [
 
 	| inst |
 	inst := self new: JadeiteNonSessionWorkspace.
-	inst addStyle: 'jadedTextBackgroundColor'.
+	inst addStyle: 'jadeiteTextBackgroundColor'.
 	inst open.
 	^inst
 ]

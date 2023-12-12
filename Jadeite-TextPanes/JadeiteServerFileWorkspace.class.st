@@ -20,7 +20,7 @@ JadeiteServerFileWorkspace class >> showOnSession: aGciSession path: path [
 	inst := self new
 		        application:
 			        (JadeiteWorkspaceApplication new gciSession: aGciSession);
-		        addStyle: 'jadedTextBackgroundColor';
+		        addStyle: 'jadeiteTextBackgroundColor';
 		        gciSession: aGciSession;
 		        path: path;
 		        open;

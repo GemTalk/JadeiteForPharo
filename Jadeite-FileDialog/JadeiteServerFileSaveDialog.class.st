@@ -91,7 +91,7 @@ JadeiteServerFileSaveDialog >> initializeFileNamePresenter [
 	fileNamePresenter := SpTextPresenter new
 		                     beNotWrapWord;
 		                     withoutScrollBars.
-	fileNamePresenter addStyle: 'jadedTextBackgroundColor'.
+	fileNamePresenter addStyle: 'jadeiteTextBackgroundColor'.
 	self layout
 		add: fileNamePresenter
 		withConstraints: [ :c | c height: 30 ]

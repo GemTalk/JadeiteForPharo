@@ -10,7 +10,7 @@ JadeiteMethodListApplication >> start [
 	| inst |
 	inst := self new: JadeiteMethodListPresenter.
 	inst
-		addStyle: 'jadedTextBackgroundColor';
+		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession. 
 	^inst open; yourself
 ]
