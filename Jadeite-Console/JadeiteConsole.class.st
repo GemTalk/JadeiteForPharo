@@ -415,10 +415,15 @@ JadeiteConsole >> initializeHelpMenu [
 						  name: 'Rowan GitHub Project';
 						  action: [ self gotoRowanGitHubProject ] ] ];
 		  addGroup: [ :group |
-			  group addItem: [ :item |
-				  item
-					  name: 'About Jadeite';
-					  action: [ self openCommitIdWindow ] ] ];
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'About Jadeite';
+						  action: [ self openCommitIdWindow ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Jadeite Help';
+						  action: [ self openJadeiteHelpFile ] ] ];
 		  yourself
 ]
 
@@ -681,8 +686,8 @@ JadeiteConsole >> openGitHubRowanProject [
 
 { #category : 'as yet unclassified' }
 JadeiteConsole >> openJadeiteHelpFile [
-	^ShellLibrary default shellOpen: self jadeiteHelpFileName
-		directory: SessionManager current installationDirectory, 'Help\'
+
+	WebBrowser openOn: 'jadeitehelp.html'
 ]
 
 { #category : 'actions' }
