@@ -149,8 +149,19 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> gitProjectLog [
-	self projectListPresenter selection gitProjectLogUsing: self session: self gciSession
 
+	| queryService workspace |
+	queryService := RowanQueryService
+		                command: #projectLog:
+		                withArgs: (Array with: self selectedProjectName).
+	self issueCommand: queryService.
+	workspace := JadeiteWorkspaceApplication showOnSession:
+		             self gciSession library.
+	workspace setCaption:
+		'Jadeite Git Log for ' , self selectedProjectName.
+	workspace text: queryService answer.
+	workspace hasUnacceptedEdits: false.
+	^ workspace
 ]
 
 { #category : 'commands' }
@@ -357,6 +368,11 @@ JadeiteProjectsTrait >> reloadProject [
 	selections := self projectListPresenter selections.
 	(self confirmReloadProjects: selections) ifFalse: [ ^ self ].
 	self basicReloadProject: selections
+]
+
+{ #category : 'selections' }
+JadeiteProjectsTrait >> selectedProjectName [
+	^(self projectListPresenter selectionOrNil ifNil: [^nil]) name 
 ]
 
 { #category : 'commands' }

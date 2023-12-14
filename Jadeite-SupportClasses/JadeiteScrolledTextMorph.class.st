@@ -4,16 +4,21 @@ Class {
 	#category : 'Jadeite-SupportClasses'
 }
 
-{ #category : 'drawing' }
+{ #category : 'as yet unclassified' }
 JadeiteScrolledTextMorph >> drawOn: aCanvas [
 
-	super drawOn: aCanvas.
+	aCanvas fillRectangle: self bounds fillStyle: self fillStyle borderStyle: self borderStyle. "from super super drawOn:"
 	self hasUnacceptedEdits
-		ifTrue: [
-		aCanvas fillColor: JadeiteApplication changedTextBackgroundColor ]
+		ifTrue: [ "not sure why we can't just change the textArea bounds"
+		"	aCanvas
+				fillRectangle: self textArea bounds
+				color: (JadeiteApplication changedTextBackgroundColor alpha: 1.0)."
+			aCanvas fillColor: JadeiteApplication changedTextBackgroundColor ]
 		ifFalse: [
-		aCanvas fillColor: JadeiteApplication defaultBackgroundColor ].
-	self drawHighlightsOn: aCanvas
+			aCanvas
+				fillRectangle: self textArea bounds
+				color: (JadeiteApplication defaultBackgroundColor alpha: 1.0) ].
+	self drawHighlightsOn: aCanvas 
 ]
 
 { #category : 'model protocol' }

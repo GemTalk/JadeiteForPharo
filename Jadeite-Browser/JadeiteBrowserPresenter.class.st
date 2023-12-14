@@ -2986,11 +2986,6 @@ JadeiteBrowserPresenter >> selectedPackageServices [
 	^packageListPresenter selectedItems
 ]
 
-{ #category : 'selections' }
-JadeiteBrowserPresenter >> selectedProjectName [
-	^(projectListPresenter selectionOrNil ifNil: [^nil]) name
-]
-
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> setClassSide [
 
