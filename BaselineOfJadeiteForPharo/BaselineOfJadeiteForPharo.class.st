@@ -69,6 +69,8 @@ BaselineOfJadeiteForPharo >> pharoGemStoneFFIUrl [
 
 { #category : 'actions' }
 BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
+	"loader halted temporarily for analysis"
+	self halt. 
 ]
 
 { #category : 'baselines' }

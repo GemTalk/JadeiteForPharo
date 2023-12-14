@@ -108,7 +108,7 @@ JadeiteBrowserPresenter class >> projectMenuStrings [
 				checkoutTag;
 				checkout;
 				auditProject;
-				projectLog;
+				gitProjectLog;
 				refresh].
 	^#('Projects' 'Browse//openJadeiteProjectsBrowser' 'Create ...//createNewProject' 'Load ...//loadProject' 'Refresh From Disk //reloadProject' 'Unload//unloadProjects' '-' 'Pull from Git//pullFromGit' 'Commit to Git ...//gitCommit' 'Push to Git//pushToGit' '-' '&Changes//projectChanges' 'Write ...//writeProject' 'Checkout Git Tag ...//checkoutTag' 'Checkout Git Branch ...//checkout' '-' 'Edit Components//editComponents' 'Edit Load Spec From File ...//editLoadSpecFromFile' '-' 'Audit//auditProject' 'Git Log//projectLog' '&Refresh//refreshFromServer')
 ]
@@ -2336,12 +2336,6 @@ JadeiteBrowserPresenter >> projectInfoValueDisplay: array [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> projectLog [
-	projectListPresenter selection projectLogUsing: self session: gciSession
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectMenuCommands [
 	^self class projectMenu items collect: [:item | item command]
 ]
@@ -2375,24 +2369,6 @@ JadeiteBrowserPresenter >> projectTabLabel [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> protectedDictionaries [
 	^#('Published' 'Globals' 'UserGlobals')
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> pullFromGit [
-	| projectServices ws |
-	projectServices := projectListPresenter selections.
-	ws := WriteStream on: String new.
-	projectServices do: 
-			[:service |
-			ws
-				nextPutAll: service name;
-				space].
-	(MessageBox
-		confirm: 'It is recommended that you commit changes before doing a pulling projects - ' , ws contents
-				, ' -  from git. Really proceed?')
-			ifFalse: [^self].
-	projectServices do: [:service | service command: #pullFromGit].
-	self issueCommands: projectServices
 ]
 
 { #category : 'as yet unclassified' }

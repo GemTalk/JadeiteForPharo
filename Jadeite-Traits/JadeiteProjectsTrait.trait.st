@@ -147,6 +147,12 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 		'Project ' , projectName , ' committed to local repository!'
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> gitProjectLog [
+	self projectListPresenter selection gitProjectLogUsing: self session: self gciSession
+
+]
+
 { #category : 'commands' }
 JadeiteProjectsTrait >> gitWriteProject [
 
@@ -251,13 +257,21 @@ JadeiteProjectsTrait >> newProjectMenu [
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
+				name: 'Pull from Git';
+				action: [ self pullFromGit ] ];
+		 addItem: [ :item |
+			item
 				name: 'Commit to Git ...';
 				action: [ self gitCommit ];
-				enabled: [ self allSelectedProjectsDirty ] ].
-		group addItem: [ :item |
+				enabled: [ self allSelectedProjectsDirty ] ];
+		 addItem: [ :item |
 			item
 				name: 'Push to Git';
-				action: [ self pushToGit ] ] ].
+				action: [ self pushToGit ] ];
+			addItem: [ :item |
+			item
+				name: 'Git Log';
+				action: [ self gitProjectLog] ] ].
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
@@ -288,6 +302,24 @@ JadeiteProjectsTrait >> projectChanges [
 		application: self application.
 	changesBrowser owner application: self application.
 	^ changesBrowser
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> pullFromGit [
+	| projectServices ws |
+	projectServices := self projectListPresenter selections.
+	ws := WriteStream on: String new.
+	projectServices do: 
+			[:service |
+			ws
+				nextPutAll: service name;
+				space].
+	(MessageBox
+		confirm: 'It is recommended that you commit changes before doing a pulling projects - ' , ws contents
+				, ' -  from git. Really proceed?')
+			ifFalse: [^self].
+	projectServices do: [:service | service command: #pullFromGit].
+	self issueCommands: projectServices
 ]
 
 { #category : 'commands' }

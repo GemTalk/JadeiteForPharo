@@ -1611,7 +1611,7 @@ JadeiteProjectBrowserTestCase >> test_exitJadeiteInvalidSession [
 	sunitPresenter := transcript jadeBrowseTests.
 	workspace := projectsBrowser addWorkspace.
 	dictionaryBrowser := transcript openDictionaryBrowser.
-	log := self projectsPresenter projectLog.
+	log := self projectsPresenter gitProjectLog.
 	simpleInspector := JadeInspector showOn: (session
 						executeString: '123'
 						fromContext: nil
@@ -1658,7 +1658,7 @@ JadeiteProjectBrowserTestCase >> test_exitJadeiteValidSession [
 	sunitPresenter := transcript jadeBrowseTests.
 	workspace := projectsBrowser addWorkspace.
 	dictionaryBrowser := transcript openDictionaryBrowser.
-	log := self projectsPresenter projectLog.
+	log := self projectsPresenter gitProjectLog.
 	simpleInspector := JadeInspector showOn: (session
 						executeString: '123'
 						fromContext: nil

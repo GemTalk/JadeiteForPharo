@@ -250,6 +250,18 @@ RowanProjectService >> existsOnDisk [
 ]
 
 { #category : 'presenter support' }
+RowanProjectService >> gitProjectLogUsing: parentPresenter session: session [
+	| gitLog projectName queryService |
+	projectName := self name.
+	gitLog := JadeiteGitLog showOnSession: session.
+	gitLog projectService: self. 
+	gitLog caption: (parentPresenter gciSession titleBarFor: projectName , ' Project Git Log').
+	queryService := RowanQueryService command: #projectLog: withArgs: (Array with: projectName).
+	parentPresenter issueCommand: queryService.
+	gitLog codePane documentPresenter value: queryService queryResults
+]
+
+{ #category : 'presenter support' }
 RowanProjectService >> gitTags: session [
 	| query tags |
 	query := RowanQueryService new
