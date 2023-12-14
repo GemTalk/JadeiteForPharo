@@ -69,8 +69,26 @@ BaselineOfJadeiteForPharo >> pharoGemStoneFFIUrl [
 
 { #category : 'actions' }
 BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
-	"loader halted temporarily for analysis"
-	self halt. 
+	"assume JadeiteForPharo is loaded from a local directory"
+	
+	| description path  writeStream htmlReference cssReference html css|
+	description := packageSpec repositoriesSpec list first spec description.
+	path := description withoutPrefix:   'gitlocal://'.
+	writeStream := WriteStream on: String new.
+	html := 'jadeitehelp.html'.
+	css := 'jadeitehelp.css'.
+	writeStream nextPutAll: path;  
+	 nextPut: $/;
+	 nextPutAll: html.
+	htmlReference := FileReference fileSystem: FileSystem disk path: writeStream contents asPath. 
+	htmlReference copyTo: (FileReference fileSystem: FileSystem disk path: html asPath).
+	writeStream := WriteStream on: String new.
+	writeStream nextPutAll: path;  
+	 nextPut: $/;
+	 nextPutAll: css.
+	cssReference := FileReference fileSystem: FileSystem disk path: writeStream contents asPath. 
+	cssReference copyTo: (FileReference fileSystem: FileSystem disk path: css asPath).
+	
 ]
 
 { #category : 'baselines' }
