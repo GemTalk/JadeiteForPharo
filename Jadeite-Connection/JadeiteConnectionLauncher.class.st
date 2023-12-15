@@ -48,11 +48,10 @@ JadeiteConnectionLauncher >> addStyle: style [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> closeConnectionWindows [
+JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 
 	| connectedPresenters |
-	connection := connectionProfile connection.
-	connectedPresenters := self jadeiteWindowsFor: connection.
+	connectedPresenters := self jadeiteWindowsFor: theConnection.
 	connectedPresenters do: [ :presenter |
 		presenter window ifNotNil: [ :window | window close ] ]
 ]
@@ -85,8 +84,13 @@ JadeiteConnectionLauncher >> connect [
 JadeiteConnectionLauncher >> connectPresenters [
 
 	super connectPresenters.
-	connectButton whenActivatedDo: [ self enableButtons ].
-	disconnectButton whenActivatedDo: [ self enableButtons ].
+	"connectButton whenActivatedDo: [ self enableButtons ].
+	disconnectButton whenActivatedDo: [ self enableButtons ]."
+	connectionProfile whenConnectionChangedDo: [ :theConnection |
+		theConnection
+			ifNil: [ self closeWindowsForConnection: theConnection ]
+			ifNotNil: [ self class lastConnectionProfile: connectionProfile ].
+		self enableButtonsWithConnection: theConnection ]
 ]
 
 { #category : 'accessing' }
@@ -161,7 +165,7 @@ JadeiteConnectionLauncher >> displayClientandServerCommitIds: workspace [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> enableButtons [
+JadeiteConnectionLauncher >> enableButtonsWithConnection: anObject [
 
 	self connectionProfile ifNil: [ ^ self ].
 	connectButton enabled: self connectionProfile connection isNil.
@@ -174,11 +178,6 @@ JadeiteConnectionLauncher >> initialize [
 	super initialize.
 	connectionProfile := self class lastConnectionProfile copy ifNil: [
 		                     JadeiteGCIConnectionProfile new ].
-	connectionProfile whenConnectionChangedDo: [ :theConnection |
-		theConnection 
-			ifNil: [ self closeConnectionWindows ]
-			ifNotNil: [ self class lastConnectionProfile: connectionProfile ].
-		self enableButtons ].
 	self populateTextFields
 ]
 
@@ -212,7 +211,7 @@ JadeiteConnectionLauncher >> initializeButtons [
 			 constraints
 				 height: 30;
 				 padding: 10 ]).
-	self enableButtons
+	self enableButtonsWithConnection: nil
 ]
 
 { #category : 'initialization' }

@@ -55,8 +55,8 @@ JadeiteGCIConnectionProfile >> connect [
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
-		do: [ :ex |
-			^ JadeiteGciError signal: ex message ].
+		do: [ :ex |  self todo: 'is GciError the right error to signal?'.
+			^ GciError signal: ex message].
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
 	^ connection
