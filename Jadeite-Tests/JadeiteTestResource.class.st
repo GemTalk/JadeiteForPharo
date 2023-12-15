@@ -250,19 +250,11 @@ JadeiteTestResource >> logout [
 
 { #category : 'support' }
 JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
-	"closing the transcript will logout the session. don't commit"
 
-	"hopeful none, but just in case"
-
-	"should save to the remote 'C:\Users\ewinger\AppData\Roaming\JadeDefaultConnection.gss' file"
-
-	self todo:[userName ifNil: [^self].
-	forceClose
-		ifFalse: 
-			[GciSession current
-				ifNotNil: [:current | current isValidSession ifTrue: [userName = current userID ifTrue: [^self]]]].
-	self logout.
-	self loginAs: userName]
+	self todo: 'add userName connect/disconnect'.
+	forceClose ifTrue: [
+		JadeiteConnectionLauncher lastConnectionProfile disconnect.
+		JadeiteConnectionLauncher lastConnectionProfile connect ]
 ]
 
 { #category : 'support' }

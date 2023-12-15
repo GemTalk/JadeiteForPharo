@@ -1,9 +1,11 @@
 Class {
 	#name : 'JadeiteConnectionProfile',
 	#superclass : 'Object',
+	#traits : 'TObservable',
+	#classTraits : 'TObservable classTrait',
 	#instVars : [
-		'host',
-		'connection'
+		'#host => ObservableSlot',
+		'#connection => ObservableSlot'
 	],
 	#category : 'Jadeite-Connection'
 }
@@ -32,8 +34,21 @@ JadeiteConnectionProfile >> host: anObject [
 	host := anObject
 ]
 
+{ #category : 'initialization' }
+JadeiteConnectionProfile >> initialize [
+
+	self class initializeSlots: self.
+	super initialize.
+]
+
 { #category : 'testing' }
 JadeiteConnectionProfile >> isGciConnection [
 
 	^false
+]
+
+{ #category : 'events' }
+JadeiteConnectionProfile >> whenConnectionChangedDo: aBlock [
+
+	self property: #connection whenChangedDo: aBlock
 ]

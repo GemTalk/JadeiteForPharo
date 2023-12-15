@@ -997,7 +997,7 @@ JadeiteAbstractTestCase >> setUp [
 	super setUp.
 	user ifNil: [user := 'SystemUser'].
 	transcript := JadeiteTestResource current transcript.
-	self logoutThenLoginAs: user forceClose: false.
+	self logoutThenLoginAs: user forceClose: true. "temporarily logout and login before each test."
 	session := JadeiteTestResource current session.
 	transcript := JadeiteTestResource current transcript.
 	self setRemoteAutoCommit: false.

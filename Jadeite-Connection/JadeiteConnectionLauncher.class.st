@@ -63,11 +63,8 @@ JadeiteConnectionLauncher >> connect [
 	| shouldDebug |
 	self populateConnectionProfile.
 	[
-	[
 	connection := connectionProfile connect.
-	JadeiteConsoleApplication showOnSession: connection ] ensure: [
-		self class lastConnectionProfile: connectionProfile.
-		self enableButtons ] ]
+	JadeiteConsoleApplication showOnSession: connection ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -111,6 +108,12 @@ JadeiteConnectionLauncher >> connectionProfile [
 		  connectionProfile := JadeiteGCIConnectionProfile new ]
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> connectionProfile: anObject [ 
+
+	connectionProfile := anObject 
+]
+
 { #category : 'defaults' }
 JadeiteConnectionLauncher >> defaultHorizontalSpacing [
 
@@ -132,10 +135,7 @@ JadeiteConnectionLauncher >> defaultVerticalSpacing [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> disconnect [
 
-	[
-	self closeConnectionWindows.
-	connectionProfile disconnect.
-	self enableButtons ] ensure: [ connection := nil ]
+	[ connectionProfile disconnect ] ensure: [ connection := nil ]
 ]
 
 { #category : 'actions' }
@@ -174,7 +174,12 @@ JadeiteConnectionLauncher >> initialize [
 	super initialize.
 	connectionProfile := self class lastConnectionProfile copy ifNil: [
 		                     JadeiteGCIConnectionProfile new ].
-	self populateTextFields.
+	connectionProfile whenConnectionChangedDo: [ :theConnection |
+		theConnection 
+			ifNil: [ self closeConnectionWindows ]
+			ifNotNil: [ self class lastConnectionProfile: connectionProfile ].
+		self enableButtons ].
+	self populateTextFields
 ]
 
 { #category : 'initialization' }
