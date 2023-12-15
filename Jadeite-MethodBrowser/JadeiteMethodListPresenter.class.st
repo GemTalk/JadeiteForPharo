@@ -419,11 +419,10 @@ JadeiteMethodListPresenter >> selectMethodsFrom: classService [
 	| selections selectedMethods |
 	selections := OrderedCollection new.
 	selectedMethods := classService selectedMethods.
-	selectedMethods do: [ :methodService | 
+	selectedMethods do: [ :methodService |
 		| selection |
 		selection := methodListPresenter list
-			             detect: [ :svc | 
-			             svc selector == methodService selector ]
+			             detect: [ :svc | svc = methodService ]
 			             ifNone: [  ].
 		selection ifNotNil: [ :sel | selections add: sel ] ].
 	methodListPresenter selectItems: selections

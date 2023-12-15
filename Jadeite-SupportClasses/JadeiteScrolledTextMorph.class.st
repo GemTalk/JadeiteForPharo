@@ -10,7 +10,7 @@ JadeiteScrolledTextMorph >> drawOn: aCanvas [
 	aCanvas fillRectangle: self bounds fillStyle: self fillStyle borderStyle: self borderStyle. "from super super drawOn:"
 	self hasUnacceptedEdits
 		ifTrue: [ "not sure why we can't just change the textArea bounds"
-		"	aCanvas
+			"aCanvas
 				fillRectangle: self textArea bounds
 				color: (JadeiteApplication changedTextBackgroundColor alpha: 1.0)."
 			aCanvas fillColor: JadeiteApplication changedTextBackgroundColor ]
