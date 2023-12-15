@@ -581,11 +581,6 @@ RowanMethodService >> name [
 	^selector asString
 ]
 
-{ #category : 'accessing' }
-RowanMethodService >> name: aString [
-	name := aString asString
-]
-
 { #category : 'public' }
 RowanMethodService >> oop [
 

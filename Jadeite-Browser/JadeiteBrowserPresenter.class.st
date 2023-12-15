@@ -3592,7 +3592,7 @@ JadeiteBrowserPresenter >> updateProjects [
 		issueCommand: browserService
 		session: gciSession.
 	browserService projects ifNotNil: [ :projects |
-		projectListPresenter items: projects ]
+		projectListPresenter items: (self sortedProjectsFrom: projects) ]
 ]
 
 { #category : 'tab labels' }

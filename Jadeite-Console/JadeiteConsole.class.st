@@ -957,5 +957,5 @@ JadeiteConsole >> updateProjects [
 	browserService := RowanBrowserService new.
 	browserService command: #updateProjects.
 	RowanServiceUpdater current issueCommand: browserService  session: gciSession.
-	projectListPresenter items: browserService projects
+	projectListPresenter items: (self sortedProjectsFrom: browserService projects)
 ]

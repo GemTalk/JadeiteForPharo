@@ -1,6 +1,8 @@
 Class {
 	#name : 'RowanBrowserService',
 	#superclass : 'RowanService',
+	#traits : 'JadeiteUtilityTrait',
+	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#instVars : [
 		'projects',
 		'removedMethods',
@@ -158,7 +160,7 @@ RowanBrowserService >> projectsUpdate: presenter [
 	presenter model removeAll: removals.
 	self
 		updateList: presenter
-		whilePreservingSelections: projects
+		whilePreservingSelections: (self sortedProjectsFrom: projects)
 		browser: nil
 ]
 
@@ -174,7 +176,7 @@ RowanBrowserService >> projectsUpdate: presenter browser: browser [
 	presenter selections isEmpty ifTrue: [browser updateProjectPackages].
 	self
 		updateList: presenter
-		whilePreservingSelections: projects
+		whilePreservingSelections: (self sortedProjectsFrom: projects)
 		browser: browser.
 	browser refreshProjectInfoTab
 ]

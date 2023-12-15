@@ -25,7 +25,8 @@ JadeiteBrowser >> activePresenter [
 JadeiteBrowser >> addStyle: aString [
 	super addStyle: aString. 
 	self cards do:[:notebookPage |
-		notebookPage activePresenter addStyle: aString ]
+		notebookPage activePresenter ifNotNil: [ :presenter |
+		presenter addStyle: aString ]]
 ]
 
 { #category : 'commands' }

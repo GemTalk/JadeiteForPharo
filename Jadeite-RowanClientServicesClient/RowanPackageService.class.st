@@ -320,13 +320,13 @@ RowanPackageService >> testClasses: presenter browser: browser [
 ]
 
 { #category : 'private' }
-RowanPackageService >> updateList: presenter whilePreservingSelections: updates browser: browser [
+RowanPackageService >> updateList: presenter whilePreservingSelections: theUpdates browser: browser [
 	| replicate |
 	presenter list do: 
 			[:service |
-			replicate := updates at: service ifAbsent: [].
+			replicate := theUpdates at: service ifAbsent: [].
 			replicate notNil ifTrue: [service replicateFrom: replicate]].
-	updates keysDo: 
+	theUpdates keysDo: 
 			[:update |
 			| existing |
 			existing := presenter model detect: [:service | service name = update name] ifNone: [].

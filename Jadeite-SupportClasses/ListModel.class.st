@@ -1,6 +1,8 @@
 Class {
 	#name : 'ListModel',
 	#superclass : 'SpCollectionListModel',
+	#traits : 'JadeiteUtilityTrait',
+	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#category : 'Jadeite-SupportClasses'
 }
 
@@ -49,7 +51,7 @@ ListModel >> at: anIndex [
 { #category : 'converting' }
 ListModel >> beSorted [
 
-	self collection: self collection sorted 
+	self collection: (self sortedProjectsFrom: collection)
 ]
 
 { #category : 'enumerating' }

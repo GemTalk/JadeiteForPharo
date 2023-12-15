@@ -1,5 +1,7 @@
 Trait {
 	#name : 'JadeiteProjectsTrait',
+	#traits : 'JadeiteUtilityTrait',
+	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#category : 'Jadeite-Traits'
 }
 
