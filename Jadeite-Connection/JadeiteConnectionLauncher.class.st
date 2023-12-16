@@ -15,7 +15,7 @@ Class {
 		'connectButton',
 		'disconnectButton',
 		'setPathButton',
-		'connection'
+		'lastConnection'
 	],
 	#classVars : [
 		'LastConnectionProfile'
@@ -62,8 +62,8 @@ JadeiteConnectionLauncher >> connect [
 	| shouldDebug |
 	self populateConnectionProfile.
 	[
-	connection := connectionProfile connect.
-	JadeiteConsoleApplication showOnSession: connection ]
+	connectionProfile connect.
+	JadeiteConsoleApplication showOnSession: lastConnection ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -88,28 +88,16 @@ JadeiteConnectionLauncher >> connectPresenters [
 	disconnectButton whenActivatedDo: [ self enableButtons ]."
 	connectionProfile whenConnectionChangedDo: [ :theConnection |
 		theConnection
-			ifNil: [ self closeWindowsForConnection: theConnection ]
+			ifNil: [ self closeWindowsForConnection: lastConnection ]
 			ifNotNil: [ self class lastConnectionProfile: connectionProfile ].
-		self enableButtonsWithConnection: theConnection ]
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher >> connection [
-
-	^ connection
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher >> connection: anObject [
-
-	^ connection := anObject
+		self enableButtonsWithConnection: nil.
+		lastConnection := theConnection ]
 ]
 
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> connectionProfile [
 
-	^ connectionProfile ifNil: [
-		  connectionProfile := JadeiteGCIConnectionProfile new ]
+	^ connectionProfile
 ]
 
 { #category : 'accessing' }
@@ -139,7 +127,7 @@ JadeiteConnectionLauncher >> defaultVerticalSpacing [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> disconnect [
 
-	[ connectionProfile disconnect ] ensure: [ connection := nil ]
+	connectionProfile disconnect
 ]
 
 { #category : 'actions' }
@@ -170,15 +158,6 @@ JadeiteConnectionLauncher >> enableButtonsWithConnection: anObject [
 	self connectionProfile ifNil: [ ^ self ].
 	connectButton enabled: self connectionProfile connection isNil.
 	disconnectButton enabled: self connectionProfile connection notNil
-]
-
-{ #category : 'initialization' }
-JadeiteConnectionLauncher >> initialize [
-
-	super initialize.
-	connectionProfile := self class lastConnectionProfile copy ifNil: [
-		                     JadeiteGCIConnectionProfile new ].
-	self populateTextFields
 ]
 
 { #category : 'initialization' }
@@ -284,6 +263,15 @@ JadeiteConnectionLauncher >> initializePathPresenter [
 	self layout
 		add: pathText
 		withConstraints: [ :constraints | constraints height: 30 ]
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initializePresenter [
+	super initializePresenter. 
+	connectionProfile := self class lastConnectionProfile copy ifNil: [
+		                     JadeiteGCIConnectionProfile new ].
+	self populateTextFields.
+	self enableButtonsWithConnection: nil. 
 ]
 
 { #category : 'initialization' }
