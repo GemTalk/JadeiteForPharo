@@ -61,9 +61,7 @@ JadeiteConnectionLauncher >> connect [
 
 	| shouldDebug |
 	self populateConnectionProfile.
-	[
-	connectionProfile connect.
-	JadeiteConsoleApplication showOnSession: lastConnection ]
+	[ connectionProfile connect ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -84,12 +82,12 @@ JadeiteConnectionLauncher >> connect [
 JadeiteConnectionLauncher >> connectPresenters [
 
 	super connectPresenters.
-	"connectButton whenActivatedDo: [ self enableButtons ].
-	disconnectButton whenActivatedDo: [ self enableButtons ]."
 	connectionProfile whenConnectionChangedDo: [ :theConnection |
 		theConnection
 			ifNil: [ self closeWindowsForConnection: lastConnection ]
-			ifNotNil: [ self class lastConnectionProfile: connectionProfile ].
+			ifNotNil: [
+				self class lastConnectionProfile: connectionProfile.
+				JadeiteConsoleApplication showOnSession: theConnection ].
 		self enableButtonsWithConnection: nil.
 		lastConnection := theConnection ]
 ]
