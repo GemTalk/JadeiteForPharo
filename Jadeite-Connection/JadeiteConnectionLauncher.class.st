@@ -88,7 +88,7 @@ JadeiteConnectionLauncher >> connectPresenters [
 			ifNotNil: [
 				self class lastConnectionProfile: connectionProfile.
 				JadeiteConsoleApplication showOnSession: theConnection ].
-		self enableButtonsWithConnection: nil.
+		self enableButtons.
 		lastConnection := theConnection ]
 ]
 
@@ -151,7 +151,7 @@ JadeiteConnectionLauncher >> displayClientandServerCommitIds: workspace [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> enableButtonsWithConnection: anObject [
+JadeiteConnectionLauncher >> enableButtons [
 
 	self connectionProfile ifNil: [ ^ self ].
 	connectButton enabled: self connectionProfile connection isNil.
@@ -188,7 +188,7 @@ JadeiteConnectionLauncher >> initializeButtons [
 			 constraints
 				 height: 30;
 				 padding: 10 ]).
-	self enableButtonsWithConnection: nil
+	self enableButtons
 ]
 
 { #category : 'initialization' }
@@ -269,7 +269,7 @@ JadeiteConnectionLauncher >> initializePresenter [
 	connectionProfile := self class lastConnectionProfile copy ifNil: [
 		                     JadeiteGCIConnectionProfile new ].
 	self populateTextFields.
-	self enableButtonsWithConnection: nil. 
+	self enableButtons
 ]
 
 { #category : 'initialization' }

@@ -287,7 +287,7 @@ JadeiteTestResource >> projectsBrowser: anObject [
 { #category : 'support' }
 JadeiteTestResource >> projectsPresenter [
 
-	^ projectsBrowser tabs currentCard retrievePresenter
+	^ projectsBrowser tabs currentCard activePresenter
 ]
 
 { #category : 'updates' }
@@ -396,7 +396,7 @@ JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 JadeiteTestResource >> tearDown [
 
 	super tearDown.
-	self logoutThenLoginAs: 'SystemUser' forceClose: false.
+	"self logoutThenLoginAs: 'SystemUser' forceClose: false."
 	projectsBrowser ifNil: [ ^ self ].
 	(self projectsPresenter projectListPresenter list
 		 detect: [ :service | service name = self sampleProject1Name ]
