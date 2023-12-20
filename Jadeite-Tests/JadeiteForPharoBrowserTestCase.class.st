@@ -34,11 +34,13 @@ JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
 
 { #category : 'support' }
 JadeiteForPharoBrowserTestCase >> openSecondBrowser [
-	secondBrowser := JadeiteTestResource current openWindow: [self transcript openBrowser].
+
+	secondBrowser := self testResourceClass current openWindow: [
+		                 self transcript openBrowser ].
 	secondBrowser caption: 'second browser'.
 	secondPresenter := secondBrowser currentCard.
 	secondPresenter selectClassListTab.
-	^secondBrowser
+	^ secondBrowser
 ]
 
 { #category : 'support' }
@@ -422,6 +424,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentReset [
 { #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 	"also tests that abort restores original comment from class service"
+
 	| originalComment |
 	self
 		testsJadeiteForPharoIssue: #issue49
@@ -448,7 +451,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 	self
 		assert: self projectsPresenter selectedClass comment
 		equals: originalComment ] ensure: [
-		JadeiteTestResource current unloadSampleProject1.
+		self testResourceClass current unloadSampleProject1.
 		self commitTransaction.
 		self ensureRowanSampleProjectsLoaded ]
 ]
@@ -744,7 +747,7 @@ JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 	self
 		assert: projects
 		equals: projects asSortedCollection asOrderedCollection ] ensure: [
-		JadeiteTestResource current
+		self testResourceClass current
 			tearDown;
 			"reset the world after abort. Need to improve this. "setUp ]
 ]
@@ -768,7 +771,7 @@ JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
 	projectsAfter := self projectList collect: [ :projectService |
 		                 projectService name ].
 	self assert: projectsBefore equals: projectsAfter ] ensure: [
-		JadeiteTestResource current
+		self testResourceClass current
 			tearDown;
 			"reset the world after abort. Need to improve this. "setUp ]
 ]

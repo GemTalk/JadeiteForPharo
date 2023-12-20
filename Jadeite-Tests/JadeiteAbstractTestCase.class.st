@@ -18,7 +18,13 @@ JadeiteAbstractTestCase class >> isAbstract [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase class >> resources [
-	^IdentitySet with: JadeiteTestResource
+	^IdentitySet with: self testResourceClass
+]
+
+{ #category : 'accessing' }
+JadeiteAbstractTestCase class >> testResourceClass [
+
+	^JadeiteTestResource
 ]
 
 { #category : 'as yet unclassified' }
@@ -141,7 +147,8 @@ JadeiteAbstractTestCase >> clearBreakAt: anInteger [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> cloneRowanSample1 [
-	JadeiteTestResource current cloneRowanSample1
+
+	self testResourceClass current cloneRowanSample1
 ]
 
 { #category : 'as yet unclassified' }
@@ -266,7 +273,8 @@ JadeiteAbstractTestCase >> disableBreakpoints [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> disableInteractionsWhile: block [
-	^JadeiteTestResource current disableInteractionsWhile: block
+
+	^ self testResourceClass current disableInteractionsWhile: block
 ]
 
 { #category : 'as yet unclassified' }
@@ -284,18 +292,21 @@ JadeiteAbstractTestCase >> ensureOneTab [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoaded [
-	JadeiteTestResource current unloadSampleProject1.
-	JadeiteTestResource current unloadSampleProject9.
-	session commit. 
-	JadeiteTestResource current ensureRowanSampleProjectsLoaded
+
+	self testResourceClass current unloadSampleProject1.
+	self testResourceClass current unloadSampleProject9.
+	session commit.
+	self testResourceClass current ensureRowanSampleProjectsLoaded
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoadedFromDisk [
-	JadeiteTestResource current unloadSampleProject1.
-	JadeiteTestResource current unloadSampleProject9.
-	session commit. 
-	JadeiteTestResource current ensureRowanSampleProjectsLoadedFromDisk
+
+	self testResourceClass current unloadSampleProject1.
+	self testResourceClass current unloadSampleProject9.
+	session commit.
+	self testResourceClass current
+		ensureRowanSampleProjectsLoadedFromDisk
 ]
 
 { #category : 'as yet unclassified' }
@@ -431,8 +442,11 @@ JadeiteAbstractTestCase >> logoutOtherSession [
 
 { #category : 'support' }
 JadeiteAbstractTestCase >> logoutThenLoginAs: theUser forceClose: aBoolean [
-	JadeiteTestResource current logoutThenLoginAs: theUser forceClose: aBoolean.
-	jadeiteShell := JadeiteTestResource current jadeiteShell. 
+
+	self testResourceClass current
+		logoutThenLoginAs: theUser
+		forceClose: aBoolean.
+	jadeiteShell := self testResourceClass current jadeiteShell
 ]
 
 { #category : 'as yet unclassified' }
@@ -603,7 +617,8 @@ JadeiteAbstractTestCase >> sampleClassName [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> sampleProject1Name [
-	^JadeiteTestResource sampleProject1Name
+
+	^ self testResourceClass sampleProject1Name
 ]
 
 { #category : 'as yet unclassified' }
@@ -994,29 +1009,29 @@ JadeiteAbstractTestCase >> setRemoteAutoCommit: aBoolean [
 
 { #category : 'support' }
 JadeiteAbstractTestCase >> setUp [
+
 	super setUp.
-	user ifNil: [user := 'SystemUser'].
-	transcript := JadeiteTestResource current transcript.
+	user ifNil: [ user := 'SystemUser' ].
+	transcript := self testResourceClass current transcript.
 	self logoutThenLoginAs: user forceClose: true. "temporarily logout and login before each test."
-	session := JadeiteTestResource current session.
-	transcript := JadeiteTestResource current transcript.
+	session := self testResourceClass current session.
+	transcript := self testResourceClass current transcript.
 	self setRemoteAutoCommit: false.
-	self switchTransactionModeTo: #autoBegin.	"Ensure tests start with transaction mode that is predictable - most tests assume #autoBegin"
+	self switchTransactionModeTo: #autoBegin. "Ensure tests start with transaction mode that is predictable - most tests assume #autoBegin"
 	self ensureRowanSampleProjectsLoaded.
-	JadeiteLoginShell allInstances size > 1
-		ifTrue: 
-			["Running tests will not stop on assert. (Debugging tests does) Need to do a hard halt to determine how a test can login as the wrong user"
-			RsrGarbageCollector maximumReclamation.
-			"(Delay forMilliseconds: 1000) wait.	give it a second to cleanup
+	JadeiteLoginShell allInstances size > 1 ifTrue: [ "Running tests will not stop on assert. (Debugging tests does) Need to do a hard halt to determine how a test can login as the wrong user"
+		RsrGarbageCollector maximumReclamation
+		"(Delay forMilliseconds: 1000) wait.	give it a second to cleanup
 			MemoryManager current collectGarbage"
-			"Taking this check out.  Although we still are tripping over multiple login windows, they are going away so it should no longer be a problem.- Famous last words. 
+		"Taking this check out.  Although we still are tripping over multiple login windows, they are going away so it should no longer be a problem.- Famous last words. 
 			JadeiteLoginShell allInstances size > 1
-				ifTrue: [self haltTestForHardToCatchErrors: 'Multiple JadeiteLoginShells found']"]
+				ifTrue: [self haltTestForHardToCatchErrors: 'Multiple JadeiteLoginShells found']" ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> setupProjectBrowser [
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self ensureOneTab.
 	self selectClassListTab.
 	self selectInstanceSide.
@@ -1058,7 +1073,14 @@ sessionsToStop do:[:i | System stopSession: i]'
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> switchTransactionModeTo: aSymbol [
-	self todo:[JadeiteTestResource current switchTransactionModeTo: aSymbol]
+
+	self todo: [
+		self testResourceClass current switchTransactionModeTo: aSymbol ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> testResourceClass [
+	^ self class testResourceClass
 ]
 
 { #category : 'as yet unclassified' }
@@ -1125,7 +1147,7 @@ JadeiteAbstractTestCase >> transcriptTab [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> unloadSampleProject1 [
 
-	JadeiteTestResource current unloadSampleProject1 
+	self testResourceClass current unloadSampleProject1
 ]
 
 { #category : 'as yet unclassified' }

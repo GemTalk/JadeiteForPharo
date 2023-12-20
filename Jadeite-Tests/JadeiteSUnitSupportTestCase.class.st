@@ -119,35 +119,39 @@ JadeiteSUnitSupportTestCase >> setupAbstractSuperWithTest [
 	"setup abstract super class with single test + 2 subclasses"
 
 	| source |
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'JadeiteTest'
 		superclass: 'TestCase'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
 	self selectServiceNamed: 'JadeiteTest' in: self classListPresenter.
 	self projectsPresenter selectClassTab.
 	source := 'isAbstract
 		^self name = #JadeiteTest'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
 	self selectInstanceSide.
 	source := 'test_className
 		"fail in one subclass only" 
 		self assert: self class name = #JadeiteTestSubclass1'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
 	self
 		saveClass: 'JadeiteTestSubclass1'
 		superclass: 'JadeiteTest'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self
 		saveClass: 'JadeiteTestSubclass2'
 		superclass: 'JadeiteTest'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'
 ]
 
@@ -296,32 +300,44 @@ JadeiteSUnitSupportTestCase >> test_abstractTestAppearsOnlyInSubclasses [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_addNewNonTestClassDoesNotGetAdded [
-	self testsIssue: #issue879 withTitle: 'Removing class does not remove class from sunit browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
+
+	self
+		testsIssue: #issue879
+		withTitle: 'Removing class does not remove class from sunit browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self denyClassInList: 'NewSubclass'.
 	self
 		saveClass: 'NewNonTestClass'
-		withInstVars: #('abc')
+		withInstVars: #( 'abc' )
 		package: 'RowanSample1-Tests'.
-	[self denyClassInList: 'NewSubclass']
-		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass].
+	[ self denyClassInList: 'NewSubclass' ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ].
 	self denyClassInList: 'NewSubclass'
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_addNewTestClass [
-	self testsIssue: #issue879 withTitle: 'Removing class does not remove class from sunit browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
+
+	self
+		testsIssue: #issue879
+		withTitle: 'Removing class does not remove class from sunit browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
-	[self assertClassInList: 'NewSubclass']
-		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass].
+	[ self assertClassInList: 'NewSubclass' ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -330,43 +346,47 @@ JadeiteSUnitSupportTestCase >> test_addNewTestPackage [
 	"test package should show up when test method is added"
 
 	| packageName className methodService |
-	"doesn't matter which component for test"
-
-	"don't pick a symbol list so default symbol list is used"
+	"doesn't matter which component for test""don't pick a symbol list so default symbol list is used"
 	packageName := 'AddedPackage'.
 	className := 'AddedTestClass'.
 	self denyClassInList: className.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
 	self addPackageNamed: packageName.
-	
-	[| classService1 |
-	self denyPackageInList: packageName.	"not added until method is created"
+
+	[
+	| classService1 |
+	self denyPackageInList: packageName. "not added until method is created"
 	self
 		saveClass: className
 		superclass: 'TestCase'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: packageName.
-	self denyPackageInList: packageName.	"not added until method is created"
+	self denyPackageInList: packageName. "not added until method is created"
 	classService1 := RowanClassService named: className.
 	classService1
 		saveMethod: 'test_blah'
 		category: 'tests'
 		session: session.
 	self assertPackageInList: packageName.
-	self selectServiceNamed: packageName in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: packageName
+		in: self sunitPresenter packageListPresenter.
 	self assertClassInList: className.
-	self selectServiceNamed: className in: self sunitPresenter classListPresenter.
+	self
+		selectServiceNamed: className
+		in: self sunitPresenter classListPresenter.
 	methodService := self sunitPresenter methodListPresenter list
-				detect: [:svc | svc selector = #test_blah]
-				ifNone: [].
+		                 detect: [ :svc | svc selector = #test_blah ]
+		                 ifNone: [  ].
 	self assert: methodService selector equals: #test_blah.
-	self assert: self sunitPresenter methodListPresenter list size equals: 1]
-			ensure: 
-				[self abortTransaction.
-				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: 1 ] ensure: [
+		self abortTransaction.
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -402,15 +422,21 @@ JadeiteSUnitSupportTestCase >> test_addPackageReloadProject [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_addRemoveTestClass [
-	self testsIssue: #issue879 withTitle: 'Removing class does not remove class from sunit browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
+
+	self
+		testsIssue: #issue879
+		withTitle: 'Removing class does not remove class from sunit browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
-	[self assertClassInList: 'NewSubclass']
-		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass].
+	[ self assertClassInList: 'NewSubclass' ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -568,141 +594,226 @@ JadeiteSUnitSupportTestCase >> test_debugWithDifferentSelectedClasses [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_dontAddClassWhenPackageNotSelected [
+
 	| classesSize |
-	self testsIssue: #issue376
-		withTitle: 'SUnit browser updated with lists of classes without updating the package selection (3.1pr4)'.
-	self assert: sunitBrowser primaryPresenter classListPresenter selections isEmpty.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue376
+		withTitle:
+		'SUnit browser updated with lists of classes without updating the package selection (3.1pr4)'.
+	self assert:
+		sunitBrowser primaryPresenter classListPresenter selections isEmpty.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
-	self selectServiceNamed: 'test1' in: self projectsPresenter methodListPresenter.
+	self
+		selectServiceNamed: 'test1'
+		in: self projectsPresenter methodListPresenter.
 	self
 		saveMethod: 'test_method'
 		in: 'RowanSample1Test'
 		category: 'other'.
-	self assert: sunitBrowser primaryPresenter classListPresenter selections isEmpty.
+	self assert:
+		sunitBrowser primaryPresenter classListPresenter selections isEmpty.
 	self projectsPresenter removeMethodSelector: #test_method.
-	self assert: sunitBrowser primaryPresenter classListPresenter selections isEmpty.
-	sunitBrowser primaryPresenter selectPackageNamed: 'Rowan-Services-Tests'.
-	classesSize := sunitBrowser primaryPresenter classListPresenter list size.
+	self assert:
+		sunitBrowser primaryPresenter classListPresenter selections isEmpty.
+	sunitBrowser primaryPresenter selectPackageNamed:
+		'Rowan-Services-Tests'.
+	classesSize := sunitBrowser primaryPresenter classListPresenter list
+		               size.
 	self assert: classesSize > 0.
 	self
 		saveMethod: 'test_method'
 		in: 'RowanSample1Test'
 		category: 'other'.
-	self assert: sunitBrowser primaryPresenter classListPresenter list size = classesSize.
+	self assert:
+		sunitBrowser primaryPresenter classListPresenter list size
+		= classesSize.
 	self projectsPresenter removeMethodSelector: #test_method.
-	self assert: sunitBrowser primaryPresenter classListPresenter list size = classesSize
+	self assert:
+		sunitBrowser primaryPresenter classListPresenter list size
+		= classesSize
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_dontChangeTabs [
+
 	| methodService |
-	self testsIssue: #issue405 withTitle: 'SUnit select class flips sunit pane in PB to the method'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue405
+		withTitle: 'SUnit select class flips sunit pane in PB to the method'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	methodService := self projectsPresenter methodListPresenter list
-				detect: [:svc | svc selector = #test1].
+		                 detect: [ :svc | svc selector = #test1 ].
 	self projectsPresenter methodListPresenter selection: methodService.
 	self projectsPresenter selectSUnitTab.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
 	self assert: self projectsPresenter textAreaTabs currentCard
-				= (self projectsPresenter view viewNamed: 'sunit')
+		= (self projectsPresenter view viewNamed: 'sunit')
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_dontClearResults [
-	self testsIssue: #issue410
-		withTitle: 'Selecting class in Project Browser changes test status icons in SUnit Browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	self assert: self sunitPresenter methodListPresenter list size equals: 4.
+
+	self
+		testsIssue: #issue410
+		withTitle:
+		'Selecting class in Project Browser changes test status icons in SUnit Browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: 4.
 	self selectSUnitBrowserMethodNamed: #test1.
 	self sunitPresenter runSelected.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: self sunitPresenter methodListPresenter selections first selector equals: #test1.
-	self assert: self sunitPresenter methodListPresenter selections first testResult equals: 'passed'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
+	self
+		assert:
+		self sunitPresenter methodListPresenter selections first selector
+		equals: #test1.
+	self
+		assert:
+		self sunitPresenter methodListPresenter selections first testResult
+		equals: 'passed'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectMethodNamed: #test1.
-	self assert: self methodListPresenter selections first selector equals: #test1.
-	self assert: self sunitPresenter methodListPresenter selections first selector equals: #test1.
-	self assert: self sunitPresenter methodListPresenter selections first testResult equals: 'passed'
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #test1.
+	self
+		assert:
+		self sunitPresenter methodListPresenter selections first selector
+		equals: #test1.
+	self
+		assert:
+		self sunitPresenter methodListPresenter selections first testResult
+		equals: 'passed'
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_extensionOnlyTestClassVisible [
-	self testsIssue: #issue376
-		withTitle: 'SUnit browser updated with lists of classes without updating the package selection (3.1pr4)'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+
+	self
+		testsIssue: #issue376
+		withTitle:
+		'SUnit browser updated with lists of classes without updating the package selection (3.1pr4)'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
-	self projectsPresenter methodListPresenter
-		selections: self projectsPresenter methodListPresenter list.
-	self projectsPresenter removeMethods: self projectsPresenter classListPresenter selections.
+	self projectsPresenter methodListPresenter selections:
+		self projectsPresenter methodListPresenter list.
+	self projectsPresenter removeMethods:
+		self projectsPresenter classListPresenter selections.
 	self assert: self methodListPresenter list isEmpty.
 	self
 		saveMethod: 'test_extension'
 		in: 'RowanSample1Test'
 		category: '*RowanSample1-Extensions'.
-	self selectServiceNamed: 'RowanSample1-Extensions'
+	self
+		selectServiceNamed: 'RowanSample1-Extensions'
 		in: sunitBrowser primaryPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: sunitBrowser primaryPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: sunitBrowser primaryPresenter classListPresenter.
 	self assert: self methodListPresenter list size equals: 1.
-	self assert: self methodListPresenter list first selector equals: #test_extension
+	self
+		assert: self methodListPresenter list first selector
+		equals: #test_extension
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_extensionTestShowsUpInSUnitBrowser [
+
 	| source |
-	self testsIssue: #issue378
-		withTitle: '(3.0.53) test class not defined in package shows up in package of SUnit browser'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue378
+		withTitle:
+		'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'TestTestClass'
 		superclass: 'TestCase'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
-	
-	[self projectsPresenter basicAddMethodCategory: '*rowansample1-core'.	"will put method in RowanSample1-Core package"
+
+	[
+	self projectsPresenter basicAddMethodCategory: '*rowansample1-core'. "will put method in RowanSample1-Core package"
 	source := 'test_inExtensionMethod  
 		| aaa | 
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self projectsPresenter methodListPresenter selections first isExtension.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self assert:
+		self projectsPresenter methodListPresenter selections first
+			isExtension.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
 	self denyIsNil: (self classListPresenter list
-				detect: [:classService | classService name = 'TestTestClass']
-				ifNone: []).
-	self selectServiceNamed: 'TestTestClass' in: self sunitPresenter classListPresenter.
+			 detect: [ :classService | classService name = 'TestTestClass' ]
+			 ifNone: [  ]).
+	self
+		selectServiceNamed: 'TestTestClass'
+		in: self sunitPresenter classListPresenter.
 	self denyIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #test_inExtensionMethod]
-				ifNone: [])]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+			 detect: [ :methodService |
+			 methodService selector = #test_inExtensionMethod ]
+			 ifNone: [  ]) ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_extensionTestsShowUpInExtensionAndDefinedPackages [
-	self testsIssue: #issue378
-		withTitle: '(3.0.53) test class not defined in package shows up in package of SUnit browser'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+
+	self
+		testsIssue: #issue378
+		withTitle:
+		'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveMethod: 'test_extension'
 		in: 'RowanSample1Test'
 		category: '*RowanSample1-Extensions'.
-	self selectServiceNamed: 'RowanSample1-Extensions'
+	self
+		selectServiceNamed: 'RowanSample1-Extensions'
 		in: sunitBrowser primaryPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: sunitBrowser primaryPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: sunitBrowser primaryPresenter classListPresenter.
 	self assert: self methodListPresenter list size equals: 5.
-	self assert: self methodListPresenter list first selector equals: #test_extension.
-	self assert: self methodListPresenter list second selector equals: #test1.
-	self selectServiceNamed: 'RowanSample1-Tests' in: sunitBrowser primaryPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: sunitBrowser primaryPresenter classListPresenter.
+	self
+		assert: self methodListPresenter list first selector
+		equals: #test_extension.
+	self
+		assert: self methodListPresenter list second selector
+		equals: #test1.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: sunitBrowser primaryPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: sunitBrowser primaryPresenter classListPresenter.
 	self assert: self methodListPresenter list size equals: 5.
-	self assert: self methodListPresenter list first selector equals: #test_extension.
-	self assert: self methodListPresenter list second selector equals: #test1
+	self
+		assert: self methodListPresenter list first selector
+		equals: #test_extension.
+	self
+		assert: self methodListPresenter list second selector
+		equals: #test1
 ]
 
 { #category : 'as yet unclassified' }
@@ -1006,12 +1117,15 @@ JadeiteSUnitSupportTestCase >> test_packageRemovedOnClassRemoval [
 	in a test package, make sure the test package
 	disappears from the sunit browser"
 
-	self testsIssue: #issue378
-		withTitle: '(3.0.53) test class not defined in package shows up in package of SUnit browser'.
+	self
+		testsIssue: #issue378
+		withTitle:
+		'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
 	self assertPackageInList: 'RowanSample1-Tests'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
-	self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+	self projectsPresenter basicRemoveClass:
+		self projectsPresenter selectedClass.
 	self assert: self projectsPresenter classListPresenter list isEmpty.
 	self denyPackageInList: 'RowanSample1-Tests'
 ]
@@ -1071,28 +1185,46 @@ JadeiteSUnitSupportTestCase >> test_projectBrowserTestRunningMenuItemEnablement 
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_refresh [
+
 	| source newMethod |
-	self testsIssue: #issue279 withTitle: 'Sunit browser refresh, auto or manual'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	self assert: self sunitPresenter methodListPresenter list size equals: 4.
+	self
+		testsIssue: #issue279
+		withTitle: 'Sunit browser refresh, auto or manual'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: 4.
 	newMethod := self sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector == #testMethod]
-				ifNone: [].
+		             detect: [ :methodService |
+		             methodService selector == #testMethod ]
+		             ifNone: [  ].
 	self assertIsNil: newMethod.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self classListPresenter.
 	source := 'testMethod  
 		self assert: true'.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self projectsPresenter classListPresenter selection.
+	self projectsPresenter editSaveMethod:
+		self projectsPresenter classListPresenter selection.
 	newMethod := self sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector == #testMethod]
-				ifNone: [].
+		             detect: [ :methodService |
+		             methodService selector == #testMethod ]
+		             ifNone: [  ].
 	self denyIsNil: newMethod.
-	self assert: self sunitPresenter methodListPresenter list size equals: 5
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: 5
 ]
 
 { #category : 'as yet unclassified' }
@@ -1110,15 +1242,21 @@ JadeiteSUnitSupportTestCase >> test_registeredPresentersInSUnitBrowserCleanedUp 
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_removeTestClass [
-	self testsIssue: #issue879 withTitle: 'Removing class does not remove class from sunit browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
+
+	self
+		testsIssue: #issue879
+		withTitle: 'Removing class does not remove class from sunit browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
-	[self assertClassInList: 'NewSubclass']
-		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass].
+	[ self assertClassInList: 'NewSubclass' ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -1186,77 +1324,116 @@ JadeiteSUnitSupportTestCase >> test_runClassTests [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sameSelectorInheritedTests [
+
 	| source superMethodService subMethodService |
-	self testsIssue: #issue755
-		withTitle: 'SUnit browser runs test in abstract test class if more than one test class selected'.
-	self testsIssue: #issue756
-		withTitle: 'SUnit Browser does not handle duplicated test method selectors well'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue755
+		withTitle:
+		'SUnit browser runs test in abstract test class if more than one test class selected'.
+	self
+		testsIssue: #issue756
+		withTitle:
+		'SUnit Browser does not handle duplicated test method selectors well'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'RowanSample1TestSubclass'
 		superclass: 'RowanSample1Test'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
-	self selectServiceNamed: 'RowanSample1TestSubclass' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1TestSubclass'
+		in: self classListPresenter.
 	source := 'test1
 		"same selector as superclass"
 		self assert: false'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServicesNamed: #('RowanSample1Test' 'RowanSample1TestSubclass')
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServicesNamed:
+		#( 'RowanSample1Test' 'RowanSample1TestSubclass' )
 		in: self sunitPresenter classListPresenter.
 	superMethodService := self sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector = #test1 and: [methodService className = 'RowanSample1Test']]
-				ifNone: [].
+		                      detect: [ :methodService |
+			                      methodService selector = #test1 and: [
+				                      methodService className = 'RowanSample1Test' ] ]
+		                      ifNone: [  ].
 	self denyIsNil: superMethodService.
 	subMethodService := self sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector = #test1 and: [methodService className = 'RowanSample1TestSubclass']]
-				ifNone: [].
+		                    detect: [ :methodService |
+			                    methodService selector = #test1 and: [
+				                    methodService className
+				                    = 'RowanSample1TestSubclass' ] ]
+		                    ifNone: [  ].
 	self denyIsNil: subMethodService.
 	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
 	self assert: superMethodService testResult equals: #passed.
 	self assert: subMethodService testResult equals: #failure
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sameSelectorInheritedTestsFailureInSuper [
+
 	| source superMethodService subMethodService |
-	self testsIssue: #issue755
-		withTitle: 'SUnit browser runs test in abstract test class if more than one test class selected'.
-	self testsIssue: #issue756
-		withTitle: 'SUnit Browser does not handle duplicated test method selectors well'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue755
+		withTitle:
+		'SUnit browser runs test in abstract test class if more than one test class selected'.
+	self
+		testsIssue: #issue756
+		withTitle:
+		'SUnit Browser does not handle duplicated test method selectors well'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'RowanSample1TestSubclass'
 		superclass: 'RowanSample1Test'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
-	self selectServiceNamed: 'RowanSample1TestSubclass' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1TestSubclass'
+		in: self classListPresenter.
 	source := 'testFailure
 		"same selector as superclass"
 		self assert: true'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServicesNamed: #('RowanSample1Test' 'RowanSample1TestSubclass')
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServicesNamed:
+		#( 'RowanSample1Test' 'RowanSample1TestSubclass' )
 		in: self sunitPresenter classListPresenter.
 	superMethodService := self sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector = #testFailure and: [methodService className = 'RowanSample1Test']]
-				ifNone: [].
+		                      detect: [ :methodService |
+			                      methodService selector = #testFailure and: [
+				                      methodService className = 'RowanSample1Test' ] ]
+		                      ifNone: [  ].
 	self denyIsNil: superMethodService.
-	subMethodService := self sunitPresenter methodListPresenter list detect: 
-					[:methodService |
-					methodService selector = #testFailure and: [methodService className = 'RowanSample1TestSubclass']]
-				ifNone: [].
+	subMethodService := self sunitPresenter methodListPresenter list
+		                    detect: [ :methodService |
+			                    methodService selector = #testFailure and: [
+				                    methodService className
+				                    = 'RowanSample1TestSubclass' ] ]
+		                    ifNone: [  ].
 	self denyIsNil: subMethodService.
 	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
 	self assert: superMethodService testResult equals: #failure.
 	self assert: subMethodService testResult equals: #passed
 ]
@@ -1266,141 +1443,255 @@ JadeiteSUnitSupportTestCase >> test_saveMethodInProjectBrowser [
 	"should show up in sunit browser and disappear when removed"
 
 	| source |
-	self testsIssue: #issue395 withTitle: '(3.0.54) Sunit can display non-test methods'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
+	self
+		testsIssue: #issue395
+		withTitle: '(3.0.54) Sunit can display non-test methods'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
 	self selectSUnitBrowserMethodsNamed: (Array with: #test1).
 	self assertIsNil: (self sunitPresenter methodListPresenter model
-				detect: [:methodService | methodService selector = #testInProjectBrowser]
-				ifNone: []).
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+			 detect: [ :methodService |
+			 methodService selector = #testInProjectBrowser ]
+			 ifNone: [  ]).
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	source := 'testInProjectBrowser  
 		| aaa | 
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	
-	[self assert: self projectsPresenter methodListPresenter selection selector
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+
+	[
+	self
+		assert:
+		self projectsPresenter methodListPresenter selection selector
 		equals: #testInProjectBrowser.
 	self denyIsNil: (self sunitPresenter methodListPresenter model
-				detect: [:methodService | methodService selector = #testInProjectBrowser]
-				ifNone: [])]
-			ensure: [self projectsPresenter basicRemoveMethods].
+			 detect: [ :methodService |
+			 methodService selector = #testInProjectBrowser ]
+			 ifNone: [  ]) ] ensure: [
+		self projectsPresenter basicRemoveMethods ].
 	self assertIsNil: (self projectsPresenter methodListPresenter model
-				detect: [:methodService | methodService selector = #testInProjectBrowser]
-				ifNone: []).
+			 detect: [ :methodService |
+			 methodService selector = #testInProjectBrowser ]
+			 ifNone: [  ]).
 	self assertIsNil: (self sunitPresenter methodListPresenter model
-				detect: [:methodService | methodService selector = #testInProjectBrowser]
-				ifNone: [])
+			 detect: [ :methodService |
+			 methodService selector = #testInProjectBrowser ]
+			 ifNone: [  ])
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_selectCategoryInProjectBrowserDoesNotUpdateSunitBrowser [
+
 	| sunitDisplayedMethodCount sunitDisplaySelectors |
-	self testsIssue: #issue395 withTitle: '(3.0.54) Sunit can display non-test methods'.
-	self selectServiceNamed: 'Rowan-Services-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanTestClassServiceTest' in: self sunitPresenter classListPresenter.
-	sunitDisplayedMethodCount := self sunitPresenter methodListPresenter list size.
+	self
+		testsIssue: #issue395
+		withTitle: '(3.0.54) Sunit can display non-test methods'.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanTestClassServiceTest'
+		in: self sunitPresenter classListPresenter.
+	sunitDisplayedMethodCount := self sunitPresenter methodListPresenter
+		                             list size.
 	sunitDisplaySelectors := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector].
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
-	self selectRowanServicesTestsPackage. 
-	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
+		                         collect: [ :methodService |
+		                         methodService selector ].
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	self selectRowanServicesTestsPackage.
+	self
+		selectServiceNamed: 'RowanTestClassServiceTest'
+		in: self classListPresenter.
 	self selectCategoryNamed: 'support'.
-	self assert: self sunitPresenter methodListPresenter list size equals: sunitDisplayedMethodCount.	"no changes"
-	self assert: (self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector])
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: sunitDisplayedMethodCount. "no changes"
+	self
+		assert: (self sunitPresenter methodListPresenter list collect: [
+				 :methodService | methodService selector ])
 		equals: sunitDisplaySelectors.
-	self projectsPresenter methodListPresenter list
-		do: [:methodService | self deny: ('test*' match: methodService selector asString)].
-	self categoryListPresenter selections: #().
+	self projectsPresenter methodListPresenter list do: [ :methodService |
+		self deny: ('test*' match: methodService selector asString) ].
+	self categoryListPresenter selections: #(  ).
 	self selectCategoryNamed: 'tests'.
-	self assert: self sunitPresenter methodListPresenter list size equals: sunitDisplayedMethodCount.	"no changes"
-	self assert: (self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector])
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: sunitDisplayedMethodCount. "no changes"
+	self
+		assert: (self sunitPresenter methodListPresenter list collect: [
+				 :methodService | methodService selector ])
 		equals: sunitDisplaySelectors.
-	self projectsPresenter methodListPresenter list
-		do: [:methodService | self assert: ('test*' match: methodService selector asString)]
+	self projectsPresenter methodListPresenter list do: [ :methodService |
+		self assert: ('test*' match: methodService selector asString) ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_selectClassDoesNotLoseTestResults [
+
 	| secondBrowser |
-	self testsIssue: #issue432
-		withTitle: 'Fix for cross-browser clearing test results is incomplete in 3.0.60'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue432
+		withTitle:
+		'Fix for cross-browser clearing test results is incomplete in 3.0.60'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter selectSUnitTab.
 	secondBrowser := JadeiteBrowser showOnSession: session.
 	self projectsPresenter sunitPresenter runAll.
-	[self projectsPresenter sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	[ self projectsPresenter sunitPresenter testProcess isNil ]
+		whileFalse: [ (Delay forMilliseconds: 10) wait ].
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
 		equals: 'passed'.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list second testResult
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				second testResult
 		equals: 'passed'.
-	self selectServiceNamed: 'RowanSample1' in: secondBrowser currentCard projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: secondBrowser currentCard packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: secondBrowser currentCard classListPresenter.
-	self testsIssue: #issue736 withTitle: 'Test status icons retained on focus change (3.0.93-8) #736'.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondBrowser currentCard projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: secondBrowser currentCard packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: secondBrowser currentCard classListPresenter.
+	self
+		testsIssue: #issue736
+		withTitle:
+		'Test status icons retained on focus change (3.0.93-8) #736'.
 	"behavior changed to clear results when sunit tab changed"
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
 		equals: nil.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list second testResult
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				second testResult
 		equals: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_selectInProjectBrowserDoesNotUpdateSunitBrowser [
+
 	| sunitDisplayedMethodCount sunitDisplaySelectors |
-	self testsIssue: #issue395 withTitle: '(3.0.54) Sunit can display non-test methods'.
-	self selectServiceNamed: 'Rowan-Services-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanTestClassServiceTest' in: self sunitPresenter classListPresenter.
-	sunitDisplayedMethodCount := self sunitPresenter methodListPresenter list size.
+	self
+		testsIssue: #issue395
+		withTitle: '(3.0.54) Sunit can display non-test methods'.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanTestClassServiceTest'
+		in: self sunitPresenter classListPresenter.
+	sunitDisplayedMethodCount := self sunitPresenter methodListPresenter
+		                             list size.
 	sunitDisplaySelectors := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector].
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
-	self selectRowanServicesTestsPackage. 
-	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
-	self assert: self sunitPresenter methodListPresenter list size equals: sunitDisplayedMethodCount.	"no changes"
-	self assert: (self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector])
+		                         collect: [ :methodService |
+		                         methodService selector ].
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	self selectRowanServicesTestsPackage.
+	self
+		selectServiceNamed: 'RowanTestClassServiceTest'
+		in: self classListPresenter.
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: sunitDisplayedMethodCount. "no changes"
+	self
+		assert: (self sunitPresenter methodListPresenter list collect: [
+				 :methodService | methodService selector ])
 		equals: sunitDisplaySelectors.
-	self selectServiceNamed: 'RowanAnsweringServiceTest' in: self classListPresenter.	"click away in project browser and back - no changes"
-	self selectServiceNamed: 'RowanTestClassServiceTest' in: self classListPresenter.
-	self assert: self sunitPresenter methodListPresenter list size equals: sunitDisplayedMethodCount.	"no changes"
-	self assert: (self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector])
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter. "click away in project browser and back - no changes"
+	self
+		selectServiceNamed: 'RowanTestClassServiceTest'
+		in: self classListPresenter.
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: sunitDisplayedMethodCount. "no changes"
+	self
+		assert: (self sunitPresenter methodListPresenter list collect: [
+				 :methodService | methodService selector ])
 		equals: sunitDisplaySelectors
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_selectMethodFromProjectBrowser [
-	self testsIssue: #issue395 withTitle: '(3.0.54) Sunit can display non-test methods'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
+
+	self
+		testsIssue: #issue395
+		withTitle: '(3.0.54) Sunit can display non-test methods'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
 	self selectSUnitBrowserMethodsNamed: (Array with: #test1).
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectProjectBrowserMethodNamed: #test1.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections first selector
+	self
+		assert:
+			sunitBrowser primaryPresenter methodListPresenter selections first
+				selector
 		equals: #test1.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections size equals: 1.
-	self assert: self methodListPresenter selections first selector equals: #test1.
+	self
+		assert:
+		sunitBrowser primaryPresenter methodListPresenter selections size
+		equals: 1.
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #test1.
 	self assert: self methodListPresenter selections size equals: 1.
 	self selectSUnitBrowserMethodsNamed: (Array with: #test2).
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections first selector
+	self
+		assert:
+			sunitBrowser primaryPresenter methodListPresenter selections first
+				selector
 		equals: #test2.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections size equals: 1.
-	self assert: self projectsPresenter methodListPresenter selections first selector equals: #test1.
-	self assert: self projectsPresenter methodListPresenter selections size equals: 1.
+	self
+		assert:
+		sunitBrowser primaryPresenter methodListPresenter selections size
+		equals: 1.
+	self
+		assert:
+		self projectsPresenter methodListPresenter selections first selector
+		equals: #test1.
+	self
+		assert: self projectsPresenter methodListPresenter selections size
+		equals: 1.
 	self selectProjectBrowserMethodNamed: #test2.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections first selector
+	self
+		assert:
+			sunitBrowser primaryPresenter methodListPresenter selections first
+				selector
 		equals: #test2.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections size equals: 1.
-	self assert: self projectsPresenter methodListPresenter selections first selector equals: #test2.
-	self assert: self projectsPresenter methodListPresenter selections size equals: 1
+	self
+		assert:
+		sunitBrowser primaryPresenter methodListPresenter selections size
+		equals: 1.
+	self
+		assert:
+		self projectsPresenter methodListPresenter selections first selector
+		equals: #test2.
+	self
+		assert: self projectsPresenter methodListPresenter selections size
+		equals: 1
 ]
 
 { #category : 'as yet unclassified' }
@@ -1512,120 +1803,237 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserPassingDebugTestShowsResult [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sunitBrowserSortOrderAfterAddingMethod [
-	|  visibleTestSelectors |
-	self testsIssue: #issue775 withTitle: 'Stubborn sorting in the Sunit browser'.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+
+	| visibleTestSelectors |
+	self
+		testsIssue: #issue775
+		withTitle: 'Stubborn sorting in the Sunit browser'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
-	self saveClass: 'LisaTest' superclass: 'TestCase' instVars: #() package: 'RowanSample1-Tests'. 
-	self saveMethod: 'test_foo'  in: 'LisaTest' category: 'tests'. 
-	self saveMethod: 'test_bar'  in: 'LisaTest' category: 'tests'. 
-	self saveMethod: 'test_zork'  in: 'LisaTest' category: 'tests'. 
-	self saveClass: 'LisaSubTest' superclass: 'LisaTest' instVars: #() package: 'RowanSample1-Tests'. 
-	self saveMethod: 'test_foo'  in: 'LisaSubTest' category: 'tests'. 
-	self saveMethod: 'test_bar'  in: 'LisaSubTest' category: 'tests'. 
-	self saveMethod: 'test_zork'  in: 'LisaSubTest' category: 'tests'. 
-	self saveClass: 'LisaSubTestTwo' superclass: 'LisaSubTest' instVars: #() package: 'RowanSample1-Tests'. 
-	self saveMethod: 'test_foo'  in: 'LisaSubTestTwo' category: 'tests'. 
-	self saveMethod: 'test_bar'  in: 'LisaSubTestTwo' category: 'tests'. 
-	self saveMethod: 'test_zork'  in: 'LisaSubTestTwo' category: 'tests'. 
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServicesNamed: #('LisaTest' 'LisaSubTest' 'LisaSubTestTwo') in: self sunitPresenter classListPresenter.
-	visibleTestSelectors := self sunitPresenter methodListPresenter list collect:[:methodService | methodService selector]. 
-	self assert: visibleTestSelectors asArray equals: #(#test_bar #test_bar #test_bar #test_foo #test_foo #test_foo #test_zork #test_zork #test_zork). 
-	self saveMethod: 'test_newMethod'  in: 'LisaTest' category: 'tests'. 
-	visibleTestSelectors := self sunitPresenter methodListPresenter list collect:[:methodService | methodService selector]. 
-	self assert: visibleTestSelectors asArray equals: #(#test_bar #test_bar #test_bar #test_foo #test_foo #test_foo #test_newMethod #test_zork #test_zork #test_zork). 
+	self
+		saveClass: 'LisaTest'
+		superclass: 'TestCase'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self saveMethod: 'test_foo' in: 'LisaTest' category: 'tests'.
+	self saveMethod: 'test_bar' in: 'LisaTest' category: 'tests'.
+	self saveMethod: 'test_zork' in: 'LisaTest' category: 'tests'.
+	self
+		saveClass: 'LisaSubTest'
+		superclass: 'LisaTest'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self saveMethod: 'test_foo' in: 'LisaSubTest' category: 'tests'.
+	self saveMethod: 'test_bar' in: 'LisaSubTest' category: 'tests'.
+	self saveMethod: 'test_zork' in: 'LisaSubTest' category: 'tests'.
+	self
+		saveClass: 'LisaSubTestTwo'
+		superclass: 'LisaSubTest'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self saveMethod: 'test_foo' in: 'LisaSubTestTwo' category: 'tests'.
+	self saveMethod: 'test_bar' in: 'LisaSubTestTwo' category: 'tests'.
+	self saveMethod: 'test_zork' in: 'LisaSubTestTwo' category: 'tests'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServicesNamed: #( 'LisaTest' 'LisaSubTest' 'LisaSubTestTwo' )
+		in: self sunitPresenter classListPresenter.
+	visibleTestSelectors := self sunitPresenter methodListPresenter list
+		                        collect: [ :methodService |
+		                        methodService selector ].
+	self
+		assert: visibleTestSelectors asArray
+		equals:
+			#( #test_bar #test_bar #test_bar #test_foo #test_foo #test_foo
+			   #test_zork #test_zork #test_zork ).
+	self saveMethod: 'test_newMethod' in: 'LisaTest' category: 'tests'.
+	visibleTestSelectors := self sunitPresenter methodListPresenter list
+		                        collect: [ :methodService |
+		                        methodService selector ].
+	self
+		assert: visibleTestSelectors asArray
+		equals:
+			#( #test_bar #test_bar #test_bar #test_foo #test_foo #test_foo
+			   #test_newMethod #test_zork #test_zork #test_zork )
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdateRightClassInHierarchy [
 	"inherited test runs don't impact test results of super class test runs"
 
-	self testsIssue: #issue419 withTitle: 'Sunit confused by multiple Sunit tabs in project browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: nil.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue419
+		withTitle:
+		'Sunit confused by multiple Sunit tabs in project browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: nil.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1TestSubclass'
 		superclass: 'RowanSample1Test'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
-	
-	[self projectsPresenter selectSUnitTab.
+
+	[
+	self projectsPresenter selectSUnitTab.
 	self projectsPresenter sunitPresenter runAll.
-	[self projectsPresenter sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	[ self projectsPresenter sunitPresenter testProcess isNil ]
+		whileFalse: [ (Delay forMilliseconds: 10) wait ].
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
 		equals: 'passed'.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: nil.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1TestSubclass' in: self sunitPresenter classListPresenter.
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: nil.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1TestSubclass'
+		in: self sunitPresenter classListPresenter.
 	self projectsPresenter sunitPresenter runAll.
-	[self projectsPresenter sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	[ self projectsPresenter sunitPresenter testProcess isNil ]
+		whileFalse: [ (Delay forMilliseconds: 10) wait ].
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
 		equals: 'passed'.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: 'passed']
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: 'passed' ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdateRightClassInHierarchy2 [
 	"inherited test runs don't impact test results of super class test runs"
 
-	self testsIssue: #issue419 withTitle: 'Sunit confused by multiple Sunit tabs in project browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: nil.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+	self
+		testsIssue: #issue419
+		withTitle:
+		'Sunit confused by multiple Sunit tabs in project browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: nil.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1TestSubclass'
 		superclass: 'RowanSample1Test'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
-	
-	[self projectsPresenter selectSUnitTab.
-	self projectsPresenter sunitPresenter reset. 
+
+	[
+	self projectsPresenter selectSUnitTab.
+	self projectsPresenter sunitPresenter reset.
 	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
 		equals: nil.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: 'passed'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1TestSubclass' in: self sunitPresenter classListPresenter.
-	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
 		equals: 'passed'.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: 'passed']
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1TestSubclass'
+		in: self sunitPresenter classListPresenter.
+	self sunitPresenter runAll.
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
+		equals: 'passed'.
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: 'passed' ] ensure: [
+		self projectsPresenter basicRemoveClass:
+			self projectsPresenter selectedClass ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdates [
-	self testsIssue: #issue410
-		withTitle: 'Selecting class in Project Browser changes test status icons in SUnit Browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
+
+	self
+		testsIssue: #issue410
+		withTitle:
+		'Selecting class in Project Browser changes test status icons in SUnit Browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self projectsPresenter sunitPresenter reset.
 	self selectRowanSample1Test.
 	self projectsPresenter selectSUnitTab.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first selector
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first selector
 		equals: #test1.
-	self assertIsNil: self projectsPresenter sunitPresenter methodListPresenter list first testResult.
-	self assert: self sunitPresenter methodListPresenter list first selector equals: #test1.
-	self assertIsNil: self sunitPresenter methodListPresenter list first testResult.
+	self assertIsNil:
+		self projectsPresenter sunitPresenter methodListPresenter list first
+			testResult.
+	self
+		assert: self sunitPresenter methodListPresenter list first selector
+		equals: #test1.
+	self assertIsNil:
+		self sunitPresenter methodListPresenter list first testResult.
 	self projectsPresenter sunitPresenter runAll.
-	[self projectsPresenter sunitPresenter testProcess isNil]
-		whileFalse: [(Delay forMilliseconds: 10) wait].
+	[ self projectsPresenter sunitPresenter testProcess isNil ]
+		whileFalse: [ (Delay forMilliseconds: 10) wait ].
 	"assert tests in sunit browser updated"
-	self assert: self sunitPresenter methodListPresenter list first selector equals: #test1.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: 'passed'.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list second selector
+	self
+		assert: self sunitPresenter methodListPresenter list first selector
+		equals: #test1.
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: 'passed'.
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				second selector
 		equals: #test2.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
 		equals: 'passed'
 ]
 
@@ -1666,26 +2074,52 @@ JadeiteSUnitSupportTestCase >> test_sunitTabPassingDebugTestShowsResult [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_sunitTabUpdates [
-	self testsIssue: #issue410
-		withTitle: 'Selecting class in Project Browser changes test status icons in SUnit Browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
-	self projectsPresenter sunitPresenter reset. 
+
+	self
+		testsIssue: #issue410
+		withTitle:
+		'Selecting class in Project Browser changes test status icons in SUnit Browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	self projectsPresenter sunitPresenter reset.
 	self selectRowanSample1Test.
 	self projectsPresenter selectSUnitTab.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first selector
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first selector
 		equals: #test1.
-	self assertIsNil: self projectsPresenter sunitPresenter methodListPresenter list first testResult.
+	self assertIsNil:
+		self projectsPresenter sunitPresenter methodListPresenter list first
+			testResult.
 	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
 	"assert tests in project browser sunit presenter updated"
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first selector
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first selector
 		equals: #test1.
-	self assert: self sunitPresenter methodListPresenter list first testResult equals: 'passed'.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list second selector
+	self
+		assert:
+		self sunitPresenter methodListPresenter list first testResult
+		equals: 'passed'.
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				second selector
 		equals: #test2.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list first testResult equals: 'passed'
+	self
+		assert:
+			self projectsPresenter sunitPresenter methodListPresenter list
+				first testResult
+		equals: 'passed'
 ]
 
 { #category : 'as yet unclassified' }

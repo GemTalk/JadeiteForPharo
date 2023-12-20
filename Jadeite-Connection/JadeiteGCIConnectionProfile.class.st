@@ -65,9 +65,15 @@ JadeiteGCIConnectionProfile >> connect [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> disconnect [
 	connection close. 
-	session logout.
+	session logout. 
 	session := nil.
 	connection := nil
+]
+
+{ #category : 'testing' }
+JadeiteGCIConnectionProfile >> isConnected [ 
+
+	^connection notNil
 ]
 
 { #category : 'testing' }

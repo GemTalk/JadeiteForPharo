@@ -5,11 +5,16 @@ Class {
 	#name : 'JadeiteForPharoHeadlessTestCase',
 	#superclass : 'JadeiteForPharoTestCase',
 	#instVars : [
-		'existingConnection',
 		'connectionProfile'
 	],
 	#category : 'Jadeite-Tests'
 }
+
+{ #category : 'accessing' }
+JadeiteForPharoHeadlessTestCase class >> classForTestResource [
+
+	^JadeiteHeadlessTestResource
+]
 
 { #category : 'defaults' }
 JadeiteForPharoHeadlessTestCase class >> defaultGciConnectionProfile [
@@ -27,39 +32,37 @@ JadeiteForPharoHeadlessTestCase class >> defaultGciConnectionProfile [
 	^ gciConnectionProfile
 ]
 
+{ #category : 'accessing' }
+JadeiteForPharoHeadlessTestCase class >> testResourceClass [
+
+	^JadeiteHeadlessTestResource 
+]
+
 { #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> connect [
 	"The copy of the connection profile might have an existing session and connection. However, `connect` should replace existing session and connection objects so we won't disturb other tests that assume a connection."
 
-	connectionProfile := self getConnectionProfile.
-	connectionProfile connect.
+	connectionProfile := self connectionProfile.
+	GciSession current library: connectionProfile connect.
 	^ connectionProfile
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> getConnectionProfile [
+JadeiteForPharoHeadlessTestCase >> connectionProfile [
 
-	connectionProfile := JadeiteConnectionLauncher lastConnectionProfile
-		                     copy.
-	connectionProfile ifNil: [
-		connectionProfile := self class defaultGciConnectionProfile ].
-	^ connectionProfile
+	^connectionProfile
 ]
 
 { #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> setUp [ 
+	connectionProfile := self testResourceClass current connectionProfile. 
 	
-	existingConnection := GciSession current library. 
-	connectionProfile := self getConnectionProfile.
-	connectionProfile isGciConnection ifFalse: [ ^ self ].
-	connectionProfile connect.
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> tearDown [
-
-	GciSession current library: existingConnection.
-	connectionProfile ifNotNil: [ connectionProfile disconnect ]
+JadeiteForPharoHeadlessTestCase >> tearDown [ 
+	self testResourceClass current reset. 
+	
 ]
 
 { #category : 'tests' }
@@ -162,7 +165,7 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 
 	| service |
 	connectionProfile disconnect. "setUp is assumed to connect"
-	connectionProfile := self getConnectionProfile.
+	connectionProfile := self connectionProfile.
 	connectionProfile isGciConnection ifFalse: [ ^ self ].
 	connectionProfile connect.
 	[

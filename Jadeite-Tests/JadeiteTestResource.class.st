@@ -191,9 +191,9 @@ JadeiteTestResource >> hasValidSession [
 	^session isValidSession
 ]
 
-{ #category : 'support' }
+{ #category : 'testing' }
 JadeiteTestResource >> isAvailable [
-	^self session notNil and: [self transcript notNil]
+	^self session notNil
 ]
 
 { #category : 'support' }

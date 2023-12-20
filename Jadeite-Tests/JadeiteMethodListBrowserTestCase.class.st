@@ -1401,36 +1401,57 @@ JadeiteMethodListBrowserTestCase >> test_insertIfTrue [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_methodBrowserSaveMethod [
-	projectsBrowser := JadeiteTestResource current openProjectsBrowser.
-	
-	[| source source2 selection |
+
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+
+	[
+	| source source2 selection |
 	self selectRowanSample1Test.
 	self selectMethodNamedInProjectBrowser: #test1.
-	self assert: self methodListPresenter selection selector equals: #test1.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #test1.
 	self assert: self methodListPresenter selections size equals: 1.
-	methodListBrowser := JadePresenter browseImplementorsOf: 'test1' session: session.
-	self assert: self methodListPresenter selection selector equals: #test1.
+	methodListBrowser := JadePresenter
+		                     browseImplementorsOf: 'test1'
+		                     session: session.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #test1.
 	self assert: self methodListPresenter selections size equals: 1.
 	self assert: self methodListMethodListPresenter list size equals: 1.
 	selection := self methodListMethodListPresenter selection.
 	source := 'test1 self assert: RowanSample1 new foo = ''foo2'''.
 	self methodListSourcePresenter documentPresenter value: source.
-	self methodListSourcePresenter documentPresenter isModified: true.	"needed for tests"
-	self assert: self methodListSourcePresenter documentPresenter isModified.
+	self methodListSourcePresenter documentPresenter isModified: true. "needed for tests"
+	self assert:
+		self methodListSourcePresenter documentPresenter isModified.
 	self methodListSourcePresenter editSaveMethod.
-	self assert: self methodListSourcePresenter documentPresenter value equals: source.
-	self assert: self methodSourcePresenter documentPresenter value equals: source.
-	self assert: self classListPresenter selection name equals: 'RowanSample1Test'.
+	self
+		assert: self methodListSourcePresenter documentPresenter value
+		equals: source.
+	self
+		assert: self methodSourcePresenter documentPresenter value
+		equals: source.
+	self
+		assert: self classListPresenter selection name
+		equals: 'RowanSample1Test'.
 	self methodListMethodListPresenter selections: Array new.
 	self methodListMethodListPresenter selection: selection.
-	self assert: self methodListSourcePresenter documentPresenter value equals: source.
+	self
+		assert: self methodListSourcePresenter documentPresenter value
+		equals: source.
 	source2 := 'test1 self assert: RowanSample1 new foo = ''changedAgain'''.
 	self projectsPresenter methodSourcePresenter value: source2.
-	self projectsPresenter methodSourcePresenter view isModified: true. "needed for tests" 
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self projectsPresenter methodSourcePresenter value equals: source2.
-	self assert: self methodListSourcePresenter documentPresenter value equals: source2]
-			ensure: [self destroy: projectsBrowser]
+	self projectsPresenter methodSourcePresenter view isModified: true. "needed for tests"
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self
+		assert: self projectsPresenter methodSourcePresenter value
+		equals: source2.
+	self
+		assert: self methodListSourcePresenter documentPresenter value
+		equals: source2 ] ensure: [ self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

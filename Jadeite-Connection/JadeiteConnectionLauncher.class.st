@@ -92,6 +92,12 @@ JadeiteConnectionLauncher >> connectPresenters [
 		lastConnection := theConnection ]
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> connection [
+
+	^connectionProfile connection
+]
+
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> connectionProfile [
 

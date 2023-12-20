@@ -339,11 +339,15 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionChangeSelectionStayOnM
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindow [
-	self testsIssue: #issue386
-		withTitle: '(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
+
+	self
+		testsIssue: #issue386
+		withTitle:
+		'(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
 	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[| source |
+
+	[
+	| source |
 	self selectRowanSample1Class.
 	self selectCategoryNamed: 'accessing'.
 	source := 'sampleMethod  
@@ -351,17 +355,20 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindow [
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self methodListPresenter selection selector equals: #sampleMethod.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod.
 	self methodSourcePresenter value: 'new text'.
 	self methodSourcePresenter view isModified: true.
-	TestMessageBox plannedResult: #yes.	"answer that we want to ignore changes"
+	TestMessageBox plannedResult: #yes. "answer that we want to ignore changes"
 	projectsBrowser view close.
-	self verifyWindowClosed: projectsBrowser]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				JadeiteTestResource current projectsBrowser: nil.
-				projectsBrowser := JadeiteTestResource current openProjectsBrowser	"for next test"]
+	self verifyWindowClosed: projectsBrowser ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox.
+		self testResourceClass current projectsBrowser: nil.
+		projectsBrowser := self testResourceClass current
+			                   openProjectsBrowser "for next test" ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3267,41 +3274,63 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersUpdateHierarchy [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoTabsHaveIndependentCompileErrors [
-	self testsIssue: #issue440
-		withTitle: '(3.0.62) error message from previous compile error hangs around after error fixed'.
+
+	self
+		testsIssue: #issue440
+		withTitle:
+		'(3.0.62) error message from previous compile error hangs around after error fixed'.
 	projectsBrowser addSystemBrowser.
 	self selectRowanSample1Test.
 	self selectMethodNamed: #test1.
-	
-	[| source |
+
+	[
+	| source |
 	source := 'gloop
 	"I be unique"
 	^'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self projectsPresenter statusBarText view backcolor equals: Color red faded.
-	self assert: self projectsPresenter statusBarText value equals: 'expected start of a statement; '.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self
+		assert: self projectsPresenter statusBarText view backcolor
+		equals: Color red faded.
+	self
+		assert: self projectsPresenter statusBarText value
+		equals: 'expected start of a statement; '.
 	self previousTabView.
-	self deny: self projectsPresenter statusBarText view backcolor equals: Color red faded.
-	self deny: self projectsPresenter statusBarText value equals: 'expected start of a statement; '.
+	self
+		deny: self projectsPresenter statusBarText view backcolor
+		equals: Color red faded.
+	self
+		deny: self projectsPresenter statusBarText value
+		equals: 'expected start of a statement; '.
 	self selectRowanSample1Test.
 	source := 'gloop
 	"I be unique"
 	^''abc'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self projectsPresenter statusBarText view backcolor equals: Color red faded.
-	self assert: self projectsPresenter statusBarText value
-		equals: 'missing end of literal mark (prime); expected start of a statement; '.
+	self projectsPresenter editSaveMethod:
+		self classListPresenter selection.
+	self
+		assert: self projectsPresenter statusBarText view backcolor
+		equals: Color red faded.
+	self
+		assert: self projectsPresenter statusBarText value
+		equals:
+		'missing end of literal mark (prime); expected start of a statement; '.
 	self nextTabView.
-	self assert: self projectsPresenter statusBarText view backcolor equals: Color red faded.
-	self assert: self projectsPresenter statusBarText value equals: 'expected start of a statement; ']
-			ensure: 
-				[self methodSourcePresenter view isModified: false.
-				projectsBrowser closeCard.
-				self methodSourcePresenter view isModified: false.
-				projectsBrowser view close.
-				projectsBrowser := JadeiteTestResource current openProjectsBrowser]
+	self
+		assert: self projectsPresenter statusBarText view backcolor
+		equals: Color red faded.
+	self
+		assert: self projectsPresenter statusBarText value
+		equals: 'expected start of a statement; ' ] ensure: [
+		self methodSourcePresenter view isModified: false.
+		projectsBrowser closeCard.
+		self methodSourcePresenter view isModified: false.
+		projectsBrowser view close.
+		projectsBrowser := self testResourceClass current
+			                   openProjectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -1750,47 +1750,61 @@ JadeiteDebuggerTestCase >> test_loginButtonEnablementAfterDebug [
 	"transcript close wasn't setting GciSession current to nil"
 
 	| shell query sunitPresenter |
-	self testsIssue: #issue527 withTitle: 'Multiple sessions can''t keep console project list straight'.
+	self
+		testsIssue: #issue527
+		withTitle:
+		'Multiple sessions can''t keep console project list straight'.
 	TestMessageBox enableJadeiteTestMessageBox.
-	TestMessageBox plannedResult: #no.	"don't commit"
-	
-	[JadeiteTestResource current closeTranscripts.
+	TestMessageBox plannedResult: #no. "don't commit"
+
+	[
+	self testResourceClass current closeTranscripts.
 	TestMessageBox disableJadeiteTestMessageBox.
-	shell := JadeiteLoginShell allInstances first.	"should be only one"
-	query := CommandQuery commandDescription: (CommandDescription command: #login)
-				source: shell loginButtonPresenter view.
+	shell := JadeiteLoginShell allInstances first. "should be only one"
+	query := CommandQuery
+		         commandDescription: (CommandDescription command: #login)
+		         source: shell loginButtonPresenter view.
 	shell queryCommand: query.
-	self assert: query isEnabled.	"enabled login button"
-	JadeiteTestResource current.	"will login"
+	self assert: query isEnabled. "enabled login button"
+	self testResourceClass current. "will login"
 	self denyIsNil: GciSession current.
 	session := GciSession current.
-	transcript := JadeiteTranscript allInstances detect: [:tran | tran gciSession == session] ifNone: [].
-	query := CommandQuery commandDescription: (CommandDescription command: #login) source: shell view.
+	transcript := JadeiteTranscript allInstances
+		              detect: [ :tran | tran gciSession == session ]
+		              ifNone: [  ].
+	query := CommandQuery
+		         commandDescription: (CommandDescription command: #login)
+		         source: shell view.
 	shell view queryCommand: query.
 	self deny: query isEnabled.
-	sunitPresenter := (JadeiteSUnitBrowser showOnSession: session) primaryPresenter.
+	sunitPresenter := (JadeiteSUnitBrowser showOnSession: session)
+		                  primaryPresenter.
 	"reproduce scenario in bug"
 	sunitPresenter selectPackageNamed: 'Rowan-Services-Tests'.
 	sunitPresenter selectClassNamed: 'RowanMethodServiceTest'.
 	sunitPresenter runAll.
 	self openDebuggerOn: 'RowanMethodServiceTest new test_noStepPoints'.
-	self debuggerDo: [debugger resumeProcess].
-	self rowanFixMe.	"without this, test somehow dies. Makes for a less useful test"
+	self debuggerDo: [ debugger resumeProcess ].
+	self rowanFixMe. "without this, test somehow dies. Makes for a less useful test"
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #no.
-	transcript view close.	"closes all Jadeite windows"
-	query := CommandQuery commandDescription: (CommandDescription command: #login)
-				source: shell loginButtonPresenter view.
+	transcript view close. "closes all Jadeite windows"
+	query := CommandQuery
+		         commandDescription: (CommandDescription command: #login)
+		         source: shell loginButtonPresenter view.
 	shell queryCommand: query.
-	self assert: query isEnabled]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				debugger := nil.
-				process ifNotNil: [process terminate].
-				process := nil.
-				JadeiteTestResource current logoutThenLoginAs: user forceClose: true.
-				session := GciSession current.
-				transcript := JadeiteTranscript allInstances detect: [:tran | tran gciSession == session] ifNone: []]
+	self assert: query isEnabled ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox.
+		debugger := nil.
+		process ifNotNil: [ process terminate ].
+		process := nil.
+		self testResourceClass current
+			logoutThenLoginAs: user
+			forceClose: true.
+		session := GciSession current.
+		transcript := JadeiteTranscript allInstances
+			              detect: [ :tran | tran gciSession == session ]
+			              ifNone: [  ] ]
 ]
 
 { #category : 'as yet unclassified' }
