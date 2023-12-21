@@ -44,7 +44,7 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
-
+	session ifNotNil: [ session logout ]. 
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -59,21 +59,28 @@ JadeiteGCIConnectionProfile >> connect [
 			^ GciError signal: ex message].
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
+	RowanServiceUpdater clearCurrent. "clear out all old services"
 	^ connection
 ]
 
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> disconnect [
-	connection close. 
-	session logout. 
+	"not only close & logout the session, but cleanup any 
+	subscriptions to the connection so launcher's don't get
+	stuck open"
+
+	connection close.
+	session logout.
 	session := nil.
-	connection := nil
+	connection := nil.
+	(self observablePropertyNamed: #connection) subscriptions:
+		OrderedCollection new
 ]
 
 { #category : 'testing' }
 JadeiteGCIConnectionProfile >> isConnected [ 
 
-	^connection notNil
+	^connection notNil and:[connection isOpen]
 ]
 
 { #category : 'testing' }

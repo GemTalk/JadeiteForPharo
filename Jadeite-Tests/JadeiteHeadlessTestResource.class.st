@@ -17,19 +17,6 @@ JadeiteHeadlessTestResource >> basicUnloadProject: projectName [
 ]
 
 { #category : 'support' }
-JadeiteHeadlessTestResource >> closeConnectionLaunchers [
-	"the point of headless tests is that there is no gui so shut all windows"
-
-	JadeiteConnectionLauncher allInstances do: [ :launcher |
-		| profile |
-		profile := launcher connectionProfile.
-		profile isConnected ifTrue: [ profile disconnect ].
-		(profile observablePropertyNamed: #connection) subscriptions:
-			OrderedCollection new.
-		self destroy: launcher ]
-]
-
-{ #category : 'support' }
 JadeiteHeadlessTestResource >> connectionProfile [
 	| connectionProfile |
 	connectionProfile := JadeiteConnectionLauncher lastConnectionProfile.
@@ -42,7 +29,6 @@ JadeiteHeadlessTestResource >> connectionProfile [
 JadeiteHeadlessTestResource >> ensureLoggedIn [
 
 	self isConnected ifFalse: [
-		self closeConnectionLaunchers.
 		self login ]
 ]
 
@@ -70,17 +56,13 @@ JadeiteHeadlessTestResource >> login [
 
 { #category : 'support' }
 JadeiteHeadlessTestResource >> reset [
-	GciSession current library close.
-	GciSession current library: nil. 
-	self connectionProfile disconnect.
+
+	[ self connectionProfile disconnect ] ensure: [
+		GciSession current library: nil ]
 ]
 
 { #category : 'support' }
 JadeiteHeadlessTestResource >> setUp [
 
-	self
-		closeConnectionLaunchers;
-		ensureLoggedIn;
-		basicUnloadProject: self sampleProject1Name;
-		createRowanSample1Project
+	self ensureLoggedIn
 ]

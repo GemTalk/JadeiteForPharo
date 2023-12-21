@@ -336,8 +336,10 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		initialExtent: 400 @ 550;
 		menu: self initializeMenubar.
-	self updateCaption
-
+	self updateCaption.
+	aWindowPresenter whenClosedDo: [
+		(self connectionProfile observablePropertyNamed: #connection)
+			subscriptions: OrderedCollection new ]
 ]
 
 { #category : 'accessing' }

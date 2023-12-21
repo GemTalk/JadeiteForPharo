@@ -8,7 +8,6 @@ Class {
 JadeiteConsoleApplication >> start [
 
 	| inst |
-	RowanServiceUpdater clearCurrent.
 	inst := self new: JadeiteConsole.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';

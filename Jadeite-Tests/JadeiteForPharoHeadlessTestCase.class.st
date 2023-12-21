@@ -39,6 +39,16 @@ JadeiteForPharoHeadlessTestCase class >> testResourceClass [
 ]
 
 { #category : 'support' }
+JadeiteForPharoHeadlessTestCase >> closeConnectionLaunchers [ 
+
+	JadeiteConnectionLauncher allInstances do: [ :launcher |
+		| profile |
+		profile := launcher connectionProfile.
+		profile isConnected ifTrue: [ profile disconnect ].
+		self destroy: launcher ].
+]
+
+{ #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> connect [
 	"The copy of the connection profile might have an existing session and connection. However, `connect` should replace existing session and connection objects so we won't disturb other tests that assume a connection."
 
@@ -55,13 +65,9 @@ JadeiteForPharoHeadlessTestCase >> connectionProfile [
 
 { #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> setUp [ 
+	self closeConnectionLaunchers. 
+	RsrGarbageCollector maximumReclamation.
 	connectionProfile := self testResourceClass current connectionProfile. 
-	
-]
-
-{ #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> tearDown [ 
-	self testResourceClass current reset. 
 	
 ]
 
@@ -164,7 +170,7 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	"will need customization if Jadeite for Pharo tests are ever run in github's CI space"
 
 	| service |
-	connectionProfile disconnect. "setUp is assumed to connect"
+	connectionProfile isConnected ifTrue: [ connectionProfile disconnect ].
 	connectionProfile := self connectionProfile.
 	connectionProfile isGciConnection ifFalse: [ ^ self ].
 	connectionProfile connect.
@@ -178,8 +184,7 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	self assert: service answer equals: 7 ] ensure: [
 		connectionProfile disconnect ].
 	self assert: connectionProfile connection isNil.
-	self assert: connectionProfile session isNil. 
-	connectionProfile := nil
+	self assert: connectionProfile session isNil.
 ]
 
 { #category : 'tests' }
@@ -204,6 +209,7 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 	self assert: (serviceUpdater isKindOf: RowanServiceUpdater).
 	initialSize := serviceUpdater registeredPresenters size.
 	oc := OrderedCollection new.
+	serviceUpdater removeEventsTriggeredFor: oc. 
 	RowanServiceUpdater current
 		register: oc
 		selector: #testServiceUpdate:.
