@@ -335,18 +335,21 @@ RowanServiceUpdater >> registeredListServices [
 
 { #category : 'public' }
 RowanServiceUpdater >> registeredPresenters [
+	"The #asActionSequence message send ensures we get a collection back.
+	If the size is one, we'll get a WeakMessageSend"
 
 	| presenters |
-	presenters := Set new.
-	presenters addAll:
-		((self actionMap at: #updatesReadyToApply ifAbsent:[^Array new]) collect: [ 
-			 :weakMessageSend | weakMessageSend receiver ]).
-	^ presenters
+	(self hasActionForEvent: #updatesReadyToApply) ifFalse: [
+		^ Array new ].
+	presenters := (self actionForEvent: #updatesReadyToApply)
+		              asActionSequence collect: [ :weakMessageSend |
+		              weakMessageSend receiver ].
+	^ presenters asSet
 ]
 
 { #category : 'private' }
 RowanServiceUpdater >> registeredTreePresenters [
-	^self registeredPresenters select: [:presenter | presenter isKindOf: TreePresenter]
+	^self registeredPresenters select: [:presenter | presenter isKindOf: JadeiteTreePresenter]
 ]
 
 { #category : 'public' }
