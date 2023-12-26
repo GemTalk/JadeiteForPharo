@@ -156,25 +156,29 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatesButtons [
 	session flipAutoCommit.
 	self assert: session autoCommit value.
 	JadeiteConsole allInstances do: [ :console |
-		console window isOpen ifTrue: [
-			self
-				assert: console autoCommitButton label
-				equals: 'Auto Commit - true' ] ].
+		console window ifNotNil: [ :window |
+			window isOpen ifTrue: [
+				self
+					assert: console autoCommitButton label
+					equals: 'Auto Commit - true' ] ] ].
 	JadeiteBrowser allInstances do: [ :browser |
-		browser window isOpen ifTrue: [
-			self
-				assert: browser autoCommitButton label
-				equals: 'Auto Commit - true' ] ] ] ensure: [
+		browser window ifNotNil: [ :window |
+			window isOpen ifTrue: [
+				self
+					assert: browser autoCommitButton label
+					equals: 'Auto Commit - true' ] ] ] ] ensure: [
 		session flipAutoCommit.
 		self deny: session autoCommit value.
 		JadeiteConsole allInstances do: [ :console |
-			console window isOpen ifTrue: [
-				self
-					assert: console autoCommitButton label
-					equals: 'Auto Commit - false' ] ].
+			console window ifNotNil: [ :window |
+				window isOpen ifTrue: [
+					self
+						assert: console autoCommitButton label
+						equals: 'Auto Commit - false' ] ] ].
 		JadeiteBrowser allInstances do: [ :browser |
-			browser window isOpen ifTrue: [
-				self
-					assert: browser autoCommitButton label
-					equals: 'Auto Commit - false' ] ] ]
+			browser window ifNotNil: [ :window |
+				window isOpen ifTrue: [
+					self
+						assert: browser autoCommitButton label
+						equals: 'Auto Commit - false' ] ] ] ]
 ]

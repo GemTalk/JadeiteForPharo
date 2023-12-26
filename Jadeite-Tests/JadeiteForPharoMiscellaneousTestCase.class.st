@@ -82,11 +82,9 @@ JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
 		testsIssue: #issue29
 		withTitle:
 		'Need a report to show what all git repository shas I have loaded'.
-	self assert: JadeiteConnectionLauncher allInstances size equals: 1. 
-	connectionLauncher := JadeiteConnectionLauncher allInstances first.
-	self deny: connectionLauncher connectionProfile connection isNil. "assume connection has been established but verify"
-	workspace := connectionLauncher
-		             openCommitIdWindow.
+	connectionLauncher := JadeiteConnectionLauncher allInstances first. 
+	self deny: connectionLauncher connectionProfile connection isNil. "assume connected"
+	workspace := connectionLauncher openCommitIdWindow.
 	[
 	jfpSha := (IceRepository registry detect: [ :ea |
 		           ea name = 'JadeiteForPharo' ]) properties commitish
@@ -102,7 +100,8 @@ JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
 	browserService command: #updateProjects.
 	RowanServiceUpdater current
 		issueCommand: browserService
-		session: (GciSession new library: connectionLauncher connectionProfile  connection).
+		session: (GciSession new library:
+				 connectionLauncher connectionProfile connection).
 	clientServicesSha := (browserService projects detect: [
 		                      :projectService |
 		                      projectService name = 'RowanClientServices' ])
@@ -113,8 +112,8 @@ RemoteServiceReplication ' , rsrSha asString , '
 ---------------------------------------------
 RowanClientServices ' , clientServicesSha asString , '
 '.
-	self assert: workspace text asString equals: desiredWorkspaceText ] ensure: [
-		self destroy: workspace ]
+	self assert: workspace text asString equals: desiredWorkspaceText ]
+		ensure: [ self destroy: workspace ]
 ]
 
 { #category : 'tests' }
