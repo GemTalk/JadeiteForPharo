@@ -253,8 +253,8 @@ JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
 
 	self todo: 'add userName connect/disconnect'.
 	forceClose ifTrue: [
-		JadeiteConnectionLauncher lastConnectionProfile disconnect.
-		JadeiteConnectionLauncher lastConnectionProfile connect ]
+		JadeiteConnectionLauncher connectionProfile disconnect.
+		JadeiteConnectionLauncher connectionProfile connect ]
 ]
 
 { #category : 'support' }

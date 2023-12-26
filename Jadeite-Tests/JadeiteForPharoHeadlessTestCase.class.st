@@ -4,9 +4,6 @@ These tests should not assume a connection to the server is present.
 Class {
 	#name : 'JadeiteForPharoHeadlessTestCase',
 	#superclass : 'JadeiteForPharoTestCase',
-	#instVars : [
-		'connectionProfile'
-	],
 	#category : 'Jadeite-Tests'
 }
 
@@ -49,18 +46,9 @@ JadeiteForPharoHeadlessTestCase >> closeConnectionLaunchers [
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> connect [
-	"The copy of the connection profile might have an existing session and connection. However, `connect` should replace existing session and connection objects so we won't disturb other tests that assume a connection."
+JadeiteForPharoHeadlessTestCase >> resourceConnectionProfile [
 
-	connectionProfile := self connectionProfile.
-	GciSession current library: connectionProfile connect.
-	^ connectionProfile
-]
-
-{ #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> connectionProfile [
-
-	^connectionProfile
+	^ self testResourceClass current connectionProfile
 ]
 
 { #category : 'support' }
@@ -73,11 +61,11 @@ JadeiteForPharoHeadlessTestCase >> runCaseManaged [
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> setUp [ 
-	self closeConnectionLaunchers. 
+JadeiteForPharoHeadlessTestCase >> setUp [
+
+	self closeConnectionLaunchers.
 	RsrGarbageCollector maximumReclamation.
-	connectionProfile := self testResourceClass current connectionProfile. 
-	
+	self resourceConnectionProfile reconnectIfNecessary.
 ]
 
 { #category : 'tests' }
@@ -124,6 +112,7 @@ JadeiteForPharoHeadlessTestCase >> test_basicReplicate [
 { #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_cleanUpServiceOnDisconnect [
 	"ensure the hook to cleanup after disconnect gets run"
+
 	| service |
 	service := RowanClassService new
 		           name: 'RowanService';
@@ -136,7 +125,7 @@ JadeiteForPharoHeadlessTestCase >> test_cleanUpServiceOnDisconnect [
 	self assert: service comment notEmpty.
 	self assert: service packageName equals: 'Rowan-Services-Core'.
 	self assert: service oop isInteger.
-	[ connectionProfile disconnect ] ensure: [ connectionProfile := nil ].
+	self resourceConnectionProfile disconnect.
 	1 to: RowanClassService instSize do: [ :index |
 	self assert: (service instVarAt: index) isNil ]
 ]
@@ -179,21 +168,20 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	"will need customization if Jadeite for Pharo tests are ever run in github's CI space"
 
 	| service |
-	connectionProfile isConnected ifTrue: [ connectionProfile disconnect ].
-	connectionProfile := self connectionProfile.
-	connectionProfile isGciConnection ifFalse: [ ^ self ].
-	connectionProfile connect.
+	self resourceConnectionProfile isConnected ifTrue: [ self resourceConnectionProfile disconnect ].
+	self resourceConnectionProfile isGciConnection ifFalse: [ ^ self ].
+	self resourceConnectionProfile connect.
 	[
-	self assert: connectionProfile connection isOpen.
-	self assert: (GsSession sessionIsValid: connectionProfile session).
+	self assert: self resourceConnectionProfile connection isOpen.
+	self assert: (GsSession sessionIsValid: self resourceConnectionProfile session).
 	service := RowanAnsweringService new
 		           command: #execReturningObject:;
 		           commandArgs: (Array with: '3 + 4').
 	GciSession current issueCommand: service.
 	self assert: service answer equals: 7 ] ensure: [
-		connectionProfile disconnect ].
-	self assert: connectionProfile connection isNil.
-	self assert: connectionProfile session isNil.
+		self resourceConnectionProfile disconnect ].
+	self assert: self resourceConnectionProfile connection isNil.
+	self assert: self resourceConnectionProfile session isNil.
 ]
 
 { #category : 'tests' }

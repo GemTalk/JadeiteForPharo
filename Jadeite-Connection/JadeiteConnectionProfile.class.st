@@ -7,8 +7,25 @@ Class {
 		'#host => ObservableSlot',
 		'#connection => ObservableSlot'
 	],
+	#classVars : [
+		'#ConnectionProfile'
+	],
 	#category : 'Jadeite-Connection'
 }
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile class >> connectionProfile [
+
+	ConnectionProfile ifNil: [
+		ConnectionProfile := JadeiteGCIConnectionProfile new ].
+	^ ConnectionProfile
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile class >> connectionProfile: anObject [
+
+	ConnectionProfile := anObject
+]
 
 { #category : 'accessing' }
 JadeiteConnectionProfile >> connection [

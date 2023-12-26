@@ -4,7 +4,6 @@ Class {
 	#traits : 'JadeiteToolbarTrait',
 	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
-		'connectionProfile',
 		'versionText',
 		'netldiText',
 		'stoneText',
@@ -18,22 +17,10 @@ Class {
 		'lastConnection'
 	],
 	#classVars : [
-		'LastConnectionProfile'
+		'ConnectionProfile'
 	],
 	#category : 'Jadeite-Connection'
 }
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher class >> lastConnectionProfile [
-
-	^ LastConnectionProfile
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher class >> lastConnectionProfile: aProfile [
- 
-	LastConnectionProfile := aProfile
-]
 
 { #category : 'actions' }
 JadeiteConnectionLauncher >> addStyle: style [
@@ -45,6 +32,13 @@ JadeiteConnectionLauncher >> addStyle: style [
 	versionText addStyle: style. 
 	netldiText addStyle: style. 
 	pathText addStyle: style. 
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> clearConnectionSubscriptions [
+
+	^ (self connectionProfile observablePropertyNamed: #connection)
+		  subscriptions: OrderedCollection new
 ]
 
 { #category : 'actions' }
@@ -61,7 +55,7 @@ JadeiteConnectionLauncher >> connect [
 
 	| shouldDebug |
 	self populateConnectionProfile.
-	[ connectionProfile connect ]
+	[ self connectionProfile connect ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -82,32 +76,26 @@ JadeiteConnectionLauncher >> connect [
 JadeiteConnectionLauncher >> connectPresenters [
 
 	super connectPresenters.
-	connectionProfile whenConnectionChangedDo: [ :theConnection |
-		theConnection
-			ifNil: [ self closeWindowsForConnection: lastConnection ]
-			ifNotNil: [
-				self class lastConnectionProfile: connectionProfile.
+	self connectionProfile
+		whenConnectionChangedDo: [ :theConnection |
+			theConnection
+				ifNil: [ self closeWindowsForConnection: lastConnection ]
+				ifNotNil: [
 				JadeiteConsoleApplication showOnSession: theConnection ].
-		self enableButtons.
-		lastConnection := theConnection ]
+			self enableButtons.
+			lastConnection := theConnection ].
 ]
 
 { #category : 'actions' }
 JadeiteConnectionLauncher >> connection [
 
-	^connectionProfile connection
+	^self connectionProfile connection
 ]
 
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> connectionProfile [
 
-	^ connectionProfile
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher >> connectionProfile: anObject [ 
-
-	connectionProfile := anObject 
+	^JadeiteConnectionProfile connectionProfile
 ]
 
 { #category : 'defaults' }
@@ -131,7 +119,7 @@ JadeiteConnectionLauncher >> defaultVerticalSpacing [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> disconnect [
 
-	connectionProfile disconnect
+	self connectionProfile disconnect
 ]
 
 { #category : 'actions' }
@@ -272,8 +260,6 @@ JadeiteConnectionLauncher >> initializePathPresenter [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePresenter [
 	super initializePresenter. 
-	connectionProfile := self class lastConnectionProfile copy ifNil: [
-		                     JadeiteGCIConnectionProfile new ].
 	self populateTextFields.
 	self enableButtons
 ]
@@ -337,9 +323,7 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 		initialExtent: 400 @ 550;
 		menu: self initializeMenubar.
 	self updateCaption.
-	aWindowPresenter whenClosedDo: [
-		(self connectionProfile observablePropertyNamed: #connection)
-			subscriptions: OrderedCollection new ]
+	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]
 ]
 
 { #category : 'accessing' }
@@ -357,7 +341,7 @@ JadeiteConnectionLauncher >> jadeiteWindowsFor: connection [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> populateConnectionProfile [
 
-	connectionProfile
+	self connectionProfile
 		host: hostText text;
 		stone: stoneText text;
 		user: userText text;
@@ -370,13 +354,13 @@ JadeiteConnectionLauncher >> populateConnectionProfile [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> populateTextFields [
 
-	hostText text: connectionProfile host.
-	stoneText text: connectionProfile stone.
-	userText text: connectionProfile user.
-	passwordText text: connectionProfile password.
-	versionText text: connectionProfile version.
-	netldiText text: connectionProfile netldi.
-	pathText text: connectionProfile path
+	hostText text: self connectionProfile host.
+	stoneText text: self connectionProfile stone.
+	userText text: self connectionProfile user.
+	passwordText text: self connectionProfile password.
+	versionText text: self connectionProfile version.
+	netldiText text: self connectionProfile netldi.
+	pathText text: self connectionProfile path
 ]
 
 { #category : 'initialization' }
@@ -402,9 +386,9 @@ JadeiteConnectionLauncher >> setPath [
 	| path |
 	path := UIManager default chooseDirectory.
 	path ifNil: [ ^ self ].
-	connectionProfile path: path fullName.
-	JadeiteGCIConnectionProfile defaultPath: connectionProfile path.
-	pathText text: connectionProfile path. 
+	self connectionProfile path: path fullName.
+	JadeiteGCIConnectionProfile defaultPath: self connectionProfile path.
+	pathText text: self connectionProfile path. 
 ]
 
 { #category : 'actions' }

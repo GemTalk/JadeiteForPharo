@@ -73,8 +73,7 @@ JadeiteGCIConnectionProfile >> disconnect [
 	session logout.
 	session := nil.
 	connection := nil.
-	(self observablePropertyNamed: #connection) subscriptions:
-		OrderedCollection new
+	self notifyPropertyChanged: #connection. 
 ]
 
 { #category : 'testing' }
@@ -123,6 +122,12 @@ JadeiteGCIConnectionProfile >> path [
 JadeiteGCIConnectionProfile >> path: anObject [
 
 	path := anObject
+]
+
+{ #category : 'actions' }
+JadeiteGCIConnectionProfile >> reconnectIfNecessary [
+
+	self isConnected ifFalse: [ self connect ]
 ]
 
 { #category : 'accessing' }

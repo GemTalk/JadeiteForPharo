@@ -19,7 +19,7 @@ JadeiteHeadlessTestResource >> basicUnloadProject: projectName [
 { #category : 'support' }
 JadeiteHeadlessTestResource >> connectionProfile [
 	| connectionProfile |
-	connectionProfile := JadeiteConnectionLauncher lastConnectionProfile.
+	connectionProfile := JadeiteConnectionLauncher connectionProfile.
 	connectionProfile ifNil: [
 		connectionProfile := self class defaultGciConnectionProfile ].
 	^ connectionProfile
@@ -42,7 +42,7 @@ JadeiteHeadlessTestResource >> isAvailable [
 { #category : 'testing' }
 JadeiteHeadlessTestResource >> isConnected [
 
-	^ JadeiteConnectionLauncher lastConnectionProfile isConnected
+	^ JadeiteConnectionLauncher connectionProfile isConnected
 ]
 
 { #category : 'support' }
