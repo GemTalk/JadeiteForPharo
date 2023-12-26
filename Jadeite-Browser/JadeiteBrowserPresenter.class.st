@@ -1483,7 +1483,7 @@ JadeiteBrowserPresenter >> initializeDefinedClassPackageText: classColumn [
 
 	definedClassPackageText := SpTextPresenter new
 		                           beNotEditable;
-		                           beNotWrapWord;
+		                           beWrapWord;
 		                           withoutScrollBars.
 	definedClassPackageText addStyle: 'jadeiteTextBackgroundColor'.
 	classColumn
@@ -3479,7 +3479,8 @@ JadeiteBrowserPresenter >> updatePackage [
 	self updatePackageInfo.
 	self resetSunitTestList.
 	packageListPresenter selectionIfNone: [ self selectProjectTab ].
-	self updateTabLabel
+	self updateTabLabel.
+	definedClassPackageText text: String new. 
 ]
 
 { #category : 'updates' }
@@ -3528,7 +3529,8 @@ JadeiteBrowserPresenter >> updateProject [
 		classHierarchyPresenter clear ].
 	self buildPackageList.
 	self updateTabLabel.
-	self basicUpdateProject
+	self basicUpdateProject.
+	definedClassPackageText text: String new. 
 ]
 
 { #category : 'updates' }

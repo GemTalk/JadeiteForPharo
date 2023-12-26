@@ -151,6 +151,7 @@ JadeiteMethodListPresenter >> editSaveMethod [
 { #category : 'actions' }
 JadeiteMethodListPresenter >> editSaveMethod: classService [
 	| compileResult |
+	classService meta: self methodListPresenter selectedItem meta. 
 	compileResult := self
 				editSaveMethod: classService
 				in: methodSourcePresenter
