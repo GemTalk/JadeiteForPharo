@@ -78,9 +78,9 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 		           'test_importConnection.txt'.
 	fileRef exists ifTrue: [ fileRef delete ].
 	self deny: fileRef exists.
-	
+
 	launcher basicExportProfile: fileRef.
-	
+
 	launcher hostText text: String new.
 	launcher stoneText text: String new.
 	launcher userText text: String new.
@@ -88,14 +88,18 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 	launcher versionText text: String new.
 	launcher netldiText text: String new.
 	launcher pathText text: String new.
-	
+
 	launcher basicImportProfile: fileRef readStream.
-	
+
 	self assert: launcher hostText text equals: profile host.
 	self assert: launcher stoneText text equals: profile stone.
 	self assert: launcher userText text equals: profile user.
 	self assert: launcher passwordText text equals: profile password.
 	self assert: launcher versionText text equals: profile version.
 	self assert: launcher netldiText text equals: profile netldi.
-	self assert: launcher pathText text equals: profile path
+	self assert: launcher pathText text equals: profile path.
+
+	launcher connect.
+	[ self assert: launcher connectionProfile isConnected ] ensure: [
+		launcher disconnect ]
 ]
