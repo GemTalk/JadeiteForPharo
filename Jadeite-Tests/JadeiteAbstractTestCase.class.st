@@ -1096,7 +1096,7 @@ JadeiteAbstractTestCase >> testsIssue: aSymbol withTitle: anObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> testsJadeiteForPharoIssue: aSymbol withTitle: anObject [
+JadeiteAbstractTestCase >> testsJadeiteForPharoIssue: aSymbol title: anObject [
 	"send this to help identify which tests test which issues"
 
 	" a helpful parameter format is #issue<issueNumber>"

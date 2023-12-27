@@ -34,6 +34,30 @@ JadeiteConnectionLauncher >> addStyle: style [
 	pathText addStyle: style. 
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> basicExportProfile: fileRef [
+
+	| profileCopy ws |
+	ws := fileRef writeStream.
+	[
+	profileCopy := JadeiteGCIConnectionProfile new.
+	self populate: profileCopy. "don't want to export the connection"
+	ws nextPutAll: (STON toString: profileCopy).
+	ws flush ] ensure: [ ws close ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> basicImportProfile: fileStream [
+
+	| connectionProfile |
+	connectionProfile := [ STON fromString: fileStream contents ]
+		                     ensure: [ fileStream close ].
+	self clearConnectionSubscriptions.
+	JadeiteConnectionProfile connectionProfile: connectionProfile.
+	self populateTextFields.
+	self connectConnection
+]
+
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 
@@ -159,29 +183,41 @@ JadeiteConnectionLauncher >> enableButtons [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> exportProfile [
 
-	| fileRef ws |
+	| fileRef |
 	fileRef := UIManager default theme
 		           chooseForSaveFileReferenceIn: Smalltalk ui
 		           title: 'Export Connection File'
 		           extensions: (Array with: '.txt')
 		           path: 'jadeiteConnectionProfile.txt'
 		           preview: nil.
-	fileRef ifNil: [ ^self ].
+	fileRef ifNil: [ ^ self ].
 	fileRef exists ifTrue: [
 		(UIManager default confirm: 'Overwrite existing file?') ifFalse: [
 			^ self ] ].
-	ws := fileRef writeStream.
-	[
-	self populateConnectionProfile.
-	ws nextPutAll:
-		(STON toString: JadeiteConnectionProfile connectionProfile).
-	ws flush ] ensure: [ ws close ]
+	self basicExportProfile: fileRef
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> hostText [
+
+	^ hostText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> hostText: anObject [
+
+	hostText := anObject
 ]
 
 { #category : 'actions' }
 JadeiteConnectionLauncher >> importProfile [
 
-	| connectionProfile fileStream |
+	| fileStream |
+	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
+		(UIManager default confirm:
+			 'Importing a connection will disconnect current connection. Continue?')
+			ifTrue: [ JadeiteConnectionProfile connectionProfile disconnect ]
+			ifFalse: [ ^ self ] ].
 	fileStream := FileDialogWindow basicNew
 		              previewType: nil;
 		              initialize;
@@ -189,13 +225,8 @@ JadeiteConnectionLauncher >> importProfile [
 		              answerOpenFile;
 		              openModal;
 		              answer.
-	fileStream ifNil: [ ^self ].
-	connectionProfile := [ STON fromString: fileStream contents ]
-		                     ensure: [ fileStream close ].
-	self clearConnectionSubscriptions.
-	JadeiteConnectionProfile connectionProfile: connectionProfile.
-	self populateTextFields.
-	self connectConnection
+	fileStream ifNil: [ ^ self ].
+	self basicImportProfile: fileStream
 ]
 
 { #category : 'initialization' }
@@ -266,12 +297,12 @@ JadeiteConnectionLauncher >> initializeMenubar [
 			  group
 				  addItem: [ :item |
 					  item
-						  name: 'About';
-						  subMenu: self initializeAboutMenu ];
+						  name: 'File';
+						  subMenu: self initializeFileMenu ];
 				  addItem: [ :item |
 					  item
-						  name: 'File';
-						  subMenu: self initializeFileMenu ] ];
+						  name: 'About';
+						  subMenu: self initializeAboutMenu ] ];
 		  yourself
 ]
 
@@ -404,10 +435,46 @@ JadeiteConnectionLauncher >> jadeiteWindowsFor: connection [
 			  ifNotNil: [ :sess | sess library == connection ] ]
 ]
 
-{ #category : 'actions' }
-JadeiteConnectionLauncher >> populateConnectionProfile [
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> netldiText [
 
-	self connectionProfile
+	^ netldiText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> netldiText: anObject [
+
+	netldiText := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> passwordText [
+
+	^ passwordText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> passwordText: anObject [
+
+	passwordText := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> pathText [
+
+	^ pathText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> pathText: anObject [
+
+	pathText := anObject
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> populate: profile [
+
+	profile
 		host: hostText text;
 		stone: stoneText text;
 		user: userText text;
@@ -415,6 +482,13 @@ JadeiteConnectionLauncher >> populateConnectionProfile [
 		version: versionText text;
 		netldi: netldiText text;
 		path: pathText text
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> populateConnectionProfile [
+
+	self populate: self connectionProfile
+		
 ]
 
 { #category : 'actions' }
@@ -457,8 +531,44 @@ JadeiteConnectionLauncher >> setPath [
 	pathText text: self connectionProfile path. 
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> stoneText [
+
+	^ stoneText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> stoneText: anObject [
+
+	stoneText := anObject
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> updateCaption [ 
 	
 	self caption: 'Jadeite Connection Launcher'
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> userText [
+
+	^ userText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> userText: anObject [
+
+	userText := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> versionText [
+
+	^ versionText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> versionText: anObject [
+
+	versionText := anObject
 ]

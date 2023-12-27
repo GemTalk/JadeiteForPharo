@@ -148,7 +148,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatesButtons [
 
 	self
 		testsJadeiteForPharoIssue: #issue20
-		withTitle: 'Could us an autocommit status indication in Console'.
+		title: 'Could us an autocommit status indication in Console'.
 
 
 	self setRemoteAutoCommit: false.

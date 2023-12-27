@@ -347,7 +347,7 @@ JadeiteForPharoBrowserTestCase >> test_categorySelection [
 
 	self
 		testsJadeiteForPharoIssue: #issue24
-		withTitle: 'Selected category pane wrong if no category selected'.
+		title: 'Selected category pane wrong if no category selected'.
 	self selectRowanAnsweringService.
 	self
 		assert: self methodListPresenter list size
@@ -382,7 +382,7 @@ JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
 	| updatingCategoryIndex |
 	self
 		testsJadeiteForPharoIssue: #issue24
-		withTitle: 'Selected category pane wrong if no category selected'.
+		title: 'Selected category pane wrong if no category selected'.
 	self selectRowanAnsweringService.
 	self selectCategoryNamed: 'accessing'.
 	self selectMethodsNamed: { #answer } in: self methodListPresenter.
@@ -404,7 +404,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentReset [
 	| originalComment |
 	self
 		testsJadeiteForPharoIssue: #issue49
-		withTitle: 'Class Comment tab doesn''t work correctly'.
+		title: 'Class Comment tab doesn''t work correctly'.
 	self selectRowanSample1Class.
 	self projectsPresenter selectClassCommentTab.
 	originalComment := self projectsPresenter selectedClass comment.
@@ -428,7 +428,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 	| originalComment |
 	self
 		testsJadeiteForPharoIssue: #issue49
-		withTitle: 'Class Comment tab doesn''t work correctly'.
+		title: 'Class Comment tab doesn''t work correctly'.
 	self ensureRowanSampleProjectsLoadedFromDisk.
 	self commitTransaction.
 	self selectRowanSample1Class.
@@ -462,7 +462,7 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 	| changedMethodSource |
 	self
 		testsJadeiteForPharoIssue: #issue44
-		withTitle:
+		title:
 		'While editing a method, can click on other methods, but method text pane not updated'.
 	self selectRowanSample1Test.
 	self selectMethodNamedInProjectBrowser: #test1.
@@ -503,7 +503,7 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
 
 	self
 		testsJadeiteForPharoIssue: #issue44
-		withTitle:
+		title:
 		'While editing a method, can click on other methods, but method text pane not updated'.
 	self selectRowanServicesPackage.
 	self
@@ -652,7 +652,7 @@ JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 	| methodList classMethod instanceMethod |
 	self
 		testsJadeiteForPharoIssue: #issue10
-		withTitle:
+		title:
 		'changed method in method browsers reverts to original source after save'.
 	self selectRowanSample1Class.
 	self selectClassSide.
@@ -731,7 +731,7 @@ JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 	| projects |
 	self
 		testsJadeiteForPharoIssue: #issue21
-		withTitle:
+		title:
 		'loading a new project externally and then aborting ends up with new project at bottom of console'.
 	JadeiteApplication abortTransactionInSession: session.
 	[
@@ -758,7 +758,7 @@ JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
 	| projectsBefore projectsAfter |
 	self
 		testsJadeiteForPharoIssue: #issue21
-		withTitle:
+		title:
 		'loading a new project externally and then aborting ends up with new project at bottom of console'.
 	projectsBefore := self projectList collect: [ :projectService |
 		                  projectService name ].
