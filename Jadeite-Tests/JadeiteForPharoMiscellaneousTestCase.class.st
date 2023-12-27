@@ -1,10 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoMiscellaneousTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
-	#instVars : [
-		'fileRef',
-		'launcher'
-	],
 	#category : 'Jadeite-Tests'
 }
 
@@ -15,16 +11,9 @@ JadeiteForPharoMiscellaneousTestCase >> focusWidgetText [
 ]
 
 { #category : 'support' }
-JadeiteForPharoMiscellaneousTestCase >> getLauncher [
-	self closeConnectionLaunchers. 
-	launcher := JadeiteConnectionApplication new start
-]
+JadeiteForPharoMiscellaneousTestCase >> setUp [
 
-{ #category : 'support' }
-JadeiteForPharoMiscellaneousTestCase >> tearDown [
-
-	super tearDown.
-	launcher ifNotNil: [ self destroy: launcher ]
+	super setUp
 ]
 
 { #category : 'tests' }
@@ -92,37 +81,6 @@ JadeiteForPharoMiscellaneousTestCase >> test_classServiceNameIsString [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_exportConnection [
-
-	| launcher profile isConnected exportedProfile |
-	"https://github.com/GemTalk/JadeiteForPharo/issues/67"
-	self
-		testsJadeiteForPharoIssue: #issue67
-		title: 'Need to be able to save connections'.
-	profile := JadeiteConnectionProfile connectionProfile.
-	isConnected := profile isConnected.
-	launcher := self getLauncher.
-	fileRef := FileSystem workingDirectory resolveString:
-		           'test_exportConnection.txt'.
-	fileRef exists ifTrue: [ fileRef delete ].
-	self deny: fileRef exists.
-	launcher basicExportProfile: fileRef.
-
-	self assert: fileRef exists.
-	self
-		assert: profile
-		identicalTo: JadeiteConnectionProfile connectionProfile.
-	self assert: isConnected equals: profile isConnected.
-	exportedProfile := STON fromString: fileRef contents.
-	(JadeiteGCIConnectionProfile instVarNames copyWithout: #session) do: [ :instVarName |
-		self
-			assert: (exportedProfile instVarNamed: instVarName)
-			equals:
-			(JadeiteConnectionProfile connectionProfile instVarNamed:
-				 instVarName) ]
-]
-
-{ #category : 'tests' }
 JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
 
 	| connectionLauncher jfpSha gemstoneFFISha rsrSha clientServicesSha browserService desiredWorkspaceText |
@@ -162,43 +120,6 @@ RowanClientServices ' , clientServicesSha asString , '
 '.
 	self assert: workspace text asString equals: desiredWorkspaceText ]
 		ensure: [ self destroy: workspace ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoMiscellaneousTestCase >> test_importConnection [
-
-	| launcher profile |
-	"https://github.com/GemTalk/JadeiteForPharo/issues/67"
-	self
-		testsJadeiteForPharoIssue: #issue67
-		title: 'Need to be able to save connections'.
-	profile := JadeiteConnectionProfile connectionProfile.
-	profile isConnected ifTrue: [ profile disconnect ].
-	launcher := self getLauncher.
-	fileRef := FileSystem workingDirectory resolveString:
-		           'test_importConnection.txt'.
-	fileRef exists ifTrue: [ fileRef delete ].
-	self deny: fileRef exists.
-	
-	launcher basicExportProfile: fileRef.
-	
-	launcher hostText text: String new.
-	launcher stoneText text: String new.
-	launcher userText text: String new.
-	launcher passwordText text: String new.
-	launcher versionText text: String new.
-	launcher netldiText text: String new.
-	launcher pathText text: String new.
-	
-	launcher basicImportProfile: fileRef readStream.
-	
-	self assert: launcher hostText text equals: profile hostText.
-	self assert: launcher stoneText text equals: profile stoneText.
-	self assert: launcher userText text equals: profile userText.
-	self assert: launcher passwordText text equals: profile passwordText.
-	self assert: launcher versionText text equals: profile versionText.
-	self assert: launcher netldiText text equals: profile netldiText.
-	self assert: launcher pathText text equals: profile pathText
 ]
 
 { #category : 'tests' }

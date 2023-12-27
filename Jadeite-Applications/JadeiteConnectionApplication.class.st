@@ -24,5 +24,6 @@ JadeiteConnectionApplication >> start [
 	| inst |
 	inst := self new: JadeiteConnectionLauncher.
 	inst addStyle: 'jadeiteTextBackgroundColor'.
-	inst open
+	inst open.
+	^inst
 ]
