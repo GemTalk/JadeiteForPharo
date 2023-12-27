@@ -73,17 +73,21 @@ JadeiteConnectionLauncher >> connect [
 ]
 
 { #category : 'initialization' }
+JadeiteConnectionLauncher >> connectConnection [
+
+	self connectionProfile whenConnectionChangedDo: [ :theConnection |
+		theConnection
+			ifNil: [ self closeWindowsForConnection: lastConnection ]
+			ifNotNil: [ JadeiteConsoleApplication showOnSession: theConnection ].
+		self enableButtons.
+		lastConnection := theConnection ]
+]
+
+{ #category : 'initialization' }
 JadeiteConnectionLauncher >> connectPresenters [
 
 	super connectPresenters.
-	self connectionProfile
-		whenConnectionChangedDo: [ :theConnection |
-			theConnection
-				ifNil: [ self closeWindowsForConnection: lastConnection ]
-				ifNotNil: [
-				JadeiteConsoleApplication showOnSession: theConnection ].
-			self enableButtons.
-			lastConnection := theConnection ].
+	self connectConnection
 ]
 
 { #category : 'actions' }
@@ -152,6 +156,48 @@ JadeiteConnectionLauncher >> enableButtons [
 	disconnectButton enabled: self connectionProfile connection notNil
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> exportProfile [
+
+	| fileRef ws |
+	fileRef := UIManager default theme
+		           chooseForSaveFileReferenceIn: Smalltalk ui
+		           title: 'Export Connection File'
+		           extensions: (Array with: '.txt')
+		           path: 'jadeiteConnectionProfile.txt'
+		           preview: nil.
+	fileRef ifNil: [ ^self ].
+	fileRef exists ifTrue: [
+		(UIManager default confirm: 'Overwrite existing file?') ifFalse: [
+			^ self ] ].
+	ws := fileRef writeStream.
+	[
+	self populateConnectionProfile.
+	ws nextPutAll:
+		(STON toString: JadeiteConnectionProfile connectionProfile).
+	ws flush ] ensure: [ ws close ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> importProfile [
+
+	| connectionProfile fileStream |
+	fileStream := FileDialogWindow basicNew
+		              previewType: nil;
+		              initialize;
+		              title: 'Select connection profile to import';
+		              answerOpenFile;
+		              openModal;
+		              answer.
+	fileStream ifNil: [ ^self ].
+	connectionProfile := [ STON fromString: fileStream contents ]
+		                     ensure: [ fileStream close ].
+	self clearConnectionSubscriptions.
+	JadeiteConnectionProfile connectionProfile: connectionProfile.
+	self populateTextFields.
+	self connectConnection
+]
+
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeAboutMenu [
 
@@ -186,6 +232,21 @@ JadeiteConnectionLauncher >> initializeButtons [
 ]
 
 { #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeFileMenu [
+
+	^ self newMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Export Connection ...';
+				  action: [ self exportProfile ] ];
+		  addItem: [ :item |
+			  item
+				  name: 'Import Connection ...';
+				  action: [ self importProfile ] ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeHostPresenter [
 
 	self layout
@@ -201,11 +262,16 @@ JadeiteConnectionLauncher >> initializeHostPresenter [
 JadeiteConnectionLauncher >> initializeMenubar [
 
 	^ self newMenuBar
-		  addGroup: [ :group | 
-			  group addItem: [ :item | 
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
 					  item
 						  name: 'About';
-						  subMenu: self initializeAboutMenu  ] ];
+						  subMenu: self initializeAboutMenu ];
+				  addItem: [ :item |
+					  item
+						  name: 'File';
+						  subMenu: self initializeFileMenu ] ];
 		  yourself
 ]
 
