@@ -2,7 +2,8 @@ Class {
 	#name : 'JadeiteForPharoMiscellaneousTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
-		'fileRef'
+		'fileRef',
+		'launcher'
 	],
 	#category : 'Jadeite-Tests'
 }
@@ -15,17 +16,15 @@ JadeiteForPharoMiscellaneousTestCase >> focusWidgetText [
 
 { #category : 'support' }
 JadeiteForPharoMiscellaneousTestCase >> getLauncher [
-
-	^ JadeiteConnectionLauncher allInstances isEmpty
-		  ifTrue: [ JadeiteConnectionApplication new start ]
-		  ifFalse: [ JadeiteConnectionLauncher allInstances first ]
+	self closeConnectionLaunchers. 
+	launcher := JadeiteConnectionApplication new start
 ]
 
 { #category : 'support' }
 JadeiteForPharoMiscellaneousTestCase >> tearDown [
 
 	super tearDown.
-	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ]
+	launcher ifNotNil: [ self destroy: launcher ]
 ]
 
 { #category : 'tests' }

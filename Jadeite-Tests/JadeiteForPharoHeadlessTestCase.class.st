@@ -36,16 +36,6 @@ JadeiteForPharoHeadlessTestCase class >> testResourceClass [
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> closeConnectionLaunchers [ 
-
-	JadeiteConnectionLauncher allInstances do: [ :launcher |
-		| profile |
-		profile := launcher connectionProfile.
-		profile isConnected ifTrue: [ profile disconnect ].
-		self destroy: launcher ].
-]
-
-{ #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> resourceConnectionProfile [
 
 	^ self testResourceClass current connectionProfile
