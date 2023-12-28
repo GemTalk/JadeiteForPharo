@@ -250,17 +250,18 @@ JadeiteDebuggerDataCuratorTestCase >> purgeInstances: aClass [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerDataCuratorTestCase >> removeMethodNamed: aSymbol [
+
 	| classService methodService |
 	methodService := RowanMethodService new
-				selector: aSymbol;
-				className: 'RowanSample1Test';
-				meta: false.
+		                 selector: aSymbol;
+		                 className: 'RowanSample1Test';
+		                 meta: false.
 	classService := RowanClassService named: 'RowanSample1Test'.
-	classService updateForSession: session. 
+	classService updateForSession: session.
 	classService
 		command: #removeMethods:;
 		commandArgs: (Array with: (Array with: methodService)).
-	^self issueCommand: classService
+	^ self issueCommand: classService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

@@ -16,17 +16,17 @@ JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 	service := RowanAnsweringService
 		           command: #clearMethodBreaks:
 		           withArgs: (Array with: (Array with: self methodService)).
-	self issueCommand: service.
+	self issueCommand: service onCompletion: nil.
 	self outerJadeiteBrowser updateMethodSource
 ]
 
 { #category : 'breakpoints' }
 JadeiteMethodSourcePane >> clearBreakPointAt: stepPoint [
+
 	self methodService
 		command: #clearBreakAt:;
 		commandArgs: (Array with: stepPoint).
-	self issueCommand: self methodService.
-
+	self issueCommand: self methodService onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -80,8 +80,9 @@ JadeiteMethodSourcePane >> formatSource [
 	| answeringService |
 	answeringService := RowanAnsweringServiceClient new
 		                    command: #formatSource:;
-		                    commandArgs: (Array with: self text asString replaceCrWithLf).
-	self issueCommand: answeringService.
+		                    commandArgs:
+			                    (Array with: self text asString replaceCrWithLf).
+	self issueCommand: answeringService onCompletion: nil.
 	self text: answeringService answer replaceLfWithCr
 ]
 
@@ -123,14 +124,14 @@ JadeiteMethodSourcePane >> saveMethodIn: classService category: category [
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: methodSource1 with: category).
-	[ self issueCommand: classService ]
+	[ self issueCommand: classService onCompletion: nil ]
 		on: GsCompileError
 		do: [ :ex |
 			self reportCompileError: ex gsArguments.
 			^ false ].
 	self value: methodSource1.
-	self hasUnacceptedEdits: false. 
-	^true
+	self hasUnacceptedEdits: false.
+	^ true
 ]
 
 { #category : 'selections' }

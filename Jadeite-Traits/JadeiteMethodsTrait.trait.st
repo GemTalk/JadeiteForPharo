@@ -61,14 +61,17 @@ JadeiteMethodsTrait >> addBrowseSendersItemTo: group [
 
 { #category : 'queries' }
 JadeiteMethodsTrait >> basicSendersOf: string [
+
 	| service shell |
-	service := RowanQueryService command: #sendersOf: withArgs: (Array with: string asSymbol).
-	self issueCommands: (Array with: service).
-	shell := self
-				openMethodListOn: service
-				selecting: string.
-	shell updateCaptionFromSearchString: service answer size printString, ' Senders of ' , string asString printString.
-	^shell
+	service := RowanQueryService
+		           command: #sendersOf:
+		           withArgs: (Array with: string asSymbol).
+	self issueCommands: (Array with: service) onCompletion: nil.
+	shell := self openMethodListOn: service selecting: string.
+	shell updateCaptionFromSearchString:
+		service answer size printString , ' Senders of '
+		, string asString printString.
+	^ shell
 ]
 
 { #category : 'queries' }
@@ -114,7 +117,7 @@ JadeiteMethodsTrait >> browseImplementorsOf [
 JadeiteMethodsTrait >> browseImplementorsOf: string [
 
 	| service shell |
-	string size > self maxSymbolSize ifTrue: [ 
+	string size > self maxSymbolSize ifTrue: [
 		^ MessageBox notify:
 			  'String exceeds max symbol size - '
 			  , self maxSymbolSize printString , ' characters' ].
@@ -124,12 +127,12 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 		           withArgs: (Array with: string asSymbol).
 	RowanServiceUpdater current
 		issueCommands: (Array with: service)
-		session: self gciSession.
-	shell := self
-		         openMethodListOn: service
-		         selecting: string.
+		session: self gciSession
+		onCompletion: nil.
+	shell := self openMethodListOn: service selecting: string.
 	shell updateCaptionFromSearchString:
-		service answer size printString, ' Implementors of ' , string asString printString.
+		service answer size printString , ' Implementors of '
+		, string asString printString.
 	^ shell
 ]
 
@@ -151,7 +154,8 @@ JadeiteMethodsTrait >> browseLiteralReferences: string [
 		           withArgs: (Array with: string).
 	RowanServiceUpdater current
 		issueCommands: (Array with: service)
-		session: self gciSession.
+		session: self gciSession
+		onCompletion: nil.
 	shell := self openMethodListOn: service selecting: string.
 	shell updateCaptionFromSearchString:
 		'Literal References To ' , string asString printString.
@@ -194,7 +198,8 @@ JadeiteMethodsTrait >> browseMethodsContaining: string [
 		           withArgs: (Array with: string).
 	RowanServiceUpdater current
 		issueCommands: (Array with: service)
-		session: self gciSession.
+		session: self gciSession
+		onCompletion: nil.
 	shell := self openMethodListOn: service selecting: string.
 	shell updateCaptionFromSearchString:
 		'Methods Containing ' , string asString printString.
@@ -317,15 +322,18 @@ JadeiteMethodsTrait >> initializeMethodListMenu [
 ]
 
 { #category : 'commands' }
-JadeiteMethodsTrait >> issueCommand: service [
+JadeiteMethodsTrait >> issueCommand: service onCompletion: anObject [
 
-	^self issueCommands: (Array with: service)
+	^ self issueCommands: (Array with: service) onCompletion: nil
 ]
 
 { #category : 'commands' }
-JadeiteMethodsTrait >> issueCommands: services [
+JadeiteMethodsTrait >> issueCommands: services onCompletion: anObject [
 
-	RowanServiceUpdater current issueCommands: services session: self gciSession
+	RowanServiceUpdater current
+		issueCommands: services
+		session: self gciSession
+		onCompletion: nil
 ]
 
 { #category : 'constants' }
@@ -428,23 +436,26 @@ JadeiteMethodsTrait >> reformatSource [
 
 { #category : 'actions' }
 JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: methodService [
+
 	methodService
 		source: presenter value;
 		command: #reformatSource;
 		commandArgs: Array new.
-	[self issueCommand: methodService] on: Error
-		do: 
-			[:ex | 
+	[ self issueCommand: methodService onCompletion: nil ]
+		on: Error
+		do: [ :ex |
 			self setCompileErrorColor.
-			self statusBarText: 'Reformat failed. Illegal source - ' , ex description.
-			^false].
-	presenter view
-		performUndoableAction: [presenter view modifyText: [presenter view sciSetText: methodService source]].
+			self statusBarText:
+				'Reformat failed. Illegal source - ' , ex description.
+			^ false ].
+	presenter view performUndoableAction: [
+		presenter view modifyText: [
+			presenter view sciSetText: methodService source ] ].
 	presenter value: methodService source.
 	presenter view isModified: true.
 	self setStatusBarDefault.
 	self statusBarText: String new.
-	^presenter value
+	^ presenter value
 ]
 
 { #category : 'actions' }
@@ -456,12 +467,13 @@ JadeiteMethodsTrait >> removeCompileWarningColor [
 
 { #category : 'actions' }
 JadeiteMethodsTrait >> removeMethodSelectors: selectors [
+
 	| selectedClass |
-	selectedClass := self selectedClass. 
+	selectedClass := self selectedClass.
 	selectedClass
 		command: #removeMethods:;
 		commandArgs: (Array with: self methodListPresenter selections).
-	self issueCommand: selectedClass
+	self issueCommand: selectedClass onCompletion: nil
 ]
 
 { #category : 'actions' }
@@ -553,11 +565,12 @@ JadeiteMethodsTrait >> updateService: service [
 JadeiteMethodsTrait >> updateServices: services [
 
 	services isEmpty ifTrue: [ ^ self ].
-	services do: [ :service | 
+	services do: [ :service |
 		service
 			command: #update;
 			commandArgs: #(  ) ].
-	RowanServiceUpdater current 
+	RowanServiceUpdater current
 		issueCommands: services
 		session: self gciSession
+		onCompletion: nil
 ]

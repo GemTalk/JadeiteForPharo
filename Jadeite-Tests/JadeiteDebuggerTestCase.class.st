@@ -1833,48 +1833,55 @@ JadeiteDebuggerTestCase >> test_openDebuggerWthBreakpointInDebuggerService [
 	"Basics of opening a debugger, viewing the UI, and resuming."
 
 	| x methodService answeringService wereBreakpointsEnabled classService |
-	self testsIssue: #issue748 withTitle: 'Debugger should ignore breakpoints'.
+	self
+		testsIssue: #issue748
+		withTitle: 'Debugger should ignore breakpoints'.
 	answeringService := RowanAnsweringService new.
-	wereBreakpointsEnabled := answeringService breakPointsAreEnabled: session.
-	
-	["set breakpoint in critical debugger path, expect debugger to open"
+	wereBreakpointsEnabled := answeringService breakPointsAreEnabled:
+		                          session.
+
+	[ "set breakpoint in critical debugger path, expect debugger to open"
 	classService := RowanClassService named: 'RowanDebuggerService'.
 	classService
 		command: #saveMethodSource:category:;
-		commandArgs: (Array with: 'update  ^super update' with: 'for testing').
-	self issueCommand: classService.
+		commandArgs:
+			(Array with: 'update  ^super update' with: 'for testing').
+	self issueCommand: classService onCompletion: nil.
 	methodService := RowanMethodService new
-				className: 'RowanDebuggerService';
-				selector: #update;
-				meta: false.
+		                 className: 'RowanDebuggerService';
+		                 selector: #update;
+		                 meta: false.
 	methodService
 		command: #setBreakAt:;
 		commandArgs: (Array with: 3).
-	self issueCommand: methodService.
+	self issueCommand: methodService onCompletion: nil.
 	JadePresenter enableAllBreakpointsIn: session.
 	self
 		openDebuggerOn: 'nil halt';
-		assert: (x := debugger errorMessagePresenter value) = 'a Halt occurred (error 2709)';
+		assert: (x := debugger errorMessagePresenter value)
+			= 'a Halt occurred (error 2709)';
 		assert: (x := debugger processListPresenter list size) == 1;
 		assert: (x := debugger frameListPresenter list size) == 8;
-		assert: (x := debugger frameListPresenter selection) = 'Executed Code  @2 line 1';
+		assert: (x := debugger frameListPresenter selection)
+			= 'Executed Code  @2 line 1';
 		assert: (x := debugger variableListPresenter list size) == 1;
-		assert: (x := debugger variableListPresenter list first) class == RowanVariableService;
+		assert: (x := debugger variableListPresenter list first) class
+			== RowanVariableService;
 		assert: x oop == 20;
 		assert: x _key == #receiver;
 		assert: x value = 'nil';
-		debuggerDo: [debugger resumeProcess];
+		debuggerDo: [ debugger resumeProcess ];
 		assert: (x := debugger view) class == DeafObject;
-		yourself]
-			ensure: 
-				[methodService
-					ifNotNil: 
-						[methodService
-							command: #clearBreakAt:;
-							commandArgs: (Array with: 3)].
-				self issueCommand: methodService.
-				self abortTransaction.  "Need to get rid of the new method." 
-				answeringService setBreakpointsEnabled: wereBreakpointsEnabled session: session]
+		yourself ] ensure: [
+		methodService ifNotNil: [
+			methodService
+				command: #clearBreakAt:;
+				commandArgs: (Array with: 3) ].
+		self issueCommand: methodService onCompletion: nil.
+		self abortTransaction. "Need to get rid of the new method."
+		answeringService
+			setBreakpointsEnabled: wereBreakpointsEnabled
+			session: session ]
 ]
 
 { #category : 'as yet unclassified' }

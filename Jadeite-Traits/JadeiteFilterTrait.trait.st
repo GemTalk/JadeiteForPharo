@@ -16,21 +16,25 @@ JadeiteFilterTrait >> addMethodCategory [
 
 { #category : 'actions' }
 JadeiteFilterTrait >> basicRemoveMethodCategories [
+
 	| service |
 	service := self selectedClass
-				command: #removeCategories:;
-				commandArgs: (Array with: self categoryListPresenter selections).
-	self issueCommand: service
+		           command: #removeCategories:;
+		           commandArgs:
+			           (Array with: self categoryListPresenter selections).
+	self issueCommand: service onCompletion: nil
 ]
 
 { #category : 'actions' }
 JadeiteFilterTrait >> basicRenameCategoryFrom: old to: new [
+
 	| service |
-	new isEmpty ifTrue: [^MessageBox notify: 'New category name cannot be blank'].
+	new isEmpty ifTrue: [
+		^ MessageBox notify: 'New category name cannot be blank' ].
 	service := self selectedClass
-				command: #renameCategoryFrom:to:;
-				commandArgs: (Array with: old with: new).
-	self issueCommand: service.
+		           command: #renameCategoryFrom:to:;
+		           commandArgs: (Array with: old with: new).
+	self issueCommand: service onCompletion: nil.
 	self categoryListPresenter selection: new
 ]
 
@@ -44,18 +48,23 @@ JadeiteFilterTrait >> browseInstVarReaders [
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: session [
+
 	| service shell |
-	instVarName ifNil: [^nil].
-	service := RowanQueryService command: #instVarReaders:in:
-				withArgs: (Array with: instVarName with: className).
-	RowanServiceUpdater current issueCommands: (Array with: service) session: self gciSession.
+	instVarName ifNil: [ ^ nil ].
+	service := RowanQueryService
+		           command: #instVarReaders:in:
+		           withArgs: (Array with: instVarName with: className).
+	RowanServiceUpdater current
+		issueCommands: (Array with: service)
+		session: self gciSession
+		onCompletion: nil.
 	shell := self
-				openMethodListOn: service
-				selectingAnyMatch: instVarName
-				session: session.
-	shell
-		updateCaptionFromSearchString: 'Instance Variable Readers For ' , instVarName asString printString.
-	^shell
+		         openMethodListOn: service
+		         selectingAnyMatch: instVarName
+		         session: session.
+	shell updateCaptionFromSearchString:
+		'Instance Variable Readers For ' , instVarName asString printString.
+	^ shell
 ]
 
 { #category : 'actions' }
@@ -68,18 +77,23 @@ JadeiteFilterTrait >> browseInstVarWriters [
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: session [
+
 	| service shell |
-	instVarName ifNil: [^nil].
-	service := RowanQueryService command: #instVarWriters:in:
-				withArgs: (Array with: instVarName with: className).
-	RowanServiceUpdater current issueCommands: (Array with: service) session: self gciSession.
+	instVarName ifNil: [ ^ nil ].
+	service := RowanQueryService
+		           command: #instVarWriters:in:
+		           withArgs: (Array with: instVarName with: className).
+	RowanServiceUpdater current
+		issueCommands: (Array with: service)
+		session: self gciSession
+		onCompletion: nil.
 	shell := self
-				openMethodListOn: service
-				selectingAnyMatch: instVarName
-				session: session.
-	shell
-		updateCaptionFromSearchString: 'Instance Variable Writers For ' , instVarName asString printString.
-	^shell
+		         openMethodListOn: service
+		         selectingAnyMatch: instVarName
+		         session: session.
+	shell updateCaptionFromSearchString:
+		'Instance Variable Writers For ' , instVarName asString printString.
+	^ shell
 ]
 
 { #category : 'actions' }

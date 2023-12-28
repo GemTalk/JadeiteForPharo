@@ -90,21 +90,27 @@ RowanProjectService >> allClasses [
 
 { #category : 'presenter support' }
 RowanProjectService >> basicChangesUsing: session [
+
 	| operations |
 	command := #changes.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
 	operations := OrderedCollection new.
-	changes
-		do: [:changeString | operations addAll: (RowanPatch fromString: changeString session: session) operations].
-	^operations 
+	changes do: [ :changeString |
+		operations addAll:
+			(RowanPatch fromString: changeString session: session) operations ].
+	^ operations
 ]
 
 { #category : 'presenter support' }
 RowanProjectService >> basicCheckout: branchName using: presenter [
+
 	self
 		command: #checkout:;
 		commandArgs: (Array with: (branchName copyWithout: $*)).
-	presenter issueCommand: self.
+	presenter issueCommand: self onCompletion: nil.
 	presenter refresh
 ]
 
@@ -118,15 +124,19 @@ RowanProjectService >> basicCheckoutTag: tag using: session [
 
 { #category : 'presenter support' }
 RowanProjectService >> basicCheckoutUsing: presenter [
+
 	| branches query branchString |
 	query := RowanQueryService new
-				command: #projectBranches:;
-				commandArgs: (Array with: self name).
-	branchString := (presenter issueCommand: query) first answer.
-	branches := (branchString subStrings: Character lf) asOrderedCollection.
-	branches := branches reject: [:string | '*HEAD*' match: string].
-	branches := branches collect: [:string | string copyWithout: Character space].
-	^branches
+		         command: #projectBranches:;
+		         commandArgs: (Array with: self name).
+	branchString := (presenter issueCommand: query onCompletion: nil)
+		                first answer.
+	branches := (branchString subStrings: Character lf)
+		            asOrderedCollection.
+	branches := branches reject: [ :string | '*HEAD*' match: string ].
+	branches := branches collect: [ :string |
+		            string copyWithout: Character space ].
+	^ branches
 ]
 
 { #category : 'accessing' }
@@ -251,13 +261,17 @@ RowanProjectService >> existsOnDisk [
 
 { #category : 'presenter support' }
 RowanProjectService >> gitProjectLogUsing: parentPresenter session: session [
+
 	| gitLog projectName queryService |
 	projectName := self name.
 	gitLog := JadeiteGitLog showOnSession: session.
-	gitLog projectService: self. 
-	gitLog caption: (parentPresenter gciSession titleBarFor: projectName , ' Project Git Log').
-	queryService := RowanQueryService command: #projectLog: withArgs: (Array with: projectName).
-	parentPresenter issueCommand: queryService.
+	gitLog projectService: self.
+	gitLog caption: (parentPresenter gciSession titleBarFor:
+			 projectName , ' Project Git Log').
+	queryService := RowanQueryService
+		                command: #projectLog:
+		                withArgs: (Array with: projectName).
+	parentPresenter issueCommand: queryService onCompletion: nil.
 	gitLog codePane documentPresenter value: queryService queryResults
 ]
 

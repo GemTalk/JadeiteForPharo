@@ -70,7 +70,7 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 		           commandArgs:
 			           (Array with:
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
-	GciSession current issueCommand: service.
+	GciSession current issueCommand: service onCompletion: nil.
 	self assert: service answer.
 	(JadeiteApplication new gciSession: GciSession current)
 		abortTransaction.
@@ -79,8 +79,8 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 		           commandArgs:
 			           (Array with:
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
-	GciSession current issueCommand: service.
-	self deny: service answer.
+	GciSession current issueCommand: service onCompletion: nil.
+	self deny: service answer
 ]
 
 { #category : 'tests' }
@@ -110,7 +110,7 @@ JadeiteForPharoHeadlessTestCase >> test_cleanUpServiceOnDisconnect [
 	service
 		command: #update;
 		commandArgs: Array new.
-	GciSession current issueCommand: service.
+	GciSession current issueCommand: service onCompletion: nil.
 	"make sure a few random fields are filled in so we know the update succeeded"
 	self assert: service comment notEmpty.
 	self assert: service packageName equals: 'Rowan-Services-Core'.
@@ -158,20 +158,22 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	"will need customization if Jadeite for Pharo tests are ever run in github's CI space"
 
 	| service |
-	self resourceConnectionProfile isConnected ifTrue: [ self resourceConnectionProfile disconnect ].
+	self resourceConnectionProfile isConnected ifTrue: [
+		self resourceConnectionProfile disconnect ].
 	self resourceConnectionProfile isGciConnection ifFalse: [ ^ self ].
 	self resourceConnectionProfile connect.
 	[
 	self assert: self resourceConnectionProfile connection isOpen.
-	self assert: (GsSession sessionIsValid: self resourceConnectionProfile session).
+	self assert:
+		(GsSession sessionIsValid: self resourceConnectionProfile session).
 	service := RowanAnsweringService new
 		           command: #execReturningObject:;
 		           commandArgs: (Array with: '3 + 4').
-	GciSession current issueCommand: service.
+	GciSession current issueCommand: service onCompletion: nil.
 	self assert: service answer equals: 7 ] ensure: [
 		self resourceConnectionProfile disconnect ].
 	self assert: self resourceConnectionProfile connection isNil.
-	self assert: self resourceConnectionProfile session isNil.
+	self assert: self resourceConnectionProfile session isNil
 ]
 
 { #category : 'tests' }
@@ -196,7 +198,7 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 	self assert: (serviceUpdater isKindOf: RowanServiceUpdater).
 	initialSize := serviceUpdater registeredPresenters size.
 	oc := OrderedCollection new.
-	serviceUpdater removeEventsTriggeredFor: oc. 
+	serviceUpdater removeEventsTriggeredFor: oc.
 	RowanServiceUpdater current
 		register: oc
 		selector: #testServiceUpdate:.
@@ -209,7 +211,7 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 		               command: #isClassService
 		               withArgs: Array new.
 	self assert: oc isEmpty.
-	GciSession current issueCommand: testService.
+	GciSession current issueCommand: testService onCompletion: nil.
 	self assert: oc first equals: #testServiceUpdate: ] ensure: [
 		RowanServiceUpdater current removeEventsTriggeredFor: oc "in theory, this eventually goes away on it's own" ].
 	oc := nil.
@@ -233,7 +235,7 @@ JadeiteForPharoHeadlessTestCase >> test_updates [
 	service := RowanQueryService
 		           command: #implementorsOf:
 		           withArgs: (Array with: #size).
-	GciSession current issueCommand: service.
+	GciSession current issueCommand: service onCompletion: nil.
 	self assert: service returnedServices first identicalTo: service.
 	self assert: service updates notEmpty.
 	service updates do: [ :theUpdate |

@@ -800,13 +800,14 @@ JadeiteConsole >> registerPresentersForUpdates [
 
 { #category : 'as yet unclassified' }
 JadeiteConsole >> remoteAutoCommit [
+
 	| answeringService |
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #autoCommit;
 		commandArgs: Array new.
-	self issueCommand: answeringService.
-	^answeringService answer
+	self issueCommand: answeringService onCompletion: nil.
+	^ answeringService answer
 ]
 
 { #category : 'as yet unclassified' }

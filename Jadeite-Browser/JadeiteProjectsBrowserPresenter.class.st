@@ -37,12 +37,14 @@ JadeiteProjectsBrowserPresenter >> addPackageDictionaryInfoTo: aStream [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> addSubclass [
+
 	| classService answerService |
-	classService := self selectedClass ifNil: [^self].
+	classService := self selectedClass ifNil: [ ^ self ].
 	classService
 		command: #subclassCreationTemplate;
-		commandArgs: Array new. 
-	answerService := (self issueCommand: classService) first.
+		commandArgs: Array new.
+	answerService := (self issueCommand: classService onCompletion: nil)
+		                 first.
 	classDefinitionPresenter
 		ensureVisible;
 		value: answerService answer
@@ -50,12 +52,12 @@ JadeiteProjectsBrowserPresenter >> addSubclass [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> allClasses [
+
 	| browserService |
 	browserService := RowanBrowserService new.
-	browserService
-		command: #allClasses.
-	self issueCommand: browserService.
-	^browserService allClasses ifNil:[Array new]
+	browserService command: #allClasses.
+	self issueCommand: browserService onCompletion: nil.
+	^ browserService allClasses ifNil: [ Array new ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -845,12 +847,11 @@ JadeiteProjectsBrowserPresenter >> removeMethods: classServices [
 	"This is hokey but used everywhere. Replace 
 	it with #removeMethodSelector(s): sometime soon"
 
-	classServices do: 
-			[:classService |
-			classService
-				command: #removeMethods:;
-				commandArgs: (Array with: methodListPresenter selections)].
-	self issueCommands: classServices
+	classServices do: [ :classService |
+		classService
+			command: #removeMethods:;
+			commandArgs: (Array with: methodListPresenter selections) ].
+	self issueCommands: classServices onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -904,26 +905,28 @@ JadeiteProjectsBrowserPresenter >> runAndMesureTime [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> runClassTests [
+
 	| classService answeringService |
 	classService := self selectedClass.
 	classService
 		command: #runClassTests:;
 		commandArgs: (Array with: self selectedClass).
-	answeringService := [self issueCommand: classService] on: Error
-				do: 
-					[:ex |
-					ex pass.
-					^self].
-	answeringService first answer
-		ifTrue: 
-			[| testResult |
-			sunitPresenter reset.
-			testResult := JadeTestResult new.
-			testResult passed: (methodListPresenter list
-						select: [:methodService | 'test*' match: methodService selector asString]
-						thenCollect: [:methodService | methodService selector]).
-			sunitPresenter updateResult: testResult.
-			sunitPresenter ensureVisible]
+	answeringService := [
+	                    self issueCommand: classService onCompletion: nil ]
+		                    on: Error
+		                    do: [ :ex |
+			                    ex pass.
+			                    ^ self ].
+	answeringService first answer ifTrue: [
+		| testResult |
+		sunitPresenter reset.
+		testResult := JadeTestResult new.
+		testResult passed: (methodListPresenter list
+				 select: [ :methodService |
+				 'test*' match: methodService selector asString ]
+				 thenCollect: [ :methodService | methodService selector ]).
+		sunitPresenter updateResult: testResult.
+		sunitPresenter ensureVisible ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1229,9 +1232,10 @@ JadeiteProjectsBrowserPresenter >> updateMethodMenu: menu [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> updateMethodReferences: services [
-	services do: [:service | service command: #allReferences].
-	self issueCommand: services.
-	^services
+
+	services do: [ :service | service command: #allReferences ].
+	self issueCommand: services onCompletion: nil.
+	^ services
 ]
 
 { #category : 'as yet unclassified' }

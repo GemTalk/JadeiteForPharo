@@ -13,7 +13,7 @@ JadeiteHeadlessTestResource >> basicUnloadProject: projectName [
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService
+	self issueCommand: browserService onCompletion: nil
 ]
 
 { #category : 'support' }

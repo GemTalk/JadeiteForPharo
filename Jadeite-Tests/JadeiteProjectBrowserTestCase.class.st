@@ -1939,26 +1939,40 @@ JadeiteProjectBrowserTestCase >> test_gotoDefinedPackage [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_hierarchyFindsAllSubclassImplementors [
-	| listPresenter | 
-	self testsIssue: #issue242 withTitle: '`implementors in hierarchy` doesn''t include method in the currently selected class?'.
 
-	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
-	self selectServicesNamed: #('Rowan-Loader') in: self packageListPresenter.
-	self selectServicesNamed: (Array with: 'RwLoadedThing') in: self classListPresenter.
+	| listPresenter |
+	self
+		testsIssue: #issue242
+		withTitle:
+		'`implementors in hierarchy` doesn''t include method in the currently selected class?'.
+
+	self
+		selectServicesNamed: (Array with: 'Rowan')
+		in: self projectListPresenter.
+	self
+		selectServicesNamed: #( 'Rowan-Loader' )
+		in: self packageListPresenter.
+	self
+		selectServicesNamed: (Array with: 'RwLoadedThing')
+		in: self classListPresenter.
 	self selectMethodNamed: #initialize.
-	methodListBrowser := self projectsPresenter browseHierarchyImplementors.
-	
-	self assert: ('Hierarchy Implementors of ''initialize'' for *' match: methodListBrowser caption).
-	listPresenter := methodListBrowser primaryPresenter methodListPresenter methodListPresenter. 
-	listPresenter list do:[:methodService | self assert: methodService selector equals: #initialize]. 
-	listPresenter list do:[:methodService |
-		| classService | 
-		classService := RowanClassService named: methodService className.
-		classService command: #classHierarchy. 
-		self issueCommand: classService. 
-		self assert: (classService hierarchyClassServiceNames includes: 'RwLoadedThing')
-		]. 
+	methodListBrowser := self projectsPresenter
+		                     browseHierarchyImplementors.
 
+	self assert:
+		('Hierarchy Implementors of ''initialize'' for *' match:
+			 methodListBrowser caption).
+	listPresenter := methodListBrowser primaryPresenter
+		                 methodListPresenter methodListPresenter.
+	listPresenter list do: [ :methodService |
+		self assert: methodService selector equals: #initialize ].
+	listPresenter list do: [ :methodService |
+		| classService |
+		classService := RowanClassService named: methodService className.
+		classService command: #classHierarchy.
+		self issueCommand: classService onCompletion: nil.
+		self assert:
+			(classService hierarchyClassServiceNames includes: 'RwLoadedThing') ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2046,25 +2060,36 @@ JadeiteProjectBrowserTestCase >> test_hierarchySendersFromMethodList [
 	"a little risky testing base code that might change but it is convenient"
 
 	| methodListPresenter hierarchyMethodListBrowser methodList classService hierarchyClassNames |
-	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
-	self selectServicesNamed: #('Rowan-Core') in: self packageListPresenter.
-	self selectServicesNamed: (Array with: 'RwModification') in: self classListPresenter.
+	self
+		selectServicesNamed: (Array with: 'Rowan')
+		in: self projectListPresenter.
+	self
+		selectServicesNamed: #( 'Rowan-Core' )
+		in: self packageListPresenter.
+	self
+		selectServicesNamed: (Array with: 'RwModification')
+		in: self classListPresenter.
 	self selectMethodNamed: #isEmpty.
-	methodListBrowser := self projectsPresenter browseHierarchyImplementors.
-	methodListPresenter := methodListBrowser primaryPresenter methodListPresenter.
-	hierarchyMethodListBrowser := methodListPresenter browseHierarchySenders.	"first element should be selected"
-	
-	[classService := RowanClassService named: 'RwModification'.
+	methodListBrowser := self projectsPresenter
+		                     browseHierarchyImplementors.
+	methodListPresenter := methodListBrowser primaryPresenter
+		                       methodListPresenter.
+	hierarchyMethodListBrowser := methodListPresenter
+		                              browseHierarchySenders. "first element should be selected"
+
+	[
+	classService := RowanClassService named: 'RwModification'.
 	classService command: #classHierarchy.
-	self issueCommand: classService.
-	methodList := hierarchyMethodListBrowser primaryPresenter methodListPresenter methodListPresenter
-				list.
+	self issueCommand: classService onCompletion: nil.
+	methodList := hierarchyMethodListBrowser primaryPresenter
+		              methodListPresenter methodListPresenter list.
 	hierarchyClassNames := classService hierarchyClassServiceNames.
-	methodList
-		do: [:methodService | self assert: (hierarchyClassNames includes: methodService className asString)]]
-			ensure: 
-				[self destroy: methodListBrowser.
-				self destroy: hierarchyMethodListBrowser]
+	methodList do: [ :methodService |
+		self assert:
+			(hierarchyClassNames includes: methodService className asString) ] ]
+		ensure: [
+			self destroy: methodListBrowser.
+			self destroy: hierarchyMethodListBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

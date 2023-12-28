@@ -71,33 +71,41 @@ JadeiteInspector >> additionalAccelerators [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> basicAddKey: string [
+
 	| addedObject newSelectionIndex |
 	"might have inserted a string into another string so it won't find the object"
 	model
 		command: #addKey:;
 		commandArgs: (Array with: string).
-	self issueCommand: model.
+	self issueCommand: model onCompletion: nil.
 	addedObject := model objects
-				detect: [:assoc | (assoc value isKindOf: Array) and: [assoc value first = model selectionOop]]
-				ifNone: [].
+		               detect: [ :assoc |
+			               (assoc value isKindOf: Array) and: [
+				               assoc value first = model selectionOop ] ]
+		               ifNone: [  ].
 	newSelectionIndex := model objects indexOf: addedObject.
-	newSelectionIndex := newSelectionIndex + 2. "inst vars & dynamic inst vars already included in objects" 
+	newSelectionIndex := newSelectionIndex + 2. "inst vars & dynamic inst vars already included in objects"
 	self displayObjectSelecting: newSelectionIndex
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> basicAddObject: string [
+
 	| addedObject additionIndex newSelectionIndex |
-	additionIndex := (self indexedOffsetFromInstVarList: instVarListPresenter selectionsByIndex) first.
+	additionIndex := (self indexedOffsetFromInstVarList:
+		                  instVarListPresenter selectionsByIndex) first.
 	model
 		command: #addObject:after:;
 		commandArgs: (Array with: string with: additionIndex).
-	self issueCommand: model.
-	addedObject := model objects detect: [:assoc | assoc value = model selectionOop] ifNone: [].
+	self issueCommand: model onCompletion: nil.
+	addedObject := model objects
+		               detect: [ :assoc | assoc value = model selectionOop ]
+		               ifNone: [  ].
 	newSelectionIndex := model objects indexOf: addedObject.
 	newSelectionIndex := newSelectionIndex = 0
-				ifTrue: [1	"might have inserted a string into another string so it won't find the object"]
-				ifFalse: [newSelectionIndex + 2].
+		                     ifTrue: [
+			                     1 "might have inserted a string into another string so it won't find the object" ]
+		                     ifFalse: [ newSelectionIndex + 2 ].
 	self displayObjectSelecting: newSelectionIndex
 ]
 
@@ -782,10 +790,14 @@ JadeiteInspector >> objectIndex: anObject [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> objectIsVariable [
+
 	| answeringService |
 	model command: #isVariable.
-	answeringService := RowanServiceUpdater current issueCommands: (Array with: self) session: gciSession.
-	^answeringService answer
+	answeringService := RowanServiceUpdater current
+		                    issueCommands: (Array with: self)
+		                    session: gciSession
+		                    onCompletion: nil.
+	^ answeringService answer
 ]
 
 { #category : 'as yet unclassified' }
@@ -921,12 +933,13 @@ JadeiteInspector >> reportCompileError: ex [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> saveDictionaryElement [
+
 	| keyOop |
 	keyOop := instVarListPresenter selection value first.
 	model
 		command: #saveKey:value:;
 		commandArgs: (Array with: keyOop with: documentPresenter value).
-	self issueCommand: model.
+	self issueCommand: model onCompletion: nil.
 	self displayObjectSelecting: instVarListPresenter selectionByIndex
 ]
 
@@ -946,47 +959,56 @@ JadeiteInspector >> saveDocument [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> saveDynamicInstVar [
+
 	| instVarName |
 	instVarName := self selectedDynamicInstVars first. "only save when one object selected"
 	model
 		command: #save:dynamicInstVar:;
 		commandArgs: (Array with: documentPresenter value with: instVarName).
-	self issueCommand: model. 
+	self issueCommand: model onCompletion: nil.
 	self displayObjectSelecting: instVarListPresenter selectionByIndex
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> saveIndexedElement [
+
 	| indices |
-	indices := self indexedOffsetFromInstVarList: instVarListPresenter selectionsByIndex.	"should always be one if we get here"
+	indices := self indexedOffsetFromInstVarList:
+		           instVarListPresenter selectionsByIndex. "should always be one if we get here"
 	model
 		command: #save:indexedVarAt:;
-		commandArgs: (Array with: documentPresenter value with: indices first).
-	self issueCommand: model.
-	self displayObjectSelecting: (self instVarListIndexFromIndexedOffset: indices first)
+		commandArgs:
+			(Array with: documentPresenter value with: indices first).
+	self issueCommand: model onCompletion: nil.
+	self displayObjectSelecting:
+		(self instVarListIndexFromIndexedOffset: indices first)
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> saveNamedInstVar [
+
 	| index instVarName |
 	instVarName := self selectedNamedInstVars first.
 	model
 		command: #save:namedInstVar:;
 		commandArgs: (Array with: documentPresenter value with: instVarName).
-	self issueCommand: model. 
+	self issueCommand: model onCompletion: nil.
 	index := model instVarNames indexOf: instVarName.
 	self displayObjectSelecting: index + 2
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> saveUnorderedElement [
+
 	| oop addedObject newSelectionIndex |
 	oop := instVarListPresenter view selections first value.
 	model
 		command: #replaceElement:with:;
 		commandArgs: (Array with: oop with: documentPresenter value).
-	self issueCommand: model. 
-	addedObject := model objects detect: [:assoc | assoc value = model selectionOop] ifNone: [].
+	self issueCommand: model onCompletion: nil.
+	addedObject := model objects
+		               detect: [ :assoc | assoc value = model selectionOop ]
+		               ifNone: [  ].
 	newSelectionIndex := model objects indexOf: addedObject.
 	self displayObjectSelecting: newSelectionIndex + 2
 ]

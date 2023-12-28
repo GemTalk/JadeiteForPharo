@@ -343,7 +343,19 @@ RowanService >> executeCommand [
 ]
 
 { #category : 'rsr' }
-RowanService >> executeInSession: session [
+RowanService >> executeCommandOnCompletion: completionBlock [
+
+	| promise |
+	completionBlock ifNil: [ ^self executeCommand ].
+	promise := remoteSelf executeCommand.
+	promise
+		when: completionBlock
+		catch: [ :value | "not sure what to do here yet" ].
+	self raiseCompileErrorIfNeeded
+]
+
+{ #category : 'rsr' }
+RowanService >> executeInSession: session onCompletion: anObject [
 
 	[self registerWith:
 		          session library] on: RsrAlreadyRegistered do:[:ex | ].
@@ -475,12 +487,20 @@ RowanService >> isUpdatableService [
 
 { #category : 'commands' }
 RowanService >> issueCommand: service session: session [
-	^self issueCommands: (Array with: service) session: session
+
+	^ self
+		  issueCommands: (Array with: service)
+		  session: session
+		  onCompletion: nil
 ]
 
 { #category : 'commands' }
-RowanService >> issueCommands: services session: session [
-	^RowanServiceUpdater current issueCommands: services session: session
+RowanService >> issueCommands: services session: session onCompletion: anObject [
+
+	^ RowanServiceUpdater current
+		  issueCommands: services
+		  session: session
+		  onCompletion: nil
 ]
 
 { #category : 'public' }
@@ -902,13 +922,15 @@ RowanService >> updateDictionarySelectionsFor: presenter [
 
 { #category : 'actions' }
 RowanService >> updateForSession: session [
-
 	"will not work for some services but does for many"
-	
+
 	self
 		command: #update;
-		commandArgs: Array new. 
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+		commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'private' }

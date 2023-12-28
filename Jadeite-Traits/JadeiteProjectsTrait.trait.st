@@ -38,13 +38,14 @@ JadeiteProjectsTrait >> basicReloadProject: selections [
 
 { #category : 'commands' }
 JadeiteProjectsTrait >> basicUnloadProjects: projectNames [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService.
-	self refreshGlobalSelections.
+	self issueCommand: browserService onCompletion: nil.
+	self refreshGlobalSelections
 ]
 
 { #category : 'testing' }
@@ -96,19 +97,19 @@ JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 
 	| ws repositoryRoots |
 	ws := WriteStream on: String new.
-	repositoryRoots := RowanAnsweringService new projectRepositoryRoots: projectServices
-				session: self gciSession.
-	projectServices do: 
-			[:service |
-			ws
-				nextPutAll: service name;
-				space;
-				nextPut: $(;
-				nextPutAll: (repositoryRoots at: service name);
-				nextPut: $);
-				space].
-	projectServices do: [:service | service command: #write].
-	self issueCommands: projectServices.
+	repositoryRoots := RowanAnsweringService new
+		                   projectRepositoryRoots: projectServices
+		                   session: self gciSession.
+	projectServices do: [ :service |
+		ws
+			nextPutAll: service name;
+			space;
+			nextPut: $(;
+			nextPutAll: (repositoryRoots at: service name);
+			nextPut: $);
+			space ].
+	projectServices do: [ :service | service command: #write ].
+	self issueCommands: projectServices onCompletion: nil.
 	MessageBox notify: 'Projects ' , ws contents , ' written to disk'
 ]
 
@@ -156,7 +157,7 @@ JadeiteProjectsTrait >> gitProjectLog [
 	queryService := RowanQueryService
 		                command: #projectLog:
 		                withArgs: (Array with: self selectedProjectName).
-	self issueCommand: queryService.
+	self issueCommand: queryService onCompletion: nil.
 	workspace := JadeiteWorkspaceApplication showOnSession:
 		             self gciSession library.
 	workspace setCaption:
@@ -209,17 +210,19 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 
 { #category : 'commands' }
 JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: resolveStrict [
+
 	| projectService |
 	projectService := RowanProjectService new.
 	projectService
-		command: #installProjectFromFile:projectsHome:componentNames:attributes:resolveStrict:;
+		command:
+			#installProjectFromFile:projectsHome:componentNames:attributes:resolveStrict:;
 		commandArgs: (Array
-					with: 'file:' , path
-					with: projectsHomePath
-					with: componentNames
-					with: attributes
-					with: resolveStrict).
-	self issueCommand: projectService
+				 with: 'file:' , path
+				 with: projectsHomePath
+				 with: componentNames
+				 with: attributes
+				 with: resolveStrict).
+	self issueCommand: projectService onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -323,20 +326,19 @@ JadeiteProjectsTrait >> projectChanges [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> pullFromGit [
+
 	| projectServices ws |
 	projectServices := self projectListPresenter selections.
 	ws := WriteStream on: String new.
-	projectServices do: 
-			[:service |
-			ws
-				nextPutAll: service name;
-				space].
-	(MessageBox
-		confirm: 'It is recommended that you commit changes before doing a pulling projects - ' , ws contents
-				, ' -  from git. Really proceed?')
-			ifFalse: [^self].
-	projectServices do: [:service | service command: #pullFromGit].
-	self issueCommands: projectServices
+	projectServices do: [ :service |
+		ws
+			nextPutAll: service name;
+			space ].
+	(MessageBox confirm:
+		 'It is recommended that you commit changes before doing a pulling projects - '
+		 , ws contents , ' -  from git. Really proceed?') ifFalse: [ ^ self ].
+	projectServices do: [ :service | service command: #pullFromGit ].
+	self issueCommands: projectServices onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -361,10 +363,16 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 
 	| browserService |
 	browserService := RowanBrowserService new
-				command: #findRemovedServices:;
-				commandArgs: (Array with: RowanServiceUpdater current activeServices asSet asArray).
-	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession.
-	self updateServices: RowanServiceUpdater current selectedServices 
+		                  command: #findRemovedServices:;
+		                  commandArgs:
+			                  (Array with:
+					                   RowanServiceUpdater current activeServices
+						                   asSet asArray).
+	RowanServiceUpdater current
+		issueCommands: (Array with: browserService)
+		session: self gciSession
+		onCompletion: nil.
+	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
 { #category : 'commands' }

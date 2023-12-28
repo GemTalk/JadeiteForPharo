@@ -57,22 +57,25 @@ JadeiteMethodListBrowserTestCase >> removeMethods: methodServices in: className 
 
 	| classService |
 	classService := RowanClassService named: className.
-	self updateService:  classService.
-	classService meta: methodServices anyOne meta.	" assume for now that methods all have save meta"
+	self updateService: classService.
+	classService meta: methodServices anyOne meta. " assume for now that methods all have save meta"
 	classService
 		command: #removeMethods:;
-		commandArgs: (Array
-					with: (methodServices asArray select: [:service | service className asString = className])).
-	self issueCommand: classService
+		commandArgs:
+			(Array with: (methodServices asArray select: [ :service |
+							  service className asString = className ])).
+	self issueCommand: classService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> removeMethods: methodServices inClassService: classService [
+
 	classService
 		command: #removeMethods:;
-		commandArgs: (Array
-					with: (methodServices select: [:methodService | methodService className = classService name])).
-	self issueCommand: classService
+		commandArgs:
+			(Array with: (methodServices select: [ :methodService |
+							  methodService className = classService name ])).
+	self issueCommand: classService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -110,14 +113,15 @@ JadeiteMethodListBrowserTestCase >> sampleMethodSource [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> saveMethod: source in: className category: category [
-	"Private - add method outside the browsers for performance" 
+	"Private - add method outside the browsers for performance"
+
 	| classService |
 	classService := RowanClassService named: className.
-	classService command: #saveMethodSource:category:; 
-			commandArgs: (Array with: source with: category). 
-	self issueCommand: classService. 
-	^classService
-	
+	classService
+		command: #saveMethodSource:category:;
+		commandArgs: (Array with: source with: category).
+	self issueCommand: classService onCompletion: nil.
+	^ classService
 ]
 
 { #category : 'as yet unclassified' }

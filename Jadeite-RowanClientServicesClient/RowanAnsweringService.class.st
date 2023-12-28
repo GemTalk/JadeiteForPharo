@@ -28,17 +28,25 @@ RowanAnsweringService >> answer: anObject [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> autoCommitIn: session [ 
+RowanAnsweringService >> autoCommitIn: session [
+
 	command := #autoCommit.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	self
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> breakPointsAreEnabled: session [
+
 	command := #breakPointsAreEnabled.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'public' }
@@ -51,17 +59,25 @@ RowanAnsweringService >> breakpointSettingChanged: transcript [
 
 { #category : 'commands' }
 RowanAnsweringService >> canAccessServiceClasses: session [
+
 	command := #canAccessServiceClasses.
 	self commandArgs: Array new.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> exec: string in: session [
+
 	command := #exec:.
 	commandArgs := Array with: string.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -72,21 +88,32 @@ RowanAnsweringService >> execReturningObject: string in: session [
 
 	command := #execReturningObject:.
 	commandArgs := Array with: string.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> expressionSelector: string session: session [
+
 	command := #expressionSelector:.
 	commandArgs := Array with: string.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> flipTranscriptIn: session [
+
 	command := #flipTranscript.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'public' }
@@ -108,9 +135,13 @@ RowanAnsweringService >> isDeafObject [
 
 { #category : 'commands' }
 RowanAnsweringService >> isTranscriptInstalledIn: session [
+
 	command := #transcriptInstalled.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'printing' }
@@ -130,16 +161,23 @@ RowanAnsweringService >> lowercaseSelectorsMatching: string session: session [
 
 	command := #lowercaseSelectorsMatching:.
 	commandArgs := Array with: string.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> needsCommit: session [
+
 	command := #needsCommit.
 	self commandArgs: Array new.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'printing' }
@@ -162,26 +200,40 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices [
 
 { #category : 'commands' }
 RowanAnsweringService >> projectRepositoryRoots: projectServices session: session [
+
 	self
 		command: #projectsRepositoryRoots:;
-		commandArgs: (Array with: (projectServices collect: [:projectService | projectService name])).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+		commandArgs: (Array with:
+					 (projectServices collect: [ :projectService |
+							  projectService name ])).
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> setAutoCommit: boolean for: session [
+
 	command := #setRemoteAutoCommit:.
 	self commandArgs: (Array with: boolean).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> setBreakpointsEnabled: boolean session: session [
+
 	command := #setBreakPointsAreEnabled:.
 	commandArgs := Array with: boolean.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -195,18 +247,26 @@ RowanAnsweringService >> symbolDictionaryNames: session [
 
 { #category : 'commands' }
 RowanAnsweringService >> symbolExists: aSymbol session: session [
+
 	command := #symbolExists:.
 	commandArgs := Array with: aSymbol.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'commands' }
 RowanAnsweringService >> symbolsMatching: string session: session [
+
 	command := #symbolsMatching:.
 	commandArgs := Array with: string.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ answer
 ]
 
 { #category : 'public' }

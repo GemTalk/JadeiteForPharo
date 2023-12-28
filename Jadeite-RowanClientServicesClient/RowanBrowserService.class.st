@@ -116,10 +116,14 @@ RowanBrowserService >> name: aString [
 
 { #category : 'commands' }
 RowanBrowserService >> newProjectNamed: projectName session: session windowHandle: handle [
+
 	self
 		command: #newProjectNamed:windowHandle:;
 		commandArgs: (Array with: projectName with: handle).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'public' }
@@ -183,33 +187,40 @@ RowanBrowserService >> projectsUpdate: presenter browser: browser [
 
 { #category : 'commands' }
 RowanBrowserService >> registerWindow: handle rootObject: oop session: session [
-	RowanServiceUpdater current
-		logComment: 'Register window handle: ' , handle printString , ' {' , self identityHash printString
-				, '}'.
+
+	RowanServiceUpdater current logComment:
+		'Register window handle: ' , handle printString , ' {'
+		, self identityHash printString , '}'.
 	self
 		command: #saveRootObject:windowHandle:;
 		commandArgs: (Array with: oop with: handle).
-	JadePresenter issueCommands: (Array with: self) session: session
+	JadePresenter
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'commands' }
 RowanBrowserService >> releaseWindow: handle session: session [
 	"during test runs, the session may have been logged out making the release moot"
 
-	session isValidSession ifFalse: [^self].
-	session isLoggingOut ifTrue: [^self].
+	session isValidSession ifFalse: [ ^ self ].
+	session isLoggingOut ifTrue: [ ^ self ].
 	self
 		command: #releaseWindowHandle:;
 		commandArgs: (Array with: handle).
-	JadePresenter issueCommands: (Array with: self) session: session
+	JadePresenter
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'commands' }
 RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presenter [
 
 	| selectedServices |
-	selectedServices := RowanServiceUpdater current selectedServices asSet
-		                    asOrderedCollection.
+	selectedServices := RowanServiceUpdater current selectedServices
+		                    asSet asOrderedCollection.
 	self
 		command: #reloadProjects:andUpdateServices:;
 		commandArgs: (Array
@@ -218,6 +229,7 @@ RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presen
 	RowanServiceUpdater current
 		issueCommands: (Array with: self)
 		session: presenter gciSession
+		onCompletion: nil
 ]
 
 { #category : 'accessing' }

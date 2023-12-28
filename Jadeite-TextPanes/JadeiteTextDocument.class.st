@@ -58,9 +58,9 @@ JadeiteTextDocument class >> codeSelectionActionCommandsGroupWith: presenter [
 		beDisplayedAsGroup.
 	
 	group register: (JadeiteCodeDebugItCommand forSpecContext: presenter). 
-	group register: (SpCodeDoItCommand forSpecContext: presenter). 
+	group register: (JadeiteCodeDoItCommand forSpecContext: presenter). 
 	group register: (JadeiteCodeInspectItCommand forSpecContext: presenter).  
-	group register: (SpCodePrintItCommand forSpecContext: presenter).
+	group register: (JadeiteCodePrintItCommand forSpecContext: presenter).
 	^ group
 ]
 
@@ -344,27 +344,39 @@ JadeiteTextDocument >> environment: anInteger [
 
 { #category : 'Jade' }
 JadeiteTextDocument >> executeSelectionOrLine [
-	^self executeSelectionOrLine: self contextObject shouldDebug: false  onCompileError: [^self]
+
+	^ self
+		  executeSelectionOrLine: self contextObject
+		  shouldDebug: false
+		  onCompileError: [ ^ self ]
+		  showResult: false
 ]
 
 { #category : 'accessing' }
-JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock [
+JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
-	| answeringService answer oop |
+	| answeringService answer oop completionBlock |
 	oop := context ifNil: [ 20 ].
 	answeringService := RowanAnsweringServiceClient new registerWith:
 		                    gciSession library.
 	answeringService
 		command: #execReturningPrintString:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: shouldDebug).
-	self issueCommand: answeringService.
-	answer := answeringService answer.
-	answer ifNil: [ ^ nil ].
-	answer first ifFalse: [
-		self reportCompileError: answer.
-		^compileErrorBlock value
-		 ]. 
-	^ answer last
+	completionBlock := [
+	                   answer := answeringService answer.
+	                   answer ifNil: [ ^ nil ].
+	                   answer first ifFalse: [
+		                   self reportCompileError: answer.
+		                   ^ compileErrorBlock value ].
+	                   answer last ].
+	showResult
+		ifTrue: [
+			self
+				issueCommand: answeringService
+				onCompletion: [
+				self insertPrintPopoverAfterCurrentSelection:
+					completionBlock value ] ]
+		ifFalse: [ completionBlock ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -467,12 +479,6 @@ JadeiteTextDocument >> isModified: aBoolean [
 	self hasUnacceptedEdits: aBoolean
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteTextDocument >> issueCommand: service [
-
-	^RowanServiceUpdater current issueCommand: service session: gciSession.
-]
-
 { #category : 'menu handlers' }
 JadeiteTextDocument >> jadeDebug [
 	"Intercepted by CodeSourcePresenter"
@@ -480,10 +486,12 @@ JadeiteTextDocument >> jadeDebug [
 
 { #category : 'menu handlers' }
 JadeiteTextDocument >> jadeDisplay [
-	^ self insertPrintPopoverAfterCurrentSelection: (self
-			   evaluate: self selectedTextOrLine
-			   onCompileError: [ ^ self ]
-			   onError: [ :e | e pass ])
+
+	^ self
+		  evaluate: self selectedTextOrLine
+		  onCompileError: [ ^ self ]
+		  onError: [ :e | e pass ]
+		  showResult: true
 ]
 
 { #category : 'menu handlers' }
@@ -493,6 +501,7 @@ JadeiteTextDocument >> jadeExecute [
 		  evaluate: self selectedTextOrLine
 		  onCompileError: [ ^ self ]
 		  onError: [ :e | e pass ]
+		  showResult: false
 ]
 
 { #category : 'Jade' }

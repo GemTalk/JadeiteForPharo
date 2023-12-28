@@ -48,13 +48,16 @@ JadeiteServerFileWorkspace >> path: anObject [
 
 { #category : 'actions' }
 JadeiteServerFileWorkspace >> saveDocument [
+
 	| service |
 	service := RowanFileService new
-				command: #write:;
-				commandArgs: (Array with: codePane documentPresenter value replaceCrLfWithLf);
-				path: path.
-	self issueCommand: service.
-	codePane documentPresenter view isModified: false. 
+		           command: #write:;
+		           commandArgs:
+			           (Array with:
+					            codePane documentPresenter value replaceCrLfWithLf);
+		           path: path.
+	self issueCommand: service onCompletion: nil.
+	codePane documentPresenter view isModified: false
 ]
 
 { #category : 'actions' }
@@ -72,12 +75,15 @@ JadeiteServerFileWorkspace >> updateCaption [
 
 { #category : 'actions' }
 JadeiteServerFileWorkspace >> writeDocumentTo: newPath [
+
 	| service |
 	service := RowanFileService new
-				command: #write:;
-				commandArgs: (Array with: codePane documentPresenter value replaceCrLfWithLf);
-				path: newPath.
-	self issueCommand: service.
+		           command: #write:;
+		           commandArgs:
+			           (Array with:
+					            codePane documentPresenter value replaceCrLfWithLf);
+		           path: newPath.
+	self issueCommand: service onCompletion: nil.
 	codePane documentPresenter view isModified: false.
 	path := newPath.
 	self updateCaption

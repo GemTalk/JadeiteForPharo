@@ -13,11 +13,17 @@ JadeiteMethodHistoryTestCase >> removeMethodHistoryFor: methodService [
 
 	| answeringService |
 	answeringService := RowanAnsweringService new
-				command: #removeMethodHistoryFor:;
-				commandArgs: (Array with: self methodListPresenter selections first);
-				yourself.
-	JadePresenter issueCommands: (Array with: answeringService) session: session.
-	self projectsPresenter removeMethods: (Array with: self projectsPresenter selectedClass)
+		                    command: #removeMethodHistoryFor:;
+		                    commandArgs:
+			                    (Array with:
+					                     self methodListPresenter selections first);
+		                    yourself.
+	JadePresenter
+		issueCommands: (Array with: answeringService)
+		session: session
+		onCompletion: nil.
+	self projectsPresenter removeMethods:
+		(Array with: self projectsPresenter selectedClass)
 ]
 
 { #category : 'as yet unclassified' }

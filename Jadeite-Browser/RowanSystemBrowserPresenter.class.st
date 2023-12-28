@@ -332,19 +332,18 @@ RowanSystemBrowserPresenter >> updateMethodFrom: update [
 
 { #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> updateMethodReferences: displayArrays [
+
 	| services className |
 	className := classListPresenter selection.
-	services := displayArrays collect: 
-					[:displayArray |
-					RowanMethodService new
-						selector: displayArray first asSymbol;
-						className: className asSymbol].
-	services do: 
-			[:service |
-			service meta: self isClassSideSelected.
-			service command: #allReferences].
-	self issueCommands: services. 
-	^services
+	services := displayArrays collect: [ :displayArray |
+		            RowanMethodService new
+			            selector: displayArray first asSymbol;
+			            className: className asSymbol ].
+	services do: [ :service |
+		service meta: self isClassSideSelected.
+		service command: #allReferences ].
+	self issueCommands: services onCompletion: nil.
+	^ services
 ]
 
 { #category : 'as yet unclassified' }

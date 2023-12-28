@@ -80,7 +80,8 @@ GciSession >> flipAutoCommit [
 		commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommands: (Array with: autoCommitService)
-		session: self.
+		session: self
+		onCompletion: nil.
 	self autoCommit value: autoCommitService autoCommit
 ]
 
@@ -98,7 +99,7 @@ GciSession >> isValidSession [
 ]
 
 { #category : 'actions' }
-GciSession >> issueCommand: service [
+GciSession >> issueCommand: service onCompletion: anObject [
 
 	RowanServiceUpdater current issueCommand: service session: self
 ]

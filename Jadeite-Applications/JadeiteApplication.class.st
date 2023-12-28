@@ -28,12 +28,16 @@ JadeiteApplication class >> abortTransactionInSession: session [
 
 	| browserService services |
 	self todo: 'use instance method #abortTransaction?'.
-	services := (RowanServiceUpdater current selectedServicesForConnection:
-		             session library) asSet asArray.
+	services := (RowanServiceUpdater current
+		             selectedServicesForConnection: session library) asSet
+		            asArray.
 	browserService := RowanBrowserService new
 		                  command: #abortTransactionAndUpdateServices:;
 		                  commandArgs: (Array with: services).
-	self issueCommands: (Array with: browserService) session: session.
+	self
+		issueCommands: (Array with: browserService)
+		session: session
+		onCompletion: nil.
 	self setInTransaction: RowanAnsweringService new session: session.
 	self todo: [ JadePresenter trigger: #abortedTransaction ].
 	UIManager default inform: 'Abort succeeded'.
@@ -48,19 +52,22 @@ JadeiteApplication class >> changedTextBackgroundColor [
 
 { #category : 'actions' }
 JadeiteApplication class >> commitTransactionInSession: session [
-
 	"Even if it takes a windy path, try to make sure
 	all aborts in Jadeite pass through here"
 
-	| browserService commitResult |  
+	| browserService commitResult |
 	browserService := RowanBrowserService new
 		                  command: #commitTransaction;
 		                  commandArgs: Array new.
-	self issueCommands: (Array with: browserService) session: session.
+	self
+		issueCommands: (Array with: browserService)
+		session: session
+		onCompletion: nil.
 	commitResult := browserService updates first answer. "should only get one update back"
 	commitResult
 		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
-		ifFalse: [ ^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
+		ifFalse: [
+		^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
 	JadeiteSound informationBeep
 ]
 
@@ -82,8 +89,12 @@ JadeiteApplication class >> inTransaction: aBoolean [
 ]
 
 { #category : 'added manually from Dolphin' }
-JadeiteApplication class >> issueCommands: services session: session [
-	^RowanServiceUpdater current issueCommands: services session: session
+JadeiteApplication class >> issueCommands: services session: session onCompletion: anObject [
+
+	^ RowanServiceUpdater current
+		  issueCommands: services
+		  session: session
+		  onCompletion: nil
 ]
 
 { #category : 'instance creation' }
@@ -114,19 +125,20 @@ JadeiteApplication class >> showOnSession: aConnection [
 
 { #category : 'actions' }
 JadeiteApplication >> abortTransaction [
-
 	"Even if it takes a windy path, try to make sure
 	all aborts in Jadeite pass through here"
 
 	| browserService services |
-	services := (RowanServiceUpdater current selectedServicesForConnection:
-		             gciSession library) asSet asArray.
+	services := (RowanServiceUpdater current
+		             selectedServicesForConnection: gciSession library)
+		            asSet asArray.
 	browserService := RowanBrowserService new
 		                  command: #abortTransactionAndUpdateServices:;
 		                  commandArgs: (Array with: services).
 	RowanServiceUpdater current
 		issueCommands: (Array with: browserService)
-		session: gciSession.
+		session: gciSession
+		onCompletion: nil.
 	self setInTransaction: RowanAnsweringService new session: gciSession.
 	self triggerEvent: #abortedTransaction.
 	UIManager default inform: 'Abort succeeded'.

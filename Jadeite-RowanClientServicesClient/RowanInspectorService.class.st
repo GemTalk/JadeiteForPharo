@@ -72,26 +72,31 @@ RowanInspectorService >> displayName [
 
 { #category : 'inspecting' }
 RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle [
+
 	self
 		command: #executeThenInspect:context:inWindow:;
-		commandArgs: (Array
-					with: string
-					with: anOop
-					with: handle).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+		commandArgs: (Array with: string with: anOop with: handle).
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'inspecting' }
 RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle debugger: debugger [
+
 	self
 		command: #executeThenInspect:inFrame:process:context:inWindow:;
 		commandArgs: (Array
-					with: string
-					with: debugger frameListPresenter selectionByIndex
-					with: debugger gsProcess oop
-					with: anOop
-					with: handle).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+				 with: string
+				 with: debugger frameListPresenter selectionByIndex
+				 with: debugger gsProcess oop
+				 with: anOop
+				 with: handle).
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'comparison' }
@@ -122,15 +127,19 @@ RowanInspectorService >> initialize [
 
 { #category : 'inspecting' }
 RowanInspectorService >> inspect: oopOrObject session: session [
+
 	oop := (oopOrObject isKindOf: ExternalInteger)
-				ifTrue: [oopOrObject value]
-				ifFalse: 
-					[isOop := false.
-					oopOrObject].
+		       ifTrue: [ oopOrObject value ]
+		       ifFalse: [
+			       isOop := false.
+			       oopOrObject ].
 	self
 		command: #inspect:;
 		commandArgs: (Array with: oop).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'inspecting' }
@@ -143,19 +152,24 @@ RowanInspectorService >> inspect: theOop session: session inWindow: handle [
 	RowanServiceUpdater current
 		issueCommands: (Array with: self)
 		session: session
+		onCompletion: nil
 ]
 
 { #category : 'inspecting' }
 RowanInspectorService >> inspectBytes: oopOrObject session: session inWindow: handle [
+
 	oop := (oopOrObject isKindOf: ExternalInteger)
-				ifTrue: [oopOrObject value]
-				ifFalse: 
-					[isOop := false.
-					oopOrObject].
+		       ifTrue: [ oopOrObject value ]
+		       ifFalse: [
+			       isOop := false.
+			       oopOrObject ].
 	self
 		command: #inspectBytes:inWindow:;
 		commandArgs: (Array with: oop with: handle).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'accessing' }
@@ -271,11 +285,15 @@ RowanInspectorService >> name: aString [
 
 { #category : 'inspecting' }
 RowanInspectorService >> nextIndexedVarsFrom: indexStart to: indexStop session: session [
+
 	self
 		command: #nextIndexedVarsFrom:to:;
 		commandArgs: (Array with: indexStart with: indexStop).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
-	^nextIndices
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil.
+	^ nextIndices
 ]
 
 { #category : 'accessing' }
@@ -333,34 +351,50 @@ RowanInspectorService >> printOn: aStream [
 
 { #category : 'operations' }
 RowanInspectorService >> removeDynamicInstVarsNamed: dynamicInstVarNames session: session [
+
 	self
 		command: #removeDynamicInstVars:;
 		commandArgs: (Array with: dynamicInstVarNames).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'operations' }
 RowanInspectorService >> removeIndexedInstVarsAt: indices session: session [
+
 	self
 		command: #removeIndexedInstVarsAt:;
 		commandArgs: (Array with: indices).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'operations' }
 RowanInspectorService >> removeKeys: keyOops session: session [
+
 	self
 		command: #removeKeys:;
 		commandArgs: (Array with: keyOops).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'operations' }
 RowanInspectorService >> removeOop: theOop session: session [
+
 	self
 		command: #removeOop:;
 		commandArgs: (Array with: theOop).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'accessing' }

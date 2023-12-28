@@ -211,10 +211,12 @@ JadeiteAbstractTestCase >> createDebuggerTestMethod [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> createNewTestProjectNamed: projectName [
+
 	| testService |
-	testService := RowanTestService command: #createNewTestProjectNamed:
-				withArgs: (Array with: projectName).
-	self issueCommand: testService
+	testService := RowanTestService
+		               command: #createNewTestProjectNamed:
+		               withArgs: (Array with: projectName).
+	self issueCommand: testService onCompletion: nil
 ]
 
 { #category : 'asserting' }
@@ -372,14 +374,18 @@ JadeiteAbstractTestCase >> isSampleProject1Loaded [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> issueCommand: service [
+JadeiteAbstractTestCase >> issueCommand: service onCompletion: anObject [
 
-	^self issueCommands: (Array with: service)
+	^ self issueCommands: (Array with: service) onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> issueCommands: services [
-	^JadePresenter issueCommands: services session: session
+JadeiteAbstractTestCase >> issueCommands: services onCompletion: anObject [
+
+	^ JadePresenter
+		  issueCommands: services
+		  session: session
+		  onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -540,12 +546,16 @@ JadeiteAbstractTestCase >> queryCommand: commandSymbol inPresenter: presenter vi
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> reloadProjectNamed: projectName [
+
 	| projectService |
 	projectService := RowanProjectService new name: projectName.
 	projectService
 		command: #reloadProject;
 		commandArgs: nil.
-	JadePresenter issueCommands: (Array with: projectService) session: session
+	JadePresenter
+		issueCommands: (Array with: projectService)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -1000,11 +1010,12 @@ JadeiteAbstractTestCase >> setBreakAt: anInteger [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> setRemoteAutoCommit: aBoolean [
+
 	| autoCommitService |
 	autoCommitService := RowanAutoCommitService new
-				command: #autoCommit:;
-				commandArgs: (Array with: aBoolean).
-	self issueCommand: autoCommitService
+		                     command: #autoCommit:;
+		                     commandArgs: (Array with: aBoolean).
+	self issueCommand: autoCommitService onCompletion: nil
 ]
 
 { #category : 'support' }
@@ -1152,8 +1163,9 @@ JadeiteAbstractTestCase >> unloadSampleProject1 [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> updateService: service [
-	service command: #update. 
-	^self issueCommand: service	
+
+	service command: #update.
+	^ self issueCommand: service onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

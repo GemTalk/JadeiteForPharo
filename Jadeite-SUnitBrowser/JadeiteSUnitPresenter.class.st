@@ -43,10 +43,11 @@ JadeiteSUnitPresenter >> addUpdatedTestClasses: classServices [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> basicDelete [
+
 	classListPresenter selection
 		command: #removeMethods:;
 		commandArgs: (Array with: methodListPresenter selections).
-	self issueCommand: classListPresenter selection
+	self issueCommand: classListPresenter selection onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -577,25 +578,27 @@ JadeiteSUnitPresenter >> update: newMethods orRemove: removals [
 
 { #category : 'updates' }
 JadeiteSUnitPresenter >> updateClasses [
+
 	| packageServices |
 	self initializeClassList.
 	packageServices := packageListPresenter selections.
-	packageServices do: [:packageService | packageService command: #testClasses].
-	self issueCommands: packageServices
+	packageServices do: [ :packageService |
+		packageService command: #testClasses ].
+	self issueCommands: packageServices onCompletion: nil
 ]
 
 { #category : 'updates' }
 JadeiteSUnitPresenter >> updateMethods [
+
 	| classServices |
 	classServices := classListPresenter selections.
-	classServices do: 
-			[:service |
-			service
-				updateAfterCommand: false;
-				command: #fastRefresh].
-	self issueCommands: classServices.
-	classServices do: [:service | service updateAfterCommand: true].
-	^self updateMethodsFrom: classServices
+	classServices do: [ :service |
+		service
+			updateAfterCommand: false;
+			command: #fastRefresh ].
+	self issueCommands: classServices onCompletion: nil.
+	classServices do: [ :service | service updateAfterCommand: true ].
+	^ self updateMethodsFrom: classServices
 ]
 
 { #category : 'updates' }
@@ -632,9 +635,10 @@ JadeiteSUnitPresenter >> updatePresenter [
 
 { #category : 'updates' }
 JadeiteSUnitPresenter >> updateProjectPackages [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #packagesWithTests.
-	self issueCommand: browserService.
+	self issueCommand: browserService onCompletion: nil.
 	testCounter at: 1 put: browserService testCount
 ]

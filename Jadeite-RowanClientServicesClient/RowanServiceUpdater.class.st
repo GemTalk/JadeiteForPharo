@@ -90,19 +90,19 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> basicIssueCommand: services session: session [
+RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion: anObject [
 
 	| updateResult loggedServices newLoggingService |
-	self todo: [ 
+	self todo: [
 		newLoggingService := logger newServiceLoggingService addServices:
 			                     services.
 		self logSentServices: services.
 		loggedServices := services asOrderedCollection
 			                  addFirst: newLoggingService;
 			                  yourself ].
-	services do: [ :service |  
+	services do: [ :service |
 		service prepareForReplication.
-		service executeInSession: session.
+		service executeInSession: session onCompletion: nil.
 		updateResult := self applyUpdatesFromReturnedServices:
 			                service returnedServices ].
 	self todo: [ session releaseAllOops ].
@@ -111,8 +111,9 @@ RowanServiceUpdater >> basicIssueCommand: services session: session [
 
 { #category : 'private' }
 RowanServiceUpdater >> basicUpdateServices: services session: session [
-	services do: [:service | service command: #update].
-	^self basicIssueCommand: services session: session
+
+	services do: [ :service | service command: #update ].
+	^ self basicIssueCommand: services session: session onCompletion: nil
 ]
 
 { #category : 'accessing' }
@@ -219,18 +220,26 @@ RowanServiceUpdater >> isLogging: boolean [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session [
-	^self issueCommands: (Array with: service) session: session
+
+	^ self
+		  issueCommands: (Array with: service)
+		  session: session
+		  onCompletion: nil
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> issueCommands: services session: session [
-	self inUpdateWhile: 
-			[| commandResult |
-			session
-				ifNotNil: 
-					[commandResult := self basicIssueCommand: services session: session.
-					RowanServiceUpdater current logComment: 'Released inUpdate semaphore'.
-					^commandResult]]
+RowanServiceUpdater >> issueCommands: services session: session onCompletion: anObject [
+
+	self inUpdateWhile: [
+		| commandResult |
+		session ifNotNil: [
+			commandResult := self
+				                 basicIssueCommand: services
+				                 session: session
+				                 onCompletion: nil.
+			RowanServiceUpdater current logComment:
+				'Released inUpdate semaphore'.
+			^ commandResult ] ]
 ]
 
 { #category : 'logging' }

@@ -701,10 +701,14 @@ RowanClassService >> rowanPostUpdate [
 
 { #category : 'actions' }
 RowanClassService >> saveMethod: source category: category session: session [
+
 	self
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: source with: category).
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'accessing' }

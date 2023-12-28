@@ -34,15 +34,22 @@ Class {
 
 { #category : 'utility' }
 JadeiteBrowserPresenter class >> browseSendersOf: string session: session [
+
 	| service shell |
-	service := RowanQueryService command: #sendersOf: withArgs: (Array with: string asSymbol).
-	self issueCommands: (Array with: service) session: session.
+	service := RowanQueryService
+		           command: #sendersOf:
+		           withArgs: (Array with: string asSymbol).
+	self
+		issueCommands: (Array with: service)
+		session: session
+		onCompletion: nil.
 	shell := self
-				openMethodListOn: service
-				selecting: string
-				session: session.
-	shell updateCaptionFromSearchString: 'Senders of ' , string asString printString.
-	^shell
+		         openMethodListOn: service
+		         selecting: string
+		         session: session.
+	shell updateCaptionFromSearchString:
+		'Senders of ' , string asString printString.
+	^ shell
 ]
 
 { #category : 'as yet unclassified' }
@@ -63,9 +70,12 @@ JadeiteBrowserPresenter class >> issueCommand: service session: gciSession [
 ]
 
 { #category : 'utility' }
-JadeiteBrowserPresenter class >> issueCommands: service session: gciSession [
+JadeiteBrowserPresenter class >> issueCommands: service session: gciSession onCompletion: anObject [
 
-	^RowanServiceUpdater current issueCommands: service session: gciSession
+	^ RowanServiceUpdater current
+		  issueCommands: service
+		  session: gciSession
+		  onCompletion: nil
 ]
 
 { #category : 'utility' }
@@ -211,29 +221,33 @@ JadeiteBrowserPresenter >> auditProject [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
+
 	| insertionIndex dictionaryService |
 	insertionIndex := dictionaryListPresenter selectionByIndex = 0
-				ifTrue: [dictionaryListPresenter list size + 1]
-				ifFalse: [dictionaryListPresenter selectionByIndex + 1].
-	dictionaryService := RowanDictionaryService new name: newDictionaryName.
+		                  ifTrue: [ dictionaryListPresenter list size + 1 ]
+		                  ifFalse: [
+		                  dictionaryListPresenter selectionByIndex + 1 ].
+	dictionaryService := RowanDictionaryService new name:
+		                     newDictionaryName.
 	dictionaryService
 		command: #insertAt:;
 		commandArgs: (Array with: insertionIndex).
-	self issueCommand: dictionaryService.
-	dictionaryListPresenter
-		selection: (dictionaryListPresenter list detect: [:newService | newService name = newDictionaryName])
+	self issueCommand: dictionaryService onCompletion: nil.
+	dictionaryListPresenter selection:
+		(dictionaryListPresenter list detect: [ :newService |
+			 newService name = newDictionaryName ])
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicAddMethodCategory: string [
+
 	| service |
-	(self categoryListPresenter list includes: string)
-		ifFalse: 
-			[service := self selectedClass
-						command: #addCategory:;
-						commandArgs: (Array with: string).
-			service meta: self isClassSideSelected.
-			self issueCommand: service].
+	(self categoryListPresenter list includes: string) ifFalse: [
+		service := self selectedClass
+			           command: #addCategory:;
+			           commandArgs: (Array with: string).
+		service meta: self isClassSideSelected.
+		self issueCommand: service onCompletion: nil ].
 	self selectCategoriesNamed: (Array with: string)
 ]
 
@@ -259,18 +273,25 @@ JadeiteBrowserPresenter >> basicAddVariableAccessors [
 
 { #category : 'actions' }
 JadeiteBrowserPresenter >> basicBrowseClassReferences: className session: session [
+
 	| service |
-	service := RowanQueryService command: #browseClassReferences: withArgs: (Array with: className).
-	RowanServiceUpdater current issueCommands: (Array with: service) session: session.
-	^service
+	service := RowanQueryService
+		           command: #browseClassReferences:
+		           withArgs: (Array with: className).
+	RowanServiceUpdater current
+		issueCommands: (Array with: service)
+		session: session
+		onCompletion: nil.
+	^ service
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
+
 	oldClassService
 		command: #copyClassTo:;
 		commandArgs: (Array with: newClassName).
-	self issueCommand: oldClassService.
+	self issueCommand: oldClassService onCompletion: nil.
 	self updateAfterFindClass: (RowanClassService new name: newClassName)
 ]
 
@@ -328,60 +349,64 @@ JadeiteBrowserPresenter >> basicProjectTabLabel [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicRemoveClass: theClassService [
+
 	| service |
-	self isHierarchyTabSelected ifTrue:[
+	self isHierarchyTabSelected ifTrue: [
 		| path newPath |
 		path := classHierarchyPresenter selection selectedPath.
-		newPath := path copyFrom: 1 to: path size - 1. 
-		classHierarchyPresenter selection selectPath: newPath.
-		].	
+		newPath := path copyFrom: 1 to: path size - 1.
+		classHierarchyPresenter selection selectPath: newPath ].
 	service := self selectedDictionaryOrPackage.
 	service
 		command: #removeClass:;
 		commandArgs: (Array with: theClassService).
-	self issueCommand: service.
+	self issueCommand: service onCompletion: nil.
 	self selectedClass
-		ifNil: [self resetClassTemplate	"just emptied the last class in the package"]
-		ifNotNil: 
-			[classDefinitionPresenter value: self selectedClass template.
-			self resetClassDefinitionPane]
+		ifNil: [
+			self resetClassTemplate "just emptied the last class in the package" ]
+		ifNotNil: [
+			classDefinitionPresenter value: self selectedClass template.
+			self resetClassDefinitionPane ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicRemoveDictionaries: dictionaryNames [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #removeDictionariesNamed:;
 		commandArgs: (Array with: dictionaryNames).
-	self issueCommand: browserService
+	self issueCommand: browserService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicRemoveGlobal: qualifiedString [
+
 	| symbol rs dictionaryService globalDictionaryName |
 	rs := ReadStream on: qualifiedString.
 	globalDictionaryName := rs upTo: $..
-	dictionaryService := dictionaryListPresenter list
-				detect: [:service | service name = globalDictionaryName].
+	dictionaryService := dictionaryListPresenter list detect: [ :service |
+		                     service name = globalDictionaryName ].
 	symbol := rs upToEnd asSymbol.
 	dictionaryService
 		command: #removeGlobalNamed:;
 		commandArgs: (Array with: symbol).
-	self issueCommand: dictionaryService.
+	self issueCommand: dictionaryService onCompletion: nil.
 	self removeGlobalsTab.
 	self buildGlobalsTab
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService.
-	projectListPresenter unselectAll. 
+	self issueCommand: browserService onCompletion: nil.
+	projectListPresenter unselectAll.
 	packageListPresenter clear.
 	classListPresenter clear.
 	self clearMethodLists.
@@ -935,7 +960,7 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 			command: #debugTest:inClassName:;
 			commandArgs:
 				(Array with: methodService selector with: methodService className).
-		self issueCommand: methodService.
+		self issueCommand: methodService onCompletion: nil.
 		methodService testResult = 'passed' ifFalse: [ ^ self ] ] ] ensure: [
 		self refreshClassAndMethodPresenters ]
 ]
@@ -1054,7 +1079,7 @@ JadeiteBrowserPresenter >> editSaveClass [
 	self selectedClass ifNotNil: [ :classService |
 		browserService selectedClass: classService name ].
 	[
-	[ self issueCommand: browserService ]
+	[ self issueCommand: browserService onCompletion: nil ]
 		on: Error
 		do: [ :ex |
 			(ex isKindOf: GsCompileError)
@@ -1066,7 +1091,7 @@ JadeiteBrowserPresenter >> editSaveClass [
 	browserService
 		command: #recompileMethodsAfterClassCompilation;
 		commandArgs: #(  ).
-	self issueCommand: browserService ]
+	self issueCommand: browserService onCompletion: nil ]
 		on: GsApplicationError , GsCompileError
 		do: [ :ex |
 			('*poolDictionaries not supported yet*' match: ex description)
@@ -1084,13 +1109,14 @@ JadeiteBrowserPresenter >> editSaveClassComment [
 	classService := self selectedClass ifNil: [ ^ self ].
 	classService
 		command: #classComment:;
-		commandArgs: (Array with: classCommentPresenter text asString trimBoth).
-	self issueCommand: classService.
+		commandArgs:
+			(Array with: classCommentPresenter text asString trimBoth).
+	self issueCommand: classService onCompletion: nil.
 	self refreshFromServer.
-	classCommentPresenter view
-		isModified: false.
-	self todo:[	
-		classCommentPresenter backcolor: JadeiteTextStyles default colorForNoEdits]
+	classCommentPresenter view isModified: false.
+	self todo: [
+		classCommentPresenter backcolor:
+			JadeiteTextStyles default colorForNoEdits ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1129,12 +1155,13 @@ JadeiteBrowserPresenter >> editSaveMethod: classService [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> editSaveReadMe [
+
 	| service |
 	service := RowanFileService new
-				command: #write:;
-				commandArgs: (Array with: projectReadMeTab value);
-				path: self projectReadmePath.
-	self issueCommand: service
+		           command: #write:;
+		           commandArgs: (Array with: projectReadMeTab value);
+		           path: self projectReadmePath.
+	self issueCommand: service onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -1145,14 +1172,14 @@ JadeiteBrowserPresenter >> expandAt: classService [
 	classService
 		command: #oneLevelClassHierarchy;
 		commandArgs: Array new.
-	self issueCommand: classService.
+	self issueCommand: classService onCompletion: nil.
 	classHierarchyPresenter childrenFor: classService.
-	path := 	classHierarchyPresenter selection selectedPath.
+	path := classHierarchyPresenter selection selectedPath.
 	classHierarchyPresenter recalculateChildrenFor: path.
 	classHierarchyPresenter
-		collapsePath: 	path;
+		collapsePath: path;
 		expandPath: path.
-	classHierarchyPresenter selectItem: classService. 
+	classHierarchyPresenter selectItem: classService
 ]
 
 { #category : 'as yet unclassified' }
@@ -1168,7 +1195,7 @@ JadeiteBrowserPresenter >> expandSelectionOneLevel: selection [
 
 	| thePath |
 	selection command: #oneLevelClassHierarchy.
-	self issueCommand: selection.
+	self issueCommand: selection onCompletion: nil.
 	thePath := classHierarchyPresenter selection selectedPaths first.
 	classHierarchyPresenter roots: classHierarchyPresenter roots. "This resets the underlying morph"
 	classHierarchyPresenter expandPath: thePath.
@@ -1184,20 +1211,25 @@ JadeiteBrowserPresenter >> extensionColor [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> fileOutCategoriesOnPath: path [
+
 	| service |
 	service := self selectedClass.
 	service
 		command: #fileoutCategories:on:;
-		commandArgs: (Array with: categoryListPresenter selections with: path).
-	self issueCommand: service
+		commandArgs:
+			(Array with: categoryListPresenter selections with: path).
+	self issueCommand: service onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> fileOutClassOnPath: path [
+
 	| service |
 	service := self selectedClass.
-	service command: #fileoutClassOn:; commandArgs: (Array with: path).
-	self issueCommand: service
+	service
+		command: #fileoutClassOn:;
+		commandArgs: (Array with: path).
+	self issueCommand: service onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -1239,11 +1271,18 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> findRemovedServices [
+
 	| browserService |
 	browserService := RowanBrowserService new
-				command: #findRemovedServices:;
-				commandArgs: (Array with: RowanServiceUpdater current activeServices asArray).
-	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession
+		                  command: #findRemovedServices:;
+		                  commandArgs:
+			                  (Array with:
+					                   RowanServiceUpdater current activeServices
+						                   asArray).
+	RowanServiceUpdater current
+		issueCommands: (Array with: browserService)
+		session: self gciSession
+		onCompletion: nil
 ]
 
 { #category : 'accessing' }
@@ -1883,7 +1922,7 @@ JadeiteBrowserPresenter >> isValidClassService: classService [
 ]
 
 { #category : 'services' }
-JadeiteBrowserPresenter >> issueCommand: service [
+JadeiteBrowserPresenter >> issueCommand: service onCompletion: anObject [
 
 	^RowanServiceUpdater current issueCommand: service session: gciSession
 ]
@@ -2045,34 +2084,45 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategory [
+
 	| classService |
 	classService := self selectedClass.
-	self selectCategoriesNamed: (categoryListPresenter selections copyWith: targetCategory).
+	self selectCategoriesNamed:
+		(categoryListPresenter selections copyWith: targetCategory).
 	classService
 		command: #moveMethods:to:;
 		commandArgs: (Array with: methodServices with: targetCategory).
-	self issueCommand: classService.
+	self issueCommand: classService onCompletion: nil.
 	self selectMethodsFrom: classService
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> moveMethodsToPackageNamed: packageName [
+
 	| packageServiceToSelect selectedClass selectedMethods newSelectedMethods |
-	methodListPresenter selections isEmpty ifTrue: [^self].
+	methodListPresenter selections isEmpty ifTrue: [ ^ self ].
 	selectedClass := self selectedClass.
 	selectedMethods := methodListPresenter selections.
 	self selectedClass
 		command: #moveMethodSelectors:toPackageNamed:;
-		commandArgs: (Array with: (selectedMethods collect: [:methodService | methodService selector])
-					with: packageName).
-	self issueCommand: self selectedClass.
+		commandArgs: (Array
+				 with:
+					 (selectedMethods collect: [ :methodService |
+							  methodService selector ])
+				 with: packageName).
+	self issueCommand: self selectedClass onCompletion: nil.
 	packageServiceToSelect := packageListPresenter list
-				detect: [:packageService | packageService name = packageName] ifNone:[^self].
-	packageListPresenter selections: (self selectedPackageServices asOrderedCollection
-				add: packageServiceToSelect;
-				yourself).
+		                          detect: [ :packageService |
+		                          packageService name = packageName ]
+		                          ifNone: [ ^ self ].
+	packageListPresenter selections:
+		(self selectedPackageServices asOrderedCollection
+			 add: packageServiceToSelect;
+			 yourself).
 	self selectClassNamed: selectedClass name.
-	newSelectedMethods := selectedMethods select:[:oldSelMethod | methodListPresenter list includes: oldSelMethod]. 
+	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
+		                      methodListPresenter list includes:
+			                      oldSelMethod ].
 	methodListPresenter selections: newSelectedMethods.
 	self view invalidate
 ]
@@ -2423,7 +2473,7 @@ JadeiteBrowserPresenter >> refreshClass: selectedMethod [
 	selection
 		updateAfterCommand: false;
 		command: #fastRefresh.
-	self issueCommand: selection.
+	self issueCommand: selection onCompletion: nil.
 	selection updateAfterCommand: true.
 	self updateClassInfo.
 	self selectMethodWithSameSelectorAs: selectedMethod.
@@ -2468,9 +2518,15 @@ JadeiteBrowserPresenter >> refreshGlobalSelections [
 
 	| browserService |
 	browserService := RowanBrowserService new
-				command: #findRemovedServices:;
-				commandArgs: (Array with: RowanServiceUpdater current activeServices asSet asArray).
-	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession.
+		                  command: #findRemovedServices:;
+		                  commandArgs:
+			                  (Array with:
+					                   RowanServiceUpdater current activeServices
+						                   asSet asArray).
+	RowanServiceUpdater current
+		issueCommands: (Array with: browserService)
+		session: self gciSession
+		onCompletion: nil.
 	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
@@ -2618,24 +2674,30 @@ JadeiteBrowserPresenter >> removeAppropriateTab [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> removeClass [
+
 	| classService answeringService classReferenceBrowser queryService |
-	classService := self selectedClass ifNil: [^self].
+	classService := self selectedClass ifNil: [ ^ self ].
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #classHasSubclasses:;
 		commandArgs: (Array with: classService oop).
-	self issueCommand: answeringService.
-	answeringService answer ifTrue: [^MessageBox notify: 'Cannot remove class with subclasses'].
-	(self selectedDictionaryOrPackage confirmClassRemoval: classService) ifFalse: [^self].
-	queryService := self basicBrowseClassReferences: classService name session: self gciSession.
-	queryService hasResults
-		ifTrue: [classReferenceBrowser := self browseClassReferences: classService name].
+	self issueCommand: answeringService onCompletion: nil.
+	answeringService answer ifTrue: [
+		^ MessageBox notify: 'Cannot remove class with subclasses' ].
+	(self selectedDictionaryOrPackage confirmClassRemoval: classService)
+		ifFalse: [ ^ self ].
+	queryService := self
+		                basicBrowseClassReferences: classService name
+		                session: self gciSession.
+	queryService hasResults ifTrue: [
+		classReferenceBrowser := self browseClassReferences:
+			                         classService name ].
 	self basicRemoveClass: classService.
-	queryService hasResults
-		ifTrue: 
-			[MessageBox notify: classService name
-						, ' was removed. You will need to remove references to the class or your code may not load in the future.'].
-	^classReferenceBrowser
+	queryService hasResults ifTrue: [
+		MessageBox notify: classService name
+			,
+			' was removed. You will need to remove references to the class or your code may not load in the future.' ].
+	^ classReferenceBrowser
 ]
 
 { #category : 'as yet unclassified' }
@@ -2673,13 +2735,14 @@ JadeiteBrowserPresenter >> removeGlobalsTab [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> removePackages [
+
 	| projectService |
-	(MessageBox confirm: 'Really remove package(s)?') ifFalse: [^self].
+	(MessageBox confirm: 'Really remove package(s)?') ifFalse: [ ^ self ].
 	projectService := projectListPresenter selection.
 	projectService
 		command: #removePackagesNamed:;
 		commandArgs: (Array with: packageListPresenter selections).
-	self issueCommand: projectService
+	self issueCommand: projectService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -2892,24 +2955,26 @@ JadeiteBrowserPresenter >> selectNoneProject [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageNamed: packageName [
+
 	| answeringService service |
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #packageNamed:;
 		commandArgs: (Array with: packageName).
-	self issueCommand: answeringService.
+	self issueCommand: answeringService onCompletion: nil.
 	service := answeringService answer.
 	service selectIn: self
 ]
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
+
 	| answeringService service |
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #packageOrDictionaryFor:;
 		commandArgs: (Array with: classService).
-	self issueCommand: answeringService.
+	self issueCommand: answeringService onCompletion: nil.
 	service := answeringService answer.
 	service selectIn: self
 ]
@@ -3316,10 +3381,11 @@ JadeiteBrowserPresenter >> updateClasses [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateDictionaries [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateDictionaries.
-	self issueCommand: browserService
+	self issueCommand: browserService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -3360,8 +3426,9 @@ JadeiteBrowserPresenter >> updateHierarchy [
 
 	| service |
 	classHierarchyPresenter roots: Array new.
-	self isDictionaryTabSelected 
-		ifTrue: [ dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ] ]
+	self isDictionaryTabSelected
+		ifTrue: [
+		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ] ]
 		ifFalse: [
 			projectListPresenter selectionOrNil ifNil: [ ^ self ].
 			packageListPresenter selections isEmpty ifTrue: [ ^ self ] ].
@@ -3372,24 +3439,25 @@ JadeiteBrowserPresenter >> updateHierarchy [
 			service
 				updateAfterCommand: false;
 				command: #classHierarchy.
-			self issueCommand: service.
+			self issueCommand: service onCompletion: nil.
 			self selectClassNamed: service name ] ]
 ]
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateHierarchyForPacktionaries [
+
 	| service |
 	service := RowanBrowserService new.
 	self isNoneProjectSelected
-		ifTrue: 
-			[service
+		ifTrue: [
+			service
 				command: #classHierarchyForDictionariesNamed:;
-				commandArgs: (Array with: self selectedDictionaryNames)]
-		ifFalse: 
-			[service
+				commandArgs: (Array with: self selectedDictionaryNames) ]
+		ifFalse: [
+			service
 				command: #classHierarchyForPackagesNamed:;
-				commandArgs: (Array with: self selectedPackageNames)].
-	self issueCommand: service
+				commandArgs: (Array with: self selectedPackageNames) ].
+	self issueCommand: service onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -3576,11 +3644,12 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectReadMe [
+
 	| service |
 	service := RowanFileService new
-				command: #readmeContents;
-				path: self projectReadmePath. 
-	self issueCommand: service.
+		           command: #readmeContents;
+		           path: self projectReadmePath.
+	self issueCommand: service onCompletion: nil.
 	projectReadMeTab value: service answer replaceLfWithCrLf
 ]
 

@@ -144,58 +144,77 @@ JadeiteTranscriptTestCase >> test_autoCommitMenuItem [
 
 { #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_autoCommitOff [
+
 	| answeringService |
-	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
+	self
+		testsIssue: #issue396
+		withTitle: 'Ability to turn on autocommit would be nice'.
 	self setRemoteAutoCommit: false.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assertIsNil:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	"any service call will commit the transaction"
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #exec:;
 		commandArgs: (Array with: '3+4').
-	self issueCommand: answeringService.
+	self issueCommand: answeringService onCompletion: nil.
 	self assert: answeringService answer equals: '7'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	
-	[self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')	"autoCommit off. TestCommit was not committed"]
-			ensure: 
-				[session executeString: 'UserGlobals removeKey: #TestCommit ifAbsent:[]'.
-				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+
+	[
+	self assertIsNil:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') "autoCommit off. TestCommit was not committed" ]
+		ensure: [
+			session executeString:
+				'UserGlobals removeKey: #TestCommit ifAbsent:[]'.
+			self cloneRowanSample1.
+			self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_autoCommitOn [
+
 	| answeringService |
-	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
-	
-	[self setRemoteAutoCommit: true.
+	self
+		testsIssue: #issue396
+		withTitle: 'Ability to turn on autocommit would be nice'.
+
+	[
+	self setRemoteAutoCommit: true.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assertIsNil:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	"any service call will commit the transaction"
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #exec:;
 		commandArgs: (Array with: '3+4').
-	self issueCommand: answeringService.
+	self issueCommand: answeringService onCompletion: nil.
 	self assert: answeringService answer equals: '7'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	self abortTransaction.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')	"TestCommit was committed"]
-			ensure: 
-				[session executeString: 'UserGlobals removeKey: #TestCommit'.
-				self commitTransaction.
-				self setRemoteAutoCommit: false]
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') "TestCommit was committed" ]
+		ensure: [
+			session executeString: 'UserGlobals removeKey: #TestCommit'.
+			self commitTransaction.
+			self setRemoteAutoCommit: false ]
 ]
 
 { #category : 'as yet unclassified' }

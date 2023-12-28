@@ -21,10 +21,11 @@ JadeiteSUnitInClassPresenter >> addWorkspace [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitInClassPresenter >> basicDelete [
+
 	testClassService
 		command: #removeMethods:;
 		commandArgs: (Array with: methodListPresenter selections).
-	self issueCommand: testClassService
+	self issueCommand: testClassService onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

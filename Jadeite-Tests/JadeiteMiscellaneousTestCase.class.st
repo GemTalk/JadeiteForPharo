@@ -290,25 +290,38 @@ JadeiteMiscellaneousTestCase >> test_logoutFatalError [
 
 { #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_releaseOops [
+
 	| remoteObject service |
-	self testsIssue: #issue413 withTitle: '(3.0.56 & 3.0.62) running out vm memory quickly'.
+	self
+		testsIssue: #issue413
+		withTitle: '(3.0.56 & 3.0.62) running out vm memory quickly'.
 	session releaseAllOops.
-	self assert: (session executeString: 'System hiddenSetSize: 39') equals: 0.
+	self
+		assert: (session executeString: 'System hiddenSetSize: 39')
+		equals: 0.
 	remoteObject := session executeString: 'Array new'.
 	self assert: (session executeString: 'System hiddenSetSize: 39') = 1.
 	session releaseAllOops.
-	self assert: (session executeString: 'System hiddenSetSize: 39') equals: 0.
+	self
+		assert: (session executeString: 'System hiddenSetSize: 39')
+		equals: 0.
 	remoteObject := session executeString: 'Dictionary new'.
 	self assert: (session executeString: 'System hiddenSetSize: 39') = 1.
 	service := RowanAnsweringService new.
 	service command: #isTranscriptInstalled.
-	self issueCommand: service.
-	self assert: (session executeString: 'System hiddenSetSize: 39') equals: 0.
+	self issueCommand: service onCompletion: nil.
+	self
+		assert: (session executeString: 'System hiddenSetSize: 39')
+		equals: 0.
 	remoteObject := session executeString: 'Object new'.
 	self assert: (session executeString: 'System hiddenSetSize: 39') = 1.
 	service := RowanProjectService new name: 'Rowan'.
-	RowanServiceUpdater current updateServices: (Array with: service) session: session.
-	self assert: (session executeString: 'System hiddenSetSize: 39') equals: 0.
+	RowanServiceUpdater current
+		updateServices: (Array with: service)
+		session: session.
+	self
+		assert: (session executeString: 'System hiddenSetSize: 39')
+		equals: 0.
 	self auditAll
 ]
 

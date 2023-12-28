@@ -10,8 +10,11 @@ JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 	service := RowanQueryService
 		           command: #browseClassReferences:
 		           withArgs: (Array with: className).
-	RowanServiceUpdater current issueCommands: (Array with: service) session: session.
-	^ service 
+	RowanServiceUpdater current
+		issueCommands: (Array with: service)
+		session: session
+		onCompletion: nil.
+	^ service
 ]
 
 { #category : 'queries' }

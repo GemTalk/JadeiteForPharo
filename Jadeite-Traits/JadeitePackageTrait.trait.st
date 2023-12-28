@@ -29,18 +29,21 @@ JadeitePackageTrait >> basicAddPackage: inst [
 
 { #category : 'actions' }
 JadeitePackageTrait >> basicAddPackageNamed: packageName symbolDictionary: symbolDictionaryName componentName: componentName [
-	| projectService | 
- 	packageName ifNil: [^MessageBox notify: 'Must enter a valid package name'].
-	packageName = String new
-		ifTrue: [^MessageBox notify: 'Must enter a valid package name'].
+
+	| projectService |
+	packageName ifNil: [
+		^ MessageBox notify: 'Must enter a valid package name' ].
+	packageName = String new ifTrue: [
+		^ MessageBox notify: 'Must enter a valid package name' ].
 	projectService := self projectListPresenter selectedItem.
 	projectService
-		command: #addNewPackageNamed:inSymbolDictionaryNamed:toComponentNamed:;
+		command:
+			#addNewPackageNamed:inSymbolDictionaryNamed:toComponentNamed:;
 		commandArgs: (Array
-					with: packageName
-					with: symbolDictionaryName
-					with: componentName).
-	self issueCommand: projectService.
+				 with: packageName
+				 with: symbolDictionaryName
+				 with: componentName).
+	self issueCommand: projectService onCompletion: nil.
 	self application triggerEvent: #packageAdded: with: packageName
 ]
 
@@ -75,11 +78,13 @@ JadeitePackageTrait >> newPackageMenu [
 
 { #category : 'actions' }
 JadeitePackageTrait >> removePackage [
+
 	| projectService |
-	(MessageBox confirm: 'Really remove package(s)?') ifFalse: [^self].
+	(MessageBox confirm: 'Really remove package(s)?') ifFalse: [ ^ self ].
 	projectService := self projectListPresenter selectedItem.
 	projectService
 		command: #removePackagesNamed:;
-		commandArgs: (Array with: (Array with: self packageListPresenter selectedItem)).
-	self issueCommand: projectService
+		commandArgs:
+			(Array with: (Array with: self packageListPresenter selectedItem)).
+	self issueCommand: projectService onCompletion: nil
 ]

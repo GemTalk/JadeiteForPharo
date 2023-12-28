@@ -31,9 +31,13 @@ RowanQueryService >> implementorsOfAll: selectors [
 
 { #category : 'commands' }
 RowanQueryService >> implementorsOfAll: selectors session: session [
+
 	command := #implementorsOfAll:.
 	commandArgs := Array with: selectors.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]
 
 { #category : 'accessing' }
@@ -56,5 +60,8 @@ RowanQueryService >> sendersOfAll: selectors session: session [
 
 	command := #sendersOfAll:.
 	commandArgs := Array with: selectors.
-	RowanServiceUpdater current issueCommands: (Array with: self) session: session.
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: nil
 ]

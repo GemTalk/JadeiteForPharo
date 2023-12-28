@@ -80,26 +80,33 @@ JadeiteSUnitAbstractPresenter >> reset [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices className: className [
+
 	| jadeResult index |
 	jadeResult := JadeTestResult new.
-	methodServices do: 
-			[:methodService |
-			methodService
-				command: command;
-				commandArgs: (Array with: methodService selector with: (className ifNil: [methodService className])).
-			self issueCommand: methodService.
-			methodService testResult = 'error' ifTrue: [jadeResult addError: methodService].
-			methodService testResult = 'failure' ifTrue: [jadeResult addFailure: methodService].
-			methodService testResult = 'passed' ifTrue: [jadeResult addPassed: methodService].
-			index := methodListPresenter list indexOf: methodService.
-			self todo:[methodListPresenter view updateItem: methodService atIndex: index.
-			methodListPresenter view ensureVisible: index].
-			methodListPresenter view update.
-			shouldStopTestRun ifTrue: [^shouldStopTestRun := false]].
+	methodServices do: [ :methodService |
+		methodService
+			command: command;
+			commandArgs: (Array
+					 with: methodService selector
+					 with: (className ifNil: [ methodService className ])).
+		self issueCommand: methodService onCompletion: nil.
+		methodService testResult = 'error' ifTrue: [
+			jadeResult addError: methodService ].
+		methodService testResult = 'failure' ifTrue: [
+			jadeResult addFailure: methodService ].
+		methodService testResult = 'passed' ifTrue: [
+			jadeResult addPassed: methodService ].
+		index := methodListPresenter list indexOf: methodService.
+		self todo: [
+			methodListPresenter view updateItem: methodService atIndex: index.
+			methodListPresenter view ensureVisible: index ].
+		methodListPresenter view update.
+		shouldStopTestRun ifTrue: [ ^ shouldStopTestRun := false ] ].
 	self updateResult: jadeResult.
-	self todo: [methodListPresenter view ensureVisible: index.	"ensure last test run is visible"]. 
+	self todo: [
+		methodListPresenter view ensureVisible: index "ensure last test run is visible" ].
 	shouldStopTestRun := false.
-	^jadeResult
+	^ jadeResult
 ]
 
 { #category : 'as yet unclassified' }

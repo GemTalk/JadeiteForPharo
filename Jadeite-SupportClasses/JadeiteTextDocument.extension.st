@@ -22,7 +22,17 @@ JadeiteTextDocument >> currentSelectionOrLine [
 
 { #category : '*Jadeite-SupportClasses' }
 JadeiteTextDocument >> evaluate: aString onCompileError: compileErrorBlock onError: errorBlock [ 
-	^self executeSelectionOrLine: aString shouldDebug: false onCompileError: compileErrorBlock
+	^self executeSelectionOrLine: aString shouldDebug: false onCompileError: compileErrorBlock showResult: true
+]
+
+{ #category : '*Jadeite-SupportClasses' }
+JadeiteTextDocument >> evaluate: aString onCompileError: compileErrorBlock onError: errorBlock showResult: showResult [
+
+	^ self
+		  executeSelectionOrLine: aString
+		  shouldDebug: false
+		  onCompileError: compileErrorBlock
+		  showResult: showResult
 ]
 
 { #category : '*Jadeite-SupportClasses' }

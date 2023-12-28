@@ -300,16 +300,23 @@ CodeSourcePresenter >> jadeExecute [
 
 { #category : 'Jade' }
 CodeSourcePresenter >> jadeExecuteAndDisplay: showResult shouldDebug: shouldDebug [
+
 	| result |
-	result := self executeSelectionOrLine: self parentPresenter contextObject shouldDebug: shouldDebug onCompileError:[^self].
-	result ifNil: [^self].
+	result := self
+		          executeSelectionOrLine: self parentPresenter contextObject
+		          shouldDebug: shouldDebug
+		          onCompileError: [ ^ self ]
+		          showResult: showResult.
+	result ifNil: [ ^ self ].
 	result key
-		ifTrue: 
-			[showResult ifTrue: [self showResult: result value] ifFalse: [self setCaretToEndOfSelection].
-			^result value]
-		ifFalse: 
-			[self showCompileError: result value first.
-			^self	"flag for compile error"]
+		ifTrue: [
+			showResult
+				ifTrue: [ self showResult: result value ]
+				ifFalse: [ self setCaretToEndOfSelection ].
+			^ result value ]
+		ifFalse: [
+			self showCompileError: result value first.
+			^ self "flag for compile error" ]
 ]
 
 { #category : 'menus' }

@@ -206,12 +206,15 @@ JadeiteWorkspace >> value [
 
 { #category : 'actions' }
 JadeiteWorkspace >> writeDocumentTo: newPath [
+
 	| service |
 	service := RowanFileService new
-				command: #write:;
-				commandArgs: (Array with: codePane documentPresenter text replaceCrWithLf);
-				path: newPath.
-	self issueCommand: service.
-	filename := newPath. 
+		           command: #write:;
+		           commandArgs:
+			           (Array with:
+					            codePane documentPresenter text replaceCrWithLf);
+		           path: newPath.
+	self issueCommand: service onCompletion: nil.
+	filename := newPath.
 	self updateCaption
 ]

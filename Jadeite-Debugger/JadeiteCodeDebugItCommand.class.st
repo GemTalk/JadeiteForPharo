@@ -32,7 +32,12 @@ JadeiteCodeDebugItCommand class >> defaultShortcutKey [
 
 { #category : 'private' }
 JadeiteCodeDebugItCommand >> debug: aStream [
-	^self context executeSelectionOrLine: aStream contents shouldDebug: true onCompileError:[^self]
+
+	^ self context
+		  executeSelectionOrLine: aStream contents
+		  shouldDebug: true
+		  onCompileError: [ ^ self ]
+		  showResult: false
 ]
 
 { #category : 'executing' }

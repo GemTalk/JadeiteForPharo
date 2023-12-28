@@ -45,29 +45,31 @@ JadeiteTestResource class >> signalInitializationError [
 
 { #category : 'projects loading' }
 JadeiteTestResource >> basicUnloadProjects: projectNames [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService.
+	self issueCommand: browserService onCompletion: nil.
 	self refreshGlobalSelections
 ]
 
 { #category : 'support' }
 JadeiteTestResource >> cloneRowanSample1 [
+
 	| sample1Path root service |
-	self disableInteractionsWhile: 
-			[sample1Path := self rowanSample1Path.
-			root := self rowanProjectsHome.
-			service := RowanProjectService new.
-			service
-				command: #newGitProject:root:useSsh:;
-				commandArgs: (Array
-							with: sample1Path
-							with: root
-							with: true).
-			JadePresenter issueCommands: (Array with: service) session: GciSession current]
+	self disableInteractionsWhile: [
+		sample1Path := self rowanSample1Path.
+		root := self rowanProjectsHome.
+		service := RowanProjectService new.
+		service
+			command: #newGitProject:root:useSsh:;
+			commandArgs: (Array with: sample1Path with: root with: true).
+		JadePresenter
+			issueCommands: (Array with: service)
+			session: GciSession current
+			onCompletion: nil ]
 ]
 
 { #category : 'support' }
@@ -92,11 +94,9 @@ JadeiteTestResource >> createRowanSample1Project [
 
 	| testService |
 	testService := RowanTestService new.
-	testService command:
-		#createRowanSample1Project.
+	testService command: #createRowanSample1Project.
 	testService commandArgs: Array new.
-	self issueCommand: testService.
-
+	self issueCommand: testService onCompletion: nil
 ]
 
 { #category : 'actions' }
@@ -118,17 +118,17 @@ JadeiteTestResource >> disableInteractionsWhile: block [
 	answeringService
 		command: #interactionHandlerActive;
 		commandArgs: Array new.
-	self issueCommand: answeringService.
+	self issueCommand: answeringService onCompletion: nil.
 	wasEnabled := answeringService answer.
 	answeringService
 		command: #setEnableInteractionHandler:;
 		commandArgs: (Array with: false).
-	self issueCommand: answeringService.
-	[block value] ensure: 
-			[answeringService
-				command: #setEnableInteractionHandler:;
-				commandArgs: (Array with: wasEnabled).
-			self issueCommand: answeringService]
+	self issueCommand: answeringService onCompletion: nil.
+	[ block value ] ensure: [
+		answeringService
+			command: #setEnableInteractionHandler:;
+			commandArgs: (Array with: wasEnabled).
+		self issueCommand: answeringService onCompletion: nil ]
 ]
 
 { #category : 'projects loading' }
@@ -197,7 +197,7 @@ JadeiteTestResource >> isAvailable [
 ]
 
 { #category : 'support' }
-JadeiteTestResource >> issueCommand: service [
+JadeiteTestResource >> issueCommand: service onCompletion: anObject [
 	^RowanServiceUpdater current issueCommand: service session: self session
 ]
 
@@ -208,16 +208,21 @@ JadeiteTestResource >> jadeiteShell [
 
 { #category : 'support' }
 JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHomePath customConditionalAttributes: attributes componentNames: componentNames [
+
 	| projectService |
 	projectService := RowanProjectService new.
 	projectService
-		command: #loadProjectFromFile:projectsHome:customConditionalAttributes:componentNames:;
+		command:
+			#loadProjectFromFile:projectsHome:customConditionalAttributes:componentNames:;
 		commandArgs: (Array
-					with: fileString
-					with: projectsHomePath
-					with: attributes
-					with: componentNames).
-	JadePresenter issueCommands: (Array with: projectService) session: self session
+				 with: fileString
+				 with: projectsHomePath
+				 with: attributes
+				 with: componentNames).
+	JadePresenter
+		issueCommands: (Array with: projectService)
+		session: self session
+		onCompletion: nil
 ]
 
 { #category : 'support' }
@@ -298,30 +303,44 @@ JadeiteTestResource >> refreshGlobalSelections [
 
 	| browserService |
 	browserService := RowanBrowserService new
-				command: #findRemovedServices:;
-				commandArgs: (Array with: RowanServiceUpdater current activeServices asSet asArray).
-	RowanServiceUpdater current issueCommands: (Array with: browserService) session: self gciSession.
+		                  command: #findRemovedServices:;
+		                  commandArgs:
+			                  (Array with:
+					                   RowanServiceUpdater current activeServices
+						                   asSet asArray).
+	RowanServiceUpdater current
+		issueCommands: (Array with: browserService)
+		session: self gciSession
+		onCompletion: nil.
 	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
 { #category : 'support' }
 JadeiteTestResource >> refreshProjectNamed: projectName [
+
 	| projectService |
 	projectService := RowanProjectService new name: projectName.
 	projectService
 		command: #update;
 		commandArgs: nil.
-	JadePresenter issueCommands: (Array with: projectService) session: self session
+	JadePresenter
+		issueCommands: (Array with: projectService)
+		session: self session
+		onCompletion: nil
 ]
 
 { #category : 'support' }
 JadeiteTestResource >> reloadProjectNamed: projectName [
+
 	| projectService |
 	projectService := RowanProjectService new name: projectName.
 	projectService
 		command: #reloadProject;
 		commandArgs: nil.
-	JadePresenter issueCommands: (Array with: projectService) session: self session
+	JadePresenter
+		issueCommands: (Array with: projectService)
+		session: self session
+		onCompletion: nil
 ]
 
 { #category : 'projects' }

@@ -1143,7 +1143,7 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_stepPoint1 [
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: 'abc' with: 'test step points').
-	self issueCommand: classService.
+	self issueCommand: classService onCompletion: nil.
 	methodService := (self selectMethodNamed: #abc) first.
 	self assert: methodService stepPoints size equals: 1.
 	self assert: methodService stepPoints first key equals: (1 to: 3)
@@ -1157,26 +1157,35 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_stepPoint2 [
 
 	| sourceString classService methodService |
 	self selectRowanSample1Class.
-	sourceString := session executeString: 'RowanMethodServiceTest new stepPoint1Source'.
+	sourceString := session executeString:
+		                'RowanMethodServiceTest new stepPoint1Source'.
 	classService := self projectsPresenter selectedClass.
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: sourceString with: 'test step points').
-	self issueCommand: classService.
+	self issueCommand: classService onCompletion: nil.
 	methodService := (self selectMethodNamed: #simpleMethod) first.
 	self assert: methodService stepPoints size equals: 7.
 	self assert: (methodService stepPoints at: 2) key equals: (42 to: 44).
 	self assert: (methodService stepPoints at: 2) value equals: #new.
 	self assert: (methodService stepPoints at: 3) key equals: (33 to: 34).
-	self assert: (methodService stepPoints at: 3) value equals: String new.	"might be a server bug"
+	self
+		assert: (methodService stepPoints at: 3) value
+		equals: String new. "might be a server bug"
 	self assert: (methodService stepPoints at: 4) key equals: (92 to: 94).
 	self assert: (methodService stepPoints at: 4) value equals: #new.
 	self assert: (methodService stepPoints at: 5) key equals: (69 to: 72).
 	self assert: (methodService stepPoints at: 5) value equals: #add:.
-	self assert: (methodService stepPoints at: 6) key equals: (124 to: 127).
+	self
+		assert: (methodService stepPoints at: 6) key
+		equals: (124 to: 127).
 	self assert: (methodService stepPoints at: 6) value equals: #size.
-	self assert: (methodService stepPoints at: 7) key equals: (139 to: 140).
-	self assert: (methodService stepPoints at: 7) value equals: String new	"might be a server bug"
+	self
+		assert: (methodService stepPoints at: 7) key
+		equals: (139 to: 140).
+	self
+		assert: (methodService stepPoints at: 7) value
+		equals: String new "might be a server bug"
 ]
 
 { #category : 'as yet unclassified' }
