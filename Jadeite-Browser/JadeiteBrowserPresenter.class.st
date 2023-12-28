@@ -617,12 +617,14 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 ]
 
 { #category : 'selections' }
-JadeiteBrowserPresenter >> classSelected: selection [
+JadeiteBrowserPresenter >> classSelected: classService [
 
+	| selectedMethod |
+	selectedMethod := methodListPresenter selectedItem.
 	self clearMethodLists.
-	^ selection selectedItem ifNotNil: [
+	^ classService ifNotNil: [
 		  self
-			  refreshClass;
+			  refreshClass: selectedMethod;
 			  updateTabLabel ]
 ]
 
@@ -744,11 +746,11 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
 		whenSelectionChangedDo: [ :selection |
-			self classSelected: selection ];
+			self classSelected: self selectedClass ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
-			self classSelected: selection ];
+			self classSelected: self selectedClass ];
 		whenActivatedDo: [ :selection |
 			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
@@ -759,7 +761,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 					classListPresenter
 						selectIndex: (classListPresenter items indexOf: sel)
 						scrollToSelection: true ] ].
-		self refreshClass ].
+		self classSelected: self selectedClass ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
 ]
@@ -784,7 +786,8 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectMethodPresenters [
 
-	methodSourcePresenter whenSubmitDo: [ :text | self editSave ]
+	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
+	instanceRadioButton whenChangedDo: [ :selection | self classSelected: self selectedClass ]
 ]
 
 { #category : 'initialization' }
@@ -822,8 +825,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectMethodPresenters.
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
-		self textTabChanged ].
-	instanceRadioButton whenChangedDo: [ :selection | self refreshClass ]
+		self textTabChanged ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2400,30 +2402,24 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenter >> refreshClass [
+JadeiteBrowserPresenter >> refreshClass: selectedMethod [
 
-	| selection presenter classTabPresenter selectedMethod |
-	self selectedClassTab ifNil: [ ^ self ].
-	classTabPresenter := self selectedClassTab activePresenter ifNil: [
-		                     self selectedClassTab retrievePresenter ].
-	classTabPresenter selectedItem ifNil: [ self clearMethodLists ].
-	methodListPresenter selectedItem ifNil: [
-		textAreaTabs selectPage: classDefinitionPage ].
+	| selection presenter |
+	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
+	self noClassSelectedInEitherPresenter ifTrue: [
+		self resetClassTemplate.
+		self resetDefinedClassPackage.
+		^ self ].
+	selectedMethod ifNil: [ textAreaTabs selectPage: classDefinitionPage ].
 	presenter := self isClassListTabSelected
 		             ifTrue: [ classListPresenter ]
 		             ifFalse: [ classHierarchyPresenter ].
-	selection := presenter selectionIfNone: [
-		             ^ self noClassSelectedInEitherPresenter ifTrue: [
-			               self resetClassTemplate.
-			               self resetDefinedClassPackage ] ].
-	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
+	selection := self selectedClass.
 	selection wasRemoved ifTrue: [ ^ self ].
 	selection meta: self isClassSideSelected.
-	self isNoneProjectSelected ifFalse: [
-		selection
-			selectedPackageServices: packageListPresenter selections
-			browser: self ].
-	selectedMethod := methodListPresenter selectedItem.
+	selection
+		selectedPackageServices: packageListPresenter selections
+		browser: self.
 	selection
 		updateAfterCommand: false;
 		command: #fastRefresh.
@@ -2843,9 +2839,13 @@ JadeiteBrowserPresenter >> selectMethodWithSameSelectorAs: selectedMethod [
 			                  detect: [ :methodService |
 			                  methodService selector = selectedMethod selector ]
 			                  ifNone: [  ].
-		sameNameMethod ifNotNil: [ :match |
-			methodListPresenter selectItem: match.
-			self updateMethodSource ] ]
+		sameNameMethod
+			ifNil: [
+				self selectedClass ifNotNil: [ :classService |
+					methodListPresenter unselectAll ] ]
+			ifNotNil: [ :match |
+				methodListPresenter selectItem: match.
+				self updateMethodSource ] ]
 ]
 
 { #category : 'selections' }
