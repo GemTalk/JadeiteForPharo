@@ -175,7 +175,7 @@ JadeiteChangesBrowser >> initializeOperationsListPresenter [
 
 	operationsListPresenter addColumn: (SpStringTableColumn
 			 title: 'Class'
-			 evaluated: [ :operation | operation className ]).
+			 evaluated: [ :operation | operation definition jadeiteClassName ]).
 	operationsListPresenter addColumn: (SpStringTableColumn
 			 title: 'Selector'
 			 evaluated: [ :operation | operation selector ]).

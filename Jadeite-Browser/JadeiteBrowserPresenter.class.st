@@ -1657,7 +1657,7 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 
 	projectListPresenter := JadeiteListPresenter new
 		                        display: [ :projectService | 
-			                        projectService name ];
+			                        projectService displayName ];
 		                        displayBold: [ :projectService | 
 			                        projectService isDirty ];
 		                        displayColor: [ :projectService | 
@@ -2844,7 +2844,8 @@ JadeiteBrowserPresenter >> selectMethodWithSameSelectorAs: selectedMethod [
 			                  methodService selector = selectedMethod selector ]
 			                  ifNone: [  ].
 		sameNameMethod ifNotNil: [ :match |
-			methodListPresenter selectItem: match ] ]
+			methodListPresenter selectItem: match.
+			self updateMethodSource ] ]
 ]
 
 { #category : 'selections' }

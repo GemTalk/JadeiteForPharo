@@ -19,3 +19,10 @@ MCMethodDefinition >> initialize: aStream [
 	source := (aStream next: size) copyReplaceAll: (Array with: Character cr) with: (Array with: Character lf).
 	source := source copyFrom: 1 to: (source size - 1 max: 1)	"remove trailing lf"
 ]
+
+{ #category : '*Jadeite-BaseExtensions' }
+MCMethodDefinition >> jadeiteClassName [
+	^ self classIsMeta
+		  ifFalse: [ self className ]
+		  ifTrue: [ self className , ' class' ]
+]

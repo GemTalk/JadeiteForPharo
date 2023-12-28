@@ -302,17 +302,21 @@ JadeiteProjectsTrait >> newProjectMenu [
 { #category : 'commands' }
 JadeiteProjectsTrait >> projectChanges [
 
-	| changesBrowser operations |
-	self projectListPresenter selections isEmpty ifTrue: [ 
+	| changesBrowser operations projectService |
+	self projectListPresenter selections isEmpty ifTrue: [
 		^ MessageBox notify: 'No project selected' ].
-	operations := self projectListPresenter selectedItem changesUsing:
-		              self gciSession.
+	projectService := self projectListPresenter selectedItem.
+	projectService existsOnDisk ifFalse: [
+		^ UIManager default inform:
+			  ('Project <1s> does not exist on disk' expandMacrosWith:
+				   projectService name) ].
+	operations := projectService changesUsing: self gciSession.
 	changesBrowser := JadeiteChangesBrowser
-		showOn: (RowanPatch new
-				 operations: operations;
-				 gciSession: self gciSession)
-		name: self projectListPresenter selectedItem name
-		application: self application.
+		                  showOn: (RowanPatch new
+				                   operations: operations;
+				                   gciSession: self gciSession)
+		                  name: projectService name
+		                  application: self application.
 	changesBrowser owner application: self application.
 	^ changesBrowser
 ]

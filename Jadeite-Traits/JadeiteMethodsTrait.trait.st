@@ -299,7 +299,7 @@ JadeiteMethodsTrait >> displayNoMatchesFoundMessageFor: wildcardString [
 { #category : 'actions' }
 JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: category [
 
-	(thePresenter saveMethodIn: classService category: category)
+	(thePresenter saveMethodIn: classService category: category) 
 		ifFalse: [ ^ false ].
 	(self compilationWarningFrom: classService selectedMethods)
 		ifNil: [ self resetStatusBar ]
