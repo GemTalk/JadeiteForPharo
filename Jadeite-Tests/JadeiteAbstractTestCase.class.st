@@ -380,12 +380,12 @@ JadeiteAbstractTestCase >> issueCommand: service onCompletion: anObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> issueCommands: services onCompletion: anObject [
+JadeiteAbstractTestCase >> issueCommands: services onCompletion: completionBlock [
 
 	^ JadePresenter
 		  issueCommands: services
 		  session: session
-		  onCompletion: nil
+		  onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }

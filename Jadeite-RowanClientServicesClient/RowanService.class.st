@@ -350,16 +350,15 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 	promise := remoteSelf executeCommand.
 	promise
 		when: completionBlock
-		catch: [ :value | "not sure what to do here yet" ].
-	self raiseCompileErrorIfNeeded
+		catch: [ :value | self raiseCompileErrorIfNeeded ]
 ]
 
 { #category : 'rsr' }
-RowanService >> executeInSession: session onCompletion: anObject [
+RowanService >> executeInSession: session onCompletion: completionBlock [
 
 	[self registerWith:
 		          session library] on: RsrAlreadyRegistered do:[:ex | ].
-	^ self executeCommand
+	^ self executeCommandOnCompletion: completionBlock
 ]
 
 { #category : 'public' }

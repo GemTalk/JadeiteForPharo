@@ -90,7 +90,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion: anObject [
+RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion: completionBlock [
 
 	| updateResult loggedServices newLoggingService |
 	self todo: [
@@ -101,8 +101,8 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			                  addFirst: newLoggingService;
 			                  yourself ].
 	services do: [ :service |
-		service prepareForReplication.
-		service executeInSession: session onCompletion: nil.
+		service prepareForReplication. 
+		service executeInSession: session onCompletion: completionBlock.
 		updateResult := self applyUpdatesFromReturnedServices:
 			                service returnedServices ].
 	self todo: [ session releaseAllOops ].
@@ -228,7 +228,7 @@ RowanServiceUpdater >> issueCommand: service session: session [
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> issueCommands: services session: session onCompletion: anObject [
+RowanServiceUpdater >> issueCommands: services session: session onCompletion: completionBlock [
 
 	self inUpdateWhile: [
 		| commandResult |
@@ -236,7 +236,7 @@ RowanServiceUpdater >> issueCommands: services session: session onCompletion: an
 			commandResult := self
 				                 basicIssueCommand: services
 				                 session: session
-				                 onCompletion: nil.
+				                 onCompletion: completionBlock.
 			RowanServiceUpdater current logComment:
 				'Released inUpdate semaphore'.
 			^ commandResult ] ]

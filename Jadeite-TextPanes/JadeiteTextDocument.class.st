@@ -355,28 +355,26 @@ JadeiteTextDocument >> executeSelectionOrLine [
 { #category : 'accessing' }
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
-	| answeringService answer oop completionBlock |
+	| answeringService oop |
 	oop := context ifNil: [ 20 ].
 	answeringService := RowanAnsweringServiceClient new registerWith:
 		                    gciSession library.
 	answeringService
 		command: #execReturningPrintString:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: shouldDebug).
-	completionBlock := [
-	                   answer := answeringService answer.
-	                   answer ifNil: [ ^ nil ].
-	                   answer first ifFalse: [
-		                   self reportCompileError: answer.
-		                   ^ compileErrorBlock value ].
-	                   answer last ].
+		Transcript cr; show: 'showResult'; flush. 
 	showResult
 		ifTrue: [
-			self
-				issueCommand: answeringService
-				onCompletion: [
-				self insertPrintPopoverAfterCurrentSelection:
-					completionBlock value ] ]
-		ifFalse: [ completionBlock ]
+			self issueCommand: answeringService onCompletion: [ :unused |
+				UIManager default defer: [
+					self insertPrintPopoverAfterCurrentSelection: (self
+							 processExecutionResult: answeringService
+							 compileError: compileErrorBlock) ] ] ]
+		ifFalse: [
+			self issueCommand: answeringService onCompletion: [ :unused |
+				self
+					processExecutionResult: answeringService
+					compileError: compileErrorBlock ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -584,6 +582,18 @@ JadeiteTextDocument >> positionToDefaultLocation [
 
 { #category : 'private' }
 JadeiteTextDocument >> print [
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteTextDocument >> processExecutionResult: answeringService compileError: compileErrorBlock [
+
+	| answer |
+	answer := answeringService answer.
+	answer ifNil: [ ^ nil ].
+	answer first ifFalse: [
+		self reportCompileError: answer.
+		^ compileErrorBlock value ].
+	^answer last
 ]
 
 { #category : 'menu handlers' }

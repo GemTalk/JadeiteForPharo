@@ -89,12 +89,12 @@ JadeiteApplication class >> inTransaction: aBoolean [
 ]
 
 { #category : 'added manually from Dolphin' }
-JadeiteApplication class >> issueCommands: services session: session onCompletion: anObject [
+JadeiteApplication class >> issueCommands: services session: session onCompletion: completionBlock [
 
 	^ RowanServiceUpdater current
 		  issueCommands: services
 		  session: session
-		  onCompletion: nil
+		  onCompletion: completionBlock
 ]
 
 { #category : 'instance creation' }

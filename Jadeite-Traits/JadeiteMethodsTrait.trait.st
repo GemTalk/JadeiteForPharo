@@ -322,18 +322,18 @@ JadeiteMethodsTrait >> initializeMethodListMenu [
 ]
 
 { #category : 'commands' }
-JadeiteMethodsTrait >> issueCommand: service onCompletion: anObject [
+JadeiteMethodsTrait >> issueCommand: service onCompletion: completionBlock [
 
-	^ self issueCommands: (Array with: service) onCompletion: nil
+	^ self issueCommands: (Array with: service) onCompletion: completionBlock
 ]
 
 { #category : 'commands' }
-JadeiteMethodsTrait >> issueCommands: services onCompletion: anObject [
-
+JadeiteMethodsTrait >> issueCommands: services onCompletion: completionBlock [
+	Transcript cr; show: 'issueCommands: services onCompletion: completionBlock'; tab; print: completionBlock; flush. 
 	RowanServiceUpdater current
 		issueCommands: services
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'constants' }
