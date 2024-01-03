@@ -362,7 +362,6 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	answeringService
 		command: #execReturningPrintString:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: shouldDebug).
-		Transcript cr; show: 'showResult'; flush. 
 	showResult
 		ifTrue: [
 			self issueCommand: answeringService onCompletion: [ :unused |

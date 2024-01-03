@@ -329,7 +329,6 @@ JadeiteMethodsTrait >> issueCommand: service onCompletion: completionBlock [
 
 { #category : 'commands' }
 JadeiteMethodsTrait >> issueCommands: services onCompletion: completionBlock [
-	Transcript cr; show: 'issueCommands: services onCompletion: completionBlock'; tab; print: completionBlock; flush. 
 	RowanServiceUpdater current
 		issueCommands: services
 		session: self gciSession
