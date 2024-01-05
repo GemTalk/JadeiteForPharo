@@ -3539,6 +3539,7 @@ JadeiteBrowserPresenter >> updateMethodSourceColor [
 JadeiteBrowserPresenter >> updatePackage [
 
 	self resetClassComment.
+	self resetClassTemplate. 
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.

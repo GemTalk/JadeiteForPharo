@@ -436,8 +436,9 @@ JadeiteConsole >> initializeHelpMenu [
 JadeiteConsole >> initializeKeyBindings: aWindowPresenter [
 
 	aWindowPresenter
-		bindKeyCombination: $f shift ctrl
-		toAction: [ self findClass ]
+		bindKeyCombination: $f shift ctrl toAction: [ self findClass ];
+		bindKeyCombination: $r shift ctrl
+		toAction: [ self findClassReferences ]
 ]
 
 { #category : 'initialization' }

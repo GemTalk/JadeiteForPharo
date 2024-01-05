@@ -42,7 +42,7 @@ shell updateCaptionFromSearchString:
 JadeiteClassTrait >> findClass [
 
 	| selection |
-	selection := self openClassSelectionDialog.
+	selection := self openClassSelectionDialogFor: 'Class'.
 	selection ifNotNil: [ self findClassNamed: selection ]
 ]
 
@@ -59,7 +59,7 @@ JadeiteClassTrait >> findClassNamed: selection [
 JadeiteClassTrait >> findClassReferences [
 
 	| selection |
-	selection := self openClassSelectionDialog.
+	selection := self openClassSelectionDialogFor: 'Class References'.
 	selection ifNotNil: [ self browseClassReferences: selection ]
 ]
 
@@ -153,7 +153,7 @@ JadeiteClassTrait >> newClassMenu [
 ]
 
 { #category : 'private' }
-JadeiteClassTrait >> openClassSelectionDialog [
+JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
 
 	| dialogWindow answeringService |
 	answeringService := RowanAnsweringService new
@@ -171,7 +171,7 @@ JadeiteClassTrait >> openClassSelectionDialog [
 							                rxMatcher matchesPrefix: substring ] ] ];
 		                displayBlock: [ :e | e ];
 		                doubleClickOk;
-		                title: 'Jadeite Regex Find Class';
+		                title: 'Jadeite Regex Find ' , searchName;
 		                yourself.
 	^ dialogWindow chooseFromOwner: self currentWorld
 ]

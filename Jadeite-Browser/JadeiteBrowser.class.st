@@ -155,7 +155,9 @@ JadeiteBrowser >> initializeKeyBindings: aWindowPresenter [
 	aWindowPresenter
 		bindKeyCombination: $n meta toAction: [ self openBrowser ];
 		bindKeyCombination: $t meta toAction: [ self openBrowserTab ];
-		bindKeyCombination: $f shift ctrl toAction: [ self findClass ]
+		bindKeyCombination: $f shift ctrl toAction: [ self findClass ];
+		bindKeyCombination: $r shift ctrl
+		toAction: [ self findClassReferences ]
 ]
 
 { #category : 'initialization' }
