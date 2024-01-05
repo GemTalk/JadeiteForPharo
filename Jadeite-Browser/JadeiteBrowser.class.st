@@ -122,23 +122,30 @@ JadeiteBrowser >> initializeBindings [
 JadeiteBrowser >> initializeJadeiteMenu [
 
 	^ self newMenu
-		  addGroup: [ :group | 
+		  addGroup: [ :group |
 			  group
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'New Projects Browser';
 						  shortcut: $n meta;
 						  action: [ self openBrowser ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'New Projects Tab';
 						  shortcut: $t meta;
 						  action: [ self openBrowserTab ] ] ];
-		  addItem: [ :item | 
-			  item
-				  name: 'Find Class ...';
-				  shortcut: $f shift ctrl;
-				  action: [ self findClass ] ];
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'Find Class ...';
+						  shortcut: $f shift ctrl;
+						  action: [ self findClass ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Find Class References ...';
+						  shortcut: $r shift ctrl;
+						  action: [ self findClassReferences ] ] ];
 		  yourself
 ]
 

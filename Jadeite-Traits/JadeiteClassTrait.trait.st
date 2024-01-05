@@ -41,25 +41,8 @@ shell updateCaptionFromSearchString:
 { #category : 'private' }
 JadeiteClassTrait >> findClass [
 
-	| dialogWindow answeringService selection |
-	answeringService := RowanAnsweringService new
-		                    command: #allClassNames;
-		                    commandArgs: Array new.
-	RowanServiceUpdater current
-		issueCommand: answeringService
-		session: self gciSession.
-	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher |
-			                answeringService answer select: [ :substring |
-					                rxMatcher isString
-						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-							                rxMatcher matchesPrefix: substring ] ] ];
-		                displayBlock: [ :e | e ];
-		                doubleClickOk;
-		                title: 'Jadeite Regex Find Class';
-		                yourself.
-	selection := dialogWindow chooseFromOwner: self currentWorld.
+	| selection |
+	selection := self openClassSelectionDialog.
 	selection ifNotNil: [ self findClassNamed: selection ]
 ]
 
@@ -70,6 +53,14 @@ JadeiteClassTrait >> findClassNamed: selection [
 	classService := RowanClassService new name: selection.
 	^ Cursor wait showWhile: [
 		  self activePresenter updateAfterFindClass: classService ]
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> findClassReferences [
+
+	| selection |
+	selection := self openClassSelectionDialog.
+	selection ifNotNil: [ self browseClassReferences: selection ]
 ]
 
 { #category : 'private' }
@@ -159,4 +150,28 @@ JadeiteClassTrait >> newClassMenu [
 					  action: [ self moveClassToPackage ];
 					  enabled: [ self isClassSelected ] ] ];
 		  yourself
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> openClassSelectionDialog [
+
+	| dialogWindow answeringService |
+	answeringService := RowanAnsweringService new
+		                    command: #allClassNames;
+		                    commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession.
+	dialogWindow := ListDialogWindow new
+		                getList: [ :rxMatcher |
+			                answeringService answer select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
+		                displayBlock: [ :e | e ];
+		                doubleClickOk;
+		                title: 'Jadeite Regex Find Class';
+		                yourself.
+	^ dialogWindow chooseFromOwner: self currentWorld
 ]

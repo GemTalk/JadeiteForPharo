@@ -386,6 +386,11 @@ JadeiteConsole >> initializeBrowseMenu [
 				  name: 'Find Class ...';
 				  shortcut: $f shift ctrl;
 				  action: [ self findClass ] ];
+		  addItem: [ :item |
+			  item
+				  name: 'Find Class References ...';
+				  shortcut: $r shift ctrl;
+				  action: [ self findClassReferences ] ];
 		  yourself
 ]
 
