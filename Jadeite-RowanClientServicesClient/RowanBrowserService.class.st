@@ -156,7 +156,6 @@ RowanBrowserService >> projects [
 RowanBrowserService >> projectsUpdate: presenter [
 
 	| removals |
-	Transcript cr; show: 'RowanBrowserService>>#projectsUpdate:'; flush. 
 	projects isNil ifTrue: [ ^ self ].
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].

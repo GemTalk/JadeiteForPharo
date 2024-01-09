@@ -2645,7 +2645,6 @@ JadeiteBrowserPresenter >> registerPackageDictionaryListsForUpdates [
 
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerPresentersForUpdates [
-	Transcript cr; show: 'JadeiteBrowserPresenter>>#registerPresentersForUpdates'; flush. 
 	super registerPresentersForUpdates. 
 	self registerProjectListForUpdates.
 	self registerPackageDictionaryListsForUpdates.
@@ -2657,7 +2656,6 @@ JadeiteBrowserPresenter >> registerPresentersForUpdates [
 
 { #category : 'registration' }
 JadeiteBrowserPresenter >> registerProjectListForUpdates [
-	Transcript cr; show: 'presenter identityHash: '; print: projectListPresenter identityHash; flush. 
 	RowanServiceUpdater current
 		register: projectListPresenter
 		selector: #projectsUpdate:browser:

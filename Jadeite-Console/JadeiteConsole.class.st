@@ -795,7 +795,6 @@ JadeiteConsole >> refreshProjectInfoTab [
 
 { #category : 'registration' }
 JadeiteConsole >> registerPresentersForUpdates [
-	Transcript cr; show: 'JadeiteConsole>>#registerPresentersForUpdates'; flush. 
 	RowanServiceUpdater current
 		register: self selector: #autoCommitUpdate:;
 		register: self selector: #breakpointSettingChanged:;
@@ -806,9 +805,7 @@ JadeiteConsole >> registerPresentersForUpdates [
 		browser: self;
 		register: projectListPresenter selector: #removedProject:;
 		register: projectListPresenter selector: #newProject:;
-		register: projectListPresenter selector: #removed:.
-	Transcript cr; show: 'projectListPresenter: '; print: projectListPresenter identityHash. 
-	RowanServiceUpdater current
+		register: projectListPresenter selector: #removed:;
 		register: projectListPresenter selector: #projectsUpdate:
 ]
 
@@ -959,12 +956,6 @@ JadeiteConsole >> transactionMode: aSymbol [
 			[self basicTransactionMode: aSymbol.
 			JadePresenter trigger: #abortedTransaction]
 		ifFalse: [self resetTransactionModeRadioButtons]
-]
-
-{ #category : 'initialization' }
-JadeiteConsole >> updatePresenter [ 
-	Transcript show: 'JadeiteConsole>>#initializeTranscriptPresenter:'; flush. 
-	^super updatePresenter
 ]
 
 { #category : 'updates' }
