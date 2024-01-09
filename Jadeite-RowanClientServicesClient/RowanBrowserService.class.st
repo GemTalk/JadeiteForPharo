@@ -152,10 +152,11 @@ RowanBrowserService >> projects [
 	^projects sorted
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanBrowserService >> projectsUpdate: presenter [
 
 	| removals |
+	Transcript cr; show: 'RowanBrowserService>>#projectsUpdate:'; flush. 
 	projects isNil ifTrue: [ ^ self ].
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
@@ -168,7 +169,7 @@ RowanBrowserService >> projectsUpdate: presenter [
 		browser: nil
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanBrowserService >> projectsUpdate: presenter browser: browser [
 	| removals |
 	projects isNil ifTrue:[^self].

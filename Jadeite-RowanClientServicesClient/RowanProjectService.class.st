@@ -492,6 +492,8 @@ RowanProjectService >> projectUrl [
 { #category : 'public' }
 RowanProjectService >> projectsUpdate: presenter [
 	| listProject |
+	Transcript cr; show: 'RowanProjectService>>#projectsUpdate:'; flush. 
+	Transcript cr; show: 'presenter identityHash: '; print: presenter identityHash; flush. 
 	wasUpdated ifFalse: [^self].
 	listProject := presenter list detect: [:listProj | listProj name = name] ifNone: [^self].
 	listProject replicateFrom: self.

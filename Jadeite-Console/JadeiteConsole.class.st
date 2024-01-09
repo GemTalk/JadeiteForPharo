@@ -14,7 +14,8 @@ Class {
 		'toolbar',
 		'transcriptService',
 		'consoleTabs',
-		'toolbarPresenter'
+		'toolbarPresenter',
+		'transcriptPresenter'
 	],
 	#classVars : [
 		'CurrentConsole'
@@ -528,11 +529,13 @@ JadeiteConsole >> initializeTransactionModeSettings [
 { #category : 'initialization' }
 JadeiteConsole >> initializeTranscriptPresenter: tabs [
 
-	tabs add: (transcriptPresenter := (JadeiteTextDocument new _gciSession:
-			                         self application gciSession) beNotEditable)
-			label: 'Transcript'.
-	transcriptPresenter contextMenu: [ 
-		SpMenuPresenter new addItem: [ :item | 
+	tabs
+		add: (transcriptPresenter := (JadeiteTextDocument new _gciSession:
+				                         self application gciSession)
+				                        beNotEditable)
+		label: 'Transcript'.
+	transcriptPresenter contextMenu: [
+		SpMenuPresenter new addItem: [ :item |
 			item
 				name: 'Clear';
 				action: [ transcriptPresenter clearContent ];
@@ -792,16 +795,21 @@ JadeiteConsole >> refreshProjectInfoTab [
 
 { #category : 'registration' }
 JadeiteConsole >> registerPresentersForUpdates [
+	Transcript cr; show: 'JadeiteConsole>>#registerPresentersForUpdates'; flush. 
 	RowanServiceUpdater current
 		register: self selector: #autoCommitUpdate:;
 		register: self selector: #breakpointSettingChanged:;
 		register: self selector: #updateSymbols:;
-		register: projectListPresenter selector: #projectsUpdate:;
-		register: projectListPresenter selector: #newProject:;
 		register: self selector: #addCachedSymbols:;
 		register: projectListPresenter
 		selector: #projectsUpdate:browser:
-		browser: self
+		browser: self;
+		register: projectListPresenter selector: #removedProject:;
+		register: projectListPresenter selector: #newProject:;
+		register: projectListPresenter selector: #removed:.
+	Transcript cr; show: 'projectListPresenter: '; print: projectListPresenter identityHash. 
+	RowanServiceUpdater current
+		register: projectListPresenter selector: #projectsUpdate:
 ]
 
 { #category : 'as yet unclassified' }
@@ -951,6 +959,12 @@ JadeiteConsole >> transactionMode: aSymbol [
 			[self basicTransactionMode: aSymbol.
 			JadePresenter trigger: #abortedTransaction]
 		ifFalse: [self resetTransactionModeRadioButtons]
+]
+
+{ #category : 'initialization' }
+JadeiteConsole >> updatePresenter [ 
+	Transcript show: 'JadeiteConsole>>#initializeTranscriptPresenter:'; flush. 
+	^super updatePresenter
 ]
 
 { #category : 'updates' }
