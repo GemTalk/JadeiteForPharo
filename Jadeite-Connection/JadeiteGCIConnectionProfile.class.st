@@ -44,6 +44,7 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
+	RowanServiceUpdater clearCurrent. "clear out all old services"
 	session ifNotNil: [ session logout ]. 
 	GciInterface libraryDirectory: path.
 	session := GsSession
@@ -59,7 +60,6 @@ JadeiteGCIConnectionProfile >> connect [
 			^ GciError signal: ex message].
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
-	RowanServiceUpdater clearCurrent. "clear out all old services"
 	^ connection
 ]
 
@@ -74,6 +74,7 @@ JadeiteGCIConnectionProfile >> disconnect [
 	session := nil.
 	connection := nil.
 	self notifyPropertyChanged: #connection. 
+	RowanServiceUpdater clearCurrent. 
 ]
 
 { #category : 'testing' }
