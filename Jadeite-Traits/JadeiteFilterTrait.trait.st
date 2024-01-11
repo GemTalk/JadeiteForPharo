@@ -140,6 +140,12 @@ JadeiteFilterTrait >> initializeCategoryListMenu [
 ]
 
 { #category : 'menus' }
+JadeiteFilterTrait >> initializePackageMethodListMenu [
+
+	self packageMethodListPresenter contextMenu: SpMenuPresenter new
+]
+
+{ #category : 'menus' }
 JadeiteFilterTrait >> initializeVariableListMenu [
 
 	self variableListPresenter contextMenu: self newVariableMenu

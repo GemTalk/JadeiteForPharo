@@ -24,7 +24,8 @@ Class {
 		'classDefinitionPage',
 		'instanceRadioButton',
 		'classRadioButton',
-		'classCommentTab'
+		'classCommentTab',
+		'packageMethodListPage'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -701,7 +702,8 @@ JadeiteBrowserPresenter >> clearComponentList [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> clearFilterLists [
 	categoryListPresenter clear.
-	variableListPresenter clear
+	variableListPresenter clear.
+	packageMethodListPresenter clear.
 ]
 
 { #category : 'sunit support' }
@@ -805,6 +807,12 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 			self refreshMethodsOn: methodListPresenter ] ].
 	variableListPresenter whenNoneSelectedDo: [
 		variableListPresenter list notEmpty ifTrue: [
+			self refreshMethodsOn: methodListPresenter ] ].
+	packageMethodListPresenter whenSelectionChangedDo: [ :selection |
+		selection isEmpty ifFalse: [
+			self refreshMethodsOn: methodListPresenter ] ].
+	packageMethodListPresenter whenNoneSelectedDo: [
+		packageMethodListPresenter list notEmpty ifTrue: [
 			self refreshMethodsOn: methodListPresenter ] ]
 ]
 
@@ -1378,12 +1386,6 @@ JadeiteBrowserPresenter >> hasCategorySelected [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> hasExactlyOneCategorySelected [
-
-	^categoryListPresenter selections size = 1
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> hasMethods [
 	^true
 ]
@@ -1553,6 +1555,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
 	variableListPresenter := JadeiteListPresenter new.
+	packageMethodListPresenter := JadeiteListPresenter new.
 	self initializeVariableListMenu.
 	categoryPage := JadeiteNotebookPage
 		                title: 'Category'
@@ -1562,8 +1565,13 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 		                title: 'Variable'
 		                icon: nil
 		                provider: [ variableListPresenter ].
+	packageMethodListPage := JadeiteNotebookPage
+		                         title: 'Package'
+		                         icon: nil
+		                         provider: [ packageMethodListPresenter ].
 	methodFilterTabs addPage: categoryPage.
 	methodFilterTabs addPage: variablePage.
+	methodFilterTabs addPage: packageMethodListPage.
 	methodPanedLayout add: methodFilterTabs
 ]
 
@@ -1689,7 +1697,6 @@ JadeiteBrowserPresenter >> initializePresenters [
 	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
 	packageGroupPresenter := JadeiteListPresenter new.
-	packageMethodListPresenter := JadeiteListPresenter new.
 	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ]
 ]
 
@@ -1877,6 +1884,14 @@ JadeiteBrowserPresenter >> isOkayToChange [
 			classCommentPresenter view isModified: false].
 	self postOkToChangeEvent.
 	^true
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> isPackageTabSelected [	
+	
+	methodFilterTabs ifNil:[^true]. 
+	^methodFilterTabs selectedPage title = 'Package'
+
 ]
 
 { #category : 'testing' }
@@ -2299,6 +2314,12 @@ JadeiteBrowserPresenter >> packageGroupPresenter [
 	^packageGroupPresenter
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> packageMethodListPresenter [
+
+	^ packageMethodListPresenter
+]
+
 { #category : 'dolphin' }
 JadeiteBrowserPresenter >> parentPresenter [
 
@@ -2536,26 +2557,16 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 	| classService |
 	classService := self selectedClass ifNil: [ ^ self ].
 	classService meta: self isClassSideSelected.
-	self isCategoryTabSelected
-		ifTrue: [
-			classService filters: categoryListPresenter selections.
-			categoryListPresenter selectedItems isEmpty ifTrue: [
-				self clearMethodLists ] ]
-		ifFalse: [
-			self isVariablesTabSelected
-				ifTrue: [
-					classService filters: variableListPresenter selections.
-					variableListPresenter selectedItems isEmpty ifTrue: [
-						self clearMethodLists ] ]
-				ifFalse: [
-				classService filters: packageMethodListPresenter selections ] ].
+	classService filters: self selectedFilters.
+	self selectedFilterTab selectedItems isEmpty ifTrue: [
+		self clearMethodLists ].
 	self updateService: classService.
 	methodListPresenter selections isEmpty
 		ifTrue: [
 			self resetCategoryText.
 			definedMethodPackageText text: String new ]
 		ifFalse: [ self updateMethodSource ].
-	methodListPresenter withWidgetDo: [ :w | w resetPosition ].
+	methodListPresenter withWidgetDo: [ :w | w resetPosition ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2608,9 +2619,11 @@ JadeiteBrowserPresenter >> registerFilterListsForUpdates [
 	RowanServiceUpdater current
 		register: categoryListPresenter
 		selector: #filterUpdate:browser:
-		browser: self.
-	RowanServiceUpdater current
+		browser: self;
 		register: variableListPresenter
+		selector: #filterUpdate:browser:
+		browser: self;
+		register: packageMethodListPresenter
 		selector: #filterUpdate:browser:
 		browser: self
 ]
@@ -2879,15 +2892,8 @@ JadeiteBrowserPresenter >> selectMethod: methodSelection [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectMethodSourceTab [
-	| methodSourceTab selection |
-	textAreaTabs  selectPage: methodSourcePage.
-	self todo:[selection := self isCategoryTabSelected
-				ifTrue: [categoryListPresenter selectionOrNil]
-				ifFalse: [variableListPresenter selectionOrNil].
-	selection
-		ifNotNil: 
-			[methodSourceTab ensureVisible.
-			methodListPresenter selectionOrNil ifNil: [methodSourcePresenter setDefaultMethod]]]
+
+	textAreaTabs selectPage: methodSourcePage
 ]
 
 { #category : 'selections' }
@@ -3017,13 +3023,19 @@ JadeiteBrowserPresenter >> selectedDictionaryOrPackage [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectedFilterTab [
+
+	^ self isCategoryTabSelected
+		  ifTrue: [ categoryListPresenter ]
+		  ifFalse: [
+			  self isVariablesTabSelected
+				  ifTrue: [ variableListPresenter ]
+				  ifFalse: [ packageMethodListPresenter ] ]
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectedFilters [
-	^self isCategoryTabSelected
-		ifTrue: [categoryListPresenter selections]
-		ifFalse: 
-			[self isVariablesTabSelected
-				ifTrue: [variableListPresenter selections]
-				ifFalse: [packageMethodListPresenter selections]]
+	^self selectedFilterTab selections
 ]
 
 { #category : 'selections' }
