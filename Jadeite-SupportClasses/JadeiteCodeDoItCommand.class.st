@@ -1,10 +1,36 @@
 Class {
 	#name : 'JadeiteCodeDoItCommand',
-	#superclass : 'SpCodeDoItCommand',
+	#superclass : 'JadeiteCodeExecutionCommand',
 	#category : 'Jadeite-SupportClasses'
 }
 
-{ #category : 'private' }
+{ #category : 'default' }
+JadeiteCodeDoItCommand class >> defaultDescription [ 
+
+	^ 'Evaluate selection.'
+]
+
+{ #category : 'default' }
+JadeiteCodeDoItCommand class >> defaultIconName [
+
+	^ #smallDoIt
+]
+
+{ #category : 'default' }
+JadeiteCodeDoItCommand class >> defaultName [
+
+	^ 'Do it'
+]
+
+{ #category : 'default' }
+JadeiteCodeDoItCommand class >> defaultShortcutKey [
+
+	^ $d command mac 
+		| $d control win 
+		| $d control unix
+]
+
+{ #category : 'executing' }
 JadeiteCodeDoItCommand >> evaluate: aString andDo: aBlock [
 
 	^ self context
@@ -12,4 +38,11 @@ JadeiteCodeDoItCommand >> evaluate: aString andDo: aBlock [
 		  shouldDebug: false
 		  onCompileError: [ ^ self ]
 		  showResult: false
+]
+
+{ #category : 'executing' }
+JadeiteCodeDoItCommand >> execute [
+	"Treat the current text selection as an expression; evaluate it."
+	
+	self evaluateSelectionAndDo: [ :result | ]
 ]
