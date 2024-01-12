@@ -780,8 +780,12 @@ JadeiteConsole >> queryCommand: aCommandQuery [
 
 { #category : 'as yet unclassified' }
 JadeiteConsole >> refreshFromServer [
-	self updateProjects
-	
+
+	| selection |
+	selection := self projectListPresenter selectedItem.
+	self updateProjects.
+	selection ifNotNil: [
+		self projectListPresenter selectItem: selection ]
 ]
 
 { #category : 'updates' }

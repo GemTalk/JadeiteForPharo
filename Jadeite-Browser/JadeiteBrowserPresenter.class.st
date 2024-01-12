@@ -2515,7 +2515,6 @@ JadeiteBrowserPresenter >> refreshFromServer [
 	services addAll: methodListPresenter selections.
 	self updateServices: services.
 	self updateSUnitTab.
-	self updateProjects. 
 	self redrawAllViews
 ]
 
