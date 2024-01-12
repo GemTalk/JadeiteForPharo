@@ -154,9 +154,10 @@ JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 { #category : 'menus' }
 JadeiteProjectsTrait >> gitCheckoutBranch [
 	
-	[| selectedProjectService |
+	| selectedProjectService |
 	selectedProjectService := self projectListPresenter selectedItem.
-	self gitCheckoutBranch: selectedProjectService] fork
+	self gitCheckoutBranch: selectedProjectService.
+	self refreshFromServer 
 ]
 
 { #category : 'menus' }
@@ -173,7 +174,8 @@ JadeiteProjectsTrait >> gitCheckoutTag [
 
 	| selectedProjectService |
 	selectedProjectService := self projectListPresenter selectedItem.
-	self gitCheckoutTag: selectedProjectService
+	self gitCheckoutTag: selectedProjectService.
+	self refreshFromServer 
 ]
 
 { #category : 'menus' }

@@ -780,7 +780,7 @@ JadeiteConsole >> queryCommand: aCommandQuery [
 
 { #category : 'as yet unclassified' }
 JadeiteConsole >> refreshFromServer [
-	self updateServices: projectListPresenter selections. 
+	self updateProjects
 	
 ]
 

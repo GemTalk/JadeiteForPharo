@@ -302,11 +302,6 @@ JadePresenter >> refresh [
 ]
 
 { #category : 'public' }
-JadePresenter >> refreshFromServer [
-	parentPresenter refreshFromServer
-]
-
-{ #category : 'public' }
 JadePresenter >> resetCursor [
 
 	(Delay forMilliseconds: 20) wait.
