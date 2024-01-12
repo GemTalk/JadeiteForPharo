@@ -85,11 +85,6 @@ JadeiteConsole >> areBreakpointsEnabled [
 	^areBreakpointsEnabled
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> auditProject [
-	projectListPresenter auditProject
-]
-
 { #category : 'accessing' }
 JadeiteConsole >> autoCommit: aBoolean [
 

@@ -10,6 +10,27 @@ JadeiteProjectsTrait >> allSelectedProjectsDirty [
 	^self basicAllSelectedProjectsDirty: self projectListPresenter
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> auditProject [
+	[self auditProjectFor: self projectListPresenter selectedItem name] fork
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> auditProjectFor: projectName [
+
+	| answeringService |
+	answeringService := RowanAnsweringService new
+		                    command: #auditProjectNamed:;
+		                    commandArgs: (Array with: projectName).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession
+		onCompletion: [:value | 
+			self
+				openAuditResultsInWorkspaceUsing: answeringService
+				projectNamed: projectName ]
+]
+
 { #category : 'testing' }
 JadeiteProjectsTrait >> basicAllSelectedProjectsDirty: aProjectListPresenter [
 	aProjectListPresenter selections isEmpty ifTrue: [^false].
@@ -17,6 +38,23 @@ JadeiteProjectsTrait >> basicAllSelectedProjectsDirty: aProjectListPresenter [
 		detect: [:projectService | projectService isDirty not and: [projectService isDiskDirty not]]
 		ifNone: [^true].
 	^false
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> basicCheckoutBranch: branchName for: projectService [
+	projectService
+		command: #checkout:;
+		commandArgs: (Array with: (branchName copyWithout: $*)).
+	RowanServiceUpdater current
+		issueCommand: projectService
+		session: self gciSession.
+	projectService branch: (branchName copyWithout: $*).
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> basicCheckoutTag: choice for: projectService [
+	projectService basicCheckoutTag: choice using: self gciSession.
+	self refreshFromServer. 
 ]
 
 { #category : 'commands' }
@@ -113,13 +151,49 @@ JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 	MessageBox notify: 'Projects ' , ws contents , ' written to disk'
 ]
 
+{ #category : 'menus' }
+JadeiteProjectsTrait >> gitCheckoutBranch [
+	
+	[| selectedProjectService |
+	selectedProjectService := self projectListPresenter selectedItem.
+	self gitCheckoutBranch: selectedProjectService] fork
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> gitCheckoutBranch: projectService [
+
+	| choice |
+	choice := self openGitBranchesDialogFor: projectService.
+	choice ifNil: [ ^ self ].
+	self basicCheckoutBranch: choice for: projectService
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> gitCheckoutTag [
+
+	| selectedProjectService |
+	selectedProjectService := self projectListPresenter selectedItem.
+	self gitCheckoutTag: selectedProjectService
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> gitCheckoutTag: projectService [
+
+	| choice tags |
+	tags := projectService gitTags: self gciSession.
+	choice := self
+		          selectStringFromList: tags
+		          title: 'Jadeite Checkout Git Tag'.
+	choice ifNil: [ ^ self ].
+	self basicCheckoutTag: choice for: projectService
+]
+
 { #category : 'commands' }
 JadeiteProjectsTrait >> gitCommit [
 
 	| projectName message |
-	self refreshFromServer.
 	self canCommit ifFalse: [ ^ self ].
-	projectName := self projectListPresenter jaditeSelection name.
+	projectName := self projectListPresenter selectedItem name.
 	message := UIManager default
 		           multiLineRequest:
 		           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
@@ -153,18 +227,14 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> gitProjectLog [
 
-	| queryService workspace |
+	| queryService |
 	queryService := RowanQueryService
 		                command: #projectLog:
 		                withArgs: (Array with: self selectedProjectName).
-	self issueCommand: queryService onCompletion: nil.
-	workspace := JadeiteWorkspaceApplication showOnSession:
-		             self gciSession library.
-	workspace setCaption:
-		'Jadeite Git Log for ' , self selectedProjectName.
-	workspace text: queryService answer.
-	workspace hasUnacceptedEdits: false.
-	^ workspace
+	RowanServiceUpdater current
+		issueCommand: queryService
+		session: self gciSession
+		onCompletion: [ :value | self openGitLogInWorkspaceUsing: queryService ]
 ]
 
 { #category : 'commands' }
@@ -271,35 +341,93 @@ JadeiteProjectsTrait >> newProjectMenu [
 				action: [ self unloadProject ];
 				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Pull from Git';
-				action: [ self pullFromGit ] ];
-		 addItem: [ :item |
-			item
-				name: 'Commit to Git ...';
-				action: [ self gitCommit ];
-				enabled: [ self allSelectedProjectsDirty ] ];
-		 addItem: [ :item |
-			item
-				name: 'Push to Git';
-				action: [ self pushToGit ] ];
+		group
 			addItem: [ :item |
-			item
-				name: 'Git Log';
-				action: [ self gitProjectLog] ] ].
+				item
+					name: 'Pull from Git';
+					action: [ self pullFromGit ] ];
+			addItem: [ :item |
+				item
+					name: 'Commit to Git ...';
+					action: [ [self gitCommit] fork ];
+					enabled: [ self allSelectedProjectsDirty ] ];
+			addItem: [ :item |
+				item
+					name: 'Push to Git';
+					action: [ self pushToGit ] ];
+			addItem: [ :item |
+				item
+					name: 'Git Log';
+					action: [ self gitProjectLog ] ] ].
+	menu addGroup: [ :group |
+		group
+			addItem: [ :item |
+				item
+					name: 'Changes';
+					action: [ self projectChanges ] ];
+			addItem: [ :item |
+				item
+					name: 'Write';
+					action: [ self gitWriteProject ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+			addItem: [ :item |
+				item
+					name: 'Checkout Git Tag ...';
+					action: [ self gitCheckoutTag ] ];
+			addItem: [ :item |
+				item
+					name: 'Checkout Git Branch ...';
+					action: [ self gitCheckoutBranch ] ] ].
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
-				name: 'Changes';
-				action: [ self projectChanges ] ].
-		group addItem: [ :item |
-			item
-				name: 'Write';
-				action: [ self gitWriteProject ];
+				name: 'Audit';
+				action: [ self auditProject ];
 				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
-	menu addGroup: [ :group |  ].
 	^ menu
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> openAuditResultsInWorkspaceUsing: answeringService projectNamed: projectName [
+
+	| workspace |
+	workspace := JadeiteWorkspaceApplication showOnSession:
+		             self gciSession library.
+	workspace setCaption: 'Audit Report for project ' , projectName.
+	workspace text: answeringService answer.
+	workspace hasUnacceptedEdits: false.
+	^ workspace
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> openGitBranchesDialogFor: projectService [
+
+	| branches |
+	branches := projectService gitBranches: self gciSession.
+	^ self
+		  selectStringFromList: branches
+		  title: 'Jadeite Checkout Git Branch'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> openGitLogInWorkspaceUsing: queryService [
+
+	| workspace |
+	workspace := JadeiteWorkspaceApplication showOnSession:
+		             self gciSession library.
+	workspace setCaption:
+		'Jadeite Git Log for ' , self selectedProjectName.
+	workspace text: queryService answer.
+	workspace hasUnacceptedEdits: false.
+	^ workspace
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
+
+	| tags |
+	tags := projectService gitTags: self gciSession.
+	^ self selectStringFromList: tags title: 'Jadeite Checkout Git Tag'
 ]
 
 { #category : 'commands' }
@@ -382,6 +510,24 @@ JadeiteProjectsTrait >> reloadProject [
 	selections := self projectListPresenter selections.
 	(self confirmReloadProjects: selections) ifFalse: [ ^ self ].
 	self basicReloadProject: selections
+]
+
+{ #category : 'menus' }
+JadeiteProjectsTrait >> selectStringFromList: strings title: title [
+
+	| dialogWindow |
+	dialogWindow := ListDialogWindow new
+		                getList: [ :rxMatcher |
+			                strings select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
+		                displayBlock: [ :e | e ];
+		                doubleClickOk;
+		                title: title;
+		                yourself.
+	^ dialogWindow chooseFromOwner: self currentWorld
 ]
 
 { #category : 'selections' }

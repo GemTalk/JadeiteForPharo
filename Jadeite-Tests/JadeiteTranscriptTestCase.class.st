@@ -440,7 +440,7 @@ JadeiteTranscriptTestCase >> test_checkoutTagRefresh [
 	true ifTrue:[^self].  "Checking out different versions of a critical project is not a good idea. Need sample project with tag" 
 	projectService := transcript projectListPresenter projectListPresenter list
 				detect: [:service | service name = 'Rowan'].
-	transcript projectListPresenter basicCheckoutTagAndRefresh: 'Oscar-3.0.93' for: projectService.
+	transcript projectListPresenter basicCheckoutTag: 'Oscar-3.0.93' for: projectService.
 	self assert: projectService branch equals: '(HEAD detached at Oscar-3.0.93)'.
 	self assert: projectService isSkew.
 	#('Cypress' 'STON' 'Tonel') do: 

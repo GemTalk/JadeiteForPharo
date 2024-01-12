@@ -228,6 +228,15 @@ RowanServiceUpdater >> issueCommand: service session: session [
 ]
 
 { #category : 'commands' }
+RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
+
+	^ self
+		  issueCommands: (Array with: service)
+		  session: session
+		  onCompletion: completionBlock
+]
+
+{ #category : 'commands' }
 RowanServiceUpdater >> issueCommands: services session: session onCompletion: completionBlock [
 
 	self inUpdateWhile: [

@@ -216,11 +216,6 @@ JadeiteBrowserPresenter >> arrangement: anObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> auditProject [
-	^self auditProjectFor: projectListPresenter selection name
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
 
 	| insertionIndex dictionaryService |
@@ -2520,7 +2515,7 @@ JadeiteBrowserPresenter >> refreshFromServer [
 	services addAll: methodListPresenter selections.
 	self updateServices: services.
 	self updateSUnitTab.
-	self todo:[self updateProjects.	"don't like this double round trip, but also don't want RowanBrowserService to have to understand update on the server" "is this necessary?"]. 
+	self updateProjects. 
 	self redrawAllViews
 ]
 

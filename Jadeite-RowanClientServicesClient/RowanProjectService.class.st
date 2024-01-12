@@ -260,6 +260,23 @@ RowanProjectService >> existsOnDisk [
 ]
 
 { #category : 'presenter support' }
+RowanProjectService >> gitBranches: session [
+
+	| query branchString branches |
+	query := RowanQueryService new
+		         command: #projectBranches:;
+		         commandArgs: (Array with: self name).
+	RowanServiceUpdater current issueCommand: query session: session.
+	branchString := query answer.
+	branches := (branchString subStrings: {Character lf}).
+	branches := branches
+		            reject: [ :string | '*HEAD*' match: string ]
+		            thenCollect: [ :string |
+		            string copyWithout: Character space ].
+	^ branches
+]
+
+{ #category : 'presenter support' }
 RowanProjectService >> gitProjectLogUsing: parentPresenter session: session [
 
 	| gitLog projectName queryService |
@@ -277,12 +294,13 @@ RowanProjectService >> gitProjectLogUsing: parentPresenter session: session [
 
 { #category : 'presenter support' }
 RowanProjectService >> gitTags: session [
-	| query tags |
+	| query |
 	query := RowanQueryService new
 				command: #gitTagListUsing:;
 				commandArgs: (Array with: self).
-	tags := (RowanServiceUpdater current issueCommand: query session: session) first answer.
-	^tags
+	(RowanServiceUpdater current issueCommand: query session: session).
+	^query answer
+	
 ]
 
 { #category : 'comparing' }
@@ -419,6 +437,7 @@ RowanProjectService >> packageGroupUpdate: presenter browser: browser [
 { #category : 'accessing' }
 RowanProjectService >> packageServices [
 	"really, packages are a RowanPackageService"
+	packages ifNil: [ ^{self} ].
 	^packages asSortedCollection: [ :x :y | x name < y name ]
 ]
 
