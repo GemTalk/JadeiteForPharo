@@ -50,6 +50,19 @@ RowanBrowserService >> basicPrepareForReplication [
 	
 ]
 
+{ #category : 'commands' }
+RowanBrowserService >> checkForAddedProjects: projectServices [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #checkForAddedProjects:;
+		commandArgs: (Array with: projectServices).
+	RowanServiceUpdater current 
+		issueCommand: browserService
+		session: GciSession current
+]
+
 { #category : 'public' }
 RowanBrowserService >> classHierarchyUpdate: presenter browser: browser [
 	browser isHierarchyTabSelected ifFalse: [^false].

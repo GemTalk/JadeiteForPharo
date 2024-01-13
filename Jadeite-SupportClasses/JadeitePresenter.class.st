@@ -42,7 +42,7 @@ JadeitePresenter >> shellName [
 
 { #category : 'initialization' }
 JadeitePresenter >> updateCaption [
-	self caption: (self gciSession titleBarFor: self shellName)
+	self caption: (GciSession current titleBarFor: self shellName)
 ]
 
 { #category : 'initialization' }

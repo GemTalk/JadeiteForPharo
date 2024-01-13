@@ -2506,25 +2506,21 @@ JadeiteBrowserPresenter >> refreshClassAndMethodPresenters [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshFromServer [
+
 	| services |
 	services := OrderedCollection new.
 	services addAll: projectListPresenter selections.
 	services addAll: packageListPresenter selections.
-	classListPresenter selectedItem ifNotNil: [:classService | services add: classService].
-	classHierarchyPresenter selectedItem ifNotNil: [:classService | services add: classService].
+	classListPresenter selectedItem ifNotNil: [ :classService |
+		services add: classService ].
+	classHierarchyPresenter selectedItem ifNotNil: [ :classService |
+		services add: classService ].
 	services addAll: methodListPresenter selections.
 	self updateServices: services.
 	self updateSUnitTab.
+	RowanBrowserService new checkForAddedProjects:
+		projectListPresenter items asArray.
 	self redrawAllViews
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> refreshFromServerAfterAbort: browserService [
-
-	self gciSession autoCommit:
-		(self gciSession autoCommit value == #failed
-			 ifTrue: [ true ]
-			 ifFalse: [ self gciSession autoCommit value ])
 ]
 
 { #category : 'actions' }

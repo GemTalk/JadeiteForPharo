@@ -358,7 +358,7 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	| answeringService oop |
 	oop := context ifNil: [ 20 ].
 	answeringService := RowanAnsweringServiceClient new registerWith:
-		                    gciSession library.
+		                    GciSession current library.
 	answeringService
 		command: #execReturningPrintString:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: shouldDebug).
