@@ -70,11 +70,12 @@ JadeiteGCIConnectionProfile >> disconnect [
 	stuck open"
 
 	connection close.
+	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
 	session logout.
 	session := nil.
 	connection := nil.
-	self notifyPropertyChanged: #connection. 
-	RowanServiceUpdater clearCurrent. 
+	self notifyPropertyChanged: #connection.
+	RowanServiceUpdater clearCurrent
 ]
 
 { #category : 'testing' }
