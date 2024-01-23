@@ -5,7 +5,7 @@ Class {
 	#name : 'JadeiteWorkspace',
 	#superclass : 'JadeiteTextDocument',
 	#instVars : [
-		'filename'
+		'filePathString'
 	],
 	#category : 'Jadeite-TextPanes'
 }
@@ -25,6 +25,26 @@ JadeiteWorkspace >> codePane [
 	^codePane
 ]
 
+{ #category : 'accessing' }
+JadeiteWorkspace >> defaultSaveAsFileName [
+	| tail | 
+	filePathString ifNil: [ ^'workspace.txt' ].
+	tail := (filePathString subStrings: {$/}) last. 
+	^tail
+]
+
+{ #category : 'accessing' }
+JadeiteWorkspace >> defaultSaveFileAsDirectory [
+
+	| substrings |
+	filePathString ifNil: [
+		^ JadePresenter rowanProjectsHomeEnvVarString ].
+	substrings := filePathString subStrings: { $/ }.
+	^ (substrings first: substrings size - 1)
+		  inject: String new
+		  into: [ :path :x | path , '/' , x ]
+]
+
 { #category : 'menu handlers' }
 JadeiteWorkspace >> editRevert [
 	codePane documentPresenter value: lastSave
@@ -32,7 +52,7 @@ JadeiteWorkspace >> editRevert [
 
 { #category : 'accessing' }
 JadeiteWorkspace >> filename [ 
-	^filename
+	^filePathString
 ]
 
 { #category : 'initialization' }
@@ -102,16 +122,16 @@ JadeiteWorkspace >> openServerFile [
 	| filePath service |
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: gciSession
-		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+		            defaultPath: self defaultSaveFileAsDirectory.
 	filePath ifNil: [ ^ self ].
-	filename := filePath.
+	filePathString := filePath.
 	service := RowanFileService new
 		           session: gciSession;
-		           path: filename.
+		           path: filePathString.
 	service isDirectory ifTrue: [
 		^ MessageBox notify: 'Cannot open a directory' ].
 	codePane text: service fileContents.
-	self updateCaption. 
+	self updateCaption
 ]
 
 { #category : 'public' }
@@ -129,8 +149,8 @@ JadeiteWorkspace >> queryCommand: aCommandQuery [
 { #category : 'actions' }
 JadeiteWorkspace >> saveServerFile [
 
-	filename ifNil: [ ^ self saveServerFileAs ].
-	self writeDocumentTo: filename
+	filePathString ifNil: [ ^ self saveServerFileAs ].
+	self writeDocumentTo: filePathString
 ]
 
 { #category : 'actions' }
@@ -139,8 +159,8 @@ JadeiteWorkspace >> saveServerFileAs [
 	| filePath |
 	filePath := JadeiteServerFileSaveDialog
 		            showOnSession: GciSession current
-		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString
-		            defaultFileName: 'workspace.txt'.
+		            defaultPath: self defaultSaveFileAsDirectory
+		            defaultFileName: self defaultSaveAsFileName.
 	filePath ifNil: [ ^ self ].
 	self writeDocumentTo: filePath
 ]
@@ -212,9 +232,10 @@ JadeiteWorkspace >> writeDocumentTo: newPath [
 		           command: #write:;
 		           commandArgs:
 			           (Array with:
-					            codePane documentPresenter text replaceCrWithLf);
+					            codePane documentPresenter text asString replaceCrWithLf);
 		           path: newPath.
 	self issueCommand: service onCompletion: nil.
-	filename := newPath.
-	self updateCaption
+	filePathString := newPath.
+	self updateCaption.
+	self hasUnacceptedEdits: false. 
 ]
