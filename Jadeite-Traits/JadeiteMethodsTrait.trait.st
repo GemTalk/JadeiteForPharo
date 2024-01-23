@@ -75,23 +75,6 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 ]
 
 { #category : 'queries' }
-JadeiteMethodsTrait >> browseClass [
-
-	| classService className |
-	classService := RowanClassService new name:
-		                self methodListPresenter jadeiteSelections first.
-	classService meta:
-		self methodListPresenter jadeiteSelections first meta.
-	RowanServiceUpdater current
-		updateService: classService
-		session: self gciSession.
-	className := self methodListPresenter jadeiteSelections first
-		             className.
-	^ Cursor wait showWhile: [
-		  self openBrowser findClassNamed: className ]
-]
-
-{ #category : 'queries' }
 JadeiteMethodsTrait >> browseImplementors [
 
 	^ self browseImplementorsOf: self selectedMethodName
@@ -176,6 +159,23 @@ Example: To search for literal string add single quotes'
 			  do: [ :ex | 
 				  MessageBox notify: 'Error compiling expression: ' , string.
 				  ^ self browseLiteralReferences: string ] ]
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> browseMethodClass [
+
+	| classService className |
+	classService := RowanClassService new name:
+		                self methodListPresenter jadeiteSelections first.
+	classService meta:
+		self methodListPresenter jadeiteSelections first meta.
+	RowanServiceUpdater current
+		updateService: classService
+		session: self gciSession.
+	className := self methodListPresenter jadeiteSelections first
+		             className.
+	^ Cursor wait showWhile: [
+		  self openBrowser findClassNamed: className ]
 ]
 
 { #category : 'queries' }
@@ -316,9 +316,28 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 ]
 
 { #category : 'menus' }
-JadeiteMethodsTrait >> initializeMethodListMenu [
+JadeiteMethodsTrait >> fullMethodListMenu [
 
-	self methodListPresenter contextMenu: self newMethodListMenu
+	| menu |
+	menu := self newBrowseMethodListMenu.
+
+	menu addItem: [ :item |
+		item
+			name: 'Remove Method(s) ...';
+			action: [ self removeMethods ] ].
+	^ menu
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> initializeBrowseMethodListMenu [
+
+	self methodListPresenter contextMenu: self newBrowseMethodListMenu
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> initializeFullMethodListMenu [
+
+	self methodListPresenter contextMenu: self fullMethodListMenu
 ]
 
 { #category : 'commands' }
@@ -346,22 +365,10 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 
 	^ SpMenuPresenter new
 		  addGroup: [ :group |
-			  self addBrowseImplementorsDialogItemTo: group.
-			  self addBrowseSendersDialogItemTo: group.
-			  self addBrowseMethodsContainingTo: group.
-			  self addBrowseLiteralReferencesTo: group ];
-		  yourself
-]
-
-{ #category : 'menus' }
-JadeiteMethodsTrait >> newMethodListMenu [
-
-	^ SpMenuPresenter new
-		  addGroup: [ :group |
 			  group addItem: [ :item |
 					  item
 						  name: 'Browse Class';
-						  action: [ self browseClass ];
+						  action: [ self browseMethodClass ];
 						  enabled: [ self methodListPresenter selections size = 1 ] ].
 			  group addItem: [ :item1 |
 				  item1
@@ -383,10 +390,18 @@ JadeiteMethodsTrait >> newMethodListMenu [
 					  name: 'Browse Selected Methods';
 					  action: [ self browseSelectedMethods ];
 					  enabled: [ self methodListPresenter selections notEmpty ] ] ];
-		  addItem: [ :item |
-			  item
-				  name: 'Remove Method(s) ...';
-				  action: [ self removeMethods ] ];
+		  yourself
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> newBrowseMethodsConsoleMenu [
+
+	^ SpMenuPresenter new
+		  addGroup: [ :group |
+			  self addBrowseImplementorsDialogItemTo: group.
+			  self addBrowseSendersDialogItemTo: group.
+			  self addBrowseMethodsContainingTo: group.
+			  self addBrowseLiteralReferencesTo: group ];
 		  yourself
 ]
 

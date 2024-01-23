@@ -143,12 +143,12 @@ JadeiteConsole >> browseBreakpoints [
 	^JadeiteBreakpointBrowser showOnSession: self gciSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'queries' }
 JadeiteConsole >> browseClass [
 	^JadePresenter browseClassIn: self gciSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'queries' }
 JadeiteConsole >> browseClassReferences [
 	^JadePresenter browseClassReferencesInSession: self gciSession
 ]
@@ -376,7 +376,7 @@ JadeiteConsole >> initializeAutoCommit [
 { #category : 'initialization' }
 JadeiteConsole >> initializeBrowseMenu [
 
-	^ self newBrowseMethodListMenu
+	^ self newBrowseMethodsConsoleMenu
 		  addItem: [ :item |
 			  item
 				  name: 'Find Class ...';

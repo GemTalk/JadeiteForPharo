@@ -26,6 +26,41 @@ JadeiteSUnitPresenter >> abortTransaction [
 	^self application abortTransaction.
 ]
 
+{ #category : 'accessing' }
+JadeiteSUnitPresenter >> activePresenter [
+	"only presenter is myself"
+	^self	
+]
+
+{ #category : 'menus' }
+JadeiteSUnitPresenter >> addSUnitMethodListMenuItems [
+
+	self methodListPresenter contextMenu addGroup: [ :group |
+		group
+			addItem: [ :item |
+				item
+					name: 'Run All';
+					icon: (self iconNamed: #glamorousSpawn);
+					action: [ self runAll ] ];
+			addItem: [ :item |
+				item
+					name: 'Run Selected';
+					icon: (self iconNamed: #glamorousGo);
+					action: [ self runSelected ];
+					enabled: [ self methodListPresenter selectedItems notEmpty ] ];
+			addItem: [ :item |
+				item
+					name: 'Debug All';
+					icon: (self iconNamed: #glamorousSpawn);
+					action: [ self debugAll ] ];
+			addItem: [ :item |
+				item
+					name: 'Debug Selected';
+					icon: (self iconNamed: #glamorousGo);
+					action: [ self debug ];
+					enabled: [ self methodListPresenter selectedItems notEmpty ] ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> addUpdatedTestClasses: classServices [
 	"don't show class unless the package concurs"
@@ -189,16 +224,21 @@ JadeiteSUnitPresenter >> initializePresenters [
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
 
-	packageListPresenter := JadeiteListPresenter newNameSortedList.
+	packageListPresenter := JadeiteListPresenter newNameSortedList
+		                        headerTitle: 'Packages'.
 	listPresenters add: packageListPresenter.
-	classListPresenter := JadeiteListPresenter newNameSortedList.
+	classListPresenter := JadeiteListPresenter newNameSortedList
+		                      headerTitle: 'Classes'.
 	classListPresenter beMultipleSelection.
-	self initializeClassMenu. 
+	self initializeBrowseClassMenu.
 	listPresenters add: classListPresenter.
-	methodListPresenter := JadeiteListPresenter newNameSortedList.
+	methodListPresenter := JadeiteListPresenter newNameSortedList
+		                       headerTitle: 'Test Selector'.
 	methodListPresenter
 		beMultipleSelection;
 		displayIcon: [ :item | item testResultIcon ].
+	self initializeBrowseMethodListMenu.
+	self addSUnitMethodListMenuItems.
 	listPresenters add: methodListPresenter
 ]
 
@@ -208,7 +248,7 @@ JadeiteSUnitPresenter >> initializeWindow: aWindowPresenter [
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter initialExtent: 1000 @ 600.
 	self updateCaption.
-	aWindowPresenter toolbar: self newJadedSUnitToolbar.
+	aWindowPresenter toolbar: self newJadeiteSUnitToolbar.
 ]
 
 { #category : 'menus' }
@@ -241,7 +281,7 @@ JadeiteSUnitPresenter >> methodListPresenter [
 ]
 
 { #category : 'initialization' }
-JadeiteSUnitPresenter >> newJadedSUnitToolbar [
+JadeiteSUnitPresenter >> newJadeiteSUnitToolbar [
 
 	| theToolbar |
 	theToolbar := self newJadeiteToolbar.
@@ -509,14 +549,6 @@ JadeiteSUnitPresenter >> setColorFor: aJadeTestResult [
 			eachTest selector = eachSymbol ifTrue: [ eachTest setPassed ] ] ].
 	methodListPresenter view invalidate.
 	self setResultsPaneColor: aJadeTestResult backgroundColor
-]
-
-{ #category : 'displaying' }
-JadeiteSUnitPresenter >> setResultsPaneColor: aColor [
-
-	self todo: 'should this use a style instead?'.
-	textResultPresenter withAdapterDo: [ :theAdapter | 
-		theAdapter widgetDo: [ :widget | widget backgroundColor: aColor ] ]
 ]
 
 { #category : 'constants' }

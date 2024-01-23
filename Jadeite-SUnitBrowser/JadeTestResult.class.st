@@ -41,9 +41,9 @@ JadeTestResult >> backgroundColor [
 
 	self hasWarnings ifTrue: [^Color yellow muchLighter].
 
-	self hasPassed ifTrue: [^Color green muchLighter].
+	self hasPassed ifTrue: [^Color fromHexString: #CEF1D1].
 
-	^Color white
+	^JadeiteApplication defaultBackgroundColor
 ]
 
 { #category : 'as yet unclassified' }

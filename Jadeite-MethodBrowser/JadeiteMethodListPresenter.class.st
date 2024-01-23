@@ -197,7 +197,7 @@ JadeiteMethodListPresenter >> initializeMenubar [
 		  addItem: [ :item |
 			  item
 				  name: 'Method';
-				  subMenu: self newMethodListMenu ];
+				  subMenu: self fullMethodListMenu ];
 		  yourself
 ]
 
@@ -251,7 +251,7 @@ JadeiteMethodListPresenter >> initializePresenters [
 	super initializePresenters.
 	self initializeToolbar.
 	self initializeMethodListTable.
-	self initializeMethodListMenu.
+	self initializeFullMethodListMenu.
 	self initializeMethodSource.
 	statusBarText := self newStatusBar.
 	self layout

@@ -3,6 +3,24 @@ Trait {
 	#category : 'Jadeite-Traits'
 }
 
+{ #category : 'menus' }
+JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
+
+	menu
+		addGroup: [ :group |
+			group addItem: [ :item |
+					item
+						name: 'Remove ...';
+						action: [ self removeClass ];
+						enabled: [ self isClassSelected ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'Move to Package ...';
+					action: [ self moveClassToPackage ];
+					enabled: [ self isClassSelected ] ] ]
+]
+
 { #category : 'queries' }
 JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 
@@ -18,10 +36,18 @@ JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 ]
 
 { #category : 'queries' }
+JadeiteClassTrait >> browseClass [ 
+
+	| browser |
+	browser := self openBrowser. 
+	^ Cursor wait showWhile: [
+		  browser activePresenter updateAfterFindClass: self selectedClass ]
+]
+
+{ #category : 'queries' }
 JadeiteClassTrait >> browseClassReferences [
 
-	^ self browseClassReferences:
-		  self selectedClassTab activePresenter selectedItem name
+	^self browseClassReferences: self classListPresenter selectedItem name
 ]
 
 { #category : 'queries' }
@@ -95,10 +121,17 @@ JadeiteClassTrait >> findPackage [
 ]
 
 { #category : 'menus' }
-JadeiteClassTrait >> initializeClassMenu [
+JadeiteClassTrait >> initializeBrowseClassMenu [
 
-	self classListPresenter contextMenu: self newClassMenu.
-	self classHierarchyPresenter ifNotNil: [:presenter | presenter contextMenu: self newClassMenu]
+	self classListPresenter contextMenu: self newBrowseClassMenu.
+	self classHierarchyPresenter ifNotNil: [:presenter | presenter contextMenu: self newBrowseClassMenu]
+]
+
+{ #category : 'menus' }
+JadeiteClassTrait >> initializeFullClassMenu [
+
+	self classListPresenter contextMenu: self newFullClassMenu.
+	self classHierarchyPresenter ifNotNil: [:presenter | presenter contextMenu: self newFullClassMenu]
 ]
 
 { #category : 'menus' }
@@ -128,28 +161,28 @@ JadeiteClassTrait >> moveClassToPackageNamed: packageName [
 ]
 
 { #category : 'menus' }
-JadeiteClassTrait >> newClassMenu [
+JadeiteClassTrait >> newBrowseClassMenu [
 
-	^ SpMenuPresenter new
-		  addGroup: [ :group |
-			  group
-				  addItem: [ :item |
-					  item
-						  name: 'Browse References';
-						  action: [ self browseClassReferences ];
-						  enabled: [ self isClassSelected ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Remove ...';
-						  action: [ self removeClass ];
-						  enabled: [ self isClassSelected ] ] ];
-		  addGroup: [ :group |
-			  group addItem: [ :item |
+	^ SpMenuPresenter new addGroup: [ :group |
+		  group
+			  addItem: [ :item |
 				  item
-					  name: 'Move to Package ...';
-					  action: [ self moveClassToPackage ];
-					  enabled: [ self isClassSelected ] ] ];
-		  yourself
+					  name: 'Browse Class';
+					  action: [ self browseClass ] ];
+			  addItem: [ :item |
+				  item
+					  name: 'Browse References';
+					  action: [ self browseClassReferences ];
+					  enabled: [ self isClassSelected ] ] ]
+]
+
+{ #category : 'menus' }
+JadeiteClassTrait >> newFullClassMenu [
+
+	| menu |
+	menu := self newBrowseClassMenu.
+	self addModifyClassMenuItemsTo: menu.
+	^ menu
 ]
 
 { #category : 'private' }

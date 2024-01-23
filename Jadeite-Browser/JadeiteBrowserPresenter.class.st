@@ -418,6 +418,15 @@ JadeiteBrowserPresenter >> basicUpdateProject [
 	self sundryCleanup
 ]
 
+{ #category : 'private' }
+JadeiteBrowserPresenter >> browseClass [ 
+
+	| browser |
+	browser := self openBrowser. 
+	^ Cursor wait showWhile: [
+		  browser activePresenter updateAfterFindClass: self selectedClass ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> browseGlobalClass [
 	| selection |
@@ -1272,6 +1281,15 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 	methodListPresenter selectionOrNil ifNotNil: [self selectMethodSourceTab]
 ]
 
+{ #category : 'private' }
+JadeiteBrowserPresenter >> findClassNamed: selection [
+
+	| classService |
+	classService := RowanClassService new name: selection.
+	^ Cursor wait showWhile: [
+		  self activePresenter updateAfterFindClass: classService ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> findRemovedServices [
 
@@ -1513,7 +1531,7 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 	classListHierarchyTabs addPage: classListPage.
 	self initializeClassHierarchy.
 	listPresenters add: classListHierarchyTabs.
-	self initializeClassMenu
+	self initializeFullClassMenu
 ]
 
 { #category : 'initialization' }
@@ -1617,7 +1635,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		constraints height: 50 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
 	methodPanedPresenter add: methodsBox.
-	self initializeMethodListMenu
+	self initializeFullMethodListMenu
 ]
 
 { #category : 'initialization' }

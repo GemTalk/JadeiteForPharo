@@ -181,7 +181,7 @@ JadeiteBrowser >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'Class';
-						  subMenu: self newClassMenu ];
+						  subMenu: self newFullClassMenu ];
 				  addItem: [ :item |
 					  item
 						  name: 'Category';
@@ -189,7 +189,7 @@ JadeiteBrowser >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'Method';
-						  subMenu: self newMethodListMenu ] ];
+						  subMenu: self fullMethodListMenu ] ];
 		  yourself
 ]
 

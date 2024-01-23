@@ -75,7 +75,7 @@ JadeiteSUnitAbstractPresenter >> reset [
 	methodListPresenter model do: [ :each | each testResult: nil ].
 	textResultPresenter value: String new.
 	methodListPresenter view invalidate.
-	self setResultsPaneColor: Color white
+	self setResultsPaneColor: JadeiteApplication defaultBackgroundColor
 ]
 
 { #category : 'as yet unclassified' }
@@ -133,6 +133,14 @@ JadeiteSUnitAbstractPresenter >> runTests: methodServices in: className [
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> selectedClass [
 	^self subclassResponsibility
+]
+
+{ #category : 'displaying' }
+JadeiteSUnitAbstractPresenter >> setResultsPaneColor: aColor [
+
+	self todo: 'should this use a style instead?'.
+	textResultPresenter withAdapterDo: [ :theAdapter | 
+		theAdapter widgetDo: [ :widget | widget backgroundColor: aColor ] ]
 ]
 
 { #category : 'as yet unclassified' }
