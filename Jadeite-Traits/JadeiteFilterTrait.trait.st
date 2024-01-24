@@ -34,8 +34,9 @@ JadeiteFilterTrait >> basicRenameCategoryFrom: old to: new [
 	service := self selectedClass
 		           command: #renameCategoryFrom:to:;
 		           commandArgs: (Array with: old with: new).
-	self issueCommand: service onCompletion: nil.
-	self categoryListPresenter selection: new
+	self issueCommand: service onCompletion: [ :unused |
+		self categoryListPresenter unselectAll.
+		self categoryListPresenter selectItem: new ]
 ]
 
 { #category : 'actions' }

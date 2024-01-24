@@ -944,13 +944,6 @@ JadeiteProjectsBrowserPresenter >> savePackage [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectCategoriesNamed: array [
-	| selections |
-	selections := categoryListPresenter list select: [:category | array includes: category].
-	categoryListPresenter selections: selections
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCategoryFrom: methodService [
 	^categoryListPresenter selectionOrNil = methodService category
 		ifFalse: [categoryListPresenter selection: methodService category]

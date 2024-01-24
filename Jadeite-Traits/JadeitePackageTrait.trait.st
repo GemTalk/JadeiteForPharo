@@ -43,8 +43,8 @@ JadeitePackageTrait >> basicAddPackageNamed: packageName symbolDictionary: symbo
 				 with: packageName
 				 with: symbolDictionaryName
 				 with: componentName).
-	self issueCommand: projectService onCompletion: nil.
-	self application triggerEvent: #packageAdded: with: packageName
+	self issueCommand: projectService onCompletion: [ :unused |
+		self application triggerEvent: #packageAdded: with: packageName ]
 ]
 
 { #category : 'menus' }

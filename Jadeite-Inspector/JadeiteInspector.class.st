@@ -992,9 +992,11 @@ JadeiteInspector >> saveNamedInstVar [
 	model
 		command: #save:namedInstVar:;
 		commandArgs: (Array with: documentPresenter value with: instVarName).
-	self issueCommand: model onCompletion: nil.
-	index := model instVarNames indexOf: instVarName.
-	self displayObjectSelecting: index + 2
+	RowanServiceUpdater current
+		issueCommand: model
+		onCompletion: [ :unused |
+			index := model instVarNames indexOf: instVarName.
+			self displayObjectSelecting: index + 2 ]
 ]
 
 { #category : 'as yet unclassified' }

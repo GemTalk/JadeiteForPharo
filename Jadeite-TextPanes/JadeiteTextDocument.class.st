@@ -219,6 +219,18 @@ JadeiteTextDocument >> defaultColor [
 	^ Color purple muchDarker
 ]
 
+{ #category : 'ad hoc execution' }
+JadeiteTextDocument >> displayResult: showResult orShowCompileError: theService [
+
+	^ theService answer first
+		  ifTrue: [
+			  showResult ifTrue: [
+				  UIManager default defer: [
+					  self insertPrintPopoverAfterCurrentSelection:
+						  theService answer last ] ] ]
+		  ifFalse: [ self reportCompileError: theService answer ]
+]
+
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseClass [
 
@@ -352,7 +364,7 @@ JadeiteTextDocument >> executeSelectionOrLine [
 		  showResult: false
 ]
 
-{ #category : 'accessing' }
+{ #category : 'ad hoc execution' }
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
 	| answeringService oop |
@@ -362,18 +374,9 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	answeringService
 		command: #execReturningPrintString:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: shouldDebug).
-	showResult
-		ifTrue: [
-			self issueCommand: answeringService onCompletion: [ :unused |
-				UIManager default defer: [
-					self insertPrintPopoverAfterCurrentSelection: (self
-							 processExecutionResult: answeringService
-							 compileError: compileErrorBlock) ] ] ]
-		ifFalse: [
-			self issueCommand: answeringService onCompletion: [ :unused |
-				self
-					processExecutionResult: answeringService
-					compileError: compileErrorBlock ] ]
+	self issueCommand: answeringService onCompletion: [ :theService |
+		theService ifNotNil: [
+			self displayResult: showResult orShowCompileError: theService ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -476,12 +479,12 @@ JadeiteTextDocument >> isModified: aBoolean [
 	self hasUnacceptedEdits: aBoolean
 ]
 
-{ #category : 'menu handlers' }
+{ #category : 'ad hoc execution' }
 JadeiteTextDocument >> jadeDebug [
 	"Intercepted by CodeSourcePresenter"
 ]
 
-{ #category : 'menu handlers' }
+{ #category : 'ad hoc execution' }
 JadeiteTextDocument >> jadeDisplay [
 
 	^ self
@@ -491,7 +494,7 @@ JadeiteTextDocument >> jadeDisplay [
 		  showResult: true
 ]
 
-{ #category : 'menu handlers' }
+{ #category : 'ad hoc execution' }
 JadeiteTextDocument >> jadeExecute [
 
 	^ self
@@ -501,7 +504,7 @@ JadeiteTextDocument >> jadeExecute [
 		  showResult: false
 ]
 
-{ #category : 'Jade' }
+{ #category : 'ad hoc execution' }
 JadeiteTextDocument >> jadeExecuteAndDisplay: showResult result: anAssociation view: focusViewOrNil [
 	| textView result value selectionRange offset |
 	anAssociation
@@ -581,18 +584,6 @@ JadeiteTextDocument >> positionToDefaultLocation [
 
 { #category : 'private' }
 JadeiteTextDocument >> print [
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteTextDocument >> processExecutionResult: answeringService compileError: compileErrorBlock [
-
-	| answer |
-	answer := answeringService answer.
-	answer ifNil: [ ^ nil ].
-	answer first ifFalse: [
-		self reportCompileError: answer.
-		^ compileErrorBlock value ].
-	^answer last
 ]
 
 { #category : 'menu handlers' }

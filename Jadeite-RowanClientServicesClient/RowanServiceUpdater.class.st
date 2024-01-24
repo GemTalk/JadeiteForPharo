@@ -13,7 +13,8 @@ Class {
 		'logger',
 		'applyingUpdates',
 		'breakpointsEnabled',
-		'returnedServices'
+		'returnedServices',
+		'postCompletionBlock'
 	],
 	#classVars : [
 		'Current'
@@ -24,7 +25,7 @@ Class {
 { #category : 'accessing' }
 RowanServiceUpdater class >> clearCurrent [
 "
-	BrowserUpdate clearCurrent.
+	RowanServiceUpdater clearCurrent.
 "
 	Current := nil
 ]
@@ -73,10 +74,11 @@ RowanServiceUpdater >> activeServices [
 
 { #category : 'public' }
 RowanServiceUpdater >> applyUpdateWhile: block [
-	applyingUpdates := true.
-	block ensure: 
-			[applyingUpdates := false.
-			self rowanPostUpdate]
+	"may not need applyingUpdates flag anymore"
+		applyingUpdates := true.
+		block ensure: [
+			applyingUpdates := false.
+			self rowanPostUpdate ]
 ]
 
 { #category : 'accessing' }
@@ -101,12 +103,19 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			                  addFirst: newLoggingService;
 			                  yourself ].
 	services do: [ :service |
-		service prepareForReplication. 
-		service executeInSession: session onCompletion: completionBlock.
-		updateResult := self applyUpdatesFromReturnedServices:
-			                service returnedServices ].
+		| updateAndCompleteBlock |
+		service prepareForReplication.
+		updateAndCompleteBlock := [ :anObject |
+		                          updateResult := self
+			                                          applyUpdatesFromReturnedServices:
+			                                          service returnedServices.
+		                          completionBlock ifNotNil: [
+			                          completionBlock value: anObject ] ].
+		service
+			executeInSession: session
+			onCompletion: updateAndCompleteBlock ].
 	self todo: [ session releaseAllOops ].
-	^ updateResult
+	^ updateResult " I don't think result is used."
 ]
 
 { #category : 'private' }
@@ -152,6 +161,11 @@ RowanServiceUpdater >> debug: aBoolean [
 	debug := aBoolean
 ]
 
+{ #category : 'public' }
+RowanServiceUpdater >> deferUntilUpdatesComplete: aZeroArgBlock [
+	self inUpdate critical: [ aZeroArgBlock value ]
+]
+
 { #category : 'as yet unclassified' }
 RowanServiceUpdater >> getEvents [
 
@@ -185,7 +199,7 @@ RowanServiceUpdater >> initialize [
 	super initialize. 
 	self initializeUpdates.
 	debug := false.
-	inUpdate := false.
+	inUpdate := Semaphore forMutualExclusion.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
@@ -536,5 +550,4 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 { #category : 'public' }
 RowanServiceUpdater >> updatesReadyToApply [
 	updates isEmpty ifFalse: [self trigger: #updatesReadyToApply].
-	MorphicRenderLoop new doOneCycle.
 ]

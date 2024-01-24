@@ -238,13 +238,18 @@ JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
 JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 
 	| service |
-	(self categoryListPresenter list includes: string) ifFalse: [
-		service := self selectedClass
-			           command: #addCategory:;
-			           commandArgs: (Array with: string).
-		service meta: self isClassSideSelected.
-		self issueCommand: service onCompletion: nil ].
-	self selectCategoriesNamed: (Array with: string)
+	(self categoryListPresenter list includes: string) ifTrue: [ ^ self ].
+	service := self selectedClass
+		           command: #addCategory:;
+		           commandArgs: (Array with: string).
+	service meta: self isClassSideSelected.
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: [ :unused |
+			[
+			RowanServiceUpdater current deferUntilUpdatesComplete: [
+				self selectCategoriesNamed: (Array with: string) ] ] fork ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1950,9 +1955,9 @@ JadeiteBrowserPresenter >> isValidClassService: classService [
 ]
 
 { #category : 'services' }
-JadeiteBrowserPresenter >> issueCommand: service onCompletion: anObject [
+JadeiteBrowserPresenter >> issueCommand: service onCompletion: aBlock [
 
-	^RowanServiceUpdater current issueCommand: service session: gciSession
+	^RowanServiceUpdater current issueCommand: service session: gciSession onCompletion: aBlock
 ]
 
 { #category : 'as yet unclassified' }
@@ -2841,6 +2846,14 @@ JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectCategoriesNamed: selections [
+	Transcript cr; show: 'JadeiteBrowserPresenter>>#selectCategoriesNamed:'; flush. 
+	Transcript cr; print: selections; flush. 
+	Transcript cr; print: categoryListPresenter items; flush. 
+	categoryListPresenter selectItems: selections
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoryTab [
 	methodFilterTabs selectPageIndex: 1
 ]
@@ -3682,9 +3695,10 @@ JadeiteBrowserPresenter >> updateProjects [
 	browserService command: #updateProjects.
 	RowanServiceUpdater current
 		issueCommand: browserService
-		session: gciSession.
-	browserService projects ifNotNil: [ :projects |
-		projectListPresenter items: (self sortedProjectsFrom: projects) ]
+		session: gciSession
+		onCompletion: [:anObject |
+			browserService projects ifNotNil: [ :projects |
+				projectListPresenter items: (self sortedProjectsFrom: projects) ] ]
 ]
 
 { #category : 'tab labels' }
