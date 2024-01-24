@@ -247,9 +247,7 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 		issueCommand: service
 		session: self gciSession
 		onCompletion: [ :unused |
-			[
-			RowanServiceUpdater current deferUntilUpdatesComplete: [
-				self selectCategoriesNamed: (Array with: string) ] ] fork ]
+		self selectCategoriesNamed: (Array with: string) ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -729,10 +727,11 @@ JadeiteBrowserPresenter >> clearMethodListTestResultIn: methodServices [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> clearMethodLists [
-	self clearFilterLists. 
+
+	self selectedClass ifNil: [ self clearFilterLists ].
 	packageMethodListPresenter clear.
 	methodListPresenter clear.
-	methodSourcePresenter value: String new. 
+	methodSourcePresenter value: String new.
 	definedMethodPackageText text: String new.
 	self resetCategoryText
 ]
@@ -2468,6 +2467,7 @@ JadeiteBrowserPresenter >> redrawAllViews [
 	projectListPresenter view invalidate.
 	packageListPresenter view invalidate.
 	classListPresenter view invalidate.
+	categoryListPresenter view invalidate. 
 	methodListPresenter view invalidate. 
 ]
 

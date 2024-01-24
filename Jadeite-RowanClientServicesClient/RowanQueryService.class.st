@@ -42,7 +42,7 @@ RowanQueryService >> implementorsOfAll: selectors session: session [
 
 { #category : 'accessing' }
 RowanQueryService >> queryResults [
-	^queryResults asOrderedCollection 
+	^queryResults 
 ]
 
 { #category : 'accessing' }

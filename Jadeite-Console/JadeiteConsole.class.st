@@ -501,7 +501,7 @@ JadeiteConsole >> initializeProjectListPresenter: tabs [
 				ifFalse: [ Smalltalk ui theme textColor ] ].
 	projectListPresenter addColumn: (column3 := SpStringTableColumn
 			            title: 'Branch'
-			            evaluated: [ :projectService | projectService branch ]).
+			            evaluated: [ :projectService | projectService branch ifNil: [ String new ] ]).
 	column3
 		displayBold: [ :projectService | projectService isDirty ];
 		displayColor: [ :projectService | 

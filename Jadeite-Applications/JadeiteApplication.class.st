@@ -63,6 +63,7 @@ JadeiteApplication class >> commitTransactionInSession: session [
 		issueCommands: (Array with: browserService)
 		session: session
 		onCompletion: nil.
+	[ browserService updates isEmpty ] whileTrue:[(Delay forMilliseconds: 1) wait "wait on result - not many services depend directly on command result. Not sure if this should. "]. 
 	commitResult := browserService updates first answer. "should only get one update back"
 	commitResult
 		ifTrue: [ UIManager default inform: 'Commit succeeded' ]

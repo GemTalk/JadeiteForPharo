@@ -115,7 +115,7 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			executeInSession: session
 			onCompletion: updateAndCompleteBlock ].
 	self todo: [ session releaseAllOops ].
-	^ updateResult " I don't think result is used."
+	^ updateResult 
 ]
 
 { #category : 'private' }
