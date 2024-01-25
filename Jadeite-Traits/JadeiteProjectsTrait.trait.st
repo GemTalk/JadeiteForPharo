@@ -217,13 +217,16 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 	service
 		command: #commitWithMessage:;
 		commandArgs: (Array with: message value asString).
-	RowanServiceUpdater current issueCommand: service session: self gciSession. 
-	RowanBrowserService new
-		reloadProjects: self projectListPresenter selections
-		presenter: self.
-	self basicReloadProject.
-	MessageBox notify:
-		'Project ' , projectName , ' committed to local repository!'
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: [:unused | 
+			RowanBrowserService new
+				reloadProjects: self projectListPresenter selections
+				presenter: self.
+			self basicReloadProject.
+			MessageBox notify:
+				'Project ' , projectName , ' committed to local repository!' ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -435,7 +438,7 @@ JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
 { #category : 'commands' }
 JadeiteProjectsTrait >> projectChanges [
 
-	| changesBrowser operations projectService |
+	| changesBrowser projectService |
 	self projectListPresenter selections isEmpty ifTrue: [
 		^ MessageBox notify: 'No project selected' ].
 	projectService := self projectListPresenter selectedItem.
@@ -443,15 +446,18 @@ JadeiteProjectsTrait >> projectChanges [
 		^ UIManager default inform:
 			  ('Project <1s> does not exist on disk' expandMacrosWith:
 				   projectService name) ].
-	operations := projectService changesUsing: self gciSession.
-	changesBrowser := JadeiteChangesBrowser
-		                  showOn: (RowanPatch new
-				                   operations: operations;
-				                   gciSession: self gciSession)
-		                  name: projectService name
-		                  application: self application.
-	changesBrowser owner application: self application.
-	^ changesBrowser
+	projectService
+		basicChangesUsing: self gciSession
+		onCompletion: [ :operations |
+			operations
+				ifEmpty: [ MessageBox notify: 'No changes!' ]
+				ifNotEmpty: [
+					changesBrowser := JadeiteChangesBrowser
+						                  showOn: (RowanPatch new
+								                   operations: operations;
+								                   gciSession: self gciSession)
+						                  name: projectService name
+						                  application: self application] ]
 ]
 
 { #category : 'as yet unclassified' }

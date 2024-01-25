@@ -105,6 +105,23 @@ RowanProjectService >> basicChangesUsing: session [
 ]
 
 { #category : 'presenter support' }
+RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock [
+
+	| operations |
+	command := #changes.
+	RowanServiceUpdater current
+		issueCommands: (Array with: self)
+		session: session
+		onCompletion: [ :unused |
+			operations := OrderedCollection new.
+			changes do: [ :changeString |
+				operations addAll:
+					(RowanPatch fromString: changeString session: session) operations ].
+			changes := nil. "can be large, reclaim space"
+			completionBlock value: operations ]
+]
+
+{ #category : 'presenter support' }
 RowanProjectService >> basicCheckout: branchName using: presenter [
 
 	self
