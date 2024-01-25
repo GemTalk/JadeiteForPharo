@@ -12,7 +12,7 @@ JadeiteProjectsTrait >> allSelectedProjectsDirty [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> auditProject [
-	[self auditProjectFor: self projectListPresenter selectedItem name] fork
+	self auditProjectFor: self projectListPresenter selectedItem name
 ]
 
 { #category : 'as yet unclassified' }
@@ -53,8 +53,11 @@ JadeiteProjectsTrait >> basicCheckoutBranch: branchName for: projectService [
 
 { #category : 'menus' }
 JadeiteProjectsTrait >> basicCheckoutTag: choice for: projectService [
-	projectService basicCheckoutTag: choice using: self gciSession.
-	self refreshFromServer. 
+
+	projectService
+		basicCheckoutTag: choice
+		using: self gciSession
+		onCompletion: [ :unused | self refreshFromServer ]
 ]
 
 { #category : 'commands' }

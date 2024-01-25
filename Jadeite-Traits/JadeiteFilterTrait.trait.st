@@ -70,10 +70,11 @@ JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: s
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarWriters [
-	^ self
-		  browseInstVarWriters: self variableListPresenter selectedItem
-		  in: self selectedClassName
-		  session: self gciSession
+
+	self
+		browseInstVarWriters: self variableListPresenter selectedItem
+		in: self selectedClassName
+		session: self gciSession
 ]
 
 { #category : 'actions' }
@@ -87,14 +88,14 @@ JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: s
 	RowanServiceUpdater current
 		issueCommands: (Array with: service)
 		session: self gciSession
-		onCompletion: nil.
-	shell := self
-		         openMethodListOn: service
-		         selectingAnyMatch: instVarName
-		         session: session.
-	shell updateCaptionFromSearchString:
-		'Instance Variable Writers For ' , instVarName asString printString.
-	^ shell
+		onCompletion: [ :unused |
+			shell := self
+				         openMethodListOn: service
+				         selectingAnyMatch: instVarName
+				         session: session.
+			shell updateCaptionFromSearchString:
+				'Instance Variable Writers For '
+				, instVarName asString printString ]
 ]
 
 { #category : 'actions' }

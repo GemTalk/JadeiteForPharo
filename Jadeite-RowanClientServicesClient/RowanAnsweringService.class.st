@@ -155,20 +155,6 @@ RowanAnsweringService >> logReceivedOn: aStream [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> lowercaseSelectorsMatching: string session: session [
-	"sender should pass in lowercase string which will be 
-	compared to lowercase on the server. Avoids case misses"
-
-	command := #lowercaseSelectorsMatching:.
-	commandArgs := Array with: string.
-	RowanServiceUpdater current
-		issueCommands: (Array with: self)
-		session: session
-		onCompletion: nil.
-	^ answer
-]
-
-{ #category : 'commands' }
 RowanAnsweringService >> needsCommit: session [
 
 	command := #needsCommit.

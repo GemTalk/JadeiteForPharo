@@ -140,6 +140,14 @@ RowanProjectService >> basicCheckoutTag: tag using: session [
 ]
 
 { #category : 'presenter support' }
+RowanProjectService >> basicCheckoutTag: tag using: session onCompletion: completionBlock [ 
+	self
+		command: #checkoutTag:;
+		commandArgs: (Array with: tag).
+	RowanServiceUpdater current issueCommand: self session: session onCompletion: completionBlock
+]
+
+{ #category : 'presenter support' }
 RowanProjectService >> basicCheckoutUsing: presenter [
 
 	| branches query branchString |
