@@ -612,7 +612,7 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 	self withAdapterDo: [ :theAdapter | 
 		theAdapter widgetDo: [ :widget | 
 			widget textArea unselect. 
-			 widget notify: (argArray at: 3) at: (argArray at: 2) in: self text asString replaceLfWithCr] ].
+			 widget notify: (argArray at: 3) at: (argArray at: 2) in: self text asString] ].
 	^ nil
 ]
 
@@ -753,7 +753,7 @@ JadeiteTextDocument >> value [
 JadeiteTextDocument >> value: aString [
 	self todo: 'the nil check should not be needed?'. 
 	aString isNil ifTrue:[^self]. 
-	[self text: aString replaceLfWithCr ] ensure: [ 
+	[self text: aString ] ensure: [ 
 	self isModified: false. "I think it's ok to always mark the it not dirty if Jadeite changes the value directly "]
 ]
 

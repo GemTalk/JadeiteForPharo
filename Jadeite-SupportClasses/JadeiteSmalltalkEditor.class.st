@@ -24,6 +24,12 @@ JadeiteSmalltalkEditor >> application [
 	^JadeiteApplication new
 ]
 
+{ #category : 'new selection' }
+JadeiteSmalltalkEditor >> atEndOfLineInsertAndSelect: aString [
+
+	self insertAndSelect: aString at: (self encompassJadeiteParagraph: self selectionInterval) last + 1
+]
+
 { #category : 'editing keys' }
 JadeiteSmalltalkEditor >> browseClassOfExpression [
 
@@ -54,6 +60,12 @@ JadeiteSmalltalkEditor >> completionEngine [
 		CompletionEngineClass ifNotNil: [
 			self completionEngine: JadeiteCompletionEngine new.
 			completionEngine ] ]
+]
+
+{ #category : 'new selection' }
+JadeiteSmalltalkEditor >> encompassJadeiteParagraph: anInterval [
+
+	^ self string encompassJadeiteParagraph: anInterval
 ]
 
 { #category : 'accessing' }

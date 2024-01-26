@@ -1,6 +1,15 @@
 Extension { #name : 'String' }
 
 { #category : '*Jadeite-BaseExtensions' }
+String >> encompassJadeiteParagraph: anInterval [
+	"Jadeite acknowledges Character>>lf"
+	| left right |
+	left := (self lastIndexOf: Character lf startingAt: anInterval first - 1 ifAbsent:[0]) + 1.
+	right := (self indexOf: Character lf startingAt: (anInterval last max: anInterval first) ifAbsent: [self size]).
+	^left to: right
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
 String >> maxSkinnyPrintWidth [
 
 	^ 80

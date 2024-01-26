@@ -11,8 +11,9 @@ Class {
 JadeiteMorphicCodeAdapter >> addKeyBindingsTo: aMorph [
 	"commented code is just to remind me how to override text editor character key bindings"
 	super addKeyBindingsTo: aMorph.
+	self
+		bindKeyCombination: Character end toAction: [ aMorph textArea editor atEndOfLineInsertAndSelect: String new ].
 	"self
-		bindKeyCombination: Character end toAction: [ aMorph textArea editor atEndOfLineInsertAndSelect: String new ];
 		bindKeyCombination: Character home toAction: [ aMorph moveCursorToIndex: 0 ]"
 ]
 

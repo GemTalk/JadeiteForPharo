@@ -83,7 +83,7 @@ JadeiteMethodSourcePane >> formatSource [
 		                    commandArgs:
 			                    (Array with: self text asString replaceCrWithLf).
 	self issueCommand: answeringService onCompletion: nil.
-	self text: answeringService answer replaceLfWithCr
+	self text: answeringService answer
 ]
 
 { #category : 'initialization' }
