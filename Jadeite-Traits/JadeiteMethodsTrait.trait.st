@@ -514,30 +514,32 @@ JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle 
 					message := self noMatchesFoundMessageFor: wildcardString.
 					UIManager inform: message ]
 				ifFalse: [
-					possibleSelectors size = 1 ifTrue: [
-						completionBlock value: possibleSelectors first ].
-					dialogWindow := ListDialogWindow new
-						                getList: [ :rxMatcher |
-							                possibleSelectors select: [ :substring |
-									                rxMatcher isString
-										                ifTrue: [ rxMatcher , '*' match: substring ]
-										                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-											                rxMatcher matchesPrefix: substring ] ] ];
-						                displayBlock: [ :e | e ];
-						                browseBlock: [ :arg |
-							                | queryService |
-							                queryService := RowanQueryService new
-								                                perform: browseAction
-								                                with: possibleSelectors.
-							                JadeiteMethodListBrowser
-								                openOn: queryService
-								                selecting: wildcardString
-								                session: self gciSession ];
-						                doubleClickOk;
-						                title: listWindowTitle;
-						                yourself.
-					completionBlock value:
-						(dialogWindow chooseFromOwner: self currentWorld) ] ]
+					possibleSelectors size = 1
+						ifTrue: [ completionBlock value: possibleSelectors first ]
+						ifFalse: [
+							dialogWindow := ListDialogWindow new
+								                getList: [ :rxMatcher |
+									                possibleSelectors select: [ :substring |
+											                rxMatcher isString
+												                ifTrue: [
+													                rxMatcher , '*' match: substring ]
+												                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+													                rxMatcher matchesPrefix: substring ] ] ];
+								                displayBlock: [ :e | e ];
+								                browseBlock: [ :arg |
+									                | queryService |
+									                queryService := RowanQueryService new
+										                                perform: browseAction
+										                                with: possibleSelectors.
+									                JadeiteMethodListBrowser
+										                openOn: queryService
+										                selecting: wildcardString
+										                session: self gciSession ];
+								                doubleClickOk;
+								                title: listWindowTitle;
+								                yourself.
+							completionBlock value:
+								(dialogWindow chooseFromOwner: self currentWorld) ] ] ]
 ]
 
 { #category : 'selections' }
