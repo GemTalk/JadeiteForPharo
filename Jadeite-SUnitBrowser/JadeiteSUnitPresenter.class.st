@@ -9,7 +9,6 @@ Class {
 		'status',
 		'testCounter',
 		'methodColumns',
-		'testResults',
 		'toolbar'
 	],
 	#category : 'Jadeite-SUnitBrowser'
@@ -132,7 +131,7 @@ JadeiteSUnitPresenter >> debugAll [
 
 	self reset.
 	methodListPresenter resetSelection.
-	testResults := self debugTests: methodListPresenter model
+	self debugTests: methodListPresenter model
 ]
 
 { #category : 'actions' }

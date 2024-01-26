@@ -183,15 +183,16 @@ JadeiteInspector >> basicRemoveOop: oop [
 { #category : 'browsing' }
 JadeiteInspector >> browseClass [
 
-	| shell classService  |
-	
+	| shell classService |
 	classService := RowanClassService new name:
-			                className substrings first "strip off 'class' if meta" .
+		                className substrings first. "strip off 'class' if meta"
 	RowanServiceUpdater current
 		updateService: classService
 		session: gciSession.
 	shell := self openBrowser.
-	shell currentCard updateAfterFindClass: classService.
+	shell currentCard
+		updateAfterFindClass: classService
+		onCompletion: nil.
 	^ shell
 ]
 

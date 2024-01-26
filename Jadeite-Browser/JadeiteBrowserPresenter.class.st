@@ -136,11 +136,12 @@ JadeiteBrowserPresenter >> abortTransaction [
 
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
-	self updateProjects. 
+
+	self updateProjects.
 	self selectedClass ifNotNil: [ :classService |
-		self updateAfterFindClass: classService ].
+		self updateAfterFindClass: classService onCompletion: nil ].
 	self resetClassTemplate.
-	self resetClassComment. 
+	self resetClassComment.
 	self projectListPresenter invalidate
 ]
 
@@ -291,7 +292,9 @@ JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 		command: #copyClassTo:;
 		commandArgs: (Array with: newClassName).
 	self issueCommand: oldClassService onCompletion: nil.
-	self updateAfterFindClass: (RowanClassService new name: newClassName)
+	self
+		updateAfterFindClass: (RowanClassService new name: newClassName)
+		onCompletion: nil
 ]
 
 { #category : 'tab labels' }
@@ -422,12 +425,14 @@ JadeiteBrowserPresenter >> basicUpdateProject [
 ]
 
 { #category : 'private' }
-JadeiteBrowserPresenter >> browseClass [ 
+JadeiteBrowserPresenter >> browseClass [
 
 	| browser |
-	browser := self openBrowser. 
+	browser := self openBrowser.
 	^ Cursor wait showWhile: [
-		  browser activePresenter updateAfterFindClass: self selectedClass ]
+		  browser activePresenter
+			  updateAfterFindClass: self selectedClass
+			  onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1115,7 +1120,9 @@ JadeiteBrowserPresenter >> editSaveClass [
 				^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
 			^ self showMethodRecompilationError: ex ] ] ensure: [
 		self resetClassDefinitionPane ].
-	self updateAfterFindClass: browserService selectedClass
+	self
+		updateAfterFindClass: browserService selectedClass
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -1285,13 +1292,35 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 	methodListPresenter selectionOrNil ifNotNil: [self selectMethodSourceTab]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
+
+	^ [ :unused |
+	  | projectService |
+	  classService projectName ifNotNil: [
+		  projectService := projectListPresenter list
+			                    detect: [ :service |
+			                    service name = classService projectName ]
+			                    ifNone: [
+				                    nil
+				                    "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
+		  projectService ifNotNil: [
+			  projectListPresenter selection: projectService.
+			  projectListPresenter refresh.
+			  self isDictionaryTabSelected ifTrue: [
+				  self updateAfterFindClassInDictionary: classService ].
+			  self updateAfterFindClassInPackage: classService ] ] ]
+]
+
 { #category : 'private' }
 JadeiteBrowserPresenter >> findClassNamed: selection [
 
 	| classService |
 	classService := RowanClassService new name: selection.
 	^ Cursor wait showWhile: [
-		  self activePresenter updateAfterFindClass: classService ]
+		  self activePresenter
+			  updateAfterFindClass: classService
+			  onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1351,15 +1380,16 @@ JadeiteBrowserPresenter >> gotoClassDefinedPackage [
 	" find will go to the class in it's defined package project"
 
 	| selectedCategory selectedMethod |
-	selectedCategory := categoryListPresenter selectionIfNone: [].
-	selectedMethod := methodListPresenter selectionIfNone: [].
-	self updateAfterFindClass: self selectedClass.
-	selectedCategory ifNotNil: [:category | categoryListPresenter selection: category].
-	selectedMethod
-		ifNotNil: 
-			[methodListPresenter selection: (methodListPresenter list
-						detect: [:methodService | methodService selector = selectedMethod selector]).	"It better be there"
-			self updateMenuBar	"to refresh method menu"]
+	selectedCategory := categoryListPresenter selectionIfNone: [  ].
+	selectedMethod := methodListPresenter selectionIfNone: [  ].
+	self updateAfterFindClass: self selectedClass onCompletion: nil.
+	selectedCategory ifNotNil: [ :category |
+		categoryListPresenter selection: category ].
+	selectedMethod ifNotNil: [
+		methodListPresenter selection:
+			(methodListPresenter list detect: [ :methodService |
+				 methodService selector = selectedMethod selector ]). "It better be there"
+		self updateMenuBar "to refresh method menu" ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1974,28 +2004,34 @@ JadeiteBrowserPresenter >> jadeInspect [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> makeSameSelectionsIn: newPresenter as: previousPresenter [
+
 	| projectService packageService dictionaryService classService isMeta methodService |
-	projectService := previousPresenter projectListPresenter selectionIfNone: [].
-	packageService := previousPresenter packageListPresenter selectionIfNone: [].
-	dictionaryService := previousPresenter dictionaryPresenter selectionIfNone: [].
+	projectService := previousPresenter projectListPresenter
+		                  selectionIfNone: [  ].
+	packageService := previousPresenter packageListPresenter
+		                  selectionIfNone: [  ].
+	dictionaryService := previousPresenter dictionaryPresenter
+		                     selectionIfNone: [  ].
 	classService := previousPresenter selectedClass.
-	classService
-		ifNotNil: 
-			[isMeta := classService meta.
-			methodService := previousPresenter methodListPresenter selectionIfNone: []].
-	projectService ifNil: [^self].
+	classService ifNotNil: [
+		isMeta := classService meta.
+		methodService := previousPresenter methodListPresenter
+			                 selectionIfNone: [  ] ].
+	projectService ifNil: [ ^ self ].
 	newPresenter gotoProjectNamed: projectService name.
 	packageService
-		ifNil: 
-			[dictionaryService
-				ifNil: [^self]
-				ifNotNil: [newPresenter gotoDictionaryNamed: dictionaryService name]]
-		ifNotNil: [newPresenter gotoPackageNamed: packageService name].
-	classService ifNil: [^self].
-	newPresenter updateAfterFindClass: classService.
-	previousPresenter isHierarchyTabSelected ifTrue: [newPresenter classHierarchyTabs lastCard].
-	isMeta ifTrue: [newPresenter selectClassTab].
-	methodService ifNil: [^self].
+		ifNil: [
+			dictionaryService
+				ifNil: [ ^ self ]
+				ifNotNil: [
+				newPresenter gotoDictionaryNamed: dictionaryService name ] ]
+		ifNotNil: [ newPresenter gotoPackageNamed: packageService name ].
+	classService ifNil: [ ^ self ].
+	newPresenter updateAfterFindClass: classService onCompletion: nil.
+	previousPresenter isHierarchyTabSelected ifTrue: [
+		newPresenter classHierarchyTabs lastCard ].
+	isMeta ifTrue: [ newPresenter selectClassTab ].
+	methodService ifNil: [ ^ self ].
 	newPresenter findMethod: methodService selector
 ]
 
@@ -3297,22 +3333,15 @@ JadeiteBrowserPresenter >> unloadProjects [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateAfterFindClass: classService [
+JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
 
-	| projectService |
+	| findClassCompletionBlock |
 	classService ifNil: [ ^ self ].
-	classService projectName ifNil: [ self updateService: classService ].
-	classService projectName ifNil: [ ^self "could not be updated" ].
-	projectService := projectListPresenter list
-		                  detect: [ :service |
-		                  service name = classService projectName ]
-		                  ifNone: [
-			                  ^ self "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
-	projectListPresenter selection: projectService.
-	projectListPresenter refresh.
-	self isDictionaryTabSelected ifTrue: [
-		self updateAfterFindClassInDictionary: classService ].
-	self updateAfterFindClassInPackage: classService
+	findClassCompletionBlock := self findClassCompletionBlock:
+		                            classService.
+	self
+		updateService: classService
+		onCompletion: findClassCompletionBlock
 ]
 
 { #category : 'as yet unclassified' }
@@ -3334,7 +3363,7 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClassInPackage: classService [
 	packageListPresenter list detect: [:service | service name = classService definedPackageName]
-		ifNone: [self projectListPresenter selectionByIndex: 0	"display full list of packages"].
+		ifNone: [self projectListPresenter selectIndex: 0	"display full list of packages"].
 	self selectPackageOrDictionaryFor: classService.
 	classService meta == true ifTrue: [self selectClassTab].
 	self isClassListTabSelected

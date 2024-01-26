@@ -37,7 +37,9 @@ JadeiteSmalltalkEditor >> browseClassOfExpression [
 		| classService browser |
 		classService := RowanClassService new name: result.
 		browser := self openBrowser.
-		browser activePresenter updateAfterFindClass: classService ].
+		browser activePresenter
+			updateAfterFindClass: classService
+			onCompletion: nil ].
 	^ true
 ]
 

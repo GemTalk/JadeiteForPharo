@@ -43,10 +43,13 @@ JadeiteProjectBrowserAbstractTestCase >> disableTranscriptWrites [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> findClassNamed: className [
+
 	| classService |
 	classService := RowanClassService named: className.
 	self projectsPresenter updateService: classService.
-	self projectsPresenter updateAfterFindClass: classService
+	self projectsPresenter
+		updateAfterFindClass: classService
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

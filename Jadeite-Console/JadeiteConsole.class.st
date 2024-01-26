@@ -278,10 +278,12 @@ JadeiteConsole >> editLoadSpecFromFile [
 JadeiteConsole >> findClassNamed: selection [
 
 	| classService browser |
-	browser := self openBrowser. 
+	browser := self openBrowser.
 	classService := RowanClassService new name: selection.
 	^ Cursor wait showWhile: [
-		  browser activePresenter updateAfterFindClass: classService ]
+		  browser activePresenter
+			  updateAfterFindClass: classService
+			  onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

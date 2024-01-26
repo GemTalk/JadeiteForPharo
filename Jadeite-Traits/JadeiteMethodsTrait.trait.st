@@ -574,11 +574,22 @@ JadeiteMethodsTrait >> updateMethodSourceGlyphs [
 
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateService: service [
-	^self updateServices: (Array with: service) 
+	^self updateService: service onCompletion: nil
+]
+
+{ #category : 'updates' }
+JadeiteMethodsTrait >> updateService: service onCompletion: completionBlock [
+	^self updateServices: (Array with: service) onCompletion: completionBlock
 ]
 
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateServices: services [
+
+	^self updateServices: services onCompletion: nil
+]
+
+{ #category : 'updates' }
+JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 
 	services isEmpty ifTrue: [ ^ self ].
 	services do: [ :service |
@@ -588,5 +599,5 @@ JadeiteMethodsTrait >> updateServices: services [
 	RowanServiceUpdater current
 		issueCommands: services
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: completionBlock
 ]

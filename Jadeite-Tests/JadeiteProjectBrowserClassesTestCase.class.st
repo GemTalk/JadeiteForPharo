@@ -1273,16 +1273,36 @@ JadeiteProjectBrowserClassesTestCase >> test_filtersUpdatedInHierarchyView [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_findClass [
-	self projectsPresenter updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform').
-	self assert: self classListPresenter selection name equals: 'RwGsPlatform'.
-	self assert: self classListPresenter selection definedPackageName equals: 'Rowan-GemStone-Core'.
-	self assert: self packageListPresenter selection name equals: 'Rowan-GemStone-Core'.
+
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
+		onCompletion: nil.
+	self
+		assert: self classListPresenter selection name
+		equals: 'RwGsPlatform'.
+	self
+		assert: self classListPresenter selection definedPackageName
+		equals: 'Rowan-GemStone-Core'.
+	self
+		assert: self packageListPresenter selection name
+		equals: 'Rowan-GemStone-Core'.
 	self assert: self projectListPresenter selection name equals: 'Rowan'.
-	self projectsPresenter updateAfterFindClass: (RowanClassService new name: 'CypressClassDefinition').
-	self assert: self classListPresenter selection name equals: 'CypressClassDefinition'.
-	self assert: self classListPresenter selection definedPackageName equals: 'Cypress-Definitions'.
-	self assert: self packageListPresenter selection name equals: 'Cypress-Definitions'.
-	self assert: self projectListPresenter selection name equals: 'Cypress'
+	self projectsPresenter
+		updateAfterFindClass:
+		(RowanClassService new name: 'CypressClassDefinition')
+		onCompletion: nil.
+	self
+		assert: self classListPresenter selection name
+		equals: 'CypressClassDefinition'.
+	self
+		assert: self classListPresenter selection definedPackageName
+		equals: 'Cypress-Definitions'.
+	self
+		assert: self packageListPresenter selection name
+		equals: 'Cypress-Definitions'.
+	self
+		assert: self projectListPresenter selection name
+		equals: 'Cypress'
 ]
 
 { #category : 'as yet unclassified' }

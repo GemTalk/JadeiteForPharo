@@ -3451,22 +3451,27 @@ JadeiteProjectBrowserTestCase >> test_variableTabSortOrder [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_variableTabSortOrder2 [
-	self testsIssue: #issue575 withTitle: 'variables tab sort order inconsistency'.
-	self projectsPresenter updateAfterFindClass: (RowanClassService new name: 'Object').
+
+	self
+		testsIssue: #issue575
+		withTitle: 'variables tab sort order inconsistency'.
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'Object')
+		onCompletion: nil.
 	self projectsPresenter selectVariableTab.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted].
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self projectsPresenter selectCategoryTab.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted].
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self projectsPresenter selectVariableTab.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted].
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self selectClassTab.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted].
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self selectInstanceSide.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted].
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self selectHierarchyTab.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted].
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self selectClassListTab.
-	projectsBrowser ifNotNil: [self assertVariableTabSorted]
+	projectsBrowser ifNotNil: [ self assertVariableTabSorted ]
 ]
 
 { #category : 'as yet unclassified' }

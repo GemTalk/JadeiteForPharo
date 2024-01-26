@@ -36,12 +36,14 @@ JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 ]
 
 { #category : 'queries' }
-JadeiteClassTrait >> browseClass [ 
+JadeiteClassTrait >> browseClass [
 
 	| browser |
-	browser := self openBrowser. 
+	browser := self openBrowser.
 	^ Cursor wait showWhile: [
-		  browser activePresenter updateAfterFindClass: self selectedClass ]
+		  browser activePresenter
+			  updateAfterFindClass: self selectedClass
+			  onCompletion: nil ]
 ]
 
 { #category : 'queries' }
@@ -67,9 +69,9 @@ shell updateCaptionFromSearchString:
 { #category : 'private' }
 JadeiteClassTrait >> findClass [
 
-	| selection |
-	selection := self openClassSelectionDialogFor: 'Class'.
-	selection ifNotNil: [ self findClassNamed: selection ]
+	self
+		openClassSelectionDialogFor: 'Class'
+		onCompletion: [ :selection | self findClassNamed: selection ]
 ]
 
 { #category : 'private' }
@@ -78,15 +80,17 @@ JadeiteClassTrait >> findClassNamed: selection [
 	| classService |
 	classService := RowanClassService new name: selection.
 	^ Cursor wait showWhile: [
-		  self activePresenter updateAfterFindClass: classService ]
+		  self activePresenter
+			  updateAfterFindClass: classService
+			  onCompletion: nil ]
 ]
 
 { #category : 'private' }
 JadeiteClassTrait >> findClassReferences [
 
-	| selection |
-	selection := self openClassSelectionDialogFor: 'Class References'.
-	selection ifNotNil: [ self browseClassReferences: selection ]
+	self
+		openClassSelectionDialogFor: 'Class References'
+		onCompletion: [ :selection | self browseClassReferences: selection ]
 ]
 
 { #category : 'private' }
@@ -186,7 +190,7 @@ JadeiteClassTrait >> newFullClassMenu [
 ]
 
 { #category : 'private' }
-JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
+JadeiteClassTrait >> openClassSelectionDialogFor: searchName onCompletion: completionBlock [
 
 	| dialogWindow answeringService |
 	answeringService := RowanAnsweringService new
@@ -194,17 +198,20 @@ JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
 		                    commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: answeringService
-		session: self gciSession.
-	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher |
-			                answeringService answer select: [ :substring |
-					                rxMatcher isString
-						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-							                rxMatcher matchesPrefix: substring ] ] ];
-		                displayBlock: [ :e | e ];
-		                doubleClickOk;
-		                title: 'Jadeite Regex Find ' , searchName;
-		                yourself.
-	^ dialogWindow chooseFromOwner: self currentWorld
+		session: self gciSession
+		onCompletion: [ :unused |
+			| selection |
+			dialogWindow := ListDialogWindow new
+				                getList: [ :rxMatcher |
+					                answeringService answer select: [ :substring |
+							                rxMatcher isString
+								                ifTrue: [ rxMatcher , '*' match: substring ]
+								                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+									                rxMatcher matchesPrefix: substring ] ] ];
+				                displayBlock: [ :e | e ];
+				                doubleClickOk;
+				                title: 'Jadeite Regex Find ' , searchName;
+				                yourself.
+			selection := dialogWindow chooseFromOwner: self currentWorld.
+			selection ifNotNil: [ completionBlock value: selection ] ]
 ]
