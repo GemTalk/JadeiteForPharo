@@ -1305,11 +1305,11 @@ JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
 				                    nil
 				                    "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
 		  projectService ifNotNil: [
-			  projectListPresenter selection: projectService.
-			  projectListPresenter refresh.
-			  self isDictionaryTabSelected ifTrue: [
-				  self updateAfterFindClassInDictionary: classService ].
-			  self updateAfterFindClassInPackage: classService ] ] ]
+			  projectListPresenter selection: projectService onCompletion: [
+				  projectListPresenter refresh.
+				  self isDictionaryTabSelected
+					  ifTrue: [ self updateAfterFindClassInDictionary: classService ]
+					  ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ] ] ]
 ]
 
 { #category : 'private' }
@@ -1822,6 +1822,12 @@ JadeiteBrowserPresenter >> inspectMethod [
 JadeiteBrowserPresenter >> inspectorContextObject [
 
 	^self contextObject
+]
+
+{ #category : 'testing' }
+JadeiteBrowserPresenter >> isApplyingUpdates [
+
+	^RowanServiceUpdater current isApplyingUpdates
 ]
 
 { #category : 'testing' }
@@ -2883,9 +2889,7 @@ JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoriesNamed: selections [
-	Transcript cr; show: 'JadeiteBrowserPresenter>>#selectCategoriesNamed:'; flush. 
-	Transcript cr; print: selections; flush. 
-	Transcript cr; print: categoryListPresenter items; flush. 
+
 	categoryListPresenter selectItems: selections
 ]
 
@@ -3031,14 +3035,14 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 
-	| answeringService service |
-	answeringService := RowanAnsweringService new.
-	answeringService
-		command: #packageOrDictionaryFor:;
-		commandArgs: (Array with: classService).
-	self issueCommand: answeringService onCompletion: nil.
-	service := answeringService answer.
-	service selectIn: self
+	self isDictionaryTabSelected ifTrue:[
+		| theDictionaryService | 
+		theDictionaryService := self dictionaryListPresenter items detect:[:dictionaryService | dictionaryService name = classService dictionaryName].
+		self dictionaryListPresenter selectItem: theDictionaryService]
+	ifFalse: [ 
+		| thePackageService | 
+		thePackageService := self packageListPresenter items detect:[:packageService | packageService name = classService packageName].
+		self packageListPresenter selectItem: thePackageService ] 
 ]
 
 { #category : 'selections' }
@@ -3362,8 +3366,6 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClassInPackage: classService [
-	packageListPresenter list detect: [:service | service name = classService definedPackageName]
-		ifNone: [self projectListPresenter selectIndex: 0	"display full list of packages"].
 	self selectPackageOrDictionaryFor: classService.
 	classService meta == true ifTrue: [self selectClassTab].
 	self isClassListTabSelected
@@ -3660,8 +3662,8 @@ JadeiteBrowserPresenter >> updateProject [
 		classHierarchyPresenter clear ].
 	self buildPackageList.
 	self updateTabLabel.
-	self basicUpdateProject.
 	definedClassPackageText text: String new. 
+	self basicUpdateProject.
 ]
 
 { #category : 'updates' }

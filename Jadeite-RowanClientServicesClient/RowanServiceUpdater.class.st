@@ -74,11 +74,8 @@ RowanServiceUpdater >> activeServices [
 
 { #category : 'public' }
 RowanServiceUpdater >> applyUpdateWhile: block [
-	"may not need applyingUpdates flag anymore"
-		applyingUpdates := true.
-		block ensure: [
-			applyingUpdates := false.
-			self rowanPostUpdate ]
+	self todo:'fix me. Not an applyUpdateWhile: block any more'.
+	block ensure: [ self rowanPostUpdate ]
 ]
 
 { #category : 'accessing' }
@@ -95,6 +92,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion: completionBlock [
 
 	| updateResult loggedServices newLoggingService |
+	inUpdate wait.
 	self todo: [
 		newLoggingService := logger newServiceLoggingService addServices:
 			                     services.
@@ -105,17 +103,19 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 	services do: [ :service |
 		| updateAndCompleteBlock |
 		service prepareForReplication.
-		updateAndCompleteBlock := [ :anObject |
+		updateAndCompleteBlock := [ :aService |
+		                          [
 		                          updateResult := self
 			                                          applyUpdatesFromReturnedServices:
 			                                          service returnedServices.
 		                          completionBlock ifNotNil: [
-			                          completionBlock value: anObject ] ].
+			                          completionBlock value: aService ] ]
+			                          ensure: [ inUpdate signal ] ].
 		service
 			executeInSession: session
 			onCompletion: updateAndCompleteBlock ].
 	self todo: [ session releaseAllOops ].
-	^ updateResult 
+	^ updateResult
 ]
 
 { #category : 'private' }
@@ -487,8 +487,8 @@ RowanServiceUpdater >> update: browserUpdate withSelector: selector [
 ]
 
 { #category : 'updating' }
-RowanServiceUpdater >> update: browserUpdate withSelector: selector browser: browser [
-	browserUpdate
+RowanServiceUpdater >> update: updater withSelector: selector browser: browser [
+	updater
 		updatesPerform: selector
 		presenter: self
 		browser: browser.

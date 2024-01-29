@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteListPresenter',
 	#superclass : 'SpListPresenter',
+	#instVars : [
+		'completionBlock'
+	],
 	#category : 'Jadeite-SupportClasses'
 }
 
@@ -31,6 +34,18 @@ JadeiteListPresenter >> clear [
 	
 	self model removeAll.
 	self unselectAll. 
+]
+
+{ #category : 'accessing' }
+JadeiteListPresenter >> completionBlock [
+
+	^ completionBlock
+]
+
+{ #category : 'accessing' }
+JadeiteListPresenter >> completionBlock: anObject [
+
+	completionBlock := anObject
 ]
 
 { #category : 'testing' }
@@ -122,6 +137,13 @@ JadeiteListPresenter >> selectIndex: anArray [
 
 { #category : 'selection' }
 JadeiteListPresenter >> selection: anObject [
+	self canDiscardEdits ifFalse:[^self]. 
+	^self selectItem: anObject 
+]
+
+{ #category : 'selection' }
+JadeiteListPresenter >> selection: anObject onCompletion: theCompletionBlock [
+	completionBlock := theCompletionBlock.
 	self canDiscardEdits ifFalse:[^self]. 
 	^self selectItem: anObject 
 ]
