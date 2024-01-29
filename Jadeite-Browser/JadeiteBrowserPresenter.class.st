@@ -1295,8 +1295,8 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
 
-	^ [ :unused |
-	  | projectService |
+	| projectService |
+	^ [:unused | 
 	  classService projectName ifNotNil: [
 		  projectService := projectListPresenter list
 			                    detect: [ :service |
@@ -1305,11 +1305,11 @@ JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
 				                    nil
 				                    "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
 		  projectService ifNotNil: [
-			  projectListPresenter selection: projectService onCompletion: [
-				  projectListPresenter refresh.
-				  self isDictionaryTabSelected
-					  ifTrue: [ self updateAfterFindClassInDictionary: classService ]
-					  ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ] ] ]
+			  projectListPresenter selection: projectService.
+			  projectListPresenter refresh.
+			  self isDictionaryTabSelected ifTrue: [
+				  self updateAfterFindClassInDictionary: classService ].
+			  self updateAfterFindClassInPackage: classService ] ] ]
 ]
 
 { #category : 'private' }
@@ -3035,14 +3035,14 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 
-	self isDictionaryTabSelected ifTrue:[
-		| theDictionaryService | 
-		theDictionaryService := self dictionaryListPresenter items detect:[:dictionaryService | dictionaryService name = classService dictionaryName].
-		self dictionaryListPresenter selectItem: theDictionaryService]
-	ifFalse: [ 
-		| thePackageService | 
-		thePackageService := self packageListPresenter items detect:[:packageService | packageService name = classService packageName].
-		self packageListPresenter selectItem: thePackageService ] 
+	| answeringService service |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #packageOrDictionaryFor:;
+		commandArgs: (Array with: classService).
+	self issueCommand: answeringService onCompletion: nil.
+	service := answeringService answer.
+	service selectIn: self
 ]
 
 { #category : 'selections' }

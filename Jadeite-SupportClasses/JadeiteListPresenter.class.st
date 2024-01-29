@@ -142,13 +142,6 @@ JadeiteListPresenter >> selection: anObject [
 ]
 
 { #category : 'selection' }
-JadeiteListPresenter >> selection: anObject onCompletion: theCompletionBlock [
-	completionBlock := theCompletionBlock.
-	self canDiscardEdits ifFalse:[^self]. 
-	^self selectItem: anObject 
-]
-
-{ #category : 'selection' }
 JadeiteListPresenter >> selectionIfNone: aBlock [
 self hasSelection ifFalse: [ ^aBlock value ].
 	^self selectedItem ifNil: [ aBlock value ]
