@@ -1258,14 +1258,6 @@ JadeiteProjectsBrowserPresenter >> updatePresenter: presenter selections: select
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> updateProjectPackages [
-	packageListPresenter clear.
-	projectListPresenter selections isEmpty ifTrue: [^self].
-	self updateServices: projectListPresenter selections.
-	self sundryCleanup
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> updateSUnitTab [
 	self todo:[self selectedClass
 		ifNil: [sunitPresenter testClassService: nil]

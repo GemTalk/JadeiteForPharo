@@ -3662,8 +3662,8 @@ JadeiteBrowserPresenter >> updateProject [
 		classHierarchyPresenter clear ].
 	self buildPackageList.
 	self updateTabLabel.
-	definedClassPackageText text: String new. 
 	self basicUpdateProject.
+	definedClassPackageText text: String new. 
 ]
 
 { #category : 'updates' }
@@ -3704,6 +3704,14 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 			array nextPut: (Array with: service with: 'packageConvention').
 			service == service ifFalse: [array nextPut: (Array with: RowanProjectService new with: nil)]].
 	projectInfoList items: array contents
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateProjectPackages [
+	packageListPresenter clear.
+	projectListPresenter selections isEmpty ifTrue: [^self].
+	self updateServices: projectListPresenter selections.
+	self sundryCleanup
 ]
 
 { #category : 'updates' }

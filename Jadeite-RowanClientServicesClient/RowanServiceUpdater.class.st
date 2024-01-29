@@ -92,7 +92,6 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion: completionBlock [
 
 	| updateResult loggedServices newLoggingService |
-	inUpdate wait.
 	self todo: [
 		newLoggingService := logger newServiceLoggingService addServices:
 			                     services.
@@ -101,8 +100,9 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			                  addFirst: newLoggingService;
 			                  yourself ].
 	services do: [ :service |
-		| updateAndCompleteBlock |
+		| updateAndCompleteBlock sem |
 		service prepareForReplication.
+		sem := Semaphore new. 
 		updateAndCompleteBlock := [ :aService |
 		                          [
 		                          updateResult := self
@@ -110,10 +110,11 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			                                          service returnedServices.
 		                          completionBlock ifNotNil: [
 			                          completionBlock value: aService ] ]
-			                          ensure: [ inUpdate signal ] ].
+			                          ensure: [ sem signal ] ].
 		service
 			executeInSession: session
-			onCompletion: updateAndCompleteBlock ].
+			onCompletion: updateAndCompleteBlock.
+		sem wait.  ].
 	self todo: [ session releaseAllOops ].
 	^ updateResult
 ]
