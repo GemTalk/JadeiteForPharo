@@ -74,8 +74,10 @@ RowanServiceUpdater >> activeServices [
 
 { #category : 'public' }
 RowanServiceUpdater >> applyUpdateWhile: block [
-	self todo:'fix me. Not an applyUpdateWhile: block any more'.
-	block ensure: [ self rowanPostUpdate ]
+	applyingUpdates := true.
+	block ensure: 
+			[applyingUpdates := false.
+			self rowanPostUpdate]
 ]
 
 { #category : 'accessing' }
