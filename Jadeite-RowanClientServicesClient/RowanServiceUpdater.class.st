@@ -256,16 +256,32 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommands: services session: session onCompletion: completionBlock [
 
-	self inUpdateWhile: [
-		| commandResult |
-		session ifNotNil: [
-			commandResult := self
-				                 basicIssueCommand: services
-				                 session: session
-				                 onCompletion: completionBlock.
-			RowanServiceUpdater current logComment:
-				'Released inUpdate semaphore'.
-			^ commandResult ] ]
+	Processor activeProcess == UIManager default uiProcess
+		ifTrue: [
+			[
+			self
+				issueDirectCommands: services
+				session: session
+				completionBlock: completionBlock ] fork ]
+		ifFalse: [
+			self
+				issueDirectCommands: services
+				session: session
+				completionBlock: completionBlock ]
+]
+
+{ #category : 'commands' }
+RowanServiceUpdater >> issueDirectCommands: services session: session completionBlock: completionBlock [
+
+	^ self inUpdateWhile: [
+		  | commandResult |
+		  session ifNotNil: [
+			  commandResult := self
+				                   basicIssueCommand: services
+				                   session: session
+				                   onCompletion: completionBlock.
+			  RowanServiceUpdater current logComment:
+				  'Released inUpdate semaphore' ] ]
 ]
 
 { #category : 'logging' }

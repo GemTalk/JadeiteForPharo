@@ -1296,7 +1296,7 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
 
 	| projectService |
-	^ [:unused | 
+	^ [ :unused |
 	  classService projectName ifNotNil: [
 		  projectService := projectListPresenter list
 			                    detect: [ :service |
@@ -1307,9 +1307,9 @@ JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
 		  projectService ifNotNil: [
 			  projectListPresenter selection: projectService.
 			  projectListPresenter refresh.
-			  self isDictionaryTabSelected ifTrue: [
-				  self updateAfterFindClassInDictionary: classService ].
-			  self updateAfterFindClassInPackage: classService ] ] ]
+			  self isDictionaryTabSelected
+				  ifTrue: [ self updateAfterFindClassInDictionary: classService ]
+				  ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ] ]
 ]
 
 { #category : 'private' }
