@@ -3040,9 +3040,9 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 	answeringService
 		command: #packageOrDictionaryFor:;
 		commandArgs: (Array with: classService).
-	self issueCommand: answeringService onCompletion: nil.
-	service := answeringService answer.
-	service selectIn: self
+	self issueCommand: answeringService onCompletion: [ :unused |
+		service := answeringService answer.
+		service selectIn: self ]
 ]
 
 { #category : 'selections' }

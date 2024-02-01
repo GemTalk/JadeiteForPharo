@@ -84,10 +84,12 @@ RowanServiceUpdater >> applyUpdateWhile: block [
 RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"
-	self applyUpdateWhile: 
-			[updates removeAll: updates.
-			updates addAll: aCollection.
-			self updatesReadyToApply]
+
+	RowanServiceUpdater current logger newLoggingService logComment:
+		'RowanServiceUpdater>>#applyUpdatesFromReturnedServices:'.
+	self applyUpdateWhile: [ "updates removeAll: updates."
+		updates addAll: aCollection.
+		self updatesReadyToApply ]
 ]
 
 { #category : 'commands' }
@@ -102,11 +104,13 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			                  addFirst: newLoggingService;
 			                  yourself ].
 	services do: [ :service |
-		| updateAndCompleteBlock sem |
+		| updateAndCompleteBlock sem inCompletionBlock |
 		service prepareForReplication.
-		sem := Semaphore new. 
+		sem := Semaphore new.
+		inCompletionBlock := false. 
 		updateAndCompleteBlock := [ :aService |
 		                          [
+										inCompletionBlock := true. 
 		                          updateResult := self
 			                                          applyUpdatesFromReturnedServices:
 			                                          service returnedServices.
@@ -115,8 +119,9 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 			                          ensure: [ sem signal ] ].
 		service
 			executeInSession: session
-			onCompletion: updateAndCompleteBlock.
-		sem wait.  ].
+			onCompletion: updateAndCompleteBlock
+			semaphore: sem.
+		sem wait ].
 	self todo: [ session releaseAllOops ].
 	^ updateResult
 ]
@@ -456,8 +461,9 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 ]
 
 { #category : 'private' }
-RowanServiceUpdater >> shouldApply: selector forSelector: service [
+RowanServiceUpdater >> shouldApply: selector forService: service [
 	service isNil ifTrue:[^false]. "if a service is gc'd we could possibly end up with a nil here"
+	(service class canUnderstand: selector) ifFalse:[^false]. 
 	^service updateType isNil or: 
 			[service updateType == selector
 				or: [service updateType isEmpty or: [service updateType includes: selector]]]
@@ -539,12 +545,16 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter [
 	"the update may know which client updates 
 	it wants us to care about. Respect that."
 
-	
-	[updates do: 
-			[:update |
-			(self shouldApply: selector forSelector: update) ifTrue: [update perform: selector with: presenter]]]
-			on: Error
-			do: [:ex | self halt]
+	[
+	updates do: [ :updateService |
+		(self shouldApply: selector forService: updateService) ifTrue: [
+			updateService perform: selector with: presenter ] ] ]
+		on: Error
+		do: [ :ex |
+			RowanServiceUpdater current logger newLoggingService logComment:
+				'RowanServiceUpdater>>#updatesPerform:presenter: - error! '
+				, ex printString.
+			self halt ]
 ]
 
 { #category : 'public' }
@@ -556,7 +566,7 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 	
 	[updates do: 
 			[:update |
-			(self shouldApply: selector forSelector: update)
+			(self shouldApply: selector forService: update)
 				ifTrue: 
 					[update
 						perform: selector
@@ -568,5 +578,8 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 
 { #category : 'public' }
 RowanServiceUpdater >> updatesReadyToApply [
-	updates isEmpty ifFalse: [self trigger: #updatesReadyToApply].
+
+	RowanServiceUpdater current logger newLoggingService logComment:
+		'RowanServiceUpdater>>#updatesReadyToApply'.
+	updates isEmpty ifFalse: [ self trigger: #updatesReadyToApply ]
 ]

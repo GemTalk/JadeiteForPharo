@@ -84,15 +84,6 @@ RowanService class >> templateClassName [
 	^#RowanService
 ]
 
-{ #category : 'public' }
-RowanService >> addCachedSymbols: unused [
-	
-]
-
-{ #category : 'public' }
-RowanService >> autoCommitUpdate: browser [
-]
-
 { #category : 'replication' }
 RowanService >> basicPrepareForReplication [
 	"don't call anything potentially recursive here"
@@ -107,10 +98,6 @@ RowanService >> basicReplicateFrom: newService [
 				ifTrue: [self instVarAt: index put: (newService instVarAt: index)]]
 ]
 
-{ #category : 'public' }
-RowanService >> breakpointSettingChanged: transcript [
-]
-
 { #category : 'private' }
 RowanService >> chooseModel: presenter using: browser [
 	| treeModel |
@@ -121,32 +108,6 @@ RowanService >> chooseModel: presenter using: browser [
 						reset]
 				ifFalse: [presenter model].
 	^treeModel
-]
-
-{ #category : 'public' }
-RowanService >> classCategoryUpdate: presenter [
-	
-]
-
-{ #category : 'public' }
-RowanService >> classCommentUpdate: presenter [  
-	
-	
-]
-
-{ #category : 'public' }
-RowanService >> classDefinitionUpdate: presenter [
-	
-]
-
-{ #category : 'public' }
-RowanService >> classHierarchyUpdate: presenter [
-	
-]
-
-{ #category : 'public' }
-RowanService >> classHierarchyUpdate: presenter browser: browser [
-
 ]
 
 { #category : 'public' }
@@ -170,26 +131,6 @@ RowanService >> classHierarchyUpdate: presenter browser: browser hierarchyServic
 	presenter expandAll. 
 ]
 
-{ #category : 'public' }
-RowanService >> classMethodsUpdate: presenter browser: browser [
-	
-]
-
-{ #category : 'public' }
-RowanService >> classUpdate: presenter [
-	
-]
-
-{ #category : 'public' }
-RowanService >> classesHierarchyUpdate: presenter [
-
-]
-
-{ #category : 'public' }
-RowanService >> classesUpdate: presenter browser: anObject [
-	
-]
-
 { #category : 'rsr' }
 RowanService >> cleanUpService [
 
@@ -197,13 +138,6 @@ RowanService >> cleanUpService [
 	updates := nil.
 	1 to: self class instSize do: [ :index |  
 	self instVarAt: index put: nil ]
-]
-
-{ #category : 'Init / Release' }
-RowanService >> clearCommand [
-
-	command := nil. 
-	self commandArgs: nil. 
 ]
 
 { #category : 'public' }
@@ -240,14 +174,6 @@ RowanService >> commandArgs: anObject [
 	commandArgs := anObject
 ]
 
-{ #category : 'public' }
-RowanService >> componentPackagesUpdate: presenter browser: browser [
-]
-
-{ #category : 'public' }
-RowanService >> componentsUpdate: presenter browser: browser [
-]
-
 { #category : 'accessing' }
 RowanService >> data [ 
 	"For printString of SpMorphicTreeTableDataSource"
@@ -274,20 +200,6 @@ RowanService >> debugPrintString [
 	ws := WriteStream on: String new.
 	self debugPrintOn: ws.
 	^ws contents
-]
-
-{ #category : 'public' }
-RowanService >> debuggerMethodSourceUpdate: presenter browser: browser [
-]
-
-{ #category : 'public' }
-RowanService >> dictionaryListUpdate: presenter [
-
-]
-
-{ #category : 'public' }
-RowanService >> dictionaryUpdate: presenter [
-	
 ]
 
 { #category : 'commands' }
@@ -318,6 +230,10 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommand [
 
 	| activeProcess newUIProcess |
+	command ifNil: [ RowanServiceUpdater current
+		logComment: 'RowanService>>#executeCommand - command isNil ', self printString ]. 
+	commandArgs ifNil: [ RowanServiceUpdater current
+		logComment: 'RowanService>>#executeCommand - commandArgs isNil ', self printString ]. 
 	activeProcess := Processor activeProcess.
 	[
 	| promise |
@@ -343,35 +259,33 @@ RowanService >> executeCommand [
 ]
 
 { #category : 'rsr' }
-RowanService >> executeCommandOnCompletion: completionBlock [
+RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
-	| promise |
-	completionBlock ifNil: [ ^self executeCommand ].
+	| promise theCompletionBlock |
+	command ifNil: [ RowanServiceUpdater current
+		logComment: 'RowanService>>#executeCommandOnCompletion:semaphore: - command isNil ', self printString ]. 
+	commandArgs ifNil: [ RowanServiceUpdater current
+		logComment: 'RowanService>>#executeCommandOnCompletion:semaphore: - commandArgs isNil ', self printString ]. 
+	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	promise := remoteSelf executeCommand.
 	promise
-		when: completionBlock
-		catch: [ :value | self raiseCompileErrorIfNeeded ]
+		when: theCompletionBlock
+		catch: [ :value |
+		[ self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
 ]
 
 { #category : 'rsr' }
-RowanService >> executeInSession: session onCompletion: completionBlock [
+RowanService >> executeInSession: session onCompletion: completionBlock semaphore: sem [
 
-	[self registerWith:
-		          session library] on: RsrAlreadyRegistered do:[:ex | ].
-	^ self executeCommandOnCompletion: completionBlock
+	[ self registerWith: session library ]
+		on: RsrAlreadyRegistered
+		do: [ :ex |  ].
+	^ self executeCommandOnCompletion: completionBlock semaphore: sem
 ]
 
 { #category : 'public' }
 RowanService >> filterUpdate: presenter browser: anObject [
 	
-]
-
-{ #category : 'Debugger' }
-RowanService >> frameListUpdate: aPresenter [
-]
-
-{ #category : 'public' }
-RowanService >> globalsUpdate: presenter [
 ]
 
 { #category : 'Init / Release' }
@@ -563,35 +477,6 @@ RowanService >> logString [
 	^ws contents
 ]
 
-{ #category : 'public' }
-RowanService >> methodFilterUpdate: presenter [
-	
-]
-
-{ #category : 'must not strip' }
-RowanService >> methodHistoryUpdated: historyBrowser [
-	
-]
-
-{ #category : 'public' }
-RowanService >> methodListUpdate: presenter browser: browser [
-]
-
-{ #category : 'public' }
-RowanService >> methodSourceUpdate: presenter browser: anObject [
-	
-]
-
-{ #category : 'public' }
-RowanService >> methodUpdate: presenter browser: anObject [
-	
-]
-
-{ #category : 'public' }
-RowanService >> methodsUpdate: presenter [
-	
-]
-
 { #category : 'accessing' }
 RowanService >> name [
 	^nil
@@ -606,23 +491,11 @@ RowanService >> notRowanizedPackageName [
 	^self class notRowanizedPackageName
 ]
 
-{ #category : 'public' }
-RowanService >> packageGroupUpdate: presenter browser: browser [
-]
-
 { #category : 'accessing' }
 RowanService >> packageServices [
 	"most services do not have packages"
 
 	^Array new
-]
-
-{ #category : 'public' }
-RowanService >> packageUpdate: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> packagesUpdate: presenter [
 ]
 
 { #category : 'public' }
@@ -724,28 +597,6 @@ RowanService >> printOn: aStream [
 	aStream nextPutAll: (self name ifNil: [nil printString])] on: Error do:[:ex | aStream nextPutAll: 'Error printing service name: '; print: ex]. 
 ]
 
-{ #category : 'Debugger' }
-RowanService >> processListUpdate: aPresenter [
-]
-
-{ #category : 'public' }
-RowanService >> projectPackagesUpdate: aPresenter browser: anObject [
-	
-]
-
-{ #category : 'public' }
-RowanService >> projectSelectionUpdate: aPresenter [
-
-]
-
-{ #category : 'public' }
-RowanService >> projectsUpdate: aPresenter [
-]
-
-{ #category : 'public' }
-RowanService >> projectsUpdate: presenter browser: browser [
-]
-
 { #category : 'rsr' }
 RowanService >> raiseCompileErrorIfNeeded [
 
@@ -790,24 +641,6 @@ RowanService >> removed: presenter [
 	presenter resetSelection
 ]
 
-{ #category : 'public' }
-RowanService >> removedClass: aPresenter [
-]
-
-{ #category : 'public' }
-RowanService >> removedProject: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> renamedClass: aClassService browser: anObject [
-	
-]
-
-{ #category : 'public' }
-RowanService >> renamedClassInHierarchy: presenter browser: anObject [
-	
-]
-
 { #category : 'replication' }
 RowanService >> replicateFrom: newService [
 	(newService class = self class and: [newService name = self name])
@@ -847,11 +680,6 @@ RowanService >> shouldUpdate: anObject [
 	shouldUpdate := anObject
 ]
 
-{ #category : 'double dispatch' }
-RowanService >> silentlyExpandHierarchyOneLevel: treeView [
-	
-]
-
 { #category : 'must not strip' }
 RowanService >> stonOn: stonWriter [
 	| instanceVariableNames |
@@ -869,54 +697,10 @@ RowanService >> stonOn: stonWriter [
 								ifNil: [self stonShouldWriteNilInstVars ifTrue: [dictionary at: each asSymbol put: nil]]]]]
 ]
 
-{ #category : 'public' }
-RowanService >> sunitMethodsUpdate: presenter browser: browser [
-]
-
-{ #category : 'public' }
-RowanService >> superclassListUpdate: presenter [
-	
-]
-
-{ #category : 'public' }
-RowanService >> testClasses: presenter browser: anObject [
-	
-]
-
-{ #category : 'public' }
-RowanService >> testPackages: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> testResultUpdate: presenter browser: anObject [
-	
-]
-
 { #category : 'printing' }
 RowanService >> toolTip [
 	^self displayString
 
-]
-
-{ #category : 'public' }
-RowanService >> updateBreakPoints: presenter browser: browser [
-]
-
-{ #category : 'public' }
-RowanService >> updateClassCategorySelectionsFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updateClassHierarchySelectionFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updateClassSelectionFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updateDictionarySelectionsFor: presenter [
-	
 ]
 
 { #category : 'actions' }
@@ -952,31 +736,6 @@ RowanService >> updateList: presenter whilePreservingSelections: theUpdates brow
 	presenter model beSorted
 ]
 
-{ #category : 'public' }
-RowanService >> updateMethodFilterSelectionFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updateMethodSelectionFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updatePackageSelectionsFor: presenter [
-	
-]
-
-{ #category : 'public' }
-RowanService >> updateSelectorFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updateSuperclassSelectionFor: presenter [
-]
-
-{ #category : 'public' }
-RowanService >> updateSymbols: unused [
-]
-
 { #category : 'accessing' }
 RowanService >> updateType [
 	^updateType
@@ -985,31 +744,6 @@ RowanService >> updateType [
 { #category : 'accessing' }
 RowanService >> updateType: anObject [
 	updateType := anObject
-]
-
-{ #category : 'public' }
-RowanService >> updateVariable: listPresenter debugger: anObject [
-	
-]
-
-{ #category : 'public' }
-RowanService >> updatedClass: aPresenter browser: browser [
-	
-]
-
-{ #category : 'public' }
-RowanService >> updatedClassDefinition: classDefinitionPresenter browser: browser [
-
-	
-	
-]
-
-{ #category : 'public' }
-RowanService >> updatedClassInHierarchy: aPresenter browser: projectBrowser [
-]
-
-{ #category : 'public' }
-RowanService >> updatedOneLevelInClassHierarchy: classHierarchyPresenter browser: projectBrowser [
 ]
 
 { #category : 'accessing' }
@@ -1022,14 +756,6 @@ RowanService >> updates [
 RowanService >> updates: anObject [
 
 	updates := anObject
-]
-
-{ #category : 'Debugger' }
-RowanService >> variableDataUpdate: aPresenter [
-]
-
-{ #category : 'Debugger' }
-RowanService >> variableListUpdate: aPresenter [
 ]
 
 { #category : 'public' }

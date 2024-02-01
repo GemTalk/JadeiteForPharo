@@ -226,7 +226,7 @@ RowanLoggingService >> logComment: aString [
 	[date := Date today.
 	time := Time now.
 	ws
-		cr;
+		lf;
 		nextPutAll: date shortString;
 		space;
 		nextPutAll: time printString;

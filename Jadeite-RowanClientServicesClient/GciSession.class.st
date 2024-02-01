@@ -133,6 +133,10 @@ GciSession >> serverPerform: unused with: stonString [
 	| services |
 	services := STON fromString: stonString.
 	services do: [ :service | 
+		service command ifNil: [ RowanServiceUpdater current
+		logComment: 'GciSession>>#serverPerform:with: - command isNil ', self printString ]. 
+		service commandArgs ifNil: [ RowanServiceUpdater current
+		logComment: 'GciSession>>#serverPerform:with: - commandArgs isNil ', self printString ].
 		service executeCommand
 		updates do:[:update | "handle update" ]]
 ]

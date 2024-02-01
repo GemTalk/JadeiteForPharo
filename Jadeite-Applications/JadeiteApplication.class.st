@@ -62,14 +62,13 @@ JadeiteApplication class >> commitTransactionInSession: session [
 	self
 		issueCommands: (Array with: browserService)
 		session: session
-		onCompletion: nil.
-	[ browserService updates isEmpty ] whileTrue:[(Delay forMilliseconds: 1) wait "wait on result - not many services depend directly on command result. Not sure if this should. "]. 
+		onCompletion: [ :unused | 
 	commitResult := browserService updates first answer. "should only get one update back"
 	commitResult
 		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
 		ifFalse: [
 		^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
-	JadeiteSound informationBeep
+	JadeiteSound informationBeep]
 ]
 
 { #category : 'constants' }

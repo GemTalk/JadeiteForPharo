@@ -162,7 +162,7 @@ RowanBrowserService >> printOn: aStream [
 
 { #category : 'accessing' }
 RowanBrowserService >> projects [
-	^projects sorted
+	^projects
 ]
 
 { #category : 'updates' }
