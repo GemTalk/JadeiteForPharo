@@ -31,10 +31,7 @@ RowanAnsweringService >> answer: anObject [
 RowanAnsweringService >> autoCommitIn: session [
 
 	command := #autoCommit.
-	self
-		issueCommands: (Array with: self)
-		session: session
-		onCompletion: nil.
+	RowanServiceUpdater current issueCommand: self session: session onCompletion: nil.
 	^ answer
 ]
 
@@ -43,7 +40,7 @@ RowanAnsweringService >> breakPointsAreEnabled: session [
 
 	command := #breakPointsAreEnabled.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -63,7 +60,7 @@ RowanAnsweringService >> canAccessServiceClasses: session [
 	command := #canAccessServiceClasses.
 	self commandArgs: Array new.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -75,7 +72,7 @@ RowanAnsweringService >> exec: string in: session [
 	command := #exec:.
 	commandArgs := Array with: string.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -89,7 +86,7 @@ RowanAnsweringService >> execReturningObject: string in: session [
 	command := #execReturningObject:.
 	commandArgs := Array with: string.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -100,7 +97,7 @@ RowanAnsweringService >> expressionSelector: string session: session [
 	command := #expressionSelector:.
 	commandArgs := Array with: string.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -111,7 +108,7 @@ RowanAnsweringService >> flipTranscriptIn: session [
 
 	command := #flipTranscript.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -138,7 +135,7 @@ RowanAnsweringService >> isTranscriptInstalledIn: session [
 
 	command := #transcriptInstalled.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -160,7 +157,7 @@ RowanAnsweringService >> needsCommit: session [
 	command := #needsCommit.
 	self commandArgs: Array new.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -193,7 +190,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices session: sessio
 					 (projectServices collect: [ :projectService |
 							  projectService name ])).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -205,7 +202,7 @@ RowanAnsweringService >> setAutoCommit: boolean for: session [
 	command := #setRemoteAutoCommit:.
 	self commandArgs: (Array with: boolean).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -217,7 +214,7 @@ RowanAnsweringService >> setBreakpointsEnabled: boolean session: session [
 	command := #setBreakPointsAreEnabled:.
 	commandArgs := Array with: boolean.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -237,7 +234,7 @@ RowanAnsweringService >> symbolExists: aSymbol session: session [
 	command := #symbolExists:.
 	commandArgs := Array with: aSymbol.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer
@@ -249,7 +246,7 @@ RowanAnsweringService >> symbolsMatching: string session: session [
 	command := #symbolsMatching:.
 	commandArgs := Array with: string.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ answer

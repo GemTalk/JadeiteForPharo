@@ -615,7 +615,10 @@ JadeiteSUnitPresenter >> updateClasses [
 	packageServices := packageListPresenter selections.
 	packageServices do: [ :packageService |
 		packageService command: #testClasses ].
-	self issueCommands: packageServices onCompletion: nil
+	RowanServiceUpdater current
+		issueCommands: packageServices
+		session: self gciSession
+		onCompletion: nil
 ]
 
 { #category : 'updates' }
@@ -627,7 +630,10 @@ JadeiteSUnitPresenter >> updateMethods [
 		service
 			updateAfterCommand: false;
 			command: #fastRefresh ].
-	self issueCommands: classServices onCompletion: nil.
+	RowanServiceUpdater current
+		issueCommands: classServices
+		session: self gciSession
+		onCompletion: nil.
 	classServices do: [ :service | service updateAfterCommand: true ].
 	^ self updateMethodsFrom: classServices
 ]

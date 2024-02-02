@@ -66,11 +66,14 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 	service := RowanQueryService
 		           command: #sendersOf:
 		           withArgs: (Array with: string asSymbol).
-	self issueCommands: (Array with: service) onCompletion: [ :unused |
-		shell := self openMethodListOn: service selecting: string.
-		shell updateCaptionFromSearchString:
-			service answer size printString , ' Senders of '
-			, string asString printString ]
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: [ :unused |
+			shell := self openMethodListOn: service selecting: string.
+			shell updateCaptionFromSearchString:
+				service answer size printString , ' Senders of '
+				, string asString printString ]
 ]
 
 { #category : 'queries' }
@@ -109,13 +112,13 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 		           command: #implementorsOf:
 		           withArgs: (Array with: string asSymbol).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: self gciSession
 		onCompletion: [ :unused |
-	shell := self openMethodListOn: service selecting: string.
-	shell updateCaptionFromSearchString:
-		service answer size printString , ' Implementors of '
-		, string asString printString]
+			shell := self openMethodListOn: service selecting: string.
+			shell updateCaptionFromSearchString:
+				service answer size printString , ' Implementors of '
+				, string asString printString ]
 ]
 
 { #category : 'queries' }
@@ -135,7 +138,7 @@ JadeiteMethodsTrait >> browseLiteralReferences: string [
 		           command: #literalReferences:
 		           withArgs: (Array with: string).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: self gciSession
 		onCompletion: nil.
 	shell := self openMethodListOn: service selecting: string.
@@ -196,7 +199,7 @@ JadeiteMethodsTrait >> browseMethodsContaining: string [
 		           command: #methodsContaining:
 		           withArgs: (Array with: string).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: self gciSession
 		onCompletion: nil.
 	shell := self openMethodListOn: service selecting: string.
@@ -335,15 +338,10 @@ JadeiteMethodsTrait >> initializeFullMethodListMenu [
 { #category : 'commands' }
 JadeiteMethodsTrait >> issueCommand: service onCompletion: completionBlock [
 
-	^ self issueCommands: (Array with: service) onCompletion: completionBlock
-]
-
-{ #category : 'commands' }
-JadeiteMethodsTrait >> issueCommands: services onCompletion: completionBlock [
-	RowanServiceUpdater current
-		issueCommands: services
-		session: self gciSession
-		onCompletion: completionBlock
+	^ RowanServiceUpdater current
+		  issueCommands: (Array with: service)
+		  session: self gciSession
+		  onCompletion: completionBlock
 ]
 
 { #category : 'constants' }

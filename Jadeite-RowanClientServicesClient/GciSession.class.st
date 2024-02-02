@@ -79,7 +79,7 @@ GciSession >> flipAutoCommit [
 		command: #flipAutoCommit;
 		commandArgs: Array new.
 	RowanServiceUpdater current
-		issueCommands: (Array with: autoCommitService)
+		issueCommand: autoCommitService
 		session: self
 		onCompletion: nil.
 	self autoCommit value: autoCommitService autoCommit
@@ -130,15 +130,17 @@ GciSession >> oopNil [
 GciSession >> serverPerform: unused with: stonString [
 	"Temporarily, unpack the STON string and use RSR for replication. 
 	We can possibly skip the creation of the STON string in the first place if RSR replication works"
+
 	| services |
 	services := STON fromString: stonString.
-	services do: [ :service | 
-		service command ifNil: [ RowanServiceUpdater current
-		logComment: 'GciSession>>#serverPerform:with: - command isNil ', self printString ]. 
-		service commandArgs ifNil: [ RowanServiceUpdater current
-		logComment: 'GciSession>>#serverPerform:with: - commandArgs isNil ', self printString ].
-		service executeCommand
-		updates do:[:update | "handle update" ]]
+	services do: [ :service |
+		RowanServiceUpdater current logger newLoggingService logComment:
+			'GciSession>>#serverPerform:with: - command '
+			, service command printString.
+		RowanServiceUpdater current logger newLoggingService logComment:
+			'GciSession>>#serverPerform:with: - commandArgs '
+			, service commandArgs printString.
+		service executeCommand updates do: [ :update | "handle update" ] ]
 ]
 
 { #category : 'Jade convenience' }

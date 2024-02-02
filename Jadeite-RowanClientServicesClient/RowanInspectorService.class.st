@@ -77,7 +77,7 @@ RowanInspectorService >> executeThenInspect: string context: anOop session: sess
 		command: #executeThenInspect:context:inWindow:;
 		commandArgs: (Array with: string with: anOop with: handle).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -94,7 +94,7 @@ RowanInspectorService >> executeThenInspect: string context: anOop session: sess
 				 with: anOop
 				 with: handle).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -137,7 +137,7 @@ RowanInspectorService >> inspect: oopOrObject session: session [
 		command: #inspect:;
 		commandArgs: (Array with: oop).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -150,7 +150,7 @@ RowanInspectorService >> inspect: theOop session: session inWindow: handle [
 		command: #inspect:inWindow:;
 		commandArgs: (Array with: oop with: handle).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -167,7 +167,7 @@ RowanInspectorService >> inspectBytes: oopOrObject session: session inWindow: ha
 		command: #inspectBytes:inWindow:;
 		commandArgs: (Array with: oop with: handle).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -290,7 +290,7 @@ RowanInspectorService >> nextIndexedVarsFrom: indexStart to: indexStop session: 
 		command: #nextIndexedVarsFrom:to:;
 		commandArgs: (Array with: indexStart with: indexStop).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	^ nextIndices
@@ -356,7 +356,7 @@ RowanInspectorService >> removeDynamicInstVarsNamed: dynamicInstVarNames session
 		command: #removeDynamicInstVars:;
 		commandArgs: (Array with: dynamicInstVarNames).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -368,7 +368,7 @@ RowanInspectorService >> removeIndexedInstVarsAt: indices session: session [
 		command: #removeIndexedInstVarsAt:;
 		commandArgs: (Array with: indices).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -380,7 +380,7 @@ RowanInspectorService >> removeKeys: keyOops session: session [
 		command: #removeKeys:;
 		commandArgs: (Array with: keyOops).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -392,7 +392,7 @@ RowanInspectorService >> removeOop: theOop session: session [
 		command: #removeOop:;
 		commandArgs: (Array with: theOop).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]

@@ -56,7 +56,7 @@ JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: s
 		           command: #instVarReaders:in:
 		           withArgs: (Array with: instVarName with: className).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: self gciSession
 		onCompletion: nil.
 	shell := self
@@ -86,7 +86,7 @@ JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: s
 		           command: #instVarWriters:in:
 		           withArgs: (Array with: instVarName with: className).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: self gciSession
 		onCompletion: [ :unused |
 			shell := self

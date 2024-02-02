@@ -35,7 +35,7 @@ RowanQueryService >> implementorsOfAll: selectors session: session [
 	command := #implementorsOfAll:.
 	commandArgs := Array with: selectors.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -61,7 +61,7 @@ RowanQueryService >> sendersOfAll: selectors session: session [
 	command := #sendersOfAll:.
 	commandArgs := Array with: selectors.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]

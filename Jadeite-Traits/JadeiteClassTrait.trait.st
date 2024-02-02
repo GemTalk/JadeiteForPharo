@@ -29,7 +29,7 @@ JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 		           command: #browseClassReferences:
 		           withArgs: (Array with: className).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: session
 		onCompletion: nil.
 	^ service

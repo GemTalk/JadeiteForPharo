@@ -40,10 +40,7 @@ JadeiteBrowserPresenter class >> browseSendersOf: string session: session [
 	service := RowanQueryService
 		           command: #sendersOf:
 		           withArgs: (Array with: string asSymbol).
-	self
-		issueCommands: (Array with: service)
-		session: session
-		onCompletion: nil.
+	self issueCommand: service session: session onCompletion: nil.
 	shell := self
 		         openMethodListOn: service
 		         selecting: string
@@ -279,7 +276,7 @@ JadeiteBrowserPresenter >> basicBrowseClassReferences: className session: sessio
 		           command: #browseClassReferences:
 		           withArgs: (Array with: className).
 	RowanServiceUpdater current
-		issueCommands: (Array with: service)
+		issueCommand: service
 		session: session
 		onCompletion: nil.
 	^ service
@@ -1334,7 +1331,7 @@ JadeiteBrowserPresenter >> findRemovedServices [
 					                   RowanServiceUpdater current activeServices
 						                   asArray).
 	RowanServiceUpdater current
-		issueCommands: (Array with: browserService)
+		issueCommand: browserService
 		session: self gciSession
 		onCompletion: nil
 ]
@@ -2600,7 +2597,7 @@ JadeiteBrowserPresenter >> refreshGlobalSelections [
 					                   RowanServiceUpdater current activeServices
 						                   asSet asArray).
 	RowanServiceUpdater current
-		issueCommands: (Array with: browserService)
+		issueCommand: browserService
 		session: self gciSession
 		onCompletion: nil.
 	self updateServices: RowanServiceUpdater current selectedServices

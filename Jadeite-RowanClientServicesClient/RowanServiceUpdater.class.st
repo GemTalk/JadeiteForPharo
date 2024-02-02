@@ -243,19 +243,27 @@ RowanServiceUpdater >> isLogging: boolean [
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session [
 
-	^ self
-		  issueCommands: (Array with: service)
-		  session: session
-		  onCompletion: nil
+	^ self issueCommand: service session: session onCompletion: nil
 ]
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
 
+	| services |
+	services := Array with: service.
+	Processor activeProcess == UIManager default uiProcess
+		ifTrue: [
+			[
+			self
+				issueDirectCommands: services
+				session: session
+				completionBlock: completionBlock ] fork ]
+		ifFalse: [
+			self
+				issueDirectCommands: services
+				session: session
+				completionBlock: completionBlock ].
 	^ self
-		  issueCommands: (Array with: service)
-		  session: session
-		  onCompletion: completionBlock
 ]
 
 { #category : 'commands' }

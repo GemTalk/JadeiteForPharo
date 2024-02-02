@@ -134,7 +134,7 @@ RowanBrowserService >> newProjectNamed: projectName session: session windowHandl
 		command: #newProjectNamed:windowHandle:;
 		commandArgs: (Array with: projectName with: handle).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]
@@ -207,10 +207,7 @@ RowanBrowserService >> registerWindow: handle rootObject: oop session: session [
 	self
 		command: #saveRootObject:windowHandle:;
 		commandArgs: (Array with: oop with: handle).
-	JadePresenter
-		issueCommands: (Array with: self)
-		session: session
-		onCompletion: nil
+	RowanServiceUpdater current issueCommand: self session: session onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -222,10 +219,7 @@ RowanBrowserService >> releaseWindow: handle session: session [
 	self
 		command: #releaseWindowHandle:;
 		commandArgs: (Array with: handle).
-	JadePresenter
-		issueCommands: (Array with: self)
-		session: session
-		onCompletion: nil
+	RowanServiceUpdater current issueCommand: self session: session onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -240,7 +234,7 @@ RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presen
 				 with: selectedProjectServices asSet asArray
 				 with: selectedServices).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: presenter gciSession
 		onCompletion: nil
 ]

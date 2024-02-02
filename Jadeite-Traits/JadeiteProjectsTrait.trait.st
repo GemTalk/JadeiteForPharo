@@ -150,7 +150,10 @@ JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 			nextPut: $);
 			space ].
 	projectServices do: [ :service | service command: #write ].
-	self issueCommands: projectServices onCompletion: nil.
+	RowanServiceUpdater current
+		issueCommands: projectServices
+		session: self gciSession
+		onCompletion: nil.
 	MessageBox notify: 'Projects ' , ws contents , ' written to disk'
 ]
 
@@ -477,7 +480,7 @@ JadeiteProjectsTrait >> pullFromGit [
 		 'It is recommended that you commit changes before doing a pulling projects - '
 		 , ws contents , ' -  from git. Really proceed?') ifFalse: [ ^ self ].
 	projectServices do: [ :service | service command: #pullFromGit ].
-	self issueCommands: projectServices onCompletion: nil
+	RowanServiceUpdater current issueCommands: projectServices session: self gciSession onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -508,7 +511,7 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 					                   RowanServiceUpdater current activeServices
 						                   asSet asArray).
 	RowanServiceUpdater current
-		issueCommands: (Array with: browserService)
+		issueCommand: browserService
 		session: self gciSession
 		onCompletion: nil.
 	self updateServices: RowanServiceUpdater current selectedServices

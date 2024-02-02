@@ -66,8 +66,8 @@ JadeiteTestResource >> cloneRowanSample1 [
 		service
 			command: #newGitProject:root:useSsh:;
 			commandArgs: (Array with: sample1Path with: root with: true).
-		JadePresenter
-			issueCommands: (Array with: service)
+		RowanServiceUpdater current
+			issueCommand: service
 			session: GciSession current
 			onCompletion: nil ]
 ]
@@ -219,8 +219,8 @@ JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHom
 				 with: projectsHomePath
 				 with: attributes
 				 with: componentNames).
-	JadePresenter
-		issueCommands: (Array with: projectService)
+	RowanServiceUpdater current
+		issueCommand: projectService
 		session: self session
 		onCompletion: nil
 ]
@@ -309,7 +309,7 @@ JadeiteTestResource >> refreshGlobalSelections [
 					                   RowanServiceUpdater current activeServices
 						                   asSet asArray).
 	RowanServiceUpdater current
-		issueCommands: (Array with: browserService)
+		issueCommand: browserService
 		session: self gciSession
 		onCompletion: nil.
 	self updateServices: RowanServiceUpdater current selectedServices
@@ -323,8 +323,8 @@ JadeiteTestResource >> refreshProjectNamed: projectName [
 	projectService
 		command: #update;
 		commandArgs: nil.
-	JadePresenter
-		issueCommands: (Array with: projectService)
+	RowanServiceUpdater current
+		issueCommand: projectService
 		session: self session
 		onCompletion: nil
 ]
@@ -337,8 +337,8 @@ JadeiteTestResource >> reloadProjectNamed: projectName [
 	projectService
 		command: #reloadProject;
 		commandArgs: nil.
-	JadePresenter
-		issueCommands: (Array with: projectService)
+	RowanServiceUpdater current
+		issueCommand: projectService
 		session: self session
 		onCompletion: nil
 ]

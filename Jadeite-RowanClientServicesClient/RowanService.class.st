@@ -230,10 +230,10 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommand [
 
 	| activeProcess newUIProcess |
-	command ifNil: [ RowanServiceUpdater current
-		logComment: 'RowanService>>#executeCommand - command isNil ', self printString ]. 
-	commandArgs ifNil: [ RowanServiceUpdater current
-		logComment: 'RowanService>>#executeCommand - commandArgs isNil ', self printString ]. 
+	RowanServiceUpdater current logger newLoggingService 
+		logComment: 'RowanService>>#executeCommand - command ', command printString. 
+	RowanServiceUpdater current logger newLoggingService
+		logComment: 'RowanService>>#executeCommand - commandArgs ', commandArgs printString. 
 	activeProcess := Processor activeProcess.
 	[
 	| promise |
@@ -262,10 +262,10 @@ RowanService >> executeCommand [
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock |
-	command ifNil: [ RowanServiceUpdater current
-		logComment: 'RowanService>>#executeCommandOnCompletion:semaphore: - command isNil ', self printString ]. 
-	commandArgs ifNil: [ RowanServiceUpdater current
-		logComment: 'RowanService>>#executeCommandOnCompletion:semaphore: - commandArgs isNil ', self printString ]. 
+	RowanServiceUpdater current logger newLoggingService logComment:
+		self class name, '>>#executeCommandOnCompletion:semaphore: - command '
+		, command printString, ' - commandArgs '
+		, commandArgs printString, ' - service id ', self id printString.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	promise := remoteSelf executeCommand.
 	promise
@@ -401,10 +401,7 @@ RowanService >> isUpdatableService [
 { #category : 'commands' }
 RowanService >> issueCommand: service session: session [
 
-	^ self
-		  issueCommands: (Array with: service)
-		  session: session
-		  onCompletion: nil
+	^ self issueCommand: service session: session onCompletion: nil
 ]
 
 { #category : 'commands' }
@@ -711,7 +708,7 @@ RowanService >> updateForSession: session [
 		command: #update;
 		commandArgs: Array new.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]

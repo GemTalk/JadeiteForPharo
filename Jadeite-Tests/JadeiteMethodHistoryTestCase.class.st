@@ -18,8 +18,8 @@ JadeiteMethodHistoryTestCase >> removeMethodHistoryFor: methodService [
 			                    (Array with:
 					                     self methodListPresenter selections first);
 		                    yourself.
-	JadePresenter
-		issueCommands: (Array with: answeringService)
+	RowanServiceUpdater current
+		issueCommand: answeringService
 		session: session
 		onCompletion: nil.
 	self projectsPresenter removeMethods:

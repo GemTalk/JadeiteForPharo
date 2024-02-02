@@ -795,7 +795,7 @@ JadeiteInspector >> objectIsVariable [
 	| answeringService |
 	model command: #isVariable.
 	answeringService := RowanServiceUpdater current
-		                    issueCommands: (Array with: self)
+		                    issueCommand: self
 		                    session: gciSession
 		                    onCompletion: nil.
 	^ answeringService answer

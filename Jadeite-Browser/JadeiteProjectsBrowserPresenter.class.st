@@ -843,7 +843,10 @@ JadeiteProjectsBrowserPresenter >> removeMethods: classServices [
 		classService
 			command: #removeMethods:;
 			commandArgs: (Array with: methodListPresenter selections) ].
-	self issueCommands: classServices onCompletion: nil
+	RowanServiceUpdater current
+		issueCommands: classServices
+		session: self gciSession
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

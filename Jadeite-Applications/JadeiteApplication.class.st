@@ -34,10 +34,7 @@ JadeiteApplication class >> abortTransactionInSession: session [
 	browserService := RowanBrowserService new
 		                  command: #abortTransactionAndUpdateServices:;
 		                  commandArgs: (Array with: services).
-	self
-		issueCommands: (Array with: browserService)
-		session: session
-		onCompletion: nil.
+	self issueCommand: browserService session: session onCompletion: nil.
 	self setInTransaction: RowanAnsweringService new session: session.
 	self todo: [ JadePresenter trigger: #abortedTransaction ].
 	UIManager default inform: 'Abort succeeded'.
@@ -60,15 +57,15 @@ JadeiteApplication class >> commitTransactionInSession: session [
 		                  command: #commitTransaction;
 		                  commandArgs: Array new.
 	self
-		issueCommands: (Array with: browserService)
+		issueCommand: browserService
 		session: session
-		onCompletion: [ :unused | 
-	commitResult := browserService updates first answer. "should only get one update back"
-	commitResult
-		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
-		ifFalse: [
-		^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
-	JadeiteSound informationBeep]
+		onCompletion: [ :unused |
+			commitResult := browserService updates first answer. "should only get one update back"
+			commitResult
+				ifTrue: [ UIManager default inform: 'Commit succeeded' ]
+				ifFalse: [
+				^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
+			JadeiteSound informationBeep ]
 ]
 
 { #category : 'constants' }
@@ -86,15 +83,6 @@ JadeiteApplication class >> inTransaction [
 { #category : 'added manually from Dolphin' }
 JadeiteApplication class >> inTransaction: aBoolean [
 	InTransaction := aBoolean
-]
-
-{ #category : 'added manually from Dolphin' }
-JadeiteApplication class >> issueCommands: services session: session onCompletion: completionBlock [
-
-	^ RowanServiceUpdater current
-		  issueCommands: services
-		  session: session
-		  onCompletion: completionBlock
 ]
 
 { #category : 'instance creation' }
@@ -136,7 +124,7 @@ JadeiteApplication >> abortTransaction [
 		                  command: #abortTransactionAndUpdateServices:;
 		                  commandArgs: (Array with: services).
 	RowanServiceUpdater current
-		issueCommands: (Array with: browserService)
+		issueCommand: browserService
 		session: gciSession
 		onCompletion: nil.
 	self setInTransaction: RowanAnsweringService new session: gciSession.

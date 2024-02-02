@@ -342,7 +342,10 @@ RowanSystemBrowserPresenter >> updateMethodReferences: displayArrays [
 	services do: [ :service |
 		service meta: self isClassSideSelected.
 		service command: #allReferences ].
-	self issueCommands: services onCompletion: nil.
+	RowanServiceUpdater current
+		issueCommands: services
+		session: self gciSession
+		onCompletion: nil.
 	^ services
 ]
 

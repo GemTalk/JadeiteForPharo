@@ -376,16 +376,10 @@ JadeiteAbstractTestCase >> isSampleProject1Loaded [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> issueCommand: service onCompletion: anObject [
 
-	^ self issueCommands: (Array with: service) onCompletion: nil
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> issueCommands: services onCompletion: completionBlock [
-
-	^ JadePresenter
-		  issueCommands: services
+	^ RowanServiceUpdater current
+		  issueCommands: (Array with: service)
 		  session: session
-		  onCompletion: completionBlock
+		  onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -552,8 +546,8 @@ JadeiteAbstractTestCase >> reloadProjectNamed: projectName [
 	projectService
 		command: #reloadProject;
 		commandArgs: nil.
-	JadePresenter
-		issueCommands: (Array with: projectService)
+	RowanServiceUpdater current
+		issueCommand: projectService
 		session: session
 		onCompletion: nil
 ]

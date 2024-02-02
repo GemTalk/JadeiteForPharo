@@ -706,7 +706,7 @@ RowanClassService >> saveMethod: source category: category session: session [
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: source with: category).
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil
 ]

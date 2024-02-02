@@ -94,7 +94,7 @@ RowanProjectService >> basicChangesUsing: session [
 	| operations |
 	command := #changes.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: nil.
 	operations := OrderedCollection new.
@@ -110,7 +110,7 @@ RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock 
 	| operations |
 	command := #changes.
 	RowanServiceUpdater current
-		issueCommands: (Array with: self)
+		issueCommand: self
 		session: session
 		onCompletion: [ :unused |
 			operations := OrderedCollection new.
