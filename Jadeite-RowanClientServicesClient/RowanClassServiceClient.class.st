@@ -2,10 +2,23 @@ Class {
 	#name : 'RowanClassServiceClient',
 	#superclass : 'RowanClassService',
 	#instVars : [
-		'subclassServices'
+		'subclassServices',
+		'inCommand'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> inCommand [
+
+	^ inCommand
+]
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> inCommand: anObject [
+
+	inCommand := anObject
+]
 
 { #category : 'initialization' }
 RowanClassServiceClient >> initialize [

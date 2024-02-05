@@ -963,17 +963,3 @@ JadeiteConsole >> transactionMode: aSymbol [
 JadeiteConsole >> updateProjectPackages [
 	"no op for project list"
 ]
-
-{ #category : 'actions' }
-JadeiteConsole >> updateProjects [
-
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService command: #updateProjects.
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: gciSession
-		onCompletion: [ :anObject |
-			projectListPresenter items:
-				(self sortedProjectsFrom: browserService projects) ]
-]

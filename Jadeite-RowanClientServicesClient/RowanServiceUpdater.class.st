@@ -14,7 +14,9 @@ Class {
 		'applyingUpdates',
 		'breakpointsEnabled',
 		'returnedServices',
-		'postCompletionBlock'
+		'postCompletionBlock',
+		'serviceQueue',
+		'queueProcess'
 	],
 	#classVars : [
 		'Current'
@@ -24,9 +26,11 @@ Class {
 
 { #category : 'accessing' }
 RowanServiceUpdater class >> clearCurrent [
-"
+	"
 	RowanServiceUpdater clearCurrent.
 "
+
+	Current ifNotNil: [ :updater | updater stopCommandProcessor ].
 	Current := nil
 ]
 
@@ -85,8 +89,6 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"
 
-	RowanServiceUpdater current logger newLoggingService logComment:
-		'RowanServiceUpdater>>#applyUpdatesFromReturnedServices:'.
 	self applyUpdateWhile: [ "updates removeAll: updates."
 		updates addAll: aCollection.
 		self updatesReadyToApply ]
@@ -124,6 +126,32 @@ RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion
 		sem wait ].
 	self todo: [ session releaseAllOops ].
 	^ updateResult
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
+
+	| sem updateResult updateAndCompleteBlock |
+	nextQueueElement service
+		command: nextQueueElement command;
+		commandArgs: nextQueueElement commandArgs.
+	nextQueueElement service prepareForReplication.
+	sem := Semaphore new.
+	updateAndCompleteBlock := [ :aService |
+	                          [
+	                          updateResult := self
+		                                          applyUpdatesFromReturnedServices:
+		                                          nextQueueElement service
+			                                          returnedServices.
+	                          nextQueueElement completionBlock ifNotNil: [
+		                          :block | block value: aService ] ]
+		                          ensure: [ sem signal ] ].
+
+	nextQueueElement service
+		executeInSession: nextQueueElement service gciSession
+		onCompletion: updateAndCompleteBlock
+		semaphore: sem.
+	^ sem wait
 ]
 
 { #category : 'private' }
@@ -211,6 +239,8 @@ RowanServiceUpdater >> initialize [
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
+	serviceQueue := AtomicSharedQueue new.
+	self startCommandProcessor
 ]
 
 { #category : 'initialization' }
@@ -248,22 +278,40 @@ RowanServiceUpdater >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
+	"priority 0 - top priority (debugger) 
+	priority 1 - services sent from other service's commands: 
+	priority 2 - ui services initiated from the user"
 
-	| services |
-	services := Array with: service.
-	Processor activeProcess == UIManager default uiProcess
-		ifTrue: [
-			[
-			self
-				issueDirectCommands: services
-				session: session
-				completionBlock: completionBlock ] fork ]
-		ifFalse: [
-			self
-				issueDirectCommands: services
-				session: session
-				completionBlock: completionBlock ].
-	^ self
+	| queueElement |
+	queueElement := RowanServiceQueueElement new
+		                service: service;
+		                completionBlock: completionBlock;
+		                command: service command;
+		                commandArgs: service commandArgs.
+
+	Processor activeProcess == UIManager default uiProcess ifTrue: [
+		queueElement priority: 2 ].
+	Processor activeProcess == RowanServiceUpdater current queueProcess
+		ifTrue: [ queueElement priority: 1 ].
+	serviceQueue nextPut: queueElement
+]
+
+{ #category : 'commands' }
+RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock priority: priority [
+	"priority 0 - top priority (debugger) 
+	priority 1 - services sent from other service's commands: 
+	priority 2 - ui services initiated from the user"
+
+	| thePriority |
+	thePriority := priority ifNil: [
+		               Processor activeProcess
+		               == UIManager default uiProcess
+			               ifTrue: [ 2 ]
+			               ifFalse: [ 1 ] ].
+	serviceQueue nextPut: (RowanServiceQueueElement new
+			 service: service;
+			 priority: thePriority;
+			 completionBlock: completionBlock)
 ]
 
 { #category : 'commands' }
@@ -344,6 +392,21 @@ RowanServiceUpdater >> loggingService [
 	^logger loggingService
 ]
 
+{ #category : 'service queue' }
+RowanServiceUpdater >> nextQueueElement [
+
+	#( 0 1 2 ) do: [ :priority |
+		(self nextQueueElementWithPriority: priority) ifNotNil: [ :e | ^ e ] ].
+	^ nil
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> nextQueueElementWithPriority: priority [
+
+	^ serviceQueue nextOrNilSuchThat: [ :queueElement |
+		  queueElement priority = priority ]
+]
+
 { #category : 'private' }
 RowanServiceUpdater >> performUpdate: updateBlock with: selector [
 	updates do: 
@@ -354,6 +417,25 @@ RowanServiceUpdater >> performUpdate: updateBlock with: selector [
 					[:type |
 					(type == selector or: [type isEmpty or: [type includes: selector]])
 						ifTrue: [updateBlock value: update]]]
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> processQueueElement: nextQueueElement [
+	"don't issue multiple commands from the same service simultaneously"
+	nextQueueElement service inCommand critical: [
+		self basicProcessQueueElement: nextQueueElement ]
+]
+
+{ #category : 'accessing' }
+RowanServiceUpdater >> queueProcess [
+
+	^ queueProcess
+]
+
+{ #category : 'accessing' }
+RowanServiceUpdater >> queueProcess: anObject [
+
+	^ queueProcess := anObject
 ]
 
 { #category : 'public' }
@@ -483,9 +565,33 @@ RowanServiceUpdater >> shouldGetNewLoggerGroup: boolean [
 	logger shouldGetNewLoggerGroup: boolean
 ]
 
+{ #category : 'service queue' }
+RowanServiceUpdater >> startCommandProcessor [
+
+	queueProcess := [
+	                [
+	                | nextQueueElement |
+	                nextQueueElement := self nextQueueElement.
+	                nextQueueElement ifNotNil: [
+		                nextQueueElement priority = 2
+			                ifTrue: [
+			                self processQueueElement: nextQueueElement ]
+			                ifFalse: [
+			                [ self processQueueElement: nextQueueElement ] fork ] ]
+			                repeat ] ] fork
+]
+
 { #category : 'logging' }
 RowanServiceUpdater >> startLogging [
 	logger startLogging
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> stopCommandProcessor [
+
+	queueProcess ifNotNil: [
+		queueProcess terminate.
+		queueProcess := nil ]
 ]
 
 { #category : 'logging' }

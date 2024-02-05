@@ -230,10 +230,6 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommand [
 
 	| activeProcess newUIProcess |
-	RowanServiceUpdater current logger newLoggingService 
-		logComment: 'RowanService>>#executeCommand - command ', command printString. 
-	RowanServiceUpdater current logger newLoggingService
-		logComment: 'RowanService>>#executeCommand - commandArgs ', commandArgs printString. 
 	activeProcess := Processor activeProcess.
 	[
 	| promise |
@@ -288,9 +284,22 @@ RowanService >> filterUpdate: presenter browser: anObject [
 	
 ]
 
+{ #category : 'inCommand' }
+RowanService >> inCommand [
+	"return self for subclasses that don't implement inCommand"
+]
+
+{ #category : 'inCommand' }
+RowanService >> inCommand: semaphore [
+
+	"do nothing - only some subclasses implement"
+]
+
 { #category : 'Init / Release' }
 RowanService >> initialize [
-	commandArgs := Array new
+
+	commandArgs := Array new.
+	self inCommand: Semaphore new. 
 ]
 
 { #category : 'Init / Release' }
@@ -677,6 +686,12 @@ RowanService >> shouldUpdate: anObject [
 	shouldUpdate := anObject
 ]
 
+{ #category : 'inCommand' }
+RowanService >> signal [ 
+
+	" do nothing "
+]
+
 { #category : 'must not strip' }
 RowanService >> stonOn: stonWriter [
 	| instanceVariableNames |
@@ -753,6 +768,12 @@ RowanService >> updates [
 RowanService >> updates: anObject [
 
 	updates := anObject
+]
+
+{ #category : 'inCommand' }
+RowanService >> wait [ 
+
+	"do nothing"
 ]
 
 { #category : 'public' }

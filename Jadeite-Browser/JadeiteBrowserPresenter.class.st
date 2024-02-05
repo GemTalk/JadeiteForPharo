@@ -3722,21 +3722,6 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 	projectReadMeTab value: service answer replaceLfWithCrLf
 ]
 
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> updateProjects [
-	"updates"
-
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService command: #updateProjects.
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: gciSession
-		onCompletion: [:anObject |
-			browserService projects ifNotNil: [ :projects |
-				projectListPresenter items: (self sortedProjectsFrom: projects) ] ]
-]
-
 { #category : 'tab labels' }
 JadeiteBrowserPresenter >> updateSystemTab [
 	| projectTabLabel | 

@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanFileServiceClient',
 	#superclass : 'RowanFileService',
 	#instVars : [
-		'session'
+		'session',
+		'inCommand'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
@@ -12,6 +13,18 @@ RowanFileServiceClient >> fileIn [
 	command := #fileIn:.
 	commandArgs := Array with: path.
 	self issueFileServiceCommand
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> inCommand [
+
+	^ inCommand
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> inCommand: anObject [
+
+	inCommand := anObject
 ]
 
 { #category : 'commands' }

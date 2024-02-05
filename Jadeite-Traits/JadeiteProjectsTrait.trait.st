@@ -557,3 +557,19 @@ JadeiteProjectsTrait >> unloadProject [
 	self basicUnloadProjects:
 		(self projectListPresenter selections collect: [ :service | service name ])
 ]
+
+{ #category : 'commands' }
+JadeiteProjectsTrait >> updateProjects [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #updateProjects;
+		commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: self gciSession
+		onCompletion: [ :anObject |
+			self projectListPresenter items:
+				(self sortedProjectsFrom: browserService projects) ]
+]
