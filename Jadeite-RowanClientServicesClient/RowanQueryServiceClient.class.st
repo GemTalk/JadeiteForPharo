@@ -18,7 +18,7 @@ RowanQueryServiceClient >> displayName [
 { #category : 'accessing' }
 RowanQueryServiceClient >> inCommand [
 
-	^ inCommand
+	^ inCommand ifNil: [ inCommand := Semaphore forMutualExclusion ]
 ]
 
 { #category : 'accessing' }

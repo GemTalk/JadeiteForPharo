@@ -299,7 +299,7 @@ RowanService >> inCommand: semaphore [
 RowanService >> initialize [
 
 	commandArgs := Array new.
-	self inCommand: Semaphore new. 
+	self inCommand: Semaphore forMutualExclusion. 
 ]
 
 { #category : 'Init / Release' }

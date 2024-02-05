@@ -94,44 +94,14 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 		self updatesReadyToApply ]
 ]
 
-{ #category : 'commands' }
-RowanServiceUpdater >> basicIssueCommand: services session: session onCompletion: completionBlock [
-
-	| updateResult loggedServices newLoggingService |
-	self todo: [
-		newLoggingService := logger newServiceLoggingService addServices:
-			                     services.
-		self logSentServices: services.
-		loggedServices := services asOrderedCollection
-			                  addFirst: newLoggingService;
-			                  yourself ].
-	services do: [ :service |
-		| updateAndCompleteBlock sem inCompletionBlock |
-		service prepareForReplication.
-		sem := Semaphore new.
-		inCompletionBlock := false. 
-		updateAndCompleteBlock := [ :aService |
-		                          [
-										inCompletionBlock := true. 
-		                          updateResult := self
-			                                          applyUpdatesFromReturnedServices:
-			                                          service returnedServices.
-		                          completionBlock ifNotNil: [
-			                          completionBlock value: aService ] ]
-			                          ensure: [ sem signal ] ].
-		service
-			executeInSession: session
-			onCompletion: updateAndCompleteBlock
-			semaphore: sem.
-		sem wait ].
-	self todo: [ session releaseAllOops ].
-	^ updateResult
-]
-
 { #category : 'service queue' }
 RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 
 	| sem updateResult updateAndCompleteBlock |
+	RowanServiceUpdater current logger newLoggingService logComment:
+		'RowanServiceUpdater>>#basicProcessQueueElement: '
+		, nextQueueElement service command printString , ' '
+		, nextQueueElement service commandArgs printString.
 	nextQueueElement service
 		command: nextQueueElement command;
 		commandArgs: nextQueueElement commandArgs.
@@ -148,17 +118,18 @@ RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 		                          ensure: [ sem signal ] ].
 
 	nextQueueElement service
-		executeInSession: nextQueueElement service gciSession
+		executeInSession: GciSession current
 		onCompletion: updateAndCompleteBlock
 		semaphore: sem.
-	^ sem wait
+	sem wait
 ]
 
 { #category : 'private' }
 RowanServiceUpdater >> basicUpdateServices: services session: session [
 
-	services do: [ :service | service command: #update ].
-	^ self basicIssueCommand: services session: session onCompletion: nil
+	services do: [ :service |
+		service command: #update.
+		self issueCommand: service session: session onCompletion: nil ]
 ]
 
 { #category : 'accessing' }
@@ -297,52 +268,13 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock priority: priority [
-	"priority 0 - top priority (debugger) 
-	priority 1 - services sent from other service's commands: 
-	priority 2 - ui services initiated from the user"
-
-	| thePriority |
-	thePriority := priority ifNil: [
-		               Processor activeProcess
-		               == UIManager default uiProcess
-			               ifTrue: [ 2 ]
-			               ifFalse: [ 1 ] ].
-	serviceQueue nextPut: (RowanServiceQueueElement new
-			 service: service;
-			 priority: thePriority;
-			 completionBlock: completionBlock)
-]
-
-{ #category : 'commands' }
 RowanServiceUpdater >> issueCommands: services session: session onCompletion: completionBlock [
 
-	Processor activeProcess == UIManager default uiProcess
-		ifTrue: [
-			[
-			self
-				issueDirectCommands: services
-				session: session
-				completionBlock: completionBlock ] fork ]
-		ifFalse: [
-			self
-				issueDirectCommands: services
-				session: session
-				completionBlock: completionBlock ]
-]
-
-{ #category : 'commands' }
-RowanServiceUpdater >> issueDirectCommands: services session: session completionBlock: completionBlock [
-
-	^ self inUpdateWhile: [
-		  | commandResult |
-		  session ifNotNil: [
-			  commandResult := self
-				                   basicIssueCommand: services
-				                   session: session
-				                   onCompletion: completionBlock.
-			  RowanServiceUpdater current logComment:
-				  'Released inUpdate semaphore' ] ]
+	services do: [ :service |
+		self
+			issueCommand: service
+			session: session
+			onCompletion: completionBlock ]
 ]
 
 { #category : 'logging' }
@@ -395,8 +327,10 @@ RowanServiceUpdater >> loggingService [
 { #category : 'service queue' }
 RowanServiceUpdater >> nextQueueElement [
 
-	#( 0 1 2 ) do: [ :priority |
+	#( nil 1 2 ) do: [ :priority |
 		(self nextQueueElementWithPriority: priority) ifNotNil: [ :e | ^ e ] ].
+	RowanServiceUpdater current logger newLoggingService logComment:
+		'RowanServiceUpdater>>#nextQueueElement - no element'. 
 	^ nil
 ]
 
@@ -572,13 +506,12 @@ RowanServiceUpdater >> startCommandProcessor [
 	                [
 	                | nextQueueElement |
 	                nextQueueElement := self nextQueueElement.
-	                nextQueueElement ifNotNil: [
-		                nextQueueElement priority = 2
-			                ifTrue: [
-			                self processQueueElement: nextQueueElement ]
-			                ifFalse: [
-			                [ self processQueueElement: nextQueueElement ] fork ] ]
-			                repeat ] ] fork
+	                nextQueueElement ifNotNil: [ :e |
+		                e priority = 2
+			                ifTrue: [ self processQueueElement: e ]
+			                ifFalse: [ [ self processQueueElement: e ] fork ] ].
+	                serviceQueue waitForNewItems ] repeat ] forkNamed:
+		                'Service Queue'
 ]
 
 { #category : 'logging' }

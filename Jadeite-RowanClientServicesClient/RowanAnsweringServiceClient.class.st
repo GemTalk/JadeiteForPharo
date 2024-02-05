@@ -10,7 +10,7 @@ Class {
 { #category : 'accessing' }
 RowanAnsweringServiceClient >> inCommand [
 
-	^ inCommand
+	^ inCommand ifNil: [ inCommand := Semaphore forMutualExclusion ]
 ]
 
 { #category : 'accessing' }
