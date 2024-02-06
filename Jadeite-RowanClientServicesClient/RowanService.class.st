@@ -258,10 +258,7 @@ RowanService >> executeCommand [
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock |
-	RowanServiceUpdater current logger newLoggingService logComment:
-		self class name, '>>#executeCommandOnCompletion:semaphore: - command '
-		, command printString, ' - commandArgs '
-		, commandArgs printString, ' - service id ', self id printString.
+	self logCommand: thisContext printString.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	promise := remoteSelf executeCommand.
 	promise
@@ -426,6 +423,18 @@ RowanService >> issueCommands: services session: session onCompletion: anObject 
 RowanService >> jadeiteShouldNotUpdateOnClient [
 	"something bad probably happened on the server in the services infrastructure
 	as the server told us not to do a client update. "
+]
+
+{ #category : 'rsr' }
+RowanService >> logCommand: contextPrintString [
+
+	self logCommand: contextPrintString with: String new
+]
+
+{ #category : 'rsr' }
+RowanService >> logCommand: contextPrintString with: additionalLogging [
+	RowanServiceUpdater current logger newLoggingService logComment:
+		contextPrintString , ' ' , self printString, ' ', additionalLogging
 ]
 
 { #category : 'printing' }
@@ -598,9 +607,24 @@ RowanService >> prepareForReplication [
 { #category : 'printing' }
 RowanService >> printOn: aStream [
 
-	super printOn: aStream. 
-	[aStream nextPut: $:. 
-	aStream nextPutAll: (self name ifNil: [nil printString])] on: Error do:[:ex | aStream nextPutAll: 'Error printing service name: '; print: ex]. 
+	[
+	aStream
+		nextPutAll: self class name;
+		space;
+		nextPut: ${;
+		nextPutAll: self identityHash printString;
+		nextPut: $};
+		space;
+		nextPut: $(;
+		nextPutAll: command printString;
+		nextPutAll: '->';
+		nextPutAll: commandArgs printString;
+		nextPut: $) ]
+		on: Error
+		do: [ :ex |
+			aStream
+				nextPutAll: 'Error printing service name: ';
+				print: ex ]
 ]
 
 { #category : 'rsr' }

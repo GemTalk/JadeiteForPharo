@@ -163,18 +163,6 @@ RowanAnsweringService >> needsCommit: session [
 	^ answer
 ]
 
-{ #category : 'printing' }
-RowanAnsweringService >> printOn: stream [
-	stream
-		nextPutAll: self class name;
-		space;
-		nextPut: $(;
-		nextPutAll: command printString;
-		nextPutAll: '->';
-		nextPutAll: commandArgs printString;
-		nextPut: $)
-]
-
 { #category : 'commands' }
 RowanAnsweringService >> projectRepositoryRoots: projectServices [
 

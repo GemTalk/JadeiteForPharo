@@ -3024,9 +3024,9 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 	answeringService
 		command: #packageNamed:;
 		commandArgs: (Array with: packageName).
-	self issueCommand: answeringService onCompletion: nil.
-	service := answeringService answer.
-	service selectIn: self
+	self issueCommand: answeringService onCompletion: [ :unused |
+		service := answeringService answer.
+		service selectIn: self ]
 ]
 
 { #category : 'selections' }

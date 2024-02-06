@@ -100,10 +100,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 
 	| sem updateResult updateAndCompleteBlock |
-	RowanServiceUpdater current logger newLoggingService logComment:
-		'RowanServiceUpdater>>#basicProcessQueueElement: '
-		, nextQueueElement service command printString , ' '
-		, nextQueueElement service commandArgs printString.
+	nextQueueElement service logCommand: thisContext printString.
 	nextQueueElement service
 		command: nextQueueElement command;
 		commandArgs: nextQueueElement commandArgs.
@@ -111,10 +108,16 @@ RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 	sem := Semaphore new.
 	updateAndCompleteBlock := [ :aService |
 	                          [
+	                          nextQueueElement service
+		                          logCommand: '[RowanServiceUpdater>>#basicProcessQueueElement:]'
+		                          with: 'about to process updates'.
 	                          updateResult := self
 		                                          applyUpdatesFromReturnedServices:
 		                                          nextQueueElement service
 			                                          returnedServices.
+	                          nextQueueElement service
+		                          logCommand: '[RowanServiceUpdater>>#basicProcessQueueElement:]'
+		                          with: 'about to run completion block'.
 	                          nextQueueElement completionBlock ifNotNil: [
 		                          :block | block value: aService ] ]
 		                          ensure: [ sem signal ] ].
@@ -128,10 +131,13 @@ RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 
 { #category : 'private' }
 RowanServiceUpdater >> basicUpdateServices: services session: session [
-
+	"updates always must complete before continuing."
 	services do: [ :service |
+		| updateSemaphore |
+		updateSemaphore := Semaphore new. 
 		service command: #update.
-		self issueCommand: service session: session onCompletion: nil ]
+		self issueCommand: service session: session onCompletion: [:unused | updateSemaphore signal]. 
+		updateSemaphore wait.  ]
 ]
 
 { #category : 'accessing' }
@@ -267,11 +273,9 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 	queueElement priority: (service command == #update
 			 ifTrue: [ 0 ]
 			 ifFalse: [ 1 ]).
-	RowanServiceUpdater current logger newLoggingService logComment:
-		'RowanServiceUpdater>>#issueCommand:session:onCompletion: '
-		, service printString , ' ' , service command printString , ' '
-		, service commandArgs printString , ' priority - '
-		, queueElement priority printString.
+	service
+		logCommand: thisContext printString
+		with: ' priority - ' , queueElement priority printString.
 	primaryServiceQueue nextPut: queueElement
 ]
 
@@ -362,11 +366,9 @@ RowanServiceUpdater >> nextSecondaryQueueElementWithPriority: priority [
 	result :=  secondaryServiceQueue nextOrNilSuchThat: [ :queueElement |
 		  queueElement priority = priority ].
 	result ifNil: [ ^nil ].
-	RowanServiceUpdater current logger newLoggingService logComment:
-		'RowanServiceUpdater>>#nextSecondaryQueueElementWithPriority: '
-		, result service printString , ' ' , result command printString , ' '
-		, result commandArgs printString , ' priority - '
-		, result priority printString.
+	result service
+		logCommand: thisContext printString
+		with: ' priority - ' , priority printString.
 	^result
 ]
 
@@ -557,6 +559,7 @@ RowanServiceUpdater >> startPrimaryCommandProcessor [
 
 { #category : 'service queue' }
 RowanServiceUpdater >> startSecondaryCommandProcessor [
+	"priority 0 commands don't wait"
 
 	secondaryQueueProcess := [
 	                         [
@@ -567,10 +570,7 @@ RowanServiceUpdater >> startSecondaryCommandProcessor [
 		                         e priority = 1
 			                         ifTrue: [ self processQueueElement: e ]
 			                         ifFalse: [
-				                         [ "priority 0"
-				                         self processQueueElement: e ] forkAt:
-					                         Processor activePriority + 1.
-				                         Processor yield ] ].
+			                         [ self processQueueElement: e ] fork ] ].
 	                         secondaryServiceQueue waitForNewItems ]
 		                         repeat ] forkNamed:
 		                         'Jadeite Secondary Service Queue'
@@ -698,7 +698,5 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 { #category : 'public' }
 RowanServiceUpdater >> updatesReadyToApply [
 
-	RowanServiceUpdater current logger newLoggingService logComment:
-		'RowanServiceUpdater>>#updatesReadyToApply'.
 	updates isEmpty ifFalse: [ self trigger: #updatesReadyToApply ]
 ]
