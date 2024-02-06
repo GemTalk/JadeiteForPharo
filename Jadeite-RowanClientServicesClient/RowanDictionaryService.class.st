@@ -211,7 +211,7 @@ RowanDictionaryService >> rowanPostUpdate [
 RowanDictionaryService >> selectIn: presenter [
 	| selection |
 	presenter selectProjectNamed: self class notRowanizedPackageName.
-	selection := presenter dictionaryPresenter list detect:[:dictionaryService | dictionaryService name = self name]. 
+	selection := presenter dictionaryPresenter list detect:[:dictionaryService | dictionaryService name = self name] ifNone:[^self]. 
 	presenter dictionaryPresenter selection: selection
 ]
 

@@ -15,8 +15,10 @@ Class {
 		'breakpointsEnabled',
 		'returnedServices',
 		'postCompletionBlock',
-		'serviceQueue',
-		'queueProcess'
+		'primaryQueueProcess',
+		'primaryServiceQueue',
+		'secondaryQueueProcess',
+		'secondaryServiceQueue'
 	],
 	#classVars : [
 		'Current'
@@ -30,7 +32,7 @@ RowanServiceUpdater class >> clearCurrent [
 	RowanServiceUpdater clearCurrent.
 "
 
-	Current ifNotNil: [ :updater | updater stopCommandProcessor ].
+	Current ifNotNil: [ :updater | updater stopCommandProcessors ].
 	Current := nil
 ]
 
@@ -210,8 +212,9 @@ RowanServiceUpdater >> initialize [
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
-	serviceQueue := AtomicSharedQueue new.
-	self startCommandProcessor
+	primaryServiceQueue := AtomicSharedQueue new.
+	secondaryServiceQueue := AtomicSharedQueue new.
+	self startCommandProcessors
 ]
 
 { #category : 'initialization' }
@@ -259,12 +262,17 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 		                completionBlock: completionBlock;
 		                command: service command;
 		                commandArgs: service commandArgs.
-
 	Processor activeProcess == UIManager default uiProcess ifTrue: [
 		queueElement priority: 2 ].
-	Processor activeProcess == RowanServiceUpdater current queueProcess
-		ifTrue: [ queueElement priority: 1 ].
-	serviceQueue nextPut: queueElement
+	queueElement priority: (service command == #update
+			 ifTrue: [ 0 ]
+			 ifFalse: [ 1 ]).
+	RowanServiceUpdater current logger newLoggingService logComment:
+		'RowanServiceUpdater>>#issueCommand:session:onCompletion: '
+		, service printString , ' ' , service command printString , ' '
+		, service commandArgs printString , ' priority - '
+		, queueElement priority printString.
+	primaryServiceQueue nextPut: queueElement
 ]
 
 { #category : 'commands' }
@@ -325,20 +333,41 @@ RowanServiceUpdater >> loggingService [
 ]
 
 { #category : 'service queue' }
-RowanServiceUpdater >> nextQueueElement [
+RowanServiceUpdater >> nextPrimaryQueueElement [
 
-	#( nil 1 2 ) do: [ :priority |
-		(self nextQueueElementWithPriority: priority) ifNotNil: [ :e | ^ e ] ].
-	RowanServiceUpdater current logger newLoggingService logComment:
-		'RowanServiceUpdater>>#nextQueueElement - no element'. 
+	#( 0 1 2 ) do: [ :priority |
+		(self nextPrimaryQueueElementWithPriority: priority) ifNotNil: [ :e | ^ e ] ].
 	^ nil
 ]
 
 { #category : 'service queue' }
-RowanServiceUpdater >> nextQueueElementWithPriority: priority [
+RowanServiceUpdater >> nextPrimaryQueueElementWithPriority: priority [
 
-	^ serviceQueue nextOrNilSuchThat: [ :queueElement |
+	^ primaryServiceQueue nextOrNilSuchThat: [ :queueElement |
 		  queueElement priority = priority ]
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> nextSecondaryQueueElement [
+
+	#( 0 1 ) do: [ :priority |
+		(self nextSecondaryQueueElementWithPriority: priority) ifNotNil: [ :e | ^ e ] ].
+	^ nil
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> nextSecondaryQueueElementWithPriority: priority [
+	| result |
+	
+	result :=  secondaryServiceQueue nextOrNilSuchThat: [ :queueElement |
+		  queueElement priority = priority ].
+	result ifNil: [ ^nil ].
+	RowanServiceUpdater current logger newLoggingService logComment:
+		'RowanServiceUpdater>>#nextSecondaryQueueElementWithPriority: '
+		, result service printString , ' ' , result command printString , ' '
+		, result commandArgs printString , ' priority - '
+		, result priority printString.
+	^result
 ]
 
 { #category : 'private' }
@@ -363,13 +392,13 @@ RowanServiceUpdater >> processQueueElement: nextQueueElement [
 { #category : 'accessing' }
 RowanServiceUpdater >> queueProcess [
 
-	^ queueProcess
+	^ primaryQueueProcess
 ]
 
 { #category : 'accessing' }
 RowanServiceUpdater >> queueProcess: anObject [
 
-	^ queueProcess := anObject
+	^ primaryQueueProcess := anObject
 ]
 
 { #category : 'public' }
@@ -500,18 +529,10 @@ RowanServiceUpdater >> shouldGetNewLoggerGroup: boolean [
 ]
 
 { #category : 'service queue' }
-RowanServiceUpdater >> startCommandProcessor [
+RowanServiceUpdater >> startCommandProcessors [
 
-	queueProcess := [
-	                [
-	                | nextQueueElement |
-	                nextQueueElement := self nextQueueElement.
-	                nextQueueElement ifNotNil: [ :e |
-		                e priority = 2
-			                ifTrue: [ self processQueueElement: e ]
-			                ifFalse: [ [ self processQueueElement: e ] fork ] ].
-	                serviceQueue waitForNewItems ] repeat ] forkNamed:
-		                'Service Queue'
+	self startPrimaryCommandProcessor. 
+	self startSecondaryCommandProcessor. 
 ]
 
 { #category : 'logging' }
@@ -520,16 +541,67 @@ RowanServiceUpdater >> startLogging [
 ]
 
 { #category : 'service queue' }
-RowanServiceUpdater >> stopCommandProcessor [
+RowanServiceUpdater >> startPrimaryCommandProcessor [
 
-	queueProcess ifNotNil: [
-		queueProcess terminate.
-		queueProcess := nil ]
+	primaryQueueProcess := [
+	                [
+	                | nextQueueElement |
+	                nextQueueElement := self nextPrimaryQueueElement.
+	                nextQueueElement ifNotNil: [ :e |
+		                e priority = 2
+			                ifTrue: [ self processQueueElement: e ]
+			                ifFalse: [ secondaryServiceQueue nextPut: nextQueueElement ] ].
+	                primaryServiceQueue waitForNewItems ] repeat ] forkNamed:
+		                'Jadeite Primary Service Queue'
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> startSecondaryCommandProcessor [
+
+	secondaryQueueProcess := [
+	                         [
+	                         | nextQueueElement |
+	                         nextQueueElement := self
+		                                             nextSecondaryQueueElement.
+	                         nextQueueElement ifNotNil: [ :e |
+		                         e priority = 1
+			                         ifTrue: [ self processQueueElement: e ]
+			                         ifFalse: [
+				                         [ "priority 0"
+				                         self processQueueElement: e ] forkAt:
+					                         Processor activePriority + 1.
+				                         Processor yield ] ].
+	                         secondaryServiceQueue waitForNewItems ]
+		                         repeat ] forkNamed:
+		                         'Jadeite Secondary Service Queue'
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> stopCommandProcessors [
+
+	self stopPrimaryCommandProcessor. 
+	self stopSecondaryCommandProcessor. 
 ]
 
 { #category : 'logging' }
 RowanServiceUpdater >> stopLogging [
 	logger stopLogging
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> stopPrimaryCommandProcessor [
+
+	primaryQueueProcess ifNotNil: [
+		primaryQueueProcess terminate.
+		primaryQueueProcess := nil ]
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> stopSecondaryCommandProcessor [
+
+	secondaryQueueProcess ifNotNil: [
+		secondaryQueueProcess terminate.
+		secondaryQueueProcess := nil ]
 ]
 
 { #category : 'updating' }
