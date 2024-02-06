@@ -425,13 +425,12 @@ RowanService >> jadeiteShouldNotUpdateOnClient [
 	as the server told us not to do a client update. "
 ]
 
-{ #category : 'rsr' }
+{ #category : 'logging' }
 RowanService >> logCommand: contextPrintString [
-
 	self logCommand: contextPrintString with: String new
 ]
 
-{ #category : 'rsr' }
+{ #category : 'logging' }
 RowanService >> logCommand: contextPrintString with: additionalLogging [
 	RowanServiceUpdater current logger newLoggingService logComment:
 		contextPrintString , ' ' , self printString, ' ', additionalLogging
@@ -610,6 +609,8 @@ RowanService >> printOn: aStream [
 	[
 	aStream
 		nextPutAll: self class name;
+		nextPut: $:;
+		nextPutAll: (self name ifNil: [ nil printString ]);
 		space;
 		nextPut: ${;
 		nextPutAll: self identityHash printString;

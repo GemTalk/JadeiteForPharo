@@ -280,11 +280,13 @@ RowanPackageService >> rowanPostUpdate [
 
 { #category : 'public' }
 RowanPackageService >> selectIn: presenter [
+
 	| selection |
 	presenter selectProjectNamed: projectName.
-	selection := presenter packageListPresenter list
-				detect: [:packageService | packageService name = self name].
-	presenter packageListPresenter selectItem: selection
+	selection := presenter packageListPresenter list detect: [
+		             :packageService | packageService name = self name ].
+	presenter packageListPresenter selectedItem = selection ifFalse: [
+		presenter packageListPresenter selectItem: selection ]
 ]
 
 { #category : 'accessing' }

@@ -959,19 +959,18 @@ JadeiteProjectsBrowserPresenter >> selectCategoryNamed: category [
 
 { #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassInClassListNamed: className [
-	| selection |
-	selection := classListPresenter list detect: [:classService | classService name = className]
-				ifNone: [].
-	selection ifNotNil: [classListPresenter selection: selection].
-	classListPresenter verticalAlignment desiredVisibleRow: classListPresenter selection selectedIndex.
-	^selection
-]
 
-{ #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectClassNamed: className [
-	self isClassListTabSelected
-		ifTrue: [self selectClassInClassListNamed: className]
-		ifFalse: [self selectClassInClassHierarchyNamed: className]
+	| selection |
+	selection := classListPresenter list
+		             detect: [ :classService |
+		             classService name = className ]
+		             ifNone: [  ].
+	selection ifNil: [ ^ self ] ifNotNil: [ :sel |
+		classListPresenter selectedItem = sel ifFalse: [
+			classListPresenter selectItem: sel ] ].
+	classListPresenter verticalAlignment desiredVisibleRow:
+		classListPresenter selection selectedIndex.
+	^ selection
 ]
 
 { #category : 'selections' }

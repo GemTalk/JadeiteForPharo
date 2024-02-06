@@ -120,7 +120,9 @@ RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 		                          with: 'about to run completion block'.
 	                          nextQueueElement completionBlock ifNotNil: [
 		                          :block | block value: aService ] ]
-		                          ensure: [ sem signal ] ].
+		                          ensure: [ nextQueueElement service
+		                          logCommand: '[RowanServiceUpdater>>#basicProcessQueueElement:]'
+		                          with: 'signalling semaphore'. sem signal ] ].
 
 	nextQueueElement service
 		executeInSession: GciSession current

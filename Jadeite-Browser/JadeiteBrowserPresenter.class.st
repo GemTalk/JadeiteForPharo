@@ -483,6 +483,7 @@ JadeiteBrowserPresenter >> buildGlobalsTab [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildPackageList [
+	true ifTrue:[^self]. "needed?"
 	classListPresenter list: ListModel new.
 	self todo: [ 
 		| newCard |
@@ -654,12 +655,10 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
-	| selectedMethod |
-	selectedMethod := methodListPresenter selectedItem.
-	self clearMethodLists.
 	^ classService ifNotNil: [
+		  self clearMethodLists.
 		  self
-			  refreshClass: selectedMethod;
+			  refreshClass: methodListPresenter selectedItem;
 			  updateTabLabel ]
 ]
 
@@ -1302,8 +1301,9 @@ JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
 				                    nil
 				                    "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
 		  projectService ifNotNil: [
-			  projectListPresenter selection: projectService.
-			  projectListPresenter refresh.
+			  projectListPresenter selectedItem = projectService ifFalse: [
+				  projectListPresenter selection: projectService.
+				  projectListPresenter refresh ].
 			  self isDictionaryTabSelected
 				  ifTrue: [ self updateAfterFindClassInDictionary: classService ]
 				  ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ] ]
@@ -2930,6 +2930,13 @@ JadeiteBrowserPresenter >> selectClassListTab [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassNamed: className [
+	self isClassListTabSelected
+		ifTrue: [self selectClassInClassListNamed: className]
+		ifFalse: [self selectClassInClassHierarchyNamed: className]
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassTab [
 	self setClassSide
 ]
@@ -3705,7 +3712,6 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateProjectPackages [
-	packageListPresenter clear.
 	projectListPresenter selections isEmpty ifTrue: [^self].
 	self updateServices: projectListPresenter selections.
 	self sundryCleanup

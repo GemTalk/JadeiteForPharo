@@ -46,7 +46,8 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	newWidget textArea shoutStyler ifNotNil: [ :shoutStyler | shoutStyler styler:
 		(JadeiteCodeTextStyler newWithAttributeTableNamed:
 			 self presenter syntaxHighlightTheme)].
-	self setText: self presenter text to: newWidget.
+	self presenter text ifNotNil: [ :text | 
+		self setText: text to: newWidget].
 	model hasUnacceptedEdits: false. 
 	self presenter selectionInterval ifNotNil: [ :anInterval |
 		self selectionInterval: anInterval on: newWidget ].

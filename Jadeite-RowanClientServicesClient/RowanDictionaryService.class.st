@@ -209,10 +209,14 @@ RowanDictionaryService >> rowanPostUpdate [
 
 { #category : 'public' }
 RowanDictionaryService >> selectIn: presenter [
+
 	| selection |
 	presenter selectProjectNamed: self class notRowanizedPackageName.
-	selection := presenter dictionaryPresenter list detect:[:dictionaryService | dictionaryService name = self name]. 
-	presenter dictionaryPresenter selection: selection
+	selection := presenter dictionaryPresenter list detect: [
+		             :dictionaryService |
+		             dictionaryService name = self name ].
+	presenter dictionaryPresenter selectedItem = selection ifFalse: [
+		presenter dictionaryPresenter selection: selection ]
 ]
 
 { #category : 'public' }
