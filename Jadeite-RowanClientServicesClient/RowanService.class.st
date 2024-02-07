@@ -258,7 +258,6 @@ RowanService >> executeCommand [
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock |
-	self logCommand: thisContext printString.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	promise := remoteSelf executeCommand.
 	promise

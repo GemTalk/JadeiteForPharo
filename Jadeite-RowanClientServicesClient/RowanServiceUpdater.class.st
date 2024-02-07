@@ -100,7 +100,6 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 
 	| sem updateResult updateAndCompleteBlock |
-	nextQueueElement service logCommand: thisContext printString.
 	nextQueueElement service
 		command: nextQueueElement command;
 		commandArgs: nextQueueElement commandArgs.
@@ -108,21 +107,14 @@ RowanServiceUpdater >> basicProcessQueueElement: nextQueueElement [
 	sem := Semaphore new.
 	updateAndCompleteBlock := [ :aService |
 	                          [
-	                          nextQueueElement service
-		                          logCommand: '[RowanServiceUpdater>>#basicProcessQueueElement:]'
-		                          with: 'about to process updates'.
 	                          updateResult := self
 		                                          applyUpdatesFromReturnedServices:
 		                                          nextQueueElement service
 			                                          returnedServices.
-	                          nextQueueElement service
-		                          logCommand: '[RowanServiceUpdater>>#basicProcessQueueElement:]'
-		                          with: 'about to run completion block'.
+
 	                          nextQueueElement completionBlock ifNotNil: [
 		                          :block | block value: aService ] ]
-		                          ensure: [ nextQueueElement service
-		                          logCommand: '[RowanServiceUpdater>>#basicProcessQueueElement:]'
-		                          with: 'signalling semaphore'. sem signal ] ].
+		                          ensure: [ sem signal ] ].
 
 	nextQueueElement service
 		executeInSession: GciSession current
@@ -275,9 +267,6 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 	queueElement priority: (service command == #update
 			 ifTrue: [ 0 ]
 			 ifFalse: [ 1 ]).
-	service
-		logCommand: thisContext printString
-		with: ' priority - ' , queueElement priority printString.
 	primaryServiceQueue nextPut: queueElement
 ]
 
@@ -368,9 +357,6 @@ RowanServiceUpdater >> nextSecondaryQueueElementWithPriority: priority [
 	result :=  secondaryServiceQueue nextOrNilSuchThat: [ :queueElement |
 		  queueElement priority = priority ].
 	result ifNil: [ ^nil ].
-	result service
-		logCommand: thisContext printString
-		with: ' priority - ' , priority printString.
 	^result
 ]
 

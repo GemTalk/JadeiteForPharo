@@ -844,7 +844,7 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 		self isDictionaryTabSelected
 			ifTrue: [ self updateDictionaries ]
 			ifFalse: [
-				self updateProject.
+				self updateProjectSelecting: self projectListPresenter selectedItem.
 				self updatePackage ].
 		self updateClasses ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
@@ -857,7 +857,8 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectClassPresenters.
 	self connectPackageDictionaryPresenters.
 	projectListPresenter
-		whenSelectionChangedDo: [ :selection | self updateProject ];
+		whenSelectionChangedDo: [ :selection |
+			self updateProjectSelecting: selection selectedItem ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
 	methodListPresenter whenSelectionChangedDo: [ :selection |
@@ -3650,27 +3651,6 @@ JadeiteBrowserPresenter >> updatePackageMenu: menu [
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenter >> updateProject [
-
-	self clearComponentList.
-	self projectListPresenter selectionIfNone: [
-		packageListPresenter clear.
-		dictionaryListPresenter clear.
-		self cleanupProjectInfoTab.
-		self updateTabLabel.
-		^ self ].
-	classHierarchyPresenter clear.
-	self selectClassListTab.
-	self packageListPresenter selectionIfNone: [
-		classListPresenter clear.
-		classHierarchyPresenter clear ].
-	self buildPackageList.
-	self updateTabLabel.
-	self basicUpdateProject.
-	definedClassPackageText text: String new. 
-]
-
-{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfo [
 
 	| service |
@@ -3726,6 +3706,26 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 		           path: self projectReadmePath.
 	self issueCommand: service onCompletion: nil.
 	projectReadMeTab value: service answer replaceLfWithCrLf
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> updateProjectSelecting: selectedProject [
+
+	
+		self packageListPresenter clear.
+		dictionaryListPresenter clear.
+		self cleanupProjectInfoTab.
+		self updateTabLabel.
+		classHierarchyPresenter clear.
+		classListPresenter clear.
+	self selectClassListTab.
+	self packageListPresenter selectionIfNone: [
+		classListPresenter clear.
+		classHierarchyPresenter clear ].
+	self buildPackageList.
+	self updateTabLabel.
+	self basicUpdateProject.
+	definedClassPackageText text: String new
 ]
 
 { #category : 'tab labels' }
