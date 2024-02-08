@@ -122,13 +122,10 @@ RowanServiceUpdater >> basicIssueCommand: nextQueueElement session: session onCo
 
 { #category : 'private' }
 RowanServiceUpdater >> basicUpdateServices: services session: session [
-	"updates always must complete before continuing."
+
 	services do: [ :service |
-		| updateSemaphore |
-		updateSemaphore := Semaphore new. 
 		service command: #update.
-		self issueCommand: service session: session onCompletion: [:unused | updateSemaphore signal]. 
-		updateSemaphore wait.  ]
+		self issueCommand: service session: session onCompletion: nil ]
 ]
 
 { #category : 'accessing' }
