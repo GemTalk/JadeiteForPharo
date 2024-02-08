@@ -183,7 +183,7 @@ RowanService >> data [
 { #category : 'printing' }
 RowanService >> debugPrintOn: aStream [
 	self printOn: aStream.
-	self class instVarNames do: 
+	self class allInstVarNames do: 
 			[:instVarName |
 			aStream
 				tab;
@@ -516,7 +516,7 @@ RowanService >> packagesUpdate: presenter browser: browser parentPresenter: pare
 	| packageServices selectedComponentPackages |
 	(presenter class canUnderstand: #list) ifFalse: [^self].
 	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
-	parentPresenter selections detect: [:service | service name = self name] ifNone: [^self].
+	parentPresenter selectedItems detect: [:service | service name = self name] ifNone: [^self].
 	self todo:[selectedComponentPackages := (browser packageGroupPresenter selectionIfNone: [])
 				ifNil: [self packageServices]
 				ifNotNil: [:componentService | componentService packageServices]].

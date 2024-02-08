@@ -56,7 +56,7 @@ JadeitePackageTrait >> initializePackageMenu [
 { #category : 'menus' }
 JadeitePackageTrait >> newPackageMenu [
 
-	^ SpMenuPresenter new
+	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 			  group
 				  addItem: [ :item |

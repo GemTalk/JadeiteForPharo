@@ -162,7 +162,7 @@ JadeiteFilterTrait >> isVariableSelected [
 { #category : 'menus' }
 JadeiteFilterTrait >> newCategoryMenu [
 
-	^ SpMenuPresenter new
+	^ JadeiteMenuPresenter new
 		  addGroup: [ :group | 
 			  group
 				  addItem: [ :item | 
@@ -192,7 +192,7 @@ JadeiteFilterTrait >> newCategoryMenu [
 { #category : 'menus' }
 JadeiteFilterTrait >> newVariableMenu [
 
-	^ SpMenuPresenter new
+	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 			  group addItem: [ :item |
 					  item

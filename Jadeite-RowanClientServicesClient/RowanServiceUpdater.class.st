@@ -17,7 +17,8 @@ Class {
 		'postCompletionBlock',
 		'serviceQueueSemaphore',
 		'serviceQueue',
-		'serviceQueueProcess'
+		'serviceQueueProcess',
+		'inQueueProcess'
 	],
 	#classVars : [
 		'Current'
@@ -110,9 +111,7 @@ RowanServiceUpdater >> basicIssueCommand: nextQueueElement session: session onCo
 		                                          applyUpdatesFromReturnedServices:
 		                                          nextQueueElement service
 			                                          returnedServices.
-
-	                          nextQueueElement completionBlock ifNotNil: [ 
-										"no completion blocks!!! - they might trigger other services in this async environment!!!"
+	                          nextQueueElement completionBlock ifNotNil: [ "no completion blocks!!! - they might trigger other services in this async environment!!!"
 		                          self halt ] ] ensure: [ sem signal ] ].
 	nextQueueElement service
 		executeInSession: GciSession current
@@ -496,15 +495,12 @@ RowanServiceUpdater >> startServiceQueueProcess [
 
 	serviceQueueProcess := [
 	                       [
-	                       serviceQueue waitForNewItems.
-	                       serviceQueueSemaphore critical: [
-		                       | block |
-		                       block := serviceQueue next.
-		                       Transcript
-			                       cr;
-			                       print: block;
-			                       flush.
-		                       block value ] ] repeat ] forkNamed:
+	                       | block queuedBlock |
+	                       block := serviceQueue next.
+	                       inQueueProcess := Semaphore new.
+	                       queuedBlock := [ block ensure: [ inQueueProcess signal ] ].
+	                       UIManager default defer: queuedBlock.
+	                       inQueueProcess wait ] repeat ] forkNamed:
 		                       'Jadeite Service Queue'
 ]
 

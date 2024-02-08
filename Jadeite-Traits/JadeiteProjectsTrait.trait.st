@@ -336,7 +336,7 @@ JadeiteProjectsTrait >> mismatchedShasConfirmation [
 JadeiteProjectsTrait >> newProjectMenu [
 
 	| menu |
-	menu := SpMenuPresenter new.
+	menu := JadeiteMenuPresenter new.
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item

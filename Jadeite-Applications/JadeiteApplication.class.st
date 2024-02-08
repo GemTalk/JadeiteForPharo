@@ -34,7 +34,10 @@ JadeiteApplication class >> abortTransactionInSession: session [
 	browserService := RowanBrowserService new
 		                  command: #abortTransactionAndUpdateServices:;
 		                  commandArgs: (Array with: services).
-	self issueCommand: browserService session: session onCompletion: nil.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: session
+		onCompletion: nil.
 	self setInTransaction: RowanAnsweringService new session: session.
 	self todo: [ JadePresenter trigger: #abortedTransaction ].
 	UIManager default inform: 'Abort succeeded'.
@@ -56,16 +59,16 @@ JadeiteApplication class >> commitTransactionInSession: session [
 	browserService := RowanBrowserService new
 		                  command: #commitTransaction;
 		                  commandArgs: Array new.
-	self
+	RowanServiceUpdater current
 		issueCommand: browserService
 		session: session
-		onCompletion: [ :unused |
-			commitResult := browserService updates first answer. "should only get one update back"
-			commitResult
-				ifTrue: [ UIManager default inform: 'Commit succeeded' ]
-				ifFalse: [
-				^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
-			JadeiteSound informationBeep ]
+		onCompletion: nil.
+	commitResult := browserService updates first answer. "should only get one update back"
+	commitResult
+		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
+		ifFalse: [
+		^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
+	JadeiteSound informationBeep
 ]
 
 { #category : 'constants' }

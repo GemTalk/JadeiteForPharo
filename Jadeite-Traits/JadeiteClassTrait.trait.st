@@ -167,7 +167,7 @@ JadeiteClassTrait >> moveClassToPackageNamed: packageName [
 { #category : 'menus' }
 JadeiteClassTrait >> newBrowseClassMenu [
 
-	^ SpMenuPresenter new addGroup: [ :group |
+	^ JadeiteMenuPresenter new addGroup: [ :group |
 		  group
 			  addItem: [ :item |
 				  item

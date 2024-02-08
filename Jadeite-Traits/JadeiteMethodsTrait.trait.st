@@ -353,7 +353,7 @@ JadeiteMethodsTrait >> maxSymbolSize [
 { #category : 'menus' }
 JadeiteMethodsTrait >> newBrowseMethodListMenu [
 
-	^ SpMenuPresenter new
+	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 			  group addItem: [ :item |
 					  item
@@ -386,7 +386,7 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 { #category : 'menus' }
 JadeiteMethodsTrait >> newBrowseMethodsConsoleMenu [
 
-	^ SpMenuPresenter new
+	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 			  self addBrowseImplementorsDialogItemTo: group.
 			  self addBrowseSendersDialogItemTo: group.
