@@ -1290,38 +1290,6 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> findClassCompletionBlock: classService [
-
-	| projectService |
-	^ [ :unused |
-	  classService projectName ifNotNil: [
-		  projectService := projectListPresenter list
-			                    detect: [ :service |
-			                    service name = classService projectName ]
-			                    ifNone: [
-				                    nil
-				                    "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
-		  projectService ifNotNil: [
-			  projectListPresenter selectedItem = projectService ifFalse: [
-				  projectListPresenter selection: projectService.
-				  projectListPresenter refresh ].
-			  self isDictionaryTabSelected
-				  ifTrue: [ self updateAfterFindClassInDictionary: classService ]
-				  ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ] ]
-]
-
-{ #category : 'private' }
-JadeiteBrowserPresenter >> findClassNamed: selection [
-
-	| classService |
-	classService := RowanClassService new name: selection.
-	^ Cursor wait showWhile: [
-		  self activePresenter
-			  updateAfterFindClass: classService
-			  onCompletion: nil ]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> findRemovedServices [
 
 	| browserService |
@@ -3045,9 +3013,11 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 	answeringService
 		command: #packageOrDictionaryFor:;
 		commandArgs: (Array with: classService).
-	self issueCommand: answeringService onCompletion: [ :unused |
-		service := answeringService answer.
-		service selectIn: self ]
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession.
+	service := answeringService answer.
+	service selectIn: self
 ]
 
 { #category : 'selections' }
@@ -3342,15 +3312,31 @@ JadeiteBrowserPresenter >> unloadProjects [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateAfterFindClass: classService [
+
+	| projectService |
+	classService ifNil: [ ^ self ].
+	classService projectName ifNil: [ self updateService: classService ].
+	projectService := projectListPresenter list
+		                  detect: [ :service |
+		                  service name = classService projectName ]
+		                  ifNone: [
+			                  nil
+			                  "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
+	projectService ifNil: [ ^ self ].
+	projectListPresenter selectedItem = projectService ifFalse: [
+		projectListPresenter selection: projectService.
+		projectListPresenter refresh ].
+	self isDictionaryTabSelected
+		ifTrue: [ self updateAfterFindClassInDictionary: classService ]
+		ifFalse: [ self updateAfterFindClassInPackage: classService ]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
 
-	| findClassCompletionBlock |
-	classService ifNil: [ ^ self ].
-	findClassCompletionBlock := self findClassCompletionBlock:
-		                            classService.
-	self
-		updateService: classService
-		onCompletion: findClassCompletionBlock
+	completionBlock ifNotNil: [ self halt ].
+	^self updateAfterFindClass: classService
 ]
 
 { #category : 'as yet unclassified' }
@@ -3711,13 +3697,12 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectSelecting: selectedProject [
 
-	
-		self packageListPresenter clear.
-		dictionaryListPresenter clear.
-		self cleanupProjectInfoTab.
-		self updateTabLabel.
-		classHierarchyPresenter clear.
-		classListPresenter clear.
+	self packageListPresenter clear.
+	self dictionaryListPresenter clear.
+	self cleanupProjectInfoTab.
+	self updateTabLabel.
+	classHierarchyPresenter clear.
+	classListPresenter clear.
 	self selectClassListTab.
 	self packageListPresenter selectionIfNone: [
 		classListPresenter clear.

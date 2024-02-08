@@ -121,7 +121,7 @@ JadeiteBrowser >> initializeBindings [
 { #category : 'initialization' }
 JadeiteBrowser >> initializeJadeiteMenu [
 
-	^ self newMenu
+	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 			  group
 				  addItem: [ :item |
