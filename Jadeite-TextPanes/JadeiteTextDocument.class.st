@@ -374,9 +374,12 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	answeringService
 		command: #execReturningPrintString:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: shouldDebug).
-	self issueCommand: answeringService onCompletion: [ :theService |
-		theService ifNotNil: [
-			self displayResult: showResult orShowCompileError: theService ] ]
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession
+		onCompletion: nil.
+	answeringService ifNotNil: [
+		self displayResult: showResult orShowCompileError: answeringService ]
 ]
 
 { #category : 'as yet unclassified' }
