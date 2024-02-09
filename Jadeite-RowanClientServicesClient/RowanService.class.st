@@ -357,6 +357,14 @@ RowanService >> isFiller [
 	^false
 ]
 
+{ #category : 'inCommand' }
+RowanService >> isInCommand [
+	"only client subclasses have the instVar inCommand"
+	(self class instVarNames includes: #inCommand) ifTrue:[
+		^self inCommand isSignaled not].
+	^false
+]
+
 { #category : 'testing' }
 RowanService >> isInspectorService [
 

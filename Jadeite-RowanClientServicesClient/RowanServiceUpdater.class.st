@@ -86,12 +86,13 @@ RowanServiceUpdater >> applyUpdateWhile: block [
 			self rowanPostUpdate]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'updating' }
 RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"
 
-	self applyUpdateWhile: [ "updates removeAll: updates."
+	self applyUpdateWhile: [
+		updates removeAll: updates.
 		updates addAll: aCollection.
 		self updatesReadyToApply ]
 ]
@@ -99,25 +100,20 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: nextQueueElement session: session onCompletion: completionBlock [
 
-	| sem updateResult updateAndCompleteBlock |
+	| sem updateResult postExecutionBlock |
 	nextQueueElement service
 		command: nextQueueElement command;
 		commandArgs: nextQueueElement commandArgs.
 	nextQueueElement service prepareForReplication.
 	sem := Semaphore new.
-	updateAndCompleteBlock := [ :aService |
-	                          [
-	                          updateResult := self
-		                                          applyUpdatesFromReturnedServices:
-		                                          nextQueueElement service
-			                                          returnedServices.
-	                          nextQueueElement completionBlock ifNotNil: [ "no completion blocks!!! - they might trigger other services in this async environment!!!"
-		                          self halt ] ] ensure: [ sem signal ] ].
+	postExecutionBlock := [ :aService | sem signal ].
 	nextQueueElement service
 		executeInSession: GciSession current
-		onCompletion: updateAndCompleteBlock
+		onCompletion: postExecutionBlock
 		semaphore: sem.
-	sem wait
+	sem wait.
+	updateResult := self applyUpdatesFromReturnedServices:
+		                nextQueueElement service returnedServices
 ]
 
 { #category : 'private' }
@@ -249,6 +245,7 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 
 	| commandResult nextQueueElement |
 	session ifNil: [ ^ nil ].
+	service isInCommand ifTrue:[^self]. 
 	nextQueueElement := RowanServiceQueueElement new
 		                    service: service;
 		                    command: service command;
@@ -461,12 +458,6 @@ RowanServiceUpdater >> serviceQueue [
 	^ serviceQueue
 ]
 
-{ #category : 'service queue' }
-RowanServiceUpdater >> serviceQueue: anObject [
-
-	serviceQueue := anObject
-]
-
 { #category : 'private' }
 RowanServiceUpdater >> shouldApply: selector forService: service [
 	service isNil ifTrue:[^false]. "if a service is gc'd we could possibly end up with a nil here"
@@ -571,19 +562,8 @@ RowanServiceUpdater >> updates [
 
 { #category : 'public' }
 RowanServiceUpdater >> updatesPerform: selector presenter: presenter [
-	"the update may know which client updates 
-	it wants us to care about. Respect that."
 
-	[
-	updates do: [ :updateService |
-		(self shouldApply: selector forService: updateService) ifTrue: [
-			updateService perform: selector with: presenter ] ] ]
-		on: Error
-		do: [ :ex |
-			RowanServiceUpdater current logger newLoggingService logComment:
-				'RowanServiceUpdater>>#updatesPerform:presenter: - error! '
-				, ex printString.
-			self halt ]
+	self updatesPerform: selector presenter: presenter browser: nil
 ]
 
 { #category : 'public' }
@@ -592,17 +572,14 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 	it wants us to care about if updateType is set. 
 	Respect the server's wishes."
 
-	
-	[updates do: 
-			[:update |
-			(self shouldApply: selector forService: update)
-				ifTrue: 
-					[update
-						perform: selector
-						with: presenter
-						with: browser]]]
-			on: Error
-			do: [:ex | self halt]
+	[
+	updates do: [ :update |
+		(self shouldApply: selector forService: update) ifTrue: [
+			update
+				perform: selector
+				withEnoughArguments: (Array with: presenter with: browser) ] ] ]
+		on: Error
+		do: [ :ex | self halt ]
 ]
 
 { #category : 'public' }

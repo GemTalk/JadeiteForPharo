@@ -714,6 +714,14 @@ JadeiteBrowserPresenter >> clearFilterLists [
 	packageMethodListPresenter clear.
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> clearFilterListsSelections [
+
+	categoryListPresenter unselectAll. 
+	variableListPresenter unselectAll. 
+	packageMethodListPresenter unselectAll. 
+]
+
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> clearMethodListTestResultIn: methodServices [
 
@@ -730,7 +738,7 @@ JadeiteBrowserPresenter >> clearMethodListTestResultIn: methodServices [
 JadeiteBrowserPresenter >> clearMethodLists [
 
 	self selectedClass ifNil: [ self clearFilterLists ].
-	packageMethodListPresenter clear.
+	"packageMethodListPresenter clear."
 	methodListPresenter clear.
 	methodSourcePresenter value: String new.
 	definedMethodPackageText text: String new.
@@ -2639,13 +2647,13 @@ JadeiteBrowserPresenter >> registerFilterListsForUpdates [
 
 	RowanServiceUpdater current
 		register: categoryListPresenter
-		selector: #filterUpdate:browser:
+		selector: #filterCategoryUpdate:browser:
 		browser: self;
 		register: variableListPresenter
-		selector: #filterUpdate:browser:
+		selector: #filterVariableUpdate:browser:
 		browser: self;
 		register: packageMethodListPresenter
-		selector: #filterUpdate:browser:
+		selector: #filterPackageUpdate:browser:
 		browser: self
 ]
 
@@ -2887,6 +2895,22 @@ JadeiteBrowserPresenter >> selectClassInClassHierarchyNamed: className [
 	path = 0 ifTrue:[^self]. 
 	classHierarchyPresenter selectPath: path scrollToSelection: true;
 	expandPath: path. 
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassInClassListNamed: className [
+
+	| selection |
+	selection := classListPresenter list
+		             detect: [ :classService |
+		             classService name = className ]
+		             ifNone: [  ].
+	selection ifNil: [ ^ self ] ifNotNil: [ :sel |
+		classListPresenter selectedItem = sel ifFalse: [
+			classListPresenter selectItem: sel ] ].
+	classListPresenter verticalAlignment desiredVisibleRow:
+		classListPresenter selection selectedIndex.
+	^ selection
 ]
 
 { #category : 'selections' }

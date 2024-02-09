@@ -207,6 +207,7 @@ RowanClassService >> classHierarchyUpdate: presenter browser: browser [
 RowanClassService >> classMethodsUpdate: presenter browser: browser [
 	browser selectedClass ifNil: [ ^self].
 	self = browser selectedClass ifFalse: [^self].
+	browser clearFilterListsSelections.
 	browser methodsUpdate: self
 ]
 
@@ -233,8 +234,8 @@ RowanClassService >> computeVisibleMethods: presenter browser: browser [
 	methods ifNil: [ ^Array new ].
 	filters := browser selectedFilters.
 	visibleMethods := filters isEmpty ifTrue: [methods] ifFalse: [self filterMethods: browser].
-	visibleMethods
-		do: [:svc | svc inSelectedPackage: (self selectedPackageServiceNames includes: svc packageName)].
+	"visibleMethods
+		do: [:svc | svc inSelectedPackage: (self selectedPackageServiceNames includes: svc packageName)]."
 	^visibleMethods
 ]
 
@@ -263,7 +264,7 @@ RowanClassService >> dictionaryName [
 RowanClassService >> displayMethodsOn: presenter browser: browser [
 	| visibleMethods |
 	visibleMethods := self computeVisibleMethods: presenter browser: browser.
-	self updateListIn: presenter from: visibleMethods
+	self updateListIn: presenter from: visibleMethods.
 ]
 
 { #category : 'displaying' }
@@ -314,6 +315,14 @@ RowanClassService >> expand: anObject [
 	expand := anObject
 ]
 
+{ #category : 'public' }
+RowanClassService >> filterCategoryUpdate: presenter browser: browser [
+	browser selectedClass ifNil: [^self].
+	browser selectedClass name asString = name asString ifFalse: [^self].
+	presenter model isEmpty ifTrue: [presenter list: SortedCollection new].
+	self updateCategories: presenter browser: browser
+]
+
 { #category : 'private' }
 RowanClassService >> filterMethods: browser [ 
 	^browser isCategoryTabSelected
@@ -323,6 +332,17 @@ RowanClassService >> filterMethods: browser [
 				ifTrue: 
 					[methods select: [:methodService | (filters intersection: methodService accessedInstVars) notEmpty]]
 				ifFalse: [methods select: [:methodService | filters includes: methodService definedPackage]]]
+]
+
+{ #category : 'public' }
+RowanClassService >> filterPackageUpdate: presenter browser: browser [
+
+	browser selectedClass ifNil: [ ^ self ].
+	browser selectedClass name asString = name asString ifFalse: [
+		^ self ].
+	presenter model isEmpty ifTrue: [
+		presenter list: SortedCollection new ].
+	self updateMethodPackages: presenter
 ]
 
 { #category : 'public' }
@@ -342,6 +362,17 @@ RowanClassService >> filterUpdate: presenter browser: browser [
 				ifFalse: 
 					[presenter list = self methodPackages ifTrue: [^self].
 					self updateMethodPackages: presenter]]
+]
+
+{ #category : 'public' }
+RowanClassService >> filterVariableUpdate: presenter browser: browser [
+
+	browser selectedClass ifNil: [ ^ self ].
+	browser selectedClass name asString = name asString ifFalse: [
+		^ self ].
+	presenter model isEmpty ifTrue: [
+		presenter list: SortedCollection new ].
+	self updateVariables: presenter
 ]
 
 { #category : 'accessing' }

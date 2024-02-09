@@ -954,22 +954,6 @@ JadeiteProjectsBrowserPresenter >> selectCategoryNamed: category [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectClassInClassListNamed: className [
-
-	| selection |
-	selection := classListPresenter list
-		             detect: [ :classService |
-		             classService name = className ]
-		             ifNone: [  ].
-	selection ifNil: [ ^ self ] ifNotNil: [ :sel |
-		classListPresenter selectedItem = sel ifFalse: [
-			classListPresenter selectItem: sel ] ].
-	classListPresenter verticalAlignment desiredVisibleRow:
-		classListPresenter selection selectedIndex.
-	^ selection
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCommentTab [
 	self selectSourceTabNamed: 'classDocumentation'
 ]
