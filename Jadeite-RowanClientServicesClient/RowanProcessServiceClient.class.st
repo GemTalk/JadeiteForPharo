@@ -28,7 +28,6 @@ RowanProcessServiceClient >> cleanUpClient [
 RowanProcessServiceClient >> openDebugger [
 
 	| activeProcess newUIProcess |
-	self logCommand: thisContext printString with: String new.
 	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
 	DefaultExecutionEnvironment beActiveDuring: [
