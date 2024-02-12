@@ -95,11 +95,6 @@ JadeiteLogger >> newLoggingService [
 		ifFalse: [loggingService]
 ]
 
-{ #category : 'accessing' }
-JadeiteLogger >> newServiceLoggingService [
-	^self newLoggingService
-]
-
 { #category : 'double dispatch' }
 JadeiteLogger >> newWithGroupId: integer logger: logger [
 	(loggingService isNil or: [loggingService isTestLoggingService not])
