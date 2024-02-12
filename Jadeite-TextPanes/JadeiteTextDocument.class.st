@@ -221,7 +221,7 @@ JadeiteTextDocument >> defaultColor [
 
 { #category : 'ad hoc execution' }
 JadeiteTextDocument >> displayResult: showResult orShowCompileError: theService [
-
+	theService answer ifNil: [ ^self ]. "might have terminated out of an error"
 	^ theService answer first
 		  ifTrue: [
 			  showResult ifTrue: [
@@ -368,6 +368,7 @@ JadeiteTextDocument >> executeSelectionOrLine [
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
 	| answeringService oop |
+
 	oop := context ifNil: [ 20 ].
 	answeringService := RowanAnsweringServiceClient new registerWith:
 		                    GciSession current library.
