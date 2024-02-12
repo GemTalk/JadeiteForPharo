@@ -100,25 +100,21 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 			commandArgs: (Array
 					 with: methodService selector
 					 with: (className ifNil: [ methodService className ])).
-		postTestRunBlock := [ :unused |
-		                    methodService testResult = 'error' ifTrue: [
-			                    jadeResult addError: methodService ].
-		                    methodService testResult = 'failure' ifTrue: [
-			                    jadeResult addFailure: methodService ].
-		                    methodService testResult = 'passed' ifTrue: [
-			                    jadeResult addPassed: methodService ].
-		                    methodListPresenter
-			                    selectIndex: index
-			                    scrollToSelection: true.
-		                    shouldStopTestRun ifTrue: [
-			                    shouldStopTestRun := false.
-			                    Processor activeProcess terminate "nowhere to return to with RSR async calls" ].
-		                    index = methodServices size ifTrue: [
-			                    postFullTestRunBlock value ] ].
+		methodService testResult = 'error' ifTrue: [
+			jadeResult addError: methodService ].
+		methodService testResult = 'failure' ifTrue: [
+			jadeResult addFailure: methodService ].
+		methodService testResult = 'passed' ifTrue: [
+			jadeResult addPassed: methodService ].
+		methodListPresenter selectIndex: index scrollToSelection: true.
+		shouldStopTestRun ifTrue: [
+			shouldStopTestRun := false.
+			Processor activeProcess terminate "nowhere to return to with RSR async calls" ].
+		index = methodServices size ifTrue: [ postFullTestRunBlock value ].
 		RowanServiceUpdater current
 			issueCommand: methodService
 			session: self gciSession
-			onCompletion: postTestRunBlock ]
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

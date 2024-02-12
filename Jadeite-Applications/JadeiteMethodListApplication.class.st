@@ -12,5 +12,6 @@ JadeiteMethodListApplication >> start [
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession. 
-	^inst open; yourself
+	inst open.
+	^inst
 ]

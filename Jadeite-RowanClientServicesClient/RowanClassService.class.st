@@ -499,7 +499,7 @@ RowanClassService >> isNewClass: anObject [
 
 { #category : 'public' }
 RowanClassService >> isTestCase [
-	^isTestCase
+	^isTestCase ifNil:[false]
 ]
 
 { #category : 'printing' }

@@ -77,6 +77,7 @@ RowanDictionaryService >> classesUpdate: presenter browser: browser [
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
+	classes ifNil: [ ^self ].
 	self removeDeletedClassesIn: presenter browser: browser.
 	presenter selectionOrNil
 		ifNil: [

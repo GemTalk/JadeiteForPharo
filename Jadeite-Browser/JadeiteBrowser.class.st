@@ -59,6 +59,12 @@ JadeiteBrowser >> categoryListPresenter [
 	^ self activePresenter categoryListPresenter
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowser >> classListPresenter [ 
+
+	^ (tabs pages at: tabs selectedPageIndex) activePresenter classListPresenter
+]
+
 { #category : 'actions' }
 JadeiteBrowser >> closeCard [
 

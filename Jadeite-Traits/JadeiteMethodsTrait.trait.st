@@ -69,11 +69,11 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: [ :unused |
-			shell := self openMethodListOn: service selecting: string.
-			shell updateCaptionFromSearchString:
-				service answer size printString , ' Senders of '
-				, string asString printString ]
+		onCompletion: nil.
+	shell := self openMethodListOn: service selecting: string.
+	shell updateCaptionFromSearchString:
+		service answer size printString , ' Senders of '
+		, string asString printString
 ]
 
 { #category : 'queries' }
@@ -85,18 +85,18 @@ JadeiteMethodsTrait >> browseImplementors [
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseImplementorsOf [
 
-	| wildcardString listWindowTitle |
+	| selector wildcardString listWindowTitle |
 	wildcardString := UIManager default
 		                  request: 'Enter wildcard string:'
 		                  initialAnswer: String new.
 	wildcardString ifNil: [ ^ self ].
 	listWindowTitle := 'Jadeite Browse Implementors'.
-	self
-		selectSymbolFrom: wildcardString
-		titled: listWindowTitle
-		browseAction: #implementorsOfAll:
-		onCompletion: [ :string |
-		string ifNotNil: [ self browseImplementorsOf: string ] ]
+	selector := self
+		            selectSymbolFrom: wildcardString
+		            titled: listWindowTitle
+		            browseAction: #implementorsOfAll:
+		            onCompletion: nil.
+	selector ifNotNil: [ self browseImplementorsOf: selector ]
 ]
 
 { #category : 'queries' }
@@ -114,11 +114,11 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: [ :unused |
-			shell := self openMethodListOn: service selecting: string.
-			shell updateCaptionFromSearchString:
-				service answer size printString , ' Implementors of '
-				, string asString printString ]
+		onCompletion: nil.
+	shell := self openMethodListOn: service selecting: string.
+	shell updateCaptionFromSearchString:
+		service answer size printString , ' Implementors of '
+		, string asString printString
 ]
 
 { #category : 'queries' }
@@ -230,18 +230,18 @@ JadeiteMethodsTrait >> browseSenders [
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseSendersOf [
 
-	| wildcardString listWindowTitle |
+	| selector wildcardString listWindowTitle |
 	wildcardString := UIManager default
 		                  request: 'Enter wildcard string:'
 		                  initialAnswer: String new.
 	wildcardString ifNil: [ ^ self ].
 	listWindowTitle := 'Jadeite Browse Senders'.
-	self
-		selectSymbolFrom: wildcardString
-		titled: listWindowTitle
-		browseAction: #sendersOfAll:
-		onCompletion: [ :string |
-		string ifNotNil: [ self browseSendersOf: string ] ]
+	selector := self
+		            selectSymbolFrom: wildcardString
+		            titled: listWindowTitle
+		            browseAction: #sendersOfAll:
+		            onCompletion: nil.
+	selector ifNotNil: [ self browseSendersOf: selector ]
 ]
 
 { #category : 'queries' }
@@ -495,49 +495,42 @@ JadeiteMethodsTrait >> resetStatusBar [
 ]
 
 { #category : 'queries' }
-JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle browseAction: browseAction onCompletion: completionBlock [
+JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle browseAction: browseAction onCompletion: anObject [
 
 	| dialogWindow answeringService possibleSelectors |
-	answeringService := RowanAnsweringService new
-		                    command: #lowercaseSelectorsMatching:;
-		                    commandArgs: (Array with: wildcardString).
+	answeringService := RowanAnsweringService new.
+	answeringService command: #lowercaseSelectorsMatching:.
+	answeringService commandArgs: (Array with: wildcardString).
 	RowanServiceUpdater current
-		issueCommand: answeringService
+		issueCommands: (Array with: answeringService)
 		session: self gciSession
-		onCompletion: [ :service |
-			possibleSelectors := service answer.
-			possibleSelectors isEmpty
-				ifTrue: [
-					| message |
-					message := self noMatchesFoundMessageFor: wildcardString.
-					UIManager inform: message ]
-				ifFalse: [
-					possibleSelectors size = 1
-						ifTrue: [ completionBlock value: possibleSelectors first ]
-						ifFalse: [
-							dialogWindow := ListDialogWindow new
-								                getList: [ :rxMatcher |
-									                possibleSelectors select: [ :substring |
-											                rxMatcher isString
-												                ifTrue: [
-													                rxMatcher , '*' match: substring ]
-												                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-													                rxMatcher matchesPrefix: substring ] ] ];
-								                displayBlock: [ :e | e ];
-								                browseBlock: [ :arg |
-									                | queryService |
-									                queryService := RowanQueryService new
-										                                perform: browseAction
-										                                with: possibleSelectors.
-									                JadeiteMethodListBrowser
-										                openOn: queryService
-										                selecting: wildcardString
-										                session: self gciSession ];
-								                doubleClickOk;
-								                title: listWindowTitle;
-								                yourself.
-							completionBlock value:
-								(dialogWindow chooseFromOwner: self currentWorld) ] ] ]
+		onCompletion: nil.
+	possibleSelectors := answeringService answer.
+	possibleSelectors isEmpty ifTrue: [
+		self displayNoMatchesFoundMessageFor: wildcardString.
+		^ nil ].
+	possibleSelectors size = 1 ifTrue: [ ^ possibleSelectors first ].
+	dialogWindow := ListDialogWindow new
+		                getList: [ :rxMatcher |
+			                possibleSelectors select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
+		                displayBlock: [ :e | e ];
+		                browseBlock: [ :arg |
+			                | queryService |
+			                queryService := RowanQueryService new
+				                                perform: browseAction
+				                                with: possibleSelectors.
+			                JadeiteMethodListBrowser
+				                openOn: queryService
+				                selecting: wildcardString
+				                session: self gciSession ];
+		                doubleClickOk;
+		                title: listWindowTitle;
+		                yourself.
+	^ dialogWindow chooseFromOwner: self currentWorld
 ]
 
 { #category : 'selections' }

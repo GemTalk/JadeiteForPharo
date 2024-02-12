@@ -3213,7 +3213,6 @@ JadeiteBrowserPresenter >> symbolExists: newClassName [
 
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> testClassResultIconFor: classService [
-
 	^ classService isTestCase
 		  ifTrue: [
 			  | testResult |
