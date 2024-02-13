@@ -17,7 +17,6 @@ Class {
 		'definedClassPackageText',
 		'definedMethodPackageText',
 		'methodCategoryText',
-		'autoCommit',
 		'statusBarText'
 	],
 	#category : 'Jadeite-Browser'
@@ -61,15 +60,7 @@ JadeiteProjectsBrowserPresenter >> allClasses [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> autoCommit [
-
-	autoCommit ifNil: [ self initializeAutoCommit: self gciSession ].
-	^ autoCommit
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> autoCommit: boolean [
-	self autoCommit contents: boolean.
 	gciSession autoCommit contents: boolean
 ]
 
@@ -309,13 +300,6 @@ JadeiteProjectsBrowserPresenter >> findMethod: selector [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> gciSession: aGciSession [
-
-	super gciSession: aGciSession.
-	self initializeAutoCommit: aGciSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> getViews [
 	classHierarchyTabs := self view viewNamed: 'classHierarchyTabs'.
 	classListHierarchyTabs := self view viewNamed: 'instanceClassTabs'.
@@ -392,12 +376,6 @@ JadeiteProjectsBrowserPresenter >> gotoProjectNamed: projectName [
 JadeiteProjectsBrowserPresenter >> initialize [
 	super initialize.
 	stonCritical := Semaphore forMutualExclusion.
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> initializeAutoCommit: aGciSession [
-
-	autoCommit := ValueHolder with: aGciSession autoCommit
 ]
 
 { #category : 'as yet unclassified' }

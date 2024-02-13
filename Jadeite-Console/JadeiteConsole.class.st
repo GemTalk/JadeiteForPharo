@@ -88,7 +88,7 @@ JadeiteConsole >> areBreakpointsEnabled [
 { #category : 'accessing' }
 JadeiteConsole >> autoCommit: aBoolean [
 
-	"haven't put commit and transaction status in the console yet"
+	gciSession autoCommit contents: aBoolean
 ]
 
 { #category : 'as yet unclassified' }

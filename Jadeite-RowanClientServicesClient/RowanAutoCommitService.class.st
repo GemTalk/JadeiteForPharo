@@ -23,28 +23,22 @@ RowanAutoCommitService >> autoCommit: anObject [
 	autoCommit := anObject
 ]
 
-{ #category : 'public' }
-RowanAutoCommitService >> autoCommitUpdate: browser [
-	| shouldAbort |
-	autoCommit == #failed
-		ifTrue: 
-			[postUpdateBlock := 
-					[shouldAbort := MessageBox
-								confirm: 'Autocommit has failed to commit. Your changes will not be commited in the repository until you abort. Abort now?
-
-(If you choose ''No'' you will be prompted with a list of transaction conflicts)'.
-					shouldAbort
-						ifTrue: [JadePresenter abortTransactionInSession: browser gciSession]
-						ifFalse: [self displayTransactionConflicts: browser]]].
-	browser autoCommit: autoCommit.
-	^postUpdateBlock
-]
-
 { #category : 'displaying' }
 RowanAutoCommitService >> displayName [
 	"for logging. for now"
 
 	^self printString
+]
+
+{ #category : 'as yet unclassified' }
+RowanAutoCommitService >> displayTransactionConflicts: browser [
+	| inspector session service |
+	session := browser gciSession.
+	inspector := JadeiteInspector new gciSession: session.
+	service := inspector evaluateText: 'System transactionConflicts'
+				thenInspectInContext: session oopNil value.
+	inspector showOn: service.
+	inspector updateCaption: 'Transaction Conflicts'. 
 ]
 
 { #category : 'printing' }
@@ -53,12 +47,6 @@ RowanAutoCommitService >> logReceivedOn: aStream [
 	aStream
 		space;
 		nextPutAll: autoCommit printString
-]
-
-{ #category : 'accessing' }
-RowanAutoCommitService >> postUpdateBlock [
-
-	^postUpdateBlock
 ]
 
 { #category : 'accessing' }

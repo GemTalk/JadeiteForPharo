@@ -40,13 +40,31 @@ GciSession class >> current [
 
 { #category : 'accessing' }
 GciSession >> autoCommit [
-	^autoCommit
+
+	^ autoCommit ifNil: [
+		  self initializeAutoCommit.
+		  autoCommit ]
 ]
 
 { #category : 'accessing' }
 GciSession >> autoCommit: anObject [
 
 	autoCommit := anObject
+]
+
+{ #category : 'initialization' }
+GciSession >> basicFlipAutoCommit [
+
+	| autoCommitService |
+	autoCommitService := RowanAutoCommitService new.
+	autoCommitService
+		command: #flipAutoCommit;
+		commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: autoCommitService
+		session: self
+		onCompletion: nil.
+	self autoCommit value: autoCommitService autoCommit
 ]
 
 { #category : 'actions' }
@@ -72,17 +90,8 @@ GciSession >> executeString: aString [
 
 { #category : 'initialization' }
 GciSession >> flipAutoCommit [
-
-	| autoCommitService |
-	autoCommitService := RowanAutoCommitService new.
-	autoCommitService
-		command: #flipAutoCommit;
-		commandArgs: Array new.
-	RowanServiceUpdater current
-		issueCommand: autoCommitService
-		session: self
-		onCompletion: nil.
-	self autoCommit value: autoCommitService autoCommit
+	RowanServiceUpdater current serviceQueue nextPut: [self basicFlipAutoCommit]
+	
 ]
 
 { #category : 'initialization' }

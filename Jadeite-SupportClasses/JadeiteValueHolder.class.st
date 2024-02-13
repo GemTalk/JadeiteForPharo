@@ -4,6 +4,15 @@ Class {
 	#category : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'printing' }
+JadeiteValueHolder >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream
+		nextPut: $:;
+		nextPutAll: contents printString
+]
+
 { #category : 'accessing' }
 JadeiteValueHolder >> value [
 
