@@ -71,7 +71,8 @@ JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 	| connectedPresenters |
 	connectedPresenters := self jadeiteWindowsFor: theConnection.
 	connectedPresenters do: [ :presenter |
-		presenter window ifNotNil: [ :window | window close ] ]
+		presenter window ifNotNil: [ :window | window close ] ].
+	connectedPresenters do:[:presenter | presenter become: String new]
 ]
 
 { #category : 'actions' }
