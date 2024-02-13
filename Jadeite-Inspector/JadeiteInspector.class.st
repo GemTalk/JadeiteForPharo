@@ -488,7 +488,7 @@ JadeiteInspector >> initializePresenters [
 	self initializeInstVarList: panedLayout.
 	panedLayout add:
 		(documentPresenter := codePane := JadeiteTextDocument new _gciSession:
-			                                  self gciSession).
+			                                  GciSession current).
 	box add: panedLayout. 
 	statusTextPresenter := self newStatusBar.
 	self layout addLast: statusTextPresenter expand: false

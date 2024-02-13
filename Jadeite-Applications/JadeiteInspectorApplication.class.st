@@ -9,8 +9,8 @@ JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSess
 
 	| inst |
 	inst := self new gciSession: gciSession.
-	inst executeThenInspect: aString inContext: context.
-	^ inst
+	^inst executeThenInspect: aString inContext: context.
+
 ]
 
 { #category : 'instance creation' }

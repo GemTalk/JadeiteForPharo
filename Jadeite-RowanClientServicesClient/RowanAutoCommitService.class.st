@@ -32,13 +32,13 @@ RowanAutoCommitService >> displayName [
 
 { #category : 'as yet unclassified' }
 RowanAutoCommitService >> displayTransactionConflicts: browser [
-	| inspector session service |
+	| inspector session |
 	session := browser gciSession.
-	inspector := JadeiteInspector new gciSession: session.
-	service := inspector evaluateText: 'System transactionConflicts'
-				thenInspectInContext: session oopNil value.
-	inspector showOn: service.
-	inspector updateCaption: 'Transaction Conflicts'. 
+	inspector := JadeiteInspectorApplication
+		  executeThenShowOn: 'System transactionConflicts'
+		  session: session
+		  context: session oopNil value.
+	inspector owner title: 'Transaction Conflicts'. 
 ]
 
 { #category : 'printing' }
