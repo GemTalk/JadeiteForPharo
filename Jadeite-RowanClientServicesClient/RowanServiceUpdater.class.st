@@ -92,9 +92,9 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	presenters are registered to that object"
 
 	self applyUpdateWhile: [
-		updates removeAll: updates.
 		updates addAll: aCollection.
-		self updatesReadyToApply ]
+		self updatesReadyToApply.
+		updates removeAll: updates. ]
 ]
 
 { #category : 'commands' }

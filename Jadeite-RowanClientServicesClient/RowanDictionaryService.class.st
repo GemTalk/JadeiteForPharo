@@ -47,7 +47,7 @@ RowanDictionaryService >> basicPrepareForReplication [
 	hierarchyServices := nil.
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanDictionaryService >> classHierarchyUpdate: presenter browser: browser [
 	browser isHierarchyTabSelected ifFalse: [^false].
 	browser dictionaryListPresenter selectionOrNil
@@ -70,14 +70,14 @@ RowanDictionaryService >> classes: anArray [
 	classes := anArray
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanDictionaryService >> classesUpdate: presenter browser: browser [
 
 	| updatedClasses |
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
-	classes ifNil: [ ^self ].
+	classes ifNil: [ ^presenter list: ListModel new ].
 	self removeDeletedClassesIn: presenter browser: browser.
 	presenter selectionOrNil
 		ifNil: [
