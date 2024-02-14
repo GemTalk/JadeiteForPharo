@@ -2377,6 +2377,20 @@ JadeiteBrowserPresenter >> pkgsMenuStrings [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> populateFilterList [
+	| listModel |
+	self selectedClass ifNil: [^self].	"can legitimately be nil during test run setUp"
+	listModel := ListModel new searchPolicy: SearchPolicy equality.
+	self isCategoryTabSelected
+		ifTrue: 
+			[listModel addAll: self selectedClass categories.
+			categoryListPresenter list: listModel asSortedCollection asOrderedCollection]
+		ifFalse: 
+			[listModel addAll: self selectedClass variables.
+			variableListPresenter list: listModel asSortedCollection asOrderedCollection]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> previousTabViewArrangement [
 	^previousTabViewArrangement
 ]

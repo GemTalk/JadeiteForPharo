@@ -475,22 +475,6 @@ JadeiteProjectsBrowserPresenter >> onViewClosed [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> populateFilterList [
-	| listModel |
-	self selectedClass ifNil: [^self].	"can legitimately be nil during test run setUp"
-	listModel := ListModel new searchPolicy: SearchPolicy equality.
-	self isCategoryTabSelected
-		ifTrue: 
-			[listModel addAll: self selectedClass categories.
-			categoryListPresenter model: ((ListModel on: listModel asSortedCollection asOrderedCollection)
-						searchPolicy: SearchPolicy equality)]
-		ifFalse: 
-			[listModel addAll: self selectedClass variables.
-			variableListPresenter model: ((ListModel on: listModel asSortedCollection asOrderedCollection)
-						searchPolicy: SearchPolicy equality)]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> postOkToChangeEvent [
 	| service |
 	service := self isClassListTabSelected

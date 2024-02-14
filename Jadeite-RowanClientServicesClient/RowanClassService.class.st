@@ -894,7 +894,7 @@ RowanClassService >> updateCategories: presenter browser: browser [
 	presenter list copy
 		do: [:category | (categories includes: category) ifFalse: [theModel remove: category ifAbsent:[]]].
 	categories do: [:category | (presenter list includes: category) ifFalse: [theModel add: category]].
-	presenter hasSelection ifFalse: [presenter model: theModel].
+	presenter hasSelection ifFalse: [presenter list: theModel asSortedCollection asOrderedCollection].
 	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"
 ]
 
@@ -932,7 +932,7 @@ RowanClassService >> updateMethodPackages: presenter [
 { #category : 'private' }
 RowanClassService >> updateVariables: presenter [
 	variables ifNil: [^self].
-	presenter list: variables. 
+	presenter list: variables asSortedCollection asOrderedCollection. 
 ]
 
 { #category : 'public' }
