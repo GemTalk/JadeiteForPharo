@@ -306,6 +306,12 @@ JadeiteBrowser >> projectListPresenter [
 	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
 ]
 
+{ #category : 'testing' }
+JadeiteBrowser >> removeClass [
+
+	^self activePresenter removeClass
+]
+
 { #category : 'commands' }
 JadeiteBrowser >> selectedClass [
 
