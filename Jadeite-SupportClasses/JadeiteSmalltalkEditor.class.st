@@ -25,9 +25,9 @@ JadeiteSmalltalkEditor >> application [
 ]
 
 { #category : 'new selection' }
-JadeiteSmalltalkEditor >> atEndOfLineInsertAndSelect: aString [
+JadeiteSmalltalkEditor >> beginningOfLine [
+	^(self encompassJadeiteParagraph: self selectionInterval) first. 
 
-	self insertAndSelect: aString at: (self encompassJadeiteParagraph: self selectionInterval) last + 1
 ]
 
 { #category : 'editing keys' }
@@ -68,6 +68,12 @@ JadeiteSmalltalkEditor >> completionEngine [
 JadeiteSmalltalkEditor >> encompassJadeiteParagraph: anInterval [
 
 	^ self string encompassJadeiteParagraph: anInterval
+]
+
+{ #category : 'new selection' }
+JadeiteSmalltalkEditor >> endOfLine [
+
+	^ (self encompassJadeiteParagraph: self selectionInterval) last
 ]
 
 { #category : 'accessing' }
