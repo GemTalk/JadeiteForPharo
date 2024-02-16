@@ -181,12 +181,16 @@ JadeiteChangesBrowser >> initializeOperationsContextMenu [
 				item1
 					name: 'Browse Implementors';
 					action: [ self browseImplementors ];
-					enabled: [ self operationsListPresenter selections size = 1 ] ].
+					enabled: [
+						self operationsListPresenter selections size = 1 and: [
+								self operationsListPresenter selectedItem isClassPatch not ] ] ].
 			group addItem: [ :item2 |
 				item2
 					name: 'Browse Senders';
 					action: [ self browseSenders ];
-					enabled: [ self operationsListPresenter selections size = 1 ] ].
+					enabled: [
+						self operationsListPresenter selections size = 1 and: [
+								self operationsListPresenter selectedItem isClassPatch not ] ] ].
 			self ];
 		addGroup: [ :group |
 			group addItem: [ :item |
@@ -369,6 +373,7 @@ JadeiteChangesBrowser >> revert [
 	| operation revertedSource |
 	operation := operationsListPresenter selectedItem.
 	revertedSource := diffsPresenter leftText.
+	operation isClassPatch ifTrue:[MessageBox notify: 'Class definition changes cannot be reverted yet. Make changes in browser.'. ^self browseMethodClass].
 	operation revert: gciSession.
 	diffsPresenter rightText: revertedSource.
 	operationsListPresenter invalidate. 

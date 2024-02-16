@@ -3372,7 +3372,6 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
 
-	completionBlock ifNotNil: [ self halt ].
 	^self updateAfterFindClass: classService
 ]
 
