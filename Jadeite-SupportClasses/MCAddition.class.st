@@ -80,6 +80,12 @@ MCAddition >> packageName [
 	^definition packageName
 ]
 
+{ #category : 'private - factory' }
+MCAddition >> revert: session [
+	definition revertAddition: session.
+	reverted := true.  
+]
+
 { #category : 'accessing' }
 MCAddition >> selector [
 

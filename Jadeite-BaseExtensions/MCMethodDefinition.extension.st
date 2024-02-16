@@ -36,3 +36,21 @@ MCMethodDefinition >> revert: session [
 		commandArgs: (Array with: source with: category).
 	RowanServiceUpdater current issueCommand: classService session: session
 ]
+
+{ #category : '*Jadeite-BaseExtensions' }
+MCMethodDefinition >> revertAddition: session [
+
+	| classService methodService |
+	classService := (RowanClassService named: className asString) meta:
+		                classIsMeta.
+	methodService := RowanMethodService new
+		                 className: className asString;
+		                 selector: selector asSymbol;
+		                 meta: classIsMeta.
+	classService
+		command: #removeMethods:;
+		commandArgs: (Array with: (Array with: methodService)).
+	RowanServiceUpdater current
+		issueCommand: classService
+		session: session
+]

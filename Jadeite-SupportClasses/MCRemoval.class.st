@@ -82,6 +82,12 @@ MCRemoval >> packageName [
 	^definition packageName
 ]
 
+{ #category : 'private - factory' }
+MCRemoval >> revert: session [
+	definition revert: session.
+	reverted := true.  
+]
+
 { #category : 'accessing' }
 MCRemoval >> selector [
 

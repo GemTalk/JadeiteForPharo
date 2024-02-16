@@ -81,7 +81,7 @@ JadeiteChangesBrowser >> browseMethodClass [
 	classService := RowanClassService new name:
 		                self operationsListPresenter jadeiteSelections first.
 	classService meta:
-		self operationsListPresenter jadeiteSelections first modification classIsMeta.
+		self operationsListPresenter jadeiteSelections first definition classIsMeta.
 	RowanServiceUpdater current
 		updateService: classService
 		session: self gciSession.
