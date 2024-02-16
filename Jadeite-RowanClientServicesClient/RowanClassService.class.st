@@ -530,7 +530,7 @@ RowanClassService >> meta: anObject [
 
 { #category : 'accessing' }
 RowanClassService >> methodPackages [
-	^(methods collect: [:methodService | methodService definedPackage]) asSet asOrderedCollection
+	^(methods collect: [:methodService | methodService definedPackage]) asSet asSortedCollection asOrderedCollection
 ]
 
 { #category : 'public' }

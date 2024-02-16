@@ -790,11 +790,13 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
 		whenSelectionChangedDo: [ :selection |
-			self classSelected: self selectedClass ];
+			selection selectedItem ifNotNil: [
+					self classSelected: self selectedClass ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
-			self classSelected: self selectedClass ];
+			selection selectedItem ifNotNil: [ :classService |
+					self classSelected: classService ] ];
 		whenActivatedDo: [ :selection |
 			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
@@ -3047,6 +3049,14 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 
 	| answeringService service |
+	service := self isDictionaryTabSelected
+		           ifTrue: [
+			           classService dictionaryName ifNotNil: [ :nm |
+				           service := RowanDictionaryService new name: nm ] ]
+		           ifFalse: [
+			           classService packageName ifNotNil: [ :nm |
+				           RowanPackageService new name: nm ] ].
+	service ifNotNil: [ ^ service selectIn: self ].
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #packageOrDictionaryFor:;

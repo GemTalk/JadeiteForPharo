@@ -1717,12 +1717,6 @@ JadeSystemBrowserPresenter >> statusBarServerRequestText: aString [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> statusBarText: aString [
-	self parentPresenter parentPresenter statusBarText: aString.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> stepPointAt: aPoint [
 
 	| charIndex |
@@ -1777,47 +1771,6 @@ JadeSystemBrowserPresenter >> sunitPresenter [
 	"Private - for testing"
 
 	^sunitPresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updateAfterFindClass: anArray isMeta: aBoolean selector: aString [
-"
-	Array with: className with: dictionaryName with: catetory with: packageName.
-
-	packageDictionaryTabs currentCard name
-	package or dictionary selections (tab-delimited)
-	category-subcategory-subsubcategory-
-	classHierarchyTabs currentCard name
-	selected classes (tab-delimited)
-	instanceClassTabs currentCard name
-	superclassList selection
-	categoryVariableTabs currentCard name
-	methodFilterList selections (tab-delimited)
-	methodList selections (tab-delimited)
-	overrideList selection
-"
-	| stream tabName |
-	anArray isNil ifTrue: [^self].
-	stream := WriteStream on: String new.
-	tabName := (anArray at: 4) isEmpty 
-		ifTrue: ['dictionaryList']
-		ifFalse: [packageDictionaryTabs currentCard name].
-	stream 
-		nextPutAll: 'update'; lf;
-		nextPutAll: tabName; lf;	"[ packageList | dictionaryList ]"
-		nextPutAll: (tabName = 'packageList' ifTrue: [anArray at: 4] ifFalse: [anArray at: 2]); lf; 	"Package or Dictionary name"
-		nextPutAll: (anArray at: 3); nextPut: $-; lf;	"class category"
-		nextPutAll: 'classList'; lf;	"not hierarchy"
-		nextPutAll: (anArray at: 1); lf;	"className"
-		nextPutAll: (aBoolean ifNil: ['default'] ifNotNil: [aBoolean ifTrue: ['classTab'] ifFalse: ['instanceTab']]); lf;
-		lf; 	"superclass"
-		nextPutAll: 'categoryList'; lf;	"not variables"
-		lf;		"methodFilter (category or variable)"
-		nextPutAll: aString; lf; 	"method names"
-		lf;		"override"
-		yourself.
-	self updateCommand: stream contents.
-
 ]
 
 { #category : 'as yet unclassified' }

@@ -350,13 +350,6 @@ RowanSystemBrowserPresenter >> updateMethodReferences: displayArrays [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updateMethodSource [
-	self updateAndSelect: methodSourcePresenter .
-	
-
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> updateMethodsFrom: update [
 	| fullList selections |
 	fullList := update methods collect: 
