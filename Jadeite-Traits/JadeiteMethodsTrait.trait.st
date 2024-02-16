@@ -4,7 +4,17 @@ Trait {
 }
 
 { #category : 'menus' }
-JadeiteMethodsTrait >> addBrowseImplementorsDialogItemTo: group [
+JadeiteMethodsTrait >> addBrowseClassItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse Class';
+			action: [ self browseMethodClass ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addDialogImplementorsDialogItemTo: group [
 
 	group addItem: [ :item |
 		item
@@ -13,7 +23,16 @@ JadeiteMethodsTrait >> addBrowseImplementorsDialogItemTo: group [
 ]
 
 { #category : 'menus' }
-JadeiteMethodsTrait >> addBrowseImplementorsItemTo: group [
+JadeiteMethodsTrait >> addDialogSendersItemTo: group [
+
+	^ group addItem: [ :item |
+		  item
+			  name: 'Browse Senders Of ...';
+			  action: [ self browseSendersOf ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addImplementorsItemTo: group [
 
 	group addItem: [ :item |
 		item
@@ -23,7 +42,7 @@ JadeiteMethodsTrait >> addBrowseImplementorsItemTo: group [
 ]
 
 { #category : 'menus' }
-JadeiteMethodsTrait >> addBrowseLiteralReferencesTo: group [
+JadeiteMethodsTrait >> addLiteralReferencesTo: group [
 
 	^ group addItem: [ :item |
 		  item
@@ -32,7 +51,7 @@ JadeiteMethodsTrait >> addBrowseLiteralReferencesTo: group [
 ]
 
 { #category : 'menus' }
-JadeiteMethodsTrait >> addBrowseMethodsContainingTo: group [
+JadeiteMethodsTrait >> addMethodsContainingTo: group [
 
 	group addItem: [ :item |
 		item
@@ -41,16 +60,7 @@ JadeiteMethodsTrait >> addBrowseMethodsContainingTo: group [
 ]
 
 { #category : 'menus' }
-JadeiteMethodsTrait >> addBrowseSendersDialogItemTo: group [
-
-	^ group addItem: [ :item |
-		  item
-			  name: 'Browse Senders Of ...';
-			  action: [ self browseSendersOf ] ]
-]
-
-{ #category : 'menus' }
-JadeiteMethodsTrait >> addBrowseSendersItemTo: group [
+JadeiteMethodsTrait >> addSendersItemTo: group [
 
 	group addItem: [ :item |
 		item
@@ -118,7 +128,8 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 	shell := self openMethodListOn: service selecting: string.
 	shell updateCaptionFromSearchString:
 		service answer size printString , ' Implementors of '
-		, string asString printString
+		, string asString printString.
+	^shell
 ]
 
 { #category : 'queries' }
@@ -355,27 +366,19 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-			  group addItem: [ :item |
-					  item
-						  name: 'Browse Class';
-						  action: [ self browseMethodClass ];
-						  enabled: [ self methodListPresenter selections size = 1 ] ].
-			  group addItem: [ :item1 |
-				  item1
-					  name: 'Browse Implementors';
-					  action: [ self browseImplementors ];
-					  enabled: [ self methodListPresenter selections size = 1 ] ].
-			  self addBrowseImplementorsDialogItemTo: group.
+			  self addBrowseClassItemTo: group.
+			  self addImplementorsItemTo: group.
+			  self addDialogImplementorsDialogItemTo: group.
 			  group addItem: [ :item2 |
-				  item2
-					  name: 'Browse Senders';
-					  action: [ self browseSenders ];
-					  enabled: [ self methodListPresenter selections size = 1 ] ].
-			  self addBrowseSendersDialogItemTo: group ];
+					  item2
+						  name: 'Browse Senders';
+						  action: [ self browseSenders ];
+						  enabled: [ self methodListPresenter selections size = 1 ] ].
+			  self addDialogSendersItemTo: group ];
 		  addGroup: [ :group |
 			  group addItem: [ :item |
-				  self addBrowseMethodsContainingTo: group.
-				  self addBrowseLiteralReferencesTo: group.
+				  self addMethodsContainingTo: group.
+				  self addLiteralReferencesTo: group.
 				  item
 					  name: 'Browse Selected Methods';
 					  action: [ self browseSelectedMethods ];
@@ -388,10 +391,10 @@ JadeiteMethodsTrait >> newBrowseMethodsConsoleMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-			  self addBrowseImplementorsDialogItemTo: group.
-			  self addBrowseSendersDialogItemTo: group.
-			  self addBrowseMethodsContainingTo: group.
-			  self addBrowseLiteralReferencesTo: group ];
+			  self addDialogImplementorsDialogItemTo: group.
+			  self addDialogSendersItemTo: group.
+			  self addMethodsContainingTo: group.
+			  self addLiteralReferencesTo: group ];
 		  yourself
 ]
 

@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteChangesBrowser',
 	#superclass : 'JadeitePresenter',
-	#traits : 'JadeiteToolbarTrait',
-	#classTraits : 'JadeiteToolbarTrait classTrait',
+	#traits : 'JadeiteToolbarTrait + JadeiteMethodsTrait',
+	#classTraits : 'JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait',
 	#instVars : [
 		'name',
 		'diffsPresenter',
@@ -55,33 +55,50 @@ JadeiteChangesBrowser >> afterTitle: operation [
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowser >> browseImplementors [
 	| selection shell methodListPresenter changedMethod modifiedSelector |
-	selection := operationListPresenter selectionOrNil.
+	selection := operationsListPresenter selectionOrNil.
 	selection isNil ifTrue: [^MessageBox notify: 'Nothing to browse'].
-	selection isMethod ifFalse: [^MessageBox notify: 'Cannot browse implementors of a non-method'].
+	selection isClassPatch ifTrue: [^MessageBox notify: 'Cannot browse implementors of a non-method'].
 	modifiedSelector := self modifiedSelectorForBrowsing: selection.
 	
-	[shell := JadePresenter browseImplementorsOf: modifiedSelector session: self gciSession.
-	methodListPresenter := shell primaryPresenter methodListPresenter methodListPresenter.
-	changedMethod := methodListPresenter list
+	[shell := self browseImplementorsOf: modifiedSelector.
+	methodListPresenter := shell methodListPresenter.
+	changedMethod := shell methodListPresenter list
 				detect: [:methodService | methodService className = selection className]
 				ifNone: [^shell].
-	methodListPresenter selection: changedMethod]
+	methodListPresenter selectItem: changedMethod]
 			on: Error
 			do: 
 				[:ex |
-				shell destroy.
+				shell close.
 				MessageBox notify: 'The change you have selected cannot be browsed'].
 	^shell
+]
+
+{ #category : 'queries' }
+JadeiteChangesBrowser >> browseMethodClass [
+
+	| classService className |
+	classService := RowanClassService new name:
+		                self operationsListPresenter jadeiteSelections first.
+	classService meta:
+		self operationsListPresenter jadeiteSelections first modification classIsMeta.
+	RowanServiceUpdater current
+		updateService: classService
+		session: self gciSession.
+	className := self operationsListPresenter jadeiteSelections first
+		             className.
+	^ Cursor wait showWhile: [
+		  self openBrowser findClassNamed: className ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowser >> browseSenders [
 	| selection shell modifiedSelector |
-	selection := operationListPresenter selectionOrNil.
+	selection := operationsListPresenter selectionOrNil.
 	selection isNil ifTrue: [^MessageBox notify: 'Nothing to browse'].
-	selection isMethod ifFalse: [^MessageBox notify: 'Cannot browse senders of a non-method'].
+	selection isClassPatch ifTrue: [^MessageBox notify: 'Cannot browse senders of a non-method'].
 	modifiedSelector := self modifiedSelectorForBrowsing: selection.
-	[shell := JadePresenter browseSendersOf: modifiedSelector session: self gciSession] on: Error
+	[shell := self browseSendersOf: modifiedSelector] on: Error
 		do: 
 			[:ex |
 			shell destroy.
@@ -100,19 +117,6 @@ JadeiteChangesBrowser >> connectPresenters [
 	super connectPresenters.
 	operationsListPresenter whenSelectionChangedDo: [ :selection | 
 		self operationSelected ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteChangesBrowser >> createSchematicWiring [
-	super createSchematicWiring.
-	includeIdenticalPresenter
-		when: #valueChanged
-		send: #refreshIdenticalSource
-		to: self.
-	operationListPresenter
-		when: #selectionChanged
-		send: #operationSelected
-		to: self
 ]
 
 { #category : 'initialization' }
@@ -162,6 +166,39 @@ JadeiteChangesBrowser >> initializeMenubar [
 ]
 
 { #category : 'initialization' }
+JadeiteChangesBrowser >> initializeOperationsContextMenu [
+
+	| menu |
+	menu := JadeiteMenuPresenter new.
+	menu
+		addGroup: [ :group |
+			group addItem: [ :item |
+					item
+						name: 'Browse Class';
+						action: [ self browseMethodClass ];
+						enabled: [ self operationsListPresenter selections size = 1 ] ].
+			group addItem: [ :item1 |
+				item1
+					name: 'Browse Implementors';
+					action: [ self browseImplementors ];
+					enabled: [ self operationsListPresenter selections size = 1 ] ].
+			group addItem: [ :item2 |
+				item2
+					name: 'Browse Senders';
+					action: [ self browseSenders ];
+					enabled: [ self operationsListPresenter selections size = 1 ] ].
+			self ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'Revert';
+					action: [ self revert ];
+					enabled: [ self operationsListPresenter selections size = 1 ] ] ].
+
+	self operationsListPresenter contextMenu: menu
+]
+
+{ #category : 'initialization' }
 JadeiteChangesBrowser >> initializeOperationsListPresenter [
 
 	operationsListPresenter := JadeiteTablePresenter new.
@@ -193,7 +230,8 @@ JadeiteChangesBrowser >> initializePresenters [
 	self layout spacing: 10.
 	self initializeToolbar.
 	self initializeOperationsListPresenter.
-	self initializeDiffsPresenter. 
+	self initializeDiffsPresenter.
+	self initializeOperationsContextMenu
 ]
 
 { #category : 'initialization' }
@@ -220,7 +258,7 @@ JadeiteChangesBrowser >> initializeWindow: aWindowPresenter [
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowser >> modifiedSelectorForBrowsing: selection [
 	| substrings |
-	substrings := selection selector subStrings.
+	substrings := selection selector substrings.
 	^substrings isEmpty ifTrue: [String new] ifFalse: [substrings first asSymbol]
 ]
 
@@ -321,24 +359,16 @@ JadeiteChangesBrowser >> refreshIdenticalSource [
 		yourself
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteChangesBrowser >> revert [
-	| operation afterTitle |
-	
-	[operation := operationListPresenter selection.
+	| operation |
+
+	operation := operationsListPresenter selectedItem.
 	operation revert: gciSession.
-	operation clearObsoletionMemo.
-	afterTitle := self afterTitle: operation.
-	diffsPresenter beforePresenter value: String new.	"resetting value first seems to be necessary to clear highlighting even though indicators get cleared"
-	diffsPresenter afterPresenter value: String new.
-	diffsPresenter
-		clearDiffs;
-		afterTitle: afterTitle;
-		compare: operation obsoletionMemo with: operation modificationMemo.
-	diffsPresenter view invalidate.
-	operationListPresenter view invalidate]
-			on: Error
-			do: [:ex | MessageBox notify: 'Not able to revert this item yet']
+	self refresh. 
+	diffsPresenter clear. 
+	self todo:[	self on: Error
+			do: [:ex | MessageBox notify: 'Not able to revert this item yet']]
 ]
 
 { #category : 'as yet unclassified' }

@@ -105,6 +105,12 @@ MCModification >> printAnnotations: request on: aStream [
 	modification printAnnotations: request on: aStream.
 ]
 
+{ #category : 'private - factory' }
+MCModification >> revert: session [
+	obsoletion revert: session.
+	reverted := true. 
+]
+
 { #category : 'accessing' }
 MCModification >> selector [
 

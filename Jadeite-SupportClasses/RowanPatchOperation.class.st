@@ -3,7 +3,8 @@ Class {
 	#superclass : 'MCPatchOperation',
 	#instVars : [
 		'gciSession',
-		'oopType'
+		'oopType',
+		'reverted'
 	],
 	#category : 'Jadeite-SupportClasses'
 }
