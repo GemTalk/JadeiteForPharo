@@ -201,11 +201,15 @@ JadeiteChangesBrowser >> initializeOperationsContextMenu [
 { #category : 'initialization' }
 JadeiteChangesBrowser >> initializeOperationsListPresenter [
 
+	| col |
 	operationsListPresenter := JadeiteTablePresenter new.
-	operationsListPresenter addColumn: (SpStringTableColumn
-			 title: 'Type'
-			 evaluated: [ :operation | operation typeString ]).
 
+	col := SpStringTableColumn
+		       title: 'Type'
+		       evaluated: [ :operation | operation typeString ].
+	col displayColor: [ :operation |
+		operation reverted ifTrue: [ Color green adjustBrightness: -0.5 ] ].
+	operationsListPresenter addColumn: col.
 	operationsListPresenter addColumn: (SpStringTableColumn
 			 title: 'Package'
 			 evaluated: [ :operation | operation packageName ]).
@@ -361,14 +365,17 @@ JadeiteChangesBrowser >> refreshIdenticalSource [
 
 { #category : 'actions' }
 JadeiteChangesBrowser >> revert [
-	| operation |
 
+	| operation revertedSource |
 	operation := operationsListPresenter selectedItem.
+	revertedSource := diffsPresenter leftText.
 	operation revert: gciSession.
-	self refresh. 
-	diffsPresenter clear. 
-	self todo:[	self on: Error
-			do: [:ex | MessageBox notify: 'Not able to revert this item yet']]
+	diffsPresenter rightText: revertedSource.
+	operationsListPresenter invalidate. 
+	self todo: [
+		self
+			on: Error
+			do: [ :ex | MessageBox notify: 'Not able to revert this item yet' ] ]
 ]
 
 { #category : 'as yet unclassified' }

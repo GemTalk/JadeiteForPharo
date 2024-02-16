@@ -27,6 +27,12 @@ RowanPatchOperation class >> fromStream: aStream session: aGciSession [
 ]
 
 { #category : 'initialization' }
+RowanPatchOperation >> initialize [ 
+	super initialize. 
+	reverted := false. 
+]
+
+{ #category : 'initialization' }
 RowanPatchOperation >> initialize: aList [
 	
 ]
@@ -40,4 +46,26 @@ RowanPatchOperation >> initialize: aStream session: aGciSession [
 	oopType := string asNumber.
 	self initialize: aStream.  
 
+]
+
+{ #category : 'accessing' }
+RowanPatchOperation >> reverted [
+
+	^ reverted
+]
+
+{ #category : 'accessing' }
+RowanPatchOperation >> reverted: anObject [
+
+	reverted := anObject
+]
+
+{ #category : 'acccessing' }
+RowanPatchOperation >> typeString [
+	"This browser is going away someday. Do ugly string parsing for now to make modifications that are reverted more visible"
+
+	| typeString |
+	typeString := self class name copyFrom: 3 to: self class name size.
+	self reverted ifTrue: [typeString := typeString , ' ' , '(reverted)'].
+	^typeString
 ]
