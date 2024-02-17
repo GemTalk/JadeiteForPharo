@@ -87,6 +87,25 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 ]
 
 { #category : 'queries' }
+JadeiteMethodsTrait >> browseBreakpoints [
+
+	| service browser |
+	service := RowanQueryService
+		           command: #breakPointMethods
+		           withArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: service
+		session: GciSession current.
+	browser := JadeiteMethodListBrowser
+		           openOn: service
+		           selectingAnyMatch: String new
+		           session: GciSession current.
+	browser updateCaptionFromSearchString:
+		'Methods Containing BreakPoints'.
+	^ browser
+]
+
+{ #category : 'queries' }
 JadeiteMethodsTrait >> browseImplementors [
 
 	^ self browseImplementorsOf: self selectedMethodName
@@ -376,13 +395,17 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 						  enabled: [ self methodListPresenter selections size = 1 ] ].
 			  self addDialogSendersItemTo: group ];
 		  addGroup: [ :group |
+			  self addMethodsContainingTo: group.
+			  self addLiteralReferencesTo: group.
 			  group addItem: [ :item |
-				  self addMethodsContainingTo: group.
-				  self addLiteralReferencesTo: group.
 				  item
 					  name: 'Browse Selected Methods';
 					  action: [ self browseSelectedMethods ];
-					  enabled: [ self methodListPresenter selections notEmpty ] ] ];
+					  enabled: [ self methodListPresenter selections notEmpty ] ].
+			  group addItem: [ :item |
+				  item
+					  name: 'Browse Breakpoints Methods';
+					  action: [ self browseBreakpoints ] ] ];
 		  yourself
 ]
 
