@@ -97,31 +97,6 @@ JadeiteBrowserPresenter class >> projectMenu [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter class >> projectMenuStrings [
-	"put on the class side so it can be shared with the projectlist in the console"
-
-	self rowanFixMe.	"this really is a cumbersome way to build a menu."
-	0 == 1
-		ifTrue: 
-			[self new
-				createNewProject;
-				loadProject;
-				reloadProject;
-				unloadProjects;
-				pullFromGit;
-				gitCommit;
-				pushToGit;
-				projectChanges;
-				writeProject;
-				checkoutTag;
-				checkout;
-				auditProject;
-				gitProjectLog;
-				refresh].
-	^#('Projects' 'Browse//openJadeiteProjectsBrowser' 'Create ...//createNewProject' 'Load ...//loadProject' 'Refresh From Disk //reloadProject' 'Unload//unloadProjects' '-' 'Pull from Git//pullFromGit' 'Commit to Git ...//gitCommit' 'Push to Git//pushToGit' '-' '&Changes//projectChanges' 'Write ...//writeProject' 'Checkout Git Tag ...//checkoutTag' 'Checkout Git Branch ...//checkout' '-' 'Edit Components//editComponents' 'Edit Load Spec From File ...//editLoadSpecFromFile' '-' 'Audit//auditProject' 'Git Log//projectLog' '&Refresh//refreshFromServer')
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> abortTransaction [
 
 	super abortTransaction.

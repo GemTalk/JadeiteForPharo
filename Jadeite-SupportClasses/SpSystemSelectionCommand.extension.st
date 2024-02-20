@@ -4,7 +4,7 @@ Extension { #name : 'SpSystemSelectionCommand' }
 SpSystemSelectionCommand >> jadeiteMenuNameFromSelector [
 
 	| dynamicName abbreviatedName |
-	dynamicName := self context selectedSelector ifNil: [ 'it' ].
+	dynamicName := (self context selectedSelector ifNil: [ 'it' ]) asString.
 	abbreviatedName := dynamicName
 		                   copyFrom: 1
 		                   to: (dynamicName size min: 40).
