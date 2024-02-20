@@ -203,7 +203,7 @@ JadeiteProjectsTrait >> gitCommit [
 	self canCommit ifFalse: [ ^ self ].
 	projectName := self projectListPresenter selectedItem name.
 	message := UIManager default
-		           multiLineRequest:
+		           jadeiteMultiLineRequest:
 		           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
 		           initialAnswer: '<enter commit comment here>'
 		           answerHeight: 250.
