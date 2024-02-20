@@ -4,6 +4,15 @@ Trait {
 }
 
 { #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseBreakpointMethodsTo: group [
+
+	^ group addItem: [ :item |
+		  item
+			  name: 'Browse Breakpoints Methods';
+			  action: [ self browseBreakpoints ] ]
+]
+
+{ #category : 'menus' }
 JadeiteMethodsTrait >> addBrowseClassItemTo: group [
 
 	group addItem: [ :item |
@@ -402,10 +411,7 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 					  name: 'Browse Selected Methods';
 					  action: [ self browseSelectedMethods ];
 					  enabled: [ self methodListPresenter selections notEmpty ] ].
-			  group addItem: [ :item |
-				  item
-					  name: 'Browse Breakpoints Methods';
-					  action: [ self browseBreakpoints ] ] ];
+			  self addBrowseBreakpointMethodsTo: group ];
 		  yourself
 ]
 
@@ -414,10 +420,12 @@ JadeiteMethodsTrait >> newBrowseMethodsConsoleMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-			  self addDialogImplementorsDialogItemTo: group.
-			  self addDialogSendersItemTo: group.
-			  self addMethodsContainingTo: group.
-			  self addLiteralReferencesTo: group ];
+			  self
+				  addDialogImplementorsDialogItemTo: group;
+				  addDialogSendersItemTo: group;
+				  addMethodsContainingTo: group;
+				  addLiteralReferencesTo: group;
+				  addBrowseBreakpointMethodsTo: group ];
 		  yourself
 ]
 

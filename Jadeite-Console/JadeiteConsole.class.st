@@ -138,11 +138,6 @@ JadeiteConsole >> browseBreakpointList [
 	^JadePresenter browseBreakpointsIn: self gciSession
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> browseBreakpoints [
-	^JadeiteBreakpointBrowser showOnSession: self gciSession
-]
-
 { #category : 'queries' }
 JadeiteConsole >> browseClass [
 	^JadePresenter browseClassIn: self gciSession
