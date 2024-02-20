@@ -139,7 +139,8 @@ JadeiteChangesBrowser >> initialize [
 { #category : 'initialization' }
 JadeiteChangesBrowser >> initializeDiffsPresenter [
 	diffsPresenter := JadeiteDiffPresenter new. 
-	self layout add: diffsPresenter
+	self layout add: diffsPresenter.
+	diffsPresenter showOptions: false
 ]
 
 { #category : 'initialization' }

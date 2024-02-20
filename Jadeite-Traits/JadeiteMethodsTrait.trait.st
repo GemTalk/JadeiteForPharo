@@ -23,6 +23,26 @@ JadeiteMethodsTrait >> addBrowseClassItemTo: group [
 ]
 
 { #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseDifferencesTo: group [
+
+	^ group addItem: [ :item |
+		  item
+			  name: 'Browse Differences';
+			  action: [ self browseDifferences ];
+			  enabled: [ self methodListPresenter selections size = 2 ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseHistoryTo: group [
+
+	^ group addItem: [ :item |
+		  item
+			  name: 'Browse Method History';
+			  action: [ self browseMethodHistory ];
+			  enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
+{ #category : 'menus' }
 JadeiteMethodsTrait >> addDialogImplementorsDialogItemTo: group [
 
 	group addItem: [ :item |
@@ -112,6 +132,18 @@ JadeiteMethodsTrait >> browseBreakpoints [
 	browser updateCaptionFromSearchString:
 		'Methods Containing BreakPoints'.
 	^ browser
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> browseDifferences [
+	| diffBrowser | 
+	self methodListPresenter selectedItems size = 2 ifFalse: [ ^ self ].
+	diffBrowser := JadeiteDiffBrowser
+		compare: self methodListPresenter selectedItems first
+		to: self methodListPresenter selectedItems last
+		application: self application.
+	diffBrowser owner application: self application. 
+	^diffBrowser
 ]
 
 { #category : 'queries' }
@@ -217,6 +249,10 @@ JadeiteMethodsTrait >> browseMethodClass [
 		             className.
 	^ Cursor wait showWhile: [
 		  self openBrowser findClassNamed: className ]
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> browseMethodHistory [
 ]
 
 { #category : 'queries' }
@@ -411,6 +447,8 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 					  name: 'Browse Selected Methods';
 					  action: [ self browseSelectedMethods ];
 					  enabled: [ self methodListPresenter selections notEmpty ] ].
+			  self addBrowseDifferencesTo: group.
+			  self addBrowseHistoryTo: group.
 			  self addBrowseBreakpointMethodsTo: group ];
 		  yourself
 ]

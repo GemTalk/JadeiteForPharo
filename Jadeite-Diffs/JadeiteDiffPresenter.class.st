@@ -1,13 +1,21 @@
 Class {
 	#name : 'JadeiteDiffPresenter',
 	#superclass : 'SpDiffPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-Diffs'
 }
 
 { #category : 'specs' }
 JadeiteDiffPresenter class >> adapterName [
 
 	^ #JadeiteDiffAdapter
+]
+
+{ #category : 'accessing' }
+JadeiteDiffPresenter >> addStyle: aString [
+	
+	super addStyle: aString. 
+	leftText addStyle: aString.
+	rightText addStyle: aString
 ]
 
 { #category : 'actions' }
