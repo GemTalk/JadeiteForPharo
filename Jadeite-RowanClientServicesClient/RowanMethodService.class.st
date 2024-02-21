@@ -735,8 +735,13 @@ RowanMethodService >> selectorPrintString [
 
 	| ws |
 	ws := WriteStream on: String new.
+	ws nextPutAll: className.
+	meta ifTrue: [
+		ws
+			space;
+			nextPutAll: 'class';
+			space ].
 	ws
-		nextPutAll: className;
 		nextPutAll: '>>';
 		nextPutAll: selector.
 	^ ws contents

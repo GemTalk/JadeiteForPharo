@@ -21,6 +21,7 @@ JadeiteDiffBrowser class >> compare: methodService1 to: methodService2 applicati
 		               rightLabel: methodService2 selectorPrintString;
 		               yourself.
 	diffBrowser gciSession: application gciSession.
+	diffBrowser addStyle: 'jadeiteTextBackgroundColor'.
 	diffBrowser open.
 	diffBrowser owner application: application.
 	^ diffBrowser

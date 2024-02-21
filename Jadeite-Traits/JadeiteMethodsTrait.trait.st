@@ -253,6 +253,11 @@ JadeiteMethodsTrait >> browseMethodClass [
 
 { #category : 'actions' }
 JadeiteMethodsTrait >> browseMethodHistory [
+
+	| historyBrowser | 
+	self methodListPresenter selectedItems size = 1 ifFalse: [ ^ self ].
+	historyBrowser := JadeiteHistoryBrowser showOn: self methodListPresenter selectedItem application: self application. 
+	^historyBrowser
 ]
 
 { #category : 'queries' }
