@@ -17,12 +17,6 @@ Class {
 	#category : 'Jadeite-MethodBrowser'
 }
 
-{ #category : 'actions' }
-JadeiteMethodListPresenter >> abortTransaction [
-
-	^self application abortTransaction.
-]
-
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> addStyle: aString [
 	"don't send the super because we don't want the toolbar to be the same color as source pane"
@@ -70,12 +64,6 @@ JadeiteMethodListPresenter >> clearAllBreakpoints [
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> clearMethodBreakpoints [
 	^JadePresenter clearMethodBreakpoints: methodListPresenter selections in: self gciSession
-]
-
-{ #category : 'actions' }
-JadeiteMethodListPresenter >> commitTransaction [
-
-	^ self application commitTransaction
 ]
 
 { #category : 'as yet unclassified' }

@@ -10,11 +10,6 @@ Class {
 	#category : 'Jadeite-Browser'
 }
 
-{ #category : 'actions' }
-JadeiteBrowser >> abortTransaction [
-	^self application abortTransaction.
-]
-
 { #category : 'accessing' }
 JadeiteBrowser >> activePresenter [
 
@@ -69,11 +64,6 @@ JadeiteBrowser >> classListPresenter [
 JadeiteBrowser >> closeCard [
 
 	self tabs removePage: self tabs currentCard
-]
-
-{ #category : 'actions' }
-JadeiteBrowser >> commitTransaction [
-	^self application commitTransaction.
 ]
 
 { #category : 'initialization' }

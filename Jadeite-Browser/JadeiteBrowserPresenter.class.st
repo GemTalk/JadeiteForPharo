@@ -3711,7 +3711,7 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 		           command: #readmeContents;
 		           path: self projectReadmePath.
 	self issueCommand: service onCompletion: nil.
-	projectReadMeTab value: service answer replaceLfWithCrLf
+	projectReadMeTab value: service answer
 ]
 
 { #category : 'updates' }

@@ -106,11 +106,6 @@ JadeiteChangesBrowser >> browseSenders [
 	^shell
 ]
 
-{ #category : 'actions' }
-JadeiteChangesBrowser >> commitTransaction [
-	^self application commitTransaction
-]
-
 { #category : 'initialization' }
 JadeiteChangesBrowser >> connectPresenters [
 

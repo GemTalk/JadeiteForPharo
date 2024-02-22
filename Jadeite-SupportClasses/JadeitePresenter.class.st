@@ -11,10 +11,22 @@ Class {
 	#category : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'actions' }
+JadeitePresenter >> abortTransaction [
+
+	^self application abortTransaction
+]
+
 { #category : 'initialization' }
 JadeitePresenter >> caption: aString [
 
 	self owner title: aString
+]
+
+{ #category : 'actions' }
+JadeitePresenter >> commitTransaction [
+
+	^self application commitTransaction
 ]
 
 { #category : 'accessing' }

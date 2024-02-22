@@ -50,11 +50,6 @@ JadeiteConsole class >> showOnSession: aGciSession [
 	^theConsole
 ]
 
-{ #category : 'transactions' }
-JadeiteConsole >> abortTransaction [
-	^self application abortTransaction.
-]
-
 { #category : 'events' }
 JadeiteConsole >> abortedTransaction [
 	self todo: [self displayLastKnownCommitOrAbort].
@@ -193,11 +188,6 @@ JadeiteConsole >> colorForUnsavedEdits [
 	| newColor |
 	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForUnsavedEdits.
 	newColor ifNotNil: [JadeiteTextStyles default colorForUnsavedEdits: newColor]
-]
-
-{ #category : 'transactions' }
-JadeiteConsole >> commitTransaction [
-	^self application commitTransaction.
 ]
 
 { #category : 'transactions' }

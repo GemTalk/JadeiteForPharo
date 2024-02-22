@@ -20,11 +20,6 @@ JadeiteSUnitPresenter class >> defaultAdditionalAccelerators [
 	^super defaultAdditionalAccelerators , #(#(#debug 'Ctrl+Shift+B'))
 ]
 
-{ #category : 'actions' }
-JadeiteSUnitPresenter >> abortTransaction [
-	^self application abortTransaction.
-]
-
 { #category : 'accessing' }
 JadeiteSUnitPresenter >> activePresenter [
 	"only presenter is myself"
