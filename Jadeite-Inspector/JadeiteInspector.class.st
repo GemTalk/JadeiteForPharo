@@ -293,7 +293,13 @@ JadeiteInspector >> dive [
 	"instVarListPresenter selection is <anAssociation>"
 	(self isSelfSelected or:[self isAsOopSelected]) ifTrue:[^self]. 
 	oop := instVarListPresenter selections first value.
-	(oop isKindOf: Array) ifTrue: [oop := oop last].	"a dictionary entry will hold oop of key and oop of value"
+	(oop isKindOf: Array) ifTrue: [
+			       | last |
+			       last := oop last.
+			      oop :=  last isArray
+				       ifTrue: [ last last ]
+				       ifFalse: [ last ]	
+		].	"a dictionary entry will hold oop of key and oop of value"
 	objectIndex = oopsCollection size
 		ifFalse: [(oopsCollection at: objectIndex + 1) = oop ifTrue: [^self getNextObject]].
 	self inspectOop: oop
@@ -579,7 +585,12 @@ JadeiteInspector >> inspectInstVar [
 	key := instVarListPresenter selections first key.
 	oop := key = 'self'
 		       ifTrue: [ model oop ]
-		       ifFalse: [ instVarListPresenter selectedItem last ].
+		       ifFalse: [
+			       | last |
+			       last := instVarListPresenter selectedItem last.
+			       last isArray
+				       ifTrue: [ last last ]
+				       ifFalse: [ last ] ].
 	^ JadeiteInspectorApplication show: oop onSession: gciSession
 ]
 

@@ -41,13 +41,6 @@ JadeiteMethodListPresenter >> autoCommit: boolean [
 	autoCommit value: boolean
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> browseMethodHistory [
-	| methodService |
-	methodService := methodListPresenter selections first.
-	^JadeiteMethodHistoryBrowser showOnClass: methodService classService selector: methodService
-]
-
 { #category : 'testing' }
 JadeiteMethodListPresenter >> canDiscardEdits [
 

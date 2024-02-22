@@ -14,8 +14,7 @@ JadeiteDiffPresenter class >> adapterName [
 JadeiteDiffPresenter >> addStyle: aString [
 	
 	super addStyle: aString. 
-	leftText addStyle: aString.
-	rightText addStyle: aString
+	adapter ifNotNil: [:a | a addStyle: aString].
 ]
 
 { #category : 'actions' }

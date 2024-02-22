@@ -29,9 +29,9 @@ JadeiteDiffBrowser class >> compare: methodService1 to: methodService2 applicati
 
 { #category : 'api' }
 JadeiteDiffBrowser >> addStyle: aString [
-	
-	super addStyle: aString. 
-	diffsPresenter addStyle: aString
+
+	super addStyle: aString.
+	diffsPresenter addStyle: 'jadeiteTextBackgroundColor'
 ]
 
 { #category : 'accessing' }

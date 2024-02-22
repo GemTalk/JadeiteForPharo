@@ -55,6 +55,7 @@ JadeiteHistoryBrowser >> initializeDiffsPresenter [
 JadeiteHistoryBrowser >> initializePresenters [ 
 
 	super initializePresenters.
+	self initializeToolbar. 
 	self initializeVersionsList. 
 	self initializeDiffsPresenter 
 ]
