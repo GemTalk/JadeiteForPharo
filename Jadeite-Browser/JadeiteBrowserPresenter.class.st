@@ -1146,8 +1146,6 @@ JadeiteBrowserPresenter >> editSaveMethod: classService [
 				editSaveMethod: classService
 				in: methodSourcePresenter
 				category: self targetCategory.
-	compileResult == false
-		ifTrue: [self updateService: classService	"If we got a compile error our methods need a refresh"].
 	self statusBarText message ifNotNil:[:text | text isEmpty ifFalse:[^self]].  "don't reselect methods when status bar is full so as not to upset the compile information"
 	classService selectedMethods
 		ifNotNil: 

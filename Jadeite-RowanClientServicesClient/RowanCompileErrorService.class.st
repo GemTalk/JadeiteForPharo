@@ -30,3 +30,9 @@ RowanCompileErrorService >> isCompileError [
 
 	^true
 ]
+
+{ #category : 'rsr' }
+RowanCompileErrorService >> signalCompileError [
+
+	GsCompileError signal: self gsArguments
+]

@@ -637,9 +637,8 @@ RowanService >> printOn: aStream [
 
 { #category : 'rsr' }
 RowanService >> raiseCompileErrorIfNeeded [
-
-	self isCompileError ifTrue: [
-		GsCompileError signal: self gsArguments ]
+ 
+	self isCompileError ifTrue: [ self signalCompileError ]
 ]
 
 { #category : 'must not strip' }
@@ -720,6 +719,10 @@ RowanService >> shouldUpdate: anObject [
 RowanService >> signal [ 
 
 	" do nothing "
+]
+
+{ #category : 'rsr' }
+RowanService >> signalCompileError [
 ]
 
 { #category : 'must not strip' }
