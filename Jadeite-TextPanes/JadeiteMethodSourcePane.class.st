@@ -119,8 +119,7 @@ JadeiteMethodSourcePane >> saveMethodIn: classService category: category [
 
 	| methodSource1 |
 	self text: self adapter widget textArea text. "this should NOT be necessary. Something is broken in the way we set the Jadeite editor in JadeiteMorphicTextAdapter>>buildWidget"
-	methodSource1 := (self currentMethodSourceFrom: self text)
-		                 replaceCrLfWithLf.
+	methodSource1 := self currentMethodSourceFrom: self text.
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: methodSource1 with: category).

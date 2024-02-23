@@ -638,10 +638,8 @@ RowanService >> printOn: aStream [
 { #category : 'rsr' }
 RowanService >> raiseCompileErrorIfNeeded [
 
-	updates ifNotNil: [
-		updates isEmpty ifFalse: [
-			updates first isCompileError ifTrue: [
-				GsCompileError signal: updates first gsArguments ] ] ]
+	self isCompileError ifTrue: [
+		GsCompileError signal: self gsArguments ]
 ]
 
 { #category : 'must not strip' }

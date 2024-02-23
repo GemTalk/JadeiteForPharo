@@ -1,12 +1,12 @@
 Class {
 	#name : 'JadeiteHistoryBrowser',
 	#superclass : 'JadeitePresenter',
-	#traits : 'JadeiteToolbarTrait',
-	#classTraits : 'JadeiteToolbarTrait classTrait',
+	#traits : 'JadeiteToolbarTrait + JadeiteMethodsTrait',
+	#classTraits : 'JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait',
 	#instVars : [
 		'diffsPresenter',
-		'versionList',
-		'methodService'
+		'methodService',
+		'versionListPresenter'
 	],
 	#category : 'Jadeite-MethodHistory'
 }
@@ -34,7 +34,7 @@ JadeiteHistoryBrowser >> addStyle: aStyle [
 JadeiteHistoryBrowser >> connectPresenters [
 
 	super connectPresenters.
-	versionList whenSelectionChangedDo: [ :selection | 
+	versionListPresenter whenSelectionChangedDo: [ :selection | 
 		self versionSelected ]
 ]
 
@@ -57,20 +57,21 @@ JadeiteHistoryBrowser >> initializePresenters [
 	super initializePresenters.
 	self initializeToolbar. 
 	self initializeVersionsList. 
-	self initializeDiffsPresenter 
+	self initializeDiffsPresenter.
+	self initializeVersionsListContextMenu
 ]
 
 { #category : 'initialization' }
 JadeiteHistoryBrowser >> initializeVersionsList [
 
 	| col |
-	versionList := JadeiteTablePresenter new.
-	versionList addColumn: (SpStringTableColumn
+	versionListPresenter := JadeiteTablePresenter new.
+	versionListPresenter addColumn: (SpStringTableColumn
 			 title: 'Method'
 			 evaluated: [ :operation | operation selectorPrintString ]).
 	"	col displayColor: [ :operation |
 		operation reverted ifTrue: [ Color green adjustBrightness: -0.5 ] ]."
-	versionList addColumn: (SpStringTableColumn
+	versionListPresenter addColumn: (SpStringTableColumn
 			 title: 'category'
 			 evaluated: [ :operation | operation category ]).
 	"
@@ -84,7 +85,22 @@ JadeiteHistoryBrowser >> initializeVersionsList [
 			 title: 'Detail'
 			 evaluated: [ :operation | operation detailsString ])."
 
-	self layout add: versionList
+	self layout add: versionListPresenter
+]
+
+{ #category : 'initialization' }
+JadeiteHistoryBrowser >> initializeVersionsListContextMenu [
+
+	| menu |
+	menu := JadeiteMenuPresenter new.
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Revert';
+				action: [ self revert ];
+				enabled: [ versionListPresenter selections size = 1 ] ] ].
+
+	versionListPresenter contextMenu: menu
 ]
 
 { #category : 'initialization' }
@@ -108,6 +124,40 @@ JadeiteHistoryBrowser >> methodService: anObject [
 	methodService := anObject
 ]
 
+{ #category : 'actions' }
+JadeiteHistoryBrowser >> reportCompileError: gsArguments [
+
+	| argArray |
+	argArray := gsArguments first isArray
+		            ifTrue: [ gsArguments first ]
+		            ifFalse: [ (gsArguments at: 2) first ].
+	diffsPresenter withAdapterDo: [ :theAdapter | 
+		theAdapter widgetDo: [ :widget | widget dstMorph textArea readOnly: false. 
+			 widget dstMorph notify: (argArray at: 3) at: (argArray at: 2) in: widget dstMorph getText asString.
+			widget dstMorph textArea readOnly: true. ] ].
+	^ nil
+]
+
+{ #category : 'actions' }
+JadeiteHistoryBrowser >> revert [
+
+	| compileResult selectedService classService |
+	selectedService := versionListPresenter selectedItem. 
+	classService := (RowanClassService new name: selectedService className; meta: selectedService meta). 
+	classService
+		command: #saveMethodSource:category:;
+		commandArgs: (Array with: selectedService source with: selectedService category).
+	compileResult := [ self issueCommand: classService onCompletion: nil ]
+		on: GsCompileError
+		do: [ :ex | self todo: 'need to work on compile errors everywhere'.
+			self reportCompileError: ex gsArguments.
+			^ false ].
+	self updateHistory. 
+	versionListPresenter selectIndex: 1.
+	self todo:[compileResult "do something with this?"].
+	self todo:[self statusBarText message ifNotNil:[:text | text isEmpty ifFalse:[^self]]]
+]
+
 { #category : 'constants' }
 JadeiteHistoryBrowser >> shellName [
 
@@ -129,8 +179,7 @@ JadeiteHistoryBrowser >> updateHistory [
 			session: self gciSession
 			onCompletion: nil ].
 	history := OrderedCollection new.
-	versionList list: ListModel new.
-	versionList list addAll: answeringService answer reversed.
+	versionListPresenter items: answeringService answer reversed.
 	self todo: [ self setCaption ]
 ]
 
@@ -138,15 +187,16 @@ JadeiteHistoryBrowser >> updateHistory [
 JadeiteHistoryBrowser >> versionSelected [
 
 	| selectedIndex previousItem |
-	selectedIndex := versionList selection selectedIndex.
-	selectedIndex = versionList items size ifTrue: [
-		diffsPresenter rightText: versionList selectedItem source.
+	selectedIndex := versionListPresenter selection selectedIndex.
+	selectedIndex = 0 ifTrue:[^self]. 
+	selectedIndex = versionListPresenter items size ifTrue: [
+		diffsPresenter rightText: versionListPresenter selectedItem source.
 		diffsPresenter leftText: String new.
 		^ self ].
-	previousItem := versionList items at: selectedIndex + 1.
+	previousItem := versionListPresenter items at: selectedIndex + 1.
 	diffsPresenter
 		leftText: previousItem source;
 		leftLabel: 'Previous Source';
-		rightText: versionList selectedItem source;
+		rightText: versionListPresenter selectedItem source;
 		rightLabel: 'Selected Source'
 ]

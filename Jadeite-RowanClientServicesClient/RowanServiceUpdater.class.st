@@ -86,15 +86,14 @@ RowanServiceUpdater >> applyUpdateWhile: block [
 			self rowanPostUpdate]
 ]
 
-{ #category : 'updating' }
+{ #category : 'accessing' }
 RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"
-
-	self applyUpdateWhile: [
-		updates addAll: aCollection.
-		self updatesReadyToApply.
-		updates removeAll: updates. ]
+	self applyUpdateWhile: 
+			[updates removeAll: updates. "get rid of compile error service"
+			updates addAll: aCollection.
+			self updatesReadyToApply]
 ]
 
 { #category : 'commands' }
@@ -572,14 +571,14 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 	it wants us to care about if updateType is set. 
 	Respect the server's wishes."
 
-	[
+	
 	updates do: [ :update |
+		update raiseCompileErrorIfNeeded. 
 		(self shouldApply: selector forService: update) ifTrue: [
 			update
 				perform: selector
-				withEnoughArguments: (Array with: presenter with: browser) ] ] ]
-		on: Error
-		do: [ :ex | self halt ]
+				withEnoughArguments: (Array with: presenter with: browser) ] ] 
+		
 ]
 
 { #category : 'public' }
