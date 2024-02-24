@@ -82,39 +82,32 @@ JadeiteSUnitAbstractPresenter >> reset [
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices className: className [
 
-	| jadeResult postFullTestRunBlock postTestRunBlock |
+	| jadeResult index |
 	jadeResult := JadeTestResult new.
-	postFullTestRunBlock := [
-	                        self updateResult: jadeResult.
-	                        methodListPresenter
-		                        selectIndex: methodServices size
-		                        scrollToSelection: true. "ensure last test run is visible"
-	                        shouldStopTestRun := false.
-	                        testResults := jadeResult ].
-
-	1 to: methodServices size do: [ :index |
-		| methodService |
-		methodService := methodServices at: index.
+	methodServices do: [ :methodService |
 		methodService
 			command: command;
 			commandArgs: (Array
 					 with: methodService selector
 					 with: (className ifNil: [ methodService className ])).
+		self issueCommand: methodService onCompletion: nil.
 		methodService testResult = 'error' ifTrue: [
 			jadeResult addError: methodService ].
 		methodService testResult = 'failure' ifTrue: [
 			jadeResult addFailure: methodService ].
 		methodService testResult = 'passed' ifTrue: [
 			jadeResult addPassed: methodService ].
-		methodListPresenter selectIndex: index scrollToSelection: true.
-		shouldStopTestRun ifTrue: [
-			shouldStopTestRun := false.
-			Processor activeProcess terminate "nowhere to return to with RSR async calls" ].
-		index = methodServices size ifTrue: [ postFullTestRunBlock value ].
-		RowanServiceUpdater current
-			issueCommand: methodService
-			session: self gciSession
-			onCompletion: nil ]
+		index := methodListPresenter list indexOf: methodService.
+		self todo: [
+			methodListPresenter view updateItem: methodService atIndex: index.
+			methodListPresenter view ensureVisible: index ].
+		methodListPresenter view update.
+		shouldStopTestRun ifTrue: [ ^ shouldStopTestRun := false ] ].
+	self updateResult: jadeResult.
+	self todo: [
+		methodListPresenter view ensureVisible: index "ensure last test run is visible" ].
+	shouldStopTestRun := false.
+	^ jadeResult
 ]
 
 { #category : 'as yet unclassified' }
