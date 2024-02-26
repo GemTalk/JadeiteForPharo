@@ -30,6 +30,13 @@ JadeiteHistoryBrowser >> addStyle: aStyle [
 	diffsPresenter addStyle: aStyle. 
 ]
 
+{ #category : 'actions' }
+JadeiteHistoryBrowser >> browseDifferences [
+	versionListPresenter selectedItems size = 2 ifFalse: [ ^ self ].
+	diffsPresenter rightText: versionListPresenter selectedItems first source.
+	diffsPresenter leftText: versionListPresenter selectedItems last source.
+]
+
 { #category : 'initialization' }
 JadeiteHistoryBrowser >> connectPresenters [
 
@@ -65,7 +72,7 @@ JadeiteHistoryBrowser >> initializePresenters [
 JadeiteHistoryBrowser >> initializeVersionsList [
 
 	| col |
-	versionListPresenter := JadeiteTablePresenter new.
+	versionListPresenter := JadeiteTablePresenter new beMultipleSelection.
 	versionListPresenter addColumn: (SpStringTableColumn
 			 title: 'Method'
 			 evaluated: [ :operation | operation selectorPrintString ]).
@@ -187,8 +194,15 @@ JadeiteHistoryBrowser >> updateHistory [
 JadeiteHistoryBrowser >> versionSelected [
 
 	| selectedIndex previousItem |
+	versionListPresenter selectedItems size = 2 ifTrue: [
+		^ self browseDifferences ].
+	versionListPresenter selectedItems size > 2 ifTrue: [
+		diffsPresenter rightText: String new.
+		diffsPresenter leftText: String new.
+		^ self ].
 	selectedIndex := versionListPresenter selection selectedIndex.
-	selectedIndex = 0 ifTrue:[^self]. 
+	selectedIndex = 0 ifTrue: [ ^ self ].
+
 	selectedIndex = versionListPresenter items size ifTrue: [
 		diffsPresenter rightText: versionListPresenter selectedItem source.
 		diffsPresenter leftText: String new.
