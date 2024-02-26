@@ -71,7 +71,7 @@ BaselineOfJadeiteForPharo >> pharoGemStoneFFIUrl [
 BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 	"assume JadeiteForPharo is loaded from a local directory"
 
-	| description path writeStream htmlReference cssReference html css |
+	| description path writeStream htmlReference cssReference html css localHtmlReference localCssReference |
 	description := packageSpec repositoriesSpec list first spec
 		               description.
 	path := description withoutPrefix: 'gitlocal://'.
@@ -85,7 +85,10 @@ BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 	htmlReference := FileReference
 		                 fileSystem: FileSystem disk
 		                 path: writeStream contents asPath.
-	htmlReference ensureDelete.
+	localHtmlReference := FileReference
+		                      fileSystem: FileSystem disk
+		                      path: html asPath.
+	localHtmlReference ensureDelete.
 	htmlReference copyTo:
 		(FileReference fileSystem: FileSystem disk path: html asPath).
 	writeStream := WriteStream on: String new.
@@ -93,10 +96,14 @@ BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 		nextPutAll: path;
 		nextPut: $/;
 		nextPutAll: css.
+	localCssReference := FileReference
+		                     fileSystem: FileSystem disk
+		                     path: css asPath.
+	localCssReference ensureDelete.
 	cssReference := FileReference
 		                fileSystem: FileSystem disk
 		                path: writeStream contents asPath.
-	cssReference ensureDelete.
+
 	cssReference copyTo:
 		(FileReference fileSystem: FileSystem disk path: css asPath)
 ]
