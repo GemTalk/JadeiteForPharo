@@ -547,7 +547,7 @@ JadeiteSUnitPresenter >> setColorFor: aJadeTestResult [
 
 { #category : 'constants' }
 JadeiteSUnitPresenter >> shellName [
-	^'Jadeite SUnit Browser for '
+	^'Jadeite SUnit Browser'
 ]
 
 { #category : 'as yet unclassified' }

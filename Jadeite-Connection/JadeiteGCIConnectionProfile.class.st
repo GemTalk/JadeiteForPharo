@@ -44,8 +44,9 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
+
 	RowanServiceUpdater clearCurrent. "clear out all old services"
-	session ifNotNil: [ session logout ]. 
+	session ifNotNil: [ session logout ].
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -56,8 +57,10 @@ JadeiteGCIConnectionProfile >> connect [
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
-		do: [ :ex |  self todo: 'is GciError the right error to signal?'.
-			^ GciError signal: ex message].
+		do: [ :ex |
+			self todo: 'is GciError the right error to signal?'.
+			^ GciError signal: ex message ].
+	GciSession current stoneName: stone.
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
 	^ connection

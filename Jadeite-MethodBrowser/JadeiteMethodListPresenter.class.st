@@ -444,7 +444,7 @@ JadeiteMethodListPresenter >> selectionChanging: aSelectionChangingEvent [
 
 { #category : 'constants' }
 JadeiteMethodListPresenter >> shellName [
-	^'Jadeite Method List Browser for '
+	^'Jadeite Method List Browser'
 ]
 
 { #category : 'as yet unclassified' }

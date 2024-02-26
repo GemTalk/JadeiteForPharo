@@ -882,7 +882,7 @@ JadeiteConsole >> setTransactionModeFromServer [
 
 { #category : 'constants' }
 JadeiteConsole >> shellName [
-	^'Jadeite Console for '
+	^'Jadeite Console'
 ]
 
 { #category : 'as yet unclassified' }

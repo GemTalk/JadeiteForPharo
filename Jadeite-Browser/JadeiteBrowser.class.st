@@ -316,7 +316,7 @@ JadeiteBrowser >> selectedClassTab [
 
 { #category : 'constants' }
 JadeiteBrowser >> shellName [
-	^'Jadeite Project Browser for '
+	^'Jadeite Project Browser '
 ]
 
 { #category : 'accessing' }

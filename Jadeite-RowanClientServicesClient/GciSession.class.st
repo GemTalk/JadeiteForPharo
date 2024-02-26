@@ -166,6 +166,18 @@ GciSession >> setInitials: initials [
 	stoneSerial := pieces at: 2
 ]
 
+{ #category : 'accessing' }
+GciSession >> stoneName [
+
+	^ stoneName
+]
+
+{ #category : 'accessing' }
+GciSession >> stoneName: anObject [
+
+	stoneName := anObject
+]
+
 { #category : 'as yet unclassified' }
 GciSession >> titleBarFor: windowName [
 
@@ -174,6 +186,10 @@ GciSession >> titleBarFor: windowName [
 	stream
 		nextPutAll: windowName;
 		nextPutAll: ' on ';
+		nextPutAll: stoneName;
+		space;
+		nextPut: $@;
+		space;
 		nextPutAll: library specification host;
 		nextPutAll: ' [';
 		print: library specification port;
