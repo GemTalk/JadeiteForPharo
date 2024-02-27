@@ -126,6 +126,15 @@ JadeiteBrowserPresenter >> aboutToChange: aSelectionChangingEvent [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> addComputedCategories [
+
+	categoryListPresenter list first
+	= RowanClassService computedExtensionCategory ifFalse: [
+		categoryListPresenter list addFirst:
+			RowanClassService computedExtensionCategory ]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> addDictionary [
 	| newDictionaryName |
 	(newDictionaryName := Prompter prompt: 'Enter new dictionary name:') isNil ifTrue: [^self].
@@ -210,8 +219,11 @@ JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 
-	| service |
-	(self categoryListPresenter list includes: string) ifTrue: [ ^ self ].
+	| service jadeiteCategory listCategory |
+	jadeiteCategory := JadeiteCategory named: string.
+	listCategory := self categoryListPresenter list detect:[:jc | jc = jadeiteCategory] ifNone:[].
+	listCategory notNil ifTrue: [
+		listCategory isComputed ifFalse: [ ^ self ] ].
 	service := self selectedClass
 		           command: #addCategory:;
 		           commandArgs: (Array with: string).
@@ -219,8 +231,8 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: [ :unused |
-		self selectCategoriesNamed: (Array with: string) ]
+		onCompletion: nil.
+	self selectCategoriesNamed: (Array with: jadeiteCategory)
 ]
 
 { #category : 'as yet unclassified' }
@@ -747,6 +759,12 @@ JadeiteBrowserPresenter >> computeNumberedLabelUsing: labelString [
 		cardNumber := self parentPresenter cards size ].
 	numberedLabelString := cardNumber printString , ' ' , labelString.
 	^ numberedLabelString
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> computedExtensionCategoryName [
+
+	^ RowanClassService computedExtensionCategoryName
 ]
 
 { #category : 'initialization' }
@@ -1409,8 +1427,14 @@ JadeiteBrowserPresenter >> hierarchyClassDoubleClicked [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 
-	^ JadeiteListPresenter new beMultipleSelection
+	| listPresenter |
+	listPresenter := JadeiteListPresenter new.
+	^ listPresenter beMultipleSelection
 		  dropEnabled: true;
+		  displayColor: [ :jadeiteCategory |
+			  jadeiteCategory isComputed
+				  ifTrue: [ self extensionColor ]
+				  ifFalse: [ Color black ] ];
 		  wantsDrop: [ :transfer |
 			  transfer passenger allSatisfy: #isMethodService ];
 		  acceptDrop: [ :transfer |
@@ -1551,7 +1575,10 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
 	variableListPresenter := JadeiteListPresenter new.
-	packageMethodListPresenter := JadeiteListPresenter new.
+	packageMethodListPresenter := JadeiteListPresenter new displayBold: [
+		                              :categoryString |
+		                              self selectedClass definedPackageName
+		                              = categoryString ].
 	self initializeVariableListMenu.
 	categoryPage := JadeiteNotebookPage
 		                title: 'Category'
@@ -2353,16 +2380,20 @@ JadeiteBrowserPresenter >> pkgsMenuStrings [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> populateFilterList [
+
 	| listModel |
-	self selectedClass ifNil: [^self].	"can legitimately be nil during test run setUp"
+	self selectedClass ifNil: [ ^ self ]. "can legitimately be nil during test run setUp"
 	listModel := ListModel new searchPolicy: SearchPolicy equality.
 	self isCategoryTabSelected
-		ifTrue: 
-			[listModel addAll: self selectedClass categories.
-			categoryListPresenter list: listModel asSortedCollection asOrderedCollection]
-		ifFalse: 
-			[listModel addAll: self selectedClass variables.
-			variableListPresenter list: listModel asSortedCollection asOrderedCollection]
+		ifTrue: [
+			listModel addAll:
+				(self selectedClass jadeiteCategories).
+			categoryListPresenter list: listModel asOrderedCollection.
+			self addComputedCategories ]
+		ifFalse: [
+			listModel addAll: self selectedClass variables.
+			variableListPresenter list:
+				listModel asSortedCollection asOrderedCollection ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2485,6 +2516,10 @@ JadeiteBrowserPresenter >> refresh [
 JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
 	| methodSelections |
+	categoryListPresenter selectedItem isComputed ifTrue: [ | extensions | 
+		extensions := self selectedClass methods select:[:methodService | methodService isExtension]. 
+		methodListPresenter list: extensions.
+		^self ].
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
 	methodListPresenter selections:
@@ -2492,7 +2527,7 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 			 methodListPresenter list includes: methodService ]).
 	self selectMethodSourceTab.
 	^ selection selectedItem ifNotNil: [ :sel |
-		  methodCategoryText text: 'Category: ' , sel ]
+		  methodCategoryText text: 'Category: ' , sel categoryName]
 ]
 
 { #category : 'updates' }
@@ -3092,7 +3127,11 @@ JadeiteBrowserPresenter >> selectedFilterTab [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectedFilters [
-	^self selectedFilterTab selections
+
+	^ self selectedFilterTab selections collect: [ :filter |
+		  filter isJadeiteCategory
+			  ifTrue: [ filter categoryName ]
+			  ifFalse: [ filter ] ]
 ]
 
 { #category : 'selections' }

@@ -13,6 +13,12 @@ Object >> isInspectorService [
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
+Object >> isJadeiteCategory [
+
+	^false
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
 Object >> isRowanService [
 
 	^false

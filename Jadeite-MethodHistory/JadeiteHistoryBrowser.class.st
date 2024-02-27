@@ -32,9 +32,18 @@ JadeiteHistoryBrowser >> addStyle: aStyle [
 
 { #category : 'actions' }
 JadeiteHistoryBrowser >> browseDifferences [
+	"for consistent display, display first selection (by index) on right, second selection on list. "
+
+	| selectedIndices |
 	versionListPresenter selectedItems size = 2 ifFalse: [ ^ self ].
-	diffsPresenter rightText: versionListPresenter selectedItems first source.
-	diffsPresenter leftText: versionListPresenter selectedItems last source.
+	selectedIndices := versionListPresenter selection selectedIndexes
+		                   asSortedCollection.
+	diffsPresenter rightText:
+		(versionListPresenter list at: selectedIndices first) source.
+	diffsPresenter rightLabel: 'First Selection'.
+	diffsPresenter leftText:
+		(versionListPresenter list at: selectedIndices second) source.
+	diffsPresenter leftLabel: 'Second Selection'
 ]
 
 { #category : 'initialization' }

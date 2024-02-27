@@ -17,11 +17,12 @@ JadeiteFilterTrait >> addMethodCategory [
 { #category : 'actions' }
 JadeiteFilterTrait >> basicRemoveMethodCategories [
 
-	| service |
+	| minusExtensions service |
+	minusExtensions := self categoryListPresenter selectedItems reject: [
+		                   :jadeiteCategory | jadeiteCategory isComputed ].
 	service := self selectedClass
 		           command: #removeCategories:;
-		           commandArgs:
-			           (Array with: self categoryListPresenter selections).
+		           commandArgs: (Array with: minusExtensions).
 	self issueCommand: service onCompletion: nil
 ]
 

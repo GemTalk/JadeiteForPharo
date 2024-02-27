@@ -50,6 +50,19 @@ Class {
 	#category : 'Jadeite-RowanClientServicesClient'
 }
 
+{ #category : 'constants' }
+RowanClassService class >> computedExtensionCategory [
+
+	^ (JadeiteCategory named: self computedExtensionCategoryName)
+		  isComputed: true
+]
+
+{ #category : 'constants' }
+RowanClassService class >> computedExtensionCategoryName [
+
+	^'extensions'
+]
+
 { #category : 'private' }
 RowanClassService class >> defaultIconName [
 	"Answer a filename to use for an icon of this class."
@@ -84,6 +97,15 @@ RowanClassService >> = classService [
 		  classService isClassService and: [
 			  self name asString = classService name asString and: [
 				  meta isNil or: [ classService meta = meta ] ] ] ]
+]
+
+{ #category : 'updates' }
+RowanClassService >> addComputedCategoriesTo: presenter [
+
+	presenter list
+		detect: [ :ea | ea isComputed ]
+		ifNone: [
+		presenter list addFirst: self class computedExtensionCategory ]
 ]
 
 { #category : 'private' }
@@ -152,6 +174,7 @@ RowanClassService >> behaviorIdentifier [
 
 { #category : 'accessing' }
 RowanClassService >> categories [
+
 	^categories
 ]
 
@@ -352,7 +375,7 @@ RowanClassService >> filterUpdate: presenter browser: browser [
 	presenter model isEmpty ifTrue: [presenter list: SortedCollection new].
 	browser isCategoryTabSelected
 		ifTrue: 
-			[presenter list = categories ifTrue: [^self].
+			[presenter list = self jadeiteCategories ifTrue: [^self].
 			self updateCategories: presenter browser: browser]
 		ifFalse: 
 			[browser isVariablesTabSelected
@@ -500,6 +523,23 @@ RowanClassService >> isNewClass: anObject [
 { #category : 'public' }
 RowanClassService >> isTestCase [
 	^isTestCase ifNil:[false]
+]
+
+{ #category : 'accessing' }
+RowanClassService >> jadeiteCategories [
+	"for comparing against presenter lists"
+
+	^self jadeiteCategoriesFor: categories
+]
+
+{ #category : 'accessing' }
+RowanClassService >> jadeiteCategoriesFor: aCollection [
+	"for comparing against presenter lists"
+
+	^ aCollection collect: [ :categoryOrString |
+		  categoryOrString isString
+			  ifFalse: [ categoryOrString ]
+			  ifTrue: [ JadeiteCategory named: categoryOrString ] ]
 ]
 
 { #category : 'printing' }
@@ -876,29 +916,40 @@ RowanClassService >> toolTip [
 	^'Defined package: ' , self definedPackageName
 ]
 
-{ #category : 'accessing' }
+{ #category : 'updates' }
 RowanClassService >> updateAfterCommand: boolean [
 
 	updateAfterCommand := boolean
 ]
 
-{ #category : 'private' }
+{ #category : 'updates' }
 RowanClassService >> updateCategories: presenter browser: browser [
 	"Update without losing selections. If no selections, 
 	just update a copy then replace the original."
 
 	| theModel |
-	meta = browser isClassSideSelected ifFalse: [^self].
-	browser isCategoryTabSelected ifFalse:[^self].
-	theModel := presenter hasSelection ifTrue: [presenter model] ifFalse: [presenter model copy].
-	presenter list copy
-		do: [:category | (categories includes: category) ifFalse: [theModel remove: category ifAbsent:[]]].
-	categories do: [:category | (presenter list includes: category) ifFalse: [theModel add: category]].
-	presenter hasSelection ifFalse: [presenter list: theModel asSortedCollection asOrderedCollection].
-	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"
+	meta = browser isClassSideSelected ifFalse: [ ^ self ].
+	browser isCategoryTabSelected ifFalse: [ ^ self ]. 
+	theModel := presenter hasSelection
+		            ifTrue: [ presenter model ]
+		            ifFalse: [ presenter model copy ].
+	theModel collection: (self jadeiteCategoriesFor: theModel collection). 
+	theModel collection copy do:[:ea |
+		ea isComputed ifTrue:[theModel collection remove: ea]]. 
+	presenter list copy do: [ :category |
+		(self jadeiteCategories includes: category) ifFalse: [
+			theModel remove: category ifAbsent: [  ] ] ].
+	self jadeiteCategories do: [ :category |
+		(presenter list includes: category) ifFalse: [
+			theModel add: category ] ].
+	presenter hasSelection ifFalse: [
+		presenter list:
+			theModel collection asSortedCollection asOrderedCollection ].
+	self addComputedCategoriesTo: presenter.
+	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"  
 ]
 
-{ #category : 'private' }
+{ #category : 'updates' }
 RowanClassService >> updateListIn: presenter from: visibleMethods [
 	| updated theModel toRemove toAdd |
 	theModel := presenter hasSelection
@@ -924,23 +975,23 @@ RowanClassService >> updateListIn: presenter from: visibleMethods [
 	theModel == presenter model ifFalse: [presenter model: theModel]
 ]
 
-{ #category : 'private' }
+{ #category : 'updates' }
 RowanClassService >> updateMethodPackages: presenter [
 	presenter list: self methodPackages
 ]
 
-{ #category : 'private' }
+{ #category : 'updates' }
 RowanClassService >> updateVariables: presenter [
 	variables ifNil: [^self].
 	presenter list: variables asSortedCollection asOrderedCollection. 
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanClassService >> updatedClass: aPresenter browser: browser [
 	browser updateClass: self
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanClassService >> updatedClassDefinition: classDefinitionPresenter browser: browser [
 	(browser selectedClass = self or: [self equalBeforeRename: browser selectedClass])
 		ifTrue: 
@@ -950,7 +1001,7 @@ RowanClassService >> updatedClassDefinition: classDefinitionPresenter browser: b
 					self todo:[browser displayNoMods: classDefinitionPresenter]]]
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanClassService >> updatedClassInHierarchy: classHierarchyPresenter browser: projectBrowser [
 	"a newly added class should show up in the list but selection (say) of an existing class
 	should in another browser that isn't in the displayed hierarchy but exists in the full 
@@ -972,7 +1023,7 @@ RowanClassService >> updatedClassInHierarchy: classHierarchyPresenter browser: p
 		ifFalse: [classHierarchyPresenter model move: self asChildOf: superclassService]]
 ]
 
-{ #category : 'public' }
+{ #category : 'updates' }
 RowanClassService >> updatedOneLevelInClassHierarchy: classHierarchyPresenter browser: projectBrowser [
 	updateType = #updatedOneLevelInClassHierarchy:browser: ifFalse: [ "must be specifically requested by server"
 		^ self ].
