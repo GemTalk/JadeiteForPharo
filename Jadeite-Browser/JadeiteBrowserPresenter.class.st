@@ -1432,9 +1432,12 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 	^ listPresenter beMultipleSelection
 		  dropEnabled: true;
 		  displayColor: [ :jadeiteCategory |
-			  jadeiteCategory isComputed
-				  ifTrue: [ self extensionColor ]
-				  ifFalse: [ Color black ] ];
+			  jadeiteCategory isString
+				  ifTrue: [ Color black ]
+				  ifFalse: [
+					  jadeiteCategory isComputed
+						  ifTrue: [ self extensionColor ]
+						  ifFalse: [ Color black ] ] ];
 		  wantsDrop: [ :transfer |
 			  transfer passenger allSatisfy: #isMethodService ];
 		  acceptDrop: [ :transfer |

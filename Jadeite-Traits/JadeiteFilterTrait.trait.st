@@ -22,7 +22,9 @@ JadeiteFilterTrait >> basicRemoveMethodCategories [
 		                   :jadeiteCategory | jadeiteCategory isComputed ].
 	service := self selectedClass
 		           command: #removeCategories:;
-		           commandArgs: (Array with: minusExtensions).
+		           commandArgs:
+			           (Array with:
+					            (minusExtensions collect: [ :ea | ea categoryName ])).
 	self issueCommand: service onCompletion: nil
 ]
 
@@ -127,7 +129,7 @@ JadeiteFilterTrait >> confirmCategoryRemoval: selections [
 	selections do: 
 			[:category |
 			ws
-				nextPutAll: category;
+				nextPutAll: category categoryName;
 				space].
 	ws
 		nextPutAll: 'and ';
@@ -243,5 +245,5 @@ JadeiteFilterTrait >> renameMethodCategory [
 		        caption: 'Rename Category') isNil ifTrue: [ ^ self ].
 	(self categoryListPresenter list includes: new) ifTrue: [ 
 		^ MessageBox notify: 'category ' , new , ' already exists' ].
-	self basicRenameCategoryFrom: current to: new
+	self basicRenameCategoryFrom: current categoryName to: new
 ]
