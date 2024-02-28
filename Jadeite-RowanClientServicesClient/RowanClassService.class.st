@@ -103,7 +103,7 @@ RowanClassService >> = classService [
 RowanClassService >> addComputedCategoriesTo: presenter [
 
 	presenter list
-		detect: [ :ea | ea isComputed ]
+		detect: [ :ea | ea isString not and: [ ea isComputed ] ]
 		ifNone: [
 		presenter list addFirst: self class computedExtensionCategory ]
 ]
