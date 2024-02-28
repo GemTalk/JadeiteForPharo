@@ -608,6 +608,13 @@ RowanMethodService >> positiveBreakpoints [
 	^breakPoints collect: [:bp | bp abs]
 ]
 
+{ #category : 'replication' }
+RowanMethodService >> preUpdate: browser [
+
+	super preUpdate: browser. 
+	selectedPackageServices := browser packageListPresenter selectedItems. 
+]
+
 { #category : 'public' }
 RowanMethodService >> prepareForReplication [
 	super prepareForReplication.

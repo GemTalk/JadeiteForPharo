@@ -41,6 +41,10 @@ JadeitePresenter >> gciSession: aGciSession [
 	gciSession := aGciSession
 ]
 
+{ #category : 'actions' }
+JadeitePresenter >> preUpdate: services [
+]
+
 { #category : 'registration' }
 JadeitePresenter >> registerPresentersForUpdates [
 ]

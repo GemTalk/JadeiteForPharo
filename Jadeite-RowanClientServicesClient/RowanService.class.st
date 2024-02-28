@@ -598,6 +598,12 @@ RowanService >> postUpdateBlock [
 ]
 
 { #category : 'replication' }
+RowanService >> preUpdate: browser [
+
+	
+]
+
+{ #category : 'replication' }
 RowanService >> prepareForReplication [
 
 	"only replicate what is absolutely necessary. Each service knows how to do that. 

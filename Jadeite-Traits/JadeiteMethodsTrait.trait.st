@@ -661,6 +661,7 @@ JadeiteMethodsTrait >> updateServices: services [
 JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 
 	services isEmpty ifTrue: [ ^ self ].
+	self preUpdate: services. 
 	services do: [ :service |
 		service
 			command: #update;

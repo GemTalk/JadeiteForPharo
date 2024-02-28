@@ -149,14 +149,20 @@ RowanClassService >> addSubclassesOf: classService from: theDictionary [
 RowanClassService >> basicPrepareForReplication [
 	"don't call anything potentially recursive here.
 	method & package services don't iterate over subcollections"
+
 	"methods := Array new. "
+
 	hierarchyServices := Array new.
-	selectedMethods := Array new. 
-	visibleTests := Array new. 
-	methods ifNotNil: [methods do: [:methodService | methodService basicPrepareForReplication]].
-	selectedMethods
-		ifNotNil: [selectedMethods do: [:methodService | methodService basicPrepareForReplication]].
-	selectedPackageServices do: [:packageService | packageService basicPrepareForReplication]
+	selectedMethods := Array new.
+	visibleTests := Array new.
+	methods ifNotNil: [
+		methods do: [ :methodService |
+			methodService basicPrepareForReplication ] ].
+	selectedMethods ifNotNil: [
+		selectedMethods do: [ :methodService |
+			methodService basicPrepareForReplication ] ].
+	selectedPackageServices do: [ :packageService |
+		packageService basicPrepareForReplication ]
 ]
 
 { #category : 'accessing' }
@@ -929,13 +935,13 @@ RowanClassService >> updateCategories: presenter browser: browser [
 
 	| theModel |
 	meta = browser isClassSideSelected ifFalse: [ ^ self ].
-	browser isCategoryTabSelected ifFalse: [ ^ self ]. 
+	browser isCategoryTabSelected ifFalse: [ ^ self ].
 	theModel := presenter hasSelection
 		            ifTrue: [ presenter model ]
 		            ifFalse: [ presenter model copy ].
-	theModel collection: (self jadeiteCategoriesFor: theModel collection). 
-	theModel collection copy do:[:ea |
-		ea isComputed ifTrue:[theModel collection remove: ea]]. 
+	theModel collection: (self jadeiteCategoriesFor: theModel collection).
+	theModel collection copy do: [ :ea |
+		ea isComputed ifTrue: [ theModel collection remove: ea ] ].
 	presenter list copy do: [ :category |
 		(self jadeiteCategories includes: category) ifFalse: [
 			theModel remove: category ifAbsent: [  ] ] ].
@@ -945,8 +951,9 @@ RowanClassService >> updateCategories: presenter browser: browser [
 	presenter hasSelection ifFalse: [
 		presenter list:
 			theModel collection asSortedCollection asOrderedCollection ].
-	self addComputedCategoriesTo: presenter.
-	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"  
+	browser isDictionaryTabSelected ifFalse: [
+		self addComputedCategoriesTo: presenter ].
+	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"
 ]
 
 { #category : 'updates' }

@@ -639,7 +639,7 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 	^ color
 ]
 
-{ #category : 'selections' }
+{ #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
 	^ classService ifNotNil: [
@@ -2397,6 +2397,13 @@ JadeiteBrowserPresenter >> populateFilterList [
 			listModel addAll: self selectedClass variables.
 			variableListPresenter list:
 				listModel asSortedCollection asOrderedCollection ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> preUpdate: services [
+
+	services do: [ :service | 
+		service preUpdate: self  ]
 ]
 
 { #category : 'as yet unclassified' }
