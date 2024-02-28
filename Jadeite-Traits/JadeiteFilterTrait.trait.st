@@ -227,10 +227,15 @@ JadeiteFilterTrait >> openMethodListOn: service selectingAnyMatch: string sessio
 
 { #category : 'actions' }
 JadeiteFilterTrait >> removeMethodCategories [
+
 	| selections |
 	selections := self categoryListPresenter selections.
-	selections isEmpty ifTrue: [^MessageBox notify: 'No categories selected'].
-	(self confirmCategoryRemoval: selections) ifFalse: [^self].
+	selections do: [ :jadeiteCategory |
+		jadeiteCategory isComputed ifTrue: [
+			^ MessageBox notify: 'Cannot rename computed category' ] ].
+	selections isEmpty ifTrue: [
+		^ MessageBox notify: 'No categories selected' ].
+	(self confirmCategoryRemoval: selections) ifFalse: [ ^ self ].
 	self basicRemoveMethodCategories
 ]
 
@@ -239,6 +244,7 @@ JadeiteFilterTrait >> renameMethodCategory [
 
 	| new current |
 	current := self categoryListPresenter jaditeSelection.
+	current isComputed ifTrue:[^MessageBox notify: 'Cannot rename computed category'].
 	(new := Prompter
 		        on: current
 		        prompt: 'New method category?'
