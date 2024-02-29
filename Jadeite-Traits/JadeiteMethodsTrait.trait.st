@@ -448,12 +448,9 @@ JadeiteMethodsTrait >> moveMethodToPackage [
 ]
 
 { #category : 'actions' }
-JadeiteMethodsTrait >> moveMethodsToPackageNamed: packageName [
+JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPackageNamed: packageName [
 
-	| packageServiceToSelect selectedClass selectedMethods newSelectedMethods |
-	self methodListPresenter selections isEmpty ifTrue: [ ^ self ].
-	selectedClass := self selectedClass.
-	selectedMethods := self methodListPresenter selections.
+	| packageServiceToSelect newSelectedMethods |
 	self selectedClass
 		command: #moveMethodSelectors:toPackageNamed:;
 		commandArgs: (Array
@@ -479,6 +476,19 @@ JadeiteMethodsTrait >> moveMethodsToPackageNamed: packageName [
 			                      oldSelMethod ].
 	self methodListPresenter selections: newSelectedMethods.
 	self refresh
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> moveMethodsToPackageNamed: packageName [
+
+	| selectedClass selectedMethods |
+	self methodListPresenter selections isEmpty ifTrue: [ ^ self ].
+	selectedClass := self selectedClass.
+	selectedMethods := self methodListPresenter selections.
+	self
+		moveMethods: selectedMethods
+		inClass: selectedClass
+		toPackageNamed: packageName
 ]
 
 { #category : 'menus' }

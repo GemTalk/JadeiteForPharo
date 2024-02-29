@@ -210,6 +210,9 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 		initialExtent: 1600 @ 1000;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
+	aWindowPresenter whenClosedDo: [
+		self cards do: [ :notebookPage |
+			notebookPage activePresenter unsubcribePresenters ] ].
 	self updateCaption
 ]
 
@@ -339,7 +342,7 @@ JadeiteBrowser >> updateCaption [
 { #category : 'tabs' }
 JadeiteBrowser >> updateLabel: aString [
 	
-	tabs selectedPage title: aString. 
+	tabs selectedPage ifNotNil: [:page | page title: aString]. 
 	MorphicRenderLoop new doOneCycle. "repaint the label"
 	
 ]

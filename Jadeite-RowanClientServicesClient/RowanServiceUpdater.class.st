@@ -159,11 +159,6 @@ RowanServiceUpdater >> debug: aBoolean [
 	debug := aBoolean
 ]
 
-{ #category : 'public' }
-RowanServiceUpdater >> deferUntilUpdatesComplete: aZeroArgBlock [
-	self inUpdate critical: [ aZeroArgBlock value ]
-]
-
 { #category : 'as yet unclassified' }
 RowanServiceUpdater >> getEvents [
 

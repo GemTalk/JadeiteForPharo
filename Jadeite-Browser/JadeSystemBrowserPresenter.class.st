@@ -679,14 +679,6 @@ JadeSystemBrowserPresenter >> findClassList [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> gciSession: aGciSession [
-
-	super gciSession: aGciSession.
-	sunitPresenter gciSession: aGciSession.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> getSelectedMethod [
 	| dataArray |
 

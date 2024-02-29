@@ -1059,6 +1059,21 @@ JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classSer
 	self selectMethod: selection
 ]
 
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedPackage: packageListIndex [
+
+	| packageService className | 
+	packageService := self packageListPresenter items at: packageListIndex.
+	className := self selectedClass name. 
+	self
+		moveMethods: methodServices
+		inClass: self selectedClass
+		toPackageNamed: packageService name.
+	self packageListPresenter selectIndex: packageListIndex.
+	self selectClassNamed: className. 
+	self methodListPresenter selectItem: methodServices first. 
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> editDelete [
 
@@ -1672,7 +1687,14 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 
 	| packageListPage dictionaryListPage |
 	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
-	packageListPresenter := JadeiteListPresenter newNameSortedList.
+	packageListPresenter := JadeiteListPresenter newNameSortedList
+		                        wantsDrop: [ :transfer |
+			                        transfer passenger allSatisfy:
+					                        #isMethodService ];
+		                        acceptDrop: [ :transfer |
+			                        self
+				                        dropMethods: transfer passenger
+				                        onSelectedPackage: transfer index ].
 	packageListPage := JadeiteNotebookPage
 		                   title: 'Package'
 		                   icon: nil
@@ -3348,6 +3370,16 @@ JadeiteBrowserPresenter >> unloadProjects [
 		confirm: 'Really unload project(s) - ' , ws contents , '?  You will lose any unsaved changes! '
 		caption: 'UNLOAD PROJECTS WARNING!') ifFalse: [^self].
 	self basicUnloadProjects: projectNames
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> unsubcribePresenters [
+	self class allInstVarNames do:[:instVarName |
+		RowanServiceUpdater current removeActionsWithReceiver: (self instVarNamed: instVarName) ].
+	self dependents do:[:dependent | 
+	 	self removeDependent: dependent].
+	self announcer subscriptions removeSubscriber: self.
+	self owner removeAll "remove the pages from the notebook"
 ]
 
 { #category : 'as yet unclassified' }
