@@ -2150,37 +2150,6 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> moveMethodsToPackageNamed: packageName [
-
-	| packageServiceToSelect selectedClass selectedMethods newSelectedMethods |
-	methodListPresenter selections isEmpty ifTrue: [ ^ self ].
-	selectedClass := self selectedClass.
-	selectedMethods := methodListPresenter selections.
-	self selectedClass
-		command: #moveMethodSelectors:toPackageNamed:;
-		commandArgs: (Array
-				 with:
-					 (selectedMethods collect: [ :methodService |
-							  methodService selector ])
-				 with: packageName).
-	self issueCommand: self selectedClass onCompletion: nil.
-	packageServiceToSelect := packageListPresenter list
-		                          detect: [ :packageService |
-		                          packageService name = packageName ]
-		                          ifNone: [ ^ self ].
-	packageListPresenter selections:
-		(self selectedPackageServices asOrderedCollection
-			 add: packageServiceToSelect;
-			 yourself).
-	self selectClassNamed: selectedClass name.
-	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
-		                      methodListPresenter list includes:
-			                      oldSelMethod ].
-	methodListPresenter selections: newSelectedMethods.
-	self view invalidate
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> newProjectNamed: projectName [
 	RowanBrowserService new
 		newProjectNamed: projectName
@@ -2942,6 +2911,7 @@ JadeiteBrowserPresenter >> selectClassInClassListNamed: className [
 	selection ifNil: [ ^ self ] ifNotNil: [ :sel |
 		classListPresenter selectedItem = sel ifFalse: [
 			classListPresenter selectItem: sel ] ].
+	self classSelected: self selectedClass.
 	classListPresenter verticalAlignment desiredVisibleRow:
 		classListPresenter selection selectedIndex.
 	^ selection

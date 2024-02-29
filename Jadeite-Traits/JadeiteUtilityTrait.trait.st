@@ -7,6 +7,38 @@ Trait {
 	#category : 'Jadeite-Traits'
 }
 
+{ #category : 'selecting' }
+JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName [ 
+
+	| dialogWindow answeringService |
+	answeringService := RowanAnsweringService new
+		                    command: #allPackageNames;
+		                    commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession
+		onCompletion: nil.
+	dialogWindow := ListDialogWindow new
+		                getList: [ :rxMatcher |
+			                answeringService answer select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
+		                displayBlock: [ :e | e ];
+		                doubleClickOk;
+		                title: 'Jadeite Regex Find ' , searchName;
+		                yourself.
+	^dialogWindow chooseFromOwner: self currentWorld.
+	
+]
+
+{ #category : 'selecting' }
+JadeiteUtilityTrait >> selectPackage [
+
+	^self openPackageSelectionDialogFor: 'Package'.
+]
+
 { #category : 'updates' }
 JadeiteUtilityTrait >> sortedProjectsFrom: theProjects [
 

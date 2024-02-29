@@ -214,29 +214,3 @@ JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
 	^dialogWindow chooseFromOwner: self currentWorld.
 	
 ]
-
-{ #category : 'private' }
-JadeiteClassTrait >> openClassSelectionDialogFor: searchName onCompletion: completionBlock [
-
-	| dialogWindow answeringService selection |
-	answeringService := RowanAnsweringService new
-		                    command: #allClassNames;
-		                    commandArgs: Array new.
-	RowanServiceUpdater current
-		issueCommand: answeringService
-		session: self gciSession
-		onCompletion: nil.
-	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher |
-			                answeringService answer select: [ :substring |
-					                rxMatcher isString
-						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-							                rxMatcher matchesPrefix: substring ] ] ];
-		                displayBlock: [ :e | e ];
-		                doubleClickOk;
-		                title: 'Jadeite Regex Find ' , searchName;
-		                yourself.
-	selection := dialogWindow chooseFromOwner: self currentWorld.
-	selection ifNotNil: [  self findClassNamed: selection ]
-]

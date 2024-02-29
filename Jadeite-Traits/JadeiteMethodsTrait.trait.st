@@ -1,5 +1,7 @@
 Trait {
 	#name : 'JadeiteMethodsTrait',
+	#traits : 'JadeiteUtilityTrait',
+	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#category : 'Jadeite-Traits'
 }
 
@@ -397,10 +399,16 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 	| menu |
 	menu := self newBrowseMethodListMenu.
 
-	menu addItem: [ :item |
-		item
-			name: 'Remove Method(s) ...';
-			action: [ self removeMethods ] ].
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Remove Method(s) ...';
+				action: [ self removeMethods ] ] ].
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Move to Package ...';
+				action: [ self moveMethodToPackage ] ] ].
 	^ menu
 ]
 
@@ -429,6 +437,48 @@ JadeiteMethodsTrait >> issueCommand: service onCompletion: completionBlock [
 JadeiteMethodsTrait >> maxSymbolSize [
 
 	^1024
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> moveMethodToPackage [
+	| packageName |
+	packageName := self selectPackage. 
+	packageName ifNil: [^self].
+	self moveMethodsToPackageNamed: packageName
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> moveMethodsToPackageNamed: packageName [
+
+	| packageServiceToSelect selectedClass selectedMethods newSelectedMethods |
+	self methodListPresenter selections isEmpty ifTrue: [ ^ self ].
+	selectedClass := self selectedClass.
+	selectedMethods := self methodListPresenter selections.
+	self selectedClass
+		command: #moveMethodSelectors:toPackageNamed:;
+		commandArgs: (Array
+				 with:
+					 (selectedMethods collect: [ :methodService |
+							  methodService selector ])
+				 with: packageName).
+	RowanServiceUpdater current
+		issueCommand: self selectedClass
+		session: self gciSession
+		onCompletion: nil.
+	packageServiceToSelect := self packageListPresenter list
+		                          detect: [ :packageService |
+		                          packageService name = packageName ]
+		                          ifNone: [ ^ self ].
+	self packageListPresenter selections:
+		(self selectedPackageServices asOrderedCollection
+			 add: packageServiceToSelect;
+			 yourself).
+	self selectClassNamed: selectedClass name.
+	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
+		                      self methodListPresenter list includes:
+			                      oldSelMethod ].
+	self methodListPresenter selections: newSelectedMethods.
+	self refresh
 ]
 
 { #category : 'menus' }

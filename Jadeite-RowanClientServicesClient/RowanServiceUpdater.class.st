@@ -573,7 +573,7 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 
 	
 	updates do: [ :update |
-		update raiseCompileErrorIfNeeded. 
+		update ifNotNil: [update raiseCompileErrorIfNeeded]. 
 		(self shouldApply: selector forService: update) ifTrue: [
 			update
 				perform: selector
