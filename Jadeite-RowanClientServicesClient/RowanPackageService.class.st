@@ -284,7 +284,7 @@ RowanPackageService >> selectIn: presenter [
 	| selection |
 	presenter selectProjectNamed: projectName.
 	selection := presenter packageListPresenter list detect: [
-		             :packageService | packageService name = self name ].
+		             :packageService | packageService name = self name ] ifNone:[^self].
 	presenter packageListPresenter selectedItem = selection ifFalse: [
 		presenter packageListPresenter selectItem: selection ]
 ]

@@ -1593,10 +1593,17 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
 	variableListPresenter := JadeiteListPresenter new.
-	packageMethodListPresenter := JadeiteListPresenter new displayBold: [
-		                              :categoryString |
-		                              self selectedClass definedPackageName
-		                              = categoryString ].
+	packageMethodListPresenter := JadeiteListPresenter new
+		                              displayBold: [ :categoryString |
+			                              self selectedClass definedPackageName
+			                              = categoryString ];
+		                              wantsDrop: [ :transfer |
+			                              transfer passenger allSatisfy:
+					                              #isMethodService ];
+		                              acceptDrop: [ :transfer |
+			                              self
+				                              moveMethodsToPackageFilterUsing:
+					                              transfer ].
 	self initializeVariableListMenu.
 	categoryPage := JadeiteNotebookPage
 		                title: 'Category'
@@ -2169,6 +2176,20 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 		commandArgs: (Array with: methodServices with: targetCategory).
 	self issueCommand: classService onCompletion: nil.
 	self selectMethodsFrom: classService
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> moveMethodsToPackageFilterUsing: transfer [
+
+	| packageName |
+	packageName := self packageMethodListPresenter items at:
+		               transfer index.
+	self
+		moveMethods: transfer passenger
+		inClass: self selectedClass
+		toPackageNamed: packageName.
+	self packageMethodListPresenter selectIndex: transfer index.
+	^ self methodListPresenter selectItem: transfer passenger first
 ]
 
 { #category : 'as yet unclassified' }

@@ -466,10 +466,8 @@ JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPac
 		                          detect: [ :packageService |
 		                          packageService name = packageName ]
 		                          ifNone: [ ^ self ].
-	self packageListPresenter selections:
-		(self selectedPackageServices asOrderedCollection
-			 add: packageServiceToSelect;
-			 yourself).
+	self packageListPresenter unselectAll. 
+	self packageListPresenter selectItem: packageServiceToSelect.
 	self selectClassNamed: selectedClass name.
 	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
 		                      self methodListPresenter list includes:
