@@ -2173,7 +2173,7 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 		(categoryListPresenter selections copyWith: targetCategory).
 	classService
 		command: #moveMethods:to:;
-		commandArgs: (Array with: methodServices with: targetCategory).
+		commandArgs: (Array with: methodServices with: targetCategory categoryName).
 	self issueCommand: classService onCompletion: nil.
 	self selectMethodsFrom: classService
 ]
