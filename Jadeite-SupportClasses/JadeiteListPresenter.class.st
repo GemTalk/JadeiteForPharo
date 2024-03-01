@@ -23,6 +23,13 @@ JadeiteListPresenter class >> newNameSortedList [
 	^ inst
 ]
 
+{ #category : 'drag & drop' }
+JadeiteListPresenter >> acceptDrop [ 
+
+	self postDrop. 
+	^super acceptDrop
+]
+
 { #category : 'testing' }
 JadeiteListPresenter >> canDiscardEdits [
 
@@ -97,6 +104,18 @@ JadeiteListPresenter >> newEmptyModel [
 JadeiteListPresenter >> parentPresenter [
 
 	^self owner
+]
+
+{ #category : 'selection' }
+JadeiteListPresenter >> postDrop [
+	"morphic seems to leave a zombie selection after doing a drag/drop.
+	This code seems to clear it. 
+	As will all things related to zombies, I don't understand it. "
+
+	self adapter ifNotNil: [ :theAdapter |
+		theAdapter widget
+			initializeSelectedIndexes;
+			refresh ]
 ]
 
 { #category : 'api' }
