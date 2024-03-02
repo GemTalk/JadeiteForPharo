@@ -1681,10 +1681,11 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ];
-		whenResetDo: [ self resetMethodSource ]. 
+		whenResetDo: [ self resetMethodSource ];
+		whenTextChangedDo: [ self methodSourceChanged ]. 
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
-		                    icon: "(self iconNamed: #protocolPrivate)" nil
+		                    icon: nil
  		                    provider: [ methodSourcePresenter ].
 	textAreaTabs addPage: methodSourcePage
 ]
@@ -2088,6 +2089,14 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 	methodListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText ]
+]
+
+{ #category : 'events' }
+JadeiteBrowserPresenter >> methodSourceChanged [
+
+	methodSourcePresenter isModified
+		ifTrue: [ methodSourcePage icon: (self iconNamed: #protocolPrivate) ]
+		ifFalse: [ methodSourcePage icon: nil ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -46,7 +46,11 @@ JadeiteApplication class >> abortTransactionInSession: session [
 
 { #category : 'constants' }
 JadeiteApplication class >> changedTextBackgroundColor [ 
-
+	"the ugliest of uglies!  We don't have access to the methodSource tab
+	morph when we need to draw the dot on the tab label but when this 
+	method is accessed, it's redrawing the text pane. "
+	JadeiteBrowserPresenter allInstances do:[:browser | 
+		browser methodSourceChanged].
 	^Color r: 0.96 g: 1 b: 0.8
 ]
 
@@ -73,7 +77,11 @@ JadeiteApplication class >> commitTransactionInSession: session [
 
 { #category : 'constants' }
 JadeiteApplication class >> defaultBackgroundColor [  
-
+	"the ugliest of uglies!  We don't have access to the methodSource tab
+	morph when we need to draw the dot on the tab label but when this 
+	method is accessed, it's redrawing the text pane. "
+	JadeiteBrowserPresenter allInstances do:[:browser | 
+		browser methodSourceChanged].
 	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
 ]
 
