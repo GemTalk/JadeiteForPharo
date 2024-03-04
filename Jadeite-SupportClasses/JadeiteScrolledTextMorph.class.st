@@ -11,6 +11,11 @@ JadeiteScrolledTextMorph >> drawOn: aCanvas [
 		fillRectangle: self bounds
 		fillStyle: self fillStyle
 		borderStyle: self borderStyle. "from super super drawOn:"
+	JadeiteBrowserPresenter allInstances do: [ :browser | 
+		"the ugliest of uglies!  We don't have access to the methodSource tab
+	morph when we need to draw the dot on the tab label but when this 
+	method is accessed, it's redrawing the text pane. "
+		browser sourcePaneChanged ].
 	self hasUnacceptedEdits
 		ifTrue: [
 			aCanvas

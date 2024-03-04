@@ -1682,7 +1682,7 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 		application: self application;
 		saveAction: [ self editSaveMethod ];
 		whenResetDo: [ self resetMethodSource ];
-		whenTextChangedDo: [ self methodSourceChanged ]. 
+		whenTextChangedDo: [ self sourcePaneChanged ]. 
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
 		                    icon: nil
@@ -2089,14 +2089,6 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 	methodListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText ]
-]
-
-{ #category : 'events' }
-JadeiteBrowserPresenter >> methodSourceChanged [
-
-	methodSourcePresenter isModified
-		ifTrue: [ methodSourcePage icon: (self iconNamed: #protocolPrivate) ]
-		ifFalse: [ methodSourcePage icon: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3261,6 +3253,21 @@ JadeiteBrowserPresenter >> showPackageList [
 	self view
 		hide;
 		show	"ugh - this seems necessary for some reason to get the gui to update"
+]
+
+{ #category : 'events' }
+JadeiteBrowserPresenter >> sourcePaneChanged [
+
+	methodSourcePresenter isModified
+		ifTrue: [ methodSourcePage icon: (self iconNamed: #protocolPrivate) ]
+		ifFalse: [ methodSourcePage icon: nil ].
+	classDefinitionPresenter isModified
+		ifTrue: [
+		classDefinitionPage icon: (self iconNamed: #protocolPrivate) ]
+		ifFalse: [ classDefinitionPage icon: nil ].
+	classCommentPresenter isModified
+		ifTrue: [ classCommentTab icon: (self iconNamed: #protocolPrivate) ]
+		ifFalse: [ classCommentTab icon: nil ]
 ]
 
 { #category : 'as yet unclassified' }
