@@ -190,6 +190,25 @@ JadeiteConsole >> colorForUnsavedEdits [
 	newColor ifNotNil: [JadeiteTextStyles default colorForUnsavedEdits: newColor]
 ]
 
+{ #category : 'accessing' }
+JadeiteConsole >> columnWithAspect: aspect title: title [
+
+	| column |
+	column := SpStringTableColumn
+		          title: title
+		          evaluated: [ :projectService |
+			          (projectService perform: aspect)
+				          ifNil: [ String new ]
+				          ifNotNil: [ :value | value asString ] ].
+	column
+		displayBold: [ :projectService | projectService isDirty ];
+		displayColor: [ :projectService |
+			projectService isSkew
+				ifTrue: [ Color red ]
+				ifFalse: [ Smalltalk ui theme textColor ] ].
+	^ column
+]
+
 { #category : 'transactions' }
 JadeiteConsole >> committedTransaction [
 	self displayLastKnownCommitOrAbort
@@ -351,6 +370,16 @@ JadeiteConsole >> hidePackageList [
 ]
 
 { #category : 'initialization' }
+JadeiteConsole >> initialProjectDisplayColumns [
+
+	| columns |
+	columns := OrderedCollection new.
+	self projectDisplayAttributes keysAndValuesDo: [ :aspect :title |
+		columns add: (self columnWithAspect: aspect title: title) ].
+	^ columns
+]
+
+{ #category : 'initialization' }
 JadeiteConsole >> initializeAutoCommit [
 
 	self gciSession initializeAutoCommit.
@@ -465,38 +494,17 @@ JadeiteConsole >> initializePresenters [
 { #category : 'initialization' }
 JadeiteConsole >> initializeProjectListPresenter: tabs [
 
-	| column1 column2 column3 |
+	| initialWidths columns |
+	initialWidths := { 200. 100. 100. nil }.
 	projectListPresenter := JadeiteTablePresenter new.
-	projectListPresenter addColumn: (column1 := SpStringTableColumn
-			            title: 'Project Name'
-			            evaluated: [ :projectService | 
-			            projectService displayName ]).
-	column1
-		displayBold: [ :projectService | projectService isDirty ];
-		displayColor: [ :projectService | 
-			projectService isSkew
-				ifTrue: [ Color red ]
-				ifFalse: [ Smalltalk ui theme textColor ] ].
-	projectListPresenter addColumn: (column2 := SpStringTableColumn
-			            title: 'Loaded Sha'
-			            evaluated: [ :projectService | projectService sha ]).
-	column2
-		displayBold: [ :projectService | projectService isDirty ];
-		displayColor: [ :projectService | 
-			projectService isSkew
-				ifTrue: [ Color red ]
-				ifFalse: [ Smalltalk ui theme textColor ] ].
-	projectListPresenter addColumn: (column3 := SpStringTableColumn
-			            title: 'Branch'
-			            evaluated: [ :projectService | projectService branch ifNil: [ String new ] ]).
-	column3
-		displayBold: [ :projectService | projectService isDirty ];
-		displayColor: [ :projectService | 
-			projectService isSkew
-				ifTrue: [ Color red ]
-				ifFalse: [ Smalltalk ui theme textColor ] ].
-	projectListPresenter items:
-		(Array with: RowanProjectService new with: RowanProjectService new).
+	columns := self initialProjectDisplayColumns.
+	1 to: columns size do: [ :index |
+		| column |
+		column := columns at: index.
+		column width: (initialWidths at: index).
+		projectListPresenter addColumn: column ].
+	"projectListPresenter items:
+		(Array with: RowanProjectService new with: RowanProjectService new)."
 	tabs add: projectListPresenter label: 'Projects'.
 	self initializeProjectListMenu
 ]
@@ -529,7 +537,7 @@ JadeiteConsole >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 800 @ 500;
+		initialExtent: 1200 @ 500;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
 	self updateCaption.
@@ -693,6 +701,18 @@ JadeiteConsole >> openServerFile [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> openSourceStyler [
 	JadeiteScintillaView openSourceStyler
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> projectDisplayAttributes [
+
+	| attributes |
+	attributes := OrderedDictionary new.
+	attributes at: #displayName put: 'Project Name'.
+	attributes at: #sha put: 'Loaded Sha'.
+	attributes at: #branch put: 'Branch'.
+	attributes at: #projectUrl put: 'Project URL'.
+	^ attributes
 ]
 
 { #category : 'as yet unclassified' }
