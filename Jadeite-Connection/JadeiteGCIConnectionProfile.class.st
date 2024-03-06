@@ -42,6 +42,28 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 ]
 
 { #category : 'actions' }
+JadeiteGCIConnectionProfile >> applyPreferences [
+
+	"Retroactively apply fonts to the JadeiteScintillaView
+	instances"
+ 
+	| preferencesPath file stream nextLine prefs |
+	preferencesPath := JadeitePreferences preferencesPath.
+	prefs := JadeitePreferences onSession: self.
+	JadeitePreferences current: prefs.
+	(File exists: preferencesPath) ifFalse: [^self].
+	file := File openForReadFileNamed: preferencesPath.
+	
+	[stream := file readStream.
+	[stream atEnd] whileFalse: 
+			[nextLine := stream nextLine.
+			prefs applyPreference: nextLine]]
+			ensure: [^file close].
+	self todo:["JadeiteScintillaView allInstances
+		do: [:view | view font: JadeitePreferences current currentTextFont]"]
+]
+
+{ #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
@@ -63,6 +85,7 @@ JadeiteGCIConnectionProfile >> connect [
 	GciSession current stoneName: stone.
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
+	self applyPreferences. 
 	^ connection
 ]
 
