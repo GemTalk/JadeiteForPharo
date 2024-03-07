@@ -162,7 +162,7 @@ JadeitePreferences >> autocompleteEnabled: booleanString [
 	| boolean |
 	"auto complete state held on the client"
 	boolean := booleanString = 'true'.
-	JadeiteSearch autoCompleteEnabled: boolean
+	self todo:[JadeiteSearch autoCompleteEnabled: boolean]
 ]
 
 { #category : 'as yet unclassified' }
@@ -172,7 +172,7 @@ JadeitePreferences >> breakpointsEnabled: booleanString [
 	answeringService := RowanAnsweringService new
 				command: #setBreakPointsAreEnabled:;
 				commandArgs: (Array with: boolean).
-	RowanServiceUpdater current issueCommands: (Array with: answeringService) session: session
+	RowanServiceUpdater current issueCommands: (Array with: answeringService) session: session onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -261,26 +261,40 @@ JadeitePreferences >> openBrowserOnProject: projectName [
 	^projectBrowser
 ]
 
+{ #category : 'actions' }
+JadeitePreferences >> openSUnitBrowser [
+
+	| inst |
+	inst := JadeiteSUnitPresenter basicNew.
+	inst
+		application: self application;
+		gciSession: GciSession current;
+		initialize.
+	inst open.
+	inst addStyle: 'jadeWorkspace'.
+	^inst
+]
+
 { #category : 'as yet unclassified' }
 JadeitePreferences >> openSUnitBrowserOnPackage: packageName [
 	| sunitBrowser packageSelection |
 	sunitBrowser := self openSUnitBrowser.
-	packageSelection := sunitBrowser primaryPresenter packageListPresenter list
+	packageSelection := sunitBrowser packageListPresenter list
 				detect: [:packageService | packageService name = packageName]
 				ifNone: [^self].
-	sunitBrowser primaryPresenter packageListPresenter selection: packageSelection.
-	lastWindowPosition := sunitBrowser view position.
+	sunitBrowser packageListPresenter selection: packageSelection.
+	self todo:[lastWindowPosition := sunitBrowser view position].
 	^sunitBrowser
 ]
 
 { #category : 'as yet unclassified' }
 JadeitePreferences >> openWorkspace: pathOrNil [
 	| workspace |
-	workspace := JadeiteWorkspace showOnSession: session.
-	pathOrNil = 'nil'
+	
+	(pathOrNil = 'nil' or: [ pathOrNil isEmpty ])
 		ifFalse: 
 			[(File exists: pathOrNil)
-				ifTrue: [workspace openOn: pathOrNil]
+				ifTrue: [workspace := JadeiteWorkspace open: pathOrNil onSession: GciSession current]
 				ifFalse: 
 					[| localPath |
 					"try the image directory"

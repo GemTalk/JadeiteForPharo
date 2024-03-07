@@ -48,10 +48,10 @@ RowanAnsweringService >> breakPointsAreEnabled: session [
 
 { #category : 'public' }
 RowanAnsweringService >> breakpointSettingChanged: transcript [
-	updateType
+	self todo:[updateType
 		ifNotNil: 
 			[transcript areBreakpointsEnabled value: answer.
-			RowanServiceUpdater current breakpointsEnabled: answer]
+			RowanServiceUpdater current breakpointsEnabled: answer]]
 ]
 
 { #category : 'commands' }
