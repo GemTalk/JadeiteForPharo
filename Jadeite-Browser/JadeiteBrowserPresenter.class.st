@@ -1306,6 +1306,23 @@ JadeiteBrowserPresenter >> filterTabChanged: tab [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> findProjectNamed: projectName [
+
+	| projectService | 
+	projectService := projectListPresenter list
+		                  detect: [ :service |
+		                  service name = projectName ]
+		                  ifNone: [
+			                  nil
+			                  "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
+	projectService ifNil: [ ^nil ].
+	projectListPresenter selectedItem = projectService ifFalse: [
+		projectListPresenter selection: projectService.
+		projectListPresenter refresh ].
+	
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> findRemovedServices [
 
 	| browserService |
@@ -3072,9 +3089,9 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 	answeringService
 		command: #packageNamed:;
 		commandArgs: (Array with: packageName).
-	self issueCommand: answeringService onCompletion: [ :unused |
-		service := answeringService answer.
-		service selectIn: self ]
+	self issueCommand: answeringService onCompletion: nil.
+	service := answeringService answer.
+	service selectIn: self
 ]
 
 { #category : 'selections' }
@@ -3422,19 +3439,9 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
-	| projectService |
 	classService ifNil: [ ^ self ].
 	classService projectName ifNil: [ self updateService: classService ].
-	projectService := projectListPresenter list
-		                  detect: [ :service |
-		                  service name = classService projectName ]
-		                  ifNone: [
-			                  nil
-			                  "may not be found if class is not in symbol list but class visible in a debugger (currently)" ].
-	projectService ifNil: [ ^ self ].
-	projectListPresenter selectedItem = projectService ifFalse: [
-		projectListPresenter selection: projectService.
-		projectListPresenter refresh ].
+	(self findProjectNamed: classService projectName) ifNil: [ ^self ].
 	self isDictionaryTabSelected
 		ifTrue: [ self updateAfterFindClassInDictionary: classService ]
 		ifFalse: [ self updateAfterFindClassInPackage: classService ]

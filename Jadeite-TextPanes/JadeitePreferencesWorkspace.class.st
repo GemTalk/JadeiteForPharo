@@ -27,6 +27,11 @@ JadeitePreferencesWorkspace class >> browseJadeitePrefs: session [
 		  'Jadeite Preferences File: ' , path
 ]
 
+{ #category : 'instance creation' }
+JadeitePreferencesWorkspace class >> showOnSession: aSession [
+	^JadeitePreferencesApplication showOnSession: aSession library
+]
+
 { #category : 'as yet unclassified' }
 JadeitePreferencesWorkspace >> basicResetPreferences [
 	self value: JadeitePreferences preferencesFileDefaultContents
@@ -49,4 +54,11 @@ JadeitePreferencesWorkspace >> resetPreferences [
 	(MessageBox confirm: 'Really reset jadeite.prefs file to default settings?') ifFalse: [^self].
 	self basicResetPreferences.
 	self isModified: true. 
+]
+
+{ #category : 'actions' }
+JadeitePreferencesWorkspace >> saveServerFile [
+
+	self writeDocumentTo: JadeitePreferences preferencesPath.
+	MessageBox notify: 'Jadeite.prefs file written to working directory'
 ]

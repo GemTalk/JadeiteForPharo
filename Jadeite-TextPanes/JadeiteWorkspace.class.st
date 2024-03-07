@@ -12,7 +12,6 @@ Class {
 
 { #category : 'instance creation' }
 JadeiteWorkspace class >> showOnSession: aSession [
-	"for legacy imported tests"
 	^JadeiteWorkspaceApplication showOnSession: aSession library
 	
 	

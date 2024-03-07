@@ -124,6 +124,12 @@ JadeitePreferences >> allowsSpacesInArgument: commandSymbol [
 ]
 
 { #category : 'as yet unclassified' }
+JadeitePreferences >> application [
+	"Spec2 needs this to open a browser via preferences"
+	^JadeiteConsoleApplication new
+]
+
+{ #category : 'as yet unclassified' }
 JadeitePreferences >> applyPreference: preferencesString [
 	"only perform messages which are defined by this class"
 
@@ -208,36 +214,50 @@ JadeitePreferences >> loggingEnabled: booleanString [
 ]
 
 { #category : 'as yet unclassified' }
+JadeitePreferences >> openBrowser [
+
+	| inst | 
+	inst := JadeiteBrowser new owner: self. 
+	inst
+		application: JadeiteConsoleApplication new;
+		gciSession: GciSession current. 
+	inst open.
+	inst addStyle: 'jadeWorkspace'.
+	^inst
+]
+
+{ #category : 'as yet unclassified' }
 JadeitePreferences >> openBrowserOnClass: className [
-	| projectBrowser classService |
-	projectBrowser := self openProjectBrowser.
-	classService := RowanClassService new name: className.
-	projectBrowser currentCard updateAfterFindClass: classService.
-	lastWindowPosition := projectBrowser view position.
+	| projectBrowser |
+	projectBrowser := self openBrowser.
+	projectBrowser findClassNamed: className.
+	self todo:[lastWindowPosition := projectBrowser view position].
 	^projectBrowser
 ]
 
 { #category : 'as yet unclassified' }
 JadeitePreferences >> openBrowserOnClasses: stringOfClassNames [
-	| projectBrowser classService classNameArray |
-	classNameArray := stringOfClassNames subStrings.
-	projectBrowser := self openProjectBrowser.
-	classNameArray do: 
-			[:className |
-			classService := RowanClassService new name: className.
-			projectBrowser currentCard updateAfterFindClass: classService.
-			className ~= classNameArray last ifTrue: [projectBrowser addSystemBrowser]].
-	projectBrowser currentCard updateAfterFindClass: classService.
-	lastWindowPosition := projectBrowser view position.
-	^projectBrowser
+
+	| classNameArray |
+	classNameArray := stringOfClassNames substrings.
+	classNameArray do: [ :className | self openBrowserOnClass: className ].
 ]
 
 { #category : 'as yet unclassified' }
 JadeitePreferences >> openBrowserOnPackage: packageName [
 	| projectBrowser |
-	projectBrowser := self openProjectBrowser.
-	projectBrowser currentCard selectPackageNamed: packageName.
-	lastWindowPosition := projectBrowser view position.
+	projectBrowser := self openBrowser.
+	projectBrowser activePresenter selectPackageNamed: packageName.
+	self todo:[lastWindowPosition := projectBrowser view position].
+	^projectBrowser
+]
+
+{ #category : 'as yet unclassified' }
+JadeitePreferences >> openBrowserOnProject: projectName [
+	| projectBrowser |
+	projectBrowser := self openBrowser. 
+	projectBrowser activePresenter findProjectNamed: projectName.
+	self todo:[lastWindowPosition := projectBrowser view position].
 	^projectBrowser
 ]
 
@@ -304,6 +324,12 @@ JadeitePreferences >> performCommand: message allowSpacesInArgs: preferencesStri
 JadeitePreferences >> resetFont [
 	View desktop font: JadeitePreferences defaultFont.
 	font := self class defaultFont
+]
+
+{ #category : 'as yet unclassified' }
+JadeitePreferences >> root [
+"Spec2 needs this to open a browser via preferences"
+	^SpAbstractPresenter new
 ]
 
 { #category : 'as yet unclassified' }

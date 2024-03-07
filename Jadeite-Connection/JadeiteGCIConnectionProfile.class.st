@@ -43,22 +43,19 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> applyPreferences [
-
-	"Retroactively apply fonts to the JadeiteScintillaView
-	instances"
  
-	| preferencesPath file stream nextLine prefs |
+	| preferencesPath stream nextLine prefs |
 	preferencesPath := JadeitePreferences preferencesPath.
 	prefs := JadeitePreferences onSession: self.
 	JadeitePreferences current: prefs.
 	(File exists: preferencesPath) ifFalse: [^self].
-	file := File openForReadFileNamed: preferencesPath.
-	
-	[stream := file readStream.
+	stream := (FileSystem disk open: preferencesPath writable: false) reference
+			              readStream.
+	[
 	[stream atEnd] whileFalse: 
 			[nextLine := stream nextLine.
 			prefs applyPreference: nextLine]]
-			ensure: [^file close].
+			ensure: [^stream close].
 	self todo:["JadeiteScintillaView allInstances
 		do: [:view | view font: JadeitePreferences current currentTextFont]"]
 ]
