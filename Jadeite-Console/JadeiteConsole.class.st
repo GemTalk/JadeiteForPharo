@@ -148,9 +148,9 @@ JadeiteConsole >> browseJadeiteLogs [
 	^JadeiteLoggerShell showOnSession: self gciSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteConsole >> browseJadeitePrefs [
-	^JadeitePreferencesWorkspace browseJadeitePrefs: gciSession
+	^JadeitePreferencesWorkspace browseJadeitePrefs: self gciSession
 ]
 
 { #category : 'as yet unclassified' }
@@ -403,6 +403,11 @@ JadeiteConsole >> initializeBrowseMenu [
 				  name: 'Find Class References ...';
 				  shortcut: $r shift ctrl;
 				  action: [ self findClassReferences ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'Browse Preferences File';
+					  action: [ self browseJadeitePrefs ] ] ];
 		  yourself
 ]
 

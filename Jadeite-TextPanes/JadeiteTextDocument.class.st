@@ -90,12 +90,13 @@ JadeiteTextDocument class >> icon [
 
 { #category : 'public' }
 JadeiteTextDocument class >> open: filename onSession: aGciSession [
-	| openFilename |
+	| openFilename workspace |
 	openFilename := filename.
 	openFilename isNil ifTrue: [^nil].
-	^(self showOnSession: aGciSession)
-		openOn: openFilename;
-		yourself
+	workspace := (self showOnSession: aGciSession).
+	workspace text: ((FileSystem disk open: filename writable: false) reference readStream) contents.
+	workspace hasUnacceptedEdits: false. 
+	^workspace
 ]
 
 { #category : 'public' }

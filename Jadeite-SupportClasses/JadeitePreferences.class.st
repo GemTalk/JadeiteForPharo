@@ -80,7 +80,8 @@ JadeitePreferences class >> preferencesFile [
 
 { #category : 'as yet unclassified' }
 JadeitePreferences class >> preferencesFileDefaultContents [
-	^'#Remove # to uncomment option. 
+
+	^ '#Remove # to uncomment option. 
 
 #legal values are a boolean
 
@@ -106,6 +107,7 @@ packageGroupsVisible: false
 #sigAbortProcessInterval: <# of seconds with default 10>
 #sigAbortsProcessEnabled: true
 #transactionMode: <autoBegin manualBegin transactionless>'
+		  replaceCrWithLf
 ]
 
 { #category : 'as yet unclassified' }
