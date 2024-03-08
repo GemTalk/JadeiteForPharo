@@ -184,7 +184,8 @@ JadeiteToolbarTrait >> serverCommitIdDescriptionOn: ws [
 	browserService command: #updateProjects.
 	RowanServiceUpdater current
 		issueCommand: browserService
-		session: (GciSession new library: self connection) onCompletion: [ :unused |
+		session: (GciSession new library: self connection)
+		onCompletion: nil.
 	self jadeiteServerGitRepositories do: [ :projectName |
 		| project |
 		project := browserService projects detect: [ :projectService |
@@ -193,7 +194,7 @@ JadeiteToolbarTrait >> serverCommitIdDescriptionOn: ws [
 			nextPutAll: projectName;
 			space;
 			nextPutAll: project sha;
-			cr ]]
+			cr ]
 ]
 
 { #category : 'initialization' }
