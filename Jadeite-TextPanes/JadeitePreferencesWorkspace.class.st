@@ -37,6 +37,19 @@ JadeitePreferencesWorkspace >> basicResetPreferences [
 	self value: JadeitePreferences preferencesFileDefaultContents
 ]
 
+{ #category : 'initialization' }
+JadeitePreferencesWorkspace >> initializeFileMenu [
+
+	| menu |
+	menu := super initializeFileMenu.
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Reset Preferences';
+				action: [ self resetPreferences ] ] ].
+	^ menu
+]
+
 { #category : 'as yet unclassified' }
 JadeitePreferencesWorkspace >> openPreferencesOptionsWorkspace [
 	| workspace |

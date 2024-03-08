@@ -90,7 +90,7 @@ JadeitePreferences class >> preferencesFileDefaultContents [
 #breakpointsEnabled: true
 #loggingEnabled: false
 #transcriptEnabled: true
-packageGroupsVisible: false
+#packageGroupsVisible: false
 #packageListVisible: true
 
 #legal values are font name plus font point size
