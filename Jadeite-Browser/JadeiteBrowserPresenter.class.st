@@ -25,7 +25,9 @@ Class {
 		'instanceRadioButton',
 		'classRadioButton',
 		'classCommentTab',
-		'packageMethodListPage'
+		'packageMethodListPage',
+		'backButton',
+		'forwardButton'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -831,8 +833,11 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectMethodPresenters [
 
+	methodListPresenter whenSelectionChangedDo: [ :selection |
+		self methodSelectionChanged ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	instanceRadioButton whenChangedDo: [ :selection | self classSelected: self selectedClass ]
+	instanceRadioButton whenChangedDo: [ :selection |
+		self classSelected: self selectedClass ]
 ]
 
 { #category : 'initialization' }
@@ -864,8 +869,6 @@ JadeiteBrowserPresenter >> connectPresenters [
 			self updateProjectSelecting: selection selectedItem ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
-	methodListPresenter whenSelectionChangedDo: [ :selection |
-		self methodSelectionChanged ].
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
 		self filterTabChanged: selection ].
 	self connectMethodPresenters.
@@ -1431,6 +1434,20 @@ JadeiteBrowserPresenter >> hasCategorySelected [
 	^categoryListPresenter selections notEmpty
 ]
 
+{ #category : 'history' }
+JadeiteBrowserPresenter >> hasCommandHistoryBack [
+	historyIndex ifNil: [ ^false ].
+	^1 < historyIndex
+]
+
+{ #category : 'history' }
+JadeiteBrowserPresenter >> hasCommandHistoryForward [
+
+	historyList ifNil: [ ^ false ].
+	historyIndex ifNil: [ ^ false ].
+	^ historyIndex < historyList size
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> hasMethods [
 	^true
@@ -1454,6 +1471,20 @@ JadeiteBrowserPresenter >> hidePackageList [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> hierarchyClassDoubleClicked [
 	self expandFullHierarchy
+]
+
+{ #category : 'history' }
+JadeiteBrowserPresenter >> historyBack [
+
+	self jumpToHistoryIndex: ((historyIndex - 1) max: 1).
+	
+]
+
+{ #category : 'history' }
+JadeiteBrowserPresenter >> historyForward [
+
+	self jumpToHistoryIndex: historyIndex + 1.
+	
 ]
 
 { #category : 'initialization' }
@@ -1683,6 +1714,16 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	radioButtonBox
 		add: instanceRadioButton;
 		add: classRadioButton.
+	backButton := self newButton
+		              icon: (self iconNamed: #glamorousLeft);
+		              help: 'Method Navigation Back';
+		              action: [ self historyBack ].
+	radioButtonBox add: backButton.
+	forwardButton := self newButton
+		                 icon: (self iconNamed: #glamorousRight);
+		                 help: 'Method Navigation Forward';
+		                 action: [ self historyForward ].
+	radioButtonBox add: forwardButton.
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 50 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
@@ -2034,6 +2075,22 @@ JadeiteBrowserPresenter >> jadeInspect [
 		thenInspectInContext: self inspectorContextObject
 ]
 
+{ #category : 'history' }
+JadeiteBrowserPresenter >> jumpToHistoryIndex: anInteger [
+
+	| historyEntry |
+	historyEntry := historyList at: anInteger ifAbsent: [ ^ self ].
+	historyIndex := anInteger.
+	historyEntry className = self selectedClassName ifFalse: [
+		self selectProjectNamed: historyEntry projectName.
+		self selectPackageNamed: historyEntry packageName.
+		self selectClassNamed: historyEntry className ].
+	historyEntry meta
+		ifTrue: [ classRadioButton state: true ]
+		ifFalse: [ instanceRadioButton state: true ].
+	self selectMethod: historyEntry
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> makeSameSelectionsIn: newPresenter as: previousPresenter [
 
@@ -2097,15 +2154,14 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 		^self selectClassDefinitionTab ].
 	methodListPresenter selections size = 1 ifTrue: [
 		self selectMethodSourceTab ].
-	self isComparisonTabSelected ifTrue: [ ^ self ].
 	methodListPresenter selections size > 1 ifTrue: [
 		self todo: [
 			self updateMultiMethodComparison.
-			self displayMultipleCategories.
-			self selectComparisonTab ] ].
+			self displayMultipleCategories ] ].
 	methodListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
-		self resetCategoryText ]
+		self resetCategoryText ].
+	self updateHistory
 ]
 
 { #category : 'as yet unclassified' }
@@ -3040,6 +3096,23 @@ JadeiteBrowserPresenter >> selectMethodWithSameSelectorAs: selectedMethod [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectMethods: methodSelections [
+
+	| newMethodSelections newSelection |
+	newMethodSelections := OrderedCollection new.
+	methodSelections do: [ :methodSelection |
+		newSelection := methodListPresenter list
+			                detect: [ :svc |
+			                svc selector = methodSelection selector ]
+			                ifNone: [  ].
+		newSelection ifNotNil: [ newMethodSelections add: newSelection ] ].
+	^ methodListPresenter
+		  selectIndexes: (newMethodSelections collect: [ :methodService |
+				   methodListPresenter items indexOf: methodService ])
+		  scrollToSelection: true
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectMethodsFrom: classService [
 
 	| selections selectedMethods |
@@ -3085,6 +3158,9 @@ JadeiteBrowserPresenter >> selectNoneProject [
 JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 
 	| answeringService service |
+	self packageListPresenter hasSelection ifTrue: [
+		self packageListPresenter selectedItem name = packageName ifTrue: [
+			^ self ] ].
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #packageNamed:;
@@ -3119,11 +3195,16 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectProjectNamed: projectName [
-	| projectService |
-	projectService := projectListPresenter list detect: [:service | service name = projectName]
-				ifNone: [^self].
-	projectListPresenter selections: (Array with: projectService).
-	^projectService "return for testing"
+
+	| projectService index |
+	self projectListPresenter selectedItem name = projectName ifTrue: [
+		^ self ].
+	projectService := self projectListPresenter list
+		                  detect: [ :service | service name = projectName ]
+		                  ifNone: [ ^ self ].
+	index := self projectListPresenter list indexOf: projectService.
+	self projectListPresenter selectIndex: index scrollToSelection: true.
+	^ projectService "return for testing"
 ]
 
 { #category : 'selections' }
@@ -3625,6 +3706,18 @@ JadeiteBrowserPresenter >> updateHierarchyForPacktionaries [
 				command: #classHierarchyForPackagesNamed:;
 				commandArgs: (Array with: self selectedPackageNames) ].
 	self issueCommand: service onCompletion: nil
+]
+
+{ #category : 'history' }
+JadeiteBrowserPresenter >> updateHistory [
+
+	| methodService |
+	methodListPresenter hasSelection ifFalse: [ ^ self ].
+	methodService := self methodListPresenter selectedItem.
+	(historyList includes: methodService) ifTrue: [ ^ self ].
+	historyList := historyList copyFrom: 1 to: historyIndex. "trim"
+	historyList add: methodService.
+	historyIndex := historyList size.
 ]
 
 { #category : 'as yet unclassified' }

@@ -245,30 +245,6 @@ JadeSystemBrowserPresenter >> browseSelectedClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> buildHistoryMenuNamed: aString from: startIndex to: endIndex by: increment [
-
-	| currentClassName popup subMenu |
-	popup := Menu new.
-	currentClassName := nil.	"avoid warning and make explicit that we expect comparison to fail the first time so we get a new submenu"
-	startIndex to: endIndex by: increment do: [:i | 
-		| className historyEntry methodName |
-		historyEntry := historyList at: i.
-		className := historyEntry at: 1.
-		methodName := historyEntry at: 2.
-		className ~= currentClassName ifTrue: [
-			currentClassName := className.
-			subMenu := popup addSubmenu: currentClassName.
-		].
-		subMenu
-			addCommand: (Message selector: #'jumpToHistoryIndex:' argument: i)
-			description: methodName.
-		subMenu setDefault: 1.
-	].
-	popup setDefault: 1.
-	^popup
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> categoriesMenuStrings [
 
 	false ifTrue: [
@@ -716,53 +692,6 @@ JadeSystemBrowserPresenter >> globalsMenuStrings [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> hasCommandHistoryBack [
-
-	^1 < historyIndex
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> hasCommandHistoryForward [
-
-	^historyIndex < historyList size
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> historyBack [
-
-	self jumpToHistoryIndex: historyIndex - 1.
-	
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> historyBackMenu [
-
-	^self 
-		buildHistoryMenuNamed: 'Backward'
-		from: historyIndex - 1
-		to: 1 
-		by: -1
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> historyForward [
-
-	self jumpToHistoryIndex: historyIndex + 1.
-	
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> historyForwardMenu [
-
-	^self 
-		buildHistoryMenuNamed: 'Forward'
-		from: historyIndex + 1
-		to: historyList size 
-		by: 1
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> horizontalSplitter [
 
 	^view 
@@ -882,20 +811,6 @@ JadeSystemBrowserPresenter >> jadeDisplay [
 { #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> jadeExecute [
 	self jadeExecuteAndDisplay: false shouldDebug: false
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> jumpToHistoryIndex: anInteger [
-
-	| commandString historyEntry |
-	historyIndex := anInteger.
-	historyEntry := historyList at: anInteger.
-	commandString := historyEntry at: 3.
-	self 
-		updateCommand: commandString;
-		updateMenuBar;
-		yourself.
-	methodSourcePresenter ensureVisible.
 ]
 
 { #category : 'as yet unclassified' }
@@ -1588,22 +1503,6 @@ JadeSystemBrowserPresenter >> selectedClasses [
 	].
 	^list.
 
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> selectedMethodChanged [
-
-	| historyEntry |
-	self todo:["remove this method?" 
-	self updateAndSelect: methodSourcePresenter.
-	methodListPresenter selections size == 1 ifFalse: [^self].
-	historyList := historyList copyFrom: 1 to: historyIndex.	"trim any forward options on an explicit manual selection"
-	historyEntry := Array
-		with: selectedClassName , (self isClassSideSelected ifTrue: [' class'] ifFalse: [''])
-		with: (methodListPresenter selection at: 1)
-		with: self requestStringForUpdate.
-	historyList add: historyEntry.
-	historyIndex := historyList size.]
 ]
 
 { #category : 'as yet unclassified' }

@@ -281,12 +281,16 @@ RowanPackageService >> rowanPostUpdate [
 { #category : 'public' }
 RowanPackageService >> selectIn: presenter [
 
-	| selection |
+	| selection index |
 	presenter selectProjectNamed: projectName.
-	selection := presenter packageListPresenter list detect: [
-		             :packageService | packageService name = self name ] ifNone:[^self].
+	selection := presenter packageListPresenter list
+		             detect: [ :packageService |
+		             packageService name = self name ]
+		             ifNone: [ ^ self ].
+	index := presenter packageListPresenter list indexOf: selection.
+	"fix this"
 	presenter packageListPresenter selectedItem = selection ifFalse: [
-		presenter packageListPresenter selectItem: selection ]
+		presenter packageListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'accessing' }
