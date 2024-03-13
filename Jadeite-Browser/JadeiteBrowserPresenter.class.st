@@ -1513,14 +1513,27 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeCategoryText: methodColumn [
 
+	| methodTopBox |
+	methodTopBox := SpBoxLayout newHorizontal.
 	methodCategoryText := SpTextPresenter new
-		                           beNotEditable;
-		                           beWrapWord;
-		                           withoutScrollBars.
+		                      beNotEditable;
+		                      beNotWrapWord;
+		                      withoutScrollBars. "not scroll bars not working"
 	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
-	methodColumn
+	methodTopBox
 		add: methodCategoryText
-		withConstraints: [ :c | c height: 30 ]
+		withConstraints: [ :c | c width: 300 ].
+	backButton := self newButton
+		              icon: (self iconNamed: #glamorousLeft);
+		              help: 'Method Navigation Back';
+		              action: [ self historyBack ].
+	methodTopBox add: backButton.
+	forwardButton := self newButton
+		                 icon: (self iconNamed: #glamorousRight);
+		                 help: 'Method Navigation Forward';
+		                 action: [ self historyForward ].
+	methodTopBox add: forwardButton.
+	methodColumn add: methodTopBox withConstraints: [ :c | c height: 30 ]
 ]
 
 { #category : 'initialization' }
@@ -1714,16 +1727,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	radioButtonBox
 		add: instanceRadioButton;
 		add: classRadioButton.
-	backButton := self newButton
-		              icon: (self iconNamed: #glamorousLeft);
-		              help: 'Method Navigation Back';
-		              action: [ self historyBack ].
-	radioButtonBox add: backButton.
-	forwardButton := self newButton
-		                 icon: (self iconNamed: #glamorousRight);
-		                 help: 'Method Navigation Forward';
-		                 action: [ self historyForward ].
-	radioButtonBox add: forwardButton.
+
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 50 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
@@ -2088,6 +2092,7 @@ JadeiteBrowserPresenter >> jumpToHistoryIndex: anInteger [
 	historyEntry meta
 		ifTrue: [ classRadioButton state: true ]
 		ifFalse: [ instanceRadioButton state: true ].
+	self selectCategoryNamed: historyEntry category.
 	self selectMethod: historyEntry
 ]
 
