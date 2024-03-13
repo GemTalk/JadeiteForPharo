@@ -1515,10 +1515,7 @@ JadeiteBrowserPresenter >> initializeCategoryText: methodColumn [
 
 	| methodTopBox |
 	methodTopBox := SpBoxLayout newHorizontal.
-	methodCategoryText := SpTextPresenter new
-		                      beNotEditable;
-		                      beNotWrapWord;
-		                      withoutScrollBars. "not scroll bars not working"
+	methodCategoryText := SpTextPresenter new beNotEditable.
 	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
 	methodTopBox
 		add: methodCategoryText

@@ -12,7 +12,8 @@ Class {
 		'leftTextPresenter',
 		'leftMemoPresenter',
 		'rightTextPresenter',
-		'rightMemoPresenter'
+		'rightMemoPresenter',
+		'includesIdenticalPresenter'
 	],
 	#category : 'Jadeite-Changes'
 }
@@ -110,8 +111,9 @@ JadeiteChangesBrowser >> browseSenders [
 JadeiteChangesBrowser >> connectPresenters [
 
 	super connectPresenters.
-	operationsListPresenter whenSelectionChangedDo: [ :selection | 
-		self operationSelected ]
+	operationsListPresenter whenSelectionChangedDo: [ :selection |
+		self operationSelected ].
+	includesIdenticalPresenter whenChangedDo: [ :state | self refresh ]
 ]
 
 { #category : 'initialization' }
@@ -241,9 +243,18 @@ JadeiteChangesBrowser >> initializePresenters [
 { #category : 'initialization' }
 JadeiteChangesBrowser >> initializeToolbar [
 
+	| toolbarBox |
 	toolbar := self newJadeiteToolbar.
+	toolbarBox := SpBoxLayout newHorizontal.
+	toolbarBox add: toolbar.
+	includesIdenticalPresenter := self newCheckBox
+		                              label: 'Include Identical Source';
+		                              state: true.
+	toolbarBox
+		add: includesIdenticalPresenter
+		withConstraints: [ :constraints | constraints bePlacedAtEnd ].
 	self layout
-		add: #toolbar
+		add: toolbarBox
 		expand: false
 		fill: false
 		padding: 0
@@ -349,9 +360,12 @@ JadeiteChangesBrowser >> queryCommand: aCommandQuery [
 
 { #category : 'actions' }
 JadeiteChangesBrowser >> refresh [
+
 	| projectService operations |
 	projectService := RowanProjectService new name: name.
-	operations := projectService basicChangesUsing: gciSession. 
+	operations := projectService basicChangesUsing: gciSession.
+	includesIdenticalPresenter state ifFalse: [
+		operations := operations reject: [ :each | each hasEquivalentText ] ]. 
 	operationsListPresenter items: operations asSortedCollection
 ]
 
