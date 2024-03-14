@@ -1039,6 +1039,7 @@ JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classSer
 	failedCompilations := OrderedCollection new.
 	methodServices do: [ :methodService |
 		[
+		classService meta: methodService meta. 
 		classService
 			saveMethod: methodService source
 			category: methodService category
