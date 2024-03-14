@@ -257,12 +257,14 @@ RowanService >> executeCommand [
 { #category : 'rsr' }
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
-	| promise theCompletionBlock |
+	| promise theCompletionBlock process |
+	process := Processor activeProcess.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	promise := remoteSelf executeCommand.
-	promise
-		when: theCompletionBlock
-		catch: [ :value |
+	promise when: theCompletionBlock catch: [ :value |
+		value tag = 'rsrProcessTerminated' ifTrue: [
+			self halt.
+			process terminate ].
 		[ self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
 ]
 
