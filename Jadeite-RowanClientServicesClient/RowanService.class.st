@@ -263,7 +263,10 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 	promise := remoteSelf executeCommand.
 	promise when: theCompletionBlock catch: [ :value |
 		value tag = 'rsrProcessTerminated' ifTrue: [
-			process terminate ].
+			process terminate.
+			DefaultExecutionEnvironment beActiveDuring: [
+				[ UIManager default uiProcess terminate ] ensure: [
+					UIManager default spawnNewProcess ] ] ].
 		[ self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
 ]
 
