@@ -33,7 +33,7 @@ ListModel >> asBag [
 { #category : 'converting' }
 ListModel >> asOrderedCollection [ 
 
-	^collection
+	^collection asOrderedCollection
 ]
 
 { #category : 'converting' }

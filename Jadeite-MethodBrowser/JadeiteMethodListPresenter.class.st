@@ -102,18 +102,23 @@ JadeiteMethodListPresenter >> contextObject [
 	^classService oop
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> createComponents [
-	methodListPresenter := self add: JadeiteBasicMethodListPresenter new name: 'methodList'.
-	methodSourcePresenter := (self add: JadeiteMethodSourcePresenter new name: 'methodSource')
-				menuTitle: '&Method Source'.
-	comparisonPresenter := self add: JadeiteDifferencesPresenter new name: 'comparisonTab'.
-]
-
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> defaultLayout [ 
 
 	^SpBoxLayout newVertical
+]
+
+{ #category : 'drag & drop' }
+JadeiteMethodListPresenter >> dropMethods: array [
+
+	| sorted |
+	sorted := SortedCollection withAll: methodListPresenter list.
+	sorted addAll: array.
+	methodListPresenter list: (ListModel withAll: sorted).
+	methodListPresenter withAdapterDo: [ :anAdapter |
+		anAdapter refreshList ].
+	methodListPresenter unselectAll. 
+	methodListPresenter selectItem: array first
 ]
 
 { #category : 'actions' }
@@ -207,6 +212,14 @@ JadeiteMethodListPresenter >> initializeMethodListTableOn: panedLayout [
 				                        title: 'Method'
 				                        evaluated: [ :service | service selector ])
 				                       beSortable;
+		                       wantsDrop: [ :transfer |
+										"#canUnderstand: used in case nefarious objects are dropped"
+			                       (transfer passenger class canUnderstand:
+					                        #allSatisfy:) ifTrue: [
+					                       transfer passenger allSatisfy:
+							                       #isMethodService ] ];
+		                       acceptDrop: [ :transfer |
+			                       self dropMethods: transfer passenger ];
 		                       yourself.
 	panedLayout add: methodListPresenter
 ]
@@ -285,21 +298,6 @@ JadeiteMethodListPresenter >> onCloseRequested: aCloseEvent [
 	aCloseEvent value: (methodSourcePresenter documentPresenter view isModified
 				ifTrue: [methodSourcePresenter isOkayToChange]
 				ifFalse: [true])
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> onDragMethod: aSession [
-	| list |
-	list := methodListPresenter selections collect: 
-					[:each |
-					(aSession newDragObject: each)
-						format: #method data: each;
-						yourself].
-	aSession
-		dragObjects: list;
-		supportedOperations: #(#move #copy);
-		defaultOperation: #copy;
-		yourself
 ]
 
 { #category : 'as yet unclassified' }
