@@ -91,7 +91,7 @@ JadeiteToolbarTrait >> jadeiteServerGitRepositories [
 { #category : 'initialization' }
 JadeiteToolbarTrait >> newJadeiteToolbar [
 
-	toolbar := self newToolbar.
+	toolbar := self instantiate: JadeiteToolbarPresenter.
 	toolbar
 		addStyle: 'stToolbar';
 		fillWith: self toolbarActions.
@@ -115,7 +115,7 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 				 action: [ self openSUnitBrowser ];
 				 yourself);
 		yourself.
-	^toolbar
+	^ toolbar
 ]
 
 { #category : 'actions' }

@@ -3109,6 +3109,7 @@ JadeiteBrowserPresenter >> selectMethods: methodSelections [
 			                svc selector = methodSelection selector ]
 			                ifNone: [  ].
 		newSelection ifNotNil: [ newMethodSelections add: newSelection ] ].
+	newMethodSelections isEmpty ifTrue: [ ^ self ].
 	^ methodListPresenter
 		  selectIndexes: (newMethodSelections collect: [ :methodService |
 				   methodListPresenter items indexOf: methodService ])
