@@ -183,7 +183,7 @@ JadeiteMethodListPresenter >> initializeMenubar [
 ]
 
 { #category : 'initialization' }
-JadeiteMethodListPresenter >> initializeMethodListTable [
+JadeiteMethodListPresenter >> initializeMethodListTableOn: panedLayout [
 
 	methodListPresenter := JadeiteTablePresenter new
 		                       beMultipleSelection;
@@ -208,11 +208,11 @@ JadeiteMethodListPresenter >> initializeMethodListTable [
 				                        evaluated: [ :service | service selector ])
 				                       beSortable;
 		                       yourself.
-	self layout add: methodListPresenter
+	panedLayout add: methodListPresenter
 ]
 
 { #category : 'initialization' }
-JadeiteMethodListPresenter >> initializeMethodSource [
+JadeiteMethodListPresenter >> initializeMethodSourceOn: panedLayout [
 
 	| box |
 	methodSourcePresenter := JadeiteMethodSourcePane new _gciSession:
@@ -223,17 +223,20 @@ JadeiteMethodListPresenter >> initializeMethodSource [
 	box := SpBoxLayout newVertical.
 	box borderWidth: 2.
 	box add: methodSourcePresenter.
-	self layout add: box
+	panedLayout add: box
 ]
 
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> initializePresenters [
 
+	| panedLayout |
 	super initializePresenters.
 	self initializeToolbar.
-	self initializeMethodListTable.
+	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.30.
+	self initializeMethodListTableOn: panedLayout.
 	self initializeFullMethodListMenu.
-	self initializeMethodSource.
+	self initializeMethodSourceOn: panedLayout.
+	self layout add: panedLayout. 
 	statusBarText := self newStatusBar.
 	self layout
 		add: statusBarText
@@ -245,7 +248,7 @@ JadeiteMethodListPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1000 @ 600;
+		initialExtent: 1000 @ 800;
 		menu: self initializeMenubar.
 	self updateCaption
 ]
