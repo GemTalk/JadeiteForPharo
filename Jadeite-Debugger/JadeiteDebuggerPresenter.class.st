@@ -91,10 +91,14 @@ JadeiteDebuggerPresenter >> connectPresenters [
 		selection selectedItem ifNotNil: [ :sel |
 			self displayVariables: sel.
 			self updateSourcePaneWith: selection.
-			variableDataPresenter text: String new ] ].
+			variableDataPresenter
+				text: String new;
+				hasUnacceptedEdits: false ] ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection selectedItem ifNotNil: [ :sel |
-			variableDataPresenter text: sel value ] ].
+			variableDataPresenter
+				text: sel value;
+				hasUnacceptedEdits: false ] ].
 	self methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	self methodSourcePresenter whenResetDo: [
 		self methodSourcePresenter text:
@@ -292,9 +296,9 @@ JadeiteDebuggerPresenter >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> initializePresenters [
 
-	| topPanes panedLayout |
+	| topPanes panedLayout codePaneBox |
 	super initializePresenters.
-	self layout spacing: 10.
+	"self layout spacing: 10."
 	self initializeToolbar.
 	self addDebuggerActions.
 	errorMessagePresenter := (JadeiteTextDocument new text: String new)
@@ -304,20 +308,25 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	self layout
 		add: errorMessagePresenter
 		withConstraints: [ :constraints | constraints height: 30 ].
-	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.50. 
-	topPanes := SpPanedLayout newHorizontal positionOfSlider: 0.50. 
+	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.50.
+	topPanes := SpPanedLayout newHorizontal positionOfSlider: 0.50.
 	frameListPresenter := JadeiteListPresenter new display: [
 		                      :frameService | frameService printString ].
 	topPanes add: frameListPresenter.
 	self initializeVariablePanesIn: topPanes.
 	panedLayout add: topPanes.
+	codePaneBox := SpBoxLayout newVertical.
+	codePaneBox
+		add: self newStatusBar
+		withConstraints: [ :constraints | constraints height: 5 ].
 	codePane := JadeiteMethodSourcePane new.
 	codePane application: self application.
 	codePane saveAction: [
 		self editSaveMethod.
 		suspendedProcess resume ].
-	panedLayout add: codePane.
-	self layout add: panedLayout. 
+	codePaneBox add: codePane.
+	panedLayout add: codePaneBox.
+	self layout add: panedLayout.
 	statusBarText := self newStatusBar.
 	self layout
 		add: statusBarText
@@ -327,8 +336,8 @@ JadeiteDebuggerPresenter >> initializePresenters [
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 
-	| variablePanes column1 column2 column3 |
-	variablePanes := SpPanedLayout newVertical positionOfSlider: 0.50. 
+	| variablePanes column1 column2 column3  variableDataBox |
+	variablePanes := SpPanedLayout newVertical positionOfSlider: 0.50.
 	variableListPresenter := JadeiteTablePresenter new.
 	variableListPresenter addColumn: (column1 := SpStringTableColumn
 			            title: 'Variable'
@@ -346,12 +355,19 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 			            title: 'OOP'
 			            evaluated: [ :variableService |
 			            variableService displayOop ]).
-	variableDataPresenter := (JadeiteMethodSourcePane new text:
-		                          String new) withoutLineNumbers.
 	variableListPresenter contextMenu: self newVariableListMenu.
+	variableDataBox := SpBoxLayout newVertical. 
+	variableDataBox
+		add: self newStatusBar
+		withConstraints: [ :constraints | constraints height: 5 ].
+	variableDataPresenter := (JadeiteMethodSourcePane new text:
+			                          String new)
+		                         withoutLineNumbers;
+		                         hasUnacceptedEdits: false.
+	variableDataBox add: variableDataPresenter. 
 	variablePanes
 		add: variableListPresenter;
-		add: variableDataPresenter.
+		add: variableDataBox.
 	framesAndVariables add: variablePanes
 ]
 
