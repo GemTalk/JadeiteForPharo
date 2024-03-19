@@ -263,10 +263,7 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 	promise := remoteSelf executeCommand.
 	promise when: theCompletionBlock catch: [ :value |
 		value tag = 'rsrProcessTerminated' ifTrue: [
-			process terminate.
-			DefaultExecutionEnvironment beActiveDuring: [
-				[ UIManager default uiProcess terminate ] ensure: [
-					UIManager default spawnNewProcess ] ] ].
+			self terminate: process error: value ].
 		[ self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
 ]
 
@@ -750,6 +747,18 @@ RowanService >> stonOn: stonWriter [
 							(self instVarNamed: each)
 								ifNotNil: [:value | dictionary at: each asSymbol put: value]
 								ifNil: [self stonShouldWriteNilInstVars ifTrue: [dictionary at: each asSymbol put: nil]]]]]
+]
+
+{ #category : 'rsr' }
+RowanService >> terminate: process error: value [
+
+	process terminate.
+	DefaultExecutionEnvironment beActiveDuring: [
+		[ UIManager default uiProcess terminate ] ensure: [
+			UIManager default spawnNewProcess.
+			value class = RsrConnectionClosedBeforeReceivingResponse ifTrue: [
+				(UIManager default confirm: 'RSR connection closed. Disconnect?')
+					ifTrue: [ JadeiteConnectionProfile connectionProfile disconnect ] ] ] ]
 ]
 
 { #category : 'printing' }
