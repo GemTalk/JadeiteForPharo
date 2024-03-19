@@ -752,9 +752,11 @@ RowanService >> stonOn: stonWriter [
 { #category : 'rsr' }
 RowanService >> terminate: process error: value [
 
-	process terminate.
+	process
+		suspend;
+		terminate.
 	DefaultExecutionEnvironment beActiveDuring: [
-		[ UIManager default uiProcess terminate ] ensure: [
+		[ UIManager default terminateUIProcess ] ensure: [
 			UIManager default spawnNewProcess.
 			value class = RsrConnectionClosedBeforeReceivingResponse ifTrue: [
 				(UIManager default confirm: 'RSR connection closed. Disconnect?')

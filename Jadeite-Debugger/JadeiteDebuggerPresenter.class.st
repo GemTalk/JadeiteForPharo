@@ -298,7 +298,6 @@ JadeiteDebuggerPresenter >> initializePresenters [
 
 	| topPanes panedLayout codePaneBox |
 	super initializePresenters.
-	"self layout spacing: 10."
 	self initializeToolbar.
 	self addDebuggerActions.
 	errorMessagePresenter := (JadeiteTextDocument new text: String new)

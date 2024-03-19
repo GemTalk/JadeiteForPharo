@@ -643,7 +643,7 @@ JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle 
 		onCompletion: nil.
 	possibleSelectors := answeringService answer.
 	possibleSelectors isEmpty ifTrue: [
-		self displayNoMatchesFoundMessageFor: wildcardString.
+		UIManager default alert: 'No symbols matching: ' , wildcardString.
 		^ nil ].
 	possibleSelectors size = 1 ifTrue: [ ^ possibleSelectors first ].
 	dialogWindow := ListDialogWindow new
