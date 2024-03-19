@@ -292,7 +292,7 @@ JadeiteDebuggerPresenter >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> initializePresenters [
 
-	| topPanes |
+	| topPanes panedLayout |
 	super initializePresenters.
 	self layout spacing: 10.
 	self initializeToolbar.
@@ -304,18 +304,20 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	self layout
 		add: errorMessagePresenter
 		withConstraints: [ :constraints | constraints height: 30 ].
-	topPanes := SpBoxLayout newHorizontal.
+	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.50. 
+	topPanes := SpPanedLayout newHorizontal positionOfSlider: 0.50. 
 	frameListPresenter := JadeiteListPresenter new display: [
 		                      :frameService | frameService printString ].
 	topPanes add: frameListPresenter.
 	self initializeVariablePanesIn: topPanes.
-	self layout add: topPanes.
+	panedLayout add: topPanes.
 	codePane := JadeiteMethodSourcePane new.
 	codePane application: self application.
 	codePane saveAction: [
 		self editSaveMethod.
 		suspendedProcess resume ].
-	self layout add: codePane.
+	panedLayout add: codePane.
+	self layout add: panedLayout. 
 	statusBarText := self newStatusBar.
 	self layout
 		add: statusBarText
@@ -326,7 +328,7 @@ JadeiteDebuggerPresenter >> initializePresenters [
 JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 
 	| variablePanes column1 column2 column3 |
-	variablePanes := SpBoxLayout newVertical spacing: 10.
+	variablePanes := SpPanedLayout newVertical positionOfSlider: 0.50. 
 	variableListPresenter := JadeiteTablePresenter new.
 	variableListPresenter addColumn: (column1 := SpStringTableColumn
 			            title: 'Variable'
