@@ -134,9 +134,9 @@ JadeiteChangesBrowser >> initialize [
 ]
 
 { #category : 'initialization' }
-JadeiteChangesBrowser >> initializeDiffsPresenter [
+JadeiteChangesBrowser >> initializeDiffsPresenterTo: panedLayout [
 	diffsPresenter := JadeiteDiffPresenter new. 
-	self layout add: diffsPresenter.
+	panedLayout add: diffsPresenter.
 	diffsPresenter showOptions: false
 ]
 
@@ -201,7 +201,7 @@ JadeiteChangesBrowser >> initializeOperationsContextMenu [
 ]
 
 { #category : 'initialization' }
-JadeiteChangesBrowser >> initializeOperationsListPresenter [
+JadeiteChangesBrowser >> initializeOperationsListPresenterTo: panedLayout [
 
 	| col |
 	operationsListPresenter := JadeiteTablePresenter new.
@@ -226,17 +226,19 @@ JadeiteChangesBrowser >> initializeOperationsListPresenter [
 			 title: 'Detail'
 			 evaluated: [ :operation | operation detailsString ]).
 
-	self layout add: operationsListPresenter
+	panedLayout add: operationsListPresenter
 ]
 
 { #category : 'initialization' }
 JadeiteChangesBrowser >> initializePresenters [
-
+	| panedLayout | 
 	super initializePresenters.
 	self layout spacing: 10.
 	self initializeToolbar.
-	self initializeOperationsListPresenter.
-	self initializeDiffsPresenter.
+	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.30.
+	self initializeOperationsListPresenterTo: panedLayout.
+	self initializeDiffsPresenterTo: panedLayout.
+	self layout add: panedLayout. 
 	self initializeOperationsContextMenu
 ]
 
