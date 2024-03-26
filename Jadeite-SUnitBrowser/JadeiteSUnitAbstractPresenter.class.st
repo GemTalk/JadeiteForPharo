@@ -90,7 +90,7 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 			commandArgs: (Array
 					 with: methodService selector
 					 with: (className ifNil: [ methodService className ])).
-		self issueCommand: methodService onCompletion: nil.
+		RowanServiceUpdater current issueCommand: methodService session: self gciSession onCompletion: nil.
 		methodService testResult = 'error' ifTrue: [
 			jadeResult addError: methodService ].
 		methodService testResult = 'failure' ifTrue: [

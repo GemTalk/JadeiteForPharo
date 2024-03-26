@@ -100,6 +100,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
 	| sem updateResult postExecutionBlock |
+	Processor activeProcess = UIManager default uiProcess ifTrue:[self halt].
 	service prepareForReplication.
 	sem := Semaphore new.
 	postExecutionBlock := [ :aService | sem signal ].
@@ -156,7 +157,7 @@ RowanServiceUpdater >> debug: aBoolean [
 	debug := aBoolean
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'events' }
 RowanServiceUpdater >> getEvents [
 
 	^ nil
@@ -481,7 +482,6 @@ RowanServiceUpdater >> startServiceQueueProcess [
 	                       queuedBlock := [
 	                                      block ensure: [
 		                                      inQueueProcess signal ] ].
-	                       "UIManager default defer: queuedBlock.<<<< necessary to run in UI thread? If so, why?"
 	                       queuedBlock fork.
 	                       inQueueProcess wait ] repeat ] forkNamed:
 		                       'Jadeite Service Queue'

@@ -404,10 +404,12 @@ JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProject [
-	self updateProjectPackages.
-	self updateProjectInfo.
-	self todo: 'projectInfoTab ensureVisible'.
-	self sundryCleanup
+
+	RowanServiceUpdater current serviceQueuePut: [
+		self updateProjectPackages.
+		self updateProjectInfo.
+		self todo: 'projectInfoTab ensureVisible'.
+		self sundryCleanup ]
 ]
 
 { #category : 'private' }
@@ -644,11 +646,12 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 { #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
-	^ classService ifNotNil: [
-		  self clearMethodLists.
-		  self
-			  refreshClass: methodListPresenter selectedItem;
-			  updateTabLabel ]
+	RowanServiceUpdater current serviceQueuePut: [
+		classService ifNotNil: [
+			self clearMethodLists.
+			self
+				refreshClass: methodListPresenter selectedItem;
+				updateTabLabel ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2615,18 +2618,20 @@ JadeiteBrowserPresenter >> refresh [
 JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
 	| methodSelections |
-	categoryListPresenter selectedItem isComputed ifTrue: [ | extensions | 
-		extensions := self selectedClass methods select:[:methodService | methodService isExtension]. 
+	categoryListPresenter selectedItem isComputed ifTrue: [
+		| extensions |
+		extensions := self selectedClass methods select: [ :methodService |
+			              methodService isExtension ].
 		methodListPresenter list: extensions.
-		^self ].
+		^ self ].
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
 	methodListPresenter selections:
 		(methodSelections select: [ :methodService |
 			 methodListPresenter list includes: methodService ]).
 	self selectMethodSourceTab.
-	^ selection selectedItem ifNotNil: [ :sel |
-		  methodCategoryText text: 'Category: ' , sel categoryName]
+	selection selectedItem ifNotNil: [ :sel |
+		methodCategoryText text: 'Category: ' , sel categoryName ]
 ]
 
 { #category : 'updates' }

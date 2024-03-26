@@ -701,7 +701,8 @@ JadeiteMethodsTrait >> updateMethodSourceGlyphs [
 
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateService: service [
-	^self updateService: service onCompletion: nil
+
+	self updateService: service onCompletion: nil
 ]
 
 { #category : 'updates' }
@@ -712,7 +713,8 @@ JadeiteMethodsTrait >> updateService: service onCompletion: completionBlock [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateServices: services [
 
-	^self updateServices: services onCompletion: nil
+	RowanServiceUpdater current serviceQueuePut: [
+		self updateServices: services onCompletion: nil ]
 ]
 
 { #category : 'updates' }

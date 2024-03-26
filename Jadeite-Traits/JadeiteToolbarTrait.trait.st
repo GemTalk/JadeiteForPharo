@@ -164,7 +164,8 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 { #category : 'actions' }
 JadeiteToolbarTrait >> openWorkspace [
 
-	JadeiteWorkspaceApplication showOnSession: self gciSession library
+	RowanServiceUpdater current serviceQueuePut: [
+		JadeiteWorkspaceApplication showOnSession: self gciSession library ]
 ]
 
 { #category : 'actions' }
