@@ -90,7 +90,7 @@ GciSession >> executeString: aString [
 
 { #category : 'initialization' }
 GciSession >> flipAutoCommit [
-	RowanServiceUpdater current serviceQueue nextPut: [self basicFlipAutoCommit]
+	RowanServiceUpdater current serviceQueuePut: [self basicFlipAutoCommit]
 	
 ]
 

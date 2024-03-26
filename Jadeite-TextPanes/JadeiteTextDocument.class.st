@@ -357,7 +357,7 @@ JadeiteTextDocument >> environment: anInteger [
 
 { #category : 'Jade' }
 JadeiteTextDocument >> executeSelectionOrLine [
-
+	"tests only?"
 	^ self
 		  executeSelectionOrLine: self contextObject
 		  shouldDebug: false
@@ -369,18 +369,18 @@ JadeiteTextDocument >> executeSelectionOrLine [
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
 	| answeringService oop |
-
-	oop := context ifNil: [ 20 ].
-	answeringService := RowanAnsweringServiceClient new.
-	answeringService
-		command: #execReturningPrintString:context:shouldDebug:;
-		commandArgs: (Array with: aString with: oop with: shouldDebug).
-	RowanServiceUpdater current
-		issueCommand: answeringService
-		session: GciSession current
-		onCompletion: nil.
-	answeringService ifNotNil: [
-		self displayResult: showResult orShowCompileError: answeringService ]
+	RowanServiceUpdater current serviceQueuePut: [
+		oop := context ifNil: [ 20 ].
+		answeringService := RowanAnsweringServiceClient new.
+		answeringService
+			command: #execReturningPrintString:context:shouldDebug:;
+			commandArgs: (Array with: aString with: oop with: shouldDebug).
+		RowanServiceUpdater current
+			issueCommand: answeringService
+			session: GciSession current
+			onCompletion: nil.
+		answeringService ifNotNil: [
+			self displayResult: showResult orShowCompileError: answeringService ] ]
 ]
 
 { #category : 'as yet unclassified' }

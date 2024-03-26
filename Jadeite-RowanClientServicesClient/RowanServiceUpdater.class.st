@@ -1,5 +1,5 @@
 "
-Coordinate client presenters with updates from the server.
+Service commands issued here. Coordinates single threading to compensate for RSR's asynchronous nature. 
 
 returnedServices are the last services returned from the server. Handy for testing. 
 "
@@ -97,22 +97,19 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> basicIssueCommand: nextQueueElement session: session onCompletion: completionBlock [
+RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
 	| sem updateResult postExecutionBlock |
-	nextQueueElement service
-		command: nextQueueElement command;
-		commandArgs: nextQueueElement commandArgs.
-	nextQueueElement service prepareForReplication.
+	service prepareForReplication.
 	sem := Semaphore new.
 	postExecutionBlock := [ :aService | sem signal ].
-	nextQueueElement service
+	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: sem.
 	sem wait.
 	updateResult := self applyUpdatesFromReturnedServices:
-		                nextQueueElement service returnedServices
+		                service returnedServices
 ]
 
 { #category : 'private' }
@@ -237,17 +234,12 @@ RowanServiceUpdater >> issueCommand: service session: session [
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
 
-	| commandResult nextQueueElement |
+	| commandResult |
 	session ifNil: [ ^ nil ].
 	service isInCommand ifTrue:[^self]. 
-	nextQueueElement := RowanServiceQueueElement new
-		                    service: service;
-		                    command: service command;
-		                    commandArgs: service commandArgs;
-		                    yourself.
 	service inCommand critical: [
 		commandResult := self
-			                 basicIssueCommand: nextQueueElement
+			                 basicIssueCommand: service
 			                 session: session
 			                 onCompletion: completionBlock.
 		^ commandResult ]
@@ -452,6 +444,12 @@ RowanServiceUpdater >> serviceQueue [
 	^ serviceQueue
 ]
 
+{ #category : 'service queue' }
+RowanServiceUpdater >> serviceQueuePut: aBlock [
+
+	serviceQueue nextPut: aBlock
+]
+
 { #category : 'private' }
 RowanServiceUpdater >> shouldApply: selector forService: service [
 	service isNil ifTrue:[^false]. "if a service is gc'd we could possibly end up with a nil here"
@@ -480,8 +478,11 @@ RowanServiceUpdater >> startServiceQueueProcess [
 	                       | block queuedBlock |
 	                       block := serviceQueue next.
 	                       inQueueProcess := Semaphore new.
-	                       queuedBlock := [ block ensure: [ inQueueProcess signal ] ].
-	                       UIManager default defer: queuedBlock.
+	                       queuedBlock := [
+	                                      block ensure: [
+		                                      inQueueProcess signal ] ].
+	                       "UIManager default defer: queuedBlock.<<<< necessary to run in UI thread? If so, why?"
+	                       queuedBlock fork.
 	                       inQueueProcess wait ] repeat ] forkNamed:
 		                       'Jadeite Service Queue'
 ]

@@ -30,9 +30,6 @@ RowanProcessServiceClient >> openDebugger [
 	| activeProcess newUIProcess |
 	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
-	DefaultExecutionEnvironment beActiveDuring: [
-		UIManager default spawnNewProcess.
-		newUIProcess := UIManager default uiProcess ].
 	UIManager default defer: [
 		debugger := JadeiteDebuggerApplication showOnSession:
 			            GciSession current library.
@@ -54,11 +51,11 @@ RowanProcessServiceClient >> updateClient [
 
 	| activeProcess |
 	activeProcess := Processor activeProcess.
-	[
+	UIManager default defer: [
+		activeProcess suspend.
+		debugger suspendedProcess: activeProcess.
+		debugger frameListPresenter items: frames.
+		debugger selectInitialFrame ].
 	activeProcess suspend.
-	debugger suspendedProcess: activeProcess.
-	debugger frameListPresenter items: frames.
-	debugger selectInitialFrame ] fork.
-	Processor yield.
 	^ debugger answer
 ]

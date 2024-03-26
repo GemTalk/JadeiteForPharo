@@ -284,6 +284,12 @@ RowanService >> filterUpdate: presenter browser: anObject [
 { #category : 'inCommand' }
 RowanService >> inCommand [
 	"return self for subclasses that don't implement inCommand"
+	"inCommand is only defined on the client and not replicated to the server as it's a Semaphore. 
+	Therefore, only define the inst var inCommand in client-only subclasses. RSR's quirky design 
+	requires this - can't define a 'client only' inst var in a super class, unfortunately.
+	
+	The purpose of the inCommand semaphore is to prevent issuing more than one command 
+	to a service at a time. RSR will override values on the server!"
 ]
 
 { #category : 'inCommand' }
