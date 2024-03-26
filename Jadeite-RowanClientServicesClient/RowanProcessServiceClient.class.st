@@ -27,7 +27,7 @@ RowanProcessServiceClient >> cleanUpClient [
 { #category : 'debugger' }
 RowanProcessServiceClient >> openDebugger [
 
-	| activeProcess newUIProcess |
+	| activeProcess |
 	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
 	UIManager default defer: [
@@ -41,9 +41,7 @@ RowanProcessServiceClient >> openDebugger [
 		debugger selectInitialFrame ].
 	activeProcess suspend.
 	^ [ self logCommand: thisContext printString with: 'Returning answer'. debugger answer ] ensure: [
-		  newUIProcess
-			  suspend;
-			  terminate ]
+		 ]
 ]
 
 { #category : 'debugger' }

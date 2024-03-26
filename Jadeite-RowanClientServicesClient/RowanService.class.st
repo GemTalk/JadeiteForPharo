@@ -227,34 +227,6 @@ RowanService >> excludedInstVars [
 ]
 
 { #category : 'rsr' }
-RowanService >> executeCommand [
-
-	| activeProcess newUIProcess |
-	activeProcess := Processor activeProcess.
-	[
-	| promise |
-	promise := remoteSelf executeCommand.
-	[ promise wait ]
-		on: Error
-		do: [ :ex |
-			activeProcess terminate.
-			^ ex pass ].
-	command := nil.
-	commandArgs := nil.
-	UIManager default resumeUIProcess: activeProcess.
-	newUIProcess
-		suspend;
-		terminate ] fork.
-	[
-	DefaultExecutionEnvironment beActiveDuring: [
-		UIManager default spawnNewProcess.
-		newUIProcess := UIManager default uiProcess ] ] ensure: [
-		activeProcess suspend ].
-	Processor yield. "let the newUIProcess terminate"
-	self raiseCompileErrorIfNeeded
-]
-
-{ #category : 'rsr' }
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
@@ -757,7 +729,6 @@ RowanService >> stonOn: stonWriter [
 
 { #category : 'rsr' }
 RowanService >> terminate: process error: value [
-
 	process
 		suspend;
 		terminate.
