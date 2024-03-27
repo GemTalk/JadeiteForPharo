@@ -808,15 +808,12 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
 			self refreshCategoryListWithSelection: selection ] ].
-
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
 			self refreshMethodsOn: methodListPresenter ] ].
-
 	packageMethodListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
-			self refreshMethodsOn: methodListPresenter ] ].
-
+			self refreshMethodsOn: methodListPresenter ] ]
 ]
 
 { #category : 'initialization' }
@@ -3746,34 +3743,40 @@ JadeiteBrowserPresenter >> updateMenuBar [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateMethodSource [
 
-	RowanServiceUpdater current isApplyingUpdates ifTrue: [
-		^ self ].
+	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
 	methodSourcePresenter view isModified ifTrue: [ ^ self ].
 	self sundryCleanup.
 	methodListPresenter selections isEmpty ifTrue: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
-	self updateServices: methodListPresenter selections.
-	methodListPresenter selections isEmpty ifTrue: [ ^ self ].
-	self updateMethodSourceGlyphs.
-	definedMethodPackageText text:
-		'Defined Package: '
-		, methodListPresenter selectedItem definedPackage.
-	methodCategoryText text:
-		'Category: ' , methodListPresenter selectedItem category.
-	self todo: [
-		methodListPresenter selections size > 1
+	RowanServiceUpdater current serviceQueuePut: [
+		self updateServices: methodListPresenter selections.
+		methodListPresenter selections isEmpty
 			ifTrue: [
-				self updateMultiMethodComparison.
-				self displayMultipleCategories ]
+				methodSourcePresenter
+					text: self defaultMethod;
+					hasUnacceptedEdits: false ]
 			ifFalse: [
-				self showSuperClassComparison.
-				self updateSingleMethodSource.
-				methodCategoryText value:
-					'Category: ' , methodListPresenter selection category ].
-		self updateSUnitTab.
-		self displayUncompilableSourceIn: methodSourcePresenter ]
+				RowanServiceUpdater current serviceQueueUIPut: [
+					self updateMethodSourceGlyphs.
+					definedMethodPackageText text:
+						'Defined Package: '
+						, methodListPresenter selectedItem definedPackage.
+					methodCategoryText text:
+						'Category: ' , methodListPresenter selectedItem category.
+					self todo: [
+						methodListPresenter selections size > 1
+							ifTrue: [
+								self updateMultiMethodComparison.
+								self displayMultipleCategories ]
+							ifFalse: [
+								self showSuperClassComparison.
+								self updateSingleMethodSource.
+								methodCategoryText value:
+									'Category: ' , methodListPresenter selection category ].
+						self updateSUnitTab.
+						self displayUncompilableSourceIn: methodSourcePresenter ] ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3798,18 +3801,19 @@ JadeiteBrowserPresenter >> updateMethodSourceColor [
 JadeiteBrowserPresenter >> updatePackage [
 
 	self resetClassComment.
-	self resetClassTemplate. 
+	self resetClassTemplate.
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
 	self selectClassListTab.
-	self updateClasses.
-	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-	self updatePackageInfo.
-	self resetSunitTestList.
-	packageListPresenter selectionIfNone: [ self selectProjectTab ].
-	self updateTabLabel.
-	definedClassPackageText text: String new. 
+	RowanServiceUpdater current serviceQueuePut: [ self updateClasses ].
+	RowanServiceUpdater current serviceQueueUIPut: [
+		self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+		self updatePackageInfo.
+		self resetSunitTestList.
+		packageListPresenter selectionIfNone: [ self selectProjectTab ].
+		self updateTabLabel.
+		definedClassPackageText text: String new ]
 ]
 
 { #category : 'updates' }

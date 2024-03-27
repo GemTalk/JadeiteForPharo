@@ -442,7 +442,6 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 RowanServiceUpdater >> serviceQueuePut: aBlock [
 
 	serviceQueue nextPut: [
-		Transcript cr; print: aBlock; flush. 
 		aBlock ensure: [ serviceQueueSemaphore signal ] ]
 ]
 
@@ -453,7 +452,6 @@ RowanServiceUpdater >> serviceQueueUIPut: aBlock [
 
 	serviceQueue nextPut: [
 		UIManager default defer: [
-			Transcript cr; show: '(UI)'; print: aBlock; flush. 
 			aBlock ensure: [ serviceQueueSemaphore signal ] ] ]
 ]
 

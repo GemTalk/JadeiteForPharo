@@ -1937,21 +1937,6 @@ JadeSystemBrowserPresenter >> updatePackageDictionaryList [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updatePackageInfo [
-
-	| list |
-	list := readStream nextList collect: [:each | each , #('' '' '' '')].
-	list = ancestorListPresenter list ifFalse: [
-		ancestorListPresenter list: list.
-	].
-	list := readStream nextList collect: [:each | each , #('' '')].
-	list = repositoryListPresenter list ifFalse: [
-		repositoryListPresenter list: list.
-	].
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> updatePackageList [
 
 	| dictionary fullList selections old new |
