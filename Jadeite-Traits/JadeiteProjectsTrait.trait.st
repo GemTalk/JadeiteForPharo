@@ -567,7 +567,7 @@ JadeiteProjectsTrait >> updateProjects [
 		RowanServiceUpdater current
 			issueCommand: browserService
 			session: self gciSession
-			onCompletion: [ :anObject |
-				self projectListPresenter items:
-					(self sortedProjectsFrom: browserService projects) ] ]
+			onCompletion: nil.
+		self projectListPresenter items:
+			(self sortedProjectsFrom: browserService projects) ]
 ]

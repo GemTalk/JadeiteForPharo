@@ -17,8 +17,7 @@ Class {
 		'postCompletionBlock',
 		'serviceQueueSemaphore',
 		'serviceQueue',
-		'serviceQueueProcess',
-		'inQueueProcess'
+		'serviceQueueProcess'
 	],
 	#classVars : [
 		'Current'
@@ -195,7 +194,7 @@ RowanServiceUpdater >> initialize [
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
 	serviceQueue := AtomicSharedQueue new.
-	serviceQueueSemaphore := Semaphore forMutualExclusion. 
+	serviceQueueSemaphore := Semaphore new. 
 	self startServiceQueueProcess
 ]
 
@@ -440,15 +439,22 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 ]
 
 { #category : 'service queue' }
-RowanServiceUpdater >> serviceQueue [
+RowanServiceUpdater >> serviceQueuePut: aBlock [
 
-	^ serviceQueue
+	serviceQueue nextPut: [
+		Transcript cr; print: aBlock; flush. 
+		aBlock ensure: [ serviceQueueSemaphore signal ] ]
 ]
 
 { #category : 'service queue' }
-RowanServiceUpdater >> serviceQueuePut: aBlock [
+RowanServiceUpdater >> serviceQueueUIPut: aBlock [
+	"push a block onto the queue but run it in the ui process.
+	No commands should be sent to the server in aBlock"
 
-	serviceQueue nextPut: aBlock
+	serviceQueue nextPut: [
+		UIManager default defer: [
+			Transcript cr; show: '(UI)'; print: aBlock; flush. 
+			aBlock ensure: [ serviceQueueSemaphore signal ] ] ]
 ]
 
 { #category : 'private' }
@@ -476,15 +482,11 @@ RowanServiceUpdater >> startServiceQueueProcess [
 
 	serviceQueueProcess := [
 	                       [
-	                       | block queuedBlock |
+	                       | block |
 	                       block := serviceQueue next.
-	                       inQueueProcess := Semaphore new.
-	                       queuedBlock := [
-	                                      block ensure: [
-		                                      inQueueProcess signal ] ].
-	                       queuedBlock fork.
-	                       inQueueProcess wait ] repeat ] forkNamed:
-		                       'Jadeite Service Queue'
+	                       block fork.
+	                       serviceQueueSemaphore wait ] repeat ]
+		                       forkNamed: 'Jadeite Service Queue'
 ]
 
 { #category : 'logging' }

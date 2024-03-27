@@ -706,14 +706,6 @@ JadeiteBrowserPresenter >> clearFilterLists [
 	packageMethodListPresenter clear.
 ]
 
-{ #category : 'initialization' }
-JadeiteBrowserPresenter >> clearFilterListsSelections [
-
-	categoryListPresenter unselectAll. 
-	variableListPresenter unselectAll. 
-	packageMethodListPresenter unselectAll. 
-]
-
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> clearMethodListTestResultIn: methodServices [
 
@@ -816,21 +808,15 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
 			self refreshCategoryListWithSelection: selection ] ].
-	categoryListPresenter whenNoneSelectedDo: [
-		categoryListPresenter list notEmpty ifTrue: [
-			self refreshMethodsOn: methodListPresenter ] ].
+
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
 			self refreshMethodsOn: methodListPresenter ] ].
-	variableListPresenter whenNoneSelectedDo: [
-		variableListPresenter list notEmpty ifTrue: [
-			self refreshMethodsOn: methodListPresenter ] ].
+
 	packageMethodListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
 			self refreshMethodsOn: methodListPresenter ] ].
-	packageMethodListPresenter whenNoneSelectedDo: [
-		packageMethodListPresenter list notEmpty ifTrue: [
-			self refreshMethodsOn: methodListPresenter ] ]
+
 ]
 
 { #category : 'initialization' }
@@ -2626,12 +2612,13 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 		^ self ].
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
-	methodListPresenter selections:
-		(methodSelections select: [ :methodService |
-			 methodListPresenter list includes: methodService ]).
-	self selectMethodSourceTab.
-	selection selectedItem ifNotNil: [ :sel |
-		methodCategoryText text: 'Category: ' , sel categoryName ]
+	RowanServiceUpdater current serviceQueueUIPut: [
+		methodListPresenter selections:
+			(methodSelections select: [ :methodService |
+				 methodListPresenter list includes: methodService ]).
+		self selectMethodSourceTab.
+		selection selectedItem ifNotNil: [ :sel |
+			methodCategoryText text: 'Category: ' , sel categoryName ] ]
 ]
 
 { #category : 'updates' }
@@ -2713,17 +2700,20 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 
 	| classService |
 	classService := self selectedClass ifNil: [ ^ self ].
-	classService meta: self isClassSideSelected.
-	classService filters: self selectedFilters.
-	self selectedFilterTab selectedItems isEmpty ifTrue: [
-		self clearMethodLists ].
-	self updateService: classService.
-	methodListPresenter selections isEmpty
-		ifTrue: [
-			self resetCategoryText.
-			definedMethodPackageText text: String new ]
-		ifFalse: [ self updateMethodSource ].
-	methodListPresenter withWidgetDo: [ :w | w resetPosition ]
+	RowanServiceUpdater current serviceQueueUIPut: [
+		classService meta: self isClassSideSelected.
+		classService filters: self selectedFilters.
+		self selectedFilterTab selectedItems isEmpty ifTrue: [
+			self clearMethodLists ] ].
+	RowanServiceUpdater current serviceQueuePut: [
+		self updateService: classService ].
+	RowanServiceUpdater current serviceQueueUIPut: [
+		methodListPresenter selections isEmpty
+			ifTrue: [
+				self resetCategoryText.
+				definedMethodPackageText text: String new ]
+			ifFalse: [ self updateMethodSource ].
+		methodListPresenter withWidgetDo: [ :w | w resetPosition ] ]
 ]
 
 { #category : 'as yet unclassified' }

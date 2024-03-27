@@ -236,7 +236,6 @@ RowanClassService >> classHierarchyUpdate: presenter browser: browser [
 RowanClassService >> classMethodsUpdate: presenter browser: browser [
 	browser selectedClass ifNil: [ ^self].
 	self = browser selectedClass ifFalse: [^self].
-	browser clearFilterListsSelections.
 	browser methodsUpdate: self
 ]
 

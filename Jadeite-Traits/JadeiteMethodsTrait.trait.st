@@ -713,8 +713,7 @@ JadeiteMethodsTrait >> updateService: service onCompletion: completionBlock [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateServices: services [
 
-	RowanServiceUpdater current serviceQueuePut: [
-		self updateServices: services onCompletion: nil ]
+	self updateServices: services onCompletion: nil
 ]
 
 { #category : 'updates' }

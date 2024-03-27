@@ -2033,12 +2033,3 @@ JadeSystemBrowserPresenter >> variableListPresenter [
 
 	^variableListPresenter
 ]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> viewActivated [
-
-	Transcript cr; show: 'viewActivated'.
-
-	"self update."
-
-]
