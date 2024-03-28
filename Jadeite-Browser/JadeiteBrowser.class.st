@@ -279,14 +279,13 @@ JadeiteBrowser >> openNewBrowserPresenter [
 JadeiteBrowser >> openNewBrowserTab [
 
 	| notebookPage |
-	RowanServiceUpdater current serviceQueuePut: [
 		notebookPage := JadeiteNotebookPage
 			                title: 'Browser'
 			                icon: nil
 			                provider: [ self openNewBrowserPresenter ].
 		notebookPage beCloseable.
 		tabs addPage: notebookPage.
-		tabs selectPage: notebookPage ]
+		tabs selectPage: notebookPage
 ]
 
 { #category : 'accessing' }

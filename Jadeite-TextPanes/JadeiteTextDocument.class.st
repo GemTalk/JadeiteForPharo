@@ -369,18 +369,19 @@ JadeiteTextDocument >> executeSelectionOrLine [
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
 	| answeringService oop |
-	RowanServiceUpdater current serviceQueuePut: [
-		oop := context ifNil: [ 20 ].
-		answeringService := RowanAnsweringServiceClient new.
-		answeringService
-			command: #execReturningPrintString:context:shouldDebug:;
-			commandArgs: (Array with: aString with: oop with: shouldDebug).
-		RowanServiceUpdater current
-			issueCommand: answeringService
-			session: GciSession current
-			onCompletion: nil.
-		answeringService ifNotNil: [
-			self displayResult: showResult orShowCompileError: answeringService ] ]
+	[
+	oop := context ifNil: [ 20 ].
+	answeringService := RowanAnsweringServiceClient new.
+	answeringService
+		command: #execReturningPrintString:context:shouldDebug:;
+		commandArgs: (Array with: aString with: oop with: shouldDebug).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: GciSession current
+		onCompletion: nil.
+	answeringService ifNotNil: [
+		self displayResult: showResult orShowCompileError: answeringService ] ]
+		schedule
 ]
 
 { #category : 'as yet unclassified' }

@@ -405,11 +405,11 @@ JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProject [
 
-	RowanServiceUpdater current serviceQueuePut: [
-		self updateProjectPackages.
-		self updateProjectInfo.
-		self todo: 'projectInfoTab ensureVisible'.
-		self sundryCleanup ]
+	[
+	self updateProjectPackages.
+	self updateProjectInfo.
+	self todo: 'projectInfoTab ensureVisible'.
+	self sundryCleanup ] schedule
 ]
 
 { #category : 'private' }
@@ -646,12 +646,12 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 { #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
-	RowanServiceUpdater current serviceQueuePut: [
-		classService ifNotNil: [
-			self clearMethodLists.
-			self
-				refreshClass: methodListPresenter selectedItem;
-				updateTabLabel ] ]
+	[
+	classService ifNotNil: [
+		self clearMethodLists.
+		self
+			refreshClass: methodListPresenter selectedItem;
+			updateTabLabel ] ] schedule
 ]
 
 { #category : 'as yet unclassified' }
@@ -965,6 +965,7 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 	self clearMethodListTestResultIn: methodServices.
 	self refreshClassAndMethodPresenters.
 	[
+	[
 	methodServices do: [ :methodService |
 		methodService
 			command: #debugTest:inClassName:;
@@ -972,7 +973,7 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 				(Array with: methodService selector with: methodService className).
 		self issueCommand: methodService onCompletion: nil.
 		methodService testResult = 'passed' ifFalse: [ ^ self ] ] ] ensure: [
-		self refreshClassAndMethodPresenters ]
+		self refreshClassAndMethodPresenters ] ] schedule
 ]
 
 { #category : 'initialization' }
@@ -2609,13 +2610,14 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 		^ self ].
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
-	RowanServiceUpdater current serviceQueueUIPut: [
-		methodListPresenter selections:
-			(methodSelections select: [ :methodService |
-				 methodListPresenter list includes: methodService ]).
-		self selectMethodSourceTab.
-		selection selectedItem ifNotNil: [ :sel |
-			methodCategoryText text: 'Category: ' , sel categoryName ] ]
+	[
+	methodListPresenter selections:
+		(methodSelections select: [ :methodService |
+			 methodListPresenter list includes: methodService ]).
+	self selectMethodSourceTab.
+	selection selectedItem ifNotNil: [ :sel |
+		methodCategoryText text: 'Category: ' , sel categoryName ] ]
+		scheduleInUI
 ]
 
 { #category : 'updates' }
@@ -2697,20 +2699,20 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 
 	| classService |
 	classService := self selectedClass ifNil: [ ^ self ].
-	RowanServiceUpdater current serviceQueueUIPut: [
-		classService meta: self isClassSideSelected.
-		classService filters: self selectedFilters.
-		self selectedFilterTab selectedItems isEmpty ifTrue: [
-			self clearMethodLists ] ].
-	RowanServiceUpdater current serviceQueuePut: [
-		self updateService: classService ].
-	RowanServiceUpdater current serviceQueueUIPut: [
-		methodListPresenter selections isEmpty
-			ifTrue: [
-				self resetCategoryText.
-				definedMethodPackageText text: String new ]
-			ifFalse: [ self updateMethodSource ].
-		methodListPresenter withWidgetDo: [ :w | w resetPosition ] ]
+	[
+	classService meta: self isClassSideSelected.
+	classService filters: self selectedFilters.
+	self selectedFilterTab selectedItems isEmpty ifTrue: [
+		self clearMethodLists ] ] scheduleInUI.
+	[ self updateService: classService ] schedule.
+	[
+	methodListPresenter selections isEmpty
+		ifTrue: [
+			self resetCategoryText.
+			definedMethodPackageText text: String new ]
+		ifFalse: [ self updateMethodSource ].
+	methodListPresenter withWidgetDo: [ :w | w resetPosition ] ]
+		scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -3517,11 +3519,14 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
 	classService ifNil: [ ^ self ].
-	classService projectName ifNil: [ self updateService: classService ].
-	(self findProjectNamed: classService projectName) ifNil: [ ^self ].
-	self isDictionaryTabSelected
-		ifTrue: [ self updateAfterFindClassInDictionary: classService ]
-		ifFalse: [ self updateAfterFindClassInPackage: classService ]
+	classService projectName ifNil: [
+		[ self updateService: classService ] schedule ].
+	[
+	(self findProjectNamed: classService projectName) ifNotNil: [
+		self isDictionaryTabSelected
+			ifTrue: [ self updateAfterFindClassInDictionary: classService ]
+			ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ]
+		scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -3548,15 +3553,18 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClassInPackage: classService [
-	self selectPackageOrDictionaryFor: classService.
-	classService meta == true ifTrue: [self selectClassTab].
+
+	[ self selectPackageOrDictionaryFor: classService ] scheduleInUI.
+	[
+	classService meta == true ifTrue: [ self selectClassTab ].
 	self isClassListTabSelected
-		ifTrue: [self selectClassNamed: classService name asString]
-		ifFalse: 
-			[self selectClassInClassListNamed: classService name.
-			classHierarchyPresenter model asBag detect: [:svc | svc name = classService name]
-				ifNone: [self updateHierarchy].
-			self selectClassNamed: classService name]
+		ifTrue: [ self selectClassNamed: classService name asString ]
+		ifFalse: [
+			self selectClassInClassListNamed: classService name.
+			classHierarchyPresenter model asBag
+				detect: [ :svc | svc name = classService name ]
+				ifNone: [ self updateHierarchy ].
+			self selectClassNamed: classService name ] ] scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -3750,33 +3758,33 @@ JadeiteBrowserPresenter >> updateMethodSource [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
-	RowanServiceUpdater current serviceQueuePut: [
-		self updateServices: methodListPresenter selections.
-		methodListPresenter selections isEmpty
-			ifTrue: [
-				methodSourcePresenter
-					text: self defaultMethod;
-					hasUnacceptedEdits: false ]
-			ifFalse: [
-				RowanServiceUpdater current serviceQueueUIPut: [
-					self updateMethodSourceGlyphs.
-					definedMethodPackageText text:
-						'Defined Package: '
-						, methodListPresenter selectedItem definedPackage.
-					methodCategoryText text:
-						'Category: ' , methodListPresenter selectedItem category.
-					self todo: [
-						methodListPresenter selections size > 1
-							ifTrue: [
-								self updateMultiMethodComparison.
-								self displayMultipleCategories ]
-							ifFalse: [
-								self showSuperClassComparison.
-								self updateSingleMethodSource.
-								methodCategoryText value:
-									'Category: ' , methodListPresenter selection category ].
-						self updateSUnitTab.
-						self displayUncompilableSourceIn: methodSourcePresenter ] ] ] ]
+	[ self updateServices: methodListPresenter selections ] schedule.
+	[
+	methodListPresenter selections isEmpty
+		ifTrue: [
+			methodSourcePresenter
+				text: self defaultMethod;
+				hasUnacceptedEdits: false ]
+		ifFalse: [
+			self updateMethodSourceGlyphs.
+			definedMethodPackageText text:
+				'Defined Package: '
+				, methodListPresenter selectedItem definedPackage.
+			methodCategoryText text:
+				'Category: ' , methodListPresenter selectedItem category.
+			self todo: [
+				methodListPresenter selections size > 1
+					ifTrue: [
+						self updateMultiMethodComparison.
+						self displayMultipleCategories ]
+					ifFalse: [
+						self showSuperClassComparison.
+						self updateSingleMethodSource.
+						methodCategoryText value:
+							'Category: ' , methodListPresenter selection category ].
+				self updateSUnitTab.
+				self displayUncompilableSourceIn: methodSourcePresenter ] ] ]
+		scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -3806,14 +3814,14 @@ JadeiteBrowserPresenter >> updatePackage [
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
 	self selectClassListTab.
-	RowanServiceUpdater current serviceQueuePut: [ self updateClasses ].
-	RowanServiceUpdater current serviceQueueUIPut: [
-		self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-		self updatePackageInfo.
-		self resetSunitTestList.
-		packageListPresenter selectionIfNone: [ self selectProjectTab ].
-		self updateTabLabel.
-		definedClassPackageText text: String new ]
+	[ self updateClasses ] schedule.
+	[
+	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+	self updatePackageInfo.
+	self resetSunitTestList.
+	packageListPresenter selectionIfNone: [ self selectProjectTab ].
+	self updateTabLabel.
+	definedClassPackageText text: String new ] scheduleInUI
 ]
 
 { #category : 'updates' }

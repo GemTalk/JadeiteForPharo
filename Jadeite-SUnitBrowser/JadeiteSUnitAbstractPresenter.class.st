@@ -82,32 +82,36 @@ JadeiteSUnitAbstractPresenter >> reset [
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices className: className [
 
-	| jadeResult index |
+	| jadeResult index methodService |
+	shouldStopTestRun := false.
 	jadeResult := JadeTestResult new.
-	methodServices do: [ :methodService |
+	index := 1.
+	methodService := methodServices at: index.
+	[
+	[ shouldStopTestRun ] whileFalse: [
 		methodService
 			command: command;
 			commandArgs: (Array
 					 with: methodService selector
 					 with: (className ifNil: [ methodService className ])).
-		RowanServiceUpdater current issueCommand: methodService session: self gciSession onCompletion: nil.
+		RowanServiceUpdater current
+			issueCommand: methodService
+			session: self gciSession
+			onCompletion: nil.
 		methodService testResult = 'error' ifTrue: [
 			jadeResult addError: methodService ].
 		methodService testResult = 'failure' ifTrue: [
 			jadeResult addFailure: methodService ].
 		methodService testResult = 'passed' ifTrue: [
 			jadeResult addPassed: methodService ].
-		index := methodListPresenter list indexOf: methodService.
-		self todo: [
-			methodListPresenter view updateItem: methodService atIndex: index.
-			methodListPresenter view ensureVisible: index ].
-		methodListPresenter view update.
-		shouldStopTestRun ifTrue: [ ^ shouldStopTestRun := false ] ].
-	self updateResult: jadeResult.
-	self todo: [
-		methodListPresenter view ensureVisible: index "ensure last test run is visible" ].
-	shouldStopTestRun := false.
-	^ jadeResult
+		shouldStopTestRun ifFalse: [
+			index := index + 1.
+			index > methodServices size
+				ifTrue: [
+					shouldStopTestRun := true.
+					self updateResult: jadeResult ]
+				ifFalse: [ methodService := methodServices at: index ] ] ] ]
+		schedule
 ]
 
 { #category : 'as yet unclassified' }

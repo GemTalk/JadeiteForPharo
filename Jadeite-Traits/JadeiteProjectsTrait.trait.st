@@ -559,15 +559,15 @@ JadeiteProjectsTrait >> unloadProject [
 JadeiteProjectsTrait >> updateProjects [
 
 	| browserService |
-	RowanServiceUpdater current serviceQueuePut: [
-		browserService := RowanBrowserService new.
-		browserService
-			command: #updateProjects;
-			commandArgs: Array new.
-		RowanServiceUpdater current
-			issueCommand: browserService
-			session: self gciSession
-			onCompletion: nil.
-		self projectListPresenter items:
-			(self sortedProjectsFrom: browserService projects) ]
+	[
+	browserService := RowanBrowserService new.
+	browserService
+		command: #updateProjects;
+		commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: self gciSession
+		onCompletion: nil.
+	self projectListPresenter items:
+		(self sortedProjectsFrom: browserService projects) ] schedule
 ]

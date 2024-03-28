@@ -608,18 +608,20 @@ JadeiteSUnitPresenter >> updateClasses [
 	| packageServices |
 	self initializeClassList.
 	packageServices := packageListPresenter selections.
+	[
 	packageServices do: [ :packageService |
 		packageService command: #testClasses ].
 	RowanServiceUpdater current
 		issueCommands: packageServices
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: nil ] schedule
 ]
 
 { #category : 'updates' }
 JadeiteSUnitPresenter >> updateMethods [
 
 	| classServices |
+	[
 	classServices := classListPresenter selections.
 	classServices do: [ :service |
 		service
@@ -630,7 +632,7 @@ JadeiteSUnitPresenter >> updateMethods [
 		session: self gciSession
 		onCompletion: nil.
 	classServices do: [ :service | service updateAfterCommand: true ].
-	^ self updateMethodsFrom: classServices
+	self updateMethodsFrom: classServices ] schedule
 ]
 
 { #category : 'updates' }
@@ -669,8 +671,9 @@ JadeiteSUnitPresenter >> updatePresenter [
 JadeiteSUnitPresenter >> updateProjectPackages [
 
 	| browserService |
+	[
 	browserService := RowanBrowserService new.
 	browserService command: #packagesWithTests.
 	self issueCommand: browserService onCompletion: nil.
-	testCounter at: 1 put: browserService testCount
+	testCounter at: 1 put: browserService testCount ] schedule
 ]

@@ -239,18 +239,17 @@ Example: To search for literal string add single quotes'
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseMethodClass [
 
-	| classService className |
-	classService := RowanClassService new name:
-		                self methodListPresenter jadeiteSelections first.
-	classService meta:
-		self methodListPresenter jadeiteSelections first meta.
+	| service className browser |
+	service := RowanClassService new name:
+		           self methodListPresenter jadeiteSelections first.
+	service meta: self methodListPresenter jadeiteSelections first meta.
 	RowanServiceUpdater current
-		updateService: classService
+		updateService: service
 		session: self gciSession.
 	className := self methodListPresenter jadeiteSelections first
 		             className.
-	^ Cursor wait showWhile: [
-		  self openBrowser findClassNamed: className ]
+	browser := self openBrowser.
+	[ browser findClassNamed: className ] scheduleInUI
 ]
 
 { #category : 'actions' }
