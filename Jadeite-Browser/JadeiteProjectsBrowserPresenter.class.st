@@ -233,19 +233,6 @@ JadeiteProjectsBrowserPresenter >> definedMethodMenuItemLabel [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> displayMultipleCategories [
-	"display a generic indication of multiple categories unless all selected methods
-	are in the same category"
-
-	| categories |
-	categories := (methodListPresenter selections collect: [:methodService | methodService category])
-				asSet.
-	categories size = 1
-		ifTrue: [methodCategoryText value: 'Category: ' , categories anyOne]
-		ifFalse: [methodCategoryText value: 'Categories: (Multiple)']
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> editFind [
 	| tab |
 	tab := textAreaTabs currentCard.

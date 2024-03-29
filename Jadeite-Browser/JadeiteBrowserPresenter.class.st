@@ -1002,6 +1002,19 @@ JadeiteBrowserPresenter >> dictionaryMenuStrings [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> displayMultipleCategories [
+	"display a generic indication of multiple categories unless all selected methods
+	are in the same category"
+
+	| categories |
+	categories := (methodListPresenter selections collect: [:methodService | methodService category])
+				asSet.
+	categories size = 1
+		ifTrue: [methodCategoryText text: 'Category: ' , categories anyOne]
+		ifFalse: [methodCategoryText text: 'Categories: (Multiple)']
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> displayStringFor: methodService in: displayThing [
 	methodService isExtension
 		ifTrue: 
@@ -2137,21 +2150,18 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 	self updateMethodSource.
 	[
 	self methodSourcePresenter methodService:
-		self methodListPresenter selectedItem ]
-		on: Error
-		do: [ :ex | ^ self "spec2 has bugs" ].
-	methodListPresenter selections isEmpty ifTrue: [
-		^self selectClassDefinitionTab ].
-	methodListPresenter selections size = 1 ifTrue: [
-		self selectMethodSourceTab ].
-	methodListPresenter selections size > 1 ifTrue: [
-		self todo: [
-			self updateMultiMethodComparison.
-			self displayMultipleCategories ] ].
-	methodListPresenter selectedItem ifNil: [
-		definedMethodPackageText text: String new.
-		self resetCategoryText ].
-	self updateHistory
+		self methodListPresenter selectedItem.
+	methodListPresenter selections isEmpty
+		ifTrue: [ self selectClassDefinitionTab ]
+		ifFalse: [
+			methodListPresenter selections size = 1 ifTrue: [
+				self selectMethodSourceTab ].
+			methodListPresenter selections size > 1 ifTrue: [
+				self displayMultipleCategories ].
+			methodListPresenter selectedItem ifNil: [
+				definedMethodPackageText text: String new.
+				self resetCategoryText ].
+			self updateHistory ] ] scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -3771,19 +3781,7 @@ JadeiteBrowserPresenter >> updateMethodSource [
 				'Defined Package: '
 				, methodListPresenter selectedItem definedPackage.
 			methodCategoryText text:
-				'Category: ' , methodListPresenter selectedItem category.
-			self todo: [
-				methodListPresenter selections size > 1
-					ifTrue: [
-						self updateMultiMethodComparison.
-						self displayMultipleCategories ]
-					ifFalse: [
-						self showSuperClassComparison.
-						self updateSingleMethodSource.
-						methodCategoryText value:
-							'Category: ' , methodListPresenter selection category ].
-				self updateSUnitTab.
-				self displayUncompilableSourceIn: methodSourcePresenter ] ] ]
+				'Category: ' , methodListPresenter selectedItem category ] ]
 		scheduleInUI
 ]
 
