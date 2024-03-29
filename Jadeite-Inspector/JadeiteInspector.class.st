@@ -359,21 +359,24 @@ JadeiteInspector >> evaluateText: string thenInspectInContext: context [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> executeThenInspect: aString inContext: context [
+
 	| service window |
 	window := self asWindow.
+	[
 	service := RowanInspectorService new
-				executeThenInspect: aString 
-				context: context
-				session: gciSession
-				windowHandle: window identityHash.
-	service compileErrorArray ifNotNil: [ SyntaxErrorNotification
+		           executeThenInspect: aString
+		           context: context
+		           session: gciSession
+		           windowHandle: window identityHash.
+	service compileErrorArray ifNotNil: [
+		SyntaxErrorNotification
 			inClass: Object
 			withCode: aString
 			doitFlag: false
 			errorMessage: (service compileErrorArray first at: 3)
-			location: (service compileErrorArray first at: 2) ].
-	service oop ifNil: [ ^self].
- 	^self show: window on: service
+			location: (service compileErrorArray first at: 2) ] ] schedule.
+	[ service oop ifNotNil: [ self show: window on: service ] ]
+		scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -730,48 +733,46 @@ JadeiteInspector >> menuCommands [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> multipleInstVarsSelected [
+
 	| writeStream oops answeringService computedSelections contents boldNeeded |
-	"documentPresenter view stylerClass: NullScintillaStyler."
 	writeStream := WriteStream on: String new.
 	oops := self valueOops.
+	[
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #printStringOfOops:toMaxSize:;
 		commandArgs: (Array with: oops with: self maxPrintStringSize).
-	RowanServiceUpdater current issueCommand: answeringService session: gciSession. 
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: gciSession ] schedule.
+	[
 	computedSelections := self computedListSelections.
 	boldNeeded := OrderedCollection new.
-	computedSelections do: 
-			[:assoc |
-			boldNeeded add: (writeStream position to: writeStream position + assoc key size).
-			writeStream
-				nextPutAll: assoc key;
-				nextPut: $:;
-				space;
-				nextPutAll: assoc last;
-				cr].
-	1 to: oops size
-		do: 
-			[:index |
-			| key |
-			key := (instVarListPresenter selections at: index + computedSelections size) key.
-			boldNeeded add: (writeStream position to: writeStream position + key size).
-			writeStream
-				nextPutAll: key;
-				nextPut: $:;
-				space;
-				nextPutAll: (answeringService answer at: index).
-			index = oops size ifFalse:[
-				writeStream cr]].
+	computedSelections do: [ :assoc |
+		boldNeeded add:
+			(writeStream position to: writeStream position + assoc key size).
+		writeStream
+			nextPutAll: assoc key;
+			nextPut: $:;
+			space;
+			nextPutAll: assoc last;
+			cr ].
+	1 to: oops size do: [ :index |
+		| key |
+		key := (instVarListPresenter selections at:
+			        index + computedSelections size) key.
+		boldNeeded add:
+			(writeStream position to: writeStream position + key size).
+		writeStream
+			nextPutAll: key;
+			nextPut: $:;
+			space;
+			nextPutAll: (answeringService answer at: index).
+		index = oops size ifFalse: [ writeStream cr ] ].
 	contents := writeStream contents.
-	contents last = Character lf
-		ifTrue: [contents := contents copyFrom: 1 to: contents size - 2	"crlf"].
-	documentPresenter value: contents.
-"	documentPresenter view removeAllStyling.
-	boldNeeded do: 
-			[:interval |
-			documentPresenter view startStylingFrom: interval start.
-			documentPresenter view applyStyle: #literalArray toNext: interval size	'serves as a cheap way to get bold text']"
+	contents last = Character lf ifTrue: [
+		contents := contents copyFrom: 1 to: contents size - 2 "crlf" ].
+	documentPresenter value: contents ] scheduleInUI
 ]
 
 { #category : 'initialization' }

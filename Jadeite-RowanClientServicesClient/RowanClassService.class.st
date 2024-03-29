@@ -487,19 +487,19 @@ RowanClassService >> instVarNames [
 	^instVarNames
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanClassService >> isClassService [
 
 	^true
 ]
 
-{ #category : 'public' }
+{ #category : 'testing' }
 RowanClassService >> isDefined [
 
 	^isExtension not
 ]
 
-{ #category : 'public' }
+{ #category : 'accessing' }
 RowanClassService >> isExtension [
 
 	^isExtension
@@ -513,6 +513,12 @@ RowanClassService >> isExtension: anObject [
 { #category : 'accessing' }
 RowanClassService >> isInSymbolList [
 	^isInSymbolList
+]
+
+{ #category : 'testing' }
+RowanClassService >> isMeta [
+	"meta may be nil, hence the == test"
+	^meta == true	
 ]
 
 { #category : 'accessing' }

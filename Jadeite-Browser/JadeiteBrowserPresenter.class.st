@@ -1919,7 +1919,7 @@ JadeiteBrowserPresenter >> isClassDefinitionTabSelected [
 
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isClassHierarchyTabSelected [
-	^classHierarchyTabs currentCard name = 'classHierarchy'
+	^classListHierarchyTabs currentCard name = 'Hierarchy'
 ]
 
 { #category : 'testing' }
@@ -2122,7 +2122,7 @@ JadeiteBrowserPresenter >> makeSameSelectionsIn: newPresenter as: previousPresen
 	newPresenter updateAfterFindClass: classService onCompletion: nil.
 	previousPresenter isHierarchyTabSelected ifTrue: [
 		newPresenter classHierarchyTabs lastCard ].
-	isMeta ifTrue: [ newPresenter selectClassTab ].
+	isMeta ifTrue: [ newPresenter setClassSide ].
 	methodService ifNil: [ ^ self ].
 	newPresenter findMethod: methodService selector
 ]
@@ -3058,11 +3058,6 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 ]
 
 { #category : 'selections' }
-JadeiteBrowserPresenter >> selectClassTab [
-	self setClassSide
-]
-
-{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 	| dictionaryService |
 	dictionaryService := dictionaryListPresenter list detect: [:service | service name = dictionaryName]
@@ -3189,16 +3184,17 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 		           ifFalse: [
 			           classService packageName ifNotNil: [ :nm |
 				           RowanPackageService new name: nm ] ].
-	service ifNotNil: [ ^ service selectIn: self ].
-	answeringService := RowanAnsweringService new.
-	answeringService
-		command: #packageOrDictionaryFor:;
-		commandArgs: (Array with: classService).
-	RowanServiceUpdater current
-		issueCommand: answeringService
-		session: self gciSession.
-	service := answeringService answer.
-	service selectIn: self
+	service ifNotNil: [ service selectIn: self ] ifNil: [
+		[
+		answeringService := RowanAnsweringService new.
+		answeringService
+			command: #packageOrDictionaryFor:;
+			commandArgs: (Array with: classService).
+		RowanServiceUpdater current
+			issueCommand: answeringService
+			session: self gciSession.
+		service := answeringService answer ] schedule.
+		service selectIn: self ]
 ]
 
 { #category : 'selections' }
@@ -3564,17 +3560,16 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClassInPackage: classService [
 
-	[ self selectPackageOrDictionaryFor: classService ] scheduleInUI.
 	[
-	classService meta == true ifTrue: [ self selectClassTab ].
-	self isClassListTabSelected
-		ifTrue: [ self selectClassNamed: classService name asString ]
-		ifFalse: [
-			self selectClassInClassListNamed: classService name.
-			classHierarchyPresenter model asBag
-				detect: [ :svc | svc name = classService name ]
-				ifNone: [ self updateHierarchy ].
-			self selectClassNamed: classService name ] ] scheduleInUI
+	self selectPackageOrDictionaryFor: classService.
+	[
+	classService isMeta ifTrue: [ self setClassSide ].
+	self isClassHierarchyTabSelected ifTrue: [
+		classHierarchyPresenter model asBag
+			detect: [ :svc | svc name = classService name ]
+			ifNone: [ self updateHierarchy ] ].
+	self selectClassNamed: classService name asString ] scheduleInUI ]
+		scheduleInUI
 ]
 
 { #category : 'as yet unclassified' }
@@ -3686,7 +3681,6 @@ JadeiteBrowserPresenter >> updateGlobalsTab [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateHierarchy [
 
-	| service |
 	classHierarchyPresenter roots: Array new.
 	self isDictionaryTabSelected
 		ifTrue: [
@@ -3694,15 +3688,15 @@ JadeiteBrowserPresenter >> updateHierarchy [
 		ifFalse: [
 			projectListPresenter selectionOrNil ifNil: [ ^ self ].
 			packageListPresenter selections isEmpty ifTrue: [ ^ self ] ].
-	Cursor wait showWhile: [
-		service := classListPresenter selectionOrNil ifNil: [
-			           ^ self updateHierarchyForPacktionaries ].
-		RowanServiceUpdater current applyUpdateWhile: [
+	[
+	classListPresenter selectionOrNil
+		ifNil: [ self updateHierarchyForPacktionaries ]
+		ifNotNil: [ :service |
 			service
 				updateAfterCommand: false;
 				command: #classHierarchy.
 			self issueCommand: service onCompletion: nil.
-			self selectClassNamed: service name ] ]
+			self selectClassNamed: service name ] ] schedule
 ]
 
 { #category : 'updates' }

@@ -294,12 +294,12 @@ RowanBrowserService >> testPackages: presenter [
 	self testPackages do: 
 			[:newPackageService |
 			| updatedPackage |
-			updatedPackage := presenter model detect: [:packageService | packageService = newPackageService]
+			updatedPackage := presenter list detect: [:packageService | packageService = newPackageService]
 						ifNone: 
 							[additions add: newPackageService.
 							nil].
 			updatedPackage ifNotNil: [updatedPackage replicateFrom: newPackageService]].
-	presenter model addAll: additions.
-	presenter model copy do:[:oldPackageService |
-		(testPackages includes: oldPackageService) ifFalse:[oldPackageService ifNotNil: [presenter model remove: oldPackageService]]]. 
+	presenter list addAll: additions.
+	presenter list copy do:[:oldPackageService |
+		(testPackages includes: oldPackageService) ifFalse:[oldPackageService ifNotNil: [presenter list remove: oldPackageService]]]. 
 ]

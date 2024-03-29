@@ -671,9 +671,8 @@ JadeiteSUnitPresenter >> updatePresenter [
 JadeiteSUnitPresenter >> updateProjectPackages [
 
 	| browserService |
-	[
 	browserService := RowanBrowserService new.
 	browserService command: #packagesWithTests.
 	self issueCommand: browserService onCompletion: nil.
-	testCounter at: 1 put: browserService testCount ] schedule
+	testCounter at: 1 put: browserService testCount
 ]
