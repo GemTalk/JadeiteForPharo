@@ -246,25 +246,6 @@ JadeiteProjectsBrowserPresenter >> editReplace [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> filterTabChanged [
-	self isClassSelected
-		ifTrue: [self updateService: self selectedClass]
-		ifFalse: 
-			[self clearFilterLists.
-			^self].
-	self populateFilterList.
-	self isCategoryTabSelected
-		ifTrue: 
-			[^methodListPresenter selectionOrNil
-				ifNil: [self selectMethodSourceTab]
-				ifNotNil: 
-					[:methodService |
-					self selectCategoryFrom: methodService.
-					self selectMethodSourceTab]].
-	methodListPresenter selectionOrNil ifNotNil: [self selectMethodSourceTab]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> findMethod [
 	self selectedClass isNil ifTrue: [^self].
 	^self class

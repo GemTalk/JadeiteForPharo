@@ -1512,29 +1512,6 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> initializeCategoryText: methodColumn [
-
-	| methodTopBox |
-	methodTopBox := SpBoxLayout newHorizontal.
-	methodCategoryText := SpTextPresenter new beNotEditable.
-	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
-	methodTopBox
-		add: methodCategoryText
-		withConstraints: [ :c | c width: 300 ].
-	backButton := self newButton
-		              icon: (self iconNamed: #glamorousLeft);
-		              help: 'Method Navigation Back';
-		              action: [ self historyBack ].
-	methodTopBox add: backButton.
-	forwardButton := self newButton
-		                 icon: (self iconNamed: #glamorousRight);
-		                 help: 'Method Navigation Forward';
-		                 action: [ self historyForward ].
-	methodTopBox add: forwardButton.
-	methodColumn add: methodTopBox withConstraints: [ :c | c height: 30 ]
-]
-
-{ #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeClassCommentTab [
 
 	classCommentPresenter := JadeiteTextDocument new _gciSession:
@@ -1703,7 +1680,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 
 	| methodsBox radioButtonBox |
 	methodsBox := SpBoxLayout newVertical.
-	self initializeCategoryText: methodsBox.
+	self initializeMethodListHeader: methodsBox.
 	methodListPresenter := JadeiteListPresenter new
 		                       display: #selector;
 		                       beMultipleSelection;
@@ -1731,6 +1708,29 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	self initializeDefinedMethodPackageText: methodsBox.
 	methodPanedPresenter add: methodsBox.
 	self initializeFullMethodListMenu
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> initializeMethodListHeader: methodColumn [
+
+	| methodTopBox |
+	methodTopBox := SpBoxLayout newHorizontal.
+	methodCategoryText := SpTextPresenter new beNotEditable.
+	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
+	methodTopBox
+		add: methodCategoryText
+		withConstraints: [ :c | c width: 300 ].
+	backButton := self newButton
+		              icon: (self iconNamed: #glamorousLeft);
+		              help: 'Method Navigation Back';
+		              action: [ self historyBack ].
+	methodTopBox add: backButton.
+	forwardButton := self newButton
+		                 icon: (self iconNamed: #glamorousRight);
+		                 help: 'Method Navigation Forward';
+		                 action: [ self historyForward ].
+	methodTopBox add: forwardButton.
+	methodColumn add: methodTopBox withConstraints: [ :c | c height: 30 ]
 ]
 
 { #category : 'initialization' }
@@ -1964,6 +1964,14 @@ JadeiteBrowserPresenter >> isMethodSourceTabSelected [
 	^textAreaTabs currentCard name = 'methodSource'
 ]
 
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> isMethodVisible: methodSelection [
+
+	^ (methodListPresenter list
+		   detect: [ :svc | svc selector = methodSelection selector ]
+		   ifNone: [  ]) notNil
+]
+
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isNoneProjectSelected [
 	"temporary refactoring for old way of doing dictionaries"
@@ -2090,7 +2098,8 @@ JadeiteBrowserPresenter >> jumpToHistoryIndex: anInteger [
 	historyEntry meta
 		ifTrue: [ classRadioButton state: true ]
 		ifFalse: [ instanceRadioButton state: true ].
-	self selectCategoryNamed: historyEntry category.
+	(self isMethodVisible: historyEntry) ifFalse: [
+		self selectCategoryNamed: historyEntry category ].
 	self selectMethod: historyEntry
 ]
 

@@ -375,21 +375,27 @@ RowanClassService >> filterPackageUpdate: presenter browser: browser [
 
 { #category : 'public' }
 RowanClassService >> filterUpdate: presenter browser: browser [
-	browser selectedClass ifNil: [^self].
-	browser selectedClass name asString = name asString ifFalse: [^self].
-	presenter model isEmpty ifTrue: [presenter list: SortedCollection new].
+
+	browser selectedClass ifNil: [ ^ self ].
+	browser selectedClass name asString = name asString ifFalse: [
+		^ self ].
+	presenter model isEmpty ifTrue: [
+		presenter list: SortedCollection new ].
 	browser isCategoryTabSelected
-		ifTrue: 
-			[presenter list = self jadeiteCategories ifTrue: [^self].
-			self updateCategories: presenter browser: browser]
-		ifFalse: 
-			[browser isVariablesTabSelected
-				ifTrue: 
-					[presenter list = variables ifTrue: [^self].
-					self updateVariables: presenter]
-				ifFalse: 
-					[presenter list = self methodPackages ifTrue: [^self].
-					self updateMethodPackages: presenter]]
+		ifTrue: [
+			presenter list = self jadeiteCategories ifTrue: [ ^ self ].
+			self updateCategories: presenter browser: browser ]
+		ifFalse: [
+			browser isVariablesTabSelected
+				ifTrue: [
+					presenter list = variables asSortedCollection asOrderedCollection
+						ifTrue: [ ^ self ].
+					self updateVariables: presenter ]
+				ifFalse: [
+					presenter list
+					= self methodPackages asSortedCollection asOrderedCollection
+						ifTrue: [ ^ self ].
+					self updateMethodPackages: presenter ] ]
 ]
 
 { #category : 'public' }
@@ -989,13 +995,18 @@ RowanClassService >> updateListIn: presenter from: visibleMethods [
 
 { #category : 'updates' }
 RowanClassService >> updateMethodPackages: presenter [
-	presenter list: self methodPackages
+
+	presenter list = self methodPackages asSortedCollection asOrderedCollection
+		ifFalse: [ presenter list: self methodPackages ]
 ]
 
 { #category : 'updates' }
 RowanClassService >> updateVariables: presenter [
-	variables ifNil: [^self].
-	presenter list: variables asSortedCollection asOrderedCollection. 
+
+	variables ifNil: [ ^ self ].
+	presenter list = variables asSortedCollection asOrderedCollection
+		ifFalse: [
+		presenter list: variables asSortedCollection asOrderedCollection ]
 ]
 
 { #category : 'updates' }

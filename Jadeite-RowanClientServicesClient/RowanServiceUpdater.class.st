@@ -99,7 +99,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
 	| sem postExecutionBlock |
-	Processor activeProcess = UIManager default uiProcess ifTrue:[self halt].
+	"Processor activeProcess = UIManager default uiProcess ifTrue:[self halt]."
 	service prepareForReplication.
 	sem := Semaphore new.
 	postExecutionBlock := [ :aService | sem signal ].
