@@ -971,8 +971,7 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 			command: #debugTest:inClassName:;
 			commandArgs:
 				(Array with: methodService selector with: methodService className).
-		self issueCommand: methodService onCompletion: nil.
-		methodService testResult = 'passed' ifFalse: [ ^ self ] ] ] ensure: [
+		self issueCommand: methodService onCompletion: nil ] ] ensure: [
 		self refreshClassAndMethodPresenters ] ] schedule
 ]
 
@@ -3690,6 +3689,7 @@ JadeiteBrowserPresenter >> updateGlobalsTab [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateHierarchy [
 
+	| service |
 	classHierarchyPresenter roots: Array new.
 	self isDictionaryTabSelected
 		ifTrue: [
@@ -3697,15 +3697,15 @@ JadeiteBrowserPresenter >> updateHierarchy [
 		ifFalse: [
 			projectListPresenter selectionOrNil ifNil: [ ^ self ].
 			packageListPresenter selections isEmpty ifTrue: [ ^ self ] ].
-	[
-	classListPresenter selectionOrNil
-		ifNil: [ self updateHierarchyForPacktionaries ]
-		ifNotNil: [ :service |
+	Cursor wait showWhile: [
+		service := classListPresenter selectionOrNil ifNil: [
+			           ^ self updateHierarchyForPacktionaries ].
+		RowanServiceUpdater current applyUpdateWhile: [
 			service
 				updateAfterCommand: false;
 				command: #classHierarchy.
 			self issueCommand: service onCompletion: nil.
-			self selectClassNamed: service name ] ] schedule
+			self selectClassNamed: service name ] ]
 ]
 
 { #category : 'updates' }

@@ -201,18 +201,21 @@ JadeiteProjectsTrait >> gitCommit [
 
 	| projectName message |
 	self canCommit ifFalse: [ ^ self ].
+	[
 	projectName := self projectListPresenter selectedItem name.
 	message := UIManager default
 		           jadeiteMultiLineRequest:
 		           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
 		           initialAnswer: '<enter commit comment here>'
 		           answerHeight: 250.
-	message ifNil:[^self]. 
-	message value isEmpty
-		ifTrue: [ 
-			MessageBox notify:
-				'Commit message must not be empty. Commit to local repository NOT done.' ]
-		ifFalse: [ self gitCommit: projectName message: message ]
+	message ifNotNil: [
+		message value isEmpty
+			ifTrue: [
+				MessageBox notify:
+					'Commit message must not be empty. Commit to local repository NOT done.' ]
+			ifFalse: [
+			[ self gitCommit: projectName message: message ] schedule ] ] ]
+		scheduleInUI
 ]
 
 { #category : 'commands' }
@@ -482,18 +485,25 @@ JadeiteProjectsTrait >> pullFromGit [
 
 { #category : 'commands' }
 JadeiteProjectsTrait >> pushToGit [
+
 	| projectService ws |
+	[
 	projectService := self projectListPresenter jaditeSelection.
 	ws := WriteStream on: String new.
 	ws
 		nextPutAll: projectService name;
 		space.
-	(MessageBox
-		confirm: 'Push projects - ' , ws contents , '- from the local repository to the remote server?')
-			ifFalse: [^self].
-	projectService command: #pushToGit.
-	RowanServiceUpdater current issueCommand: projectService session: self gciSession.
-	MessageBox notify: 'Project ' , projectService name , ' pushed to remote repository!'
+	(MessageBox confirm: 'Push projects - ' , ws contents
+		 , '- from the local repository to the remote server?') ifTrue: [
+		[
+		projectService command: #pushToGit.
+		RowanServiceUpdater current
+			issueCommand: projectService
+			session: self gciSession ] schedule ] ] scheduleInUI.
+	[
+	MessageBox notify:
+		'Project ' , projectService name , ' pushed to remote repository!' ]
+		scheduleInUI
 ]
 
 { #category : 'commands' }
