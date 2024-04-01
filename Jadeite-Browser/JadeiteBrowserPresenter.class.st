@@ -424,21 +424,6 @@ JadeiteBrowserPresenter >> browseClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> browseGlobalClass [
-	| selection |
-	selection := globalsTab selectionIfNone: [^self].
-	^self openBrowserInNewTab: false on: (RowanClassService new name: (selection at: 2))
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> browseGlobalReferences [
-	| selection string |
-	selection := globalsTab selectionIfNone: [^self].
-	string := self selectedGlobalName: selection.
-	^JadePresenter browseSymbolReferencesTo: '#' , string session: gciSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildGlobalsTab [
 	| globalsTabView cardLabel |
 	globalsTab

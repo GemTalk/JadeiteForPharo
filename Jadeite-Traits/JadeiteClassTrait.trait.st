@@ -49,7 +49,11 @@ JadeiteClassTrait >> browseClass [
 { #category : 'queries' }
 JadeiteClassTrait >> browseClassReferences [
 
-	^self browseClassReferences: self classListPresenter selectedItem name
+	| presenter |
+	presenter := self isClassHierarchyTabSelected
+		             ifTrue: [ self classHierarchyPresenter ]
+		             ifFalse: [ self classListPresenter ].
+	^ self browseClassReferences: presenter selectedItem name
 ]
 
 { #category : 'queries' }
