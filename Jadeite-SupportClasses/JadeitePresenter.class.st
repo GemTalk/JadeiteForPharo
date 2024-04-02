@@ -1,13 +1,6 @@
-"
-Superclass for Jaded's presenters. 
-Provides things like hooks to register presenters for updates.
-"
 Class {
 	#name : 'JadeitePresenter',
 	#superclass : 'SpPresenter',
-	#instVars : [
-		'gciSession'
-	],
 	#category : 'Jadeite-SupportClasses'
 }
 
@@ -27,18 +20,6 @@ JadeitePresenter >> caption: aString [
 JadeitePresenter >> commitTransaction [
 
 	^self application commitTransaction
-]
-
-{ #category : 'accessing' }
-JadeitePresenter >> gciSession [
-
-	^ gciSession 
-]
-
-{ #category : 'accessing' }
-JadeitePresenter >> gciSession: aGciSession [
-
-	gciSession := aGciSession
 ]
 
 { #category : 'actions' }

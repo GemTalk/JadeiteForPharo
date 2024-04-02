@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeInspector',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'instVarListPresenter',
 		'className'

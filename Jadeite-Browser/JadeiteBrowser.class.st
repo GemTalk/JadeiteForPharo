@@ -30,12 +30,6 @@ JadeiteBrowser >> basicAddMethodCategory: aString [
 	^self activePresenter basicAddMethodCategory: aString
 ]
 
-{ #category : 'accessing' }
-JadeiteBrowser >> caption: aString [
-
-	self owner title: aString
-]
-
 { #category : 'initialization' }
 JadeiteBrowser >> cards [
 

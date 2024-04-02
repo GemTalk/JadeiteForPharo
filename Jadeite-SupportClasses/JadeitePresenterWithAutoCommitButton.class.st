@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeitePresenterWithAutoCommitButton',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'autoCommitButton'
 	],

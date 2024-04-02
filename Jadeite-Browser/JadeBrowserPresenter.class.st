@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeBrowserPresenter',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#category : 'Jadeite-Browser'
 }
 

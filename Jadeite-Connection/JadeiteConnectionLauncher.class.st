@@ -68,11 +68,17 @@ JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 
-	| connectedPresenters |
-	connectedPresenters := self jadeiteWindowsFor: theConnection.
-	connectedPresenters do: [ :presenter |
-		presenter window ifNotNil: [ :window | window close ] ].
-	connectedPresenters do:[:presenter | presenter become: String new]
+	| jadeiteWindows |
+	jadeiteWindows := JadeiteConnectionProfile connectionProfile
+		                  jadeiteWindows.
+	[
+	jadeiteWindows do: [ :window |
+		[ window close ] ensure: [
+			window presenter become: String new.
+			window become: String new ] "these things won't go away" ] ]
+		ensure: [
+			JadeiteConnectionProfile connectionProfile jadeiteWindows:
+				OrderedCollection new ]
 ]
 
 { #category : 'actions' }
@@ -422,18 +428,6 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 		menu: self initializeMenubar.
 	self updateCaption.
 	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher >> jadeiteWindowsFor: connection [
-
-	| subInstances |
-	subInstances := JadeitePresenter allSubInstances.
-	subInstances addAll: JadeiteTextDocument allSubInstances.
-	^ subInstances select: [ :presenter |
-		  presenter gciSession
-			  ifNil: [ false ]
-			  ifNotNil: [ :sess | sess library == connection ] ]
 ]
 
 { #category : 'accessing' }

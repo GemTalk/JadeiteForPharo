@@ -5,7 +5,8 @@ Class {
 	#classTraits : 'TObservable classTrait',
 	#instVars : [
 		'#host => ObservableSlot',
-		'#connection => ObservableSlot'
+		'#connection => ObservableSlot',
+		'#jadeiteWindows'
 	],
 	#classVars : [
 		'#ConnectionProfile'
@@ -56,12 +57,26 @@ JadeiteConnectionProfile >> initialize [
 
 	self class initializeSlots: self.
 	super initialize.
+	jadeiteWindows := OrderedCollection new. 
 ]
 
 { #category : 'testing' }
 JadeiteConnectionProfile >> isGciConnection [
 
 	^false
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile >> jadeiteWindows [
+
+	jadeiteWindows ifNil: [ jadeiteWindows := OrderedCollection new ].
+	^ jadeiteWindows
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile >> jadeiteWindows: anObject [
+
+	jadeiteWindows := anObject
 ]
 
 { #category : 'events' }

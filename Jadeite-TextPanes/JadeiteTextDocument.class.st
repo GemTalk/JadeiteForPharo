@@ -576,6 +576,16 @@ JadeiteTextDocument >> newStatusBar [
 	^ self instantiate: JadeiteStatusBarPresenter
 ]
 
+{ #category : 'showing' }
+JadeiteTextDocument >> open [
+
+	| jadeiteWindow |
+	jadeiteWindow := super open.
+	JadeiteConnectionProfile connectionProfile ifNotNil: [ :profile |
+		profile jadeiteWindows add: jadeiteWindow ].
+	^ jadeiteWindow
+]
+
 { #category : 'overrides' }
 JadeiteTextDocument >> openOn: openFilename [
 	super openOn: openFilename.

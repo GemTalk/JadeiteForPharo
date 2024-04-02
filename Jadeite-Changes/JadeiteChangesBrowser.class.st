@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteChangesBrowser',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#traits : 'JadeiteToolbarTrait + JadeiteMethodsTrait',
 	#classTraits : 'JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait',
 	#instVars : [

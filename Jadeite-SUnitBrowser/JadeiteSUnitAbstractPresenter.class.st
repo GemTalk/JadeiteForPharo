@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteSUnitAbstractPresenter',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'methodListPresenter',
 		'textResultPresenter',

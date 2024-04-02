@@ -108,8 +108,11 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 		onCompletion: postExecutionBlock
 		semaphore: sem.
 	sem wait.
-	self applyUpdatesFromReturnedServices:
-		                service returnedServices
+	UIManager default defer: [
+		[
+		self queueProcess suspend.
+		self applyUpdatesFromReturnedServices: service returnedServices ]
+			ensure: [ self queueProcess resume ] ]
 ]
 
 { #category : 'private' }

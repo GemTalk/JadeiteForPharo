@@ -3756,7 +3756,8 @@ JadeiteBrowserPresenter >> updateMethodSource [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
-	[ self updateServices: methodListPresenter selections ] schedule.
+	[
+	self updateServices: methodListPresenter selections.
 	[
 	methodListPresenter selections isEmpty
 		ifTrue: [
@@ -3770,7 +3771,7 @@ JadeiteBrowserPresenter >> updateMethodSource [
 				, methodListPresenter selectedItem definedPackage.
 			methodCategoryText text:
 				'Category: ' , methodListPresenter selectedItem category ] ]
-		scheduleInUI
+		scheduleInUI ] schedule
 ]
 
 { #category : 'as yet unclassified' }

@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteAddPackageDialog',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'packageNamePresenter',
 		'symbolDictionaryNamePresenter',

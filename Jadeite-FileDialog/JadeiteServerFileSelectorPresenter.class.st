@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteServerFileSelectorPresenter',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'directoryContentsList',
 		'pathText',

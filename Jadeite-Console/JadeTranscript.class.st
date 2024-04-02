@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeTranscript',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'allSessionsPresenter',
 		'historyPresenter',

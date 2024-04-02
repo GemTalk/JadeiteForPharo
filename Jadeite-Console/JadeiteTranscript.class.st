@@ -1,5 +1,5 @@
 Class {
 	#name : 'JadeiteTranscript',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#category : 'Jadeite-Console'
 }
