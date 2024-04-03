@@ -380,8 +380,9 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 		session: GciSession current
 		onCompletion: nil.
 	answeringService ifNotNil: [
-		self displayResult: showResult orShowCompileError: answeringService ] ]
-		schedule
+		[
+		self displayResult: showResult orShowCompileError: answeringService ]
+			scheduleInUI ] ] schedule
 ]
 
 { #category : 'as yet unclassified' }

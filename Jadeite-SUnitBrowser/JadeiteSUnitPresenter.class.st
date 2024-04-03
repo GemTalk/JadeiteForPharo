@@ -632,7 +632,7 @@ JadeiteSUnitPresenter >> updateMethods [
 		session: self gciSession
 		onCompletion: nil.
 	classServices do: [ :service | service updateAfterCommand: true ].
-	self updateMethodsFrom: classServices ] schedule
+	[ self updateMethodsFrom: classServices ] scheduleInUI ] schedule
 ]
 
 { #category : 'updates' }

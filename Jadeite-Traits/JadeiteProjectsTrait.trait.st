@@ -578,6 +578,8 @@ JadeiteProjectsTrait >> updateProjects [
 		issueCommand: browserService
 		session: self gciSession
 		onCompletion: nil.
+	[
 	self projectListPresenter items:
-		(self sortedProjectsFrom: browserService projects) ] schedule
+		(self sortedProjectsFrom: browserService projects) ] scheduleInUI ]
+		schedule
 ]

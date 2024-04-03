@@ -382,12 +382,13 @@ JadeiteConsole >> initialProjectDisplayColumns [
 { #category : 'initialization' }
 JadeiteConsole >> initializeAutoCommit [
 
-	[ self gciSession initializeAutoCommit ] schedule.
+	[
+	self gciSession initializeAutoCommit.
 	[
 	self gciSession autoCommit
 		whenChangedSend: #updateAutoCommitButton
 		to: self.
-	self updateAutoCommitButton ] scheduleInUI
+	self updateAutoCommitButton ] scheduleInUI ] schedule
 ]
 
 { #category : 'initialization' }

@@ -374,13 +374,14 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 1000 @ 1200.
+	aWindowPresenter initialExtent: 1000 @ 1200.
 	self updateCaption.
-	aWindowPresenter menu: self initializeMenubar. 
+	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [
 		answer ifNil: [ answer := #terminate ].
-		[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
+		[
+		(self class isKindOf: JadeiteDebuggerPresenter) ifTrue: [
+			suspendedProcess resume ] ] forkAt: Processor activePriority - 1 ]
 ]
 
 { #category : 'menus' }

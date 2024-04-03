@@ -181,39 +181,6 @@ RowanSystemBrowserPresenter >> updateCommand: aString onSuccessDo: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updateFromCommand: update [
-	| index newClassDefinition |
-	selectedClassOop := update oop.
-	newClassDefinition := update template.
-	classCommentPresenter value: update comment.
-	classDefinitionPresenter view isModified
-		ifTrue: 
-			[newClassDefinition = classDefinition ifTrue: [^self].
-			(MessageBox confirm: 'Copy changes to clipboard?' caption: 'Class has unsaved changes!')
-				ifTrue: [classDefinitionPresenter value copyToClipboard]].
-	classDefinition := newClassDefinition.
-	0 < (classDefinition indexOfSubCollection: 'MyNewClass')
-		ifTrue: 
-			["Template is based on Stream class, but we don't want to use 'Globals' in template"
-			index := classDefinition indexOfSubCollection: ': Globals'.
-			(0 < index and: [(classDefinition copyFrom: index - 2 to: index + 1) ~= 'User'])
-				ifTrue: 
-					[classDefinition := (classDefinition copyFrom: 1 to: index + 1)
-								, (dictionaryListPresenter selectionIfNone: ['UserGlobals' -> false]) key
-									, (classDefinition copyFrom: index + 9 to: classDefinition size).
-					index := classDefinition indexOfSubCollection: 'User Classes'.
-					0 < index
-						ifTrue: 
-							[classDefinition := (classDefinition copyFrom: 1 to: index - 1) , 'User Classes'
-										, (classDefinition copyFrom: index + 12 to: classDefinition size)]]].
-	classDefinitionPresenter value: classDefinition.
-	classDefinitionPresenter view
-		backcolor: JadeiteTextStyles default colorForNoEdits;
-		isModified: false;
-		yourself
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> updateMethodFilter [
 
 	| listPresenter pieces type tabs tab filters selections |
@@ -273,64 +240,6 @@ RowanSystemBrowserPresenter >> updateMethodFilterFrom: update [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updateMethodFrom: update [
-	| gsMethod isReadOnly listModel methodSourceLabel newSource warnings x |
-	methodSourcePresenter view cancelCallTip.
-	gsMethod := update gsMethod session: gciSession.
-	isReadOnly := gsMethod isReadOnly.	"current user has write permission for the class"
-	newSource := gsMethod source.
-	methodSourcePresenter view isModified
-		ifTrue: 
-			[newSource = methodSource ifTrue: [^self].
-			(MessageBox confirm: 'Copy changes to clipboard?' caption: 'Method has unsaved changes!')
-				ifTrue: [methodSourcePresenter value copyToClipboard]].
-	methodSource := newSource.
-	methodSourcePresenter value: methodSource.
-	unimplementedSelectors := gsMethod unimplementedSelectors.
-	stepPoints := gsMethod stepPoints.
-	breakPoints := gsMethod breakPoints.
-	self updateMethodStepPoints.
-	methodSourcePresenter view
-		backcolor: JadeiteTextStyles default colorForNoEdits;
-		isModified: false;
-		isReadOnly: isReadOnly;
-		yourself.
-	(overrideListPresenter list notEmpty
-		and: [overrideListPresenter selectionOrNil ~= overrideListPresenter list last])
-			ifTrue: 
-				[methodSourcePresenter view
-					backcolor: nil;
-					isReadOnly: true;
-					yourself].
-	((methodCategory := gsMethod category) notEmpty and: [self isCategoryTabSelected])
-		ifTrue: 
-			[| fullList selections index newName |
-			fullList := categoryListPresenter list.
-			selections := categoryListPresenter selections.
-			0 < (index := fullList indexOf: methodCategory)
-				ifTrue: 
-					[fullList at: index put: (newName := ' ' , methodCategory).
-					categoryListPresenter list: fullList.
-					0 < (index := selections indexOf: methodCategory)
-						ifTrue: 
-							[selections at: index put: newName.
-							categoryListPresenter selections: selections].
-					categoryListPresenter view invalidate]].
-	listModel := (textAreaTabs subViews detect: [:each | each class == TabViewXP]) model.
-	originalSourceLabel
-		ifNil: [originalSourceLabel := listModel detect: [:each | each text = 'Original Source']].
-	methodSourceLabel := listModel detect: [:each | each text = 'Method Source'].
-	(x := gsMethod originalSource) isEmpty
-		ifTrue: [listModel remove: originalSourceLabel ifAbsent: []]
-		ifFalse: 
-			[(listModel includes: originalSourceLabel)
-				ifFalse: [listModel add: originalSourceLabel before: methodSourceLabel].
-			originalSourcePresenter value: x].
-	(warnings := gsMethod warnings) notEmpty
-		ifTrue: [MessageBox warning: warnings caption: 'Jade Compile Warning']
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> updateMethodReferences: displayArrays [
 
 	| services className |
@@ -347,25 +256,6 @@ RowanSystemBrowserPresenter >> updateMethodReferences: displayArrays [
 		session: self gciSession
 		onCompletion: nil.
 	^ services
-]
-
-{ #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updateMethodsFrom: update [
-	| fullList selections |
-	fullList := update methods collect: 
-					[:methodUpdate |
-					Array
-						with: methodUpdate selector
-						with: methodUpdate isOverride
-						with: methodUpdate isTestClass
-						with: 'F'	"monticello related, ignore"].
-	fullList = methodListPresenter list ifFalse: [methodListPresenter list: fullList].
-	selections := update selections.
-	selections := methodListPresenter list select: [:eachArray | selections includes: eachArray first].
-	selections = methodListPresenter selections ifFalse: [methodListPresenter selections: selections].
-	selections notEmpty
-		ifTrue: [methodListPresenter view ensureSelectionVisible]
-		ifFalse: [fullList notEmpty ifTrue: [methodListPresenter view ensureVisible: 1]]
 ]
 
 { #category : 'as yet unclassified' }

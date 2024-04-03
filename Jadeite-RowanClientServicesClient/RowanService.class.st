@@ -729,6 +729,7 @@ RowanService >> stonOn: stonWriter [
 
 { #category : 'rsr' }
 RowanService >> terminate: process error: value [
+
 	process
 		suspend;
 		terminate.
@@ -736,8 +737,7 @@ RowanService >> terminate: process error: value [
 		[ UIManager default terminateUIProcess ] ensure: [
 			UIManager default spawnNewProcess.
 			value class = RsrConnectionClosedBeforeReceivingResponse ifTrue: [
-				(UIManager default confirm: 'RSR connection closed. Disconnect?')
-					ifTrue: [ JadeiteConnectionProfile connectionProfile disconnect ] ] ] ]
+				JadeiteConnectionProfile connectionProfile disconnect ] ] ]
 ]
 
 { #category : 'printing' }

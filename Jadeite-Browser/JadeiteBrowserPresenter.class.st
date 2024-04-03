@@ -634,9 +634,8 @@ JadeiteBrowserPresenter >> classSelected: classService [
 	[
 	classService ifNotNil: [
 		self clearMethodLists.
-		self
-			refreshClass: methodListPresenter selectedItem;
-			updateTabLabel ] ] schedule
+		self refreshClass: methodListPresenter selectedItem.
+		[ self updateTabLabel ] scheduleInUI ] ] schedule
 ]
 
 { #category : 'as yet unclassified' }
@@ -757,7 +756,8 @@ JadeiteBrowserPresenter >> connectCancelActions [
 		self resetClassComment.
 		classCommentPresenter isModified: false ].
 	classDefinitionPresenter whenResetDo: [
-		self resetClassTemplate classDefinitionPresenter isModified: false ]
+		self resetClassTemplate.
+		classDefinitionPresenter isModified: false ]
 ]
 
 { #category : 'initialization' }
@@ -889,27 +889,6 @@ JadeiteBrowserPresenter >> createListViewFor: newCard [
 	^listView
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> createSchematicWiringForMethodSource [
-	super createSchematicWiringForMethodSource.
-	methodSourcePresenter
-		when: #textChanged
-			send: #updateMethodSourceColor
-			to: self;
-		when: #valueChanged
-			send: #methodValueChanged
-			to: self;
-		when: #autoComplete:startingAt:accept:
-			send: #onAutoComplete:startingAt:accept:
-			to: self search;
-		when: #timerTick:
-			send: #onTimerTick:
-			to: self search;
-		when: #charAdded:
-			send: #onCharAdded:
-			to: self search
-]
-
 { #category : 'private' }
 JadeiteBrowserPresenter >> currentMethodSourceFrom: sourceString [
 
@@ -957,7 +936,7 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 			commandArgs:
 				(Array with: methodService selector with: methodService className).
 		self issueCommand: methodService onCompletion: nil ] ] ensure: [
-		self refreshClassAndMethodPresenters ] ] schedule
+		[ self refreshClassAndMethodPresenters ] scheduleInUI ] ] schedule
 ]
 
 { #category : 'initialization' }
@@ -2707,7 +2686,8 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 	classService filters: self selectedFilters.
 	self selectedFilterTab selectedItems isEmpty ifTrue: [
 		self clearMethodLists ] ] scheduleInUI.
-	[ self updateService: classService ] schedule.
+	[
+	self updateService: classService.
 	[
 	methodListPresenter selections isEmpty
 		ifTrue: [
@@ -2715,7 +2695,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 			definedMethodPackageText text: String new ]
 		ifFalse: [ self updateMethodSource ].
 	methodListPresenter withWidgetDo: [ :w | w resetPosition ] ]
-		scheduleInUI
+		scheduleInUI ] schedule
 ]
 
 { #category : 'as yet unclassified' }
@@ -3187,7 +3167,7 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 			issueCommand: answeringService
 			session: self gciSession.
 		service := answeringService answer ] schedule.
-		service selectIn: self ]
+		[ service selectIn: self ] scheduleInUI ]
 ]
 
 { #category : 'selections' }
@@ -3519,13 +3499,13 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
 	classService ifNil: [ ^ self ].
 	classService projectName ifNil: [
-		[ self updateService: classService ] schedule ].
-	[
-	(self findProjectNamed: classService projectName) ifNotNil: [
-		self isDictionaryTabSelected
-			ifTrue: [ self updateAfterFindClassInDictionary: classService ]
-			ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ]
-		scheduleInUI
+		[ self updateService: classService ] schedule.
+		[
+		(self findProjectNamed: classService projectName) ifNotNil: [
+			self isDictionaryTabSelected
+				ifTrue: [ self updateAfterFindClassInDictionary: classService ]
+				ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ]
+			scheduleInUI ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3580,28 +3560,31 @@ JadeiteBrowserPresenter >> updateClass: classService [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClassInfo [
+
 	| service |
 	self resetCategoryText.
-	service := self selectedClass
-				ifNil: 
-					[self resetDefinedClassPackage.
-					^self].
-	classCommentPresenter text: service comment.
-	classCommentPresenter hasUnacceptedEdits: false. 
-	classDefinitionPresenter view isModified
-		ifTrue: 
-			[service template = classDefinition ifTrue: [^self].
-			(MessageBox confirm: 'Copy changes to clipboard?' caption: 'Class has unsaved changes!')
-				ifTrue: [classDefinitionPresenter text copyToClipboard]].
+	service := self selectedClass ifNil: [
+		           self resetDefinedClassPackage.
+		           ^ self ].
+	classCommentPresenter value: service comment.
+	classDefinitionPresenter view isModified ifTrue: [
+		service template = classDefinition ifTrue: [ ^ self ].
+		classDefinition ifNotNil: [
+			(MessageBox
+				 confirm: 'Copy changes to clipboard?'
+				 caption: 'Class has unsaved changes!') ifTrue: [
+				classDefinitionPresenter text copyToClipboard ] ] ].
 	classDefinitionPresenter value: service template.
 	self resetClassDefinitionPane.
-	self todo: [self setTestClass: service.
-	self isSunitTabSelected ifFalse: [classDefinitionPresenter ensureVisible].
-	self updateClassMenu: nil.
-	self updateSUnitTab.].
-	definedClassPackageText view text: 'Defined Package: ' , self selectedClass definedPackageName.
-	self sundryCleanup.
-
+	self todo: [
+		self setTestClass: service.
+		self isSunitTabSelected ifFalse: [
+			classDefinitionPresenter ensureVisible ].
+		self updateClassMenu: nil.
+		self updateSUnitTab ].
+	definedClassPackageText view text:
+		'Defined Package: ' , self selectedClass definedPackageName.
+	self sundryCleanup
 ]
 
 { #category : 'as yet unclassified' }
@@ -3761,9 +3744,8 @@ JadeiteBrowserPresenter >> updateMethodSource [
 	[
 	methodListPresenter selections isEmpty
 		ifTrue: [
-			methodSourcePresenter
-				text: self defaultMethod;
-				hasUnacceptedEdits: false ]
+			self methodSourcePresenter removeAllTextSegmentDecorations.
+			methodSourcePresenter value: self defaultMethod ]
 		ifFalse: [
 			self updateMethodSourceGlyphs.
 			definedMethodPackageText text:
@@ -3772,24 +3754,6 @@ JadeiteBrowserPresenter >> updateMethodSource [
 			methodCategoryText text:
 				'Category: ' , methodListPresenter selectedItem category ] ]
 		scheduleInUI ] schedule
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateMethodSourceColor [
-	"not sure why, but presenters do not seem to acknowledge that keys
-	like 'Del' actually change the value. This hook, sent from #textChanged
-	event makes sure we show a visible change when those characters are
-	pressed.
-
-	#postToInputQueue sent so that we don't get a gpFault if done at the 
-	wrong time. That's presumably a dolphin bug."
-
-	
-	[methodSourcePresenter view isModified
-		ifTrue: [methodSourcePresenter view backcolor: JadeiteTextStyles default colorForUnsavedEdits]
-		ifFalse: [methodSourcePresenter view backcolor: JadeiteTextStyles default colorForNoEdits].
-	methodSourcePresenter view invalidate]
-			postToInputQueue
 ]
 
 { #category : 'updates' }
@@ -3801,14 +3765,15 @@ JadeiteBrowserPresenter >> updatePackage [
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
 	self selectClassListTab.
-	[ self updateClasses ] schedule.
+	[
+	self updateClasses.
 	[
 	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
 	self updatePackageInfo.
 	self resetSunitTestList.
 	packageListPresenter selectionIfNone: [ self selectProjectTab ].
 	self updateTabLabel.
-	definedClassPackageText text: String new ] scheduleInUI
+	definedClassPackageText text: String new ] scheduleInUI ] schedule
 ]
 
 { #category : 'updates' }

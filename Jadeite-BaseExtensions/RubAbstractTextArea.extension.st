@@ -11,3 +11,10 @@ RubAbstractTextArea >> newJadeiteEditor [
 	editor := JadeiteSmalltalkEditor forTextArea: self.
 	editor gciSession: GciSession current 
 ]
+
+{ #category : '*Jadeite-BaseExtensions' }
+RubAbstractTextArea >> recomputeSelection [
+	"Jadeite override - stop the big red box"
+
+	[self markIndex: self markIndex pointIndex: self pointIndex] on: Error do:[^self]
+]
