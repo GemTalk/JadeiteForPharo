@@ -71,14 +71,9 @@ JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 	| jadeiteWindows |
 	jadeiteWindows := JadeiteConnectionProfile connectionProfile
 		                  jadeiteWindows.
-	[
-	jadeiteWindows do: [ :window |
-		[ window close ] ensure: [
-			window presenter become: String new.
-			window become: String new ] "these things won't go away" ] ]
-		ensure: [
-			JadeiteConnectionProfile connectionProfile jadeiteWindows:
-				OrderedCollection new ]
+	[ jadeiteWindows do: [ :window | window close ] ] ensure: [
+		JadeiteConnectionProfile connectionProfile jadeiteWindows:
+			OrderedCollection new ]
 ]
 
 { #category : 'actions' }

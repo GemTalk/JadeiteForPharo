@@ -3158,7 +3158,6 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 			           classService packageName ifNotNil: [ :nm |
 				           RowanPackageService new name: nm ] ].
 	service ifNotNil: [ service selectIn: self ] ifNil: [
-		[
 		answeringService := RowanAnsweringService new.
 		answeringService
 			command: #packageOrDictionaryFor:;
@@ -3166,8 +3165,8 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 		RowanServiceUpdater current
 			issueCommand: answeringService
 			session: self gciSession.
-		service := answeringService answer ] schedule.
-		[ service selectIn: self ] scheduleInUI ]
+		service := answeringService answer.
+		service selectIn: self ]
 ]
 
 { #category : 'selections' }
@@ -3499,13 +3498,11 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
 	classService ifNil: [ ^ self ].
 	classService projectName ifNil: [
-		[ self updateService: classService ] schedule.
-		[
+		self updateService: classService.
 		(self findProjectNamed: classService projectName) ifNotNil: [
 			self isDictionaryTabSelected
 				ifTrue: [ self updateAfterFindClassInDictionary: classService ]
 				ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ]
-			scheduleInUI ]
 ]
 
 { #category : 'as yet unclassified' }

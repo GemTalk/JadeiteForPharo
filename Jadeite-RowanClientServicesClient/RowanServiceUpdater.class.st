@@ -108,10 +108,11 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 		onCompletion: postExecutionBlock
 		semaphore: sem.
 	sem wait.
+	self queueProcess suspend.
+	service returnedServices do: [ :update |
+		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ]. "do this in the process that issued the command so handlers are invoked"
 	UIManager default defer: [
-		[
-		self queueProcess suspend.
-		self applyUpdatesFromReturnedServices: service returnedServices ]
+		[ self applyUpdatesFromReturnedServices: service returnedServices ]
 			ensure: [ self queueProcess resume ] ]
 ]
 
@@ -572,7 +573,6 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 
 	
 	updates do: [ :update |
-		update ifNotNil: [update raiseCompileErrorIfNeeded]. 
 		(self shouldApply: selector forService: update) ifTrue: [
 			update
 				perform: selector
