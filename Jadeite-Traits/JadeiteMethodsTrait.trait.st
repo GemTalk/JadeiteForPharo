@@ -388,7 +388,7 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 		ifNotNil: [ :warning |
 			self setCompileWarningColor.
 			self statusBarText pushMessage: warning ].
-	self todo: [ self refreshBreakPointsIn: thePresenter ].
+	UIManager default defer: [self updateMethodSourceGlyphs].
 	^true
 ]
 

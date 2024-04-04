@@ -99,7 +99,6 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
 	| sem postExecutionBlock |
-	"Processor activeProcess = UIManager default uiProcess ifTrue:[self halt]."
 	service prepareForReplication.
 	sem := Semaphore new.
 	postExecutionBlock := [ :aService | sem signal ].
@@ -108,9 +107,9 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 		onCompletion: postExecutionBlock
 		semaphore: sem.
 	sem wait.
-	self queueProcess suspend.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ]. "do this in the process that issued the command so handlers are invoked"
+	self queueProcess suspend.
 	UIManager default defer: [
 		[ self applyUpdatesFromReturnedServices: service returnedServices ]
 			ensure: [ self queueProcess resume ] ]

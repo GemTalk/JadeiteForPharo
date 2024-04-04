@@ -379,11 +379,9 @@ RowanClassService >> filterUpdate: presenter browser: browser [
 	browser selectedClass ifNil: [ ^ self ].
 	browser selectedClass name asString = name asString ifFalse: [
 		^ self ].
-	presenter model isEmpty ifTrue: [
-		presenter list: SortedCollection new ].
 	browser isCategoryTabSelected
 		ifTrue: [
-			presenter list = self jadeiteCategories ifTrue: [ ^ self ].
+			presenter list = self jadeiteCategoriesWithExtensions ifTrue: [ ^ self ].
 			self updateCategories: presenter browser: browser ]
 		ifFalse: [
 			browser isVariablesTabSelected
@@ -402,6 +400,7 @@ RowanClassService >> filterUpdate: presenter browser: browser [
 RowanClassService >> filterVariableUpdate: presenter browser: browser [
 
 	browser selectedClass ifNil: [ ^ self ].
+	browser isVariablesTabSelected ifFalse: [ ^ self ].
 	browser selectedClass name asString = name asString ifFalse: [
 		^ self ].
 	presenter model isEmpty ifTrue: [
@@ -557,6 +556,14 @@ RowanClassService >> jadeiteCategoriesFor: aCollection [
 		  categoryOrString isString
 			  ifFalse: [ categoryOrString ]
 			  ifTrue: [ JadeiteCategory named: categoryOrString ] ]
+]
+
+{ #category : 'accessing' }
+RowanClassService >> jadeiteCategoriesWithExtensions [
+
+	^ (self jadeiteCategoriesFor: categories)
+		  addFirst: self class computedExtensionCategory;
+		  yourself
 ]
 
 { #category : 'printing' }
@@ -959,9 +966,6 @@ RowanClassService >> updateCategories: presenter browser: browser [
 	self jadeiteCategories do: [ :category |
 		(presenter list includes: category) ifFalse: [
 			theModel add: category ] ].
-	presenter hasSelection ifFalse: [
-		presenter list:
-			theModel collection asSortedCollection asOrderedCollection ].
 	browser isDictionaryTabSelected ifFalse: [
 		self addComputedCategoriesTo: presenter ].
 	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"
