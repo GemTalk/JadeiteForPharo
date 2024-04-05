@@ -355,7 +355,7 @@ JadeiteMethodsTrait >> compilationWarningFrom: methodServices [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodsTrait >> displayBreakpoints [
-	
+	self methodListPresenter selectedItem ifNil: [ ^self ].
 	self methodListPresenter selectedItem breakPoints do: [ :breakPoint |
 		| range stepPointAssoc |
 		stepPointAssoc := self methodListPresenter selectedItem stepPoints at: breakPoint. 
@@ -368,7 +368,7 @@ JadeiteMethodsTrait >> displayBreakpoints [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodsTrait >> displayMethodSourceStepPoints [
-
+	self methodListPresenter selectedItem ifNil: [ ^self ].
 	self methodListPresenter selectedItem stepPoints do: [ :stepPointAssoc |
 		| range |
 		range := self methodListPresenter selectedItem stepPointRangeFrom:
@@ -381,15 +381,20 @@ JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 { #category : 'actions' }
 JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: category [
 
-	(thePresenter saveMethodIn: classService category: category) 
+	(thePresenter saveMethodIn: classService category: category)
 		ifFalse: [ ^ false ].
+	[
+	| index |
+	index := self methodListPresenter selectionMode indexOfItem:
+		         classService selectedMethods first.
+	self methodListPresenter selectIndex: index scrollToSelection: true.
 	(self compilationWarningFrom: classService selectedMethods)
 		ifNil: [ self resetStatusBar ]
 		ifNotNil: [ :warning |
 			self setCompileWarningColor.
 			self statusBarText pushMessage: warning ].
-	UIManager default defer: [self updateMethodSourceGlyphs].
-	^true
+	self updateMethodSourceGlyphs ] scheduleInUI.
+	^ true
 ]
 
 { #category : 'menus' }

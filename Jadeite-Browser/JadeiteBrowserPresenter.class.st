@@ -706,7 +706,6 @@ JadeiteBrowserPresenter >> clearMethodListTestResultIn: methodServices [
 JadeiteBrowserPresenter >> clearMethodLists [
 
 	self selectedClass ifNil: [ self clearFilterLists ].
-	"packageMethodListPresenter clear."
 	methodListPresenter clear.
 	methodSourcePresenter value: String new.
 	definedMethodPackageText text: String new.
