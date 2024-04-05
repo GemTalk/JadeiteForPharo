@@ -945,11 +945,12 @@ RowanClassService >> updateAfterCommand: boolean [
 
 { #category : 'categories' }
 RowanClassService >> updateCategories: presenter browser: browser [
-	"Update without losing selections."
+	"Update without losing selections hopefully"
 
 	| jadeiteCategories |
 	meta = browser isClassSideSelected ifFalse: [ ^ self ].
 	browser isCategoryTabSelected ifFalse: [ ^ self ].
+	browser methodListPresenter unselectAll. 
 	jadeiteCategories := categories collect: [ :category |
 		                     JadeiteCategory named: category ].
 	presenter model replaceAndSort: jadeiteCategories.

@@ -2899,7 +2899,14 @@ JadeiteBrowserPresenter >> removeProjectTabs [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> resetCategoryText [
-	methodCategoryText text: 'Category: '. String new. 
+
+	categoryListPresenter selections size = 1 ifTrue: [
+		^ methodCategoryText text:
+			  'Category: ' , categoryListPresenter selectedItem categoryName ].
+	categoryListPresenter selections size > 1 ifTrue: [
+		^ self displayMultipleCategories ].
+	methodCategoryText text: 'Category: '.
+	String new
 ]
 
 { #category : 'initialization' }
