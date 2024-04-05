@@ -99,13 +99,10 @@ RowanClassService >> = classService [
 				  meta isNil or: [ classService meta = meta ] ] ] ]
 ]
 
-{ #category : 'updates' }
+{ #category : 'categories' }
 RowanClassService >> addComputedCategoriesTo: presenter [
 
-	presenter list
-		detect: [ :ea | ea isString not and: [ ea isComputed ] ]
-		ifNone: [
-		presenter list addFirst: self class computedExtensionCategory ]
+	presenter list addFirst: self class computedExtensionCategory
 ]
 
 { #category : 'private' }
@@ -178,13 +175,13 @@ RowanClassService >> behaviorIdentifier [
 		contents
 ]
 
-{ #category : 'accessing' }
+{ #category : 'categories' }
 RowanClassService >> categories [
 
 	^categories
 ]
 
-{ #category : 'accessing' }
+{ #category : 'categories' }
 RowanClassService >> categories: aCollection [
 	" for testing"
 	categories := aCollection
@@ -347,7 +344,7 @@ RowanClassService >> expand: anObject [
 RowanClassService >> filterCategoryUpdate: presenter browser: browser [
 	browser selectedClass ifNil: [^self].
 	browser selectedClass name asString = name asString ifFalse: [^self].
-	presenter model isEmpty ifTrue: [presenter list: SortedCollection new].
+	presenter model isEmpty ifTrue: [presenter list: SortedCollection new]. "needed?"
 	self updateCategories: presenter browser: browser
 ]
 
@@ -541,7 +538,7 @@ RowanClassService >> isTestCase [
 	^isTestCase ifNil:[false]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'categories' }
 RowanClassService >> jadeiteCategories [
 	"for comparing against presenter lists"
 
@@ -558,7 +555,7 @@ RowanClassService >> jadeiteCategoriesFor: aCollection [
 			  ifTrue: [ JadeiteCategory named: categoryOrString ] ]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'categories' }
 RowanClassService >> jadeiteCategoriesWithExtensions [
 
 	^ (self jadeiteCategoriesFor: categories)
@@ -946,29 +943,20 @@ RowanClassService >> updateAfterCommand: boolean [
 	updateAfterCommand := boolean
 ]
 
-{ #category : 'updates' }
+{ #category : 'categories' }
 RowanClassService >> updateCategories: presenter browser: browser [
-	"Update without losing selections. If no selections, 
-	just update a copy then replace the original."
+	"Update without losing selections."
 
-	| theModel |
+	| jadeiteCategories |
 	meta = browser isClassSideSelected ifFalse: [ ^ self ].
 	browser isCategoryTabSelected ifFalse: [ ^ self ].
-	theModel := presenter hasSelection
-		            ifTrue: [ presenter model ]
-		            ifFalse: [ presenter model copy ].
-	theModel collection: (self jadeiteCategoriesFor: theModel collection).
-	theModel collection copy do: [ :ea |
-		ea isComputed ifTrue: [ theModel collection remove: ea ] ].
-	presenter list copy do: [ :category |
-		(self jadeiteCategories includes: category) ifFalse: [
-			theModel remove: category ifAbsent: [  ] ] ].
-	self jadeiteCategories do: [ :category |
-		(presenter list includes: category) ifFalse: [
-			theModel add: category ] ].
+	jadeiteCategories := categories collect: [ :category |
+		                     JadeiteCategory named: category ].
+	presenter model replaceAndSort: jadeiteCategories.
 	browser isDictionaryTabSelected ifFalse: [
 		self addComputedCategoriesTo: presenter ].
-	theModel announcer announce: (ValueChanged newValue: theModel) "necessary to get gui to update"
+	presenter model announcer announce:
+		(ValueChanged newValue: presenter model) "necessary to get gui to update"
 ]
 
 { #category : 'updates' }

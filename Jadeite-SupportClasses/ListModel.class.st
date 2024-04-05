@@ -91,11 +91,15 @@ ListModel >> notEmpty [
 ]
 
 { #category : 'removing' }
+ListModel >> refreshList [
+
+	self sortingBlock ifNotNil: [ :aSortFunction |
+		collection := (collection sorted: aSortFunction) asOrderedCollection ]
+]
+
+{ #category : 'removing' }
 ListModel >> remove: anObject [
 
-	self todo: 'where are these arrays coming from?'.
-	(collection isKindOf: Array) ifTrue: [
-		collection := collection asOrderedCollection ].
 	collection remove: anObject.
 	self announcer announce: (ValueChanged newValue: self)
 ]
@@ -106,9 +110,18 @@ ListModel >> remove: anObject ifAbsent: absentBlock [
 ]
 
 { #category : 'removing' }
+ListModel >> removeAll [
+	
+	collection := OrderedCollection new. "Must not be an Array so can be collection can be added to"
+	
+	self refreshList.
+	self announcer announce: (ValueChanged newValue: self)
+		
+]
+
+{ #category : 'removing' }
 ListModel >> removeAll: objects [
-	self todo: 'where are these arrays coming from?'.
-(	collection isKindOf: Array ) ifTrue:[collection := collection asOrderedCollection ].
+
 	collection removeAll: objects
 ]
 
@@ -119,6 +132,15 @@ ListModel >> removeWithoutNotification: removal ifAbsent: absentBlock view: theV
 		'brought over form Dolphin. Get rid of view after making work?'.
 	collection remove: removal.
 	self refreshList
+]
+
+{ #category : 'adding' }
+ListModel >> replaceAndSort: newCollection [
+	
+	collection := newCollection asSortedCollection: [:x :y | x categoryName < y categoryName].
+	collection := collection asOrderedCollection. 
+	self announcer announce: (ValueChanged newValue: self)
+	
 ]
 
 { #category : 'dolphin' }
