@@ -196,16 +196,14 @@ JadeiteClassTrait >> newFullClassMenu [
 { #category : 'private' }
 JadeiteClassTrait >> openClassSelectionDialogFor: searchName [ 
 
-	| dialogWindow answeringService sem |
-	sem := Semaphore new. 
-	[answeringService := RowanAnsweringService new
+	| dialogWindow answeringService |
+	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil. sem signal] schedule. 
-	sem wait. 
+		onCompletion: nil.
 	dialogWindow := ListDialogWindow new
 		                getList: [ :rxMatcher |
 			                answeringService answer select: [ :substring |

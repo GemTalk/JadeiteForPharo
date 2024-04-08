@@ -382,7 +382,7 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	answeringService ifNotNil: [
 		[
 		self displayResult: showResult orShowCompileError: answeringService ]
-			scheduleInUI ] ] schedule
+			jadeiteScheduleInUI ] ] jadeiteSchedule
 ]
 
 { #category : 'as yet unclassified' }

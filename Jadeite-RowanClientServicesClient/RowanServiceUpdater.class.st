@@ -17,7 +17,8 @@ Class {
 		'postCompletionBlock',
 		'serviceQueueSemaphore',
 		'serviceQueue',
-		'serviceQueueProcess'
+		'serviceQueueProcess',
+		'commandSemaphore'
 	],
 	#classVars : [
 		'Current'
@@ -98,21 +99,21 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
-	| sem postExecutionBlock |
+	| postExecutionBlock |
+	"do this in the process that issued the command so handlers are invoked"
 	service prepareForReplication.
-	sem := Semaphore new.
-	postExecutionBlock := [ :aService | sem signal ].
+	commandSemaphore := Semaphore new.
+	postExecutionBlock := [ :aService | commandSemaphore signal ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
-		semaphore: sem.
-	sem wait.
+		semaphore: commandSemaphore.
+	commandSemaphore wait.
 	service returnedServices do: [ :update |
-		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ]. "do this in the process that issued the command so handlers are invoked"
+		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
 	self queueProcess suspend.
-	UIManager default defer: [
-		[ self applyUpdatesFromReturnedServices: service returnedServices ]
-			ensure: [ self queueProcess resume ] ]
+	[ self applyUpdatesFromReturnedServices: service returnedServices ]
+		ensure: [ self queueProcess resume ].
 ]
 
 { #category : 'private' }

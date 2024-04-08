@@ -18,8 +18,8 @@ JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 		           command: #clearMethodBreaks:
 		           withArgs: (Array with: (Array with: self methodService)).
 	self issueCommand: service onCompletion: nil.
-	[ self outerJadeiteBrowser updateMethodSource ] scheduleInUI ]
-		schedule
+	[ self outerJadeiteBrowser updateMethodSource ] jadeiteScheduleInUI ]
+		jadeiteSchedule
 ]
 
 { #category : 'breakpoints' }
@@ -39,8 +39,8 @@ JadeiteMethodSourcePane >> clearBreakpoint [
 	stepPoint isNil ifTrue: [ ^ self ].
 	[
 	self clearBreakPointAt: stepPoint.
-	[ self outerJadeiteBrowser updateMethodSource ] scheduleInUI ]
-		schedule
+	[ self outerJadeiteBrowser updateMethodSource ] jadeiteScheduleInUI ]
+		jadeiteSchedule
 ]
 
 { #category : 'actions - saving methods' }
@@ -190,8 +190,8 @@ JadeiteMethodSourcePane >> setBreakpoint [
 	stepPoint isNil ifTrue: [ ^ self ].
 	[
 	self setBreakPointAt: stepPoint.
-	[ self outerJadeiteBrowser updateMethodSource ] scheduleInUI ]
-		schedule
+	[ self outerJadeiteBrowser updateMethodSource ] jadeiteScheduleInUI ]
+		jadeiteSchedule
 ]
 
 { #category : 'as yet unclassified' }

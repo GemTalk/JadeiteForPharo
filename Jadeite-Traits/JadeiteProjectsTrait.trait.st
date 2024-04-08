@@ -214,8 +214,8 @@ JadeiteProjectsTrait >> gitCommit [
 				MessageBox notify:
 					'Commit message must not be empty. Commit to local repository NOT done.' ]
 			ifFalse: [
-			[ self gitCommit: projectName message: message ] schedule ] ] ]
-		scheduleInUI
+			[ self gitCommit: projectName message: message ] jadeiteSchedule ] ] ]
+		jadeiteScheduleInUI
 ]
 
 { #category : 'commands' }
@@ -499,11 +499,11 @@ JadeiteProjectsTrait >> pushToGit [
 		projectService command: #pushToGit.
 		RowanServiceUpdater current
 			issueCommand: projectService
-			session: self gciSession ] schedule ] ] scheduleInUI.
+			session: self gciSession ] jadeiteSchedule ] ] jadeiteScheduleInUI.
 	[
 	MessageBox notify:
 		'Project ' , projectService name , ' pushed to remote repository!' ]
-		scheduleInUI
+		jadeiteScheduleInUI
 ]
 
 { #category : 'commands' }
@@ -580,6 +580,6 @@ JadeiteProjectsTrait >> updateProjects [
 		onCompletion: nil.
 	[
 	self projectListPresenter items:
-		(self sortedProjectsFrom: browserService projects) ] scheduleInUI ]
-		schedule
+		(self sortedProjectsFrom: browserService projects) ] jadeiteScheduleInUI ]
+		jadeiteSchedule
 ]

@@ -374,9 +374,9 @@ JadeiteInspector >> executeThenInspect: aString inContext: context [
 			withCode: aString
 			doitFlag: false
 			errorMessage: (service compileErrorArray first at: 3)
-			location: (service compileErrorArray first at: 2) ] ] schedule.
+			location: (service compileErrorArray first at: 2) ].
 	[ service oop ifNotNil: [ self show: window on: service ] ]
-		scheduleInUI
+		jadeiteScheduleInUI ] jadeiteSchedule
 ]
 
 { #category : 'as yet unclassified' }
@@ -744,7 +744,7 @@ JadeiteInspector >> multipleInstVarsSelected [
 		commandArgs: (Array with: oops with: self maxPrintStringSize).
 	RowanServiceUpdater current
 		issueCommand: answeringService
-		session: gciSession ] schedule.
+		session: gciSession ] jadeiteSchedule.
 	[
 	computedSelections := self computedListSelections.
 	boldNeeded := OrderedCollection new.
@@ -772,7 +772,7 @@ JadeiteInspector >> multipleInstVarsSelected [
 	contents := writeStream contents.
 	contents last = Character lf ifTrue: [
 		contents := contents copyFrom: 1 to: contents size - 2 "crlf" ].
-	documentPresenter value: contents ] scheduleInUI
+	documentPresenter value: contents ] jadeiteScheduleInUI
 ]
 
 { #category : 'initialization' }

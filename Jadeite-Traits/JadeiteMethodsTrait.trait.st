@@ -249,7 +249,7 @@ JadeiteMethodsTrait >> browseMethodClass [
 	className := self methodListPresenter jadeiteSelections first
 		             className.
 	browser := self openBrowser.
-	[ browser findClassNamed: className ] scheduleInUI
+	[ browser findClassNamed: className ] jadeiteScheduleInUI
 ]
 
 { #category : 'actions' }
@@ -393,7 +393,7 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 		ifNotNil: [ :warning |
 			self setCompileWarningColor.
 			self statusBarText pushMessage: warning ].
-	self updateMethodSourceGlyphs ] scheduleInUI.
+	self updateMethodSourceGlyphs ] jadeiteScheduleInUI.
 	^ true
 ]
 

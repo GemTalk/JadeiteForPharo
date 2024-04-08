@@ -388,7 +388,7 @@ JadeiteConsole >> initializeAutoCommit [
 	self gciSession autoCommit
 		whenChangedSend: #updateAutoCommitButton
 		to: self.
-	self updateAutoCommitButton ] scheduleInUI ] schedule
+	self updateAutoCommitButton ] jadeiteScheduleInUI ] jadeiteSchedule
 ]
 
 { #category : 'initialization' }

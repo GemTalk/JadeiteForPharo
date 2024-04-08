@@ -379,9 +379,7 @@ JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [
 		answer ifNil: [ answer := #terminate ].
-		[
-		(self class isKindOf: JadeiteDebuggerPresenter) ifTrue: [
-			suspendedProcess resume ] ] forkAt: Processor activePriority - 1 ]
+		[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
 ]
 
 { #category : 'menus' }

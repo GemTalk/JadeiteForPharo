@@ -3,3 +3,9 @@ Class {
 	#superclass : 'RowanLoggingService',
 	#category : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanLoggingServiceClient >> flush [ 
+
+	"do nothing"
+]

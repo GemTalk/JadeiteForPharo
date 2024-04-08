@@ -111,7 +111,7 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 					shouldStopTestRun := true.
 					self updateResult: jadeResult ]
 				ifFalse: [ methodService := methodServices at: index ] ] ] ]
-		schedule
+		jadeiteSchedule
 ]
 
 { #category : 'as yet unclassified' }

@@ -614,7 +614,7 @@ JadeiteSUnitPresenter >> updateClasses [
 	RowanServiceUpdater current
 		issueCommands: packageServices
 		session: self gciSession
-		onCompletion: nil ] schedule
+		onCompletion: nil ] jadeiteSchedule
 ]
 
 { #category : 'updates' }
@@ -632,7 +632,7 @@ JadeiteSUnitPresenter >> updateMethods [
 		session: self gciSession
 		onCompletion: nil.
 	classServices do: [ :service | service updateAfterCommand: true ].
-	[ self updateMethodsFrom: classServices ] scheduleInUI ] schedule
+	[ self updateMethodsFrom: classServices ] jadeiteScheduleInUI ] jadeiteSchedule
 ]
 
 { #category : 'updates' }
