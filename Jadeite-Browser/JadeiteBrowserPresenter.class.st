@@ -405,11 +405,10 @@ JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProject [
 
-	[
 	self updateProjectPackages.
 	self updateProjectInfo.
 	self todo: 'projectInfoTab ensureVisible'.
-	self sundryCleanup ] jadeiteSchedule
+	self sundryCleanup
 ]
 
 { #category : 'private' }
@@ -631,11 +630,10 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 { #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
-	[
 	classService ifNotNil: [
 		self clearMethodLists.
 		self refreshClass: methodListPresenter selectedItem.
-		[ self updateTabLabel ] jadeiteScheduleInUI ] ] jadeiteSchedule
+		self updateTabLabel ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2119,7 +2117,6 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 
 	self resetStatusBar.
 	self updateMethodSource.
-	[
 	self methodSourcePresenter methodService:
 		self methodListPresenter selectedItem.
 	methodListPresenter selections isEmpty
@@ -2132,7 +2129,7 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 			methodListPresenter selectedItem ifNil: [
 				definedMethodPackageText text: String new.
 				self resetCategoryText ].
-			self updateHistory ] ] jadeiteScheduleInUI
+			self updateHistory ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3536,16 +3533,14 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClassInPackage: classService [
 
-	[
 	self selectPackageOrDictionaryFor: classService.
-	[
+
 	classService isMeta ifTrue: [ self setClassSide ].
 	self isClassHierarchyTabSelected ifTrue: [
 		classHierarchyPresenter model asBag
 			detect: [ :svc | svc name = classService name ]
 			ifNone: [ self updateHierarchy ] ].
-	self selectClassNamed: classService name asString ] jadeiteScheduleInUI ]
-		jadeiteScheduleInUI
+	self selectClassNamed: classService name asString
 ]
 
 { #category : 'as yet unclassified' }
@@ -3742,9 +3737,9 @@ JadeiteBrowserPresenter >> updateMethodSource [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
-	[
+
 	self updateServices: methodListPresenter selections.
-	[
+
 	methodListPresenter selections isEmpty
 		ifTrue: [
 			self methodSourcePresenter removeAllTextSegmentDecorations.
@@ -3755,8 +3750,7 @@ JadeiteBrowserPresenter >> updateMethodSource [
 				'Defined Package: '
 				, methodListPresenter selectedItem definedPackage.
 			methodCategoryText text:
-				'Category: ' , methodListPresenter selectedItem category ] ]
-		jadeiteScheduleInUI ] jadeiteSchedule
+				'Category: ' , methodListPresenter selectedItem category ]
 ]
 
 { #category : 'updates' }
@@ -3768,15 +3762,13 @@ JadeiteBrowserPresenter >> updatePackage [
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
 	self selectClassListTab.
-	[
 	self updateClasses.
-	[
 	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
 	self updatePackageInfo.
 	self resetSunitTestList.
 	packageListPresenter selectionIfNone: [ self selectProjectTab ].
 	self updateTabLabel.
-	definedClassPackageText text: String new ] jadeiteScheduleInUI ] jadeiteSchedule
+	definedClassPackageText text: String new
 ]
 
 { #category : 'updates' }

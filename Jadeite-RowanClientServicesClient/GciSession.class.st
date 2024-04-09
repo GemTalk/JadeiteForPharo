@@ -90,7 +90,7 @@ GciSession >> executeString: aString [
 
 { #category : 'initialization' }
 GciSession >> flipAutoCommit [
-	[self basicFlipAutoCommit] jadeiteSchedule
+	self basicFlipAutoCommit
 	
 ]
 

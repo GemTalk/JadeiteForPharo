@@ -164,8 +164,7 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 { #category : 'actions' }
 JadeiteToolbarTrait >> openWorkspace [
 
-	[ JadeiteWorkspaceApplication showOnSession: self gciSession library ]
-		jadeiteSchedule
+	JadeiteWorkspaceApplication showOnSession: self gciSession library
 ]
 
 { #category : 'actions' }
