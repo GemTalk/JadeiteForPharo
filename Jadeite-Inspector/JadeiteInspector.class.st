@@ -736,14 +736,13 @@ JadeiteInspector >> multipleInstVarsSelected [
 	| writeStream oops answeringService computedSelections contents boldNeeded |
 	writeStream := WriteStream on: String new.
 	oops := self valueOops.
-	[
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #printStringOfOops:toMaxSize:;
 		commandArgs: (Array with: oops with: self maxPrintStringSize).
 	RowanServiceUpdater current
 		issueCommand: answeringService
-		session: gciSession ] jadeiteSchedule.
+		session: gciSession.
 	computedSelections := self computedListSelections.
 	boldNeeded := OrderedCollection new.
 	computedSelections do: [ :assoc |

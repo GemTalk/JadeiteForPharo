@@ -608,13 +608,13 @@ JadeiteSUnitPresenter >> updateClasses [
 	| packageServices |
 	self initializeClassList.
 	packageServices := packageListPresenter selections.
-	[
+
 	packageServices do: [ :packageService |
 		packageService command: #testClasses ].
 	RowanServiceUpdater current
 		issueCommands: packageServices
 		session: self gciSession
-		onCompletion: nil ] jadeiteSchedule
+		onCompletion: nil
 ]
 
 { #category : 'updates' }

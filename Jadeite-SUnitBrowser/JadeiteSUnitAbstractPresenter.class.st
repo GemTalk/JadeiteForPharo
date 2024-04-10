@@ -87,7 +87,7 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 	jadeResult := JadeTestResult new.
 	index := 1.
 	methodService := methodServices at: index.
-	[
+
 	[ shouldStopTestRun ] whileFalse: [
 		methodService
 			command: command;
@@ -110,8 +110,7 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 				ifTrue: [
 					shouldStopTestRun := true.
 					self updateResult: jadeResult ]
-				ifFalse: [ methodService := methodServices at: index ] ] ] ]
-		jadeiteSchedule
+				ifFalse: [ methodService := methodServices at: index ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
