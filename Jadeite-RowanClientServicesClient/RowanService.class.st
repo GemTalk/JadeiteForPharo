@@ -239,10 +239,7 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 			RowanServiceUpdater current logger newLoggingService logComment:
 				'rsrProcessTerminated' ].
 		self terminate: process error: value.
-		self raiseCompileErrorIfNeeded ] ensure: [
-			RowanServiceUpdater current logComment:
-				'RowanService>>#executeCommandOnCompletion:semaphore: - sem signal'.
-			sem signal ] ]
+		self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
 ]
 
 { #category : 'rsr' }
