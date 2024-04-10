@@ -13,13 +13,11 @@ Class {
 JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 
 	| service |
-	[
 	service := RowanAnsweringService
 		           command: #clearMethodBreaks:
 		           withArgs: (Array with: (Array with: self methodService)).
 	self issueCommand: service onCompletion: nil.
-	[ self outerJadeiteBrowser updateMethodSource ] jadeiteScheduleInUI ]
-		jadeiteSchedule
+	self outerJadeiteBrowser updateMethodSource
 ]
 
 { #category : 'breakpoints' }
@@ -37,10 +35,8 @@ JadeiteMethodSourcePane >> clearBreakpoint [
 	| stepPoint |
 	stepPoint := self selectedStepPoint.
 	stepPoint isNil ifTrue: [ ^ self ].
-	[
 	self clearBreakPointAt: stepPoint.
-	[ self outerJadeiteBrowser updateMethodSource ] jadeiteScheduleInUI ]
-		jadeiteSchedule
+	self outerJadeiteBrowser updateMethodSource
 ]
 
 { #category : 'actions - saving methods' }
@@ -188,10 +184,8 @@ JadeiteMethodSourcePane >> setBreakpoint [
 	| stepPoint |
 	stepPoint := self selectedStepPoint.
 	stepPoint isNil ifTrue: [ ^ self ].
-	[
 	self setBreakPointAt: stepPoint.
-	[ self outerJadeiteBrowser updateMethodSource ] jadeiteScheduleInUI ]
-		jadeiteSchedule
+	self outerJadeiteBrowser updateMethodSource
 ]
 
 { #category : 'as yet unclassified' }

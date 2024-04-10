@@ -201,7 +201,7 @@ JadeiteProjectsTrait >> gitCommit [
 
 	| projectName message |
 	self canCommit ifFalse: [ ^ self ].
-	[
+
 	projectName := self projectListPresenter selectedItem name.
 	message := UIManager default
 		           jadeiteMultiLineRequest:
@@ -213,9 +213,7 @@ JadeiteProjectsTrait >> gitCommit [
 			ifTrue: [
 				MessageBox notify:
 					'Commit message must not be empty. Commit to local repository NOT done.' ]
-			ifFalse: [
-			[ self gitCommit: projectName message: message ] jadeiteSchedule ] ] ]
-		jadeiteScheduleInUI
+			ifFalse: [ self gitCommit: projectName message: message ] ]
 ]
 
 { #category : 'commands' }
@@ -487,7 +485,6 @@ JadeiteProjectsTrait >> pullFromGit [
 JadeiteProjectsTrait >> pushToGit [
 
 	| projectService ws |
-	[
 	projectService := self projectListPresenter jaditeSelection.
 	ws := WriteStream on: String new.
 	ws
@@ -495,15 +492,13 @@ JadeiteProjectsTrait >> pushToGit [
 		space.
 	(MessageBox confirm: 'Push projects - ' , ws contents
 		 , '- from the local repository to the remote server?') ifTrue: [
-		[
 		projectService command: #pushToGit.
 		RowanServiceUpdater current
 			issueCommand: projectService
-			session: self gciSession ] jadeiteSchedule ] ] jadeiteScheduleInUI.
-	[
+			session: self gciSession ].
+
 	MessageBox notify:
-		'Project ' , projectService name , ' pushed to remote repository!' ]
-		jadeiteScheduleInUI
+		'Project ' , projectService name , ' pushed to remote repository!'
 ]
 
 { #category : 'commands' }

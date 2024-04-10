@@ -926,14 +926,13 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 	self clearMethodListTestResultIn: methodServices.
 	self refreshClassAndMethodPresenters.
 	[
-	[
 	methodServices do: [ :methodService |
 		methodService
 			command: #debugTest:inClassName:;
 			commandArgs:
 				(Array with: methodService selector with: methodService className).
 		self issueCommand: methodService onCompletion: nil ] ] ensure: [
-		[ self refreshClassAndMethodPresenters ] jadeiteScheduleInUI ] ] jadeiteSchedule
+		self refreshClassAndMethodPresenters ]
 ]
 
 { #category : 'initialization' }
@@ -2588,14 +2587,13 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 		^ self ].
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
-	[
+
 	methodListPresenter selections:
 		(methodSelections select: [ :methodService |
 			 methodListPresenter list includes: methodService ]).
 	self selectMethodSourceTab.
 	selection selectedItem ifNotNil: [ :sel |
-		methodCategoryText text: 'Category: ' , sel categoryName ] ]
-		jadeiteScheduleInUI
+		methodCategoryText text: 'Category: ' , sel categoryName ]
 ]
 
 { #category : 'updates' }
@@ -2677,21 +2675,17 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 
 	| classService |
 	classService := self selectedClass ifNil: [ ^ self ].
-	[
 	classService meta: self isClassSideSelected.
 	classService filters: self selectedFilters.
 	self selectedFilterTab selectedItems isEmpty ifTrue: [
-		self clearMethodLists ] ] jadeiteScheduleInUI.
-	[
+		self clearMethodLists ].
 	self updateService: classService.
-	[
 	methodListPresenter selections isEmpty
 		ifTrue: [
 			self resetCategoryText.
 			definedMethodPackageText text: String new ]
 		ifFalse: [ self updateMethodSource ].
-	methodListPresenter withWidgetDo: [ :w | w resetPosition ] ]
-		jadeiteScheduleInUI ] jadeiteSchedule
+	methodListPresenter withWidgetDo: [ :w | w resetPosition ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3740,17 +3734,18 @@ JadeiteBrowserPresenter >> updateMethodSource [
 
 	self updateServices: methodListPresenter selections.
 
-	methodListPresenter selections isEmpty
-		ifTrue: [
-			self methodSourcePresenter removeAllTextSegmentDecorations.
-			methodSourcePresenter value: self defaultMethod ]
-		ifFalse: [
-			self updateMethodSourceGlyphs.
-			definedMethodPackageText text:
-				'Defined Package: '
-				, methodListPresenter selectedItem definedPackage.
-			methodCategoryText text:
-				'Category: ' , methodListPresenter selectedItem category ]
+	UIManager default defer: [
+		methodListPresenter selections isEmpty
+			ifTrue: [
+				self methodSourcePresenter removeAllTextSegmentDecorations.
+				methodSourcePresenter value: self defaultMethod ]
+			ifFalse: [
+				self updateMethodSourceGlyphs.
+				definedMethodPackageText text:
+					'Defined Package: '
+					, methodListPresenter selectedItem definedPackage.
+				methodCategoryText text:
+					'Category: ' , methodListPresenter selectedItem category ] ]
 ]
 
 { #category : 'updates' }

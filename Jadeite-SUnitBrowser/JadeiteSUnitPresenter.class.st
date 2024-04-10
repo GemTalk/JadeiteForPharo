@@ -621,7 +621,6 @@ JadeiteSUnitPresenter >> updateClasses [
 JadeiteSUnitPresenter >> updateMethods [
 
 	| classServices |
-	[
 	classServices := classListPresenter selections.
 	classServices do: [ :service |
 		service
@@ -632,7 +631,7 @@ JadeiteSUnitPresenter >> updateMethods [
 		session: self gciSession
 		onCompletion: nil.
 	classServices do: [ :service | service updateAfterCommand: true ].
-	[ self updateMethodsFrom: classServices ] jadeiteScheduleInUI ] jadeiteSchedule
+	self updateMethodsFrom: classServices
 ]
 
 { #category : 'updates' }

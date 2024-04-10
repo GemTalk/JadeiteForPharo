@@ -249,7 +249,7 @@ JadeiteMethodsTrait >> browseMethodClass [
 	className := self methodListPresenter jadeiteSelections first
 		             className.
 	browser := self openBrowser.
-	[ browser findClassNamed: className ] jadeiteScheduleInUI
+	browser findClassNamed: className
 ]
 
 { #category : 'actions' }
@@ -698,9 +698,10 @@ JadeiteMethodsTrait >> setCompileWarningColor [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateMethodSourceGlyphs [
 
-	self methodSourcePresenter removeAllTextSegmentDecorations.
-	self displayMethodSourceStepPoints.
-	self displayBreakpoints
+	UIManager default defer: [
+		self methodSourcePresenter removeAllTextSegmentDecorations.
+		self displayMethodSourceStepPoints.
+		self displayBreakpoints ]
 ]
 
 { #category : 'updates' }
