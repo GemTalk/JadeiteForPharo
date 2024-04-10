@@ -27,18 +27,9 @@ RowanProcessServiceClient >> cleanUpClient [
 { #category : 'debugger' }
 RowanProcessServiceClient >> openDebugger [
 
-	| activeProcess newUIProcess uiProcess |
+	| activeProcess |
 	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
-	DefaultExecutionEnvironment beActiveDuring: [
-		uiProcess := UIManager default uiProcess.
-		RowanServiceUpdater current logComment:
-			'uiProcess ' , uiProcess identityHash printString.
-		[ uiProcess suspend ] ensure: [
-			UIManager default spawnNewProcess.
-			newUIProcess := UIManager default uiProcess.
-			RowanServiceUpdater current logComment:
-				'newUIProcess ' , newUIProcess identityHash printString ] ].
 	UIManager default defer: [
 		debugger := JadeiteDebuggerApplication showOnSession:
 			            GciSession current library.
@@ -49,22 +40,7 @@ RowanProcessServiceClient >> openDebugger [
 		debugger frameListPresenter items: frames.
 		debugger selectInitialFrame ].
 	activeProcess suspend.
-	^ [ debugger answer ] ensure: [
-		  [
-		  RowanServiceUpdater current logComment:
-			  'newUIProcess about to terminate '
-			  , newUIProcess identityHash printString.
-		  newUIProcess
-			  suspend;
-			  terminate.
-		  RowanServiceUpdater current logComment:
-			  'newUIProcess terminated' , newUIProcess identityHash printString ]
-			  ensure: [
-				  debugger answer == #terminate ifFalse: [
-					  RowanServiceUpdater current logComment:
-						  'uiProcess about to resume.'
-						  , uiProcess identityHash printString.
-					  UIManager default resumeUIProcess: uiProcess ] ] ]
+	^ debugger answer
 ]
 
 { #category : 'debugger' }
@@ -73,7 +49,6 @@ RowanProcessServiceClient >> updateClient [
 	| activeProcess |
 	activeProcess := Processor activeProcess.
 	UIManager default defer: [
-		activeProcess suspend.
 		debugger suspendedProcess: activeProcess.
 		debugger frameListPresenter items: frames.
 		debugger selectInitialFrame ].

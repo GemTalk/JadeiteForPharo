@@ -99,21 +99,39 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
-	| postExecutionBlock |
+	| postExecutionBlock newUIProcess |
+	RowanServiceUpdater current logComment:
+		'RowanServiceUpdater>>#basicIssueCommand:session:onCompletion:'.
 	"do this in the process that issued the command so handlers are invoked"
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
-	postExecutionBlock := [ :aService | commandSemaphore signal ].
+	postExecutionBlock := [ :aService |
+	                      RowanServiceUpdater current logComment:
+		                      aService printString , ' returned'
+		                      , ([ aService answer printString ]
+				                       on: Error
+				                       do: [ :ex | 'error' ]).
+	                      commandSemaphore signal ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: commandSemaphore.
+	RowanServiceUpdater current logComment: 'commandSemaphore wait'.
+	Processor activeProcess = UIManager default uiProcess ifTrue: [
+		DefaultExecutionEnvironment beActiveDuring: [
+			UIManager default spawnNewProcess.
+			newUIProcess := UIManager default uiProcess ] ].
 	commandSemaphore wait.
+	newUIProcess ifNotNil: [
+		[ UIManager default terminateUIProcess ] ensure: [
+			UIManager default uiProcess: Processor activeProcess ] ].
+	RowanServiceUpdater current logComment:
+		'commandSemaphore freed' , commandSemaphore isSignaled printString.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
 	self queueProcess suspend.
 	[ self applyUpdatesFromReturnedServices: service returnedServices ]
-		ensure: [ self queueProcess resume ].
+		ensure: [ self queueProcess resume ]
 ]
 
 { #category : 'private' }

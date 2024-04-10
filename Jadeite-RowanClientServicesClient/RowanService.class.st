@@ -231,8 +231,7 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
 	process := Processor activeProcess.
-	theCompletionBlock := completionBlock ifNil: [
-		                      [ :unused | sem signal ] ].
+	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	promise := remoteSelf executeCommand.
 	promise when: theCompletionBlock catch: [ :value |
 		[
@@ -240,7 +239,10 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 			RowanServiceUpdater current logger newLoggingService logComment:
 				'rsrProcessTerminated' ].
 		self terminate: process error: value.
-		self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
+		self raiseCompileErrorIfNeeded ] ensure: [
+			RowanServiceUpdater current logComment:
+				'RowanService>>#executeCommandOnCompletion:semaphore: - sem signal'.
+			sem signal ] ]
 ]
 
 { #category : 'rsr' }

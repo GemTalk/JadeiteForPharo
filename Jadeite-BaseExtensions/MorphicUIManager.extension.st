@@ -21,3 +21,9 @@ MorphicUIManager >> jadeiteMultiLineRequest: queryString  initialAnswer: default
 		entryHeight: answerHeight)
 			ifNotNil: [:text | text asString]
 ]
+
+{ #category : '*Jadeite-BaseExtensions' }
+MorphicUIManager >> uiProcess: aProcess [
+
+	UIProcess := aProcess
+]
