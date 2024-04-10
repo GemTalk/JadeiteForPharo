@@ -258,22 +258,6 @@ JadeMethodListPresenter >> selectedClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeMethodListPresenter >> selecting: stringOrIndex [
-	self todo:[stringOrIndex isNumber
-		ifTrue: 
-			[| range stream |
-			stream := ReadStream on: methodSourcePresenter documentPresenter value.
-			stream position: stringOrIndex.
-			stream nextWord.
-			range := Interval from: stringOrIndex to: stream position - 1.
-			methodSourcePresenter documentPresenter selectionRange: range]
-		ifFalse: 
-			[searchBlock := [self searchFor: stringOrIndex].
-			self doSearch].
-	methodSourcePresenter documentPresenter view ensureCaretVisible]
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodListPresenter >> selectingAnyMatch: aString [
 	searchBlock := [self searchForAnyTextMatching: aString].
 	self doSearch

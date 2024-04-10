@@ -13,9 +13,8 @@ JadeiteMethodListBrowser class >> openOn: service selecting: string session: gci
 	stringOrIndex := service queryResults isEmpty
 				ifTrue: [String new]
 				ifFalse: [service queryResults first firstReference ifNil: [string]].
-	(shell := JadeiteMethodListApplication showOnSession: gciSession library) methods: service queryResults
+	(shell := JadeiteMethodListApplication showOnSession: gciSession library) firstReferenceString: string; methods: service queryResults
 		selecting: stringOrIndex.
-	self todo:[shell firstReferenceString: string].
 	^shell
 ]
 

@@ -9,7 +9,8 @@ Class {
 		'comparisonPresenter',
 		'autoCommit',
 		'search',
-		'statusBarText'
+		'statusBarText',
+		'firstReferenceString'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -158,6 +159,18 @@ JadeiteMethodListPresenter >> editSaveMethod: classService [
 JadeiteMethodListPresenter >> fileSave [
 
 	self halt. 
+]
+
+{ #category : 'accessing' }
+JadeiteMethodListPresenter >> firstReferenceString [
+
+	^ firstReferenceString
+]
+
+{ #category : 'accessing' }
+JadeiteMethodListPresenter >> firstReferenceString: anObject [
+
+	firstReferenceString := anObject
 ]
 
 { #category : 'as yet unclassified' }
@@ -417,30 +430,29 @@ JadeiteMethodListPresenter >> selectedClassName [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> selecting: stringOrIndex string: searchString [
-	self todo:[stringOrIndex isNumber
-		ifTrue: 
-			[| range stream selectionStop |
-			stringOrIndex > methodSourcePresenter documentPresenter value size ifTrue: [^self].
-			stream := ReadStream on: methodSourcePresenter documentPresenter value.
-			stream position: stringOrIndex.
-			stream nextWordWithoutPunctuation.
-			selectionStop := searchString
-						ifNil: [stream position]
-						ifNotNil: [searchString size + stringOrIndex - 1].
-			range := Interval from: stringOrIndex to: selectionStop.
-			methodSourcePresenter documentPresenter selectionRange: range]
-		ifFalse: 
-			[searchBlock := [self searchFor: stringOrIndex].
-			self doSearch].
-	methodSourcePresenter documentPresenter view ensureCaretVisible]
+JadeiteMethodListPresenter >> selecting: stringOrIndex [
+
+	| range |
+	firstReferenceString ifNotNil: [
+		range := Interval
+			         from: stringOrIndex
+			         to: firstReferenceString size + stringOrIndex - 1.
+		methodSourcePresenter selectionInterval: range ]
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> selectionChanging: aSelectionChangingEvent [
-	aSelectionChangingEvent value: (methodSourcePresenter documentPresenter view isModified
-				ifTrue: [methodSourcePresenter isOkayToChange]
-				ifFalse: [true])
+JadeiteMethodListPresenter >> selecting: stringOrIndex string: searchString [
+
+	stringOrIndex isNumber
+		ifTrue: [
+			| range |
+			stringOrIndex > methodSourcePresenter text size ifTrue: [ ^ self ].
+			searchString ifNil: [ ^self ].
+			range := Interval from: stringOrIndex to: searchString size.
+			methodSourcePresenter selectionInterval: range ]
+		ifFalse: [
+			searchBlock := [ self searchFor: stringOrIndex ].
+			self doSearch ].
 ]
 
 { #category : 'constants' }
@@ -517,18 +529,15 @@ JadeiteMethodListPresenter >> updateCaptionFromSearchString: searchString [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateMethodSource [
-	methodListPresenter selections isEmpty
-		ifTrue: 
-			[self cleanupComparisonBrowser.
-			^methodSourcePresenter value: String new].
-	self methodSourcePresenter methodService: self methodListPresenter selectedItem. 	
-	methodListPresenter selections size = 1
-		ifTrue: 
-			[self todo:[self showSuperClassComparison].
-			^self updateSingleMethodSource].
+
+	methodListPresenter selections isEmpty ifTrue: [
+		self cleanupComparisonBrowser.
+		^ methodSourcePresenter value: String new ].
+	self methodSourcePresenter methodService:
+		self methodListPresenter selectedItem.
+	methodListPresenter selections size = 1 ifTrue: [
+		^ self updateSingleMethodSource ].
 	self updateMultiMethodComparison.
-	self todo:[self refreshBreakPointsIn: methodSourcePresenter documentPresenter.
-	self setStatusBarDefault]
 ]
 
 { #category : 'as yet unclassified' }
@@ -545,14 +554,14 @@ JadeiteMethodListPresenter >> updateMultiMethodComparison [
 JadeiteMethodListPresenter >> updateSingleMethodSource [
 	| selection |
 	selection := methodListPresenter selectedItem.
-	methodSourcePresenter documentPresenter view isModified ifTrue: [^self].
+	methodSourcePresenter isModified ifTrue: [^self].
 	methodSourcePresenter value: selection source.
 	selection firstReference
 		ifNotNil: 
 			[:index |
-			methodSourcePresenter value ifNotNil: [self selecting: index string: selection searchString]].
+			methodSourcePresenter value ifNotNil: [self selecting: index]].
 	methodSourcePresenter ensureVisible.
-	self updateMethodSourceGlyphs
+	UIManager default defer: [self updateMethodSourceGlyphs]
 ]
 
 { #category : 'as yet unclassified' }

@@ -405,15 +405,6 @@ JadePresenterA >> primaryPresenter [
 
 ]
 
-{ #category : 'public' }
-JadePresenterA >> selectionChanging: aSelectionChangingEvent [ 
-
-	self 
-		trigger: #'selectionChanging:'
-		with: aSelectionChangingEvent.
-
-]
-
 { #category : 'drag & drop' }
 JadePresenterA >> supportedClassCategoryDropOperations [
 
