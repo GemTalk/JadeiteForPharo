@@ -213,7 +213,7 @@ RowanClassService >> classHierarchyUpdate: presenter browser: browser [
 	subclasses do:[:subclassService |
 		self addSubclassesOf: subclassService from: hierarchyServices]. 
 	presenter roots: subclasses. 
-	presenter selectItem: self. "will this scroll if necessary? If not, perhaps #selectPath:scrollToSelection: will do it - presenter selection pathOf: self"
+	presenter selectItem: (self copy meta: false). "will this scroll if necessary? If not, perhaps #selectPath:scrollToSelection: will do it - presenter selection pathOf: self"
 	
 	self todo:[treeModel asBag do: 
 			[:classService |

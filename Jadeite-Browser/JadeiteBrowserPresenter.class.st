@@ -3657,15 +3657,13 @@ JadeiteBrowserPresenter >> updateHierarchy [
 		ifFalse: [
 			projectListPresenter selectionOrNil ifNil: [ ^ self ].
 			packageListPresenter selections isEmpty ifTrue: [ ^ self ] ].
-	Cursor wait showWhile: [
-		service := classListPresenter selectionOrNil ifNil: [
-			           ^ self updateHierarchyForPacktionaries ].
-		RowanServiceUpdater current applyUpdateWhile: [
-			service
-				updateAfterCommand: false;
-				command: #classHierarchy.
-			self issueCommand: service onCompletion: nil.
-			self selectClassNamed: service name ] ]
+	service := classListPresenter selectionOrNil ifNil: [
+		           ^ self updateHierarchyForPacktionaries ].
+	service
+		updateAfterCommand: false;
+		command: #classHierarchy.
+	self issueCommand: service onCompletion: nil.
+	self selectClassNamed: service name
 ]
 
 { #category : 'updates' }
