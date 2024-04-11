@@ -43,21 +43,18 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> applyPreferences [
- 
+
 	| preferencesPath stream nextLine prefs |
 	preferencesPath := JadeitePreferences preferencesPath.
 	prefs := JadeitePreferences onSession: self.
 	JadeitePreferences current: prefs.
-	(File exists: preferencesPath) ifFalse: [^self].
-	stream := (FileSystem disk open: preferencesPath writable: false) reference
-			              readStream.
+	(File exists: preferencesPath) ifFalse: [ ^ self ].
+	stream := (FileSystem disk open: preferencesPath writable: false)
+		          reference readStream.
 	[
-	[stream atEnd] whileFalse: 
-			[nextLine := stream nextLine.
-			prefs applyPreference: nextLine]]
-			ensure: [^stream close].
-	self todo:["JadeiteScintillaView allInstances
-		do: [:view | view font: JadeitePreferences current currentTextFont]"]
+	[ stream atEnd ] whileFalse: [
+		nextLine := stream nextLine.
+		prefs applyPreference: nextLine ] ] ensure: [ ^ stream close ]
 ]
 
 { #category : 'actions' }
@@ -82,7 +79,7 @@ JadeiteGCIConnectionProfile >> connect [
 	GciSession current stoneName: stone.
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
-	self applyPreferences. 
+	UIManager default defer: [ self applyPreferences ].
 	^ connection
 ]
 

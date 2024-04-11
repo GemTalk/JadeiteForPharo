@@ -160,9 +160,8 @@ JadeitePreferences >> autocommitEnabled: booleanString [
 { #category : 'as yet unclassified' }
 JadeitePreferences >> autocompleteEnabled: booleanString [
 	| boolean |
-	"auto complete state held on the client"
 	boolean := booleanString = 'true'.
-	self todo:[JadeiteSearch autoCompleteEnabled: boolean]
+	GciSession current flipAutoCommit
 ]
 
 { #category : 'as yet unclassified' }
