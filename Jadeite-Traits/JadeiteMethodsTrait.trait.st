@@ -187,7 +187,7 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 		issueCommand: service
 		session: self gciSession
 		onCompletion: nil.
-	shell := self openMethodListOn: service selecting: string.
+	shell := self openMethodListOn: service selecting: nil.
 	shell updateCaptionFromSearchString:
 		service answer size printString , ' Implementors of '
 		, string asString printString.
@@ -561,12 +561,14 @@ JadeiteMethodsTrait >> okToChangeSelections [
 
 { #category : 'queries' }
 JadeiteMethodsTrait >> openMethodListOn: service selecting: string [
+
 	| selectionString |
-	selectionString := (ReadStream on: string) upTo: $:.
-	^JadeiteMethodListBrowser
-		openOn: service
-		selecting: selectionString
-		session: self gciSession
+	string ifNotNil: [ 
+		selectionString := (ReadStream on: string) upTo: $: ].
+	^ JadeiteMethodListBrowser
+		  openOn: service
+		  selecting: selectionString
+		  session: self gciSession
 ]
 
 { #category : 'actions' }
