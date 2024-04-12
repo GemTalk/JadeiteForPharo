@@ -8,14 +8,22 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowser class >> openOn: service selecting: string session: gciSession [
-	| shell stringOrIndex |
-	stringOrIndex := service queryResults isEmpty
-				ifTrue: [String new]
-				ifFalse: [service queryResults first firstReference ifNil: [string]].
-	(shell := JadeiteMethodListApplication showOnSession: gciSession library) firstReferenceString: string; methods: service queryResults
-		selecting: stringOrIndex.
-	^shell
+JadeiteMethodListBrowser class >> openOn: service selecting: string session: session [
+
+	| shell |
+	(shell := JadeiteMethodListApplication showOnSession: session library)
+		firstReferenceString: string.
+	service queryResults isEmpty ifTrue: [
+		^ shell methods: service queryResults selecting: 0 ].
+	service queryResults first firstReference
+		ifNil: [
+			shell
+				methods: service queryResults
+				selecting:
+				(service queryResults first source indexOfSubCollection: string) ]
+		ifNotNil: [ :index |
+		shell methods: service queryResults selecting: index ].
+	^ shell
 ]
 
 { #category : 'as yet unclassified' }

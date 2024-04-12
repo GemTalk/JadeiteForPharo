@@ -411,17 +411,6 @@ JadeiteBrowserPresenter >> basicUpdateProject [
 	self sundryCleanup
 ]
 
-{ #category : 'private' }
-JadeiteBrowserPresenter >> browseClass [
-
-	| browser |
-	browser := self openBrowser.
-	^ Cursor wait showWhile: [
-		  browser activePresenter
-			  updateAfterFindClass: self selectedClass
-			  onCompletion: nil ]
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildGlobalsTab [
 	| globalsTabView cardLabel |
