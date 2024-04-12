@@ -409,6 +409,18 @@ RowanService >> issueCommands: services session: session onCompletion: anObject 
 		  onCompletion: nil
 ]
 
+{ #category : 'rsr' }
+RowanService >> jadeiteConfirm: aString [
+
+	^UIManager default confirm: aString
+]
+
+{ #category : 'rsr' }
+RowanService >> jadeiteNotify: aString [
+
+	^UIManager default notify: aString
+]
+
 { #category : 'public' }
 RowanService >> jadeiteShouldNotUpdateOnClient [
 	"something bad probably happened on the server in the services infrastructure
