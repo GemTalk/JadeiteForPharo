@@ -103,15 +103,13 @@ JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: s
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseSelectedCategoryMethods [
-
 	"convenience menu item to display random methods in selected categories in a browser"
 
 	| browser |
 	self updateServices: self methodListPresenter list. "If categories are selected, only the methods in those categories will be visible"
-	browser := (JadeiteMethodListApplication showOnSession: self gciSession library)
-		
-		methods: self methodListPresenter list
-		selecting: String new.
+	browser := (JadeiteMethodListApplication showOnSession:
+		            self gciSession library) methods:
+		           self methodListPresenter list.
 	browser caption: 'Selected Methods in Categories - '
 		, self categoryListPresenter selectedItem.
 	^ browser

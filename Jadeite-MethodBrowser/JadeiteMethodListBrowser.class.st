@@ -13,16 +13,14 @@ JadeiteMethodListBrowser class >> openOn: service selecting: string session: ses
 	| shell |
 	(shell := JadeiteMethodListApplication showOnSession: session library)
 		firstReferenceString: string.
-	service queryResults isEmpty ifTrue: [
-		^ shell methods: service queryResults selecting: 0 ].
+	shell methods: service queryResults.
+	service queryResults isEmpty ifTrue: [ ^ shell selecting: 0 ].
 	service queryResults first firstReference
 		ifNil: [
-			shell
-				methods: service queryResults
-				selecting:
-				(service queryResults first source indexOfSubCollection: string) ]
-		ifNotNil: [ :index |
-		shell methods: service queryResults selecting: index ].
+			string ifNotNil: [
+				shell selecting:
+					(service queryResults first source indexOfSubCollection: string) ] ]
+		ifNotNil: [ :index | shell selecting: index ].
 	^ shell
 ]
 
@@ -102,10 +100,4 @@ JadeiteMethodListBrowser >> shellName [
 
 	^'Jadeite Method List Browser'.
 
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowser >> updateMethodsWithoutTriggeringEvents: methodServices [
-	self primaryPresenter methodListPresenter methodListPresenter
-		noEventsDo: [self primaryPresenter methods: (Array with: methodServices) selecting: nil]
 ]

@@ -292,13 +292,12 @@ JadeiteMethodsTrait >> browseMethodsContaining: string [
 
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseSelectedMethods [
-
 	"convenience menu item to display randomly grouped methods in a browser"
 
 	| shell |
 	shell := (JadeiteMethodListApplication showOnSession:
 		          self gciSession library) methods:
-		         self methodListPresenter selectedItems selecting: nil.
+		         self methodListPresenter selectedItems.
 	shell updateCaptionFromSearchString: 'Selected Methods'.
 	^ shell
 ]

@@ -86,7 +86,8 @@ JadeiteMethodListPresenter >> connectPresenters [
 
 	super connectPresenters.
 	methodListPresenter whenSelectionChangedDo: [ :selection |
-		self updateMethodSource ].
+		self updateMethodSource.
+		self selectFirstReference: selection selectedItem ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	methodSourcePresenter whenResetDo: [
 		methodSourcePresenter text:
@@ -285,16 +286,14 @@ JadeiteMethodListPresenter >> methodListSelection [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> methods: services selecting: stringOrIndex [
+JadeiteMethodListPresenter >> methods: services [
 	"services can legitimately be nil if call was blocked because it
 	was already inUpdate"
 
-	(services isNil or: [services isEmpty]) ifTrue: [^self].
+	(services isNil or: [ services isEmpty ]) ifTrue: [ ^ self ].
 	methodListPresenter
 		list: (ListModel withAll: services);
-		selectFirstMethod.
-	stringOrIndex ifNil: [^self].
-	self selecting: stringOrIndex
+		selectFirstMethod
 ]
 
 { #category : 'as yet unclassified' }
@@ -409,6 +408,17 @@ JadeiteMethodListPresenter >> selectComparisonTab [
 	comparisonPresenter ensureVisible
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteMethodListPresenter >> selectFirstReference: methodService [
+
+	methodService firstReference
+		ifNil: [
+			firstReferenceString ifNotNil: [
+				self selecting:
+					(methodService source indexOfSubCollection: firstReferenceString) ] ]
+		ifNotNil: [ :index | self selecting: index ]
+]
+
 { #category : 'updates' }
 JadeiteMethodListPresenter >> selectMethodsFrom: classService [
 
@@ -438,21 +448,6 @@ JadeiteMethodListPresenter >> selecting: stringOrIndex [
 			         from: stringOrIndex
 			         to: firstReferenceString size + stringOrIndex - 1.
 		methodSourcePresenter selectionInterval: range ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> selecting: stringOrIndex string: searchString [
-
-	stringOrIndex isNumber
-		ifTrue: [
-			| range |
-			stringOrIndex > methodSourcePresenter text size ifTrue: [ ^ self ].
-			searchString ifNil: [ ^self ].
-			range := Interval from: stringOrIndex to: searchString size.
-			methodSourcePresenter selectionInterval: range ]
-		ifFalse: [
-			searchBlock := [ self searchFor: stringOrIndex ].
-			self doSearch ].
 ]
 
 { #category : 'constants' }
