@@ -615,17 +615,18 @@ JadeiteTextDocument >> removeQuotesFromSelection [
 
 ]
 
-{ #category : 'actions - saving methods' }
+{ #category : 'ad hoc execution' }
 JadeiteTextDocument >> reportCompileError: gsArguments [
 
-	| argArray |
+	| argArray selectionStart |
+	selectionStart := self selectionInterval first. 
 	argArray := gsArguments first isArray
 		            ifTrue: [ gsArguments first ]
 		            ifFalse: [ (gsArguments at: 2) first ].
 	self withAdapterDo: [ :theAdapter | 
 		theAdapter widgetDo: [ :widget | 
 			widget textArea unselect. 
-			 widget notify: (argArray at: 3) at: (argArray at: 2) in: self text asString] ].
+			 widget notify: (argArray at: 3) at: (argArray at: 2) + selectionStart - 1 in: self text asString] ].
 	^ nil
 ]
 
