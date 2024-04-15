@@ -416,9 +416,17 @@ RowanService >> jadeiteConfirm: aString [
 ]
 
 { #category : 'rsr' }
+RowanService >> jadeiteInspect: anOop [
+
+	JadeiteInspectorApplication
+		show: anOop
+		onSession: GciSession current library
+]
+
+{ #category : 'rsr' }
 RowanService >> jadeiteNotify: aString [
 
-	^UIManager default notify: aString
+	^UIManager default alert:  aString 
 ]
 
 { #category : 'public' }
