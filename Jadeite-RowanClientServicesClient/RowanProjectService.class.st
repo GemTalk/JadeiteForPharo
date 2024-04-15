@@ -112,13 +112,13 @@ RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock 
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: [ :unused |
-			operations := OrderedCollection new.
-			changes do: [ :changeString |
-				operations addAll:
-					(RowanPatch fromString: changeString session: session) operations ].
-			changes := nil. "can be large, reclaim space"
-			completionBlock value: operations ]
+		onCompletion: nil.
+	operations := OrderedCollection new.
+	changes do: [ :changeString |
+		operations addAll:
+			(RowanPatch fromString: changeString session: session) operations ].
+	changes := nil. "can be large, reclaim space"
+	completionBlock value: operations
 ]
 
 { #category : 'presenter support' }

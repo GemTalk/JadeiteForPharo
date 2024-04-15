@@ -227,13 +227,13 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: [:unused | 
-			RowanBrowserService new
-				reloadProjects: self projectListPresenter selections
-				presenter: self.
-			self basicReloadProject.
-			MessageBox notify:
-				'Project ' , projectName , ' committed to local repository!' ]
+		onCompletion: nil.
+	RowanBrowserService new
+		reloadProjects: self projectListPresenter selections
+		presenter: self.
+	self basicReloadProject.
+	MessageBox notify:
+		'Project ' , projectName , ' committed to local repository!'
 ]
 
 { #category : 'as yet unclassified' }
@@ -246,7 +246,8 @@ JadeiteProjectsTrait >> gitProjectLog [
 	RowanServiceUpdater current
 		issueCommand: queryService
 		session: self gciSession
-		onCompletion: [ :value | self openGitLogInWorkspaceUsing: queryService ]
+		onCompletion: nil. 
+	self openGitLogInWorkspaceUsing: queryService
 ]
 
 { #category : 'commands' }

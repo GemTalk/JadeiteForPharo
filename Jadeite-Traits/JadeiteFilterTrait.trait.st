@@ -91,14 +91,13 @@ JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: s
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: [ :unused |
-			shell := self
-				         openMethodListOn: service
-				         selectingAnyMatch: instVarName
-				         session: session.
-			shell updateCaptionFromSearchString:
-				'Instance Variable Writers For '
-				, instVarName asString printString ]
+		onCompletion: nil.
+	shell := self
+		         openMethodListOn: service
+		         selectingAnyMatch: instVarName
+		         session: session.
+	shell updateCaptionFromSearchString:
+		'Instance Variable Writers For ' , instVarName asString printString
 ]
 
 { #category : 'actions' }
