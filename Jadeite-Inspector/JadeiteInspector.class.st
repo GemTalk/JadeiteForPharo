@@ -1094,9 +1094,10 @@ JadeiteInspector >> shouldEnableFileSave: query [
 
 { #category : 'displaying' }
 JadeiteInspector >> show: window on: service [
-
+	"send #open to self to make sure we register window
+	with connection profile."
 	model := service.
-	window open.
+	self open.
 	self displayObjectSelecting: nil.
 	self updateCaption.
 	self addOop: model oop

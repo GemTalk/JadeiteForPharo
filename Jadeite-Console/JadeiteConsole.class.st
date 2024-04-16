@@ -52,6 +52,7 @@ JadeiteConsole class >> showOnSession: aGciSession [
 
 { #category : 'events' }
 JadeiteConsole >> abortedTransaction [
+	self updateProjects. 
 	self todo: [self displayLastKnownCommitOrAbort].
 	self projectListPresenter invalidate. 
 ]

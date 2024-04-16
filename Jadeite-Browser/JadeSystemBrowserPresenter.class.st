@@ -1937,38 +1937,6 @@ JadeSystemBrowserPresenter >> updatePackageDictionaryList [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updatePackageList [
-
-	| dictionary fullList selections old new |
-
-	packageListPresenter ensureVisible.
-	dictionary := Dictionary new.
-	readStream nextLineAsList do: [:each | dictionary at: each put: false].
-	readStream nextLineAsList do: [:each | dictionary at: each put: true].
-	fullList := dictionary associations asSortedCollection asArray.
-	old := packageListPresenter list collect: [:each | each key].
-	new := fullList collect: [:each | each key].
-	old = new ifTrue: [
-		packageListPresenter list do: [:each | 
-			each value: (dictionary at: each key).
-		].
-		packageListPresenter view updateAll.
-	] ifFalse: [
-		packageListPresenter list: fullList.
-	].
-	selections :=  readStream nextLineAsList.
-	selections := selections collect: [:x | packageListPresenter list detect: [:y | x = y key]].
-	packageListPresenter selections = selections ifFalse: [
-		packageListPresenter selections: selections.
-	].
-	selections size = 1 
-		ifTrue: [self updatePackageInfo]
-		ifFalse: [self clearPackageInfo].
-	packageListPresenter view ensureSelectionVisible.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> updatePresenters [
 	
 	[inUpdate := true.

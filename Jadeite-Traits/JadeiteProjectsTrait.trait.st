@@ -573,7 +573,8 @@ JadeiteProjectsTrait >> updateProjects [
 		issueCommand: browserService
 		session: self gciSession
 		onCompletion: nil.
-
-	self projectListPresenter items:
-		(self sortedProjectsFrom: browserService projects)
+	(self sortedProjectsFrom: browserService projects) asArray
+	= self projectListPresenter items asArray ifFalse: [
+		self projectListPresenter items:
+			(self sortedProjectsFrom: browserService projects) ]
 ]

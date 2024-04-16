@@ -950,7 +950,6 @@ RowanClassService >> updateCategories: presenter browser: browser [
 	| jadeiteCategories |
 	meta = browser isClassSideSelected ifFalse: [ ^ self ].
 	browser isCategoryTabSelected ifFalse: [ ^ self ].
-	browser methodListPresenter unselectAll. 
 	jadeiteCategories := categories collect: [ :category |
 		                     JadeiteCategory named: category ].
 	presenter model replaceAndSort: jadeiteCategories.

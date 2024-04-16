@@ -112,8 +112,6 @@ JadeiteBrowserPresenter >> abortTransaction [
 JadeiteBrowserPresenter >> abortedTransaction [
 
 	self updateProjects.
-	self selectedClass ifNotNil: [ :classService |
-		self updateAfterFindClass: classService onCompletion: nil ].
 	self resetClassTemplate.
 	self resetClassComment.
 	self projectListPresenter invalidate
@@ -2570,10 +2568,11 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 	| methodSelections |
 	categoryListPresenter selectedItem isComputed ifTrue: [
 		| extensions |
-		extensions := self selectedClass methods select: [ :methodService |
-			              methodService isExtension ].
-		methodListPresenter list: extensions.
-		^ self ].
+		categoryListPresenter selections size = 1 ifTrue: [ "extensions are only displayed if that's the only selection"
+			extensions := self selectedClass methods select: [ :methodService |
+				              methodService isExtension ].
+			methodListPresenter list: extensions.
+			^ self ] ].
 	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
 
