@@ -712,14 +712,6 @@ JadeiteTextDocument >> showSelection [
 
 ]
 
-{ #category : 'private' }
-JadeiteTextDocument >> showText: aString [
-
-	self setDocumentData: aString.
-	self isModified: false.
-
-]
-
 { #category : 'api' }
 JadeiteTextDocument >> text [
 	"Answer current text. Currently there's a hidden bug that disconnected 

@@ -3852,7 +3852,8 @@ JadeiteBrowserPresenter >> updateProjectSelecting: selectedProject [
 	self packageListPresenter selectionIfNone: [
 		classListPresenter clear.
 		classHierarchyPresenter clear ].
-	self buildPackageList.
+	self isDictionaryTabSelected
+		ifTrue: [ self updateDictionaries ].
 	self updateTabLabel.
 	self basicUpdateProject.
 	definedClassPackageText text: String new

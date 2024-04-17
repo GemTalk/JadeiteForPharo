@@ -496,37 +496,6 @@ JadeSystemBrowserPresenter >> editReplace [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> editSaveClassA [
-
-	"Removed the class migration dialog and just pass default answers.
-	Rowan will then ignore them." 
-	| stream answer |
-	(selectedClassName includes: Character space) ifFalse: [^self].		"This is a check to see if an earlier version exists"
-	"(dict := JadeMigrateClassDialog showModal) isNil ifTrue: [^self revertNewClass].  Commented out for Jadeite
-	(dict allSatisfy: [:each | each not]) ifTrue: [^self]."
-	(stream := WriteStream on: String new)
-		nextPutAll: 'postSaveClass'; tab;
-		nextPutAll: self behaviorIdentifier; tab;
-		yourself.
-	true printOn: stream. 			stream tab.	"copyMethods"
-	true printOn: stream. 			stream tab.	"recompileSubclasses"
-	true printOn: stream. 			stream tab.	"migrateInstances"
-	true printOn: stream. 	stream lf.				"removeFromClassHistory"
-	(answer := self updateCommand: stream contents , self requestString) isNil ifTrue: [^self].
-	[
-		answer = 'compileError'.
-	] whileTrue: [
-		(JadeiteWorkspace showOnSession: self gciSession)
-			caption: 'Jade Workspace - Compile errors found when compiling class';
-			showText: readStream nextParagraph.
-		answer := readStream nextLine.
-	].
-	answer = 'update' ifFalse: [self error: 'Unexpected token'].
-	self updatePresenters.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> editSelectAll [
 
 	View focus selectAll.
@@ -1209,38 +1178,6 @@ JadeSystemBrowserPresenter >> onDropOnMethodCategory: aSession [
 	selectors do: [:each | stream tab; nextPutAll: each].
 	stream lf; nextPutAll: self requestString.
 	self updateCommand: stream contents.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> onSetFocus: aView stack: aString [
-
-	[
-		| startTime activeView |
-		startTime := TimeStamp current.
-		(Delay forMilliseconds: 50) wait.
-		aView ~~ (activeView := View active) ifTrue: [^self].		"If view changed then there is no point in updating it!"
-		view = DeafObject current ifTrue: [^self].
-		eventCount = gciSession eventCount ifTrue: [^self].
-		super onSetFocus.
-		[
-			self updateAndSelect: nil.
-		] on: Error do: [:ex | 
-			SessionManager current logError: ex.
-			ignoreNextSetFocusEvent := true.
-			MessageBox 
-				errorMsg: ex description
-				caption: 'Jade Error'.
-			Keyboard default isShiftDown ifTrue: [
-				| stream |
-				stream := WriteStream on: String new.
-				ex printTraceOn: stream.
-				(JadeiteWorkspace showOnSession: gciSession) showText: stream contents.
-			].
-		].
-	] ensure: [
-		updateProcess := nil.
-	].
 
 ]
 

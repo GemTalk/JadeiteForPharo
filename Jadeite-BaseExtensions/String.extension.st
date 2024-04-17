@@ -3,15 +3,25 @@ Extension { #name : 'String' }
 { #category : '*Jadeite-BaseExtensions' }
 String >> encompassJadeiteParagraph: anInterval [
 
-	| left right |
-	left := (self
-		         lastIndexOf: Character lf
-		         startingAt: anInterval first - 1
-		         ifAbsent: [ 0 ]) + 1.
-	right := self
-		        indexOf: Character lf
-		        startingAt: (anInterval last max: anInterval first)
-		        ifAbsent: [ self size ].
+	| leftLf rightLF leftCr rightCR left right |
+	leftLf := (self
+		           lastIndexOf: Character lf
+		           startingAt: anInterval first - 1
+		           ifAbsent: [ 0 ]) + 1.
+	leftCr := (self
+		           lastIndexOf: Character cr
+		           startingAt: anInterval first - 1
+		           ifAbsent: [ 0 ]) + 1.
+	left := leftLf max: leftCr.
+	rightLF := self
+		           indexOf: Character lf
+		           startingAt: (anInterval last max: anInterval first)
+		           ifAbsent: [ self size ].
+	rightCR := self
+		           indexOf: Character cr
+		           startingAt: (anInterval last max: anInterval first)
+		           ifAbsent: [ self size ].
+	right := rightLF min: rightCR.
 	^ left to: right
 ]
 
