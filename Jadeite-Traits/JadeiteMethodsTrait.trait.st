@@ -352,6 +352,33 @@ JadeiteMethodsTrait >> compilationWarningFrom: methodServices [
 	^nil
 ]
 
+{ #category : 'actions' }
+JadeiteMethodsTrait >> copyMethodSelectors [
+
+	| printString |
+	self methodListPresenter selections isEmpty ifTrue: [
+		^ UIManager default inform: 'No methods copied to clipboard' ].
+	printString := self methodListPresenter selections size = 1
+		               ifTrue: [
+		               self methodListPresenter selectedItem fullSelector ]
+		               ifFalse: [
+			               | stream |
+			               stream := WriteStream on: String new.
+			               1 to: self methodListPresenter selectedItems size
+				               do: [ :index |
+					               | methodService |
+					               methodService := self methodListPresenter
+						                                selectedItems at: index.
+					               stream nextPutAll: methodService fullSelector.
+					               index
+					               = self methodListPresenter selectedItems size
+						               ifFalse: [ stream cr ] ].
+			               stream contents ].
+	Clipboard
+		clipboardText: printString
+		informing: 'Method selector(s) copied to clipboard'
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodsTrait >> displayBreakpoints [
 	self methodListPresenter selectedItem ifNil: [ ^self ].

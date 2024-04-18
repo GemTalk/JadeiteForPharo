@@ -365,6 +365,15 @@ RowanMethodService >> firstReference: integer [
 ]
 
 { #category : 'accessing' }
+RowanMethodService >> fullSelector [
+
+	| stream |
+	stream := WriteStream on: String new. 
+	self printFullSelectorOn: stream. 
+	^stream contents
+]
+
+{ #category : 'accessing' }
 RowanMethodService >> hasMethodHistory [
 
 	^hasMethodHistory
@@ -622,6 +631,15 @@ RowanMethodService >> prepareForReplication [
 ]
 
 { #category : 'printing' }
+RowanMethodService >> printFullSelectorOn: aStream [
+
+	aStream
+		nextPutAll: className asString;
+		nextPutAll: '>>';
+		nextPutAll: selector asString
+]
+
+{ #category : 'printing' }
 RowanMethodService >> printOn: target [
 	"Append, to the <puttableStream>, target, a string whose characters are a 
 	the same as those which would result from sending a #printString
@@ -632,21 +650,21 @@ RowanMethodService >> printOn: target [
 
 	| serviceClassName |
 	serviceClassName := self class name.
-	
-	[target
-		nextPutAll: (serviceClassName first isVowel ifTrue: ['an '] ifFalse: ['a ']);
+
+	[
+	target
+		nextPutAll: (serviceClassName first isVowel
+				 ifTrue: [ 'an ' ]
+				 ifFalse: [ 'a ' ]);
 		nextPutAll: serviceClassName;
-		nextPut: $(;
-		nextPutAll: className asString;
-		nextPutAll: '>>';
-		nextPutAll: selector asString;
-		nextPut: $)]
-			on: Error
-			do: 
-				[:ex |
-				target
-					nextPutAll: 'Error in RowanMethodService>>printOn: ';
-					print: ex]
+		nextPut: $..
+	self printFullSelectorOn: target.
+	target nextPut: $) ]
+		on: Error
+		do: [ :ex |
+			target
+				nextPutAll: 'Error in RowanMethodService>>printOn: ';
+				print: ex ]
 ]
 
 { #category : 'accessing' }

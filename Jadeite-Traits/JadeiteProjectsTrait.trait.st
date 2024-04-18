@@ -124,6 +124,14 @@ JadeiteProjectsTrait >> confirmReloadProjects: selections [
 	^true
 ]
 
+{ #category : 'commands' }
+JadeiteProjectsTrait >> copyProjectUrl [
+
+	Clipboard
+		clipboardText: self projectListPresenter selectedItem projectUrl
+		informing: 'Text copied to clipboard'
+]
+
 { #category : 'messages' }
 JadeiteProjectsTrait >> dirtyDiskConfirmation [
 
@@ -362,7 +370,7 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Commit to Git ...';
-					action: [ [self gitCommit] fork ];
+					action: [ [ self gitCommit ] fork ];
 					enabled: [ self allSelectedProjectsDirty ] ];
 			addItem: [ :item |
 				item
@@ -392,11 +400,17 @@ JadeiteProjectsTrait >> newProjectMenu [
 					name: 'Checkout Git Branch ...';
 					action: [ self gitCheckoutBranch ] ] ].
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Audit';
-				action: [ self auditProject ];
-				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+		group
+			addItem: [ :item |
+				item
+					name: 'Audit';
+					action: [ self auditProject ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+			addItem: [ :item |
+				item
+					name: 'Copy Project URL';
+					action: [ self copyProjectUrl ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]
 
