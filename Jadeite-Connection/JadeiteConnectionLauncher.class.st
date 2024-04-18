@@ -14,7 +14,8 @@ Class {
 		'connectButton',
 		'disconnectButton',
 		'setPathButton',
-		'lastConnection'
+		'lastConnection',
+		'lastImportedFileName'
 	],
 	#classVars : [
 		'ConnectionProfile'
@@ -189,8 +190,10 @@ JadeiteConnectionLauncher >> exportProfile [
 	fileRef := UIManager default theme
 		           chooseForSaveFileReferenceIn: Smalltalk ui
 		           title: 'Export Connection File'
-		           extensions: (Array with: '.txt')
-		           path: 'jadeiteConnectionProfile.txt'
+		           extensions: nil
+		           path:
+		           (lastImportedFileName ifNil: [
+			            'jadeiteConnectionProfile.txt' ])
 		           preview: nil.
 	fileRef ifNil: [ ^ self ].
 	fileRef exists ifTrue: [
@@ -214,13 +217,14 @@ JadeiteConnectionLauncher >> hostText: anObject [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> importProfile [
 
-	| fileStream |
+	| fileStream fileWindow |
 	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
 		(UIManager default confirm:
 			 'Importing a connection will disconnect current connection. Continue?')
 			ifTrue: [ JadeiteConnectionProfile connectionProfile disconnect ]
 			ifFalse: [ ^ self ] ].
-	fileStream := FileDialogWindow basicNew
+	fileWindow := FileDialogWindow basicNew.
+	fileStream := fileWindow
 		              previewType: nil;
 		              initialize;
 		              title: 'Select connection profile to import';
@@ -228,6 +232,7 @@ JadeiteConnectionLauncher >> importProfile [
 		              openModal;
 		              answer.
 	fileStream ifNil: [ ^ self ].
+	lastImportedFileName := fileWindow selectedFileName. 
 	self basicImportProfile: fileStream
 ]
 
