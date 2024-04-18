@@ -19,13 +19,19 @@ JadeiteTreePresenter >> canExpand [
 { #category : 'actions' }
 JadeiteTreePresenter >> clear [ 
 
-	self roots: Array new.
+	self roots: OrderedCollection new.
 ]
 
 { #category : 'testing' }
 JadeiteTreePresenter >> contains: anObject [
 
 	^ ((self pathIndexOf: (Array with: anObject)) first = 0) not
+]
+
+{ #category : 'initialization' }
+JadeiteTreePresenter >> initialize [ 
+	super initialize. 
+	roots := OrderedCollection new. 
 ]
 
 { #category : 'testing' }

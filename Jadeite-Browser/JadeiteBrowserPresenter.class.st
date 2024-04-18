@@ -803,7 +803,7 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 		self classListPresenter clear.
-		self classHierarchyPresenter roots: Array new.
+		self classHierarchyPresenter roots: OrderedCollection new.
 		self isDictionaryTabSelected
 			ifTrue: [ self updateDictionaries ]
 			ifFalse: [
