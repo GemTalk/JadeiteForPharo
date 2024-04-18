@@ -25,6 +25,16 @@ JadeiteMethodsTrait >> addBrowseClassItemTo: group [
 ]
 
 { #category : 'menus' }
+JadeiteMethodsTrait >> addBrowseClassReferencesItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse Class References';
+			action: [ self browseClassReferences ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
+{ #category : 'menus' }
 JadeiteMethodsTrait >> addBrowseDifferencesTo: group [
 
 	^ group addItem: [ :item |
@@ -525,6 +535,8 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 			  self addBrowseClassItemTo: group.
+			  self addBrowseClassReferencesItemTo: group ];
+		  addGroup: [ :group |
 			  self addImplementorsItemTo: group.
 			  self addDialogImplementorsDialogItemTo: group.
 			  group addItem: [ :item2 |

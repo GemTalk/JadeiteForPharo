@@ -236,6 +236,11 @@ RowanClassService >> classMethodsUpdate: presenter browser: browser [
 	browser methodsUpdate: self
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> className [ 
+	^name
+]
+
 { #category : 'private' }
 RowanClassService >> classOrHierarchyPresenter: browser [
 	^browser isClassListTabSelected

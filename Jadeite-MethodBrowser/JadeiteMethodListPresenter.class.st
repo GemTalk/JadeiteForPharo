@@ -36,6 +36,40 @@ JadeiteMethodListPresenter >> autoCommit: boolean [
 	autoCommit value: boolean
 ]
 
+{ #category : 'queries' }
+JadeiteMethodListPresenter >> basicBrowseClassReferences: className session: session [
+
+	| service |
+	service := RowanQueryService
+		           command: #browseClassReferences:
+		           withArgs: (Array with: className).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: session
+		onCompletion: nil.
+	^ service
+]
+
+{ #category : 'queries' }
+JadeiteMethodListPresenter >> browseClassReferences [
+
+	^ self browseClassReferences: self methodListPresenter selectedItem className
+]
+
+{ #category : 'queries' }
+JadeiteMethodListPresenter >> browseClassReferences: className [
+
+	| service shell |
+	service := self
+		           basicBrowseClassReferences: className
+		           session: self gciSession.
+	shell := self openMethodListOn: service selecting: className.
+shell updateCaptionFromSearchString:
+		'Class References to ' , className asString.
+
+	^ shell
+]
+
 { #category : 'testing' }
 JadeiteMethodListPresenter >> canDiscardEdits [
 
