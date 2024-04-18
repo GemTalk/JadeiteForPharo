@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteAddBreakpointCommand',
-	#superclass : 'JadeiteCommand',
+	#superclass : 'JadeiteBreakpointCommand',
 	#category : 'Jadeite-SupportClasses'
 }
 
@@ -12,5 +12,5 @@ JadeiteAddBreakpointCommand class >> defaultName [
 { #category : 'execution' }
 JadeiteAddBreakpointCommand >> execute [
 
-	context setBreakpoint  
+	context setBreakpoint: stepPoint
 ]

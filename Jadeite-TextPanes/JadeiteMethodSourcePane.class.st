@@ -30,10 +30,8 @@ JadeiteMethodSourcePane >> clearBreakPointAt: stepPoint [
 ]
 
 { #category : 'commands' }
-JadeiteMethodSourcePane >> clearBreakpoint [
+JadeiteMethodSourcePane >> clearBreakpoint: stepPoint [
 
-	| stepPoint |
-	stepPoint := self selectedStepPoint.
 	stepPoint isNil ifTrue: [ ^ self ].
 	self clearBreakPointAt: stepPoint.
 	self outerJadeiteBrowser updateMethodSource
@@ -163,10 +161,16 @@ JadeiteMethodSourcePane >> selectedSelector [
 
 { #category : 'accessing' }
 JadeiteMethodSourcePane >> selectedStepPoint [
-	| cursorPosition stepPoint  |
-	cursorPosition := self cursorPositionIndex.
-	stepPoint := self methodService stepPointFromCursorIn: self cursorPosition: cursorPosition.
-	^stepPoint
+
+	| stepPoint localPoint charBlock |
+	localPoint := adapter widget textArea globalPointToLocal:
+		              self currentWorld activeHand position.
+	charBlock := adapter widget paragraph characterBlockAtPoint:
+		             localPoint.
+	stepPoint := self methodService
+		             stepPointFromCursorIn: self
+		             cursorPosition: charBlock stringIndex.
+	^ stepPoint
 ]
 
 { #category : 'breakpoints' }
@@ -179,10 +183,8 @@ JadeiteMethodSourcePane >> setBreakPointAt: stepPoint [
 ]
 
 { #category : 'commands' }
-JadeiteMethodSourcePane >> setBreakpoint [
+JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 
-	| stepPoint |
-	stepPoint := self selectedStepPoint.
 	stepPoint isNil ifTrue: [ ^ self ].
 	self setBreakPointAt: stepPoint.
 	self outerJadeiteBrowser updateMethodSource
