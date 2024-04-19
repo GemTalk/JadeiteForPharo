@@ -64,8 +64,9 @@ JadeiteMethodListPresenter >> browseClassReferences: className [
 		           basicBrowseClassReferences: className
 		           session: self gciSession.
 	shell := self openMethodListOn: service selecting: className.
-shell updateCaptionFromSearchString:
-		'Class References to ' , className asString.
+	shell updateCaptionFromSearchString:
+		service queryResults size printString , ' Class References to '
+		, className asString.
 
 	^ shell
 ]

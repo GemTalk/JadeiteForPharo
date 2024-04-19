@@ -573,10 +573,11 @@ RowanMethodService >> methodSourceUpdate: presenter browser: browserPresenter [
 
 { #category : 'public' }
 RowanMethodService >> methodUpdate: presenter browser: browser [
-	presenter list do: 
-			[:methodService |
-			methodService replicateFrom: self	"#replicateFrom: will ensure we only replicate the proper methods"].
-	browser updateMethodSource
+
+	presenter list do: [ :methodService |
+		methodService replicateFrom: self "#replicateFrom: will ensure we only replicate the proper methods" ].
+	browser methodListPresenter selectedItem = self ifTrue: [
+		browser updateMethodSource ]
 ]
 
 { #category : 'public' }

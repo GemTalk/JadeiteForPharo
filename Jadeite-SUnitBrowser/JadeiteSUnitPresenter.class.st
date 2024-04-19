@@ -245,6 +245,12 @@ JadeiteSUnitPresenter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter toolbar: self newJadeiteSUnitToolbar.
 ]
 
+{ #category : 'testing' }
+JadeiteSUnitPresenter >> isClassHierarchyTabSelected [
+	"support for class references"
+	^false
+]
+
 { #category : 'menus' }
 JadeiteSUnitPresenter >> isClassSelected [
 	"for updates only" 
