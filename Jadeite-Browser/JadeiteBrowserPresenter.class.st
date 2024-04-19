@@ -3004,9 +3004,9 @@ JadeiteBrowserPresenter >> selectClassInClassListNamed: className [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassListTab [
 
-	self isHierarchyTabSelected ifTrue: [
-		classHierarchyPresenter selectedItem ifNotNil: [ :selection |
-			classListPresenter selectItem: selection ] ].
+	self isHierarchyTabSelected ifFalse: [ ^ self ].
+	classHierarchyPresenter selectedItem ifNotNil: [ :selection |
+		classListPresenter selectItem: selection ].
 	classListHierarchyTabs selectPageIndex: 1
 ]
 
@@ -3653,7 +3653,6 @@ JadeiteBrowserPresenter >> updateHierarchy [
 		updateAfterCommand: false;
 		command: #classHierarchy.
 	self issueCommand: service onCompletion: nil.
-	self selectClassNamed: service name
 ]
 
 { #category : 'updates' }
@@ -3739,6 +3738,7 @@ JadeiteBrowserPresenter >> updateMethodSource [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
 
+	self selectClassListTab. 
 	self resetClassComment.
 	self resetClassTemplate.
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
