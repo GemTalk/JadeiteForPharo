@@ -338,7 +338,6 @@ JadeiteBrowser >> updateCaption [
 JadeiteBrowser >> updateLabel: aString [
 	
 	tabs selectedPage ifNotNil: [:page | page title: aString]. 
-	MorphicRenderLoop new doOneCycle. "repaint the label"
 	
 ]
 
