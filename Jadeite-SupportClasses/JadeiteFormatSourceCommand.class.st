@@ -14,3 +14,9 @@ JadeiteFormatSourceCommand >> execute [
 
 	context formatSource 
 ]
+
+{ #category : 'accessing' }
+JadeiteFormatSourceCommand >> shortcutKey [
+
+	^ $f alt
+]

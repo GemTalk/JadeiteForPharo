@@ -81,7 +81,7 @@ ListModel >> isEmpty [
 { #category : 'accessing' }
 ListModel >> list: aCollection [
 
-	collection := aCollection
+	collection := aCollection asOrderedCollection
 ]
 
 { #category : 'testing' }
@@ -100,6 +100,14 @@ ListModel >> refreshList [
 { #category : 'removing' }
 ListModel >> remove: anObject [
 
+	(collection isKindOf: Array) ifTrue: [
+		Transcript
+			cr;
+			show: 'ListModel list is an Array again. :(';
+			tab;
+			print: collection;
+			flush.
+		collection := collection asOrderedCollection ]. "yuck - still can't find the source of these Arrays"
 	collection remove: anObject.
 	self announcer announce: (ValueChanged newValue: self)
 ]

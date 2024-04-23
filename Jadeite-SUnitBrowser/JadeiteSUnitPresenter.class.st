@@ -614,7 +614,6 @@ JadeiteSUnitPresenter >> updateClasses [
 	| packageServices |
 	self initializeClassList.
 	packageServices := packageListPresenter selections.
-
 	packageServices do: [ :packageService |
 		packageService command: #testClasses ].
 	RowanServiceUpdater current

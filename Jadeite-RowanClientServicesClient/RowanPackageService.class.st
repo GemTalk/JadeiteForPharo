@@ -314,6 +314,7 @@ RowanPackageService >> testClasses: presenter browser: browser [
 	| additions |
 	additions := OrderedCollection new.
 	testClasses ifNil: [^self].
+	presenter model list: testClasses. 
 	testClasses do: 
 			[:newClassService |
 			| updatedClass |

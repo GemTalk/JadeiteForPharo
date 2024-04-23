@@ -91,6 +91,20 @@ JadeiteMethodSourcePane >> initialize [
 	"self withoutSyntaxHighlight"
 ]
 
+{ #category : 'initialization' }
+JadeiteMethodSourcePane >> initializeBindings [
+
+	self bindKeyCombination: $f shift ctrl toAction: [ self findClass ]
+]
+
+{ #category : 'initialization' }
+JadeiteMethodSourcePane >> initializePresenters [
+
+	super initializePresenters.
+	self bindKeyCombination: $f shift ctrl toAction: [ self findClass ].
+	self bindKeyCombination: $f alt toAction: [ self formatSource ]
+]
+
 { #category : 'accessing' }
 JadeiteMethodSourcePane >> methodService [
 
