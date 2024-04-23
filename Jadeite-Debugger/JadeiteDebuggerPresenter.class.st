@@ -207,6 +207,19 @@ JadeiteDebuggerPresenter >> editSaveMethod: classService [
 	self trimStack
 ]
 
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> editSaveMethod: classService in: thePresenter category: category [
+
+	(thePresenter saveMethodIn: classService category: category)
+		ifFalse: [ ^ false ].
+	(self compilationWarningFrom: classService selectedMethods)
+		ifNil: [ self resetStatusBar ]
+		ifNotNil: [ :warning |
+			self setCompileWarningColor.
+			self statusBarText pushMessage: warning ].
+	^ true
+]
+
 { #category : 'accessing' }
 JadeiteDebuggerPresenter >> errorMessagePresenter [
 
