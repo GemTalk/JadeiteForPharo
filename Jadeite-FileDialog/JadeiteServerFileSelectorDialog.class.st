@@ -2,7 +2,8 @@ Class {
 	#name : 'JadeiteServerFileSelectorDialog',
 	#superclass : 'Dialog',
 	#instVars : [
-		'fileSelectorPresenter'
+		'fileSelectorPresenter',
+		'shellName'
 	],
 	#category : 'Jadeite-FileDialog'
 }
@@ -24,13 +25,20 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession [
 
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: path [
+	^self showOnSession: aGciSession defaultPath: path shellName: nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: path shellName: shellName [
+
 	| inst modal answer |
 	inst := self createDialogOn: aGciSession path: path.
-	modal := inst asModalWindow. 
-	inst initializeWith: path. 
+	inst shellName: shellName.
+	modal := inst asModalWindow.
+	inst initializeWith: path.
 	answer := modal open.
-	answer cancelled ifTrue:[^nil]. 
-	^inst selectedFileOrDirectory
+	answer cancelled ifTrue: [ ^ nil ].
+	^ inst selectedFileOrDirectory
 ]
 
 { #category : 'actions' }
@@ -50,6 +58,12 @@ JadeiteServerFileSelectorDialog >> createComponents [
 JadeiteServerFileSelectorDialog >> defaultLayout [ 
 
 	^SpBoxLayout newVertical
+]
+
+{ #category : 'constants' }
+JadeiteServerFileSelectorDialog >> defaultShellName [
+
+	^ 'Jadeite Select File Dialog'
 ]
 
 { #category : 'as yet unclassified' }
@@ -143,7 +157,13 @@ JadeiteServerFileSelectorDialog >> setPresenterModelFor: session path: path [
 { #category : 'constants' }
 JadeiteServerFileSelectorDialog >> shellName [
 
-	^ 'Jadeite Select File Dialog'
+	^ shellName ifNil: [ self defaultShellName ]
+]
+
+{ #category : 'constants' }
+JadeiteServerFileSelectorDialog >> shellName: aString [
+
+	shellName := aString
 ]
 
 { #category : 'as yet unclassified' }

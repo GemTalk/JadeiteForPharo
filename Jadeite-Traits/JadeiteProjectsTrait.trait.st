@@ -319,10 +319,12 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 { #category : 'commands' }
 JadeiteProjectsTrait >> loadProject [
 	"the gui is updated in RowanBrowserService>>projectsUpdate:browser:"
+
 	| filePath |
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: self gciSession
-		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString
+		            shellName: 'Jadeite Select Load Spec File'.
 	filePath ifNil: [ ^ self ].
 	^ self
 		  installProjectFromPath: filePath
