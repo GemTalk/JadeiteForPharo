@@ -83,6 +83,15 @@ JadeiteDebuggerPresenter >> answer [
 	^ answer
 ]
 
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> browseFrameMethod [ 
+	| className selector presenter | 
+	frameListPresenter selectedItem ifNil: [ ^self ].
+	className := frameListPresenter selectedItem homeMethodClassName.
+	selector := frameListPresenter selectedItem homeMethodSelector. 
+	presenter := self openBrowser findClassNamed: className
+]
+
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> connectPresenters [
 
@@ -324,6 +333,7 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	topPanes := SpPanedLayout newHorizontal positionOfSlider: 0.50.
 	frameListPresenter := JadeiteListPresenter new display: [
 		                      :frameService | frameService printString ].
+	frameListPresenter contextMenu: self initializeStackMenu. 
 	topPanes add: frameListPresenter.
 	self initializeVariablePanesIn: topPanes.
 	panedLayout add: topPanes.
@@ -343,6 +353,18 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	self layout
 		add: statusBarText
 		withConstraints: [ :constraints | constraints height: 20 ]
+]
+
+{ #category : 'initialization' }
+JadeiteDebuggerPresenter >> initializeStackMenu [
+
+	^ self newMenu
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Browse';
+						  action: [ self browseFrameMethod ] ] ];
+		  yourself
 ]
 
 { #category : 'initialization' }
