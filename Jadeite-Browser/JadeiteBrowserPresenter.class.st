@@ -1298,7 +1298,9 @@ JadeiteBrowserPresenter >> gciSession [
 JadeiteBrowserPresenter >> gciSession: aSession [
 	"make sure my subpresenters have the session, too"
 	gciSession := aSession.
-	methodSourcePresenter _gciSession: aSession
+	methodSourcePresenter _gciSession: aSession.
+	classDefinitionPresenter _gciSession: aSession. 
+	classCommentPresenter _gciSession: aSession. 
 ]
 
 { #category : 'as yet unclassified' }
@@ -3319,16 +3321,20 @@ JadeiteBrowserPresenter >> showPackageList [
 { #category : 'events' }
 JadeiteBrowserPresenter >> sourcePaneChanged [
 
-	methodSourcePresenter isModified
-		ifTrue: [ methodSourcePage icon: (self iconNamed: #protocolPrivate) ]
-		ifFalse: [ methodSourcePage icon: nil ].
-	classDefinitionPresenter isModified
-		ifTrue: [
-		classDefinitionPage icon: (self iconNamed: #protocolPrivate) ]
-		ifFalse: [ classDefinitionPage icon: nil ].
-	classCommentPresenter isModified
-		ifTrue: [ classCommentTab icon: (self iconNamed: #protocolPrivate) ]
-		ifFalse: [ classCommentTab icon: nil ]
+	methodSourcePresenter ifNotNil: [
+		methodSourcePresenter isModified
+			ifTrue: [
+			methodSourcePage icon: (self iconNamed: #protocolPrivate) ]
+			ifFalse: [ methodSourcePage icon: nil ] ].
+	classDefinitionPresenter ifNotNil: [
+		classDefinitionPresenter isModified
+			ifTrue: [
+			classDefinitionPage icon: (self iconNamed: #protocolPrivate) ]
+			ifFalse: [ classDefinitionPage icon: nil ] ].
+	classCommentPresenter ifNotNil: [
+		classCommentPresenter isModified
+			ifTrue: [ classCommentTab icon: (self iconNamed: #protocolPrivate) ]
+			ifFalse: [ classCommentTab icon: nil ] ]
 ]
 
 { #category : 'as yet unclassified' }
