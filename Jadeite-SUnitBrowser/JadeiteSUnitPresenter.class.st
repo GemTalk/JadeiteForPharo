@@ -106,16 +106,6 @@ JadeiteSUnitPresenter >> connectPresenters [
 		self onClassesChanged ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteSUnitPresenter >> createComponents [
-	super createComponents.
-	packageListPresenter := self add: ListPresenter new name: 'packages'.
-	classListPresenter := self add: ListPresenter new name: 'testClasses'.
-	packageListPresenter
-		model: (ListModel new list: (SortedCollection sortBlock: [:x :y | x name < y name])).
-	self initializeClassList
-]
-
 { #category : 'actions' }
 JadeiteSUnitPresenter >> debug [ 
 	self debugTests: methodListPresenter selections

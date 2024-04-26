@@ -311,11 +311,12 @@ RowanPackageService >> sortAspect [
 
 { #category : 'public' }
 RowanPackageService >> testClasses: presenter browser: browser [
-	| additions |
+	| additions sortedTests |
 	additions := OrderedCollection new.
 	testClasses ifNil: [^self].
-	presenter model list: testClasses. 
-	testClasses do: 
+	sortedTests := testClasses asSortedCollection: [ :x :y | x displayString <= y displayString ].
+	presenter model list: sortedTests. 
+	sortedTests do: 
 			[:newClassService |
 			| updatedClass |
 			updatedClass := presenter model detect: [:classService | classService = newClassService]
@@ -323,7 +324,8 @@ RowanPackageService >> testClasses: presenter browser: browser [
 							[additions add: newClassService.
 							nil].
 			updatedClass ifNotNil: [updatedClass replicateFrom: newClassService]].
-	browser addUpdatedTestClasses: additions
+	browser addUpdatedTestClasses: additions.
+	presenter invalidate
 ]
 
 { #category : 'private' }
