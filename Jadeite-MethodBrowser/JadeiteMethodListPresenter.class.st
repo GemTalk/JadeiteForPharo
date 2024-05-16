@@ -18,6 +18,15 @@ Class {
 	#category : 'Jadeite-MethodBrowser'
 }
 
+{ #category : 'actions' }
+JadeiteMethodListPresenter >> abortTransaction [
+
+	| abortResults |
+	abortResults := self application abortTransaction.
+	self refreshList.
+	^ abortResults
+]
+
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> addStyle: aString [
 	"don't send the super because we don't want the toolbar to be the same color as source pane"
@@ -152,9 +161,8 @@ JadeiteMethodListPresenter >> dropMethods: array [
 	sorted := SortedCollection withAll: methodListPresenter list.
 	sorted addAll: array.
 	methodListPresenter list: (ListModel withAll: sorted).
-	methodListPresenter withAdapterDo: [ :anAdapter |
-		anAdapter refreshList ].
-	methodListPresenter unselectAll. 
+	self refreshList.
+	methodListPresenter unselectAll.
 	methodListPresenter selectItem: array first
 ]
 
@@ -385,6 +393,12 @@ JadeiteMethodListPresenter >> postEditSaveMethod [
 	methodService firstReference: nil
 ]
 
+{ #category : 'actions' }
+JadeiteMethodListPresenter >> postMoveToPackage: packageName className: className selectedMethods: selectedMethods [
+
+	self refreshList
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> queryCommand: aCommandQuery [
 	| command |
@@ -404,6 +418,13 @@ JadeiteMethodListPresenter >> queryCommand: aCommandQuery [
 			aCommandQuery isEnabled: (selections size = 1 and: [selections first hasMethodHistory]).
 			^true].
 	^super queryCommand: aCommandQuery
+]
+
+{ #category : 'drag & drop' }
+JadeiteMethodListPresenter >> refreshList [
+
+	methodListPresenter withAdapterDo: [ :anAdapter |
+		anAdapter refreshList ]
 ]
 
 { #category : 'registration' }
@@ -445,7 +466,7 @@ JadeiteMethodListPresenter >> selectComparisonTab [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> selectFirstReference: methodService [
-
+	methodService ifNil: [ ^self ].
 	methodService firstReference
 		ifNil: [
 			firstReferenceString ifNotNil: [

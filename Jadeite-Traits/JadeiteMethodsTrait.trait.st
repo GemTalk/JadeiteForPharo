@@ -479,7 +479,7 @@ JadeiteMethodsTrait >> maxSymbolSize [
 
 { #category : 'actions' }
 JadeiteMethodsTrait >> moveMethodToPackage [
-	| packageName |
+	| packageName | 
 	packageName := self selectPackage. 
 	packageName ifNil: [^self].
 	self moveMethodsToPackageNamed: packageName
@@ -488,8 +488,9 @@ JadeiteMethodsTrait >> moveMethodToPackage [
 { #category : 'actions' }
 JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPackageNamed: packageName [
 
-	| packageServiceToSelect newSelectedMethods |
-	self selectedClass
+	| classService |
+	classService := self selectedClass.
+	classService
 		command: #moveMethodSelectors:toPackageNamed:;
 		commandArgs: (Array
 				 with:
@@ -497,21 +498,13 @@ JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPac
 							  methodService selector ])
 				 with: packageName).
 	RowanServiceUpdater current
-		issueCommand: self selectedClass
+		issueCommand: classService
 		session: self gciSession
 		onCompletion: nil.
-	packageServiceToSelect := self packageListPresenter list
-		                          detect: [ :packageService |
-		                          packageService name = packageName ]
-		                          ifNone: [ ^ self ].
-	self packageListPresenter unselectAll. 
-	self packageListPresenter selectItem: packageServiceToSelect.
-	self selectClassNamed: selectedClass name.
-	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
-		                      self methodListPresenter list includes:
-			                      oldSelMethod ].
-	self methodListPresenter selections: newSelectedMethods.
-	self refresh
+	self
+		postMoveToPackage: packageName
+		className: selectedClass name
+		selectedMethods: selectedMethods
 ]
 
 { #category : 'actions' }
@@ -605,6 +598,24 @@ JadeiteMethodsTrait >> openMethodListOn: service selecting: string [
 		  openOn: service
 		  selecting: selectionString
 		  session: self gciSession
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> postMoveToPackage: packageName className: className selectedMethods: selectedMethods [
+
+	| packageServiceToSelect newSelectedMethods |
+	packageServiceToSelect := self packageListPresenter list
+		                          detect: [ :packageService |
+		                          packageService name = packageName ]
+		                          ifNone: [ ^ self ].
+	self packageListPresenter unselectAll.
+	self packageListPresenter selectItem: packageServiceToSelect.
+	self selectClassNamed: className.
+	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
+		                      self methodListPresenter list includes:
+			                      oldSelMethod ].
+	self methodListPresenter selections: newSelectedMethods.
+	self refresh
 ]
 
 { #category : 'actions' }

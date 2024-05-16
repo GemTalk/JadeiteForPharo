@@ -2146,43 +2146,6 @@ JadeiteBrowserPresenter >> methodValueChanged [
 	self updateSystemTab.
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> methodsMenuStrings [
-	false
-		ifTrue: 
-			["This helps us find senders"
-			self
-				browseBreakpointList;
-				browseImplementors;
-				browseImplementorsOf;
-				browseSenders;
-				browseSendersOf;
-				browseHierarchyImplementors;
-				browseHierarchySenders;
-				browseMethodsContaining;
-				browseLiteralReferences;
-				browseSelectedMethods;
-				browseMethodHistory;
-				inspectMethod;
-				clearMethodBreakpoints;
-				removeMethods;
-				runMethodTests;
-				fileOutSelectedMethods;
-				findMethod;
-				moveMethodToPackage;
-				removeMethods;
-				runMethodTests;
-				gotoMethodDefinedPackage;
-				runAll;
-				runSelected].
-	^#('&Methods' 'Browse &Implementors//browseImplementors' 'Browse Implementors of ...//browseImplementorsOf' 'Browse &Senders//browseSenders' 'Browse Senders of ...//browseSendersOf' '-' 'Browse Hierarchy Implementors//browseHierarchyImplementors' 'Browse Hierarchy Senders//browseHierarchySenders' '-' 'Browse Methods &Containing ...//browseMethodsContaining' 'Browse Literal References ...//browseLiteralReferences' 'Browse Selected Methods//browseSelectedMethods' 'Browse Method History//browseMethodHistory' 'Inspect//inspectMethod' '-' 'Browse Breakpoints//browseBreakpoints' 'Clear Method Breakpoints//clearMethodBreakpoints' '-' 'Find Method .../Ctrl+Shift+M/findMethod' '-' '&Remove Method(s) .../Ctrl+Shift+X/removeMethods' 
-	'-'
-	'Move To Package ...//moveMethodToPackage'
-	'File Out Selected Methods ...//fileOutSelectedMethods'
-	'-'
-	'Run All Tests/Ctrl+Shift+A/runAll' 'Run Selected Test(s)/Ctrl+Shift+S/runMethodTests' 'Debug Selected &Test(s)/Ctrl+Shift+B/runMethodTests' '-' 'Go To Defining Package//gotoMethodDefinedPackage')
-]
-
 { #category : 'updates' }
 JadeiteBrowserPresenter >> methodsUpdate: classService [
 
