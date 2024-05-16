@@ -29,10 +29,10 @@ RowanProcessService >> dumpStackOn: aStream [
 
 	aStream
 		nextPutAll: errorMessage;
-		nextPut: self lineDelimiter.
+		nextPutAll: self lineDelimiter.
 	self printShortStackOn: aStream.
 	aStream
-		nextPut: self lineDelimiter;
+		nextPutAll: self lineDelimiter;
 		nextPutAll: '==============================================='.
 	self printFullStackOn: aStream
 ]
@@ -57,14 +57,6 @@ RowanProcessService >> gsProcessForSession: session [
 { #category : 'public' }
 RowanProcessService >> isUpdatableService [
 	^false
-]
-
-{ #category : 'printing' }
-RowanProcessService >> lineDelimiter [
-
-	^ OSPlatform current isWindows
-		  ifTrue: [ Character crlf ]
-		  ifFalse: [ Character lf ]
 ]
 
 { #category : 'accessing' }
@@ -104,7 +96,7 @@ RowanProcessService >> printFullStackOn: aStream [
 		frameService printOn: aStream at: index.
 		frameService printVarsOn: aStream.
 		aStream
-			nextPut: self lineDelimiter;
+			nextPutAll: self lineDelimiter;
 			nextPutAll: '----------------------------------------------------' ]
 ]
 

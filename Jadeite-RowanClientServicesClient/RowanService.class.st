@@ -435,6 +435,14 @@ RowanService >> jadeiteShouldNotUpdateOnClient [
 	as the server told us not to do a client update. "
 ]
 
+{ #category : 'printing' }
+RowanService >> lineDelimiter [
+
+	^ OSPlatform current isWindows
+		  ifTrue: [ String crlf ]
+		  ifFalse: [ String lf ]
+]
+
 { #category : 'logging' }
 RowanService >> logCommand: contextPrintString [
 	self logCommand: contextPrintString with: String new
