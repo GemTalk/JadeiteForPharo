@@ -553,25 +553,6 @@ RowanMethodService >> methodName [
 ]
 
 { #category : 'public' }
-RowanMethodService >> methodSourceUpdate: presenter browser: browserPresenter [
-
-	| selection |
-	selection := browserPresenter methodListSelection.
-	selection ifNil: [ ^ self ].
-	selection = self ifTrue: [
-		selection replicateFrom: self.
-		presenter isModified ifFalse:[
- 		presenter value: source].
-		"for some strange reason, doing this code here (which is duplicated in 
-		#updateMethodSource) creates screen artifacts. Still haven't figured out why. 
-		The downside of not doing it here is that decorations are lost when some
-		actions are taken by the user such as browse implementors of a method. Irritating but minor.
-		presenter removeAllTextSegmentDecorations."
-		"browserPresenter displayMethodSourceStepPoints.
-		browserPresenter displayBreakpoints."  ]  
-]
-
-{ #category : 'public' }
 RowanMethodService >> methodUpdate: presenter browser: browser [
 
 	presenter list do: [ :methodService |

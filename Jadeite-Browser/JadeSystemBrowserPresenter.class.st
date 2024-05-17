@@ -231,20 +231,6 @@ JadeSystemBrowserPresenter >> browseMethodPragmas [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> browseSelectedClass [
-
-	| range string list assoc |
-	range := methodSourcePresenter view selectionRange.
-	string := methodSourcePresenter value copyFrom: range start to: range stop.
-	list := self findClassList.
-	assoc := list 
-		detect: [:each | each key = string]
-		ifNone: [^MessageBox warning: 'Class ' , string printString , ' not found!' caption: 'Jade'].
-	parentPresenter parentPresenter addSystemBrowserForClass: assoc value.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> categoriesMenuStrings [
 
 	false ifTrue: [
@@ -433,42 +419,6 @@ JadeSystemBrowserPresenter >> editFind [
 { #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> editFindNext [
 	textAreaTabs currentCard setFocus; editFind.
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> editMenuStrings [
-
-	false ifTrue: [
-		self editSave; editUndo; editRevert; editRedo; editCut; editCopy; editPaste; editSelectAll; editFind; editFindNext; editReplace; 
-			jadeDisplay; jadeExecute; jadeInspect; browseSelectedClass.
-	].
-	^#(
-		'&Edit'
-		'&Save/Ctrl+S/editSave'
-		'-'
-		'&Undo/Ctrl+Z/editUndo'
-		'&Redo/Ctrl+Y/editRedo'
-		'&Revert//editRevert'
-		'-'
-		'&Reformat Source/Ctrl+Shift+O/reformatSource'
-		'-'
-		'&Cu&t/Ctrl+X/editCut'
-		'&Copy/Ctrl+C/editCopy'
-		'&Paste/Ctrl+V/editPaste'
-		'-'
-		'Select &All/Ctrl+A/editSelectAll'
-		'-'
-		'&Find/Ctrl+F/editFind'
-		'Find &Next/F3/editFindNext'
-		'&Replace/Ctrl+H/editReplace'
-		'-'
-		'Debug/Ctrl+B/jadeDebug'
-		'Display/Ctrl+D/jadeDisplay'
-		'Execute/Ctrl+E/jadeExecute'
-		'Inspect/Ctrl+Q/jadeInspect'
-		'Browse Class//browseSelectedClass'
-	).
-
 ]
 
 { #category : 'as yet unclassified' }
@@ -826,28 +776,6 @@ JadeSystemBrowserPresenter >> layoutInfo [
 		add: self horizontalSplitter position;
 		add: environment;
 		asArray.
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> layoutInfo: anArray [
-	environment := (anArray size < 3) ifTrue: [0] ifFalse: [anArray at: 3].
-	view ensureVisible.
-	anArray isNil ifTrue: [
-		self updateAndSelect: nil.
-		^self.
-	].
-	self 
-		updateCommand: (anArray at: 1);
-		updateMenuBar;
-		yourself.
-	methodListPresenter hasSelection ifTrue: [
-		methodSourcePresenter ensureVisible.
-	].
-	[
-		view layoutManager reposition: self horizontalSplitter to: (anArray at: 2).
-		view layout.
-	] postToInputQueue.
 
 ]
 
@@ -1810,33 +1738,6 @@ JadeSystemBrowserPresenter >> updateMethodList [
 	].
 
 
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updateMethodStepPoints [
-	| indicators |
-	methodSourcePresenter view clearContainerIndicators.
-	indicators := OrderedCollection new.
-	1 to: stepPoints size
-		do: 
-			[:stepPoint |
-			| range string styleName |
-			range := (stepPoints at: stepPoint) key.
-			(unimplementedSelectors at: range start ifAbsent: [nil])
-				ifNotNil: 
-					[:value |
-					styleName := 10.
-					string := 'No implementors of #' , value printString , ' (found at step point #'
-								, stepPoint printString , ')']
-				ifNil: 
-					[styleName := (breakPoints includes: stepPoint) ifTrue: [#disabledBreakPoint] ifFalse: [#stepPoint].
-					string := ((breakPoints includes: stepPoint) ifTrue: ['Break at '] ifFalse: ['']) , 'step point #'
-								, stepPoint printString].
-			indicators add: (ScintillaIndicator
-						styleName: styleName
-						range: range
-						tag: string)].
-	methodSourcePresenter view indicators: indicators
 ]
 
 { #category : 'as yet unclassified' }

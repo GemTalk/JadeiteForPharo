@@ -105,11 +105,6 @@ JadeiteProjectsBrowserPresenter >> browseHierarchySenders [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> browseSelectedClass [
-	^self browseSelectedClassIn: methodSourcePresenter newTab: Keyboard default isCtrlDown
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> categoryListPresenter [
 	^categoryListPresenter
 ]
@@ -241,11 +236,6 @@ JadeiteProjectsBrowserPresenter >> editFind [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> editReplace [
-	View focus == methodSourcePresenter view ifTrue: [View focus findReplace]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> findMethod [
 	self selectedClass isNil ifTrue: [^self].
 	^self class
@@ -344,18 +334,6 @@ JadeiteProjectsBrowserPresenter >> gotoProjectNamed: projectName [
 JadeiteProjectsBrowserPresenter >> initialize [
 	super initialize.
 	stonCritical := Semaphore forMutualExclusion.
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> jadeDisplay [
-	View focus == methodSourcePresenter view ifFalse: [^self].
-	^super jadeDisplay
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> jadeExecute [
-	View focus == methodSourcePresenter view ifFalse: [^self].
-	^super jadeExecute
 ]
 
 { #category : 'as yet unclassified' }
@@ -539,10 +517,6 @@ JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
 		browser: self.
 	RowanServiceUpdater current register: classHierarchyPresenter selector: #removed:.
 	RowanServiceUpdater current register: methodListPresenter selector: #removed:.
-	RowanServiceUpdater current
-		register: methodSourcePresenter
-		selector: #methodSourceUpdate:browser:
-		browser: self.
 	RowanServiceUpdater current register: self selector: #autoCommitUpdate:
 ]
 

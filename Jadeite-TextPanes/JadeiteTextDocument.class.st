@@ -758,7 +758,7 @@ JadeiteTextDocument >> value [
 { #category : 'accessing' }
 JadeiteTextDocument >> value: aString [
 	self todo: 'the nil check should not be needed?'. 
-	aString isNil ifTrue:[^self]. 
+	aString ifNil: [^self]. 
 	[self text: aString ] ensure: [ 
 	self isModified: false. "I think it's ok to always mark the it not dirty if Jadeite changes the value directly "]
 ]

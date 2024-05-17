@@ -2712,10 +2712,7 @@ JadeiteBrowserPresenter >> registerMethodPresentersForUpdates [
 		register: methodListPresenter
 		selector: #methodUpdate:browser:
 		browser: self;
-		register: methodListPresenter selector: #removed:;
-		register: methodSourcePresenter
-		selector: #methodSourceUpdate:browser:
-		browser: self
+		register: methodListPresenter selector: #removed:
 ]
 
 { #category : 'registration' }
@@ -3222,7 +3219,7 @@ JadeiteBrowserPresenter >> setCompileErrorColor [
 
 { #category : 'private' }
 JadeiteBrowserPresenter >> setDefaultMethod [
-
+	self methodSourcePresenter removeAllTextSegmentDecorations.
 	methodSourcePresenter value: self defaultMethod
 ]
 
@@ -3692,10 +3689,9 @@ JadeiteBrowserPresenter >> updateMethodSource [
 
 	UIManager default defer: [
 		methodListPresenter selections isEmpty
-			ifTrue: [
-				self methodSourcePresenter removeAllTextSegmentDecorations.
-				methodSourcePresenter value: self defaultMethod ]
+			ifTrue: [ self setDefaultMethod ]
 			ifFalse: [
+				methodSourcePresenter value: methodListPresenter selectedItems first source. 
 				self updateMethodSourceGlyphs.
 				definedMethodPackageText text:
 					'Defined Package: '
