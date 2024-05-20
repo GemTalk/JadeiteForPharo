@@ -206,8 +206,9 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 	self initializeKeyBindings: aWindowPresenter.
 	aWindowPresenter whenClosedDo: [
 		self cards do: [ :notebookPage |
-			notebookPage ifNotNil: [ :page |
-				page activePresenter unsubcribePresenters ] ] ].
+			notebookPage ifNotNil: [ :page | "presenter may be nil if the presenter could not open"
+				page activePresenter ifNotNil: [ :presenter |
+					presenter unsubcribePresenters ] ] ] ].
 	self updateCaption
 ]
 

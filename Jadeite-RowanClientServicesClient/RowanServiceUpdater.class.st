@@ -17,8 +17,7 @@ Class {
 		'postCompletionBlock',
 		'serviceQueueSemaphore',
 		'serviceQueue',
-		'serviceQueueProcess',
-		'commandSemaphore'
+		'serviceQueueProcess'
 	],
 	#classVars : [
 		'Current'
@@ -99,7 +98,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
-	| postExecutionBlock newUIProcess |
+	| postExecutionBlock newUIProcess commandSemaphore |
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
