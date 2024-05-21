@@ -125,12 +125,13 @@ JadeiteBrowserPresenter >> aboutToChange: aSelectionChangingEvent [
 			aSelectionChangingEvent value ifTrue: [self resetCategoryText]]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteBrowserPresenter >> addComputedCategories [
 
-	categoryListPresenter list first
+	self selectedClass hasExtensionMethods ifFalse: [ ^ self ].
+	categoryListPresenter list last
 	= RowanClassService computedExtensionCategory ifFalse: [
-		categoryListPresenter list addFirst:
+		categoryListPresenter list addLast:
 			RowanClassService computedExtensionCategory ]
 ]
 
