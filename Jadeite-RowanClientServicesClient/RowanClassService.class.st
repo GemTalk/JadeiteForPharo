@@ -102,7 +102,8 @@ RowanClassService >> = classService [
 { #category : 'categories' }
 RowanClassService >> addComputedCategoriesTo: presenter [
 
-	presenter list addFirst: self class computedExtensionCategory
+	self hasExtensionMethods ifTrue: [
+		presenter list addLast: self class computedExtensionCategory ]
 ]
 
 { #category : 'private' }
@@ -345,6 +346,12 @@ RowanClassService >> expand: anObject [
 	expand := anObject
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> extensionMethods [
+
+	^ methods select: [ :methodService | methodService isExtension ]
+]
+
 { #category : 'public' }
 RowanClassService >> filterCategoryUpdate: presenter browser: browser [
 	browser selectedClass ifNil: [^self].
@@ -418,6 +425,12 @@ RowanClassService >> filters [
 { #category : 'accessing' }
 RowanClassService >> filters: anObject [
 	filters := anObject
+]
+
+{ #category : 'testing' }
+RowanClassService >> hasExtensionMethods [
+
+	^self extensionMethods notEmpty
 ]
 
 { #category : 'accessing' }
@@ -563,9 +576,11 @@ RowanClassService >> jadeiteCategoriesFor: aCollection [
 { #category : 'categories' }
 RowanClassService >> jadeiteCategoriesWithExtensions [
 
-	^ (self jadeiteCategoriesFor: categories)
-		  addFirst: self class computedExtensionCategory;
-		  yourself
+	| jadeiteCategories |
+	jadeiteCategories := self jadeiteCategoriesFor: categories.
+	self hasExtensionMethods ifTrue: [
+		jadeiteCategories addLast: self class computedExtensionCategory ].
+	^ jadeiteCategories
 ]
 
 { #category : 'printing' }

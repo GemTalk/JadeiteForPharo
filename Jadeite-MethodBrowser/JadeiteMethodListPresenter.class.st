@@ -299,14 +299,21 @@ JadeiteMethodListPresenter >> initializeMethodSourceOn: panedLayout [
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> initializePresenters [
 
-	| panedLayout |
+	| panedLayout copyButtonBox |
 	super initializePresenters.
 	self initializeToolbar.
 	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.30.
 	self initializeMethodListTableOn: panedLayout.
 	self initializeFullMethodListMenu.
 	self initializeMethodSourceOn: panedLayout.
-	self layout add: panedLayout. 
+	self layout add: panedLayout.
+	copyButtonBox := SpBoxLayout newHorizontal. 
+	copyButtonBox
+		add: (SpButtonPresenter new
+				 icon: (self iconNamed: #smallCopy);
+				 action: [ self copyMethodSelectors ])
+		withConstraints: [ :constraints | constraints bePlacedAtEnd; width: 30 ].
+	self layout add: copyButtonBox withConstraints: [:constraints | constraints height: 20]. 
 	statusBarText := self newStatusBar.
 	self layout
 		add: statusBarText

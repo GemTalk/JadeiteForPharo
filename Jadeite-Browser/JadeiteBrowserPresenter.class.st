@@ -1654,7 +1654,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 				 icon: (self iconNamed: #smallCopy);
 				 action: [ self copyMethodSelectors ]) withConstraints: [:constraints | constraints width: 30] .
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
-		constraints height: 50 * self currentWorld displayScaleFactor ].
+		constraints height: 30 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
 	methodPanedPresenter add: methodsBox.
 	self initializeFullMethodListMenu

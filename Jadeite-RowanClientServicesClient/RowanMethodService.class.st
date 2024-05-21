@@ -615,8 +615,12 @@ RowanMethodService >> prepareForReplication [
 { #category : 'printing' }
 RowanMethodService >> printFullSelectorOn: aStream [
 
+	aStream nextPutAll: className asString.
+	self meta ifTrue: [
+		aStream
+			nextPut: Character space;
+			nextPutAll: 'class' ].
 	aStream
-		nextPutAll: className asString;
 		nextPutAll: '>>';
 		nextPutAll: selector asString
 ]
