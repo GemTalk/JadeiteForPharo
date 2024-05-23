@@ -122,11 +122,11 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 JadeiteToolbarTrait >> openBrowser [
 
 	| inst | 
-	inst := JadeiteBrowser new owner: self. 
+	[inst := JadeiteBrowser new owner: self. 
 	inst
 		application: self application;
 		gciSession: self gciSession.
-	inst open.
+	inst open] jadeiteSchedule.
 	inst addStyle: 'jadeWorkspace'.
 	^inst
 ]

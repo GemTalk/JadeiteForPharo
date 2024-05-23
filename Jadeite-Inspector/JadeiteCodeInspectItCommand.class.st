@@ -44,10 +44,11 @@ JadeiteCodeInspectItCommand >> evaluate: aString andDo: aBlock [
 	"Treat the current selection as an expression; evaluate it and invoke 
 	 aBlock with the result."
 
-	aBlock value: (self context 
-		evaluateInspectingResult: aString
-		onCompileError: [ ^ self ]
-		onError: [ :e | e pass ]).
+	[
+	aBlock value: (self context
+			 evaluateInspectingResult: aString
+			 onCompileError: [ ^ self ]
+			 onError: [ :e | e pass ]) ] jadeiteSchedule
 ]
 
 { #category : 'executing' }

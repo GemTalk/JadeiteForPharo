@@ -18,7 +18,7 @@ RowanFileServiceClient >> fileIn [
 { #category : 'accessing' }
 RowanFileServiceClient >> inCommand [
 
-	^ inCommand
+	^ inCommand ifNil: [ inCommand := Semaphore forMutualExclusion ]
 ]
 
 { #category : 'accessing' }

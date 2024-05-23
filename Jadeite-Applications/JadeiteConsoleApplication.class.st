@@ -9,12 +9,13 @@ JadeiteConsoleApplication >> start [
 
 	| inst |
 	inst := self new: JadeiteConsole.
+	[
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession;
 		installTranscript;
 		updateProjects;
-		initializeAutoCommit.
+		initializeAutoCommit ] jadeiteSchedule.
 	JadeiteConsole currentConsole: inst.
 	inst open
 ]

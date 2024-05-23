@@ -33,27 +33,12 @@ JadeiteCodePrintItCommand class >> defaultShortcutKey [
 { #category : 'executing' }
 JadeiteCodePrintItCommand >> evaluate: aString andDo: aBlock [
 
-	^ self context
-		  executeSelectionOrLine: aString
-		  shouldDebug: false
-		  onCompileError: [ self ]
-		  showResult: true
-]
-
-{ #category : 'executing' }
-JadeiteCodePrintItCommand >> execute [
-	"Treat the current text selection as an expression; evaluate it. Insert the 
-	description of the result of evaluation after the selection and then make 
-	this description the new text selection."
-
-	self evaluateSelectionAndDo: [ :result | 
-		self printObject: result ]
-]
-
-{ #category : 'executing' }
-JadeiteCodePrintItCommand >> printObject: anObject [
-
-	self context insertPrintPopoverAfterCurrentSelection: anObject
+	[
+	self context
+		executeSelectionOrLine: aString
+		shouldDebug: false
+		onCompileError: [ ^ self ]
+		showResult: true ] jadeiteSchedule
 ]
 
 { #category : 'executing' }

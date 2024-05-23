@@ -499,7 +499,6 @@ JadeiteTextDocument >> jadeDisplay [
 
 { #category : 'ad hoc execution' }
 JadeiteTextDocument >> jadeExecute [
-
 	^ self
 		  evaluate: self selectedTextOrLine
 		  onCompileError: [ ^ self ]

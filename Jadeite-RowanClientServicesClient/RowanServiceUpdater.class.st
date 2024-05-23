@@ -17,7 +17,8 @@ Class {
 		'postCompletionBlock',
 		'serviceQueueSemaphore',
 		'serviceQueue',
-		'serviceQueueProcess'
+		'serviceQueueProcess',
+		'morphicProcesses'
 	],
 	#classVars : [
 		'Current'
@@ -98,7 +99,10 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
-	| postExecutionBlock newUIProcess commandSemaphore |
+	| postExecutionBlock commandSemaphore |
+	Transcript cr; show: 'uiProcess: '; print: UIManager default uiProcess identityHash; flush. 
+	Transcript cr; show: 'activeProcess: '; print: Processor activeProcess identityHash; flush. 
+	Transcript cr; show: '------------------------'; flush. 
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
@@ -112,19 +116,12 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: commandSemaphore.
-	Processor activeProcess = UIManager default uiProcess ifTrue: [
-		DefaultExecutionEnvironment beActiveDuring: [
-			UIManager default spawnNewProcess.
-			newUIProcess := UIManager default uiProcess ] ].
 	commandSemaphore wait.
-	newUIProcess ifNotNil: [
-		[ UIManager default terminateUIProcess ] ensure: [
-			UIManager default uiProcess: Processor activeProcess ] ].
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
-	self queueProcess suspend.
 	[ self applyUpdatesFromReturnedServices: service returnedServices ]
-		ensure: [ self queueProcess resume ]
+		ensure: [ commandSemaphore signal ].
+	commandSemaphore wait
 ]
 
 { #category : 'private' }
@@ -249,15 +246,11 @@ RowanServiceUpdater >> issueCommand: service session: session [
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
 
-	| commandResult |
 	session ifNil: [ ^ nil ].
-	service isInCommand ifTrue:[^self]. 
-	service inCommand critical: [
-		commandResult := self
-			                 basicIssueCommand: service
-			                 session: session
-			                 onCompletion: completionBlock.
-		^ commandResult ]
+	self
+		basicIssueCommand: service
+		session: session
+		onCompletion: completionBlock
 ]
 
 { #category : 'commands' }
@@ -315,6 +308,13 @@ RowanServiceUpdater >> loggingService [
 	"for testing"
 
 	^logger loggingService
+]
+
+{ #category : 'accessing' }
+RowanServiceUpdater >> morphicProcesses [
+
+	^ morphicProcesses ifNil: [
+		  morphicProcesses := OrderedCollection new ]
 ]
 
 { #category : 'private' }

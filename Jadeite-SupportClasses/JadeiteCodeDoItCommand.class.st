@@ -33,16 +33,10 @@ JadeiteCodeDoItCommand class >> defaultShortcutKey [
 { #category : 'executing' }
 JadeiteCodeDoItCommand >> evaluate: aString andDo: aBlock [
 
-	^ self context
-		  executeSelectionOrLine: aString
-		  shouldDebug: false
-		  onCompileError: [ self ]
-		  showResult: false
-]
-
-{ #category : 'executing' }
-JadeiteCodeDoItCommand >> execute [
-	"Treat the current text selection as an expression; evaluate it."
-	
-	self evaluateSelectionAndDo: [ :result | ]
+	[
+	self context
+		executeSelectionOrLine: aString
+		shouldDebug: false
+		onCompileError: [ ^self ]
+		showResult: false ] jadeiteSchedule
 ]
