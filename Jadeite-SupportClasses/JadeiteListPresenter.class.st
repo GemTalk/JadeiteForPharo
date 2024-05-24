@@ -201,6 +201,16 @@ JadeiteListPresenter >> update [
 	self refresh.	
 ]
 
+{ #category : 'api - events' }
+JadeiteListPresenter >> whenSelectionChangedDo: aBlock [
+	"Inform when there are changes in selection.
+	This method works for all selection modes (single, multiple and no selection).
+	`aBlock` receives an optional argument with the selection object."
+
+	self selection whenChangedDo: [
+		[ aBlock cull: self selection ] jadeiteScheduleFirst ]
+]
+
 { #category : 'private - utilities' }
 JadeiteListPresenter >> withWidgetDo: aValuable [
 

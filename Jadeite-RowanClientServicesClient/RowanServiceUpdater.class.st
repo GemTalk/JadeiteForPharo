@@ -103,6 +103,7 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 	Transcript cr; show: 'uiProcess: '; print: UIManager default uiProcess identityHash; flush. 
 	Transcript cr; show: 'activeProcess: '; print: Processor activeProcess identityHash; flush. 
 	Transcript cr; show: '------------------------'; flush. 
+	UIManager default uiProcess identityHash = Processor activeProcess identityHash ifTrue:[self halt]. 
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
@@ -205,7 +206,7 @@ RowanServiceUpdater >> initialize [
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
-	serviceQueue := AtomicSharedQueue new.
+	serviceQueue := JadeiteAtomicSharedQueue new.
 	serviceQueueSemaphore := Semaphore new. 
 	self startServiceQueueProcess
 ]
@@ -315,6 +316,23 @@ RowanServiceUpdater >> morphicProcesses [
 
 	^ morphicProcesses ifNil: [
 		  morphicProcesses := OrderedCollection new ]
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> newServiceQueueWithFirst: value [
+	" Add new item to queue in the first slot.
+	AtomicSharedQueue does not seem to have a way to reorder the queue
+	so just start a new queue with our guy on top "
+
+	| newQueue |
+	self stopServiceQueue.
+	newQueue := JadeiteAtomicSharedQueue new.
+	newQueue nextPut: value.
+	[ serviceQueue isEmpty ] whileFalse: [
+		newQueue nextPut: serviceQueue next ].
+	serviceQueueSemaphore := Semaphore new. 
+	serviceQueue := newQueue.
+	self startServiceQueueProcess
 ]
 
 { #category : 'private' }
@@ -461,11 +479,26 @@ RowanServiceUpdater >> serviceQueuePut: aBlock [
 ]
 
 { #category : 'service queue' }
+RowanServiceUpdater >> serviceQueuePutFirst: aBlock [
+
+	serviceQueue nextPutFirst: [
+		aBlock ensure: [ serviceQueueSemaphore signal ] ]
+]
+
+{ #category : 'service queue' }
 RowanServiceUpdater >> serviceQueueUIPut: aBlock [
 	"push a block onto the queue but run it in the ui process.
 	No commands should be sent to the server in aBlock"
 
 	serviceQueue nextPut: [
+		UIManager default defer: [
+			aBlock ensure: [ serviceQueueSemaphore signal ] ] ]
+]
+
+{ #category : 'service queue' }
+RowanServiceUpdater >> serviceQueueUIPutFirst: aBlock [
+
+	serviceQueue nextPutFirst: [
 		UIManager default defer: [
 			aBlock ensure: [ serviceQueueSemaphore signal ] ] ]
 ]

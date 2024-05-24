@@ -760,6 +760,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenActivatedDo: [ :selection |
 			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
+		[
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
 			ifFalse: [
@@ -767,7 +768,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 					classListPresenter
 						selectIndex: (classListPresenter items indexOf: sel)
 						scrollToSelection: true ] ].
-		self classSelected: self selectedClass ].
+		self classSelected: self selectedClass ] jadeiteScheduleInUIFirst ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
 ]
@@ -793,7 +794,7 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 		self methodSelectionChanged ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
-		self classSelected: self selectedClass ]
+		[self classSelected: self selectedClass] jadeiteScheduleInUIFirst ]
 ]
 
 { #category : 'initialization' }
@@ -803,14 +804,16 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 		whenSelectionChangedDo: [ :selection | self updatePackage ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
+		[
 		self classListPresenter clear.
 		self classHierarchyPresenter roots: OrderedCollection new.
 		self isDictionaryTabSelected
 			ifTrue: [ self updateDictionaries ]
 			ifFalse: [
-				self updateProjectSelecting: self projectListPresenter selectedItem.
+				self updateProjectSelecting:
+					self projectListPresenter selectedItem.
 				self updatePackage ].
-		self updateClasses ].
+		self updateClasses ] jadeiteScheduleInUIFirst ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		self updateDictionary ]
 ]
@@ -826,7 +829,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
-		self filterTabChanged: selection ].
+		[ self filterTabChanged: selection ] jadeiteScheduleInUIFirst ].
 	self connectMethodPresenters.
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
@@ -1426,15 +1429,14 @@ JadeiteBrowserPresenter >> hierarchyClassDoubleClicked [
 { #category : 'history' }
 JadeiteBrowserPresenter >> historyBack [
 
-	self jumpToHistoryIndex: ((historyIndex - 1) max: 1).
-	
+	[ self jumpToHistoryIndex: (historyIndex - 1 max: 1) ]
+		jadeiteSchedule
 ]
 
 { #category : 'history' }
 JadeiteBrowserPresenter >> historyForward [
 
-	self jumpToHistoryIndex: historyIndex + 1.
-	
+	[ self jumpToHistoryIndex: historyIndex + 1 ] jadeiteSchedule
 ]
 
 { #category : 'initialization' }
@@ -2961,7 +2963,6 @@ JadeiteBrowserPresenter >> selectClassInClassListNamed: className [
 	self classSelected: self selectedClass.
 	classListPresenter verticalAlignment desiredVisibleRow:
 		classListPresenter selection selectedIndex.
-	^ selection
 ]
 
 { #category : 'selections' }
@@ -3451,12 +3452,11 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
 	classService ifNil: [ ^ self ].
-	classService projectName ifNil: [
-		self updateService: classService.
-		(self findProjectNamed: classService projectName) ifNotNil: [
-			self isDictionaryTabSelected
-				ifTrue: [ self updateAfterFindClassInDictionary: classService ]
-				ifFalse: [ self updateAfterFindClassInPackage: classService ] ] ]
+	classService projectName ifNil: [ self updateService: classService ].
+	(self findProjectNamed: classService projectName) ifNotNil: [
+		self isDictionaryTabSelected
+			ifTrue: [ self updateAfterFindClassInDictionary: classService ]
+			ifFalse: [ self updateAfterFindClassInPackage: classService ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3820,11 +3820,11 @@ JadeiteBrowserPresenter >> updateProjectSelecting: selectedProject [
 	self packageListPresenter selectionIfNone: [
 		classListPresenter clear.
 		classHierarchyPresenter clear ].
-	self isDictionaryTabSelected
-		ifTrue: [ self updateDictionaries ].
+	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
 	self updateTabLabel.
+	[
 	self basicUpdateProject.
-	definedClassPackageText text: String new
+	definedClassPackageText text: String new ] jadeiteScheduleFirst
 ]
 
 { #category : 'tab labels' }

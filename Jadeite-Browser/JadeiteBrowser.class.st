@@ -274,13 +274,13 @@ JadeiteBrowser >> openNewBrowserPresenter [
 JadeiteBrowser >> openNewBrowserTab [
 
 	| notebookPage |
-		notebookPage := JadeiteNotebookPage
-			                title: 'Browser'
-			                icon: nil
-			                provider: [ self openNewBrowserPresenter ].
-		notebookPage beCloseable.
-		tabs addPage: notebookPage.
-		tabs selectPage: notebookPage
+	notebookPage := JadeiteNotebookPage
+		                title: 'Browser'
+		                icon: nil
+		                provider: [ self openNewBrowserPresenter ].
+	notebookPage beCloseable.
+	tabs addPage: notebookPage.
+	tabs selectPage: notebookPage
 ]
 
 { #category : 'accessing' }
