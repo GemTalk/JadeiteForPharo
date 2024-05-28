@@ -15,7 +15,6 @@ Class {
 		'breakpointsEnabled',
 		'returnedServices',
 		'postCompletionBlock',
-		'serviceQueueSemaphore',
 		'serviceQueue',
 		'serviceQueueProcess',
 		'morphicProcesses'
@@ -100,10 +99,21 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
 
 	| postExecutionBlock commandSemaphore |
-	Transcript cr; show: 'uiProcess: '; print: UIManager default uiProcess identityHash; flush. 
-	Transcript cr; show: 'activeProcess: '; print: Processor activeProcess identityHash; flush. 
-	Transcript cr; show: '------------------------'; flush. 
-	UIManager default uiProcess identityHash = Processor activeProcess identityHash ifTrue:[self halt]. 
+	Transcript
+		cr;
+		show: 'uiProcess: ';
+		print: UIManager default uiProcess identityHash;
+		flush.
+	Transcript
+		cr;
+		show: 'activeProcess: ';
+		print: Processor activeProcess identityHash;
+		flush.
+	Transcript
+		cr;
+		show: '------------------------';
+		flush.
+	self queueProcess suspend.
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
@@ -121,7 +131,9 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
 	[ self applyUpdatesFromReturnedServices: service returnedServices ]
-		ensure: [ commandSemaphore signal ].
+		ensure: [
+			commandSemaphore signal.
+			self queueProcess resume ].
 	commandSemaphore wait
 ]
 
@@ -207,7 +219,6 @@ RowanServiceUpdater >> initialize [
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
 	serviceQueue := JadeiteAtomicSharedQueue new.
-	serviceQueueSemaphore := Semaphore new. 
 	self startServiceQueueProcess
 ]
 
@@ -330,7 +341,6 @@ RowanServiceUpdater >> newServiceQueueWithFirst: value [
 	newQueue nextPut: value.
 	[ serviceQueue isEmpty ] whileFalse: [
 		newQueue nextPut: serviceQueue next ].
-	serviceQueueSemaphore := Semaphore new. 
 	serviceQueue := newQueue.
 	self startServiceQueueProcess
 ]
@@ -474,15 +484,13 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueuePut: aBlock [
 
-	serviceQueue nextPut: [
-		aBlock ensure: [ serviceQueueSemaphore signal ] ]
+	serviceQueue nextPut: aBlock 
 ]
 
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueuePutFirst: aBlock [
 
-	serviceQueue nextPutFirst: [
-		aBlock ensure: [ serviceQueueSemaphore signal ] ]
+	serviceQueue nextPutFirst: aBlock
 ]
 
 { #category : 'service queue' }
@@ -490,17 +498,14 @@ RowanServiceUpdater >> serviceQueueUIPut: aBlock [
 	"push a block onto the queue but run it in the ui process.
 	No commands should be sent to the server in aBlock"
 
-	serviceQueue nextPut: [
-		UIManager default defer: [
-			aBlock ensure: [ serviceQueueSemaphore signal ] ] ]
+	serviceQueue nextPut: [ UIManager default defer: [ aBlock value ] ]
 ]
 
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueueUIPutFirst: aBlock [
 
 	serviceQueue nextPutFirst: [
-		UIManager default defer: [
-			aBlock ensure: [ serviceQueueSemaphore signal ] ] ]
+		UIManager default defer: [ aBlock value ] ]
 ]
 
 { #category : 'private' }
@@ -528,11 +533,12 @@ RowanServiceUpdater >> startServiceQueueProcess [
 
 	serviceQueueProcess := [
 	                       [
-	                       | block |
+	                       | block sem |
+	                       sem := Semaphore new.
 	                       block := serviceQueue next.
-	                       block fork.
-	                       serviceQueueSemaphore wait ] repeat ]
-		                       forkNamed: 'Jadeite Service Queue'
+	                       [ block ensure: [ sem signal ] ] fork.
+	                       sem wait ] repeat ] forkNamed:
+		                       'Jadeite Service Queue'
 ]
 
 { #category : 'logging' }

@@ -75,14 +75,32 @@ JadeiteClassTrait >> findClass [
 
 	| selection dialogWindow answeringService |
 	[
+	Transcript
+		cr;
+		show: 'JadeiteClassTrait>>#findClass';
+		space;
+		show: 'jadeiteSchedule - start';
+		flush.
 	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil ] jadeiteSchedule.
+		onCompletion: nil.
+	Transcript
+		cr;
+		show: 'JadeiteClassTrait>>#findClass';
+		space;
+		show: 'jadeiteSchedule - finish';
+		flush ] jadeiteSchedule.
 	[
+	Transcript
+		cr;
+		show: 'JadeiteClassTrait>>#findClass';
+		space;
+		show: 'jadeiteScheduleInUI - start';
+		flush.
 	dialogWindow := ListDialogWindow new
 		                getList: [ :rxMatcher |
 			                answeringService answer select: [ :substring |
@@ -94,12 +112,14 @@ JadeiteClassTrait >> findClass [
 		                doubleClickOk;
 		                title: 'Jadeite Regex Find ' , 'Class';
 		                yourself.
-	selection := dialogWindow chooseFromOwner: self currentWorld ]
-		jadeiteScheduleInUI.
-	[
-	selection ifNotNil: [
-		[ self findClassNamed: selection ] jadeiteScheduleInUI ] ]
-		jadeiteSchedule
+	selection := dialogWindow chooseFromOwner: self currentWorld.
+	selection ifNotNil: [ self findClassNamed: selection ].
+	Transcript
+		cr;
+		show: 'JadeiteClassTrait>>#findClass';
+		space;
+		show: 'jadeiteScheduleInUI - finish';
+		flush ] jadeiteScheduleInUI
 ]
 
 { #category : 'private' }
