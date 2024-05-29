@@ -74,32 +74,20 @@ JadeiteClassTrait >> browseClassReferences: className [
 JadeiteClassTrait >> findClass [
 
 	| selection answeringService classService |
-	[
 	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil ] jadeiteSchedule.
-	[
-	selection := self openClassSelectionDialogOn: answeringService answer ]
-		jadeiteScheduleInUI.
-	[
-	Transcript
-		cr;
-		print: selection;
-		flush.
+		onCompletion: nil.
+
+	selection := self openClassSelectionDialogOn: answeringService answer.
+
 	selection ifNotNil: [
 		classService := RowanClassService new name: selection.
-		self updateService: classService ] ] jadeiteSchedule.
-	[
-	Transcript
-		cr;
-		print: classService;
-		flush.
-	classService ifNotNil: [ self findClassService: classService ] ]
-		jadeiteScheduleInUI
+		self updateService: classService ].
+	classService ifNotNil: [ self findClassService: classService ]
 ]
 
 { #category : 'private' }
@@ -121,11 +109,12 @@ JadeiteClassTrait >> findClassReferences [
 
 { #category : 'private' }
 JadeiteClassTrait >> findClassService: classService [
+
 	classService ifNil: [ ^ self ].
-	[
+
 	self activePresenter
 		updateAfterFindClass: classService
-		onCompletion: nil ] jadeiteScheduleInUI
+		onCompletion: nil
 ]
 
 { #category : 'private' }
@@ -228,15 +217,14 @@ JadeiteClassTrait >> newFullClassMenu [
 JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
 
 	| dialogWindow answeringService |
-	[
+	
 	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil ] jadeiteSchedule.
-	[
+		onCompletion: nil.
 	dialogWindow := ListDialogWindow new
 		                getList: [ :rxMatcher |
 			                answeringService answer select: [ :substring |
@@ -248,7 +236,7 @@ JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
 		                doubleClickOk;
 		                title: 'Jadeite Regex Find ' , searchName;
 		                yourself.
-	dialogWindow chooseFromOwner: self currentWorld ] jadeiteScheduleInUI
+	^dialogWindow chooseFromOwner: self currentWorld
 ]
 
 { #category : 'private' }

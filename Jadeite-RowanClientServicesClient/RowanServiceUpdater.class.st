@@ -114,7 +114,6 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 		cr;
 		show: '------------------------';
 		flush.
-	self queueProcess suspend.
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
@@ -131,10 +130,9 @@ RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion:
 	commandSemaphore wait.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
+
 	[ self applyUpdatesFromReturnedServices: service returnedServices ]
-		ensure: [
-			commandSemaphore signal.
-			self queueProcess resume ].
+		ensure: [ commandSemaphore signal ].
 	commandSemaphore wait
 ]
 
@@ -471,15 +469,13 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueuePut: aBlock [
 
-	serviceQueue add: aBlock.
-	serviceQueueSemaphore signal
+	serviceQueue add: aBlock
 ]
 
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueuePutFirst: aBlock [
 
-	serviceQueue addFirst: aBlock.
-	serviceQueueSemaphore signal
+	serviceQueue addFirst: aBlock
 ]
 
 { #category : 'service queue' }
@@ -491,8 +487,7 @@ RowanServiceUpdater >> serviceQueueUIPut: aBlock [
 		| sem |
 		sem := Semaphore new.
 		UIManager default defer: [ aBlock ensure: [ sem signal ] ].
-		sem wait ].
-	serviceQueueSemaphore signal
+		sem wait ]
 ]
 
 { #category : 'service queue' }
@@ -502,8 +497,7 @@ RowanServiceUpdater >> serviceQueueUIPutFirst: aBlock [
 		| sem |
 		sem := Semaphore new.
 		UIManager default defer: [ aBlock ensure: [ sem signal ] ].
-		sem wait ].
-	serviceQueueSemaphore signal
+		sem wait ]
 ]
 
 { #category : 'private' }
@@ -529,16 +523,18 @@ RowanServiceUpdater >> startLogging [
 { #category : 'service queue' }
 RowanServiceUpdater >> startServiceQueueProcess [
 
-	| blockSem |
-	blockSem := Semaphore new.
 	serviceQueueProcess := [
 	                       [
 	                       | block |
-	                       serviceQueueSemaphore wait.
-	                       block := serviceQueue remove:
-		                                serviceQueue first.
-	                       [ block ensure: [ blockSem signal ] ] fork.
-	                       blockSem wait ] repeat ] forkNamed:
+	                       serviceQueue isEmpty
+		                       ifTrue: [ (Delay forMilliseconds: 1) wait ]
+		                       ifFalse: [
+			                       | blockSem |
+			                       blockSem := Semaphore new.
+			                       block := serviceQueue remove:
+				                                serviceQueue first.
+			                       [ block ensure: [ blockSem signal ] ] fork.
+			                       blockSem wait ] ] repeat ] forkNamed:
 		                       'Jadeite Service Queue'
 ]
 
