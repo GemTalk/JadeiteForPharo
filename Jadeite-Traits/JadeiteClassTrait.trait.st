@@ -73,53 +73,33 @@ JadeiteClassTrait >> browseClassReferences: className [
 { #category : 'private' }
 JadeiteClassTrait >> findClass [
 
-	| selection dialogWindow answeringService |
+	| selection answeringService classService |
 	[
-	Transcript
-		cr;
-		show: 'JadeiteClassTrait>>#findClass';
-		space;
-		show: 'jadeiteSchedule - start';
-		flush.
 	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil.
-	Transcript
-		cr;
-		show: 'JadeiteClassTrait>>#findClass';
-		space;
-		show: 'jadeiteSchedule - finish';
-		flush ] jadeiteSchedule.
+		onCompletion: nil ] jadeiteSchedule.
+	[
+	selection := self openClassSelectionDialogOn: answeringService answer ]
+		jadeiteScheduleInUI.
 	[
 	Transcript
 		cr;
-		show: 'JadeiteClassTrait>>#findClass';
-		space;
-		show: 'jadeiteScheduleInUI - start';
+		print: selection;
 		flush.
-	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher |
-			                answeringService answer select: [ :substring |
-					                rxMatcher isString
-						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-							                rxMatcher matchesPrefix: substring ] ] ];
-		                displayBlock: [ :e | e ];
-		                doubleClickOk;
-		                title: 'Jadeite Regex Find ' , 'Class';
-		                yourself.
-	selection := dialogWindow chooseFromOwner: self currentWorld.
-	selection ifNotNil: [ self findClassNamed: selection ].
+	selection ifNotNil: [
+		classService := RowanClassService new name: selection.
+		self updateService: classService ] ] jadeiteSchedule.
+	[
 	Transcript
 		cr;
-		show: 'JadeiteClassTrait>>#findClass';
-		space;
-		show: 'jadeiteScheduleInUI - finish';
-		flush ] jadeiteScheduleInUI
+		print: classService;
+		flush.
+	classService ifNotNil: [ self findClassService: classService ] ]
+		jadeiteScheduleInUI
 ]
 
 { #category : 'private' }
@@ -128,10 +108,7 @@ JadeiteClassTrait >> findClassNamed: selection [
 	| classService |
 	classService := RowanClassService new name: selection.
 	[ self updateService: classService ] jadeiteSchedule.
-	[
-	self activePresenter
-		updateAfterFindClass: classService
-		onCompletion: nil ] jadeiteScheduleInUI
+	[ self findClassService: classService ] jadeiteScheduleInUI
 ]
 
 { #category : 'private' }
@@ -140,6 +117,15 @@ JadeiteClassTrait >> findClassReferences [
 	| selection |
 	selection := self openClassSelectionDialogFor: 'Class References'.
 	selection ifNotNil: [ self browseClassReferences: selection ]
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> findClassService: classService [
+	classService ifNil: [ ^ self ].
+	[
+	self activePresenter
+		updateAfterFindClass: classService
+		onCompletion: nil ] jadeiteScheduleInUI
 ]
 
 { #category : 'private' }
@@ -263,4 +249,22 @@ JadeiteClassTrait >> openClassSelectionDialogFor: searchName [
 		                title: 'Jadeite Regex Find ' , searchName;
 		                yourself.
 	dialogWindow chooseFromOwner: self currentWorld ] jadeiteScheduleInUI
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> openClassSelectionDialogOn: classNames [
+
+	| dialogWindow |
+	dialogWindow := ListDialogWindow new
+		                getList: [ :rxMatcher |
+			                classNames select: [ :substring |
+					                rxMatcher isString
+						                ifTrue: [ rxMatcher , '*' match: substring ]
+						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							                rxMatcher matchesPrefix: substring ] ] ];
+		                displayBlock: [ :e | e ];
+		                doubleClickOk;
+		                title: 'Jadeite Regex Find ' , 'Class';
+		                yourself.
+	^ dialogWindow chooseFromOwner: self currentWorld
 ]

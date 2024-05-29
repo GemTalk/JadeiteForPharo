@@ -17,7 +17,8 @@ Class {
 		'postCompletionBlock',
 		'serviceQueue',
 		'serviceQueueProcess',
-		'morphicProcesses'
+		'morphicProcesses',
+		'serviceQueueSemaphore'
 	],
 	#classVars : [
 		'Current'
@@ -210,15 +211,17 @@ RowanServiceUpdater >> inUpdateWhile: block [
 ]
 
 { #category : 'initialization' }
-RowanServiceUpdater >> initialize [ 
-	super initialize. 
+RowanServiceUpdater >> initialize [
+
+	super initialize.
 	self initializeUpdates.
 	debug := false.
 	inUpdate := Semaphore forMutualExclusion.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
-	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self. 
-	serviceQueue := JadeiteAtomicSharedQueue new.
+	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self.
+	serviceQueue := OrderedCollection new.
+	serviceQueueSemaphore := Semaphore new.
 	self startServiceQueueProcess
 ]
 
@@ -327,22 +330,6 @@ RowanServiceUpdater >> morphicProcesses [
 
 	^ morphicProcesses ifNil: [
 		  morphicProcesses := OrderedCollection new ]
-]
-
-{ #category : 'service queue' }
-RowanServiceUpdater >> newServiceQueueWithFirst: value [
-	" Add new item to queue in the first slot.
-	AtomicSharedQueue does not seem to have a way to reorder the queue
-	so just start a new queue with our guy on top "
-
-	| newQueue |
-	self stopServiceQueue.
-	newQueue := JadeiteAtomicSharedQueue new.
-	newQueue nextPut: value.
-	[ serviceQueue isEmpty ] whileFalse: [
-		newQueue nextPut: serviceQueue next ].
-	serviceQueue := newQueue.
-	self startServiceQueueProcess
 ]
 
 { #category : 'private' }
@@ -484,13 +471,15 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueuePut: aBlock [
 
-	serviceQueue nextPut: aBlock 
+	serviceQueue add: aBlock.
+	serviceQueueSemaphore signal
 ]
 
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueuePutFirst: aBlock [
 
-	serviceQueue nextPutFirst: aBlock
+	serviceQueue addFirst: aBlock.
+	serviceQueueSemaphore signal
 ]
 
 { #category : 'service queue' }
@@ -498,14 +487,23 @@ RowanServiceUpdater >> serviceQueueUIPut: aBlock [
 	"push a block onto the queue but run it in the ui process.
 	No commands should be sent to the server in aBlock"
 
-	serviceQueue nextPut: [ UIManager default defer: [ aBlock value ] ]
+	serviceQueue add: [
+		| sem |
+		sem := Semaphore new.
+		UIManager default defer: [ aBlock ensure: [ sem signal ] ].
+		sem wait ].
+	serviceQueueSemaphore signal
 ]
 
 { #category : 'service queue' }
 RowanServiceUpdater >> serviceQueueUIPutFirst: aBlock [
 
-	serviceQueue nextPutFirst: [
-		UIManager default defer: [ aBlock value ] ]
+	serviceQueue addFirst: [
+		| sem |
+		sem := Semaphore new.
+		UIManager default defer: [ aBlock ensure: [ sem signal ] ].
+		sem wait ].
+	serviceQueueSemaphore signal
 ]
 
 { #category : 'private' }
@@ -531,13 +529,16 @@ RowanServiceUpdater >> startLogging [
 { #category : 'service queue' }
 RowanServiceUpdater >> startServiceQueueProcess [
 
+	| blockSem |
+	blockSem := Semaphore new.
 	serviceQueueProcess := [
 	                       [
-	                       | block sem |
-	                       sem := Semaphore new.
-	                       block := serviceQueue next.
-	                       [ block ensure: [ sem signal ] ] fork.
-	                       sem wait ] repeat ] forkNamed:
+	                       | block |
+	                       serviceQueueSemaphore wait.
+	                       block := serviceQueue remove:
+		                                serviceQueue first.
+	                       [ block ensure: [ blockSem signal ] ] fork.
+	                       blockSem wait ] repeat ] forkNamed:
 		                       'Jadeite Service Queue'
 ]
 
@@ -551,7 +552,8 @@ RowanServiceUpdater >> stopServiceQueue [
 
 	serviceQueueProcess ifNotNil: [
 		serviceQueueProcess terminate.
-		serviceQueueProcess := nil ]
+		serviceQueueProcess := nil.
+		serviceQueueSemaphore := nil ]
 ]
 
 { #category : 'updating' }
