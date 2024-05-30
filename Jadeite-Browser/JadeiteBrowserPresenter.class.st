@@ -1242,21 +1242,25 @@ JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 
 { #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
+
+	[
 	self isClassSelected
-		ifTrue: [RowanServiceUpdater current updateService: self selectedClass session: gciSession]
-		ifFalse: 
-			[self clearFilterLists.
-			^self].
-	self populateFilterList.
-	self isCategoryTabSelected
-		ifTrue: 
-			[^methodListPresenter selectionOrNil
-				ifNil: [self selectMethodSourceTab]
-				ifNotNil: 
-					[:methodService |
-					self selectCategoryFrom: methodService.
-					self selectMethodSourceTab]].
-	methodListPresenter selectionOrNil ifNotNil: [self selectMethodSourceTab]
+		ifTrue: [
+			RowanServiceUpdater current
+				updateService: self selectedClass
+				session: gciSession.
+			self populateFilterList.
+			self isCategoryTabSelected
+				ifTrue: [
+					methodListPresenter selectionOrNil
+						ifNil: [ self selectMethodSourceTab ]
+						ifNotNil: [ :methodService |
+							self selectCategoryFrom: methodService.
+							self selectMethodSourceTab ] ]
+				ifFalse: [
+					methodListPresenter selectionOrNil ifNotNil: [
+						self selectMethodSourceTab ] ] ]
+		ifFalse: [ self clearFilterLists ] ] jadeiteScheduleFirst
 ]
 
 { #category : 'as yet unclassified' }

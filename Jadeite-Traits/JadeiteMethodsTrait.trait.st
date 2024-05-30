@@ -618,6 +618,13 @@ JadeiteMethodsTrait >> postMoveToPackage: packageName className: className selec
 	self refresh
 ]
 
+{ #category : 'updates' }
+JadeiteMethodsTrait >> preUpdate: services [
+
+	services do: [ :service | 
+		service preUpdate: self  ]
+]
+
 { #category : 'actions' }
 JadeiteMethodsTrait >> reformatSource [
 	| formattedSource |

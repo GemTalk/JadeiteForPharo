@@ -72,6 +72,16 @@ JadeiteMethodSourcePane >> ensureVisible [
 	self todo:'may need to implement this'
 ]
 
+{ #category : 'private' }
+JadeiteMethodSourcePane >> findClassService: classService [
+
+	classService ifNil: [ ^ self ].
+
+	self owner owner "ick"
+		updateAfterFindClass: classService
+		onCompletion: nil
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodSourcePane >> formatSource [
 

@@ -71,8 +71,9 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	commandSemaphore wait.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
-	[ self applyUpdatesFromReturnedServices: service returnedServices ]
-		ensure: [ commandSemaphore signal ].
+	UIManager default defer: [
+		[ self applyUpdatesFromReturnedServices: service returnedServices ]
+			ensure: [ commandSemaphore signal ] ].
 	commandSemaphore wait
 ]
 
@@ -126,10 +127,18 @@ RowanServiceUpdater >> basicIssueCommand: service [
 
 	UIManager default uiProcess == Processor activeProcess
 		ifTrue: [
-			| sem |
+			| sem processingCommand proc |
 			sem := Semaphore new.
-			[ [ self _basicIssueCommand: service ] ensure: [ sem signal ] ]
-				fork.
+			processingCommand := true.
+			proc := [
+			        MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
+				        newProcess priority: Processor userSchedulingPriority.
+			proc name: 'Morphic UI Process_Jadeite'.
+			proc resume.
+			[
+			[ self _basicIssueCommand: service ] ensure: [
+				sem signal.
+				processingCommand := false ] ] fork.
 			sem wait ]
 		ifFalse: [ self _basicIssueCommand: service ]
 ]

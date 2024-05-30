@@ -580,6 +580,7 @@ JadeiteProjectsTrait >> unloadProject [
 { #category : 'commands' }
 JadeiteProjectsTrait >> updateProjects [
 
+	[
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
@@ -592,5 +593,6 @@ JadeiteProjectsTrait >> updateProjects [
 	(self sortedProjectsFrom: browserService projects) asArray
 	= self projectListPresenter items asArray ifFalse: [
 		self projectListPresenter items:
-			(self sortedProjectsFrom: browserService projects) ]
+			(self sortedProjectsFrom: browserService projects) ] ]
+		jadeiteSchedule
 ]
