@@ -51,6 +51,31 @@ RowanServiceUpdater class >> stopLogging [
 	Current stopLogging
 ]
 
+{ #category : 'commands' }
+RowanServiceUpdater >> _basicIssueCommand: service [
+
+	| postExecutionBlock commandSemaphore |
+	service prepareForReplication.
+	commandSemaphore := Semaphore new.
+	postExecutionBlock := [ :aService |
+	                      RowanServiceUpdater current logComment:
+		                      aService printString , ' returned'
+		                      , ([ aService answer printString ]
+				                       on: Error
+				                       do: [ :ex | 'error' ]).
+	                      commandSemaphore signal ].
+	service
+		executeInSession: GciSession current
+		onCompletion: postExecutionBlock
+		semaphore: commandSemaphore.
+	commandSemaphore wait.
+	service returnedServices do: [ :update |
+		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
+	[ self applyUpdatesFromReturnedServices: service returnedServices ]
+		ensure: [ commandSemaphore signal ].
+	commandSemaphore wait
+]
+
 { #category : 'accessing' }
 RowanServiceUpdater >> activeClassServices [
 	^self registeredListServices select: [:service | service isService and: [ service isClassService]]
@@ -94,6 +119,19 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 			[updates removeAll: updates. "get rid of compile error service"
 			updates addAll: aCollection.
 			self updatesReadyToApply]
+]
+
+{ #category : 'commands' }
+RowanServiceUpdater >> basicIssueCommand: service [
+
+	UIManager default uiProcess == Processor activeProcess
+		ifTrue: [
+			| sem |
+			sem := Semaphore new.
+			[ [ self _basicIssueCommand: service ] ensure: [ sem signal ] ]
+				fork.
+			sem wait ]
+		ifFalse: [ self _basicIssueCommand: service ]
 ]
 
 { #category : 'commands' }
@@ -258,12 +296,9 @@ RowanServiceUpdater >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
-
+	"no longer using session and completionBlock"
 	session ifNil: [ ^ nil ].
-	self
-		basicIssueCommand: service
-		session: session
-		onCompletion: completionBlock
+	self basicIssueCommand: service
 ]
 
 { #category : 'commands' }
@@ -529,12 +564,9 @@ RowanServiceUpdater >> startServiceQueueProcess [
 	                       serviceQueue isEmpty
 		                       ifTrue: [ (Delay forMilliseconds: 1) wait ]
 		                       ifFalse: [
-			                       | blockSem |
-			                       blockSem := Semaphore new.
 			                       block := serviceQueue remove:
 				                                serviceQueue first.
-			                       [ block ensure: [ blockSem signal ] ] fork.
-			                       blockSem wait ] ] repeat ] forkNamed:
+			                       block fork ] ] repeat ] forkNamed:
 		                       'Jadeite Service Queue'
 ]
 

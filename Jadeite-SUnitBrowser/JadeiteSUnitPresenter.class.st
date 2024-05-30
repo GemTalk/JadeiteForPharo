@@ -127,7 +127,8 @@ JadeiteSUnitPresenter >> debugTests: methodServices [
 	className := classListPresenter selections size = 1
 		             ifTrue: [ classListPresenter selections first name ]
 		             ifFalse: [ nil ].
-	^ self debugTestMethodServices: methodServices className: className
+	[ self debugTestMethodServices: methodServices className: className ]
+		jadeiteSchedule
 ]
 
 { #category : 'initialization' }
