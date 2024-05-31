@@ -620,6 +620,7 @@ JadeiteBrowserPresenter >> classSelected: classService [
 
 	classService ifNotNil: [
 		self clearMethodLists.
+		self clearFilterLists. 
 		self refreshClass: methodListPresenter selectedItem.
 		self updateTabLabel ]
 ]
