@@ -1851,12 +1851,6 @@ JadeiteBrowserPresenter >> inspectorContextObject [
 ]
 
 { #category : 'testing' }
-JadeiteBrowserPresenter >> isApplyingUpdates [
-
-	^RowanServiceUpdater current isApplyingUpdates
-]
-
-{ #category : 'testing' }
 JadeiteBrowserPresenter >> isCategorySelected [
 	^self categoryListPresenter selectedItem isNotNil
 ]
