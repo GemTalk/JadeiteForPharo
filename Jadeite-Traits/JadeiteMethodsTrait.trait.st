@@ -389,10 +389,12 @@ JadeiteMethodsTrait >> copyMethodSelectors [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodsTrait >> displayBreakpoints [
-	self methodListPresenter selectedItem ifNil: [ ^self ].
+
+	self methodListPresenter selectedItem ifNil: [ ^ self ].
 	self methodListPresenter selectedItem breakPoints do: [ :breakPoint |
 		| range stepPointAssoc |
-		stepPointAssoc := self methodListPresenter selectedItem stepPoints at: breakPoint. 
+		stepPointAssoc := self methodListPresenter selectedItem stepPoints
+			                  at: breakPoint.
 		range := self methodListPresenter selectedItem stepPointRangeFrom:
 			         stepPointAssoc.
 		self methodSourcePresenter addTextSegmentDecoration:
@@ -402,11 +404,14 @@ JadeiteMethodsTrait >> displayBreakpoints [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodsTrait >> displayMethodSourceStepPoints [
-	self methodListPresenter selectedItem ifNil: [ ^self ].
-	self methodListPresenter selectedItem stepPoints do: [ :stepPointAssoc |
+
+	self methodListPresenter selectedItem ifNil: [ ^ self ].
+	self methodListPresenter selectedItem stepPoints do: [
+		:stepPointAssoc |
 		| range |
 		range := self methodListPresenter selectedItem stepPointRangeFrom:
 			         stepPointAssoc.
+
 		self methodSourcePresenter addTextSegmentDecoration:
 			((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
 				 interval: range) ]

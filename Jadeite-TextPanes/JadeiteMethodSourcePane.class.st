@@ -9,6 +9,14 @@ Class {
 	#category : 'Jadeite-TextPanes'
 }
 
+{ #category : 'adding' }
+JadeiteMethodSourcePane >> addTextSegmentDecoration: aDecorationSegment [
+
+	[ super addTextSegmentDecoration: aDecorationSegment ]
+		on: Error
+		do: [ :ex | "ignore - spec bug?" ]
+]
+
 { #category : 'commands' }
 JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 

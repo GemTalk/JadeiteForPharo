@@ -54,7 +54,7 @@ RowanServiceUpdater class >> stopLogging [
 { #category : 'commands' }
 RowanServiceUpdater >> _basicIssueCommand: service [
 
-	| postExecutionBlock commandSemaphore |
+	| postExecutionBlock commandSemaphore applySempahore |
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
@@ -69,12 +69,13 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 		onCompletion: postExecutionBlock
 		semaphore: commandSemaphore.
 	commandSemaphore wait.
+	applySempahore := Semaphore new.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
 	UIManager default defer: [
 		[ self applyUpdatesFromReturnedServices: service returnedServices ]
-			ensure: [ commandSemaphore signal ] ].
-	commandSemaphore wait
+			ensure: [ applySempahore signal ] ].
+	applySempahore wait
 ]
 
 { #category : 'accessing' }

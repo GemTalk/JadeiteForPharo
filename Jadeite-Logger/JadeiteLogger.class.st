@@ -11,6 +11,25 @@ Class {
 	#category : 'Jadeite-Logger'
 }
 
+{ #category : 'transcript' }
+JadeiteLogger class >> logActiveProcessToTranscript [
+	"for debugging - no need to turn logger on"
+	Transcript
+		cr;
+		show: 'uiProcess: ';
+		print: UIManager default uiProcess identityHash;
+		flush.
+	Transcript
+		cr;
+		show: 'activeProcess: ';
+		print: Processor activeProcess identityHash;
+		flush.
+	Transcript
+		cr;
+		show: '------------------------';
+		flush
+]
+
 { #category : 'operations' }
 JadeiteLogger >> defaultLogFileName [
 	| ws |
