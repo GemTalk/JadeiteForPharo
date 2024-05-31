@@ -55,26 +55,41 @@ RowanServiceUpdater class >> stopLogging [
 RowanServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock commandSemaphore applySempahore |
+	RowanServiceUpdater current logComment: '-----------------'. 
+	RowanServiceUpdater current logComment:
+		'RowanServiceUpdater>>#_basicIssueCommand: ' , service printString.
 	service prepareForReplication.
 	commandSemaphore := Semaphore new.
 	postExecutionBlock := [ :aService |
 	                      RowanServiceUpdater current logComment:
-		                      aService printString , ' returned'
-		                      , ([ aService answer printString ]
+		                      aService printString , ' returned: '
+		                      , ([ aService returnedServices printString ]
 				                       on: Error
-				                       do: [ :ex | 'error' ]).
+				                       do: [ :ex |
+				                       '#printString error - ' , ex printString ]).
+	                      RowanServiceUpdater current logComment:
+		                      'RowanServiceUpdater>>#_basicIssueCommand: about to signal commandSemaphore'.
 	                      commandSemaphore signal ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: commandSemaphore.
+	RowanServiceUpdater current logComment:
+		'RowanServiceUpdater>>#_basicIssueCommand: about to wait on commandSemaphore'.
 	commandSemaphore wait.
 	applySempahore := Semaphore new.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
+	RowanServiceUpdater current logComment:
+		'RowanServiceUpdater>>#_basicIssueCommand: raiseCompileErrorIfNeeded complete'.
 	UIManager default defer: [
 		[ self applyUpdatesFromReturnedServices: service returnedServices ]
-			ensure: [ applySempahore signal ] ].
+			ensure: [
+				RowanServiceUpdater current logComment:
+					'RowanServiceUpdater>>#_basicIssueCommand: about to signal applySempahore'.
+				applySempahore signal ] ].
+	RowanServiceUpdater current logComment:
+		'RowanServiceUpdater>>#_basicIssueCommand: about to wait on applySempahore'.
 	applySempahore wait
 ]
 
@@ -91,6 +106,13 @@ RowanServiceUpdater >> activeMethodServices [
 { #category : 'accessing' }
 RowanServiceUpdater >> activePackageServices [
 	^self registeredListServices select: [:service | service isService and:[service isPackageService]]
+]
+
+{ #category : 'testing' }
+RowanServiceUpdater >> activeProcessIsMorphicProcess [
+
+	^ UIManager default uiProcess == Processor activeProcess or: [
+		  Processor activeProcess name = 'Morphic UI Process_Jadeite' ]
 ]
 
 { #category : 'accessing' }
@@ -126,7 +148,7 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service [
 
-	UIManager default uiProcess == Processor activeProcess
+	self activeProcessIsMorphicProcess
 		ifTrue: [
 			| sem processingCommand proc |
 			sem := Semaphore new.

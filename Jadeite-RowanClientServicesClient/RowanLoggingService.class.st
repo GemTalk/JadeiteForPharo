@@ -231,6 +231,10 @@ RowanLoggingService >> logComment: aString [
 		space;
 		nextPutAll: time printString;
 		space;
+		nextPut: ${;
+		nextPutAll: Processor activeProcess identityHash printString; 
+		nextPut: $};
+		space;
 		nextPutAll: aString]
 			ensure: [ws close].
 	comment := nil	"service may be reused. Clear comment"
