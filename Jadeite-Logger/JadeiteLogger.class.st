@@ -140,7 +140,11 @@ JadeiteLogger >> shouldGetNewLoggerGroup: boolean [
 JadeiteLogger >> startLogging [
 	nextGroupId := nil.
 	self isLogging: true.
-	logFileName := self defaultLogFileName
+	logFileName := self defaultLogFileName.
+	(File named: logFileName) exists ifFalse: [
+		| file |
+		file := File named: logFileName asFileReference fullName.
+		file writeStream close ].
 ]
 
 { #category : 'operations' }
