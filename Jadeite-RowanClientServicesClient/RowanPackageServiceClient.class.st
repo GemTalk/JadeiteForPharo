@@ -10,7 +10,7 @@ Class {
 { #category : 'accessing' }
 RowanPackageServiceClient >> inCommand [
 
-	^ inCommand ifNil: [ inCommand := Semaphore forMutualExclusion ]
+	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]
 ]
 
 { #category : 'accessing' }

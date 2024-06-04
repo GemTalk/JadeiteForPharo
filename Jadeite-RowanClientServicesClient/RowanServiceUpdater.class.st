@@ -54,12 +54,12 @@ RowanServiceUpdater class >> stopLogging [
 { #category : 'commands' }
 RowanServiceUpdater >> _basicIssueCommand: service [
 
-	| postExecutionBlock commandSemaphore applySempahore |
-	RowanServiceUpdater current logComment: '-----------------'. 
+	| postExecutionBlock applySempahore |
+	RowanServiceUpdater current logComment: '-----------------'.
 	RowanServiceUpdater current logComment:
 		'RowanServiceUpdater>>#_basicIssueCommand: ' , service printString.
 	service prepareForReplication.
-	commandSemaphore := Semaphore new.
+	[ service isInCommand ] whileTrue: [ (Delay forMilliseconds: 1) wait ].
 	postExecutionBlock := [ :aService |
 	                      RowanServiceUpdater current logComment:
 		                      aService printString , ' returned: '
@@ -69,14 +69,14 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 				                       '#printString error - ' , ex printString ]).
 	                      RowanServiceUpdater current logComment:
 		                      'RowanServiceUpdater>>#_basicIssueCommand: about to signal commandSemaphore'.
-	                      commandSemaphore signal ].
+	                      aService inCommand signal ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
-		semaphore: commandSemaphore.
+		semaphore: service inCommand.
 	RowanServiceUpdater current logComment:
 		'RowanServiceUpdater>>#_basicIssueCommand: about to wait on commandSemaphore'.
-	commandSemaphore wait.
+	service inCommand wait.
 	applySempahore := Semaphore new.
 	service returnedServices do: [ :update |
 		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].

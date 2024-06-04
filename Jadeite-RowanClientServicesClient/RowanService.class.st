@@ -278,7 +278,7 @@ RowanService >> inCommand: semaphore [
 RowanService >> initialize [
 
 	commandArgs := Array new.
-	self inCommand: Semaphore forMutualExclusion. 
+	self inCommand: RowanSemaphore new. 
 ]
 
 { #category : 'Init / Release' }
@@ -343,9 +343,10 @@ RowanService >> isFiller [
 { #category : 'inCommand' }
 RowanService >> isInCommand [
 	"only client subclasses have the instVar inCommand"
-	(self class instVarNames includes: #inCommand) ifTrue:[
-		^self inCommand isSignaled not].
-	^false
+
+	(self class instVarNames includes: #inCommand) ifTrue: [
+		^ self inCommand lockingProcess isNil not ].
+	^ false
 ]
 
 { #category : 'testing' }

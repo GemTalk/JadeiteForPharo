@@ -37,7 +37,7 @@ JadeiteLogger >> defaultLogFileName [
 	ws nextPutAll: 'jadeiteCallTraceLog_'.
 	ws nextPutAll: Date today yyyymmdd.
 	ws nextPut: $_.
-	Time now print24: true showSeconds: true on: ws.
+	Time now jadeitePrint24: true showSeconds: true on: ws.
 	ws nextPutAll: '.txt'.
 	^ws contents
 ]
@@ -138,13 +138,14 @@ JadeiteLogger >> shouldGetNewLoggerGroup: boolean [
 
 { #category : 'operations' }
 JadeiteLogger >> startLogging [
+
+	| file |
 	nextGroupId := nil.
 	self isLogging: true.
 	logFileName := self defaultLogFileName.
-	(File named: logFileName) exists ifFalse: [
-		| file |
-		file := File named: logFileName asFileReference fullName.
-		file writeStream close ].
+	(File named: logFileName) exists ifTrue: [ ^ self ].
+	file := File named: logFileName asFileReference fullName.
+	file writeStream close
 ]
 
 { #category : 'operations' }

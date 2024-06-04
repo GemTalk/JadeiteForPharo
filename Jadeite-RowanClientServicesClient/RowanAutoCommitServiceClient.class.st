@@ -28,7 +28,7 @@ RowanAutoCommitServiceClient >> autoCommitUpdate: browser [
 { #category : 'accessing' }
 RowanAutoCommitServiceClient >> inCommand [
 
-	^ inCommand ifNil: [ inCommand := Semaphore forMutualExclusion ]
+	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]
 ]
 
 { #category : 'accessing' }

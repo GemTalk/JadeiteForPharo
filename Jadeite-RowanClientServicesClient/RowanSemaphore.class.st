@@ -23,3 +23,10 @@ RowanSemaphore >> lockingProcess [
 
 	^lockingProcess
 ]
+
+{ #category : 'process synchronisation' }
+RowanSemaphore >> wait [
+
+	lockingProcess := Processor activeProcess.
+	[ super wait ] ensure: [ lockingProcess := nil ]
+]
