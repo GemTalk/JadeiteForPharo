@@ -6,7 +6,8 @@ Class {
 		'isLogging',
 		'nextGroupId',
 		'logFileName',
-		'shouldGetNewLoggerGroup'
+		'shouldGetNewLoggerGroup',
+		'semaphore'
 	],
 	#category : 'Jadeite-Logger'
 }
@@ -47,6 +48,7 @@ JadeiteLogger >> initialize [
 	super initialize.
 	isLogging := false.
 	shouldGetNewLoggerGroup := true.
+	semaphore := Semaphore forMutualExclusion. 
 	self newLoggingService.
 ]
 
@@ -63,8 +65,10 @@ JadeiteLogger >> isLogging: boolean [
 
 { #category : 'accessing' }
 JadeiteLogger >> logComment: string [
+
 	self newLoggingService.
-	isLogging ifTrue: [loggingService logComment: string]
+	isLogging ifTrue: [
+		semaphore critical: [ loggingService logComment: string ] ]
 ]
 
 { #category : 'public' }
@@ -81,12 +85,16 @@ JadeiteLogger >> logFileName: string [
 
 { #category : 'accessing' }
 JadeiteLogger >> logReceivedServices: services [
-	isLogging ifTrue: [loggingService logReceivedServices: services]
+
+	isLogging ifTrue: [
+		semaphore critical: [ loggingService logReceivedServices: services ] ]
 ]
 
 { #category : 'accessing' }
 JadeiteLogger >> logSentServices: services [
-	isLogging ifTrue: [loggingService logSentServices: services]
+
+	isLogging ifTrue: [
+		semaphore critical: [ loggingService logSentServices: services ] ]
 ]
 
 { #category : 'accessing' }
