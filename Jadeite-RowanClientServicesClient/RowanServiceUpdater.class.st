@@ -73,13 +73,19 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 				                       '#printString error - ' , ex printString ]).
 	                      service returnedServices first isCompileError
 		                      ifTrue: [
-		                      service returnedServices first
-			                      signalCompileError ]
+			                      self class current logComment:
+				                      'self class>>#_basicIssueCommand: - signalCompileError'.
+			                      service returnedServices first
+				                      signalCompileError ]
 		                      ifFalse: [
 			                      UIManager default defer: [
 				                      [
+				                      self class current logComment:
+					                      'self class>>#_basicIssueCommand: - applyUpdatesFromReturnedServices:'.
 				                      self applyUpdatesFromReturnedServices:
 					                      service returnedServices ] ensure: [
+					                      self class current logComment:
+						                      'self class>>#_basicIssueCommand: - service inCommand signal'.
 					                      service inCommand signal ] ] ] ].
 	service
 		executeInSession: GciSession current
@@ -677,7 +683,9 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 	it wants us to care about if updateType is set. 
 	Respect the server's wishes."
 
-	
+	self class current logComment:
+		'RowanServiceUpdater>>#updatesPerform:presenter:browser: '
+		, selector printString.
 	updates do: [ :update |
 		(self shouldApply: selector forService: update) ifTrue: [
 			update
