@@ -231,9 +231,7 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
 	RowanServiceUpdater current logComment:
-		'RowanService>>#executeCommandOnCompletion:semaphore: '
-		, self printString , ' completionBlock: '
-		, completionBlock printString.
+		'RowanService>>#executeCommandOnCompletion:semaphore: '.
 	process := Processor activeProcess.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
 	RowanServiceUpdater current logComment:
@@ -258,10 +256,7 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 RowanService >> executeInSession: session onCompletion: completionBlock semaphore: sem [
 
 	RowanServiceUpdater current logComment:
-		'RowanService>>#executeInSession:onCompletion:semaphore: - session: '
-		, session printString , ' completionBlock: '
-		, completionBlock printString , ' sem: ' , sem printString , ' '
-		, sem isSignaled printString.
+		'RowanService>>#executeInSession:onCompletion:semaphore: - session: '.
 	[ self registerWith: session library ]
 		on: RsrAlreadyRegistered
 		do: [ :ex |  ].

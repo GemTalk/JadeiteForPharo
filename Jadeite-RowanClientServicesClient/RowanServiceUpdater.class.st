@@ -54,43 +54,38 @@ RowanServiceUpdater class >> stopLogging [
 { #category : 'commands' }
 RowanServiceUpdater >> _basicIssueCommand: service [
 
-	| postExecutionBlock applySempahore |
-	RowanServiceUpdater current logComment: '-----------------'.
-	RowanServiceUpdater current logComment:
-		'RowanServiceUpdater>>#_basicIssueCommand: ' , service printString.
+	| postExecutionBlock |
+	service isInCommand ifTrue: [
+		self class current logComment: service printString
+			, ' service is already issuing command. Ignore request (for now)'.
+		^ self ].
+	self class current logComment: '-----------------'.
+	self class current logComment:
+		'self class>>#_basicIssueCommand: ' , service printString.
 	service prepareForReplication.
-	[ service isInCommand ] whileTrue: [ (Delay forMilliseconds: 1) wait ].
 	postExecutionBlock := [ :aService |
-	                      RowanServiceUpdater current logComment:
-		                      '  completionBlock ', aService printString , ' returned: '
+	                      self class current logComment:
+		                      '  completionBlock ' , aService printString
+		                      , ' returned: '
 		                      , ([ aService returnedServices printString ]
 				                       on: Error
 				                       do: [ :ex |
 				                       '#printString error - ' , ex printString ]).
-	                      RowanServiceUpdater current logComment: '  completionBlock ', 
-		                      'RowanServiceUpdater>>#_basicIssueCommand: about to signal commandSemaphore'.
-	                      aService inCommand signal ].
+	                      service returnedServices first isCompileError
+		                      ifTrue: [
+		                      service returnedServices first
+			                      signalCompileError ]
+		                      ifFalse: [
+			                      UIManager default defer: [
+				                      [
+				                      self applyUpdatesFromReturnedServices:
+					                      service returnedServices ] ensure: [
+					                      service inCommand signal ] ] ] ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: service inCommand.
-	RowanServiceUpdater current logComment:
-		'RowanServiceUpdater>>#_basicIssueCommand: about to wait on commandSemaphore'.
-	service inCommand wait.
-	applySempahore := Semaphore new.
-	service returnedServices do: [ :update |
-		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
-	RowanServiceUpdater current logComment:
-		'RowanServiceUpdater>>#_basicIssueCommand: raiseCompileErrorIfNeeded complete'.
-	UIManager default defer: [
-		[ self applyUpdatesFromReturnedServices: service returnedServices ]
-			ensure: [
-				RowanServiceUpdater current logComment:
-					'RowanServiceUpdater>>#_basicIssueCommand: about to signal applySempahore'.
-				applySempahore signal ] ].
-	RowanServiceUpdater current logComment:
-		'RowanServiceUpdater>>#_basicIssueCommand: about to wait on applySempahore'.
-	applySempahore wait
+	service inCommand wait
 ]
 
 { #category : 'accessing' }
