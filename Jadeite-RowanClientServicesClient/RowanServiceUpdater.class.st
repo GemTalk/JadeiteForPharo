@@ -62,12 +62,12 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	[ service isInCommand ] whileTrue: [ (Delay forMilliseconds: 1) wait ].
 	postExecutionBlock := [ :aService |
 	                      RowanServiceUpdater current logComment:
-		                      aService printString , ' returned: '
+		                      '  completionBlock ', aService printString , ' returned: '
 		                      , ([ aService returnedServices printString ]
 				                       on: Error
 				                       do: [ :ex |
 				                       '#printString error - ' , ex printString ]).
-	                      RowanServiceUpdater current logComment:
+	                      RowanServiceUpdater current logComment: '  completionBlock ', 
 		                      'RowanServiceUpdater>>#_basicIssueCommand: about to signal commandSemaphore'.
 	                      aService inCommand signal ].
 	service

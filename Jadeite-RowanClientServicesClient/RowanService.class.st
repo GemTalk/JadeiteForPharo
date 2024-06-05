@@ -230,12 +230,23 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
+	RowanServiceUpdater current logComment:
+		'RowanService>>#executeCommandOnCompletion:semaphore: '
+		, self printString , ' completionBlock: '
+		, completionBlock printString.
 	process := Processor activeProcess.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
+	RowanServiceUpdater current logComment:
+		'RowanService>>#executeCommandOnCompletion:semaphore: '
+		, ' about to executeCommand'.
 	promise := remoteSelf executeCommand.
-	promise when: theCompletionBlock catch: [ :value | 
+	RowanServiceUpdater current logComment:
+		'RowanService>>#executeCommandOnCompletion:semaphore: '
+		, ' executeCommand sent. promise: ' , promise printString.
+	promise when: theCompletionBlock catch: [ :value |
 		RowanServiceUpdater current logComment:
-			'RowanService>>#executeCommandOnCompletion:semaphore: - in catch block ', value printString.
+			'RowanService>>#executeCommandOnCompletion:semaphore: - in catch block '
+			, value printString.
 		[
 		value tag = 'rsrProcessTerminated' ifTrue: [
 			RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
@@ -246,6 +257,11 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 { #category : 'rsr' }
 RowanService >> executeInSession: session onCompletion: completionBlock semaphore: sem [
 
+	RowanServiceUpdater current logComment:
+		'RowanService>>#executeInSession:onCompletion:semaphore: - session: '
+		, session printString , ' completionBlock: '
+		, completionBlock printString , ' sem: ' , sem printString , ' '
+		, sem isSignaled printString.
 	[ self registerWith: session library ]
 		on: RsrAlreadyRegistered
 		do: [ :ex |  ].

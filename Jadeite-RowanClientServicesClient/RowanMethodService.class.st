@@ -645,7 +645,14 @@ RowanMethodService >> printOn: target [
 		nextPutAll: serviceClassName;
 		nextPut: $..
 	self printFullSelectorOn: target.
-	target nextPut: $) ]
+	target
+		nextPut: $);
+		space;
+		nextPut: $(;
+		nextPutAll: command printString;
+		nextPutAll: '->';
+		nextPutAll: commandArgs printString;
+		nextPut: $) ]
 		on: Error
 		do: [ :ex |
 			target
