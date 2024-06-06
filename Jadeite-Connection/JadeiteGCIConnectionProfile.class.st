@@ -63,6 +63,7 @@ JadeiteGCIConnectionProfile >> connect [
 
 	RowanServiceUpdater clearCurrent. "clear out all old services"
 	session ifNotNil: [ session logout ].
+	user = 'SystemUser' ifFalse: [  ^MessageBox notify: 'Only SystemUser is currently supported.'].
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -80,6 +81,7 @@ JadeiteGCIConnectionProfile >> connect [
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
 	UIManager default defer: [ self applyPreferences ].
+	"Uncomment following three lines to enable RSR tracing"
 	connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace.
