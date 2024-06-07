@@ -47,6 +47,26 @@ JadeitePackageTrait >> basicAddPackageNamed: packageName symbolDictionary: symbo
 		self application triggerEvent: #packageAdded: with: packageName ]
 ]
 
+{ #category : 'actions' }
+JadeitePackageTrait >> exportInTopazFormat [
+
+	| service filePath |
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: self defaultSaveFileAsDirectory
+		            defaultFileName: self defaultSaveProjectName.
+	filePath ifNil: [ ^ self ].
+	JadePresenter lastSavePath: filePath.
+	service := self packageListPresenter selectedItem.
+	service
+		command: #exportTopazFormatTo:;
+		commandArgs: (Array with: filePath).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: nil
+]
+
 { #category : 'menus' }
 JadeitePackageTrait >> initializePackageMenu [
 
@@ -63,11 +83,20 @@ JadeitePackageTrait >> newPackageMenu [
 					  item
 						  name: 'Add Package';
 						  action: [ self addPackage ];
-						  enabled: [ self isRowanProjectSelected ] ]; 
+						  enabled: [ self isRowanProjectSelected ] ];
 				  addItem: [ :item |
 					  item
 						  name: 'Remove Package';
 						  action: [ self removePackage ];
+						  enabled: [
+							  [ self packageListPresenter selectedItem notNil ]
+								  on: Error
+								  do: [ :ex |
+									  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Export In Topaz Format ...';
+						  action: [ self exportInTopazFormat ];
 						  enabled: [
 							  [ self packageListPresenter selectedItem notNil ]
 								  on: Error

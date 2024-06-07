@@ -335,6 +335,15 @@ RowanServiceUpdater >> issueCommand: service session: session onCompletion: comp
 ]
 
 { #category : 'commands' }
+RowanServiceUpdater >> issueCommand: command to: service session: session [
+	"not used yet"
+	service
+		command: command;
+		commandArgs: Array new.
+	^ self issueCommand: service session: session
+]
+
+{ #category : 'commands' }
 RowanServiceUpdater >> issueCommands: services session: session onCompletion: completionBlock [
 
 	services do: [ :service |

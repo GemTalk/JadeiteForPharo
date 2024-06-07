@@ -9,6 +9,7 @@ Class {
 	#superclass : 'JadeiteApplication',
 	#classVars : [
 		'ExpandedRowanProjectsHome',
+		'LastSavePath',
 		'PackageGroupsVisible',
 		'PackageListVisible',
 		'SigAbortProcessInterval',
@@ -61,6 +62,22 @@ JadePresenter class >> isBeginTransactionEnabled [
 JadePresenter class >> isCommitEnabled [
 	^self transactionMode == #autoBegin
 		or: [self transactionMode == #manualBegin and: [self inTransaction]]
+]
+
+{ #category : 'constants' }
+JadePresenter class >> lastSavePath [
+	"when writing fileouts, etc save the last path saved for convenience"
+
+	LastSavePath ifNil: [
+		LastSavePath := self rowanProjectsHomeEnvVarString ].
+	^ LastSavePath
+]
+
+{ #category : 'constants' }
+JadePresenter class >> lastSavePath: filePath [
+	"when writing fileouts, etc save the last path saved for convenience"
+
+	LastSavePath := filePath
 ]
 
 { #category : 'operations' }

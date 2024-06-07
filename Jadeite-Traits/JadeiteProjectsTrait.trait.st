@@ -1,5 +1,8 @@
 Trait {
 	#name : 'JadeiteProjectsTrait',
+	#instVars : [
+		'defaultSaveFilePath'
+	],
 	#traits : 'JadeiteUtilityTrait',
 	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#category : 'Jadeite-Traits'
@@ -60,7 +63,7 @@ JadeiteProjectsTrait >> basicCheckoutTag: choice for: projectService [
 		onCompletion: [ :unused | self refreshFromServer ]
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> basicReloadProject [
 
 	| selections |
@@ -68,7 +71,7 @@ JadeiteProjectsTrait >> basicReloadProject [
 	self basicReloadProject: selections
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> basicReloadProject: selections [
 
 	RowanBrowserService new reloadProjects: selections presenter: self.
@@ -77,7 +80,7 @@ JadeiteProjectsTrait >> basicReloadProject: selections [
 	self projectListPresenter update
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> basicUnloadProjects: projectNames [
 
 	| browserService |
@@ -124,12 +127,18 @@ JadeiteProjectsTrait >> confirmReloadProjects: selections [
 	^true
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> copyProjectUrl [
 
 	Clipboard
 		clipboardText: self projectListPresenter selectedItem projectUrl
 		informing: 'Text copied to clipboard'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> defaultSaveProjectName [
+
+	^'myProject.tpz'
 ]
 
 { #category : 'messages' }
@@ -141,7 +150,28 @@ JadeiteProjectsTrait >> dirtyDiskConfirmation [
 	^ MessageBox confirm: (message skinnyPrintOn: ws) contents
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
+JadeiteProjectsTrait >> exportInTopazFormat [
+
+	| service filePath |
+	self halt. 
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: JadePresenter lastSavePath
+		            defaultFileName: self defaultSaveProjectName.
+	filePath ifNil: [ ^ self ].
+	JadePresenter lastSavePath: (FileReference / filePath) parent pathString.
+	service := self projectListPresenter selectedItem.
+	service
+		command: #exportTopazFormatTo:;
+		commandArgs: (Array with: filePath).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: nil
+]
+
+{ #category : 'actions' }
 JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 
 	| ws repositoryRoots |
@@ -204,7 +234,7 @@ JadeiteProjectsTrait >> gitCheckoutTag: projectService [
 	self basicCheckoutTag: choice for: projectService
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> gitCommit [
 
 	| projectName message |
@@ -224,7 +254,7 @@ JadeiteProjectsTrait >> gitCommit [
 			ifFalse: [ self gitCommit: projectName message: message ] ]
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> gitCommit: projectName message: message [
 
 	| service |
@@ -258,7 +288,7 @@ JadeiteProjectsTrait >> gitProjectLog [
 	self openGitLogInWorkspaceUsing: queryService
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> gitWriteProject [
 
 	| projectService ws repositoryRoots |
@@ -288,7 +318,7 @@ JadeiteProjectsTrait >> initializeProjectListMenu [
 	self projectListPresenter contextMenu: self newProjectMenu
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath [
 
 	self
@@ -299,7 +329,7 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 		resolveStrict: false
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: resolveStrict [
 
 	| projectService |
@@ -316,7 +346,7 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 	self issueCommand: projectService onCompletion: nil
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> loadProject [
 	"the gui is updated in RowanBrowserService>>projectsUpdate:browser:"
 
@@ -412,6 +442,11 @@ JadeiteProjectsTrait >> newProjectMenu [
 				item
 					name: 'Copy Project URL';
 					action: [ self copyProjectUrl ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+			addItem: [ :item |
+				item
+					name: 'Export In Topaz Format ...';
+					action: [ self exportInTopazFormat ];
 					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]
@@ -459,7 +494,7 @@ JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
 	^ self selectStringFromList: tags title: 'Jadeite Checkout Git Tag'
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> projectChanges [
 
 	| changesBrowser operations projectService |
@@ -498,7 +533,7 @@ JadeiteProjectsTrait >> pullFromGit [
 	RowanServiceUpdater current issueCommands: projectServices session: self gciSession onCompletion: nil
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> pushToGit [
 
 	| projectService ws |
@@ -518,7 +553,7 @@ JadeiteProjectsTrait >> pushToGit [
 		'Project ' , projectService name , ' pushed to remote repository!'
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> refreshGlobalSelections [
 	"refresh selections in all browsers."
 
@@ -536,7 +571,7 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> reloadProject [
 
 	| selections |
@@ -568,7 +603,7 @@ JadeiteProjectsTrait >> selectedProjectName [
 	^(self projectListPresenter selectionOrNil ifNil: [^nil]) name 
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> unloadProject [
 
 	(MessageBox confirm: 'Really unload selected projects?') ifFalse: [
@@ -577,7 +612,7 @@ JadeiteProjectsTrait >> unloadProject [
 		(self projectListPresenter selections collect: [ :service | service name ])
 ]
 
-{ #category : 'commands' }
+{ #category : 'actions' }
 JadeiteProjectsTrait >> updateProjects [
 
 	[
