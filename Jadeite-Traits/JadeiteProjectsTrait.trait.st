@@ -151,17 +151,17 @@ JadeiteProjectsTrait >> dirtyDiskConfirmation [
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> exportInTopazFormat [
+JadeiteProjectsTrait >> exportProjectInTopazFormat [
 
 	| service filePath |
-	self halt. 
+	service := self projectListPresenter selectedItem.
 	filePath := JadeiteServerFileSaveDialog
 		            showOnSession: GciSession current
 		            defaultPath: JadePresenter lastSavePath
-		            defaultFileName: self defaultSaveProjectName.
+		            defaultFileName: service name.
 	filePath ifNil: [ ^ self ].
-	JadePresenter lastSavePath: (FileReference / filePath) parent pathString.
-	service := self projectListPresenter selectedItem.
+	JadePresenter lastSavePath:
+		(FileReference / filePath) parent pathString.
 	service
 		command: #exportTopazFormatTo:;
 		commandArgs: (Array with: filePath).
@@ -446,7 +446,7 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Export In Topaz Format ...';
-					action: [ self exportInTopazFormat ];
+					action: [ self exportProjectInTopazFormat ];
 					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]

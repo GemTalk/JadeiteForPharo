@@ -48,16 +48,16 @@ JadeitePackageTrait >> basicAddPackageNamed: packageName symbolDictionary: symbo
 ]
 
 { #category : 'actions' }
-JadeitePackageTrait >> exportInTopazFormat [
+JadeitePackageTrait >> exportPackageInTopazFormat [
 
 	| service filePath |
+	service := self packageListPresenter selectedItem.
 	filePath := JadeiteServerFileSaveDialog
 		            showOnSession: GciSession current
-		            defaultPath: self defaultSaveFileAsDirectory
-		            defaultFileName: self defaultSaveProjectName.
+		            defaultPath: JadePresenter lastSavePath
+		            defaultFileName: service name.
 	filePath ifNil: [ ^ self ].
-	JadePresenter lastSavePath: filePath.
-	service := self packageListPresenter selectedItem.
+	JadePresenter lastSavePath: (FileReference / filePath) parent pathString.
 	service
 		command: #exportTopazFormatTo:;
 		commandArgs: (Array with: filePath).
@@ -96,7 +96,7 @@ JadeitePackageTrait >> newPackageMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Export In Topaz Format ...';
-						  action: [ self exportInTopazFormat ];
+						  action: [ self exportPackageInTopazFormat ];
 						  enabled: [
 							  [ self packageListPresenter selectedItem notNil ]
 								  on: Error
