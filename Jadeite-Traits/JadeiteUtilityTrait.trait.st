@@ -7,6 +7,20 @@ Trait {
 	#category : 'Jadeite-Traits'
 }
 
+{ #category : 'ambiguous' }
+JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
+
+	| filePath |
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: JadePresenter lastSavePath
+		            defaultFileName: defaultFileName.
+	^ filePath ifNotNil: [
+		  JadePresenter lastSavePath:
+			  (FileReference / filePath) parent pathString.
+		  filePath ]
+]
+
 { #category : 'selecting' }
 JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName [ 
 

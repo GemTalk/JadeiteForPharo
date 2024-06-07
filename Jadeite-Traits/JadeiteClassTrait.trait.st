@@ -1,5 +1,7 @@
 Trait {
 	#name : 'JadeiteClassTrait',
+	#traits : 'JadeiteUtilityTrait',
+	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#category : 'Jadeite-Traits'
 }
 
@@ -68,6 +70,42 @@ JadeiteClassTrait >> browseClassReferences: className [
 		service queryResults size printString , ' Class References to '
 		, className asString.
 	^ shell
+]
+
+{ #category : 'actions' }
+JadeiteClassTrait >> exportClassInTopazFormat [
+
+	| service filePath |
+	service := self selectedClass.
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: JadePresenter lastSavePath
+		            defaultFileName: service name.
+	filePath ifNil: [ ^ self ].
+	JadePresenter lastSavePath: (FileReference / filePath) parent pathString.
+	service
+		command: #fileoutClassOn:;
+		commandArgs: (Array with: filePath).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: nil
+]
+
+{ #category : 'menus' }
+JadeiteClassTrait >> fileoutClass [
+	"append .gs to the file so it matches what rowan does for packages & projects"
+	| service filePath |
+	service := self selectedClass.
+	filePath := self fileoutFileSelection: service name, '.gs'.
+	filePath ifNil: [ ^ self ].
+	service
+		command: #fileoutClassOn:;
+		commandArgs: (Array with: filePath).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: nil
 ]
 
 { #category : 'private' }
@@ -201,6 +239,11 @@ JadeiteClassTrait >> newBrowseClassMenu [
 				  item
 					  name: 'Browse References';
 					  action: [ self browseClassReferences ];
+					  enabled: [ self isClassSelected ]];
+				addItem: [ :item |
+				  item
+					  name: 'File Out Class ...';
+					  action: [ self fileoutClass ];
 					  enabled: [ self isClassSelected ] ] ]
 ]
 

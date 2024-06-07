@@ -3191,12 +3191,6 @@ JadeiteBrowserPresenter >> selectedGlobalName: selection [
 	^string
 ]
 
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> selectedMethods [
-
-	^ methodListPresenter selectedItems
-]
-
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectedPackageNames [
 	^packageListPresenter selections collect: [:packageService | packageService name]

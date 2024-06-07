@@ -1,5 +1,7 @@
 Trait {
 	#name : 'JadeitePackageTrait',
+	#traits : 'JadeiteUtilityTrait',
+	#classTraits : 'JadeiteUtilityTrait classTrait',
 	#category : 'Jadeite-Traits'
 }
 
@@ -48,16 +50,12 @@ JadeitePackageTrait >> basicAddPackageNamed: packageName symbolDictionary: symbo
 ]
 
 { #category : 'actions' }
-JadeitePackageTrait >> exportPackageInTopazFormat [
+JadeitePackageTrait >> fileoutPackage [
 
 	| service filePath |
 	service := self packageListPresenter selectedItem.
-	filePath := JadeiteServerFileSaveDialog
-		            showOnSession: GciSession current
-		            defaultPath: JadePresenter lastSavePath
-		            defaultFileName: service name.
+	filePath := self fileoutFileSelection: service name.
 	filePath ifNil: [ ^ self ].
-	JadePresenter lastSavePath: (FileReference / filePath) parent pathString.
 	service
 		command: #exportTopazFormatTo:;
 		commandArgs: (Array with: filePath).
@@ -95,8 +93,8 @@ JadeitePackageTrait >> newPackageMenu [
 									  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
 				  addItem: [ :item |
 					  item
-						  name: 'Export In Topaz Format ...';
-						  action: [ self exportPackageInTopazFormat ];
+						  name: 'File Out Package ...';
+						  action: [ self fileoutPackage ];
 						  enabled: [
 							  [ self packageListPresenter selectedItem notNil ]
 								  on: Error

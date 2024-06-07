@@ -436,6 +436,24 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 	^ true
 ]
 
+{ #category : 'actions' }
+JadeiteMethodsTrait >> fileoutMethods [
+	"append .gs to the file so it matches what rowan does for packages & projects"
+
+	| service fileService filePath |
+	service := self selectedMethods.
+	filePath := self fileoutFileSelection: 'methods.gs'.
+	filePath ifNil: [ ^ self ].
+	fileService := RowanFileService new path: filePath.
+	fileService
+		command: #fileoutMethods:;
+		commandArgs: (Array with: self selectedMethods).
+	RowanServiceUpdater current
+		issueCommand: fileService
+		session: self gciSession
+		onCompletion: nil
+]
+
 { #category : 'menus' }
 JadeiteMethodsTrait >> fullMethodListMenu [
 
@@ -552,6 +570,12 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 			  self addBrowseDifferencesTo: group.
 			  self addBrowseHistoryTo: group.
 			  self addBrowseBreakpointMethodsTo: group ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'File Out Selected Methods ...';
+					  action: [ self fileoutMethods ];
+					  enabled: [ self methodListPresenter selections notEmpty ] ] ];
 		  yourself
 ]
 
@@ -746,6 +770,12 @@ JadeiteMethodsTrait >> selectedMethodNames [
 
 	^self methodListPresenter selections collect:[:methodService | methodService selector]
 
+]
+
+{ #category : 'selecting' }
+JadeiteMethodsTrait >> selectedMethods [
+
+	^self methodListPresenter selectedItems
 ]
 
 { #category : 'actions' }
