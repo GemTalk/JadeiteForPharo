@@ -20,6 +20,12 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 				item
 					name: 'Move to Package ...';
 					action: [ self moveClassToPackage ];
+					enabled: [ self isClassSelected ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'File Out Class ...';
+					action: [ self fileoutClass ];
 					enabled: [ self isClassSelected ] ] ]
 ]
 
@@ -239,11 +245,6 @@ JadeiteClassTrait >> newBrowseClassMenu [
 				  item
 					  name: 'Browse References';
 					  action: [ self browseClassReferences ];
-					  enabled: [ self isClassSelected ]];
-				addItem: [ :item |
-				  item
-					  name: 'File Out Class ...';
-					  action: [ self fileoutClass ];
 					  enabled: [ self isClassSelected ] ] ]
 ]
 

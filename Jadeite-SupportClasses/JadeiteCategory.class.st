@@ -46,11 +46,6 @@ JadeiteCategory >> categoryName: anObject [
 	categoryName := anObject
 ]
 
-{ #category : 'accessing' }
-JadeiteCategory >> do: thing [
-	self halt. 
-]
-
 { #category : 'comparison' }
 JadeiteCategory >> hash [ 
 

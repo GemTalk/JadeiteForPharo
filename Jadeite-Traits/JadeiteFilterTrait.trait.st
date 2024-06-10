@@ -135,6 +135,41 @@ JadeiteFilterTrait >> confirmCategoryRemoval: selections [
 	^(MessageBox confirm: ws contents) == true
 ]
 
+{ #category : 'actions' }
+JadeiteFilterTrait >> fileoutCategories [
+	"append .gs to the file so it matches what rowan does for packages & projects"
+
+	| service filePath categoryStrings |
+	service := self selectedClass.
+	filePath := self fileoutFileSelection: service name , '_categories.gs'.
+	filePath ifNil: [ ^ self ].
+	categoryStrings := self categoryListPresenter selections collect: [
+		                   :category | category categoryName ].
+	service
+		command: #fileoutCategories:on:;
+		commandArgs: (Array with: categoryStrings with: filePath).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: nil
+]
+
+{ #category : 'actions' }
+JadeiteFilterTrait >> fileoutClass [
+	"append .gs to the file so it matches what rowan does for packages & projects"
+	| service filePath |
+	service := self selectedClass.
+	filePath := self fileoutFileSelection: service name, '.gs'.
+	filePath ifNil: [ ^ self ].
+	service
+		command: #fileOutCategoriesOnPath:;
+		commandArgs: (Array with: filePath).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: nil
+]
+
 { #category : 'menus' }
 JadeiteFilterTrait >> initializeCategoryListMenu [
 
@@ -163,29 +198,37 @@ JadeiteFilterTrait >> isVariableSelected [
 JadeiteFilterTrait >> newCategoryMenu [
 
 	^ JadeiteMenuPresenter new
-		  addGroup: [ :group | 
+		  addGroup: [ :group |
 			  group
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Add';
 						  action: [ self addMethodCategory ];
 						  enabled: [ self isClassSelected ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Rename';
 						  action: [ self renameMethodCategory ];
 						  enabled: [ self categoryListPresenter selections size = 1 ] ];
-				  addItem: [ :item | 
+				  addItem: [ :item |
 					  item
 						  name: 'Remove';
 						  action: [ self removeMethodCategories ];
 						  enabled: [ self categoryListPresenter selections size = 1 ] ] ];
-		  addGroup: [ :group | 
-			  group addItem: [ :item | 
+		  addGroup: [ :group |
+			  group addItem: [ :item |
 				  item
 					  name: 'Browse category methods';
 					  action: [ self browseSelectedCategoryMethods ];
-					  enabled: [ self isClassSelected and:[self isCategorySelected] ] ] ];
+					  enabled: [
+						  self isClassSelected and: [ self isCategorySelected ] ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'File out categories ...';
+					  action: [ self fileoutCategories ];
+					  enabled: [
+						  self isClassSelected and: [ self isCategorySelected ] ] ] ];
 		  yourself
 ]
 

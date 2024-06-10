@@ -460,16 +460,23 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 	| menu |
 	menu := self newBrowseMethodListMenu.
 
-	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Remove Method(s) ...';
-				action: [ self removeMethods ] ] ].
-	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Move to Package ...';
-				action: [ self moveMethodToPackage ] ] ].
+	menu
+		addGroup: [ :group |
+			group addItem: [ :item |
+					item
+						name: 'Remove Method(s) ...';
+						action: [ self removeMethods ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'Move to Package ...';
+					action: [ self moveMethodToPackage ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'File Out Selected Methods ...';
+					action: [ self fileoutMethods ];
+					enabled: [ self methodListPresenter selections notEmpty ] ] ].
 	^ menu
 ]
 
@@ -570,12 +577,6 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 			  self addBrowseDifferencesTo: group.
 			  self addBrowseHistoryTo: group.
 			  self addBrowseBreakpointMethodsTo: group ];
-		  addGroup: [ :group |
-			  group addItem: [ :item |
-				  item
-					  name: 'File Out Selected Methods ...';
-					  action: [ self fileoutMethods ];
-					  enabled: [ self methodListPresenter selections notEmpty ] ] ];
 		  yourself
 ]
 
