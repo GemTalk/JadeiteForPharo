@@ -281,9 +281,9 @@ RowanPackageService >> rowanPostUpdate [
 { #category : 'public' }
 RowanPackageService >> selectIn: presenter [
 
-	| index |
-	index := presenter packageListPresenter list indexOf: self.
 	presenter packageListPresenter selectedItem = self ifFalse: [
+		| index |
+		index := presenter packageListPresenter list indexOf: self.
 		presenter packageListPresenter
 			selectIndex: index
 			scrollToSelection: true ]

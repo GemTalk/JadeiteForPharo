@@ -84,12 +84,13 @@ JadeiteDebuggerPresenter >> answer [
 ]
 
 { #category : 'actions' }
-JadeiteDebuggerPresenter >> browseFrameMethod [ 
-	| className selector presenter | 
-	frameListPresenter selectedItem ifNil: [ ^self ].
+JadeiteDebuggerPresenter >> browseFrameMethod [
+
+	| className selector |
+	frameListPresenter selectedItem ifNil: [ ^ self ].
 	className := frameListPresenter selectedItem homeMethodClassName.
-	selector := frameListPresenter selectedItem homeMethodSelector. 
-	presenter := self openBrowser findClassNamed: className
+	selector := frameListPresenter selectedItem homeMethodSelector.
+	self openBrowser findClassNamed: className
 ]
 
 { #category : 'initialization' }

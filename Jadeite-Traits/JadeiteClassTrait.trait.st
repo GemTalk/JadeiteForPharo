@@ -58,7 +58,7 @@ JadeiteClassTrait >> browseClass [
 JadeiteClassTrait >> browseClassReferences [
 
 	| presenter |
-	presenter := self isClassHierarchyTabSelected
+	presenter := self activePresenter isClassHierarchyTabSelected
 		             ifTrue: [ self classHierarchyPresenter ]
 		             ifFalse: [ self classListPresenter ].
 	^ self browseClassReferences: presenter selectedItem className
@@ -125,24 +125,26 @@ JadeiteClassTrait >> findClass [
 		issueCommand: answeringService
 		session: self gciSession
 		onCompletion: nil.
-
-	selection := self openClassSelectionDialogOn: answeringService answer.
-
-	selection ifNotNil: [
-		classService := RowanClassService new
-			                name: selection;
-			                meta: false.
-		self updateService: classService ].
-	classService ifNotNil: [ self findClassService: classService ]
+	UIManager default defer: [
+		selection := self openClassSelectionDialogOn:
+			             answeringService answer.
+		selection ifNotNil: [
+			classService := RowanClassService new
+				                name: selection;
+				                meta: false.
+			self updateService: classService ].
+		classService ifNotNil: [ self findClassService: classService ] ]
 ]
 
 { #category : 'private' }
 JadeiteClassTrait >> findClassNamed: selection [
 
 	| classService |
-	classService := RowanClassService new name: selection.
-	[ self updateService: classService ] jadeiteSchedule.
-	[ self findClassService: classService ] jadeiteScheduleInUI
+	classService := RowanClassService new
+		                name: selection;
+		                meta: false.
+	self updateService: classService.
+	self findClassService: classService
 ]
 
 { #category : 'private' }

@@ -2450,6 +2450,20 @@ JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
 	previousTopViewArrangement := anObject
 ]
 
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService [
+	"get services in one round trip"
+	| answeringService |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #projectAndPackageServiceFor:;
+		commandArgs: (Array with: classService).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession.
+	^ answeringService answer
+]
+
 { #category : 'displaying' }
 JadeiteBrowserPresenter >> projectInfoLabelDisplay: array [
 
@@ -3012,8 +3026,10 @@ JadeiteBrowserPresenter >> selectClassNamed: classService package: packageServic
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassService: classService [
 
-	^ self classListPresenter selectedItem = classService ifFalse: [
-		  self classListPresenter selectItem: classService ]
+	| index |
+	self classListPresenter selectedItem = classService ifTrue: [ ^ self ].
+	index := self classListPresenter list indexOf: classService.
+	self classListPresenter selectIndex: index scrollToSelection: true
 ]
 
 { #category : 'selections' }
@@ -3502,14 +3518,12 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
-	| packageService projectService |
-	packageService := self packageServiceFor: classService.
-	projectService := self projectServiceFor: classService.
+	| packageService projectService array |
+	array := self projectAndPackageServiceFor: classService.
+	projectService := array first.
+	packageService := array last.
 	classService isMeta ifTrue: [ self setClassSide ].
-	self isClassHierarchyTabSelected ifTrue: [
-		classHierarchyPresenter model asBag
-			detect: [ :svc | svc name = classService name ]
-			ifNone: [ self updateHierarchy ] ].
+	self selectClassListTab. 
 	self
 		selectClassNamed: classService
 		package: packageService
@@ -3520,23 +3534,6 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
 
 	^self updateAfterFindClass: classService
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateAfterFindClass: classService packageService: anObject [
-
-	| packageService projectService |
-	packageService := self packageServiceFor: classService.
-	projectService := self projectServiceFor: classService.
-	classService isMeta ifTrue: [ self setClassSide ].
-	self isClassHierarchyTabSelected ifTrue: [
-		classHierarchyPresenter model asBag
-			detect: [ :svc | svc name = classService name ]
-			ifNone: [ self updateHierarchy ] ].
-	self
-		selectClassNamed: classService
-		package: packageService
-		project: projectService
 ]
 
 { #category : 'as yet unclassified' }

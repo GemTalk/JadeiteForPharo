@@ -78,18 +78,10 @@ JadeiteChangesBrowser >> browseImplementors [
 { #category : 'queries' }
 JadeiteChangesBrowser >> browseMethodClass [
 
-	| classService className |
-	classService := RowanClassService new name:
-		                self operationsListPresenter jadeiteSelections first.
-	classService meta:
-		self operationsListPresenter jadeiteSelections first definition classIsMeta.
-	RowanServiceUpdater current
-		updateService: classService
-		session: self gciSession.
+	| className |
 	className := self operationsListPresenter jadeiteSelections first
 		             className.
-	^ Cursor wait showWhile: [
-		  self openBrowser findClassNamed: className ]
+	self openBrowser findClassNamed: className
 ]
 
 { #category : 'as yet unclassified' }
