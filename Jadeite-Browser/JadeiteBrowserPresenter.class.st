@@ -3148,6 +3148,12 @@ JadeiteBrowserPresenter >> selectPackageFor: classService [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectPackageListTab [
+
+	packageDictionaryTabs selectPageIndex: 1
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 
 	| answeringService service |
@@ -3523,7 +3529,8 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 	projectService := array first.
 	packageService := array last.
 	classService isMeta ifTrue: [ self setClassSide ].
-	self selectClassListTab. 
+	self selectClassListTab.
+	self selectPackageListTab. 
 	self
 		selectClassNamed: classService
 		package: packageService
@@ -3764,7 +3771,7 @@ JadeiteBrowserPresenter >> updateMethodSource [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
 
-	self selectClassListTab. 
+	self selectClassListTab.
 	self resetClassComment.
 	self resetClassTemplate.
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
@@ -3775,8 +3782,9 @@ JadeiteBrowserPresenter >> updatePackage [
 	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
 	self updatePackageInfo.
 	self resetSunitTestList.
-	packageListPresenter selectionIfNone: [ self selectProjectTab ].
-	self updateTabLabel.
+	self todo: [
+		packageListPresenter selectionIfNone: [ self selectProjectTab ].
+		self updateTabLabel ].
 	definedClassPackageText text: String new
 ]
 
