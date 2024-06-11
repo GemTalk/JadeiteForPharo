@@ -442,16 +442,17 @@ JadeiteMethodsTrait >> fileoutMethods [
 
 	| service fileService filePath |
 	service := self selectedMethods.
-	filePath := self fileoutFileSelection: 'methods.gs'.
-	filePath ifNil: [ ^ self ].
-	fileService := RowanFileService new path: filePath.
-	fileService
-		command: #fileoutMethods:;
-		commandArgs: (Array with: self selectedMethods).
-	RowanServiceUpdater current
-		issueCommand: fileService
-		session: self gciSession
-		onCompletion: nil
+	UIManager default defer: [
+		filePath := self fileoutFileSelection: 'methods.gs'.
+		filePath ifNotNil: [
+			fileService := RowanFileService new path: filePath.
+			fileService
+				command: #fileoutMethods:;
+				commandArgs: (Array with: self selectedMethods).
+			RowanServiceUpdater current
+				issueCommand: fileService
+				session: self gciSession
+				onCompletion: nil ] ]
 ]
 
 { #category : 'menus' }

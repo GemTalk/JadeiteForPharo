@@ -713,7 +713,8 @@ JadeiteProjectsBrowserPresenter >> selectedClass [
 
 { #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedClassName [
-	^self selectedClass name
+
+	^ self selectedClass ifNotNil: [ :cls | cls name ]
 ]
 
 { #category : 'selections' }

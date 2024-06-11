@@ -78,40 +78,22 @@ JadeiteClassTrait >> browseClassReferences: className [
 	^ shell
 ]
 
-{ #category : 'actions' }
-JadeiteClassTrait >> exportClassInTopazFormat [
-
-	| service filePath |
-	service := self selectedClass.
-	filePath := JadeiteServerFileSaveDialog
-		            showOnSession: GciSession current
-		            defaultPath: JadePresenter lastSavePath
-		            defaultFileName: service name.
-	filePath ifNil: [ ^ self ].
-	JadePresenter lastSavePath: (FileReference / filePath) parent pathString.
-	service
-		command: #fileoutClassOn:;
-		commandArgs: (Array with: filePath).
-	RowanServiceUpdater current
-		issueCommand: service
-		session: self gciSession
-		onCompletion: nil
-]
-
 { #category : 'menus' }
 JadeiteClassTrait >> fileoutClass [
 	"append .gs to the file so it matches what rowan does for packages & projects"
+
 	| service filePath |
 	service := self selectedClass.
-	filePath := self fileoutFileSelection: service name, '.gs'.
-	filePath ifNil: [ ^ self ].
-	service
-		command: #fileoutClassOn:;
-		commandArgs: (Array with: filePath).
-	RowanServiceUpdater current
-		issueCommand: service
-		session: self gciSession
-		onCompletion: nil
+	UIManager default defer: [
+		filePath := self fileoutFileSelection: service name , '.gs'.
+		filePath ifNotNil: [
+			service
+				command: #fileoutClassOn:;
+				commandArgs: (Array with: filePath).
+			RowanServiceUpdater current
+				issueCommand: service
+				session: self gciSession
+				onCompletion: nil ] ]
 ]
 
 { #category : 'private' }

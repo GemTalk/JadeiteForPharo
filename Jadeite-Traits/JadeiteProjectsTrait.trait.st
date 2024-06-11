@@ -155,15 +155,16 @@ JadeiteProjectsTrait >> fileoutProject [
 
 	| service filePath |
 	service := self projectListPresenter selectedItem.
-	filePath := self fileoutFileSelection: service name.
-	filePath ifNil: [ ^ self ].
-	service
-		command: #exportTopazFormatTo:;
-		commandArgs: (Array with: filePath).
-	RowanServiceUpdater current
-		issueCommand: service
-		session: self gciSession
-		onCompletion: nil
+	UIManager default defer: [
+		filePath := self fileoutFileSelection: service name.
+		filePath ifNotNil: [
+			service
+				command: #exportTopazFormatTo:;
+				commandArgs: (Array with: filePath).
+			RowanServiceUpdater current
+				issueCommand: service
+				session: self gciSession
+				onCompletion: nil ] ]
 ]
 
 { #category : 'actions' }

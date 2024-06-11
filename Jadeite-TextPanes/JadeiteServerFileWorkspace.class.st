@@ -62,10 +62,14 @@ JadeiteServerFileWorkspace >> saveDocument [
 
 { #category : 'actions' }
 JadeiteServerFileWorkspace >> saveDocumentAs [
+
 	| newPath |
-	newPath := JadeiteServerFileSaveDialog showOnSession: gciSession defaultFilePath: path.
-	newPath ifNil: [^self].
-	self writeDocumentTo: newPath
+	UIManager default defer: [
+		newPath := JadeiteServerFileSaveDialog
+			           showOnSession: gciSession
+			           defaultFilePath: path.
+		newPath ifNil: [ ^ self ].
+		self writeDocumentTo: newPath ]
 ]
 
 { #category : 'actions' }

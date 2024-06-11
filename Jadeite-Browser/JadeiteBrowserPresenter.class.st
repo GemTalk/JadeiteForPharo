@@ -3008,7 +3008,7 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 		                name: className;
 		                meta: false.
 	self isClassListTabSelected
-		ifTrue: [ self updateAfterFindClass: className ]
+		ifTrue: [ self updateAfterFindClass: classService ]
 		ifFalse: [ self selectClassInClassHierarchyNamed: className ]
 ]
 
