@@ -941,18 +941,6 @@ JadeiteProjectsBrowserPresenter >> updateSUnitTab: service [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> updateSelectionsForUpdate: update [
-	update updatePackageSelectionsFor: packageListPresenter.
-	update updateClassCategorySelectionsFor: classCategoryPresenter.
-	update updateClassSelectionFor: classListPresenter.
-	update updateClassHierarchySelectionFor: classHierarchyPresenter.
-	update updateSuperclassSelectionFor: superclassListPresenter.
-	update updateMethodFilterSelectionFor: self methodFilterListPresenter.
-	update updateMethodSelectionFor: self methodListPresenter.
-	update projectSelectionUpdate: projectListPresenter
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> updateSingleMethodSource [
 	methodSourcePresenter value: methodListPresenter selection source.
 	self refreshBreakPointsIn: methodSourcePresenter.

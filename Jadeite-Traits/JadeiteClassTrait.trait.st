@@ -129,7 +129,9 @@ JadeiteClassTrait >> findClass [
 	selection := self openClassSelectionDialogOn: answeringService answer.
 
 	selection ifNotNil: [
-		classService := RowanClassService new name: selection.
+		classService := RowanClassService new
+			                name: selection;
+			                meta: false.
 		self updateService: classService ].
 	classService ifNotNil: [ self findClassService: classService ]
 ]
@@ -224,12 +226,15 @@ JadeiteClassTrait >> moveClassToPackage [
 
 { #category : 'actions' }
 JadeiteClassTrait >> moveClassToPackageNamed: packageName [
-	self selectedClass ifNil: [^self].
+
+	self selectedClass ifNil: [ ^ self ].
 	self selectedClass
 		command: #moveToPackageNamed:;
 		commandArgs: (Array with: packageName).
-	RowanServiceUpdater current issueCommand: self selectedClass session: self gciSession.
-	self updateAfterFindClassInPackage: self selectedClass
+	RowanServiceUpdater current
+		issueCommand: self selectedClass
+		session: self gciSession.
+	self updateAfterFindClass: self selectedClass
 ]
 
 { #category : 'menus' }

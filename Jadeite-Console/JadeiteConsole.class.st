@@ -291,6 +291,17 @@ JadeiteConsole >> findClassNamed: selection [
 			onCompletion: nil ]
 ]
 
+{ #category : 'actions' }
+JadeiteConsole >> findClassService: classService [
+
+	| browserPresenter |
+	classService ifNil: [ ^ self ].
+	browserPresenter := self openBrowser.
+	browserPresenter activePresenter
+		updateAfterFindClass: classService
+		onCompletion: nil
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> flipAutocomplete [
 	| newValue confirmedValue |

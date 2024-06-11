@@ -2367,6 +2367,21 @@ JadeiteBrowserPresenter >> packageMethodListPresenter [
 	^ packageMethodListPresenter
 ]
 
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> packageServiceFor: classService [
+
+	| answeringService |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #packageServiceFor:;
+		commandArgs: (Array with: classService).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession.
+	^answeringService answer.
+
+]
+
 { #category : 'dolphin' }
 JadeiteBrowserPresenter >> parentPresenter [
 
@@ -2493,6 +2508,20 @@ JadeiteBrowserPresenter >> projectReadMeTab [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectReadmePath [
 	^JadePresenter rowanProjectsHomeEnvVarString , '/' , self selectedProjectName , '/README.md'
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> projectServiceFor: classService [
+
+	| answeringService |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #projectServiceFor:;
+		commandArgs: (Array with: classService).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession.
+	^ answeringService answer
 ]
 
 { #category : 'tab labels' }
@@ -2949,22 +2978,6 @@ JadeiteBrowserPresenter >> selectClassInClassHierarchyNamed: className [
 ]
 
 { #category : 'selections' }
-JadeiteBrowserPresenter >> selectClassInClassListNamed: className [
-
-	| selection |
-	selection := classListPresenter list
-		             detect: [ :classService |
-		             classService name = className ]
-		             ifNone: [  ].
-	selection ifNil: [ ^ self ] ifNotNil: [ :sel |
-		classListPresenter selectedItem = sel ifFalse: [
-			classListPresenter selectItem: sel ] ].
-	self classSelected: self selectedClass.
-	classListPresenter verticalAlignment desiredVisibleRow:
-		classListPresenter selection selectedIndex.
-]
-
-{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassListTab [
 
 	self isHierarchyTabSelected ifFalse: [ ^ self ].
@@ -2975,9 +2988,32 @@ JadeiteBrowserPresenter >> selectClassListTab [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassNamed: className [
+
+	| classService |
+	classService := RowanClassService new
+		                name: className;
+		                meta: false.
 	self isClassListTabSelected
-		ifTrue: [self selectClassInClassListNamed: className]
-		ifFalse: [self selectClassInClassHierarchyNamed: className]
+		ifTrue: [ self updateAfterFindClass: className ]
+		ifFalse: [ self selectClassInClassHierarchyNamed: className ]
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService [
+
+	UIManager default defer: [
+		self selectProjectService: projectService.
+		packageService selectIn: self.
+		self isClassListTabSelected
+			ifTrue: [ self selectClassService: classService ]
+			ifFalse: [ self selectClassInClassHierarchyNamed: classService ] ]
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectClassService: classService [
+
+	^ self classListPresenter selectedItem = classService ifFalse: [
+		  self classListPresenter selectItem: classService ]
 ]
 
 { #category : 'selections' }
@@ -3081,6 +3117,21 @@ JadeiteBrowserPresenter >> selectNoneProject [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectPackageFor: classService [
+
+	| answeringService packageService |
+	answeringService := RowanAnsweringService new.
+	answeringService
+		command: #packageServiceFor:;
+		commandArgs: (Array with: classService).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession.
+	packageService := answeringService answer.
+	packageService selectIn: self
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 
 	| answeringService service |
@@ -3131,6 +3182,13 @@ JadeiteBrowserPresenter >> selectProjectNamed: projectName [
 	index := self projectListPresenter list indexOf: projectService.
 	self projectListPresenter selectIndex: index scrollToSelection: true.
 	^ projectService "return for testing"
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectProjectService: projectService [
+
+	self projectListPresenter selectedItem = projectService ifFalse: [
+		self projectListPresenter selectItem: projectService ]
 ]
 
 { #category : 'selections' }
@@ -3444,12 +3502,18 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
-	classService ifNil: [ ^ self ].
-	classService projectName ifNil: [ self updateService: classService ].
-	(self findProjectNamed: classService projectName) ifNotNil: [
-		self isDictionaryTabSelected
-			ifTrue: [ self updateAfterFindClassInDictionary: classService ]
-			ifFalse: [ self updateAfterFindClassInPackage: classService ] ]
+	| packageService projectService |
+	packageService := self packageServiceFor: classService.
+	projectService := self projectServiceFor: classService.
+	classService isMeta ifTrue: [ self setClassSide ].
+	self isClassHierarchyTabSelected ifTrue: [
+		classHierarchyPresenter model asBag
+			detect: [ :svc | svc name = classService name ]
+			ifNone: [ self updateHierarchy ] ].
+	self
+		selectClassNamed: classService
+		package: packageService
+		project: projectService
 ]
 
 { #category : 'as yet unclassified' }
@@ -3459,32 +3523,38 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: comp
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
-	| dictionaryService |
-	Cursor wait showWhile: 
-			[dictionaryService := dictionaryListPresenter list
-						detect: [:service | service name = classService dictionaryName]
-						ifNone: [^self].
-			dictionaryListPresenter selections: (Array with: dictionaryService).
-			self isClassListTabSelected
-				ifTrue: [self selectClassNamed: classService name asString]
-				ifFalse: 
-					[self updateClass: classService.  "It's legal for the classService to not be filled in yet. That would break the hierarchy update" 
-					self selectClassInClassListNamed: classService name.
-					self updateHierarchy]]
-]
+JadeiteBrowserPresenter >> updateAfterFindClass: classService packageService: anObject [
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateAfterFindClassInPackage: classService [
-
-	self selectPackageOrDictionaryFor: classService.
-
+	| packageService projectService |
+	packageService := self packageServiceFor: classService.
+	projectService := self projectServiceFor: classService.
 	classService isMeta ifTrue: [ self setClassSide ].
 	self isClassHierarchyTabSelected ifTrue: [
 		classHierarchyPresenter model asBag
 			detect: [ :svc | svc name = classService name ]
 			ifNone: [ self updateHierarchy ] ].
-	self selectClassNamed: classService name asString
+	self
+		selectClassNamed: classService
+		package: packageService
+		project: projectService
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
+
+	| dictionaryService |
+	Cursor wait showWhile: [
+		dictionaryService := dictionaryListPresenter list
+			                     detect: [ :service |
+			                     service name = classService dictionaryName ]
+			                     ifNone: [ ^ self ].
+		dictionaryListPresenter selections: (Array with: dictionaryService).
+		self isClassListTabSelected
+			ifTrue: [ self selectClassNamed: classService name asString ]
+			ifFalse: [
+				self updateClass: classService. "It's legal for the classService to not be filled in yet. That would break the hierarchy update"
+				self selectClassInClassListNamed: classService name package: nil.
+				self updateHierarchy ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3815,9 +3885,8 @@ JadeiteBrowserPresenter >> updateProjectSelecting: selectedProject [
 		classHierarchyPresenter clear ].
 	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
 	self updateTabLabel.
-	[
 	self basicUpdateProject.
-	definedClassPackageText text: String new ] jadeiteScheduleFirst
+	definedClassPackageText text: String new
 ]
 
 { #category : 'tab labels' }

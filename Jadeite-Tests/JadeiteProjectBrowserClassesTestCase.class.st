@@ -284,43 +284,62 @@ JadeiteProjectBrowserClassesTestCase >> test_browseClassReferencesFromClassesMen
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_changeClassUpdatesSubclasses [
+
 	| classTwo |
-	self testsIssue: #issue619
-		withTitle: 'Recompiling class does not update subclasses (3.0.86 candidate)'.
+	self
+		testsIssue: #issue619
+		withTitle:
+		'Recompiling class does not update subclasses (3.0.86 candidate)'.
 	self
 		saveClass: 'ClassOne'
 		superclass: 'Object'
-		instVars: #('one')
+		instVars: #( 'one' )
 		package: 'RowanSample1-Core'.
 	self projectsPresenter selectVariableTab.
 	self selectVariableNamed: #one.
 	self projectsPresenter basicAddVariableAccessors.
-	self assert: self projectsPresenter variableListPresenter list asArray = #(#one).
-	self assert: self projectsPresenter selectedClass displayString = 'ClassOne'.
+	self assert:
+		self projectsPresenter variableListPresenter list asArray
+		= #( #one ).
+	self assert:
+		self projectsPresenter selectedClass displayString = 'ClassOne'.
 	self
 		saveClass: 'ClassTwo'
 		superclass: 'ClassOne'
-		instVars: #('two')
+		instVars: #( 'two' )
 		package: 'RowanSample1-Core'.
 	self projectsPresenter selectVariableTab.
 	self selectVariableNamed: #two.
 	self projectsPresenter basicAddVariableAccessors.
-	self assert: self projectsPresenter variableListPresenter list asArray = #(#one #two).
-	self assert: self projectsPresenter selectedClass displayString = 'ClassTwo'.
-	TestMessageBox enableJadeiteTestMessageBox. 
-	TestMessageBox plannedResult: #yes. 
-	[self
+	self assert:
+		self projectsPresenter variableListPresenter list asArray
+		= #( #one #two ).
+	self assert:
+		self projectsPresenter selectedClass displayString = 'ClassTwo'.
+	TestMessageBox enableJadeiteTestMessageBox.
+	TestMessageBox plannedResult: #yes.
+	[
+	self
 		saveClass: 'ClassOne'
 		superclass: 'Object'
-		instVars:  #('one' 'onePlus')
-		package: 'RowanSample1-Core'] ensure: [TestMessageBox disableJadeiteTestMessageBox. ].
-	self assert: self projectsPresenter selectedClass displayString = 'ClassOne (2/2)'.
-	self assert: self projectsPresenter variableListPresenter list asArray = #(#one #onePlus).
-	classTwo := self projectsPresenter classListPresenter list
-				detect: [:classService | classService name = 'ClassTwo'].
+		instVars: #( 'one' 'onePlus' )
+		package: 'RowanSample1-Core' ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox ].
+	self assert:
+		self projectsPresenter selectedClass displayString
+		= 'ClassOne (2/2)'.
+	self assert:
+		self projectsPresenter variableListPresenter list asArray
+		= #( #one #onePlus ).
+	classTwo := self projectsPresenter classListPresenter list detect: [
+		            :classService | classService name = 'ClassTwo' ].
 	self assert: classTwo displayString = 'ClassTwo (2/2)'.
-	self projectsPresenter selectClassInClassListNamed: 'ClassTwo'.
-	self assert: self projectsPresenter variableListPresenter list asArray = #(#one #onePlus #two)
+	self projectsPresenter
+		selectClassInClassListNamed: 'ClassTwo'
+		package: nil.
+	self assert:
+		self projectsPresenter variableListPresenter list asArray
+		= #( #one #onePlus #two )
 ]
 
 { #category : 'as yet unclassified' }
