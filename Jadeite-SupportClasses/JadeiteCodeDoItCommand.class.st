@@ -37,6 +37,6 @@ JadeiteCodeDoItCommand >> evaluate: aString andDo: aBlock [
 	self context
 		executeSelectionOrLine: aString
 		shouldDebug: false
-		onCompileError: [ ^self ]
-		showResult: false ] jadeiteSchedule
+		onCompileError: [ ^ self ]
+		showResult: false ] fork
 ]

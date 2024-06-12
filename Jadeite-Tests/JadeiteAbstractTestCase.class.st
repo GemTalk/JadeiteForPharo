@@ -1017,20 +1017,14 @@ JadeiteAbstractTestCase >> setUp [
 
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
-	transcript := self testResourceClass current transcript.
 	self logoutThenLoginAs: user forceClose: true. "temporarily logout and login before each test."
 	session := self testResourceClass current session.
 	transcript := self testResourceClass current transcript.
 	self setRemoteAutoCommit: false.
 	self switchTransactionModeTo: #autoBegin. "Ensure tests start with transaction mode that is predictable - most tests assume #autoBegin"
 	self ensureRowanSampleProjectsLoaded.
-	JadeiteLoginShell allInstances size > 1 ifTrue: [ "Running tests will not stop on assert. (Debugging tests does) Need to do a hard halt to determine how a test can login as the wrong user"
-		RsrGarbageCollector maximumReclamation
-		"(Delay forMilliseconds: 1000) wait.	give it a second to cleanup
-			MemoryManager current collectGarbage"
-		"Taking this check out.  Although we still are tripping over multiple login windows, they are going away so it should no longer be a problem.- Famous last words. 
-			JadeiteLoginShell allInstances size > 1
-				ifTrue: [self haltTestForHardToCatchErrors: 'Multiple JadeiteLoginShells found']" ]
+	JadeiteLoginShell allInstances size > 1 ifTrue: [
+		RsrGarbageCollector maximumReclamation ]
 ]
 
 { #category : 'as yet unclassified' }

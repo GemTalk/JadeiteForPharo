@@ -127,8 +127,7 @@ JadeiteSUnitPresenter >> debugTests: methodServices [
 	className := classListPresenter selections size = 1
 		             ifTrue: [ classListPresenter selections first name ]
 		             ifFalse: [ nil ].
-	[ self debugTestMethodServices: methodServices className: className ]
-		jadeiteSchedule
+	[self debugTestMethodServices: methodServices className: className] fork
 ]
 
 { #category : 'initialization' }

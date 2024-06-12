@@ -761,7 +761,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenActivatedDo: [ :selection |
 			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
-		[
+		UIManager default defer: [
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
 			ifFalse: [
@@ -769,7 +769,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 					classListPresenter
 						selectIndex: (classListPresenter items indexOf: sel)
 						scrollToSelection: true ] ].
-		self classSelected: self selectedClass ] jadeiteScheduleInUIFirst ].
+		self classSelected: self selectedClass ] ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
 ]
@@ -795,7 +795,7 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 		self methodSelectionChanged ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
-		[self classSelected: self selectedClass] jadeiteScheduleInUIFirst ]
+		UIManager default defer: [ self classSelected: self selectedClass ] ]
 ]
 
 { #category : 'initialization' }
@@ -805,16 +805,16 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 		whenSelectionChangedDo: [ :selection | self updatePackage ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
-		[
-		self classListPresenter clear.
-		self classHierarchyPresenter roots: OrderedCollection new.
-		self isDictionaryTabSelected
-			ifTrue: [ self updateDictionaries ]
-			ifFalse: [
-				self updateProjectSelecting:
-					self projectListPresenter selectedItem.
-				self updatePackage ].
-		self updateClasses ] jadeiteScheduleInUIFirst ].
+		UIManager default defer: [
+			self classListPresenter clear.
+			self classHierarchyPresenter roots: OrderedCollection new.
+			self isDictionaryTabSelected
+				ifTrue: [ self updateDictionaries ]
+				ifFalse: [
+					self updateProjectSelecting:
+						self projectListPresenter selectedItem.
+					self updatePackage ].
+			self updateClasses ] ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		self updateDictionary ]
 ]
@@ -830,7 +830,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
-		[ self filterTabChanged: selection ] jadeiteScheduleInUIFirst ].
+		UIManager default defer: [ self filterTabChanged: selection ] ].
 	self connectMethodPresenters.
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
@@ -1244,24 +1244,24 @@ JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 { #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 
-	[
-	self isClassSelected
-		ifTrue: [
-			RowanServiceUpdater current
-				updateService: self selectedClass
-				session: gciSession.
-			self populateFilterList.
-			self isCategoryTabSelected
-				ifTrue: [
-					methodListPresenter selectionOrNil
-						ifNil: [ self selectMethodSourceTab ]
-						ifNotNil: [ :methodService |
-							self selectCategoryFrom: methodService.
-							self selectMethodSourceTab ] ]
-				ifFalse: [
-					methodListPresenter selectionOrNil ifNotNil: [
-						self selectMethodSourceTab ] ] ]
-		ifFalse: [ self clearFilterLists ] ] jadeiteScheduleFirst
+	UIManager default defer: [
+		self isClassSelected
+			ifTrue: [
+				RowanServiceUpdater current
+					updateService: self selectedClass
+					session: gciSession.
+				self populateFilterList.
+				self isCategoryTabSelected
+					ifTrue: [
+						methodListPresenter selectionOrNil
+							ifNil: [ self selectMethodSourceTab ]
+							ifNotNil: [ :methodService |
+								self selectCategoryFrom: methodService.
+								self selectMethodSourceTab ] ]
+					ifFalse: [
+						methodListPresenter selectionOrNil ifNotNil: [
+							self selectMethodSourceTab ] ] ]
+			ifFalse: [ self clearFilterLists ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1434,14 +1434,14 @@ JadeiteBrowserPresenter >> hierarchyClassDoubleClicked [
 { #category : 'history' }
 JadeiteBrowserPresenter >> historyBack [
 
-	[ self jumpToHistoryIndex: (historyIndex - 1 max: 1) ]
-		jadeiteSchedule
+	UIManager default defer: [
+		self jumpToHistoryIndex: (historyIndex - 1 max: 1) ]
 ]
 
 { #category : 'history' }
 JadeiteBrowserPresenter >> historyForward [
 
-	[ self jumpToHistoryIndex: historyIndex + 1 ] jadeiteSchedule
+	UIManager default defer: [ self jumpToHistoryIndex: historyIndex + 1 ]
 ]
 
 { #category : 'initialization' }

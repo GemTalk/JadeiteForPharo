@@ -38,7 +38,7 @@ JadeiteCodePrintItCommand >> evaluate: aString andDo: aBlock [
 		executeSelectionOrLine: aString
 		shouldDebug: false
 		onCompileError: [ ^ self ]
-		showResult: true ] jadeiteSchedule
+		showResult: true ] fork
 ]
 
 { #category : 'executing' }

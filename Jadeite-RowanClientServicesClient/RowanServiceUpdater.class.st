@@ -55,37 +55,18 @@ RowanServiceUpdater class >> stopLogging [
 RowanServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock |
-	service isInCommand ifTrue: [
-		self class current logComment: service printString
-			, ' service is already issuing command. Ignore request (for now)'.
-		^ self ].
-	self class current logComment: '-----------------'.
-	self class current logComment:
-		'self class>>#_basicIssueCommand: ' , service printString.
+	service isInCommand ifTrue: [ ^ self ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
-	                      self class current logComment:
-		                      '  completionBlock ' , aService printString
-		                      , ' returned: '
-		                      , ([ aService returnedServices printString ]
-				                       on: Error
-				                       do: [ :ex |
-				                       '#printString error - ' , ex printString ]).
 	                      service returnedServices first isCompileError
 		                      ifTrue: [
-			                      self class current logComment:
-				                      'self class>>#_basicIssueCommand: - signalCompileError'.
-			                      service returnedServices first
-				                      signalCompileError ]
+		                      service returnedServices first
+			                      signalCompileError ]
 		                      ifFalse: [
 			                      UIManager default defer: [
 				                      [
-				                      self class current logComment:
-					                      'self class>>#_basicIssueCommand: - applyUpdatesFromReturnedServices:'.
 				                      self applyUpdatesFromReturnedServices:
 					                      service returnedServices ] ensure: [
-					                      self class current logComment:
-						                      'self class>>#_basicIssueCommand: - service inCommand signal'.
 					                      service inCommand signal ] ] ] ].
 	service
 		executeInSession: GciSession current
@@ -161,50 +142,10 @@ RowanServiceUpdater >> basicIssueCommand: service [
 			proc resume.
 			[
 			[ self _basicIssueCommand: service ] ensure: [
-				sem signal.
-				processingCommand := false ] ] fork.
+				processingCommand := false.
+				sem signal ] ] fork.
 			sem wait ]
 		ifFalse: [ self _basicIssueCommand: service ]
-]
-
-{ #category : 'commands' }
-RowanServiceUpdater >> basicIssueCommand: service session: session onCompletion: completionBlock [
-
-	| postExecutionBlock commandSemaphore |
-	Transcript
-		cr;
-		show: 'uiProcess: ';
-		print: UIManager default uiProcess identityHash;
-		flush.
-	Transcript
-		cr;
-		show: 'activeProcess: ';
-		print: Processor activeProcess identityHash;
-		flush.
-	Transcript
-		cr;
-		show: '------------------------';
-		flush.
-	service prepareForReplication.
-	commandSemaphore := Semaphore new.
-	postExecutionBlock := [ :aService |
-	                      RowanServiceUpdater current logComment:
-		                      aService printString , ' returned'
-		                      , ([ aService answer printString ]
-				                       on: Error
-				                       do: [ :ex | 'error' ]).
-	                      commandSemaphore signal ].
-	service
-		executeInSession: GciSession current
-		onCompletion: postExecutionBlock
-		semaphore: commandSemaphore.
-	commandSemaphore wait.
-	service returnedServices do: [ :update |
-		update ifNotNil: [ update raiseCompileErrorIfNeeded ] ].
-
-	[ self applyUpdatesFromReturnedServices: service returnedServices ]
-		ensure: [ commandSemaphore signal ].
-	commandSemaphore wait
 ]
 
 { #category : 'private' }
@@ -692,15 +633,11 @@ RowanServiceUpdater >> updatesPerform: selector presenter: presenter browser: br
 	it wants us to care about if updateType is set. 
 	Respect the server's wishes."
 
-	self class current logComment:
-		'RowanServiceUpdater>>#updatesPerform:presenter:browser: '
-		, selector printString.
 	updates do: [ :update |
 		(self shouldApply: selector forService: update) ifTrue: [
 			update
 				perform: selector
-				withEnoughArguments: (Array with: presenter with: browser) ] ] 
-		
+				withEnoughArguments: (Array with: presenter with: browser) ] ]
 ]
 
 { #category : 'public' }

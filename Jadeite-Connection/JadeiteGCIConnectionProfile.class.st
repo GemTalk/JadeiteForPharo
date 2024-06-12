@@ -63,7 +63,8 @@ JadeiteGCIConnectionProfile >> connect [
 
 	RowanServiceUpdater clearCurrent. "clear out all old services"
 	session ifNotNil: [ session logout ].
-	user = 'SystemUser' ifFalse: [  ^MessageBox notify: 'Only SystemUser is currently supported.'].
+	user = 'SystemUser' ifFalse: [
+		^ MessageBox notify: 'Only SystemUser is currently supported.' ].
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -82,9 +83,9 @@ JadeiteGCIConnectionProfile >> connect [
 	GciSession current library: connection.
 	UIManager default defer: [ self applyPreferences ].
 	"Uncomment following three lines to enable RSR tracing"
-	connection log addSink: (RsrCustomSink action: [ :message |
+	"connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
-	connection log verbosity: connection log levelTrace.
+	connection log verbosity: connection log levelTrace."
 	^ connection
 ]
 
@@ -171,10 +172,9 @@ JadeiteGCIConnectionProfile >> session: anObject [
 
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> setupRSRConnection [
-
 	"Make and answer an RSR connection"
 
-	| detailBytes initiator thePort token | 
+	| detailBytes initiator thePort token |
 	detailBytes := session
 		               executeStringAndFetchResultByteArray:
 			               '| acceptor port detailBytes |
@@ -196,12 +196,15 @@ JadeiteGCIConnectionProfile >> setupRSRConnection [
 		connection := (SessionTemps current at: #PendingConnectionAcceptor) waitForConnection.
 		SessionTemps current removeKey: #PendingConnectionAcceptor.
 		"UNCOMMENT THESE LINES TO ADD TRACING TO RSR"
-		connection log addSink: (RsrCustomSink action: [:message | GsFile gciLogServer: message ]).
-		connection log verbosity: connection log levelTrace.
+		"connection log addSink: (RsrCustomSink action: [:message | GsFile gciLogServer: message ]).
+		connection log verbosity: connection log levelTrace."
 		connection waitUntilClose.'.
 	thePort := detailBytes unsignedShortAt: 1 bigEndian: true.
 	token := RsrToken bytes: (detailBytes copyFrom: 3 to: 18).
-	initiator := RsrGciInitiateConnection host: host port: thePort token: token.
+	initiator := RsrGciInitiateConnection
+		             host: host
+		             port: thePort
+		             token: token.
 	^ initiator connect
 ]
 

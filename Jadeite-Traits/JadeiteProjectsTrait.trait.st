@@ -612,19 +612,18 @@ JadeiteProjectsTrait >> unloadProject [
 { #category : 'actions' }
 JadeiteProjectsTrait >> updateProjects [
 
-	[
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService
-		command: #updateProjects;
-		commandArgs: Array new.
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: self gciSession
-		onCompletion: nil.
-	(self sortedProjectsFrom: browserService projects) asArray
-	= self projectListPresenter items asArray ifFalse: [
-		self projectListPresenter items:
-			(self sortedProjectsFrom: browserService projects) ] ]
-		jadeiteSchedule
+	UIManager default defer: [
+		| browserService |
+		browserService := RowanBrowserService new.
+		browserService
+			command: #updateProjects;
+			commandArgs: Array new.
+		RowanServiceUpdater current
+			issueCommand: browserService
+			session: self gciSession
+			onCompletion: nil.
+		(self sortedProjectsFrom: browserService projects) asArray
+		= self projectListPresenter items asArray ifFalse: [
+			self projectListPresenter items:
+				(self sortedProjectsFrom: browserService projects) ] ]
 ]

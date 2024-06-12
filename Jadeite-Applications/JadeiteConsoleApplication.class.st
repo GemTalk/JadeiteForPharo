@@ -9,7 +9,7 @@ JadeiteConsoleApplication >> start [
 
 	| inst |
 	inst := self new: JadeiteConsole.
-	[
+	UIManager default defer: [
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession;
@@ -17,5 +17,5 @@ JadeiteConsoleApplication >> start [
 		updateProjects;
 		initializeAutoCommit.
 	JadeiteConsole currentConsole: inst.
-	inst open ] jadeiteSchedule
+	inst open ] 
 ]

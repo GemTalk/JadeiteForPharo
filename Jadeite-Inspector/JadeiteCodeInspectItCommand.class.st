@@ -48,7 +48,7 @@ JadeiteCodeInspectItCommand >> evaluate: aString andDo: aBlock [
 	aBlock value: (self context
 			 evaluateInspectingResult: aString
 			 onCompileError: [ ^ self ]
-			 onError: [ :e | e pass ]) ] jadeiteSchedule
+			 onError: [ :e | e pass ]) ] fork
 ]
 
 { #category : 'executing' }

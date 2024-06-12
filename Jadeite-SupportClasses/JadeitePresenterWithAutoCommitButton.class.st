@@ -15,7 +15,8 @@ JadeitePresenterWithAutoCommitButton >> autoCommitButton [
 
 { #category : 'autocommit' }
 JadeitePresenterWithAutoCommitButton >> flipAutoCommit [
-	[self gciSession flipAutoCommit] jadeiteSchedule
+
+	[ self gciSession flipAutoCommit ] fork
 ]
 
 { #category : 'autocommit' }
