@@ -76,18 +76,6 @@ JadeiteWorkspace >> initializeFileMenu [
 ]
 
 { #category : 'initialization' }
-JadeiteWorkspace >> initializeMenubar [
-
-	^ self newMenuBar
-		  addGroup: [ :group |
-			  group addItem: [ :item |
-					  item
-						  name: 'File';
-						  subMenu: self initializeFileMenu ] ];
-		  yourself
-]
-
-{ #category : 'initialization' }
 JadeiteWorkspace >> initializePresenters [
 
 	super initializePresenters.

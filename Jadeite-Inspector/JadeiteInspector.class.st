@@ -475,11 +475,12 @@ JadeiteInspector >> initializeKeyBindings: aWindowPresenter [
 JadeiteInspector >> initializeMenubar [
 
 	^ self newMenuBar
-		  addGroup: [ :group | 
-			  group addItem: [ :item | 
+		  addGroup: [ :group |
+			  group addItem: [ :item |
 					  item
 						  name: 'Browse';
-						  subMenu: self initializeBrowseMenu  ] ];
+						  subMenu: self initializeBrowseMenu ].
+			  self addToolbarItemsToMenuGroup: group ];
 		  yourself
 ]
 
@@ -488,16 +489,15 @@ JadeiteInspector >> initializePresenters [
 
 	| box panedLayout |
 	super initializePresenters.
-	self initializeToolbar.
 	box := SpBoxLayout newHorizontal.
 	box spacing: 10.
 	self layout add: box.
-	panedLayout := SpPanedLayout newHorizontal positionOfSlider: 0.30. 
+	panedLayout := SpPanedLayout newHorizontal positionOfSlider: 0.30.
 	self initializeInstVarList: panedLayout.
 	panedLayout add:
-		(documentPresenter := codePane := JadeiteTextDocument new _gciSession:
-			                                  GciSession current).
-	box add: panedLayout. 
+		(documentPresenter := codePane := JadeiteTextDocument new
+			                                  _gciSession: GciSession current).
+	box add: panedLayout.
 	statusTextPresenter := self newStatusBar.
 	self layout addLast: statusTextPresenter expand: false
 ]

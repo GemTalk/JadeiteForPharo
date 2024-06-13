@@ -179,7 +179,8 @@ JadeiteBrowser >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'Method';
-						  subMenu: self fullMethodListMenu ] ];
+						  subMenu: self fullMethodListMenu ].
+			  self addToolbarItemsToMenuGroup: group ];
 		  yourself
 ]
 
@@ -187,21 +188,26 @@ JadeiteBrowser >> initializeMenubar [
 JadeiteBrowser >> initializePresenters [
 
 	super initializePresenters.
-	self initializeMenubar.
-	self initializeToolbar.
+	"self initializeToolbar."
 	tabs := self instantiate: JadeiteNotebookPresenter.
 	self openNewBrowserTab.
 	self layout add: tabs.
 	self initializeAutoCommitPresenter.
-	self initializeBindings.
+	self initializeBindings
 ]
 
 { #category : 'initialization' }
 JadeiteBrowser >> initializeWindow: aWindowPresenter [
+	"keep font & row computations for investigation but comment out for now."
 
+	| fontWidth rowHeight initialExtent |
+	"fontWidth := StandardFonts defaultFont widthOfString: 'M'.
+	rowHeight := self class inputTextHeight.
+"
+	initialExtent := 1600 @ 1000. "* (fontWidth @ rowHeight)"
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1600 @ 1000;
+		initialExtent: initialExtent;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
 	aWindowPresenter whenClosedDo: [

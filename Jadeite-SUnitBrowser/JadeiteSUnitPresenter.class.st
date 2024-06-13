@@ -55,6 +55,18 @@ JadeiteSUnitPresenter >> addSUnitMethodListMenuItems [
 					enabled: [ self methodListPresenter selectedItems notEmpty ] ] ]
 ]
 
+{ #category : 'initialization' }
+JadeiteSUnitPresenter >> addToolbarItemsToMenuGroup: group [
+
+	^ self newJadeiteSUnitToolbar items do: [ :toolbarItem |
+		  group addItem: [ :item |
+			  item
+				  name: toolbarItem label;
+				  description: toolbarItem label;
+				  icon: toolbarItem icon;
+				  action: toolbarItem action ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> addUpdatedTestClasses: classServices [
 	"don't show class unless the package concurs"
@@ -193,6 +205,13 @@ JadeiteSUnitPresenter >> initializeClassList [
 ]
 
 { #category : 'initialization' }
+JadeiteSUnitPresenter >> initializeMenuBar [
+
+	^ self newMenuBar addGroup: [ :group |
+		  self addToolbarItemsToMenuGroup: group ]
+]
+
+{ #category : 'initialization' }
 JadeiteSUnitPresenter >> initializePresenters [
 
 	| listPresenters |
@@ -232,7 +251,7 @@ JadeiteSUnitPresenter >> initializeWindow: aWindowPresenter [
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter initialExtent: 1000 @ 600.
 	self updateCaption.
-	aWindowPresenter toolbar: self newJadeiteSUnitToolbar.
+	aWindowPresenter menu: self initializeMenuBar. 
 ]
 
 { #category : 'testing' }

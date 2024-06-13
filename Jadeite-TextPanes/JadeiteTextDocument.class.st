@@ -443,6 +443,19 @@ JadeiteTextDocument >> initialize [
 ]
 
 { #category : 'initialization' }
+JadeiteTextDocument >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'File';
+						  subMenu: self initializeFileMenu ].
+			  self addToolbarItemsToMenuGroup: group ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteTextDocument >> initializePresenters [
 
 	super initializePresenters. 
@@ -457,7 +470,7 @@ JadeiteTextDocument >> initializeWindow: aWindowPresenter [
 	self updateCaption.
 	aWindowPresenter
 		initialExtent: 800 @ 500;
-		toolbar: self newJadeiteToolbar
+		menu: self initializeMenubar
 ]
 
 { #category : 'printing' }

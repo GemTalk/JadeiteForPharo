@@ -21,6 +21,18 @@ JadeiteToolbarTrait >> addToolbarCommandsTo: aGroup [
 		aGroup register: (each forSpecContext: self) ]
 ]
 
+{ #category : 'initialization' }
+JadeiteToolbarTrait >> addToolbarItemsToMenuGroup: group [
+
+	^ self newJadeiteToolbar items do: [ :toolbarItem |
+		  group addItem: [ :item |
+			  item
+				  name: toolbarItem label;
+				  description: toolbarItem label;
+				  icon: toolbarItem icon;
+				  action: toolbarItem action ] ]
+]
+
 { #category : 'actions' }
 JadeiteToolbarTrait >> clientCommitIdDescription [
 

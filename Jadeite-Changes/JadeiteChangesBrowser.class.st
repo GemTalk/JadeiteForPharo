@@ -147,11 +147,12 @@ JadeiteChangesBrowser >> initializeJadeiteMenu [
 JadeiteChangesBrowser >> initializeMenubar [
 
 	^ self newMenuBar
-		  addGroup: [ :group | 
-			  group addItem: [ :item | 
+		  addGroup: [ :group |
+			  group addItem: [ :item |
 					  item
 						  name: 'Jadeite';
-						  subMenu: self initializeJadeiteMenu  ] ];
+						  subMenu: self initializeJadeiteMenu ].
+			  self addToolbarItemsToMenuGroup: group ];
 		  yourself
 ]
 

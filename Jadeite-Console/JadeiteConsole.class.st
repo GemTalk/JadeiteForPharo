@@ -485,10 +485,11 @@ JadeiteConsole >> initializeMenubar [
 					  item
 						  name: 'Browse';
 						  subMenu: self initializeBrowseMenu ];
-					addItem: [ :item |
+				  addItem: [ :item |
 					  item
 						  name: 'Help';
-						  subMenu: self initializeHelpMenu ]];
+						  subMenu: self initializeHelpMenu ].
+			  self addToolbarItemsToMenuGroup: group ];
 		  yourself
 ]
 
@@ -497,7 +498,6 @@ JadeiteConsole >> initializePresenters [
 
 	| box |
 	super initializePresenters.
-	self initializeToolbar.
 	box := SpBoxLayout newVertical.
 	self layout add: box.
 	consoleTabs := SpTabLayout new.
@@ -506,7 +506,7 @@ JadeiteConsole >> initializePresenters [
 	box add: consoleTabs.
 	self initializeAutoCommitPresenter.
 	lastKnownTransaction := self newStatusBar.
-	self layout addLast: lastKnownTransaction expand: false.
+	self layout addLast: lastKnownTransaction expand: false
 ]
 
 { #category : 'initialization' }

@@ -68,11 +68,18 @@ JadeiteHistoryBrowser >> initializeDiffsPresenter [
 ]
 
 { #category : 'initialization' }
-JadeiteHistoryBrowser >> initializePresenters [ 
+JadeiteHistoryBrowser >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group | self addToolbarItemsToMenuGroup: group ];
+		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteHistoryBrowser >> initializePresenters [
 
 	super initializePresenters.
-	self initializeToolbar. 
-	self initializeVersionsList. 
+	self initializeVersionsList.
 	self initializeDiffsPresenter.
 	self initializeVersionsListContextMenu
 ]
@@ -124,7 +131,8 @@ JadeiteHistoryBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1000 @ 750.
+		initialExtent: 1000 @ 750;
+		menu: self initializeMenubar.
 	self updateCaption
 ]
 

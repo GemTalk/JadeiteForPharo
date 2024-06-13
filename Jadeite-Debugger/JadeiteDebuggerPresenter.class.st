@@ -29,45 +29,49 @@ Class {
 }
 
 { #category : 'initialization' }
-JadeiteDebuggerPresenter >> addDebuggerActions [
+JadeiteDebuggerPresenter >> addDebuggerActionsTo: group [
 
-	toolbar
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Proceed';
-				 icon: (self iconNamed: #smallPrintIt);
-				 help: 'resumes execution';
-				 action: [
-					 answer := #resume.
-					 self window close ];
-				 yourself);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Step Over';
-				 icon: (self iconNamed: #glamorousOver);
-				 help: 'steps over current frame';
-				 action: [
-					 self stepOver.
-					 suspendedProcess resume ]);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Step Into';
-				 icon: (self iconNamed: #glamorousInto);
-				 help: 'steps into current frame';
-				 action: [
-					 self stepInto.
-					 suspendedProcess resume ]);
-			addItem: (SpToolbarButtonPresenter new
-				 label: 'Step Through';
-				 icon: (self iconNamed: #glamorousThrough);
-				 help: 'steps through current frame';
-				 action: [
-					 self stepThrough.
-					 suspendedProcess resume ]);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Stop';
-				 icon: (self iconNamed: #changeRemove);
-				 help: 'stops execution';
-				 action: [
-					 answer := #terminate.
-					 self window close ])
+	group
+		addItem: [ :item |
+			item
+				name: 'Proceed';
+				description: 'resumes execution';
+				icon: (self iconNamed: #smallPrintIt);
+				action: [
+					answer := #resume.
+					self window close ] ];
+		addItem: [ :item |
+			item
+				name: 'Step Over';
+				description: 'steps over current frame';
+				icon: (self iconNamed: #glamorousOver);
+				action: [
+					self stepOver.
+					suspendedProcess resume ] ];
+		addItem: [ :item |
+			item
+				name: 'Step Into';
+				icon: (self iconNamed: #glamorousInto);
+				description: 'steps into current frame';
+				action: [
+					self stepInto.
+					suspendedProcess resume ] ];
+		addItem: [ :item |
+			item
+				name: 'Step Through';
+				icon: (self iconNamed: #glamorousThrough);
+				description: 'steps through current frame';
+				action: [
+					self stepThrough.
+					suspendedProcess resume ] ];
+		addItem: [ :item |
+			item
+				name: 'Stop';
+				icon: (self iconNamed: #changeRemove);
+				description: 'stops execution';
+				action: [
+					answer := #terminate.
+					self window close ] ]
 ]
 
 { #category : 'initialization' }
@@ -312,7 +316,9 @@ JadeiteDebuggerPresenter >> initializeMenubar [
 			  group addItem: [ :item |
 					  item
 						  name: 'File';
-						  subMenu: self initializeFileMenu ] ];
+						  subMenu: self initializeFileMenu ].
+			  self addToolbarItemsToMenuGroup: group.
+			  self addDebuggerActionsTo: group ];
 		  yourself
 ]
 
@@ -321,8 +327,6 @@ JadeiteDebuggerPresenter >> initializePresenters [
 
 	| topPanes panedLayout codePaneBox |
 	super initializePresenters.
-	self initializeToolbar.
-	self addDebuggerActions.
 	errorMessagePresenter := (JadeiteTextDocument new text: String new)
 		                         beNotEditable;
 		                         withoutSyntaxHighlight;
@@ -334,7 +338,7 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	topPanes := SpPanedLayout newHorizontal positionOfSlider: 0.50.
 	frameListPresenter := JadeiteListPresenter new display: [
 		                      :frameService | frameService printString ].
-	frameListPresenter contextMenu: self initializeStackMenu. 
+	frameListPresenter contextMenu: self initializeStackMenu.
 	topPanes add: frameListPresenter.
 	self initializeVariablePanesIn: topPanes.
 	panedLayout add: topPanes.
