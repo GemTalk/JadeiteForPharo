@@ -159,7 +159,6 @@ JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory 
 		compileErrorHandler: [ :ex |
 			self reportCompileError: ex gsArguments ];
 		serviceCompletionBlock: [
-			self value: methodSource1.
 			self hasUnacceptedEdits: false.
 			completionBlock value ].
 	self issueCommand: classService

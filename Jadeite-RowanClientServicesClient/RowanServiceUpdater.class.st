@@ -59,13 +59,14 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
-	                      [
 	                      self possibleSignalCompileError: service.
 	                      self applyUpdates: service.
-	                      service handleServiceCompletion value ]
+	                      service inCommand signal. "signal before continuing to let gui do further updates as needed."
+	                      service handleServiceCompletion ]
 		                      on: GsCompileError
-		                      do: [ :ex | service handleCompileError: ex ] ]
-		                      ensure: [ service inCommand signal ] ].
+		                      do: [ :ex |
+			                      service handleCompileError: ex.
+			                      service inCommand signal ] ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
