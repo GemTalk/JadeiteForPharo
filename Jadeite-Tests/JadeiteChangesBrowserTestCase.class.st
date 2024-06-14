@@ -608,6 +608,7 @@ JadeiteChangesBrowserTestCase >> test_revertMethodRemoval [
 
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowserTestCase >> test_unicodeSource [
+
 	| source change |
 	self selectRowanSample1Test.
 	self selectMethodNamed: #test1.
@@ -615,16 +616,21 @@ JadeiteChangesBrowserTestCase >> test_unicodeSource [
 
 	self assert: RowanSample1 new foo = ''Â¶'''.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	changesBrowser := self projectListPresenter selection changesUsing: session.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	changesBrowser := self projectListPresenter selection changesUsing:
+		                  session.
 	change := changesBrowser operationListPresenter list first.
 	self assert: change isMethodModification.
 	changesBrowser operationListPresenter selection: change.
-	self assert: change modification source trimBlanks replaceLfWithCrLf
+	self
+		assert: change modification source trimBlanks replaceLfWithCrLf
 		equals: 'test1
 
 	self assert: RowanSample1 new foo = ''Â¶'''.
-	self assert: change obsoletion source trimBlanks replaceLfWithCrLf
+	self
+		assert: change obsoletion source trimBlanks replaceLfWithCrLf
 		equals: 'test1
 
 	self assert: RowanSample1 new foo = ''foo'''

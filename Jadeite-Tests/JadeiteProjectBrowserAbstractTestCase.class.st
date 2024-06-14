@@ -61,15 +61,24 @@ JadeiteProjectBrowserAbstractTestCase >> isAbstract [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> issue170methodCreation [
+
 	| source |
 	self methodSourcePresenter value: (source := 'another  ^5').
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self methodSourcePresenter value: (source := 'interesting  ^5').
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self methodSourcePresenter value: (source := 'test  ^5').
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self methodSourcePresenter value: (source := 'try  ^5').
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -101,11 +110,11 @@ JadeiteProjectBrowserAbstractTestCase >> saveMethodWithUniqueString [
 	| source |
 	source := 'gloop
 	"I be unique"
-	^self gloop'. 
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+	^self gloop'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

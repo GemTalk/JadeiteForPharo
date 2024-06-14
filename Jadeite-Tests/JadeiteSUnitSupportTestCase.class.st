@@ -134,15 +134,17 @@ JadeiteSUnitSupportTestCase >> setupAbstractSuperWithTest [
 	source := 'isAbstract
 		^self name = #JadeiteTest'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self selectInstanceSide.
 	source := 'test_className
 		"fail in one subclass only" 
 		self assert: self class name = #JadeiteTestSubclass1'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		saveClass: 'JadeiteTestSubclass1'
 		superclass: 'JadeiteTest'
@@ -168,49 +170,63 @@ JadeiteSUnitSupportTestCase >> setupRunInSelectedTestClassTest [
 		package: 'RowanSample1-Tests'.
 	self methodSourcePresenter value: 'myClassName
 				^#RowanSample1SubClassTest'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> setupTestSuperclass [
 	"setup a subclass of TestCase with a class var that can 
-	record what class was actually run" 
-	self selectServiceNamed: 'RowanSample1' in: self projectsPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self projectsPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self projectsPresenter classListPresenter.
-	self projectsPresenter classDefinitionPresenter
-		value: 'TestCase' , ' rwSubclass: ' , 'RowanSample1Test' printString
-				, '
-	instVarNames: ' , Array new printString
-				, '
+	record what class was actually run"
+
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: self projectsPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self projectsPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self projectsPresenter classListPresenter.
+	self projectsPresenter classDefinitionPresenter value:
+		'TestCase' , ' rwSubclass: ' , 'RowanSample1Test' printString , '
+	instVarNames: ' , Array new printString , '
 	classVars: #(TestClassVar)
 	classInstVars: #()
 	poolDictionaries: #()
-	category: '
-					, 'RowanSample1-Tests' printString , '
+	category: ' , 'RowanSample1-Tests' printString , '
 	options: #()'.
 	self projectsPresenter editSaveClass.
-	self methodSourcePresenter
-		value: 'test_method
+	self methodSourcePresenter value: 'test_method
 				self class setMyClassName: self class name. 
 				^self assert: self class name equals: self myClassName'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self methodSourcePresenter value: 'myClassName
 				^#RowanSample1Test'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self selectClassTab.
 	self methodSourcePresenter value: 'setMyClassName: aSymbol 
 				TestClassVar := aSymbol'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self methodSourcePresenter value: 'testClassVar
 				^TestClassVar'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self selectInstanceSide.
-	self methodSourcePresenter
-		value: 'test_method
+	self methodSourcePresenter value: 'test_method
 				self class setMyClassName: self class name. 
 				^self assert: self class name equals: self myClassName'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -753,8 +769,9 @@ JadeiteSUnitSupportTestCase >> test_extensionTestShowsUpInSUnitBrowser [
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self assert:
 		self projectsPresenter methodListPresenter selections first
 			isExtension.
@@ -818,34 +835,53 @@ JadeiteSUnitSupportTestCase >> test_extensionTestsShowUpInExtensionAndDefinedPac
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_inheritedTests [
+
 	| subTestClassTestSelectors testClassTestSelectors source |
 	self openProjectBrowser.
-	self testsIssue: #issue211
-		withTitle: 'SUnit browser and SUnit tab in Project browser missing inherited test cases'.
+	self
+		testsIssue: #issue211
+		withTitle:
+		'SUnit browser and SUnit tab in Project browser missing inherited test cases'.
 	self
 		saveClass: 'RowanTestSubClassServiceTest'
 		superclass: 'RowanTestClassServiceTest'
 		instVars: Array new
 		package: 'Rowan-Services-Tests'.
-	
-	[source := 'testMethod
+
+	[
+	source := 'testMethod
 
 	^self assert: true'.
 	self projectsPresenter basicAddMethodCategory: 'testing'.
 	self methodSourcePresenter value: source.
 	self classListPresenter selection meta: false.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectServiceNamed: 'Rowan-Services-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanTestClassServiceTest' in: self sunitPresenter classListPresenter.
-	testClassTestSelectors := self sunitPresenter methodListPresenter list
-				collect: [:service | service selector].
-	self selectServiceNamed: 'RowanTestSubClassServiceTest' in: self sunitPresenter classListPresenter.
-	self assert: (session executeString: 'RowanTestClassServiceTest shouldInheritSelectors').	"required to see the superclass non-abstract methods"
-	subTestClassTestSelectors := self sunitPresenter methodListPresenter list
-				collect: [:service | service selector].
-	self assert: subTestClassTestSelectors size > testClassTestSelectors size.	"the subclass inherits the super class's tests"
-	testClassTestSelectors do: [:selector | self assert: (subTestClassTestSelectors includes: selector)]]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter classListPresenter selection]
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanTestClassServiceTest'
+		in: self sunitPresenter classListPresenter.
+	testClassTestSelectors := self sunitPresenter methodListPresenter
+		                          list collect: [ :service |
+		                          service selector ].
+	self
+		selectServiceNamed: 'RowanTestSubClassServiceTest'
+		in: self sunitPresenter classListPresenter.
+	self assert: (session executeString:
+			 'RowanTestClassServiceTest shouldInheritSelectors'). "required to see the superclass non-abstract methods"
+	subTestClassTestSelectors := self sunitPresenter methodListPresenter
+		                             list collect: [ :service |
+		                             service selector ].
+	self assert:
+		subTestClassTestSelectors size > testClassTestSelectors size. "the subclass inherits the super class's tests"
+	testClassTestSelectors do: [ :selector |
+		self assert: (subTestClassTestSelectors includes: selector) ] ]
+		ensure: [
+			self projectsPresenter basicRemoveClass:
+				self projectsPresenter classListPresenter selection ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1215,8 +1251,9 @@ JadeiteSUnitSupportTestCase >> test_refresh [
 	source := 'testMethod  
 		self assert: true'.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self projectsPresenter classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self projectsPresenter classListPresenter selection
+		onCompletion: nil.
 	newMethod := self sunitPresenter methodListPresenter list
 		             detect: [ :methodService |
 		             methodService selector == #testMethod ]
@@ -1351,8 +1388,9 @@ JadeiteSUnitSupportTestCase >> test_sameSelectorInheritedTests [
 		"same selector as superclass"
 		self assert: false'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
@@ -1409,8 +1447,9 @@ JadeiteSUnitSupportTestCase >> test_sameSelectorInheritedTestsFailureInSuper [
 		"same selector as superclass"
 		self assert: true'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
@@ -1464,8 +1503,9 @@ JadeiteSUnitSupportTestCase >> test_saveMethodInProjectBrowser [
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 
 	[
 	self

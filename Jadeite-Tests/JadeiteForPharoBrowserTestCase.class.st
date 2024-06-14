@@ -318,16 +318,19 @@ JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 	self selectRowanSample1Class.
 	source := 'theAString ^''apple'''.
 	self methodSourcePresenter text: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selectedItem.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: nil.
 	source := 'invokeA ^self apple'.
 	self methodSourcePresenter text: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selectedItem.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: nil.
 	source := 'theASymbol ^#apple'.
 	self methodSourcePresenter text: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selectedItem.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: nil.
 	self selectMethodNamed: #theAString.
 	self selectMethodNamed: #invokeA.
 	methodListPresenter := self projectsPresenter

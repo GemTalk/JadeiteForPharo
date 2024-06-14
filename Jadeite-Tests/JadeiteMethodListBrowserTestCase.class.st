@@ -200,25 +200,33 @@ JadeiteMethodListBrowserTestCase >> setUp [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> setupMultiKeywordSenderAndSendee [
+
 	| source |
 	source := 'jadeiteSender  ^self jadeiteSendeeWith: 1 keyword: 2'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'jadeiteSender2  
 "comment with sendee #jadeiteSendeeWith: multiple keyword:"
 ^self jadeiteSendeeWith: 1 keyword: 2'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'jadeiteSendeeWith: multiple keyword: arguments	^multiple+arguments'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> setupMultipleReferencesToString [
+
 	| source |
 	self openProjectBrowser.
 	self selectRowanSample1Test.
@@ -231,7 +239,9 @@ array add: ''blerf''.
 ^array'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'flub2
 | array |
 array := Array new. 
@@ -241,7 +251,9 @@ array add: ''blerf''.
 ^array'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'flub3
 | array |
 array := Array new. 
@@ -251,18 +263,23 @@ array add: ''blerf''.
 ^array'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> setupTestMethodInProjectBrowser [
+
 	| source |
 	self openProjectBrowser.
 	self selectRowanSample1Test.
 	source := 'literalRefTest ^#(''foot'' #foot 123 nil true false)'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -1448,8 +1465,9 @@ JadeiteMethodListBrowserTestCase >> test_methodBrowserSaveMethod [
 	source2 := 'test1 self assert: RowanSample1 new foo = ''changedAgain'''.
 	self projectsPresenter methodSourcePresenter value: source2.
 	self projectsPresenter methodSourcePresenter view isModified: true. "needed for tests"
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		assert: self projectsPresenter methodSourcePresenter value
 		equals: source2.
@@ -1653,9 +1671,12 @@ JadeiteMethodListBrowserTestCase >> test_removeMethodOutsideServices [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_removeMethodWarningString [
+
 	| source removalWarningString |
-	self testsIssue: #issue663
-		withTitle: '(3.0.91) OOM when attempting to remove method with #new selector ...'.
+	self
+		testsIssue: #issue663
+		withTitle:
+		'(3.0.91) OOM when attempting to remove method with #new selector ...'.
 	self openProjectBrowser.
 	self selectRowanSample1Class.
 	self selectClassTab.
@@ -1663,11 +1684,16 @@ JadeiteMethodListBrowserTestCase >> test_removeMethodWarningString [
 	source := 'new
 		^super new initialize'.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.	"#new will be selected"
-	methodListBrowser := self projectsPresenter browseSelectedMethods.	"#new will be selected"
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil. "#new will be selected"
+	methodListBrowser := self projectsPresenter browseSelectedMethods. "#new will be selected"
 	removalWarningString := methodListBrowser primaryPresenter
-				removeSelectorsString: self methodListPresenter selections.
-	self assert: ('RowanSample1>>new (referenced by #### methods)*' match: removalWarningString)	"assume it will always be at least 1000 senders"
+		                        removeSelectorsString:
+		                        self methodListPresenter selections.
+	self assert:
+		('RowanSample1>>new (referenced by #### methods)*' match:
+			 removalWarningString) "assume it will always be at least 1000 senders"
 ]
 
 { #category : 'as yet unclassified' }

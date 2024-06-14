@@ -230,21 +230,10 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
-	RowanServiceUpdater current logComment:
-		'RowanService>>#executeCommandOnCompletion:semaphore: '.
 	process := Processor activeProcess.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
-	RowanServiceUpdater current logComment:
-		'RowanService>>#executeCommandOnCompletion:semaphore: '
-		, ' about to executeCommand'.
 	promise := remoteSelf executeCommand.
-	RowanServiceUpdater current logComment:
-		'RowanService>>#executeCommandOnCompletion:semaphore: '
-		, ' executeCommand sent. promise: ' , promise printString.
 	promise when: theCompletionBlock catch: [ :value |
-		RowanServiceUpdater current logComment:
-			'RowanService>>#executeCommandOnCompletion:semaphore: - in catch block '
-			, value printString.
 		[
 		value tag = 'rsrProcessTerminated' ifTrue: [
 			RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
@@ -265,6 +254,18 @@ RowanService >> executeInSession: session onCompletion: completionBlock semaphor
 
 { #category : 'public' }
 RowanService >> filterUpdate: presenter browser: anObject [
+	
+]
+
+{ #category : 'actions' }
+RowanService >> handleCompileError: compileError [
+
+	compileError pass
+]
+
+{ #category : 'accessing' }
+RowanService >> handleServiceCompletion [
+
 	
 ]
 
@@ -750,8 +751,10 @@ RowanService >> signal [
 	" do nothing "
 ]
 
-{ #category : 'rsr' }
+{ #category : 'actions' }
 RowanService >> signalCompileError [
+
+	"only a compile error service takes action"
 ]
 
 { #category : 'must not strip' }

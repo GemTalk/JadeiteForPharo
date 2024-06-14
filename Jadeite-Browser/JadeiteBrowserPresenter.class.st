@@ -1114,34 +1114,36 @@ JadeiteBrowserPresenter >> editSaveClassComment [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> editSaveMethod [
+
 	| selection |
 	selection := self selectedClass.
-	selection ifNil: [^self].
+	selection ifNil: [ ^ self ].
 	selection meta: self isClassSideSelected.
-	self editSaveMethod: selection.
-	self updateSUnitTab.
-	self redrawAllViews.
-	self updateSystemTab.
+	self editSaveMethod: selection onCompletion: [
+		self updateSUnitTab.
+		self redrawAllViews.
+		self updateSystemTab ]
 ]
 
 { #category : 'actions' }
-JadeiteBrowserPresenter >> editSaveMethod: classService [
+JadeiteBrowserPresenter >> editSaveMethod: classService onCompletion: completionBlock [
 	"save a method from the method source tab.
 	Tests may not be smart enough to select the method source tab first (and set the underlying adapter & widget) so we select the tab here."
+
 	| compileResult |
-	self selectMethodSourceTab. 
+	self selectMethodSourceTab.
 	compileResult := self
-				editSaveMethod: classService
-				in: methodSourcePresenter
-				category: self targetCategory.
-	self statusBarText message ifNotNil:[:text | text isEmpty ifFalse:[^self]].  "don't reselect methods when status bar is full so as not to upset the compile information"
-	classService selectedMethods
-		ifNotNil: 
-			[:methodServices |
-			methodServices notEmpty
-				ifTrue: 
-					["there will be no method selected on a compiler error"
-					self selectMethodsFrom: classService]]
+		                 editSaveMethod: classService
+		                 in: methodSourcePresenter
+		                 category: self targetCategory
+		                 onCompletion: [
+			                 self statusBarText message ifNotNil: [ :text |
+				                 text isEmpty ifFalse: [ ^ self ] ]. "don't reselect methods when status bar is full so as not to upset the compile information"
+			                 classService selectedMethods ifNotNil: [
+				                 :methodServices |
+				                 methodServices notEmpty ifTrue: [ "there will be no method selected on a compiler error"
+					                 self selectMethodsFrom: classService ] ].
+			                 completionBlock value ]
 ]
 
 { #category : 'as yet unclassified' }

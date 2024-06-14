@@ -200,13 +200,16 @@ JadeiteAbstractTestCase >> commitTransaction [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> createDebuggerTestMethod [
+
 	| source |
 	source := 'testMethod
 
 	^10023614059'.
-	self selectCategoriesNamed: (Array with: 'accessing'). 
+	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -658,23 +661,31 @@ JadeiteAbstractTestCase >> saveClassMethod: source in: className category: categ
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveInterestingLoopMethod [
+
 	| source |
 	source := self methodSourceForTest.
 	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := self anotherNumberMethodSource.
 	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := self interestingLoopMethodSource.
 	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveIssue166Method [
+
 	| source |
 	source := 'issue166
 
@@ -682,13 +693,16 @@ JadeiteAbstractTestCase >> saveIssue166Method [
 
 	[RowanSample1 new halt; foo] value.
 	^self'.
-	self selectCategoriesNamed: (Array with: 'accessing'). 
+	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveIssue169Method [
+
 	| source |
 	source := 'issue169
 
@@ -700,13 +714,16 @@ JadeiteAbstractTestCase >> saveIssue169Method [
 	string := String new. 
 	Transcript cr. 
 	^self'.
-	self selectCategoriesNamed: (Array with: 'accessing'). 
+	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveIssue216Method [
+
 	| source |
 	source := 'issue216
 
@@ -715,9 +732,11 @@ JadeiteAbstractTestCase >> saveIssue216Method [
 	self halt. 
 	RowanClassService new classFromName.
 	^self'.
-	self selectCategoriesNamed: (Array with: 'accessing'). 
+	self selectCategoriesNamed: (Array with: 'accessing').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -762,11 +781,11 @@ JadeiteAbstractTestCase >> saveSampleMethod [
 	source := 'sampleMethod  
 		| aaa | 
 		aaa := 123. 
-		^aaa'. 
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+		^aaa'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

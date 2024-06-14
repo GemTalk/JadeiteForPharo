@@ -15,11 +15,11 @@ JadeiteProjectBrowserTestCase >> addSampleMethodGoo [
 	| source |
 	source := 'goo
 	"RowanSample1 new goo"
-	^Array with: #goo'. 
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+	^Array with: #goo'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -27,11 +27,11 @@ JadeiteProjectBrowserTestCase >> addSampleMethodHoo [
 
 	| source |
 	source := 'hoo
-	^Bag with: ''hoo'''. 
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+	^Bag with: ''hoo'''.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -154,8 +154,11 @@ loadedProject := loadedProjects projectNamed: ''Izmir''.	"this guy is the same o
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> issue284methodCreation [
+
 	self methodSourcePresenter value: 'addedMethod  ^5'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -192,11 +195,11 @@ JadeiteProjectBrowserTestCase >> modifySampleMethodFoo [
 	| source |
 	source := 'foo
 	"RowanSample1 new foo"
-	^1 + 2 + 3'. 
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+	^1 + 2 + 3'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -241,11 +244,11 @@ JadeiteProjectBrowserTestCase >> saveHooMethod [
 	| source |
 	source := 'hoo
 	"RowanSample1 new hoo"
-	^self goo'. 
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+	^self goo'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -254,10 +257,10 @@ JadeiteProjectBrowserTestCase >> saveMethodWithUnimplementedSelector [
 	| source |
 	source := 'theTestMethod
 		^self fnoodley1'.
-	self methodSourcePresenter value: source. 
-	self projectsPresenter editSaveMethod: self classListPresenter selection. 
-
-	
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -286,38 +289,54 @@ JadeiteProjectBrowserTestCase >> selectVariableListEntryForcingEvent: variable [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionChangeSelectionIgnoreChanges [
-	self testsIssue: #issue388
-		withTitle: '(3.0.53) useful to be able to open method browser on selected methods in project browser'.
+
+	self
+		testsIssue: #issue388
+		withTitle:
+		'(3.0.53) useful to be able to open method browser on selected methods in project browser'.
 	TestMessageBox enableJadeiteTestMessageBox.
-	[| source |
+	[
+	| source |
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: self classListPresenter.
 	self selectCategoryNamed: 'accessing'.
 	source := 'sampleMethod  
 		| aaa | 
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self methodListPresenter selection selector equals: #sampleMethod.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod.
 	self methodSourcePresenter value: 'new text'.
 	self methodSourcePresenter view isModified: true.
-	TestMessageBox plannedResult: #yes.	"answer that we want to ignore changes"
+	TestMessageBox plannedResult: #yes. "answer that we want to ignore changes"
 	self selectWithChangeEventMethodNamed: #foo.
-	self assert: self methodListPresenter selection selector equals: #foo]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				self projectsPresenter basicRemoveMethods	"for next test"]
+	self assert: self methodListPresenter selection selector equals: #foo ]
+		ensure: [
+			TestMessageBox disableJadeiteTestMessageBox.
+			self projectsPresenter basicRemoveMethods "for next test" ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionChangeSelectionStayOnMethod [
-	self testsIssue: #issue386
-		withTitle: '(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
+
+	self
+		testsIssue: #issue386
+		withTitle:
+		'(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
 	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[| source |
+
+	[
+	| source |
 	self selectRowanSample1Class.
 	self selectCategoryNamed: 'accessing'.
 	source := 'sampleMethod  
@@ -325,16 +344,21 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionChangeSelectionStayOnM
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self methodListPresenter selection selector equals: #sampleMethod.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod.
 	self methodSourcePresenter value: 'new text'.
 	self methodSourcePresenter view isModified: true.
-	TestMessageBox plannedResult: #no.	"answer that we want to stay on method"
+	TestMessageBox plannedResult: #no. "answer that we want to stay on method"
 	self selectWithChangeEventMethodNamed: #foo.
-	self assert: self methodListPresenter selection selector equals: #sampleMethod]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				self projectsPresenter basicRemoveMethods]
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox.
+		self projectsPresenter basicRemoveMethods ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -355,8 +379,9 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindow [
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		assert: self methodListPresenter selection selector
 		equals: #sampleMethod.
@@ -373,11 +398,15 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindow [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindowStayOnMethod [
-	self testsIssue: #issue386
-		withTitle: '(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
+
+	self
+		testsIssue: #issue386
+		withTitle:
+		'(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
 	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[| source |
+
+	[
+	| source |
 	self selectRowanSample1Class.
 	self selectCategoryNamed: 'accessing'.
 	source := 'sampleMethod  
@@ -385,17 +414,22 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindowStayOnMetho
 		aaa := 123. 
 		^aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self assert: self methodListPresenter selection selector equals: #sampleMethod.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod.
 	self methodSourcePresenter value: 'new text'.
 	self methodSourcePresenter view isModified: true.
-	TestMessageBox plannedResult: #yes.	"answer that we want to stay on selection"
+	TestMessageBox plannedResult: #yes. "answer that we want to stay on selection"
 	projectsBrowser view close.
 	self assert: projectsBrowser isOpen.
-	self assert: self methodListPresenter selection selector equals: #sampleMethod]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				self projectsPresenter basicRemoveMethods]
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox.
+		self projectsPresenter basicRemoveMethods ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -877,9 +911,12 @@ JadeiteProjectBrowserTestCase >> test_blankCategoryRenameInvalid [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_browseCategoryMethodsMenuEnablement [
+
 	| commandQuery source |
-	self testsIssue: #issue693
-		withTitle: 'Would like to be able to open method browser on all methods in selected categories'.
+	self
+		testsIssue: #issue693
+		withTitle:
+		'Would like to be able to open method browser on all methods in selected categories'.
 	self selectRowanSample1Test.
 	source := 'flub1
 | array |
@@ -890,32 +927,38 @@ array add: ''blerf''.
 ^array'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self projectsPresenter categoryListPresenter selections: #().
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self projectsPresenter categoryListPresenter selections: #(  ).
 	commandQuery := self
-				queryCommand: #browseSelectedCategoryMethods
-				inPresenter: self projectsPresenter
-				view: self categoryListPresenter view.
+		                queryCommand: #browseSelectedCategoryMethods
+		                inPresenter: self projectsPresenter
+		                view: self categoryListPresenter view.
 	self deny: commandQuery isEnabled.
 	self projectsPresenter categoryListPresenter selection: 'other'.
 	commandQuery := self
-				queryCommand: #browseSelectedCategoryMethods
-				inPresenter: self projectsPresenter
-				view: self categoryListPresenter view.
+		                queryCommand: #browseSelectedCategoryMethods
+		                inPresenter: self projectsPresenter
+		                view: self categoryListPresenter view.
 	self assert: commandQuery isEnabled.
-	self projectsPresenter categoryListPresenter selections: #('tests' 'other').
+	self projectsPresenter categoryListPresenter selections:
+		#( 'tests' 'other' ).
 	commandQuery := self
-				queryCommand: #browseSelectedCategoryMethods
-				inPresenter: self projectsPresenter
-				view: self categoryListPresenter view.
+		                queryCommand: #browseSelectedCategoryMethods
+		                inPresenter: self projectsPresenter
+		                view: self categoryListPresenter view.
 	self assert: commandQuery isEnabled.
 	self assert: self methodListPresenter selections size equals: 1.
-	self assert: self methodListPresenter selections first selector equals: #flub1.
-	self projectsPresenter removeMethods: self classListPresenter selections.
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #flub1.
+	self projectsPresenter removeMethods:
+		self classListPresenter selections.
 	self assert: self methodListPresenter selections size equals: 0.
 	self assertIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #flub1]
-				ifNone: [])
+			 detect: [ :methodService | methodService selector = #flub1 ]
+			 ifNone: [  ])
 ]
 
 { #category : 'as yet unclassified' }
@@ -1483,8 +1526,12 @@ JadeiteProjectBrowserTestCase >> test_dirtyProjectOnDisk [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_dontChangeTabOnMethodSave [
+
 	| source firstTab secondTab |
-	self testsIssue: #issue412 withTitle: '(3.0.56) incorrect project browser update on method accept '.
+	self
+		testsIssue: #issue412
+		withTitle:
+		'(3.0.56) incorrect project browser update on method accept '.
 	firstTab := self currentTabView.
 	self selectClassListTab.
 	self selectRowanSample1Class.
@@ -1492,15 +1539,17 @@ JadeiteProjectBrowserTestCase >> test_dontChangeTabOnMethodSave [
 	self projectsPresenter addSystemBrowser.
 	secondTab := self currentTabView.
 	self selectClassListTab.
-	self selectRowanSample1Class.	"select class/method in new tab"
+	self selectRowanSample1Class. "select class/method in new tab"
 	self selectMethodNamed: #foo.
-	self previousTabView.	"go to tab 1"
+	self previousTabView. "go to tab 1"
 	source := 'foo ^''fooChanged'''.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self assert: self methodSourcePresenter value equals: source.
-	self assert: self currentTabView identicalTo: firstTab.	"still on tab 1"
-	self nextTabView.	"go to tab 2"
+	self assert: self currentTabView identicalTo: firstTab. "still on tab 1"
+	self nextTabView. "go to tab 2"
 	self assert: self currentTabView identicalTo: secondTab.
 	self assert: self methodSourcePresenter value equals: source
 ]
@@ -2368,30 +2417,47 @@ JadeiteProjectBrowserTestCase >> test_refreshAfterAbortMethodList [
 	"method lists should remove deleted methods after an abort."
 
 	| projectListPresenter abortItem |
-	self testsIssue: #issue284
-		withTitle: '(3.0.49 and 3.0.50) project browser not updated properly on reload of project.'.
+	self
+		testsIssue: #issue284
+		withTitle:
+		'(3.0.49 and 3.0.50) project browser not updated properly on reload of project.'.
 	self selectRowanServicesPackage.
-	self selectServiceNamed: 'RowanBrowserService' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanBrowserService'
+		in: self classListPresenter.
 	self methodSourcePresenter value: 'five  ^5'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectServiceNamed: 'RowanAnsweringService' in: self classListPresenter.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter.
 	self methodSourcePresenter value: 'five  ^''five'''.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self selectMethodNamed: #five.
 	methodListBrowser := self projectsPresenter browseImplementors.
-	self denyIsNil: (methodListBrowser primaryPresenter methodListPresenter methodListPresenter list
-				detect: [:methodService | methodService selector = #five]
-				ifNone: []).
-	self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
+	self denyIsNil:
+		(methodListBrowser primaryPresenter methodListPresenter
+			 methodListPresenter list
+			 detect: [ :methodService | methodService selector = #five ]
+			 ifNone: [  ]).
+	self
+		assert: methodListBrowser primaryPresenter methodListPresenter
+				methodListPresenter list size
 		equals: 2.
-	projectListPresenter := transcript projectListPresenter projectListPresenter.
-	abortItem := transcript view menuBar items third items
-				detect: [:menuItem | menuItem command == #abortTransaction].	"jadeite menu"
-	abortItem commandDescription performAgainst: transcript projectListPresenter.
-	[self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list isEmpty]
-		ensure: 
-			[self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded]
+	projectListPresenter := transcript projectListPresenter
+		                        projectListPresenter.
+	abortItem := transcript view menuBar items third items detect: [
+		             :menuItem | menuItem command == #abortTransaction ]. "jadeite menu"
+	abortItem commandDescription performAgainst:
+		transcript projectListPresenter.
+	[
+	self assert: methodListBrowser primaryPresenter methodListPresenter
+			methodListPresenter list isEmpty ] ensure: [
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2400,38 +2466,53 @@ JadeiteProjectBrowserTestCase >> test_refreshAfterAbortMethodListLeaveCommitted 
 	but committed objects should stay."
 
 	| abortItem beforeSize afterSize list |
-	self testsIssue: #issue284
-		withTitle: '(3.0.49 and 3.0.50) project browser not updated properly on reload of project.'.
+	self
+		testsIssue: #issue284
+		withTitle:
+		'(3.0.49 and 3.0.50) project browser not updated properly on reload of project.'.
 	self selectRowanServicesPackage.
-	self selectServiceNamed: 'RowanMethodService' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanMethodService'
+		in: self classListPresenter.
 	self selectMethodNamed: #classFromName.
 	methodListBrowser := self projectsPresenter browseImplementors.
-	
-	[list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+
+	[
+	list := methodListBrowser primaryPresenter methodListPresenter
+		        methodListPresenter list.
 	beforeSize := list size.
 	self assert: beforeSize = 1.
-	self
-		assertIsNil: (list detect: [:methodService | methodService className = 'RowanService'] ifNone: [])]
-			ensure: [self destroy: methodListBrowser].
+	self assertIsNil: (list
+			 detect: [ :methodService |
+			 methodService className = 'RowanService' ]
+			 ifNone: [  ]) ] ensure: [ self destroy: methodListBrowser ].
 	self selectServiceNamed: 'RowanService' in: self classListPresenter.
 	self methodSourcePresenter value: 'classFromName  "do nothing"'.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self selectMethodNamed: #classFromName.
 	methodListBrowser := self projectsPresenter browseImplementors.
-	list := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
+	list := methodListBrowser primaryPresenter methodListPresenter
+		        methodListPresenter list.
 	afterSize := list size.
 	self assert: afterSize equals: beforeSize + 1.
+	self denyIsNil: (list
+			 detect: [ :methodService |
+			 methodService className = 'RowanService' ]
+			 ifNone: [  ]).
+	abortItem := transcript view menuBar items third items detect: [
+		             :menuItem | menuItem command == #abortTransaction ]. "jadeite menu"
+	abortItem commandDescription performAgainst:
+		transcript projectListPresenter.
+
+	[
 	self
-		denyIsNil: (list detect: [:methodService | methodService className = 'RowanService'] ifNone: []).
-	abortItem := transcript view menuBar items third items
-				detect: [:menuItem | menuItem command == #abortTransaction].	"jadeite menu"
-	abortItem commandDescription performAgainst: transcript projectListPresenter.
-	
-	[self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list size
-		equals: beforeSize]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+		assert: methodListBrowser primaryPresenter methodListPresenter
+				methodListPresenter list size
+		equals: beforeSize ] ensure: [
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3314,8 +3395,9 @@ JadeiteProjectBrowserTestCase >> test_twoTabsHaveIndependentCompileErrors [
 	"I be unique"
 	^'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		assert: self projectsPresenter statusBarText view backcolor
 		equals: Color red faded.
@@ -3334,8 +3416,9 @@ JadeiteProjectBrowserTestCase >> test_twoTabsHaveIndependentCompileErrors [
 	"I be unique"
 	^''abc'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod:
-		self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self
 		assert: self projectsPresenter statusBarText view backcolor
 		equals: Color red faded.

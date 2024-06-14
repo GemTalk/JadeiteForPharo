@@ -176,27 +176,27 @@ JadeiteMethodListPresenter >> editSave [
 JadeiteMethodListPresenter >> editSaveMethod [
 
 	methodListPresenter selectedItem ifNotNil: [ :selection |
-		self editSaveMethod: selection classService ]
+		self editSaveMethod: selection classService onCompletion: nil ]
 ]
 
 { #category : 'actions' }
-JadeiteMethodListPresenter >> editSaveMethod: classService [
+JadeiteMethodListPresenter >> editSaveMethod: classService onCompletion: completionBlock [
+
 	| compileResult |
-	classService meta: self methodListPresenter selectedItem meta. 
+	classService meta: self methodListPresenter selectedItem meta.
 	compileResult := self
-				editSaveMethod: classService
-				in: methodSourcePresenter
-				category: methodListPresenter selectedItem category.
-	compileResult == false
-		ifTrue: [self updateService: classService	"If we got a compile error our methods need a refresh"].
-	self statusBarText message ifNotNil:[:text | text isEmpty ifFalse:[^self]].  "don't reselect methods when status bar is full so as not to upset the compile information"
-	classService selectedMethods
-		ifNotNil: 
-			[:methodServices |
-			methodServices notEmpty
-				ifTrue: 
-					["there will be no method selected on a compiler error"
-					self selectMethodsFrom: classService]]
+		                 editSaveMethod: classService
+		                 in: methodSourcePresenter
+		                 category: methodListPresenter selectedItem category
+		                 onCompletion: [
+			                 self updateService: classService.
+			                 self statusBarText message ifNotNil: [ :text |
+				                 text isEmpty ifTrue: [ "don't reselect methods when status bar is full so as not to upset the compile information"
+					                 classService selectedMethods ifNotNil: [
+						                 :methodServices |
+						                 methodServices notEmpty ifTrue: [ "there will be no method selected on a compiler error"
+							                 self selectMethodsFrom: classService ] ].
+					                 completionBlock value ] ] ]
 ]
 
 { #category : 'as yet unclassified' }

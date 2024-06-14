@@ -58,16 +58,14 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service isInCommand ifTrue: [ ^ self ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
-	                      service returnedServices first isCompileError
-		                      ifTrue: [
-		                      service returnedServices first
-			                      signalCompileError ]
-		                      ifFalse: [
-			                      UIManager default defer: [
-				                      [
-				                      self applyUpdatesFromReturnedServices:
-					                      service returnedServices ] ensure: [
-					                      service inCommand signal ] ] ] ].
+	                      [
+	                      [
+	                      self possibleSignalCompileError: service.
+	                      self applyUpdates: service.
+	                      service handleServiceCompletion value ]
+		                      on: GsCompileError
+		                      do: [ :ex | service handleCompileError: ex ] ]
+		                      ensure: [ service inCommand signal ] ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
@@ -115,6 +113,13 @@ RowanServiceUpdater >> applyUpdateWhile: block [
 	block ensure: 
 			[applyingUpdates := false.
 			self rowanPostUpdate]
+]
+
+{ #category : 'commands' }
+RowanServiceUpdater >> applyUpdates: service [
+
+	UIManager default defer: [
+		self applyUpdatesFromReturnedServices: service returnedServices ]
 ]
 
 { #category : 'accessing' }
@@ -360,6 +365,12 @@ RowanServiceUpdater >> performUpdate: updateBlock with: selector [
 						ifTrue: [updateBlock value: update]]]
 ]
 
+{ #category : 'commands' }
+RowanServiceUpdater >> possibleSignalCompileError: service [
+
+	service returnedServices do: [ :svc | svc signalCompileError ]
+]
+
 { #category : 'accessing' }
 RowanServiceUpdater >> queueProcess [
 
@@ -441,6 +452,14 @@ RowanServiceUpdater >> removeEventsTriggeredFor: anObject [
 RowanServiceUpdater >> resetLoggingService [
 	logger loggingService: nil. 
 	logger newLoggingService
+]
+
+{ #category : 'commands' }
+RowanServiceUpdater >> returnedCompileError: service [
+
+	^ service returnedServices
+		  detect: [ :svc | svc isCompileError ]
+		  ifNone: [  ]
 ]
 
 { #category : 'accessing' }

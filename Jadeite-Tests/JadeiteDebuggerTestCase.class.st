@@ -2530,17 +2530,23 @@ JadeiteDebuggerTestCase >> test_selectBlockContext [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_selectedFrame [
-	self testsIssue: #issue868 withTitle: '(Oscar-3.1.1-release1) debugger selects incorrect frame'.
+
+	self
+		testsIssue: #issue868
+		withTitle: '(Oscar-3.1.1-release1) debugger selects incorrect frame'.
 	self openProjectBrowser.
-	
-	[| source |
+
+	[
+	| source |
 	self
 		saveClass: 'ThreeTest'
 		superclass: 'GsTestCase'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Core'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: self packageListPresenter.
 	self selectServiceNamed: 'ThreeTest' in: self classListPresenter.
 	source := 'test868
  [{ 1 . 2 . 3 } select: [:ea | 
@@ -2548,11 +2554,15 @@ JadeiteDebuggerTestCase >> test_selectedFrame [
 	on: Error 
 	do: [:ea | self assert: false].'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self openDebuggerOn: 'ThreeTest new test868'.
 	self assert: debugger frameListPresenter selectionByIndex equals: 10.
-	self assert: debugger frameListPresenter selection equals: '[] in ThreeTest >> test868 @15 line 5']
-			ensure: [self destroy: projectsBrowser]
+	self
+		assert: debugger frameListPresenter selection
+		equals: '[] in ThreeTest >> test868 @15 line 5' ] ensure: [
+		self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3045,14 +3055,17 @@ JadeiteDebuggerTestCase >> test_unsavedChangesActionStepping [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_variableDisplayLabels [
+
 	| source |
-	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self
+		testsIssue: #issue314
+		withTitle: 'Jadeite debugger - Alphabetical variables'.
 	self openProjectBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1Test'
 		superclass: 'TestCase'
-		instVars: #(#achoo #ulp #vooey #wahoo)
+		instVars: #( #achoo #ulp #vooey #wahoo )
 		package: 'RowanSample1-Tests'.
 	source := 'testBlockMenuItems
 	| xyz uvw |
@@ -3071,44 +3084,70 @@ JadeiteDebuggerTestCase >> test_variableDisplayLabels [
         halt ]'.
 	self selectCategoriesNamed: (Array with: 'tests').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'testBlockMenuItems: block
 	block value.'.
 	self selectCategoriesNamed: (Array with: 'tests').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
 	"on ExecBlock frame"
-	self assert: (debugger variableListPresenter list at: 2) value equals: 'args and temps'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' #abc #def #ghi #uvw #xyz) asOrderedCollection.
-	self selectFirstFrameStartingWith: 'RowanSample1Test'. 
-	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
-	self assert: (debugger variableListPresenter list at: 8) value equals: 'args and temps'.
+		assert: (debugger variableListPresenter list at: 2) value
+		equals: 'args and temps'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #block)
-				asOrderedCollection.
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+		#( #receiver '' #abc #def #ghi #uvw #xyz ) asOrderedCollection.
+	self selectFirstFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: (debugger variableListPresenter list at: 2) value
+		equals: 'instance variables'.
+	self
+		assert: (debugger variableListPresenter list at: 8) value
+		equals: 'args and temps'.
+	self
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+			#( #receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo'
+			   '' #block ) asOrderedCollection.
 	self selectLastFrameStartingWith: 'RowanSample1Test'.
-	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
-	self assert: (debugger variableListPresenter list at: 8) value equals: 'args and temps'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #uvw #xyz)
-				asOrderedCollection
+		assert: (debugger variableListPresenter list at: 2) value
+		equals: 'instance variables'.
+	self
+		assert: (debugger variableListPresenter list at: 8) value
+		equals: 'args and temps'.
+	self
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+			#( #receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo'
+			   '' #uvw #xyz ) asOrderedCollection
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_variableDynamicInstVarLabels [
+
 	| source |
-	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self
+		testsIssue: #issue314
+		withTitle: 'Jadeite debugger - Alphabetical variables'.
 	self openProjectBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1Test'
 		superclass: 'TestCase'
-		instVars: #(#achoo #ulp #vooey #wahoo)
+		instVars: #( #achoo #ulp #vooey #wahoo )
 		package: 'RowanSample1-Tests'.
 	source := 'testBlockMenuItems
 	| xyz uvw |
@@ -3127,35 +3166,62 @@ JadeiteDebuggerTestCase >> test_variableDynamicInstVarLabels [
         halt ]'.
 	self selectCategoriesNamed: (Array with: 'tests').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'testBlockMenuItems: block
 	block value.'.
 	self selectCategoriesNamed: (Array with: 'tests').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self
-		openDebuggerOn: '(RowanSample1Test new dynamicInstVarAt: #dynamic put: ''theValue''; yourself) testBlockMenuItems'.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self openDebuggerOn:
+		'(RowanSample1Test new dynamicInstVarAt: #dynamic put: ''theValue''; yourself) testBlockMenuItems'.
 	"on ExecBlock frame"
-	self assert: (debugger variableListPresenter list at: 2) value equals: 'args and temps'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' #abc #def #ghi #uvw #xyz) asOrderedCollection.
-	self selectFirstFrameStartingWith: 'RowanSample1Test'. 
-	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
-	self assert: (debugger variableListPresenter list at: 8) value equals: 'dynamic instance variables'.
-	self assert: (debugger variableListPresenter list at: 10) value equals: 'args and temps'.
+		assert: (debugger variableListPresenter list at: 2) value
+		equals: 'args and temps'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' '.dynamic' '' #block)
-				asOrderedCollection.
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+		#( #receiver '' #abc #def #ghi #uvw #xyz ) asOrderedCollection.
+	self selectFirstFrameStartingWith: 'RowanSample1Test'.
+	self
+		assert: (debugger variableListPresenter list at: 2) value
+		equals: 'instance variables'.
+	self
+		assert: (debugger variableListPresenter list at: 8) value
+		equals: 'dynamic instance variables'.
+	self
+		assert: (debugger variableListPresenter list at: 10) value
+		equals: 'args and temps'.
+	self
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+			#( #receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo'
+			   '' '.dynamic' '' #block ) asOrderedCollection.
 	self selectLastFrameStartingWith: 'RowanSample1Test'.
-	self assert: (debugger variableListPresenter list at: 2) value equals: 'instance variables'.
-	self assert: (debugger variableListPresenter list at: 8) value equals: 'dynamic instance variables'.
-	self assert: (debugger variableListPresenter list at: 10) value equals: 'args and temps'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' '.dynamic' '' #uvw #xyz)
-				asOrderedCollection
+		assert: (debugger variableListPresenter list at: 2) value
+		equals: 'instance variables'.
+	self
+		assert: (debugger variableListPresenter list at: 8) value
+		equals: 'dynamic instance variables'.
+	self
+		assert: (debugger variableListPresenter list at: 10) value
+		equals: 'args and temps'.
+	self
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+			#( #receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo'
+			   '' '.dynamic' '' #uvw #xyz ) asOrderedCollection
 ]
 
 { #category : 'as yet unclassified' }
@@ -3198,14 +3264,17 @@ JadeiteDebuggerTestCase >> test_variablePaneMenuOptions [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_variablesSorted [
+
 	| source |
-	self testsIssue: #issue314 withTitle: 'Jadeite debugger - Alphabetical variables'.
+	self
+		testsIssue: #issue314
+		withTitle: 'Jadeite debugger - Alphabetical variables'.
 	self openProjectBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1Test'
 		superclass: 'TestCase'
-		instVars: #(#achoo #ulp #vooey #wahoo)
+		instVars: #( #achoo #ulp #vooey #wahoo )
 		package: 'RowanSample1-Tests'.
 	source := 'testBlockMenuItems
 	| xyz uvw |
@@ -3224,25 +3293,38 @@ JadeiteDebuggerTestCase >> test_variablesSorted [
         halt ]'.
 	self selectCategoriesNamed: (Array with: 'tests').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'testBlockMenuItems: block
 	block value.'.
 	self selectCategoriesNamed: (Array with: 'tests').
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self openDebuggerOn: 'RowanSample1Test new testBlockMenuItems'.
 	"on ExecBlock frame"
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' #abc #def #ghi #uvw #xyz) asOrderedCollection.
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+		#( #receiver '' #abc #def #ghi #uvw #xyz ) asOrderedCollection.
 	self selectFirstFrameStartingWith: 'RowanSample1Test'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #block)
-				asOrderedCollection.
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+			#( #receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo'
+			   '' #block ) asOrderedCollection.
 	self selectLastFrameStartingWith: 'RowanSample1Test'.
 	self
-		assert: (debugger variableListPresenter list collect: [:variableService | variableService _key])
-		equals: #(#receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo' '' #uvw #xyz)
-				asOrderedCollection
+		assert:
+			(debugger variableListPresenter list collect: [ :variableService |
+				 variableService _key ])
+		equals:
+			#( #receiver '' '-achoo' '-testSelector' '-ulp' '-vooey' '-wahoo'
+			   '' #uvw #xyz ) asOrderedCollection
 ]

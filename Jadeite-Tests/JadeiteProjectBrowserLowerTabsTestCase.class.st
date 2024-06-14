@@ -1487,29 +1487,56 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sunitTabCanRefresh [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_sunitUpdatesProperly [
+
 	| secondBrowser source newMethodService |
-	self testsIssue: #issue279 withTitle: 'Sunit browser refresh, auto or manual'.
+	self
+		testsIssue: #issue279
+		withTitle: 'Sunit browser refresh, auto or manual'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self classListPresenter.
 	self selectSUnitTab.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 4.	"should be four after project load"
-	secondBrowser := self openWindow: [transcript openJadeiteProjectsBrowser].
-	secondBrowser := secondBrowser topShell. 
-	
-	[self selectServiceNamed: 'RowanSample1' in: secondBrowser currentCard projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: secondBrowser currentCard packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: secondBrowser currentCard classListPresenter.
+	self
+		assert:
+		self projectsPresenter sunitPresenter methodListPresenter list size
+		equals: 4. "should be four after project load"
+	secondBrowser := self openWindow: [
+		                 transcript openJadeiteProjectsBrowser ].
+	secondBrowser := secondBrowser topShell.
+
+	[
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondBrowser currentCard projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: secondBrowser currentCard packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: secondBrowser currentCard classListPresenter.
 	secondBrowser currentCard selectCategoryNamed: 'tests'.
 	source := 'testMethod  
 		self assert: true'.
 	secondBrowser currentCard methodSourcePresenter value: source.
-	secondBrowser currentCard editSaveMethod: secondBrowser currentCard classListPresenter selection.
-	self assert: self projectsPresenter textAreaTabs currentCard name = 'sunit'.
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 5.
-	newMethodService := self projectsPresenter sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector == #testMethod]
-				ifNone: [].
+	secondBrowser currentCard
+		editSaveMethod:
+		secondBrowser currentCard classListPresenter selection
+		onCompletion: nil.
+	self assert:
+		self projectsPresenter textAreaTabs currentCard name = 'sunit'.
+	self
+		assert:
+		self projectsPresenter sunitPresenter methodListPresenter list size
+		equals: 5.
+	newMethodService := self projectsPresenter sunitPresenter
+		                    methodListPresenter list
+		                    detect: [ :methodService |
+		                    methodService selector == #testMethod ]
+		                    ifNone: [  ].
 	self denyIsNil: newMethodService.
 	"select a method in first browser and add another method"
 	self selectMethodNamed: #test1.
@@ -1517,14 +1544,22 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sunitUpdatesProperly [
 	source := 'testMethod2
 		self assert: true'.
 	secondBrowser currentCard methodSourcePresenter value: source.
-	secondBrowser currentCard editSaveMethod: secondBrowser currentCard classListPresenter selection.
+	secondBrowser currentCard
+		editSaveMethod:
+		secondBrowser currentCard classListPresenter selection
+		onCompletion: nil.
 	"self assert: self projectsPresenter textAreaTabs currentCard name = 'sunit'."
-	self assert: self projectsPresenter sunitPresenter methodListPresenter list size equals: 6.
-	newMethodService := self projectsPresenter sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector == #testMethod2]
-				ifNone: [].
-	self denyIsNil: newMethodService]
-			ensure: [self destroy: secondBrowser]
+	self
+		assert:
+		self projectsPresenter sunitPresenter methodListPresenter list size
+		equals: 6.
+	newMethodService := self projectsPresenter sunitPresenter
+		                    methodListPresenter list
+		                    detect: [ :methodService |
+		                    methodService selector == #testMethod2 ]
+		                    ifNone: [  ].
+	self denyIsNil: newMethodService ] ensure: [
+		self destroy: secondBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

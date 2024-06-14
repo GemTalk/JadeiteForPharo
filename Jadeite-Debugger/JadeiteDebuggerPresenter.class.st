@@ -199,39 +199,44 @@ JadeiteDebuggerPresenter >> editSave [
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> editSaveMethod [
+
 	| source |
-	source := codePane text asString. 
+	source := codePane text asString.
 	frameListPresenter selectedItem ifNotNil: [ :selection |
 		self selectHomeMethod.
 		codePane text: source. "because we potentially switched frames"
-		self editSaveMethod: frameListPresenter selectedItem method classService ].
-	codePane value: source. 
+		self
+			editSaveMethod: frameListPresenter selectedItem method classService
+			onCompletion: [ codePane value: source ] ]
 ]
 
 { #category : 'actions' }
-JadeiteDebuggerPresenter >> editSaveMethod: classService [
+JadeiteDebuggerPresenter >> editSaveMethod: classService in: thePresenter category: category onCompletion: completionBlock [
+
+	thePresenter
+		saveMethodIn: classService
+		category: category
+		completionBlock: [
+			(self compilationWarningFrom: classService selectedMethods)
+				ifNil: [ self resetStatusBar ]
+				ifNotNil: [ :warning |
+					self setCompileWarningColor.
+					self statusBarText pushMessage: warning ].
+			completionBlock value ]
+]
+
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> editSaveMethod: classService onCompletion: anObject [
 
 	| compileResult |
 	compileResult := self
 		                 editSaveMethod: classService
 		                 in: self methodSourcePresenter
 		                 category:
-		                 frameListPresenter selectedItem method category.
+		                 frameListPresenter selectedItem method category
+		                 onCompletion: nil.
 	compileResult ifFalse: [ ^ self ].
 	self trimStack
-]
-
-{ #category : 'actions' }
-JadeiteDebuggerPresenter >> editSaveMethod: classService in: thePresenter category: category [
-
-	(thePresenter saveMethodIn: classService category: category)
-		ifFalse: [ ^ false ].
-	(self compilationWarningFrom: classService selectedMethods)
-		ifNil: [ self resetStatusBar ]
-		ifNotNil: [ :warning |
-			self setCompileWarningColor.
-			self statusBarText pushMessage: warning ].
-	^ true
 ]
 
 { #category : 'accessing' }

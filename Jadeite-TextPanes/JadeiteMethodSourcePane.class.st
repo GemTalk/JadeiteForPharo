@@ -145,23 +145,24 @@ JadeiteMethodSourcePane >> outerJadeiteBrowser [
 ]
 
 { #category : 'actions - saving methods' }
-JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory [
+JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory completionBlock: completionBlock [
 
 	| methodSource1 theCategory |
 	self text: self adapter widget textArea text. "this should NOT be necessary. Something is broken in the way we set the Jadeite editor in JadeiteMorphicTextAdapter>>buildWidget"
 	methodSource1 := self currentMethodSourceFrom: self text.
-	theCategory := jadeiteCategory isString ifTrue:[jadeiteCategory] ifFalse: [ jadeiteCategory categoryName ].
+	theCategory := jadeiteCategory isString
+		               ifTrue: [ jadeiteCategory ]
+		               ifFalse: [ jadeiteCategory categoryName ].
 	classService
 		command: #saveMethodSource:category:;
-		commandArgs: (Array with: methodSource1 with: theCategory).
-	[ self issueCommand: classService onCompletion: nil ]
-		on: GsCompileError
-		do: [ :ex |
-			self reportCompileError: ex gsArguments.
-			^ false ].
-	self value: methodSource1.
-	self hasUnacceptedEdits: false.
-	^ true
+		commandArgs: (Array with: methodSource1 with: theCategory);
+		compileErrorHandler: [ :ex |
+			self reportCompileError: ex gsArguments ];
+		serviceCompletionBlock: [
+			self value: methodSource1.
+			self hasUnacceptedEdits: false.
+			completionBlock value ].
+	self issueCommand: classService
 ]
 
 { #category : 'selections' }

@@ -12,22 +12,28 @@ JadeiteProjectBrowserDictionaryTestCase >> setUp [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserDictionaryTestCase >> test_compileMethodInNonPackagedClass [
+
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
-	self testsRowanIssue: #issue499
-		withTitle: 'RwPrjBrowserTool>>addOrUpdateMethod:inProtocol:forClassNamed:isMeta: returns nil'.	"Rowan issue"
+	self
+		testsRowanIssue: #issue499
+		withTitle:
+		'RwPrjBrowserTool>>addOrUpdateMethod:inProtocol:forClassNamed:isMeta: returns nil'. "Rowan issue"
 	self selectNoneProject.
 	self selectServiceNamed: 'Globals' in: self dictionaryPresenter.
 	self selectServiceNamed: 'Array' in: self classListPresenter.
 	self methodSourcePresenter value: 'foo ^''foo'''.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	
-	[self assert: self methodListPresenter selection selector equals: #foo.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+
+	[
+	self assert: self methodListPresenter selection selector equals: #foo.
 	self assert: self methodSourcePresenter value equals: 'foo ^''foo'''.
-	self assert: (session executeString: 'Array includesSelector: #foo')]
-			ensure: 
-				[self abortTransaction.
-				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+	self assert: (session executeString: 'Array includesSelector: #foo') ]
+		ensure: [
+			self abortTransaction.
+			self cloneRowanSample1.
+			self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -192,21 +198,26 @@ JadeiteProjectBrowserDictionaryTestCase >> test_packageAndDictionaryViewClass [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserDictionaryTestCase >> test_removeMethodInNonPackagedClass [
+
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self selectNoneProject.
 	self selectServiceNamed: 'Globals' in: self dictionaryPresenter.
 	self selectServiceNamed: 'Array' in: self classListPresenter.
 	self methodSourcePresenter value: 'foo ^''foo'''.
-	
-	[self projectsPresenter editSaveMethod: self classListPresenter selection.
+
+	[
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self assert: self methodListPresenter selection selector equals: #foo.
-	self projectsPresenter removeMethods: self classListPresenter selections.
-	self deny: (self methodListPresenter selectionIfNone: [false])]
-			ensure: 
-				[self dictionaryPresenter resetSelection.	"to avoid long refresh"
-				self abortTransaction.
-				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+	self projectsPresenter removeMethods:
+		self classListPresenter selections.
+	self deny: (self methodListPresenter selectionIfNone: [ false ]) ]
+		ensure: [
+			self dictionaryPresenter resetSelection. "to avoid long refresh"
+			self abortTransaction.
+			self cloneRowanSample1.
+			self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }

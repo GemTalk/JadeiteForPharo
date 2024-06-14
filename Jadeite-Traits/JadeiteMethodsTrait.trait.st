@@ -418,22 +418,26 @@ JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 ]
 
 { #category : 'actions' }
-JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: category [
+JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: category onCompletion: completionBlock [
 
 	| index |
-	(thePresenter saveMethodIn: classService category: category)
-		ifFalse: [ ^ false ].
-	classService selectedMethods isEmpty ifFalse: [
-		index := self methodListPresenter selectionMode indexOfItem:
-			         classService selectedMethods first.
-		self methodListPresenter selectIndex: index scrollToSelection: true ].
-	(self compilationWarningFrom: classService selectedMethods)
-		ifNil: [ self resetStatusBar ]
-		ifNotNil: [ :warning |
-			self setCompileWarningColor.
-			self statusBarText pushMessage: warning ].
-	self updateMethodSourceGlyphs.
-	^ true
+	thePresenter
+		saveMethodIn: classService
+		category: category
+		completionBlock: [
+			classService selectedMethods isEmpty ifFalse: [
+				index := self methodListPresenter selectionMode indexOfItem:
+					         classService selectedMethods first.
+				self methodListPresenter
+					selectIndex: index
+					scrollToSelection: true ].
+			(self compilationWarningFrom: classService selectedMethods)
+				ifNil: [ self resetStatusBar ]
+				ifNotNil: [ :warning |
+					self setCompileWarningColor.
+					self statusBarText pushMessage: warning ].
+			self updateMethodSourceGlyphs.
+			completionBlock value ]
 ]
 
 { #category : 'actions' }
@@ -491,6 +495,15 @@ JadeiteMethodsTrait >> initializeBrowseMethodListMenu [
 JadeiteMethodsTrait >> initializeFullMethodListMenu [
 
 	self methodListPresenter contextMenu: self fullMethodListMenu
+]
+
+{ #category : 'commands' }
+JadeiteMethodsTrait >> issueCommand: service [
+
+	^ RowanServiceUpdater current
+		  issueCommands: (Array with: service)
+		  session: self gciSession
+		  onCompletion: nil
 ]
 
 { #category : 'commands' }

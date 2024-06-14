@@ -910,12 +910,15 @@ JadeiteProjectBrowserClassesTestCase >> test_dragClassInHierarchyDoesNotWalkback
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_dragDropMethodFailCompile [
+
 	| dragDropSession source |
-	self testsIssue: #issue286
-		withTitle: '(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
+	self
+		testsIssue: #issue286
+		withTitle:
+		'(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
 	self selectRowanSample1Class.
-	self projectsPresenter classDefinitionPresenter
-		value: 'Object rwSubclass: ''Def''
+	self projectsPresenter classDefinitionPresenter value:
+		'Object rwSubclass: ''Def''
 	instVarNames: #(def)
 	classVars: #()
 	classInstVars: #()
@@ -924,8 +927,8 @@ JadeiteProjectBrowserClassesTestCase >> test_dragDropMethodFailCompile [
 	options: #()
 '.
 	self projectsPresenter editSaveClass.
-	self projectsPresenter classDefinitionPresenter
-		value: 'Object rwSubclass: ''Abc''
+	self projectsPresenter classDefinitionPresenter value:
+		'Object rwSubclass: ''Abc''
 	instVarNames: #(abc)
 	classVars: #()
 	classInstVars: #()
@@ -937,18 +940,23 @@ JadeiteProjectBrowserClassesTestCase >> test_dragDropMethodFailCompile [
 	self assert: self classListPresenter selection name equals: 'Abc'.
 	source := 'dragMe  ^abc'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	dragDropSession := self classListPresenter view dragDropSessionClass new.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	dragDropSession := self classListPresenter view dragDropSessionClass
+		                   new.
 	self projectsPresenter onDragMethod: dragDropSession.
-	dragDropSession suggestedTarget: (self serviceNamed: 'Def' in: self classListPresenter).
+	dragDropSession suggestedTarget:
+		(self serviceNamed: 'Def' in: self classListPresenter).
 	dragDropSession suggestedSource: self methodListPresenter selections.
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #ok.
-	
-	[self projectsPresenter onDropOnClassList: dragDropSession.	"should raise fail dialog here. answer ok"
-	self assert: self projectsPresenter selectedClass name equals: 'Abc'.	"stay on drag source class"
-	self assert: self methodListPresenter selections size equals: 1	"don't lose selection"]
-			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+
+	[
+	self projectsPresenter onDropOnClassList: dragDropSession. "should raise fail dialog here. answer ok"
+	self assert: self projectsPresenter selectedClass name equals: 'Abc'. "stay on drag source class"
+	self assert: self methodListPresenter selections size equals: 1 "don't lose selection" ]
+		ensure: [ TestMessageBox disableJadeiteTestMessageBox ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -956,30 +964,48 @@ JadeiteProjectBrowserClassesTestCase >> test_dragDropMultipleMethods [
 	"don't really drop but we can simulate it and exercise the methods involved"
 
 	| dragDropSession source |
-	self testsIssue: #issue86
-		withTitle: '(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
+	self
+		testsIssue: #issue86
+		withTitle:
+		'(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
 	self selectRowanSample1Class.
 	self selectCategoriesNamed: (Array with: 'accessing').
 	source := 'dragMe1  ^1'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'dragMe2  ^2'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'dragMe3  ^3'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectMethodsNamed: #(#dragMe1 #dragMe2 #dragMe3).
-	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self selectMethodsNamed: #( #dragMe1 #dragMe2 #dragMe3 ).
+	dragDropSession := self classHierarchyPresenter view
+		                   dragDropSessionClass new.
 	self projectsPresenter onDragMethod: dragDropSession.
-	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
-	dragDropSession suggestedSource: self methodListPresenter selections. 
+	dragDropSession suggestedTarget:
+		(self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession suggestedSource: self methodListPresenter selections.
 	self projectsPresenter onDropOnClassList: dragDropSession.
-	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
-	self assert: self methodListPresenter selections size equals: 3. 
-	self assert: self methodListPresenter selections first selector equals: #dragMe1. 
-	self assert: self methodListPresenter selections second selector equals: #dragMe2. 
-	self assert: self methodListPresenter selections third selector equals: #dragMe3.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanSample1'.
+	self assert: self methodListPresenter selections size equals: 3.
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #dragMe1.
+	self
+		assert: self methodListPresenter selections second selector
+		equals: #dragMe2.
+	self
+		assert: self methodListPresenter selections third selector
+		equals: #dragMe3
 ]
 
 { #category : 'as yet unclassified' }
@@ -987,31 +1013,49 @@ JadeiteProjectBrowserClassesTestCase >> test_dragDropMultipleMethodsHierarchy [
 	"don't really drop but we can simulate it and exercise the methods involved"
 
 	| dragDropSession source |
-	self testsIssue: #issue86
-		withTitle: '(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
+	self
+		testsIssue: #issue86
+		withTitle:
+		'(3.0.50) method drag drop only drags a single method when multiple methods selected?'.
 	self selectRowanSample1Class.
 	self selectCategoriesNamed: (Array with: 'accessing').
 	source := 'dragMe1  ^1'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'dragMe2  ^2'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	source := 'dragMe3  ^3'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self selectHierarchyTab.
-	self selectMethodsNamed: #(#dragMe1 #dragMe2 #dragMe3).
-	dragDropSession := self classHierarchyPresenter view dragDropSessionClass new.
+	self selectMethodsNamed: #( #dragMe1 #dragMe2 #dragMe3 ).
+	dragDropSession := self classHierarchyPresenter view
+		                   dragDropSessionClass new.
 	self projectsPresenter onDragMethod: dragDropSession.
-	dragDropSession suggestedTarget: (self serviceNamed: 'RowanSample1' in: self classListPresenter).
-	dragDropSession suggestedSource: self methodListPresenter selections. 
+	dragDropSession suggestedTarget:
+		(self serviceNamed: 'RowanSample1' in: self classListPresenter).
+	dragDropSession suggestedSource: self methodListPresenter selections.
 	self projectsPresenter onDropMethodsOnClassHierarchy: dragDropSession.
-	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
-	self assert: self methodListPresenter selections size equals: 3. 
-	self assert: self methodListPresenter selections first selector equals: #dragMe1. 
-	self assert: self methodListPresenter selections second selector equals: #dragMe2. 
-	self assert: self methodListPresenter selections third selector equals: #dragMe3.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanSample1'.
+	self assert: self methodListPresenter selections size equals: 3.
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #dragMe1.
+	self
+		assert: self methodListPresenter selections second selector
+		equals: #dragMe2.
+	self
+		assert: self methodListPresenter selections third selector
+		equals: #dragMe3
 ]
 
 { #category : 'as yet unclassified' }
@@ -1144,54 +1188,79 @@ JadeiteProjectBrowserClassesTestCase >> test_extensionColoringInHierarchy [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_extensionMethodSelection [
+
 	| source |
-	self testsIssue: #issue352
-		withTitle: 'Create method on class not in selected package, method disappears'.
+	self
+		testsIssue: #issue352
+		withTitle:
+		'Create method on class not in selected package, method disappears'.
 	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
 	self selectServiceNamed: 'Rowan-Core' in: self packageListPresenter.
 	self selectServiceNamed: 'RwClassMove' in: self classListPresenter.
 	self selectMethodNamed: #addMovedClassToPatchSet:.
-	self assert: self classListPresenter selection name equals: 'RwClassMove'.
-	self assert: self methodListPresenter selection selector equals: #addMovedClassToPatchSet:.
-	self assert: ('addMovedClassToPatchSet:*' match: self methodSourcePresenter model value).
-	self assert: self methodListPresenter selection category first equals: $*.	"extension method category"
+	self
+		assert: self classListPresenter selection name
+		equals: 'RwClassMove'.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #addMovedClassToPatchSet:.
+	self assert: ('addMovedClassToPatchSet:*' match:
+			 self methodSourcePresenter model value).
+	self
+		assert: self methodListPresenter selection category first
+		equals: $*. "extension method category"
 	source := 'addMovedClassToPatchSet2 
 		^#thisIsATestMethod'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
 	self denyIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #addMovedClassToPatchSet:]
-				ifNone: []).
-	self assert: self methodListPresenter selection selector equals: #addMovedClassToPatchSet2.
-	self assert: self categoryListPresenter selection equals: '*rowan-gemstone-loader-extensions-onlyv2'.
-	self assert: self classListPresenter selection name equals: 'RwClassMove'.
-	self assert: self projectsPresenter definedMethodPackageText view text
+			 detect: [ :methodService |
+			 methodService selector = #addMovedClassToPatchSet: ]
+			 ifNone: [  ]).
+	self
+		assert: self methodListPresenter selection selector
+		equals: #addMovedClassToPatchSet2.
+	self
+		assert: self categoryListPresenter selection
+		equals: '*rowan-gemstone-loader-extensions-onlyv2'.
+	self
+		assert: self classListPresenter selection name
+		equals: 'RwClassMove'.
+	self
+		assert: self projectsPresenter definedMethodPackageText view text
 		equals: 'Defined Package: Rowan-GemStone-Loader-Extensions-OnlyV2'.
-	self assert: self projectsPresenter methodCategoryText value
+	self
+		assert: self projectsPresenter methodCategoryText value
 		equals: 'Category: *rowan-gemstone-loader-extensions-onlyv2'.
-	transcript projectListPresenter abortTransaction.	"clean up Rowan project"
-	[] ensure: 
-			[self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded]
+	transcript projectListPresenter abortTransaction. "clean up Rowan project"
+	[  ] ensure: [
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_failMethodCompile [
+
 	| source |
 	self testsIssue: #issue458 withTitle: '(3.0.64) category error'.
 	self selectRowanSample1Test.
 	self projectsPresenter basicAddMethodCategory: 'newCategory'.
-	
-	[source := 'failCompile  aaaaa'.
+
+	[
+	source := 'failCompile  aaaaa'.
 	self methodSourcePresenter value: source.
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #ok.
-	self projectsPresenter editSaveMethod: self classListPresenter selection.
-	self selectCategoryNamed: 'tests'.	"error happened here"
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self selectCategoryNamed: 'tests'. "error happened here"
 	self assertIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #failCompile]
-				ifNone: [])]
-			ensure: [self projectsPresenter basicRemoveMethodCategories]
+			 detect: [ :methodService | methodService selector = #failCompile ]
+			 ifNone: [  ]) ] ensure: [
+		self projectsPresenter basicRemoveMethodCategories ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1583,9 +1652,12 @@ JadeiteProjectBrowserClassesTestCase >> test_hierarchyCleanedUpAfterUnload [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_hierarchyMethodsNotDisplayed [
+
 	| className source |
-	self testsIssue: #issue290
-		withTitle: '(3.0.50) wrong methods displayed when switching from a superclass to subclass'.
+	self
+		testsIssue: #issue290
+		withTitle:
+		'(3.0.50) wrong methods displayed when switching from a superclass to subclass'.
 	self selectRowanSample1Test.
 	self selectHierarchyTab.
 	className := 'TestTestClass'.
@@ -1598,26 +1670,48 @@ JadeiteProjectBrowserClassesTestCase >> test_hierarchyMethodsNotDisplayed [
 	self projectsPresenter basicAddMethodCategory: 'tests'.
 	source := 'subclassMethod1  ^#aaa'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self projectsPresenter classHierarchyPresenter selection.
-	self assert: self methodListPresenter selection selector equals: #subclassMethod1.
+	self projectsPresenter
+		editSaveMethod:
+		self projectsPresenter classHierarchyPresenter selection
+		onCompletion: nil.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #subclassMethod1.
 	self projectsPresenter basicAddMethodCategory: 'zzz'.
 	source := 'subclassMethod2  ^#foo'.
 	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod: self projectsPresenter classHierarchyPresenter selection.
+	self projectsPresenter
+		editSaveMethod:
+		self projectsPresenter classHierarchyPresenter selection
+		onCompletion: nil.
 	self assert: self methodListPresenter list size equals: 1.
-	self assert: self methodListPresenter list first selector equals: #subclassMethod2.
+	self
+		assert: self methodListPresenter list first selector
+		equals: #subclassMethod2.
 	self selectClassInHierarchyNamed: 'RowanSample1Test'.
-	self assertIsNil: self categoryListPresenter selectionOrNil.	"no zzz category in super"
+	self assertIsNil: self categoryListPresenter selectionOrNil. "no zzz category in super"
 	self assert: self methodListPresenter list size equals: 4.
-	self assert: (self methodListPresenter list at: 1) selector equals: #test1.
-	self assert: (self methodListPresenter list at: 2) selector equals: #test2.
-	self assert: (self methodListPresenter list at: 3) selector equals: #testError.
-	self assert: (self methodListPresenter list at: 4) selector equals: #testFailure.
+	self
+		assert: (self methodListPresenter list at: 1) selector
+		equals: #test1.
+	self
+		assert: (self methodListPresenter list at: 2) selector
+		equals: #test2.
+	self
+		assert: (self methodListPresenter list at: 3) selector
+		equals: #testError.
+	self
+		assert: (self methodListPresenter list at: 4) selector
+		equals: #testFailure.
 	self selectClassInHierarchyNamed: className.
-	self assertIsNil: self categoryListPresenter selectionOrNil.	"no category was previously selected"
+	self assertIsNil: self categoryListPresenter selectionOrNil. "no category was previously selected"
 	self assert: self methodListPresenter list size equals: 2.
-	self assert: self methodListPresenter list first selector equals: #subclassMethod1.
-	self assert: self methodListPresenter list last selector equals: #subclassMethod2
+	self
+		assert: self methodListPresenter list first selector
+		equals: #subclassMethod1.
+	self
+		assert: self methodListPresenter list last selector
+		equals: #subclassMethod2
 ]
 
 { #category : 'as yet unclassified' }

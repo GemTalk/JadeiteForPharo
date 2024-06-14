@@ -3,10 +3,37 @@ Class {
 	#superclass : 'RowanClassService',
 	#instVars : [
 		'subclassServices',
-		'inCommand'
+		'inCommand',
+		'compileErrorHandler',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> compileErrorHandler [
+
+	^ compileErrorHandler
+]
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> compileErrorHandler: anObject [
+
+	compileErrorHandler := anObject
+]
+
+{ #category : 'actions' }
+RowanClassServiceClient >> handleCompileError: compileError [
+
+	compileErrorHandler ifNotNil: [
+		compileErrorHandler value: compileError ]
+]
+
+{ #category : 'actions' }
+RowanClassServiceClient >> handleServiceCompletion [
+
+	serviceCompletionBlock ifNotNil: [ :block | block value ]
+]
 
 { #category : 'accessing' }
 RowanClassServiceClient >> inCommand [
@@ -25,6 +52,12 @@ RowanClassServiceClient >> initialize [
 	
 	super initialize. 
 	subclassServices := OrderedCollection new.
+]
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]
 
 { #category : 'accessing' }
