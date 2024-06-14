@@ -792,7 +792,7 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 JadeiteBrowserPresenter >> connectMethodPresenters [
 
 	methodListPresenter whenSelectionChangedDo: [ :selection |
-		self methodSelectionChanged ].
+		UIManager default defer: [ self methodSelectionChanged ] ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
 		UIManager default defer: [ self classSelected: self selectedClass ] ]
@@ -3761,7 +3761,8 @@ JadeiteBrowserPresenter >> updateMethodSource [
 		methodListPresenter selections isEmpty
 			ifTrue: [ self setDefaultMethod ]
 			ifFalse: [
-				methodSourcePresenter value: methodListPresenter selectedItems first source. 
+				methodSourcePresenter value:
+					methodListPresenter selectedItems first source.
 				self updateMethodSourceGlyphs.
 				definedMethodPackageText text:
 					'Defined Package: '
