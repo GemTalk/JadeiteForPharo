@@ -103,13 +103,6 @@ JadeiteMethodSourcePane >> formatSource [
 ]
 
 { #category : 'initialization' }
-JadeiteMethodSourcePane >> initialize [
-
-	super initialize. 
-	"self withoutSyntaxHighlight"
-]
-
-{ #category : 'initialization' }
 JadeiteMethodSourcePane >> initializeBindings [
 
 	self bindKeyCombination: $f shift ctrl toAction: [ self findClass ]
@@ -133,6 +126,21 @@ JadeiteMethodSourcePane >> methodService [
 JadeiteMethodSourcePane >> methodService: anObject [
 
 	methodService := anObject
+]
+
+{ #category : 'events' }
+JadeiteMethodSourcePane >> mouseClickedAt: click [
+
+	| sourcePosition ranges range stepPoint |
+	sourcePosition := click event handler scrollPane textArea startIndex.
+	ranges := methodService stepPoints collect: [ :array |
+		          methodService stepPointRangeFrom: array ].
+	range := ranges
+		         detect: [ :theRange | theRange includes: sourcePosition ]
+		         ifNone: [  ].
+	stepPoint := ranges indexOf: range.
+	self outerJadeiteBrowser statusBarText message:
+		'Step Point: ' , stepPoint printString
 ]
 
 { #category : 'commands' }

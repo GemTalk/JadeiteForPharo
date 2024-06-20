@@ -14,3 +14,9 @@ JadeiteAddBreakpointCommand >> execute [
 
 	context setBreakpoint: stepPoint
 ]
+
+{ #category : 'accessing' }
+JadeiteAddBreakpointCommand >> name [
+
+	^ 'Add Breakpoint at step point ' , self selectedStepPoint asString
+]

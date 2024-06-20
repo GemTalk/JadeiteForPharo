@@ -18,3 +18,9 @@ RowanMethodServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
 ]
+
+{ #category : 'accessing' }
+RowanMethodServiceClient >> stepPointRanges [
+
+	^ stepPoints collect: [ :array | self stepPointRangeFrom: array ]
+]

@@ -4,8 +4,10 @@ Extension { #name : 'JadeiteTextDocument' }
 JadeiteTextDocument class >> buildCommandsGroupWith: presenter forRoot: aCmCommandsGroup [
 
 	super buildCommandsGroupWith: presenter forRoot: aCmCommandsGroup.
-	self registerFileActionsWithCommandGroup: aCmCommandsGroup. 
-	self registerSourceActionsWithCommandGroup: aCmCommandsGroup
+	self registerFileActionsWithCommandGroup: aCmCommandsGroup.
+	self
+		registerSourceActionsWithCommandGroup: aCmCommandsGroup
+		presenter: presenter
 ]
 
 { #category : '*Jadeite-SupportClasses' }
@@ -75,7 +77,7 @@ JadeiteTextDocument class >> registerFileActionsWithCommandGroup: commandGroup [
 ]
 
 { #category : '*Jadeite-SupportClasses' }
-JadeiteTextDocument class >> registerSourceActionsWithCommandGroup: commandGroup [
+JadeiteTextDocument class >> registerSourceActionsWithCommandGroup: commandGroup presenter: anObject [
 	| command |
 	command := JadeiteSelectAllCommand new.
 	commandGroup register: command asSpecCommand

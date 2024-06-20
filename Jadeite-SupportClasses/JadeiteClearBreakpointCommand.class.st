@@ -14,3 +14,9 @@ JadeiteClearBreakpointCommand >> execute [
 
 	context clearBreakpoint: stepPoint
 ]
+
+{ #category : 'accessing' }
+JadeiteClearBreakpointCommand >> name [
+
+	^ 'Clear Breakpoint at step point ' , self selectedStepPoint asString
+]
