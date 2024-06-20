@@ -139,8 +139,9 @@ JadeiteMethodSourcePane >> mouseClickedAt: click [
 		         detect: [ :theRange | theRange includes: sourcePosition ]
 		         ifNone: [  ].
 	stepPoint := ranges indexOf: range.
-	self outerJadeiteBrowser statusBarText message:
-		'Step Point: ' , stepPoint printString
+	stepPoint = 0 ifTrue: [ stepPoint := '*' ].
+	self outerJadeiteBrowser statusBarText pushMessage:
+		'Step Point: ' , stepPoint asString
 ]
 
 { #category : 'commands' }

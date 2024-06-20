@@ -45,10 +45,10 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             hScrollbarShowWhenNeeded;
 		             yourself.
 	"mouse click announcement not used yet but will likely be soon"
-	"newWidget textArea announcer
+	newWidget textArea announcer
 		when: RubMouseClick
 		send: #mouseClickedAt:
-		to: self presenter."
+		to: self presenter.
 	self setEnabled: self presenter isEnabled to: newWidget.
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.

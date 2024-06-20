@@ -580,6 +580,11 @@ JadeiteTextDocument >> maxPrintStringSize [
 	^JadePresenter maxPrintStringSize
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> mouseClickedAt: click [
+
+]
+
 { #category : 'scripting - widgets' }
 JadeiteTextDocument >> newStatusBar [
 
