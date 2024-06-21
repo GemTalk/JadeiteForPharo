@@ -811,8 +811,7 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 			self isDictionaryTabSelected
 				ifTrue: [ self updateDictionaries ]
 				ifFalse: [
-					self updateProjectSelecting:
-						self projectListPresenter selectedItem.
+					self updateProject.
 					self updatePackage ].
 			self updateClasses ] ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
@@ -825,8 +824,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectClassPresenters.
 	self connectPackageDictionaryPresenters.
 	projectListPresenter
-		whenSelectionChangedDo: [ :selection |
-			self updateProjectSelecting: selection selectedItem ];
+		whenSelectionChangedDo: [ :selection | self updateProject ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
@@ -2453,17 +2451,19 @@ JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
 ]
 
 { #category : 'selections' }
-JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService [
+JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService completionBlock: completionBlock [
 	"get services in one round trip"
+
 	| answeringService |
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #projectAndPackageServiceFor:;
 		commandArgs: (Array with: classService).
+	answeringService serviceCompletionBlock: [
+		completionBlock value: answeringService answer ].
 	RowanServiceUpdater current
 		issueCommand: answeringService
-		session: self gciSession.
-	^ answeringService answer
+		session: self gciSession
 ]
 
 { #category : 'displaying' }
@@ -3018,11 +3018,14 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService [
 
 	UIManager default defer: [
-		self selectProjectService: projectService.
-		packageService selectIn: self.
-		self isClassListTabSelected
-			ifTrue: [ self selectClassService: classService ]
-			ifFalse: [ self selectClassInClassHierarchyNamed: classService ] ]
+		| index |
+		projectListPresenter selectItem: projectService.
+		packageListPresenter list: projectService sortedPackages.
+		index := packageListPresenter list indexOf: packageService.
+		packageListPresenter selectIndex: index scrollToSelection: true.
+		classListPresenter list: packageService sortedClasses.
+		index := classListPresenter list indexOf: classService.
+		classListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'selections' }
@@ -3526,17 +3529,20 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
-	| packageService projectService array |
-	array := self projectAndPackageServiceFor: classService.
-	projectService := array first.
-	packageService := array last.
-	classService isMeta ifTrue: [ self setClassSide ].
-	self selectClassListTab.
-	self selectPackageListTab. 
+	| packageService projectService completionBlock |
+	completionBlock := [ :array |
+	                   projectService := array first.
+	                   packageService := array last.
+	                   classService isMeta ifTrue: [ self setClassSide ].
+	                   self selectClassListTab.
+	                   self selectPackageListTab.
+	                   self
+		                   selectClassNamed: classService
+		                   package: packageService
+		                   project: projectService ].
 	self
-		selectClassNamed: classService
-		package: packageService
-		project: projectService
+		projectAndPackageServiceFor: classService
+		completionBlock: completionBlock
 ]
 
 { #category : 'as yet unclassified' }
@@ -3821,6 +3827,25 @@ JadeiteBrowserPresenter >> updatePackageMenu: menu [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenter >> updateProject [
+
+	self packageListPresenter clear.
+	self dictionaryListPresenter clear.
+	self cleanupProjectInfoTab.
+	self updateTabLabel.
+	classHierarchyPresenter clear.
+	classListPresenter clear.
+	self selectClassListTab.
+	self packageListPresenter selectionIfNone: [
+		classListPresenter clear.
+		classHierarchyPresenter clear ].
+	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
+	self updateTabLabel.
+	self basicUpdateProject.
+	definedClassPackageText text: String new
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfo [
 
 	| service |
@@ -3876,25 +3901,6 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 		           path: self projectReadmePath.
 	self issueCommand: service onCompletion: nil.
 	projectReadMeTab value: service answer
-]
-
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> updateProjectSelecting: selectedProject [
-
-	self packageListPresenter clear.
-	self dictionaryListPresenter clear.
-	self cleanupProjectInfoTab.
-	self updateTabLabel.
-	classHierarchyPresenter clear.
-	classListPresenter clear.
-	self selectClassListTab.
-	self packageListPresenter selectionIfNone: [
-		classListPresenter clear.
-		classHierarchyPresenter clear ].
-	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
-	self updateTabLabel.
-	self basicUpdateProject.
-	definedClassPackageText text: String new
 ]
 
 { #category : 'tab labels' }

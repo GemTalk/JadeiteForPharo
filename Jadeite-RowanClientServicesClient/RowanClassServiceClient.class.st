@@ -29,12 +29,6 @@ RowanClassServiceClient >> handleCompileError: compileError [
 		compileErrorHandler value: compileError ]
 ]
 
-{ #category : 'actions' }
-RowanClassServiceClient >> handleServiceCompletion [
-
-	serviceCompletionBlock ifNotNil: [ :block | block value ]
-]
-
 { #category : 'accessing' }
 RowanClassServiceClient >> inCommand [
 
@@ -52,6 +46,12 @@ RowanClassServiceClient >> initialize [
 	
 	super initialize. 
 	subclassServices := OrderedCollection new.
+]
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
 ]
 
 { #category : 'accessing' }

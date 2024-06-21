@@ -84,6 +84,13 @@ RowanService class >> templateClassName [
 	^#RowanService
 ]
 
+{ #category : 'service completion' }
+RowanService >> _handleServiceCompletionBlock [
+
+	[ self serviceCompletionBlock value ] ensure: [
+		self serviceCompletionBlock: nil ]
+]
+
 { #category : 'replication' }
 RowanService >> basicPrepareForReplication [
 	"don't call anything potentially recursive here"
@@ -263,21 +270,25 @@ RowanService >> handleCompileError: compileError [
 	compileError pass
 ]
 
-{ #category : 'accessing' }
+{ #category : 'service completion' }
 RowanService >> handleServiceCompletion [
 
-	
+	self serviceCompletionBlock ifNotNil: [
+		self _handleServiceCompletionBlock ]
 ]
 
 { #category : 'inCommand' }
 RowanService >> inCommand [
 	"return self for subclasses that don't implement inCommand"
+
 	"inCommand is only defined on the client and not replicated to the server as it's a Semaphore. 
 	Therefore, only define the inst var inCommand in client-only subclasses. RSR's quirky design 
 	requires this - can't define a 'client only' inst var in a super class, unfortunately.
 	
 	The purpose of the inCommand semaphore is to prevent issuing more than one command 
 	to a service at a time. RSR will override values on the server!"
+
+	^false
 ]
 
 { #category : 'inCommand' }
@@ -722,6 +733,19 @@ RowanService >> returnedServices [
 { #category : 'Init / Release' }
 RowanService >> rowanPostUpdate [
 	"Give the service a chance to clean up unnecessary objects after replication"
+
+	
+]
+
+{ #category : 'service completion' }
+RowanService >> serviceCompletionBlock [
+	"only some subclasses have serviceCompletionBlock"
+	^nil
+]
+
+{ #category : 'service completion' }
+RowanService >> serviceCompletionBlock: anObject [
+	"only some subclasses have serviceCompletionBlock"
 
 	
 ]

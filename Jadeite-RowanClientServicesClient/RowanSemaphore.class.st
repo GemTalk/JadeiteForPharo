@@ -24,6 +24,12 @@ RowanSemaphore >> lockingProcess [
 	^lockingProcess
 ]
 
+{ #category : 'accessing' }
+RowanSemaphore >> lockingProcess: anObject [
+
+	^ lockingProcess := anObject
+]
+
 { #category : 'process synchronisation' }
 RowanSemaphore >> wait [
 

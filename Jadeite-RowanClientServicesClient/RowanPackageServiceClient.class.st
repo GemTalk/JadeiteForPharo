@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanPackageServiceClient',
 	#superclass : 'RowanPackageService',
 	#instVars : [
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
@@ -17,4 +18,22 @@ RowanPackageServiceClient >> inCommand [
 RowanPackageServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
+]
+
+{ #category : 'accessing' }
+RowanPackageServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanPackageServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
+]
+
+{ #category : 'as yet unclassified' }
+RowanPackageServiceClient >> sortedClasses [
+
+	^ classes asSortedCollection: [ :x :y | x name < y name ]
 ]
