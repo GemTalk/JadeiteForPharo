@@ -540,14 +540,16 @@ JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPac
 					 (selectedMethods collect: [ :methodService |
 							  methodService selector ])
 				 with: packageName).
+	classService serviceCompletionBlock: [
+		UIManager default defer: [
+			self
+				postMoveToPackage: packageName
+				className: selectedClass name
+				selectedMethods: selectedMethods ] ].
 	RowanServiceUpdater current
 		issueCommand: classService
 		session: self gciSession
-		onCompletion: nil.
-	self
-		postMoveToPackage: packageName
-		className: selectedClass name
-		selectedMethods: selectedMethods
+		onCompletion: nil
 ]
 
 { #category : 'actions' }
