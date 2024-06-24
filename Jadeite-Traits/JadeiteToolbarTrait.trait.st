@@ -34,6 +34,18 @@ JadeiteToolbarTrait >> addToolbarItemsToMenuGroup: group [
 ]
 
 { #category : 'actions' }
+JadeiteToolbarTrait >> basicOpenBrowser: browser [
+
+	browser
+		application: self application;
+		gciSession: self gciSession.
+	browser
+		open;
+		addStyle: 'jadeWorkspace'.
+	^ browser
+]
+
+{ #category : 'actions' }
 JadeiteToolbarTrait >> clientCommitIdDescription [
 
 	| ws | 
@@ -134,15 +146,8 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 JadeiteToolbarTrait >> openBrowser [
 
 	| inst |
-	
 	inst := JadeiteBrowser new owner: self.
-	inst
-		application: self application;
-		gciSession: self gciSession.
-	inst
-		open;
-		addStyle: 'jadeWorkspace'.
-	^ inst
+	^ self basicOpenBrowser: inst
 ]
 
 { #category : 'actions' }

@@ -85,30 +85,36 @@ RowanPackageService >> classesUpdate: presenter browser: browser [
 	"If the selected packages have the same class defined and extended, show the defined class"
 
 	| condensedList selections selectedPackageServices validatedList |
-	classes ifNil: [ ^self ].
-	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
-	(self doesUpdateApply: browser) ifFalse: [^self].
+	classes ifNil: [ ^ self ].
+	presenter list isEmpty ifTrue: [
+		self initializePresenterList: presenter ].
+	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
 	self removeDeletedClassesIn: presenter browser: browser.
+	classes ifNil: [ ^self ].
 	condensedList := self condenseExtensions: presenter.
 	validatedList := Dictionary new.
-	condensedList keysAndValuesDo: 
-			[:classService :dontcare |
-			(browser isValidClassService: classService) ifTrue: [validatedList at: classService put: dontcare]].
+	condensedList keysAndValuesDo: [ :classService :dontcare |
+		(browser isValidClassService: classService) ifTrue: [
+			validatedList at: classService put: dontcare ] ].
 	presenter selections isEmpty
-		ifTrue: 
-			[presenter
-				list: (ListModel withAll: (validatedList keys asSet asSortedCollection: [:x :y | x name < y name]) )]
-		ifFalse: 
-			[self
+		ifTrue: [
+			presenter list: (ListModel withAll:
+					 (validatedList keys asSet asSortedCollection: [ :x :y |
+						  x name < y name ])) ]
+		ifFalse: [
+			self
 				updateList: presenter
 				whilePreservingSelections: validatedList
-				browser: browser].
+				browser: browser ].
 	"#selections is very expensive in Dolphin. Don't send it in a loop"
 	selections := browser packageListPresenter selections.
-	selectedPackageServices := browser isRowanProjectSelected ifTrue: [selections] ifFalse: [Array new].
-	presenter list do: [:classService | classService selectedPackageServices: selectedPackageServices].
-	self todo:[presenter view invalidate].
-	browser isClassSelected ifFalse: [self emptyFilterListsIn: browser]
+	selectedPackageServices := browser isRowanProjectSelected
+		                           ifTrue: [ selections ]
+		                           ifFalse: [ Array new ].
+	presenter list do: [ :classService |
+		classService selectedPackageServices: selectedPackageServices ].
+	self todo: [ presenter view invalidate ].
+	browser isClassSelected ifFalse: [ self emptyFilterListsIn: browser ]
 ]
 
 { #category : 'private' }

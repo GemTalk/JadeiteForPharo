@@ -49,6 +49,10 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		when: RubMouseClick
 		send: #mouseClickedAt:
 		to: self presenter.
+	newWidget textArea announcer
+		when: RubKeystroke
+		send: #keystrokeAt:
+		to: self presenter.
 	self setEnabled: self presenter isEnabled to: newWidget.
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.

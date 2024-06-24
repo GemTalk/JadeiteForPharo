@@ -567,6 +567,12 @@ JadeiteTextDocument >> jadeExecuteAndDisplay: showResult result: anAssociation v
 	^value
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> keystrokeAt: click [
+
+	
+]
+
 { #category : 'private' }
 JadeiteTextDocument >> logoutRequested: aValueHolder [
 	"Opportunity to save changes."

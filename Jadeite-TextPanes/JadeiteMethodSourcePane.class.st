@@ -74,6 +74,21 @@ JadeiteMethodSourcePane >> currentMethodSourceFrom: sourceString [
 
 ]
 
+{ #category : 'events' }
+JadeiteMethodSourcePane >> displayStepPointAt: sourcePosition [
+
+	| stepPoint range ranges |
+	ranges := methodService stepPoints collect: [ :array |
+		          methodService stepPointRangeFrom: array ].
+	range := ranges
+		         detect: [ :theRange | theRange includes: sourcePosition ]
+		         ifNone: [  ].
+	stepPoint := ranges indexOf: range.
+	stepPoint = 0 ifTrue: [ stepPoint := '*' ].
+	self outerJadeiteBrowser statusBarText pushMessage:
+		'Step Point: ' , stepPoint asString
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodSourcePane >> ensureVisible [
 
@@ -116,6 +131,17 @@ JadeiteMethodSourcePane >> initializePresenters [
 	self bindKeyCombination: $f alt toAction: [ self formatSource ]
 ]
 
+{ #category : 'events' }
+JadeiteMethodSourcePane >> keystrokeAt: click [
+
+	| sourcePosition |
+	click morph textArea scrollPane owner hasUnacceptedEdits ifTrue: [
+		^ self outerJadeiteBrowser statusBarText pushMessage:
+			  'Step Point: <method changed>' ].
+	sourcePosition := click morph textArea startIndex.
+	self displayStepPointAt: sourcePosition
+]
+
 { #category : 'accessing' }
 JadeiteMethodSourcePane >> methodService [
 
@@ -131,17 +157,12 @@ JadeiteMethodSourcePane >> methodService: anObject [
 { #category : 'events' }
 JadeiteMethodSourcePane >> mouseClickedAt: click [
 
-	| sourcePosition ranges range stepPoint |
+	| sourcePosition |
+	click event handler hasUnacceptedEdits ifTrue: [
+		^ self outerJadeiteBrowser statusBarText pushMessage:
+			  'Step Point: <method changed>' ].
 	sourcePosition := click event handler scrollPane textArea startIndex.
-	ranges := methodService stepPoints collect: [ :array |
-		          methodService stepPointRangeFrom: array ].
-	range := ranges
-		         detect: [ :theRange | theRange includes: sourcePosition ]
-		         ifNone: [  ].
-	stepPoint := ranges indexOf: range.
-	stepPoint = 0 ifTrue: [ stepPoint := '*' ].
-	self outerJadeiteBrowser statusBarText pushMessage:
-		'Step Point: ' , stepPoint asString
+	self displayStepPointAt: sourcePosition
 ]
 
 { #category : 'commands' }

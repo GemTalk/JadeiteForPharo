@@ -5,7 +5,8 @@ Class {
 	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFilterTrait classTrait + JadeitePackageTrait classTrait',
 	#instVars : [
 		'tabs',
-		'toolbar'
+		'toolbar',
+		'postOpenBlock'
 	],
 	#category : 'Jadeite-Browser'
 }
@@ -265,9 +266,10 @@ JadeiteBrowser >> openNewBrowserPresenter [
 
 	| browserPresenter |
 	browserPresenter := JadeiteBrowserPresenter new
+		                    postOpenBlock: postOpenBlock;
 		                    application: self application;
-		                    gciSession: gciSession;
-		                    updateProjects.
+		                    gciSession: gciSession.
+	browserPresenter updateProjects.
 	browserPresenter
 		addStyle: 'jadeWorkspace';
 		owner: self;
@@ -293,6 +295,18 @@ JadeiteBrowser >> openNewBrowserTab [
 JadeiteBrowser >> packageListPresenter [
 
 	^ self activePresenter packageListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteBrowser >> postOpenBlock [
+
+	^ postOpenBlock
+]
+
+{ #category : 'accessing' }
+JadeiteBrowser >> postOpenBlock: anObject [
+
+	postOpenBlock := anObject
 ]
 
 { #category : 'accessing' }

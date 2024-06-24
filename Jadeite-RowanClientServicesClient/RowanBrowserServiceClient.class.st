@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanBrowserServiceClient',
 	#superclass : 'RowanBrowserService',
 	#instVars : [
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
@@ -17,4 +18,16 @@ RowanBrowserServiceClient >> inCommand [
 RowanBrowserServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
+]
+
+{ #category : 'accessing' }
+RowanBrowserServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanBrowserServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]

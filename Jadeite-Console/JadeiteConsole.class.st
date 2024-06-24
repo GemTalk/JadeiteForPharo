@@ -283,23 +283,28 @@ JadeiteConsole >> editLoadSpecFromFile [
 JadeiteConsole >> findClassNamed: selection [
 
 	| classService browser |
-	UIManager default defer: [
-		browser := self openBrowser.
+	browser := JadeiteBrowser new owner: self.
+	browser postOpenBlock: [
 		classService := RowanClassService new name: selection.
-		browser activePresenter
-			updateAfterFindClass: classService
-			onCompletion: nil ]
+		classService serviceCompletionBlock: [
+			browser activePresenter
+				updateAfterFindClass: classService
+				onCompletion: nil ].
+		self updateService: classService ].
+	self basicOpenBrowser: browser
 ]
 
 { #category : 'actions' }
 JadeiteConsole >> findClassService: classService [
 
-	| browserPresenter |
+	| browser browserPresenter |
 	classService ifNil: [ ^ self ].
-	browserPresenter := self openBrowser.
-	browserPresenter activePresenter
-		updateAfterFindClass: classService
-		onCompletion: nil
+	browser := JadeiteBrowser new owner: self.
+	browser postOpenBlock: [
+		browserPresenter activePresenter
+			updateAfterFindClass: classService
+			onCompletion: nil ].
+	browserPresenter := self basicOpenBrowser: browser
 ]
 
 { #category : 'as yet unclassified' }

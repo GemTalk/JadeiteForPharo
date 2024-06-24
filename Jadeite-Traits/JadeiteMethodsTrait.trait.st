@@ -247,7 +247,7 @@ Example: To search for literal string add single quotes'
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseMethodClass [
 
-	| service className browser |
+	| service className |
 	service := RowanClassService new name:
 		           self methodListPresenter jadeiteSelections first.
 	service meta: self methodListPresenter jadeiteSelections first meta.
@@ -256,8 +256,7 @@ JadeiteMethodsTrait >> browseMethodClass [
 		session: self gciSession.
 	className := self methodListPresenter jadeiteSelections first
 		             className.
-	browser := self openBrowser.
-	browser findClassNamed: className
+	self openBrowser findClassNamed: className
 ]
 
 { #category : 'actions' }

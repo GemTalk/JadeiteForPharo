@@ -27,7 +27,8 @@ Class {
 		'classCommentTab',
 		'packageMethodListPage',
 		'backButton',
-		'forwardButton'
+		'forwardButton',
+		'postOpenBlock'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -1120,7 +1121,8 @@ JadeiteBrowserPresenter >> editSaveMethod [
 	self editSaveMethod: selection onCompletion: [
 		self updateSUnitTab.
 		self redrawAllViews.
-		self updateSystemTab ]
+		self updateSystemTab.
+		self statusBarText pushMessage: String new ]
 ]
 
 { #category : 'actions' }
@@ -2423,6 +2425,24 @@ JadeiteBrowserPresenter >> populateFilterList [
 				listModel asSortedCollection asOrderedCollection ]
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> postOpen [
+
+	postOpenBlock ifNotNil: [ postOpenBlock value ]
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> postOpenBlock [
+
+	^ postOpenBlock
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> postOpenBlock: anObject [
+
+	postOpenBlock := anObject
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenter >> preUpdate: services [
 
@@ -2929,6 +2949,7 @@ JadeiteBrowserPresenter >> resetMethodSource [
 
 	methodSourcePresenter text:
 		methodSourcePresenter methodService source.
+	self statusBarText pushMessage: String new.
 	^ methodSourcePresenter isModified: false
 ]
 
