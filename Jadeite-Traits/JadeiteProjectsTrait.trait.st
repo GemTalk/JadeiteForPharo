@@ -499,6 +499,12 @@ JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
 ]
 
 { #category : 'actions' }
+JadeiteProjectsTrait >> postOpen [
+
+	"no postOpenBlock yet"
+]
+
+{ #category : 'actions' }
 JadeiteProjectsTrait >> projectChanges [
 
 	| changesBrowser operations projectService |
