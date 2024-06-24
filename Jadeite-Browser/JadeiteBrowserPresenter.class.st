@@ -3320,7 +3320,7 @@ JadeiteBrowserPresenter >> setCompileErrorColor [
 
 { #category : 'private' }
 JadeiteBrowserPresenter >> setDefaultMethod [
-	self methodSourcePresenter removeAllTextSegmentDecorations.
+
 	methodSourcePresenter value: self defaultMethod
 ]
 
@@ -3658,7 +3658,7 @@ JadeiteBrowserPresenter >> updateClasses [
 		ifFalse: [self updateServices: packageListPresenter selections]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateDictionaries [
 
 	| browserService |
@@ -3667,18 +3667,22 @@ JadeiteBrowserPresenter >> updateDictionaries [
 	self issueCommand: browserService onCompletion: nil
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateDictionary [
-	self isPackageListTabSelected  ifTrue:[^self]. 
+
+	dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
+	self isPackageListTabSelected ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
-	self todo:[classHierarchyPresenter model: JadeiteTreeModel new].
-	self updateServices: dictionaryListPresenter selections.
-	self isClassListTabSelected ifFalse: [self updateHierarchy].
-	self updateTabLabel.
-	self todo:[self updateGlobalsTab].
-	dictionaryListPresenter selections isEmpty ifTrue:[^self]. 
-	classDefinitionPresenter value: dictionaryListPresenter selectedItem defaultTemplate.
-	self resetClassDefinitionPane.
+	self todo: [ classHierarchyPresenter model: JadeiteTreeModel new ].
+	dictionaryListPresenter selections last serviceCompletionBlock: [
+		self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+		self updateTabLabel.
+		self todo: [ self updateGlobalsTab ].
+		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
+		classDefinitionPresenter value:
+			dictionaryListPresenter selectedItem defaultTemplate.
+		self resetClassDefinitionPane].
+	self updateServices: dictionaryListPresenter selections
 ]
 
 { #category : 'as yet unclassified' }
