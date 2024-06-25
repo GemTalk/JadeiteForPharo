@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanMethodServiceClient',
 	#superclass : 'RowanMethodService',
 	#instVars : [
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
@@ -17,6 +18,18 @@ RowanMethodServiceClient >> inCommand [
 RowanMethodServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
+]
+
+{ #category : 'accessing' }
+RowanMethodServiceClient >> serviceCompletionBlock [
+
+	^serviceCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanMethodServiceClient >> serviceCompletionBlock: aBlock [
+
+	serviceCompletionBlock := aBlock 
 ]
 
 { #category : 'accessing' }

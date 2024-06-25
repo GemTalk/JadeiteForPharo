@@ -112,10 +112,12 @@ JadeiteBrowserPresenter >> abortTransaction [
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
 
-	self updateProjects.
-	self resetClassTemplate.
-	self resetClassComment.
-	self projectListPresenter invalidate
+	UIManager default defer: [
+		self updateProjects.
+		self resetClassTemplate.
+		self resetClassComment.
+		self projectListPresenter invalidate.
+		self updateMethodSource ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2428,7 +2430,8 @@ JadeiteBrowserPresenter >> populateFilterList [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> postOpen [
 
-	postOpenBlock ifNotNil: [ postOpenBlock value ]
+	postOpenBlock ifNotNil: [
+		[ postOpenBlock value ] ensure: [ postOpenBlock := nil ] ]
 ]
 
 { #category : 'accessing' }
@@ -2666,11 +2669,12 @@ JadeiteBrowserPresenter >> refreshFromServer [
 	classHierarchyPresenter selectedItem ifNotNil: [ :classService |
 		services add: classService ].
 	services addAll: methodListPresenter selections.
-	self updateServices: services.
-	self updateSUnitTab.
-	RowanBrowserService new checkForAddedProjects:
-		projectListPresenter items asArray.
-	self redrawAllViews
+	services last serviceCompletionBlock: [
+		self updateSUnitTab.
+		RowanBrowserService new checkForAddedProjects:
+			projectListPresenter items asArray.
+		self redrawAllViews ].
+	self updateServices: services
 ]
 
 { #category : 'actions' }
@@ -2687,8 +2691,8 @@ JadeiteBrowserPresenter >> refreshGlobalSelections [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
-		onCompletion: nil.
-	self updateServices: RowanServiceUpdater current selectedServices
+		onCompletion: [
+		self updateServices: RowanServiceUpdater current selectedServices ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3787,20 +3791,19 @@ JadeiteBrowserPresenter >> updateMethodSource [
 		self resetCategoryText.
 		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
 
-	self updateServices: methodListPresenter selections.
-
-	UIManager default defer: [
-		methodListPresenter selections isEmpty
-			ifTrue: [ self setDefaultMethod ]
-			ifFalse: [
-				methodSourcePresenter value:
-					methodListPresenter selectedItems first source.
-				self updateMethodSourceGlyphs.
-				definedMethodPackageText text:
-					'Defined Package: '
-					, methodListPresenter selectedItem definedPackage.
-				methodCategoryText text:
-					'Category: ' , methodListPresenter selectedItem category ] ]
+	self updateServices: methodListPresenter selections onCompletion: [
+		UIManager default defer: [
+			methodListPresenter selections isEmpty
+				ifTrue: [ self setDefaultMethod ]
+				ifFalse: [
+					methodSourcePresenter value:
+						methodListPresenter selectedItems first source.
+					self updateMethodSourceGlyphs.
+					definedMethodPackageText text:
+						'Defined Package: '
+						, methodListPresenter selectedItem definedPackage.
+					methodCategoryText text:
+						'Category: ' , methodListPresenter selectedItem category ] ] ]
 ]
 
 { #category : 'updates' }
@@ -3821,21 +3824,6 @@ JadeiteBrowserPresenter >> updatePackage [
 		packageListPresenter selectionIfNone: [ self selectProjectTab ].
 		self updateTabLabel ].
 	definedClassPackageText text: String new
-]
-
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> updatePackageGroupPackages [
-	"Do the package selection & class gathering as such for a performance improvement"
-
-	| classes |
-	packageListPresenter clear.
-	packageGroupPresenter selections isEmpty ifTrue: [^self].
-	self updateServices: packageGroupPresenter selections.
-	packageListPresenter noEventsDo: [packageListPresenter selections: packageListPresenter list].
-	classes := Set new.
-	packageListPresenter selections do: [:packageService | classes addAll: packageService classes].
-	classListPresenter list: classes asArray.
-	self sundryCleanup
 ]
 
 { #category : 'updates' }
@@ -3913,9 +3901,11 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateProjectPackages [
-	projectListPresenter selections isEmpty ifTrue: [^self].
-	self updateServices: projectListPresenter selections.
-	self sundryCleanup
+
+	projectListPresenter selections isEmpty ifTrue: [ ^ self ].
+	self
+		updateServices: projectListPresenter selections
+		onCompletion: [ self sundryCleanup ]
 ]
 
 { #category : 'updates' }

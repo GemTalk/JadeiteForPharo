@@ -853,10 +853,9 @@ JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 	services do: [ :service |
 		service
 			command: #update;
-			commandArgs: #(  );
-			serviceCompletionBlock: completionBlock ].
-	RowanServiceUpdater current
-		issueCommands: services
-		session: self gciSession
-		onCompletion: nil
+			commandArgs: #(  ).
+		RowanServiceUpdater current
+			issueCommand: service
+			session: self gciSession
+			onCompletion: completionBlock ]
 ]

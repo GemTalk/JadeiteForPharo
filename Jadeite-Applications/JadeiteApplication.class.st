@@ -37,11 +37,11 @@ JadeiteApplication class >> abortTransactionInSession: session [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: session
-		onCompletion: nil.
-	self setInTransaction: RowanAnsweringService new session: session.
-	self todo: [ JadePresenter trigger: #abortedTransaction ].
-	UIManager default inform: 'Abort succeeded'.
-	JadeiteSound informationBeep
+		onCompletion: [
+			self setInTransaction: RowanAnsweringService new session: session.
+			JadePresenter trigger: #abortedTransaction.
+			UIManager default inform: 'Abort succeeded'.
+			JadeiteSound informationBeep ]
 ]
 
 { #category : 'constants' }
@@ -62,13 +62,14 @@ JadeiteApplication class >> commitTransactionInSession: session [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: session
-		onCompletion: nil.
-	commitResult := browserService updates first answer. "should only get one update back"
-	commitResult
-		ifTrue: [ UIManager default inform: 'Commit succeeded' ]
-		ifFalse: [
-		^ UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
-	JadeiteSound informationBeep
+		onCompletion: [
+			commitResult := browserService updates first answer. "should only get one update back"
+			commitResult
+				ifTrue: [
+					UIManager default inform: 'Commit succeeded'.
+					JadeiteSound informationBeep ]
+				ifFalse: [
+				UIManager default alert: 'Commit failure' title: 'Jaded warning' ] ]
 ]
 
 { #category : 'constants' }
@@ -129,11 +130,13 @@ JadeiteApplication >> abortTransaction [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: gciSession
-		onCompletion: nil.
-	self setInTransaction: RowanAnsweringService new session: gciSession.
-	self triggerEvent: #abortedTransaction.
-	UIManager default inform: 'Abort succeeded'.
-	JadeiteSound informationBeep
+		onCompletion: [
+			self
+				setInTransaction: RowanAnsweringService new
+				session: gciSession.
+			self triggerEvent: #abortedTransaction.
+			UIManager default inform: 'Abort succeeded'.
+			JadeiteSound informationBeep ]
 ]
 
 { #category : 'constants' }
