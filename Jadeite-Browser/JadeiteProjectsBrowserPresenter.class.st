@@ -655,11 +655,6 @@ JadeiteProjectsBrowserPresenter >> selectCategoryFrom: methodService [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectCategoryNamed: category [
-	^self selectCategoriesNamed: (Array with: category)
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectCommentTab [
 	self selectSourceTabNamed: 'classDocumentation'
 ]

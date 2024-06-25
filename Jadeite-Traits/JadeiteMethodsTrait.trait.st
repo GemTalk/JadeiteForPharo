@@ -567,9 +567,8 @@ JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPac
 	classService
 		command: #moveMethodSelectors:toPackageNamed:;
 		commandArgs: (Array
-				 with:
-					 (selectedMethods collect: [ :methodService |
-							  methodService selector ])
+				 with: (selectedMethods collect: [ :theMethodService |
+							  theMethodService selector ])
 				 with: packageName).
 	RowanServiceUpdater current
 		issueCommand: classService
@@ -710,13 +709,13 @@ JadeiteMethodsTrait >> reformatSource [
 ]
 
 { #category : 'actions' }
-JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: methodService [
+JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: theMethodService [
 
-	methodService
+	theMethodService
 		source: presenter value;
 		command: #reformatSource;
 		commandArgs: Array new.
-	[ self issueCommand: methodService onCompletion: nil ]
+	[ self issueCommand: theMethodService onCompletion: nil ]
 		on: Error
 		do: [ :ex |
 			self setCompileErrorColor.
@@ -725,8 +724,8 @@ JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: metho
 			^ false ].
 	presenter view performUndoableAction: [
 		presenter view modifyText: [
-			presenter view sciSetText: methodService source ] ].
-	presenter value: methodService source.
+			presenter view sciSetText: theMethodService source ] ].
+	presenter value: theMethodService source.
 	presenter view isModified: true.
 	self setStatusBarDefault.
 	self statusBarText: String new.

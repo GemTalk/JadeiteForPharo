@@ -643,5 +643,5 @@ JadeiteProjectsTrait >> updateProjects [
 				(self doProjectsNeedRefresh: browserService) ifFalse: [
 					self projectListPresenter items:
 						(self sortedProjectsFrom: browserService projects) ] ].
-		self postOpen ]
+		UIManager default defer: [ self postOpen ] ]
 ]

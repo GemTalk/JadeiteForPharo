@@ -112,12 +112,11 @@ JadeiteBrowserPresenter >> abortTransaction [
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
 
-	UIManager default defer: [
-		self updateProjects.
-		self resetClassTemplate.
-		self resetClassComment.
-		self projectListPresenter invalidate.
-		self updateMethodSource ]
+	self updateProjects.
+	self resetClassTemplate.
+	self resetClassComment.
+	self projectListPresenter invalidate.
+	self updateMethodSource. 
 ]
 
 { #category : 'as yet unclassified' }
@@ -1664,7 +1663,9 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		add: classRadioButton;
 		add: (SpButtonPresenter new
 				 icon: (self iconNamed: #smallCopy);
-				 action: [ self copyMethodSelectors ]) withConstraints: [:constraints | constraints width: 30] .
+				 action: [ self copyMethodSelectors ];
+				 help: 'Copy Selector String')
+		withConstraints: [ :constraints | constraints width: 30 ].
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 30 * self currentWorld displayScaleFactor ].
 	self initializeDefinedMethodPackageText: methodsBox.
@@ -2988,6 +2989,13 @@ JadeiteBrowserPresenter >> selectCategoriesNamed: selections [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectCategoryNamed: category [
+
+	category ifNil: [ ^ self ].
+	^ self selectCategoriesNamed: (Array with: category)
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoryTab [
 	methodFilterTabs selectPageIndex: 1
 ]
@@ -3073,6 +3081,16 @@ JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 JadeiteBrowserPresenter >> selectMethod: methodSelection [
 
 	self selectMethods: (Array with: methodSelection)
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectMethodNamed: selector [
+
+	| methodService |
+	methodService := methodListPresenter list
+		                 detect: [ :service | service selector = selector ]
+		                 ifNone: [ ^ self ].
+	methodListPresenter selections: (Array with: methodService)
 ]
 
 { #category : 'selections' }

@@ -150,34 +150,39 @@ JadeiteClassTrait >> findClassService: classService [
 ]
 
 { #category : 'private' }
-JadeiteClassTrait >> findPackage [
+JadeiteClassTrait >> findPackageAndMoveToPackage [
 
-	| dialogWindow browserService selection packageServices |
+	| dialogWindow browserService packageService packageServices |
 	browserService := RowanBrowserService new
 		                  command: #allPackages;
 		                  commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: browserService
-		session: self gciSession.
-	packageServices := browserService projects
-		                   inject:
-		                   (SortedCollection sortBlock: [ :x :y |
-			                    x name < y name ])
-		                   into: [ :coll :projectService |
-			                   coll addAll: projectService packages.
-			                   coll ].
-	dialogWindow := ListDialogWindow new
-		                getList: [ :rxMatcher |
-			                packageServices select: [ :packageService |
-					                rxMatcher isString
-						                ifTrue: [ rxMatcher , '*' match: packageService name ]
-						                ifFalse: [ rxMatcher matchesPrefix: packageService name ] "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher" ] ];
-		                displayBlock: [ :e | e name ];
-		                doubleClickOk;
-		                title: 'Jadeite Find Package';
-		                yourself.
-	selection := dialogWindow chooseFromOwner: self currentWorld.
-	^ selection
+		session: self gciSession
+		onCompletion: [
+			packageServices := browserService projects
+				                   inject:
+				                   (SortedCollection sortBlock: [ :x :y |
+					                    x name < y name ])
+				                   into: [ :coll :projectService |
+					                   coll addAll: projectService packages.
+					                   coll ].
+			dialogWindow := ListDialogWindow new
+				                getList: [ :rxMatcher |
+					                packageServices select: [ :thePackageService |
+							                rxMatcher isString
+								                ifTrue: [
+									                rxMatcher , '*' match: thePackageService name ]
+								                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+									                rxMatcher matchesPrefix:
+											                thePackageService name ] ] ];
+				                displayBlock: [ :e | e name ];
+				                doubleClickOk;
+				                title: 'Jadeite Find Package';
+				                yourself.
+			packageService := dialogWindow chooseFromOwner: self currentWorld.
+			packageService ifNotNil: [
+				self moveClassToPackageNamed: packageService name ] ]
 ]
 
 { #category : 'menus' }
@@ -204,10 +209,8 @@ JadeiteClassTrait >> isClassSelected [
 
 { #category : 'actions' }
 JadeiteClassTrait >> moveClassToPackage [
-	| packageService |
-	packageService := self findPackage.
-	packageService ifNil: [^self].
-	self moveClassToPackageNamed: packageService name
+
+	self findPackageAndMoveToPackage
 ]
 
 { #category : 'actions' }
