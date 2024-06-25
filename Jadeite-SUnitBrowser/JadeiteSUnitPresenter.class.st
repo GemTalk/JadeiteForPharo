@@ -643,9 +643,9 @@ JadeiteSUnitPresenter >> updateMethods [
 	RowanServiceUpdater current
 		issueCommands: classServices
 		session: self gciSession
-		onCompletion: nil.
-	classServices do: [ :service | service updateAfterCommand: true ].
-	self updateMethodsFrom: classServices
+		onCompletion: [
+			classServices do: [ :service | service updateAfterCommand: true ].
+			self updateMethodsFrom: classServices ]
 ]
 
 { #category : 'updates' }

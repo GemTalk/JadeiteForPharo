@@ -177,25 +177,29 @@ JadeiteProjectsTrait >> fileoutProject [
 { #category : 'actions' }
 JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 
-	| ws repositoryRoots |
+	| ws answeringService |
 	ws := WriteStream on: String new.
-	repositoryRoots := RowanAnsweringService new
-		                   projectRepositoryRoots: projectServices
-		                   session: self gciSession.
-	projectServices do: [ :service |
-		ws
-			nextPutAll: service name;
-			space;
-			nextPut: $(;
-			nextPutAll: (repositoryRoots at: service name);
-			nextPut: $);
-			space ].
-	projectServices do: [ :service | service command: #write ].
-	RowanServiceUpdater current
-		issueCommands: projectServices
+	answeringService := RowanAnsweringService new.
+	answeringService
+		projectRepositoryRoots: projectServices
 		session: self gciSession
-		onCompletion: nil.
-	MessageBox notify: 'Projects ' , ws contents , ' written to disk'
+		onCompletion: [
+			projectServices do: [ :service |
+				ws
+					nextPutAll: service name;
+					space;
+					nextPut: $(;
+					nextPutAll: (answeringService answer at: service name);
+					nextPut: $);
+					space ].
+			projectServices do: [ :service | service command: #write ].
+			RowanServiceUpdater current
+				issueCommands: projectServices
+				session: self gciSession
+				onCompletion: [
+					UIManager default defer: [
+						MessageBox notify:
+							'Projects ' , ws contents , ' written to disk' ] ] ]
 ]
 
 { #category : 'menus' }
@@ -302,7 +306,8 @@ JadeiteProjectsTrait >> gitWriteProject [
 	repositoryRoots := RowanAnsweringService new
 		                   projectRepositoryRoots:
 		                   (Array with: projectService)
-		                   session: self gciSession.
+		                   session: self gciSession
+		                   onCompletion: nil.
 	ws
 		nextPutAll: projectService name;
 		space;

@@ -170,7 +170,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> projectRepositoryRoots: projectServices session: session [
+RowanAnsweringService >> projectRepositoryRoots: projectServices session: session onCompletion: completionBlock [
 
 	self
 		command: #projectsRepositoryRoots:;
@@ -180,7 +180,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices session: sessio
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil.
+		onCompletion: completionBlock.
 	^ answer
 ]
 
