@@ -540,16 +540,15 @@ JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPac
 					 (selectedMethods collect: [ :methodService |
 							  methodService selector ])
 				 with: packageName).
-	classService serviceCompletionBlock: [
-		UIManager default defer: [
-			self
-				postMoveToPackage: packageName
-				className: selectedClass name
-				selectedMethods: selectedMethods ] ].
 	RowanServiceUpdater current
 		issueCommand: classService
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: [
+			UIManager default defer: [
+				self
+					postMoveToPackage: packageName
+					className: selectedClass name
+					selectedMethods: selectedMethods ] ]
 ]
 
 { #category : 'actions' }
@@ -819,7 +818,14 @@ JadeiteMethodsTrait >> updateService: service [
 
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateService: service onCompletion: completionBlock [
-	^self updateServices: (Array with: service) onCompletion: completionBlock
+
+	service
+		command: #update;
+		commandArgs: Array new.
+	^ RowanServiceUpdater current
+		  issueCommand: service
+		  session: self gciSession
+		  onCompletion: completionBlock
 ]
 
 { #category : 'updates' }
@@ -832,13 +838,14 @@ JadeiteMethodsTrait >> updateServices: services [
 JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 
 	services isEmpty ifTrue: [ ^ self ].
-	self preUpdate: services. 
+	self preUpdate: services.
 	services do: [ :service |
 		service
 			command: #update;
-			commandArgs: #(  ) ].
+			commandArgs: #(  );
+			serviceCompletionBlock: completionBlock ].
 	RowanServiceUpdater current
 		issueCommands: services
 		session: self gciSession
-		onCompletion: completionBlock
+		onCompletion: nil
 ]

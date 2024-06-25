@@ -286,11 +286,10 @@ JadeiteConsole >> findClassNamed: selection [
 	browser := JadeiteBrowser new owner: self.
 	browser postOpenBlock: [
 		classService := RowanClassService new name: selection.
-		classService serviceCompletionBlock: [
+		self updateService: classService onCompletion: [
 			browser activePresenter
 				updateAfterFindClass: classService
-				onCompletion: nil ].
-		self updateService: classService ].
+				onCompletion: nil ] ].
 	self basicOpenBrowser: browser
 ]
 

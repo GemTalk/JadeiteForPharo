@@ -276,8 +276,9 @@ RowanServiceUpdater >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
-	"no longer using session and completionBlock"
+
 	session ifNil: [ ^ nil ].
+	service serviceCompletionBlock: completionBlock. 
 	self basicIssueCommand: service
 ]
 

@@ -3,7 +3,8 @@ Class {
 	#superclass : 'RowanAutoCommitService',
 	#instVars : [
 		'inCommand',
-		'postUpdateBlock'
+		'postUpdateBlock',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient'
 }
@@ -41,4 +42,16 @@ RowanAutoCommitServiceClient >> inCommand: anObject [
 RowanAutoCommitServiceClient >> postUpdateBlock [
 
 	^postUpdateBlock
+]
+
+{ #category : 'accessing' }
+RowanAutoCommitServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'service completion' }
+RowanAutoCommitServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]

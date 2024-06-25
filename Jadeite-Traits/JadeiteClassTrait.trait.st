@@ -103,22 +103,21 @@ JadeiteClassTrait >> findClass [
 	answeringService := RowanAnsweringService new
 		                    command: #allClassNames;
 		                    commandArgs: Array new.
-	answeringService serviceCompletionBlock: [
-		UIManager default defer: [
-			| classService |
-			selection := self openClassSelectionDialogOn:
-				             answeringService answer.
-			selection ifNotNil: [
-				classService := RowanClassService new
-					                name: selection;
-					                meta: false.
-				classService serviceCompletionBlock: [
-					self findClassService: classService ].
-				self updateService: classService ] ] ].
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: [
+			UIManager default defer: [
+				| classService |
+				selection := self openClassSelectionDialogOn:
+					             answeringService answer.
+				selection ifNotNil: [
+					classService := RowanClassService new
+						                name: selection;
+						                meta: false.
+					self
+						updateService: classService
+						onCompletion: [ self findClassService: classService ] ] ] ]
 ]
 
 { #category : 'private' }

@@ -631,13 +631,12 @@ JadeiteProjectsTrait >> updateProjects [
 		browserService
 			command: #updateProjects;
 			commandArgs: Array new.
-		browserService serviceCompletionBlock: [
-			(self doProjectsNeedRefresh: browserService) ifFalse: [
-				self projectListPresenter items:
-					(self sortedProjectsFrom: browserService projects) ].
-			self postOpen ].
 		RowanServiceUpdater current
 			issueCommand: browserService
 			session: self gciSession
-			onCompletion: nil ]
+			onCompletion: [
+				(self doProjectsNeedRefresh: browserService) ifFalse: [
+					self projectListPresenter items:
+						(self sortedProjectsFrom: browserService projects) ] ].
+		self postOpen ]
 ]

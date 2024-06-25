@@ -63,8 +63,7 @@ GciSession >> basicFlipAutoCommit [
 	RowanServiceUpdater current
 		issueCommand: autoCommitService
 		session: self
-		onCompletion: nil.
-	self autoCommit value: autoCommitService autoCommit
+		onCompletion: [ self autoCommit value: autoCommitService autoCommit ]
 ]
 
 { #category : 'actions' }

@@ -2479,11 +2479,10 @@ JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService completionB
 	answeringService
 		command: #projectAndPackageServiceFor:;
 		commandArgs: (Array with: classService).
-	answeringService serviceCompletionBlock: [
-		completionBlock value: answeringService answer ].
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
+		onCompletion: [ completionBlock value: answeringService answer ]
 ]
 
 { #category : 'displaying' }
@@ -3674,15 +3673,17 @@ JadeiteBrowserPresenter >> updateDictionary [
 	self isPackageListTabSelected ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
 	self todo: [ classHierarchyPresenter model: JadeiteTreeModel new ].
-	dictionaryListPresenter selections last serviceCompletionBlock: [
-		self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-		self updateTabLabel.
-		self todo: [ self updateGlobalsTab ].
-		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
-		classDefinitionPresenter value:
-			dictionaryListPresenter selectedItem defaultTemplate.
-		self resetClassDefinitionPane].
-	self updateServices: dictionaryListPresenter selections
+	self
+		updateServices: dictionaryListPresenter selections
+		onCompletion: [
+			UIManager default defer: [
+				self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+				self updateTabLabel.
+				self todo: [ self updateGlobalsTab ].
+				dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
+				classDefinitionPresenter value:
+					dictionaryListPresenter selectedItem defaultTemplate.
+				self resetClassDefinitionPane ] ]
 ]
 
 { #category : 'as yet unclassified' }
