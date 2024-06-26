@@ -1131,6 +1131,8 @@ JadeiteBrowserPresenter >> editSaveMethod: classService onCompletion: completion
 	"save a method from the method source tab.
 	Tests may not be smart enough to select the method source tab first (and set the underlying adapter & widget) so we select the tab here."
 
+	"don't reselect methods when status bar is full so as not to upset the compile information"
+
 	| compileResult |
 	self selectMethodSourceTab.
 	compileResult := self
@@ -1138,13 +1140,11 @@ JadeiteBrowserPresenter >> editSaveMethod: classService onCompletion: completion
 		                 in: methodSourcePresenter
 		                 category: self targetCategory
 		                 onCompletion: [
-			                 self statusBarText message ifNotNil: [ :text |
-				                 text isEmpty ifFalse: [ ^ self ] ]. "don't reselect methods when status bar is full so as not to upset the compile information"
-			                 classService selectedMethods ifNotNil: [
-				                 :methodServices |
-				                 methodServices notEmpty ifTrue: [ "there will be no method selected on a compiler error"
-					                 self selectMethodsFrom: classService ] ].
-			                 completionBlock value ]
+			                 | message |
+			                 message := self statusBarText message.
+			                 (message isNil or: [ message isEmpty ]) ifTrue:
+				                 [ self selectMethodsFrom: classService ]
+					                 completionBlock value ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3141,11 +3141,12 @@ JadeiteBrowserPresenter >> selectMethods: methodSelections [
 JadeiteBrowserPresenter >> selectMethodsFrom: classService [
 
 	| selections selectedMethods |
+	classService selectedMethods ifNil: [ ^ self ].
+	classService selectedMethods isEmpty ifTrue: [ ^ self ].
 	selections := OrderedCollection new.
 	selectedMethods := classService selectedMethods.
 	(self selectedClass ifNotNil: [ :selectedClass |
-		 selectedClass name = selectedMethods first className ])
-		ifFalse: [
+		 selectedClass name = selectedMethods first className ]) ifFalse: [
 		self selectClassNamed: selectedMethods first className ].
 	(selectedMethods size = 1 and: [ self isCategoryTabSelected ])
 		ifTrue: [

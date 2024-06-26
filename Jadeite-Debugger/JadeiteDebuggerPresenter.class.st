@@ -218,25 +218,22 @@ JadeiteDebuggerPresenter >> editSaveMethod: classService in: thePresenter catego
 		category: category
 		completionBlock: [
 			(self compilationWarningFrom: classService selectedMethods)
-				ifNil: [ self resetStatusBar ]
+				ifNil: [
+					self resetStatusBar.
+					completionBlock value ]
 				ifNotNil: [ :warning |
 					self setCompileWarningColor.
-					self statusBarText pushMessage: warning ].
-			completionBlock value ]
+					self statusBarText pushMessage: warning ] ]
 ]
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> editSaveMethod: classService onCompletion: anObject [
 
-	| compileResult |
-	compileResult := self
-		                 editSaveMethod: classService
-		                 in: self methodSourcePresenter
-		                 category:
-		                 frameListPresenter selectedItem method category
-		                 onCompletion: nil.
-	compileResult ifFalse: [ ^ self ].
-	self trimStack
+	self
+		editSaveMethod: classService
+		in: self methodSourcePresenter
+		category: frameListPresenter selectedItem method category
+		onCompletion: [ self trimStack ]
 ]
 
 { #category : 'accessing' }
