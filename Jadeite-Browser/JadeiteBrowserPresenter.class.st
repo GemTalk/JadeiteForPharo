@@ -1142,9 +1142,9 @@ JadeiteBrowserPresenter >> editSaveMethod: classService onCompletion: completion
 		                 onCompletion: [
 			                 | message |
 			                 message := self statusBarText message.
-			                 (message isNil or: [ message isEmpty ]) ifTrue:
-				                 [ self selectMethodsFrom: classService ]
-					                 completionBlock value ]
+			                 (message isNil or: [ message isEmpty ]) ifTrue: [
+				                 self selectMethodsFrom: classService ].
+			                 completionBlock value ]
 ]
 
 { #category : 'as yet unclassified' }

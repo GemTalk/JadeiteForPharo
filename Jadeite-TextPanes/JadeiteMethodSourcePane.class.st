@@ -78,6 +78,7 @@ JadeiteMethodSourcePane >> currentMethodSourceFrom: sourceString [
 JadeiteMethodSourcePane >> displayStepPointAt: sourcePosition [
 
 	| stepPoint range ranges |
+	methodService ifNil: [ ^self ].
 	ranges := methodService stepPoints collect: [ :array |
 		          methodService stepPointRangeFrom: array ].
 	range := ranges
