@@ -8,6 +8,12 @@ Class {
 }
 
 { #category : 'initialization' }
+JadeiteNonSessionWorkspace >> initializeFileMenu [
+
+	^ self newMenu
+]
+
+{ #category : 'initialization' }
 JadeiteNonSessionWorkspace >> setCaption: aString [
 
 	self caption: aString
