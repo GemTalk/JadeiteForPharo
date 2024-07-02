@@ -227,13 +227,16 @@ JadeiteDebuggerPresenter >> editSaveMethod: classService in: thePresenter catego
 ]
 
 { #category : 'actions' }
-JadeiteDebuggerPresenter >> editSaveMethod: classService onCompletion: anObject [
+JadeiteDebuggerPresenter >> editSaveMethod: classService onCompletion: completionBlock [
 
 	self
 		editSaveMethod: classService
 		in: self methodSourcePresenter
 		category: frameListPresenter selectedItem method category
-		onCompletion: [ self trimStack ]
+		onCompletion: [
+			completionBlock value.
+			self trimStack.
+			suspendedProcess resume ]
 ]
 
 { #category : 'accessing' }
@@ -350,9 +353,7 @@ JadeiteDebuggerPresenter >> initializePresenters [
 		withConstraints: [ :constraints | constraints height: 5 ].
 	codePane := JadeiteMethodSourcePane new.
 	codePane application: self application.
-	codePane saveAction: [
-		self editSaveMethod.
-		suspendedProcess resume ].
+	codePane saveAction: [ self editSaveMethod ].
 	codePaneBox add: codePane.
 	panedLayout add: codePaneBox.
 	self layout add: panedLayout.
@@ -558,12 +559,6 @@ JadeiteDebuggerPresenter >> stepThrough [
 ]
 
 { #category : 'accessing' }
-JadeiteDebuggerPresenter >> suspendedProcess [
-
-	^ suspendedProcess
-]
-
-{ #category : 'accessing' }
 JadeiteDebuggerPresenter >> suspendedProcess: anObject [
 
 	suspendedProcess := anObject
@@ -574,9 +569,7 @@ JadeiteDebuggerPresenter >> trimStack [
 
 	| selectionIndex |
 	selectionIndex := frameListPresenter selection selectedIndex.
-	answer := Array
-		          with: #trimStackToLevel:
-		          with: selectionIndex.
+	answer := Array with: #trimStackToLevel: with: selectionIndex
 ]
 
 { #category : 'initialization' }

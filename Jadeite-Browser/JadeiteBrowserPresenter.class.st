@@ -3826,6 +3826,13 @@ JadeiteBrowserPresenter >> updateMethodSource [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
+
+	methodSourcePresenter methodService: aMethodService. 
+	methodSourcePresenter value: aMethodService source. 
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
 
 	self selectClassListTab.

@@ -605,6 +605,11 @@ JadeiteMethodListPresenter >> updateMethodSource [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteMethodListPresenter >> updateMethodSourceFor: aMethodService [
+	"do something here?"
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateMultiMethodComparison [
 	self todo:[self selectComparisonTab.
 	comparisonPresenter
