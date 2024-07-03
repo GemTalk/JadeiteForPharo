@@ -35,3 +35,9 @@ JadeiteScrolledTextMorph >> resetState [
 	we're probably actually changing the text now. This seems to be a 
 	bug in Pharo"
 ]
+
+{ #category : 'as yet unclassified' }
+JadeiteScrolledTextMorph >> segments: aCollection [
+
+	self textArea segments: aCollection
+]

@@ -147,6 +147,34 @@ JadeiteDebuggerPresenter >> defaultLayout [
 	^SpBoxLayout newVertical
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerPresenter >> displayBreakpoints [
+	| methodService | 
+	methodService := self frameListPresenter selectedItem method. 
+	methodService breakPoints do: [ :breakPoint |
+		| range stepPointAssoc |
+		stepPointAssoc := methodService stepPoints
+			                  at: breakPoint.
+		range := methodService stepPointRangeFrom:
+			         stepPointAssoc.
+		self methodSourcePresenter addTextSegmentDecoration:
+			((SpTextPresenterDecorator new highlightColor: Color lightCyan)
+				 interval: range) ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteDebuggerPresenter >> displayMethodSourceStepPoints [
+
+	| methodService |
+	methodService := self frameListPresenter selectedItem method.
+	methodService stepPoints do: [ :stepPointAssoc |
+		| range |
+		range := methodService stepPointRangeFrom: stepPointAssoc.
+		self methodSourcePresenter addTextSegmentDecoration:
+			((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
+				 interval: range) ]
+]
+
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> displayVariables: selectedFrame [
 	| variables sortedVariables receiver instVars argsAndTemps displayVariables dynamicInstVars |
@@ -579,8 +607,10 @@ JadeiteDebuggerPresenter >> updateCaption [
 
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
-	codePane context: frameListPresenter selectedItem oop. 
+
+	codePane context: frameListPresenter selectedItem oop.
 	codePane methodService: selection selectedItem method.
 	codePane value: selection selectedItem source.
-	codePane showStepPoint: frameListPresenter selectedItem stepPoint
+	self updateMethodSourceGlyphs.
+	codePane showStepPoint: frameListPresenter selectedItem stepPoint.
 ]

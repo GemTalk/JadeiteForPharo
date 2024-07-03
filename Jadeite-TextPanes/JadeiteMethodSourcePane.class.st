@@ -14,7 +14,12 @@ JadeiteMethodSourcePane >> addTextSegmentDecoration: aDecorationSegment [
 
 	[ super addTextSegmentDecoration: aDecorationSegment ]
 		on: Error
-		do: [ :ex | "ignore - spec bug?" ]
+		do: [ :ex |
+			Transcript
+				cr;
+				show: 'JadeiteMethodSourcePane>>#addTextSegmentDecoration: error - ';
+				print: ex;
+				flush ]
 ]
 
 { #category : 'commands' }
@@ -173,6 +178,13 @@ JadeiteMethodSourcePane >> outerJadeiteBrowser [
 	^ ((self owner isKindOf: SpWindowPresenter) or:[self owner isKindOf: JadeiteNotebookPresenter])
 		  ifTrue: [ self owner owner ]
 		  ifFalse: [ self owner ]
+]
+
+{ #category : 'adding' }
+JadeiteMethodSourcePane >> removeAllTextSegmentDecorations [
+
+	self withAdapterDo: [ :anAdapter |
+		anAdapter widgetDo: [ :w | w segments: OrderedCollection new ] ]
 ]
 
 { #category : 'actions - saving methods' }
