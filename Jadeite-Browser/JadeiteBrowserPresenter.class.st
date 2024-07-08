@@ -780,8 +780,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 JadeiteBrowserPresenter >> connectFilterPresenters [
 
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
-		selection isEmpty ifFalse: [
-			self refreshCategoryListWithSelection: selection ] ].
+		self refreshCategoryListWithSelection: selection ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
 			self refreshMethodsOn: methodListPresenter ] ].
@@ -2156,6 +2155,7 @@ JadeiteBrowserPresenter >> methodValueChanged [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> methodsUpdate: classService [
 
+	classService ifNil: [ ^self ].
 	classService meta = self isClassSideSelected ifFalse: [ ^ self ].
 	classListPresenter list isEmpty ifTrue: [
 		classService initializePresenterList: methodListPresenter ].
@@ -2518,11 +2518,6 @@ JadeiteBrowserPresenter >> projectInfoList [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> projectInfoMenu [
-	^Menu fromStrings: self projectInfoMenuStrings
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectInfoMenuStrings [
 	self rowanFixMe.	"this really is a cumbersome way to build a menu."
 	0 == 1
@@ -2617,7 +2612,11 @@ JadeiteBrowserPresenter >> refresh [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
-	| methodSelections |
+	categoryListPresenter selectedItem ifNil: [
+		definedMethodPackageText text: String new.
+		self resetCategoryText.
+		methodListPresenter unselectAll.
+		^ self methodsUpdate: self selectedClass ].
 	categoryListPresenter selectedItem isComputed ifTrue: [
 		| extensions |
 		categoryListPresenter selections size = 1 ifTrue: [ "extensions are only displayed if that's the only selection"
@@ -2625,15 +2624,10 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 				              methodService isExtension ].
 			methodListPresenter list: extensions.
 			^ self ] ].
-	methodSelections := methodListPresenter selections.
 	self refreshMethodsOn: methodListPresenter.
-
-	methodListPresenter selections:
-		(methodSelections select: [ :methodService |
-			 methodListPresenter list includes: methodService ]).
+	methodListPresenter unselectAll.
 	self selectMethodSourceTab.
-	selection selectedItem ifNotNil: [ :sel |
-		methodCategoryText text: 'Category: ' , sel categoryName ]
+	self resetCategoryText
 ]
 
 { #category : 'updates' }
@@ -3788,30 +3782,6 @@ JadeiteBrowserPresenter >> updateHistory [
 	historyList := historyList copyFrom: 1 to: historyIndex. "trim"
 	historyList add: methodService.
 	historyIndex := historyList size.
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateMenuBar [
-	| shellView menuBar methodFilterMenu textAreaMenu methodMenu |
-	methodFilterMenu := Menu fromStrings: (self isCategoryTabSelected
-						ifTrue: [self categoriesMenuStrings]
-						ifFalse: [self variablesMenuStrings]).
-	textAreaMenu := Menu fromStrings: (self isGlobalsTabSelected
-						ifTrue: [self globalsMenuStrings]
-						ifFalse: [self editMenuStrings]).
-	shellView := self parentPresenter parentPresenter view.
-	menuBar := shellView menuBar
-				clear;
-				addItem: (Menu fromStrings: self jadeMenuStrings);
-				addItem: self class projectMenu;
-				addItem: (Menu fromStrings: self pkgsMenuStrings);
-				addItem: (Menu fromStrings: self classesMenuStrings);
-				addItem: methodFilterMenu;
-				addItem: (methodMenu := Menu fromStrings: self methodsMenuStrings);
-				addItem: textAreaMenu;
-				yourself.
-	shellView menuBar: menuBar.
-	self updateMethodMenu: methodMenu
 ]
 
 { #category : 'updates' }

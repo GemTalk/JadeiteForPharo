@@ -856,5 +856,5 @@ JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 		RowanServiceUpdater current
 			issueCommand: service
 			session: self gciSession
-			onCompletion: completionBlock ]
+			onCompletion: service serviceCompletionBlock ]
 ]
