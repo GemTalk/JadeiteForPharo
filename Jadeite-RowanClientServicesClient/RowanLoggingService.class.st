@@ -93,19 +93,23 @@ RowanLoggingService >> date: anObject [
 
 { #category : 'displaying' }
 RowanLoggingService >> displayCommand [
+
 	| ws |
 	ws := WriteStream on: String new.
-	services do: 
-			[:service |
-			service command
-				ifNil: 
-					[ws nextPutAll: (service updateType ifNil: [String new] ifNotNil: [:updates | updates printString])]
-				ifNotNil: 
-					[ws nextPutAll: (service command ifNil: [String new] ifNotNil: [:updates | updates printString])].
-			ws
-				space;
-				nextPutAll: (service displayName ifNil: [String new])].
-	^ws contents
+	services do: [ :service |
+		service command
+			ifNil: [
+				ws nextPutAll: (service updateType
+						 ifNil: [ String new ]
+						 ifNotNil: [ :theUpdates | theUpdates printString ]) ]
+			ifNotNil: [
+				ws nextPutAll: (service command
+						 ifNil: [ String new ]
+						 ifNotNil: [ :theUpdates | theUpdates printString ]) ].
+		ws
+			space;
+			nextPutAll: (service displayName ifNil: [ String new ]) ].
+	^ ws contents
 ]
 
 { #category : 'displaying' }

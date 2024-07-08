@@ -63,13 +63,6 @@ RowanInspectorService >> defaultIndexedSize [
 	^1000
 ]
 
-{ #category : 'displaying' }
-RowanInspectorService >> displayName [
-	"for logging. for now"
-
-	^name
-]
-
 { #category : 'inspecting' }
 RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle [
 

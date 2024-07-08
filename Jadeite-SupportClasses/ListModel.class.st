@@ -142,15 +142,6 @@ ListModel >> removeWithoutNotification: removal ifAbsent: absentBlock view: theV
 	self refreshList
 ]
 
-{ #category : 'adding' }
-ListModel >> replaceAndSort: newCollection [
-	
-	collection := newCollection asSortedCollection: [:x :y | x categoryName < y categoryName].
-	collection := collection asOrderedCollection. 
-	self announcer announce: (ValueChanged newValue: self)
-	
-]
-
 { #category : 'dolphin' }
 ListModel >> searchPolicy: aSearchPolicy [
 

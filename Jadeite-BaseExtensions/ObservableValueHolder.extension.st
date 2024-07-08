@@ -6,9 +6,9 @@ ObservableValueHolder >> value: anObject [
 
 	| oldValue |
 	lock ifTrue: [ ^ self ].
-	[ lock := true ] ensure: [
-		[
-		oldValue := value.
-		value := anObject.
-		self valueChanged: oldValue ] ensure: [ lock := false ] ]
+	[
+	lock := true.
+	oldValue := value.
+	value := anObject.
+	self valueChanged: oldValue ] ensure: [ lock := false ]
 ]

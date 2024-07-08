@@ -91,13 +91,6 @@ RowanBrowserService >> dictionaryListUpdate: presenter [
 				ifFalse: [presenter model add: (dictionaries at: index). self todo:[ self afterIndex: index - 1 "not working yet"]]]
 ]
 
-{ #category : 'displaying' }
-RowanBrowserService >> displayName [
-	"for logging. for now"
-
-	^name
-]
-
 { #category : 'public' }
 RowanBrowserService >> excludedInstVars [
 	^super excludedInstVars , #('hierarchyServices')
@@ -120,11 +113,6 @@ RowanBrowserService >> name [
 	"browser services aren't named, but (for convenience) can respond"
 
 	^nil
-]
-
-{ #category : 'accessing' }
-RowanBrowserService >> name: aString [
-	name := aString asString
 ]
 
 { #category : 'commands' }

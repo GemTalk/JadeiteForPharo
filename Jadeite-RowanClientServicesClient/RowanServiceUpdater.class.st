@@ -145,12 +145,14 @@ RowanServiceUpdater >> basicIssueCommand: service [
 			        MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
 				        newProcess priority: Processor userSchedulingPriority.
 			proc name: 'Morphic UI Process_Jadeite'.
-			proc resume.
 			[
 			[ self _basicIssueCommand: service ] ensure: [
 				processingCommand := false.
 				sem signal ] ] fork.
-			sem wait ]
+			[
+			proc resume.
+			sem wait ] ifCurtailed: [
+				processingCommand := false "just in case forked ensure block doesn't run and we're terminated" ] ]
 		ifFalse: [ self _basicIssueCommand: service ]
 ]
 
@@ -236,9 +238,10 @@ RowanServiceUpdater >> initialize [
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self.
+	"Keep this code around - might need it again if we reimplement service queue.
 	serviceQueue := OrderedCollection new.
 	serviceQueueSemaphore := Semaphore new.
-	self startServiceQueueProcess
+	self startServiceQueueProcess" 
 ]
 
 { #category : 'initialization' }

@@ -2448,6 +2448,21 @@ JadeiteBrowserPresenter >> postOpenBlock: anObject [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenter >> postUpdateMethodSource [
+
+	^ UIManager default defer: [
+		  methodListPresenter selectedItem ifNotNil: [
+			  methodSourcePresenter value:
+				  methodListPresenter selectedItem source.
+			  self updateMethodSourceGlyphs.
+			  definedMethodPackageText text:
+				  'Defined Package: '
+				  , methodListPresenter selectedItem definedPackage.
+			  methodCategoryText text:
+				  'Category: ' , methodListPresenter selectedItem category ] ]
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> preUpdate: services [
 
 	services do: [ :service | 
@@ -3805,24 +3820,14 @@ JadeiteBrowserPresenter >> updateMethodSource [
 	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
 	methodSourcePresenter view isModified ifTrue: [ ^ self ].
 	self sundryCleanup.
-	methodListPresenter selections isEmpty ifTrue: [
+	(methodListPresenter selections isEmpty or: [
+		 methodListPresenter selections size > 1 ]) ifTrue: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
-		self todo: [ ^ self methodSourcePresenter setDefaultMethod ] ].
-
-	self updateServices: methodListPresenter selections onCompletion: [
-		UIManager default defer: [
-			methodListPresenter selections isEmpty
-				ifTrue: [ self setDefaultMethod ]
-				ifFalse: [
-					methodSourcePresenter value:
-						methodListPresenter selectedItems first source.
-					self updateMethodSourceGlyphs.
-					definedMethodPackageText text:
-						'Defined Package: '
-						, methodListPresenter selectedItem definedPackage.
-					methodCategoryText text:
-						'Category: ' , methodListPresenter selectedItem category ] ] ]
+		^ self setDefaultMethod ].
+	self
+		updateServices: methodListPresenter selections
+		onCompletion: [ self postUpdateMethodSource ]
 ]
 
 { #category : 'updates' }
