@@ -55,23 +55,36 @@ RowanServiceUpdater class >> stopLogging [
 RowanServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock |
+	Processor activeProcess jadeiteTranscriptWrite: 'service isInCommand - ', service isInCommand printString. 
 	service isInCommand ifTrue: [ ^ self ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
+	                      Processor activeProcess
+		                      jadeiteTranscriptWrite:
+		                      'postExecutionBlock started'.
 	                      self possibleSignalCompileError: service.
 	                      self applyUpdates: service.
 	                      service inCommand signal. "signal before continuing to let gui do further updates as needed."
-	                      service handleServiceCompletion ]
+	                      service handleServiceCompletion.
+	                      Processor activeProcess
+		                      jadeiteTranscriptWrite:
+		                      'postExecutionBlock complete' ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
 			                      service inCommand signal ] ].
+	Processor activeProcess jadeiteTranscriptWrite:
+		'about to executeInSession:*'.
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: service inCommand.
-	service inCommand wait
+	Processor activeProcess jadeiteTranscriptWrite:
+		'about to wait on service inCommand'.
+	service inCommand wait.
+	Processor activeProcess jadeiteTranscriptWrite:
+		'service inCommand signaled'
 ]
 
 { #category : 'accessing' }
@@ -139,20 +152,37 @@ RowanServiceUpdater >> basicIssueCommand: service [
 	self activeProcessIsMorphicProcess
 		ifTrue: [
 			| sem processingCommand proc |
+			Processor activeProcess jadeiteTranscriptWrite:
+				'-------------------------'.
 			sem := Semaphore new.
 			processingCommand := true.
 			proc := [
 			        MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
 				        newProcess priority: Processor userSchedulingPriority.
 			proc name: 'Morphic UI Process_Jadeite'.
+			proc jadeiteTranscriptWrite: 'named'.
 			[
-			[ self _basicIssueCommand: service ] ensure: [
+			[
+			Processor activeProcess jadeiteTranscriptWrite:
+				'about to _basicIssueCommand:'.
+			self _basicIssueCommand: service ] ensure: [
+				Processor activeProcess jadeiteTranscriptWrite:
+					'_basicIssueCommand: complete - in ensure block'.
 				processingCommand := false.
-				sem signal ] ] fork.
+				sem signal.
+				Processor activeProcess jadeiteTranscriptWrite:
+					'_basicIssueCommand: complete - ensure block complete' ] ] fork.
 			[
 			proc resume.
-			sem wait ] ifCurtailed: [
-				processingCommand := false "just in case forked ensure block doesn't run and we're terminated" ] ]
+			proc jadeiteTranscriptWrite: 'resumed'.
+			Processor activeProcess jadeiteTranscriptWrite:
+				'about to wait on sem'.
+			sem wait.
+			Processor activeProcess jadeiteTranscriptWrite: 'sem signaled' ]
+				ifCurtailed: [ "just in case forked ensure block doesn't run and we're terminated. 
+			Any observable slot that sends a service call can get into a stuck lock state if terminated"
+					processingCommand := false.
+					sem signal ] ]
 		ifFalse: [ self _basicIssueCommand: service ]
 ]
 

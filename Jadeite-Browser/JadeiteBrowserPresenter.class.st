@@ -2451,15 +2451,13 @@ JadeiteBrowserPresenter >> postOpenBlock: anObject [
 JadeiteBrowserPresenter >> postUpdateMethodSource [
 
 	^ UIManager default defer: [
-		  methodListPresenter selectedItem ifNotNil: [
-			  methodSourcePresenter value:
-				  methodListPresenter selectedItem source.
+		  | methodService |
+		  (methodService := methodListPresenter selectedItem) ifNotNil: [
+			  methodSourcePresenter value: methodService source.
 			  self updateMethodSourceGlyphs.
 			  definedMethodPackageText text:
-				  'Defined Package: '
-				  , methodListPresenter selectedItem definedPackage.
-			  methodCategoryText text:
-				  'Category: ' , methodListPresenter selectedItem category ] ]
+				  'Defined Package: ' , methodService definedPackage.
+			  methodCategoryText text: 'Category: ' , methodService category ] ]
 ]
 
 { #category : 'updates' }
