@@ -20,6 +20,9 @@ Process >> jadeiteTranscriptWrite: message [
 	stream
 		tab;
 		nextPutAll: message.
-	Transcript cr; show: stream contents; flush. 
+	"Transcript
+		cr;
+		show: stream contents;
+		flush."
 	^ stream contents
 ]

@@ -127,6 +127,13 @@ JadeiteBrowserPresenter >> aboutToChange: aSelectionChangingEvent [
 			aSelectionChangingEvent value ifTrue: [self resetCategoryText]]
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> activePresenter [
+	"some trait methods are shared between the browser presenter and browser. 
+	We are the activePresenter"
+	^self
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenter >> addComputedCategories [
 
@@ -1181,19 +1188,6 @@ JadeiteBrowserPresenter >> expandFullHierarchy [
 	self selectClassInClassHierarchyNamed: self selectedClass. 
 	self expandAt: self selectedClass. 
 	classHierarchyPresenter view ensureSelectionVisible
-]
-
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> expandSelectionOneLevel: selection [
-
-	| thePath |
-	selection command: #oneLevelClassHierarchy.
-	self issueCommand: selection onCompletion: nil.
-	thePath := classHierarchyPresenter selection selectedPaths first.
-	classHierarchyPresenter roots: classHierarchyPresenter roots. "This resets the underlying morph"
-	classHierarchyPresenter expandPath: thePath.
-	classHierarchyPresenter selectItem: selection.
-	self scrollToClassHierarchySelection: thePath
 ]
 
 { #category : 'accessing' }

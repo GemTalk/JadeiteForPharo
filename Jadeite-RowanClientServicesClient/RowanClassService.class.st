@@ -149,8 +149,8 @@ RowanClassService >> basicPrepareForReplication [
 	method & package services don't iterate over subcollections"
 
 	"methods := Array new. "
-
-	hierarchyServices := Array new.
+	Processor activeProcess jadeiteTranscriptWrite: 'RowanClassService>>#basicPrepareForReplication {', self identityHash printString, '} ', self printString.  
+	hierarchyServices := Dictionary new.
 	selectedMethods := Array new.
 	visibleTests := Array new.
 	methods ifNotNil: [
@@ -887,19 +887,6 @@ RowanClassService >> shouldReplicateInstVarAtIndex: index newService: newService
 	self indexOfMetaInstVar = index ifTrue: [^false].
 	self indexOfMethodsInstVar = index ifTrue: [newService meta = meta ifFalse: [^false]].
 	^true
-]
-
-{ #category : 'public' }
-RowanClassService >> silentlyExpandHierarchyOneLevel: treeView [
-	| presenter |
-	presenter := treeView presenter.
-	Cursor wait showWhile: 
-			[| selection |
-			treeView model removeChildrenOf: self.
-			self command: #oneLevelClassHierarchy.
-			RowanServiceUpdater current issueCommand: self session: GciSession current.
-			selection := treeView model asBag detect: [:classService | classService name = self name] ifNone: [].
-			selection ifNotNil: [presenter selection: selection]]
 ]
 
 { #category : 'accessing' }

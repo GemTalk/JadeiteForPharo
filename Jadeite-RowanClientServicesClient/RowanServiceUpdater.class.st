@@ -55,15 +55,17 @@ RowanServiceUpdater class >> stopLogging [
 RowanServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock |
-	Processor activeProcess jadeiteTranscriptWrite: 'service isInCommand - ', service isInCommand printString. 
+	Processor activeProcess jadeiteTranscriptWrite:
+		'service isInCommand - ' , service isInCommand printString.
 	service isInCommand ifTrue: [ ^ self ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
 	                      Processor activeProcess
 		                      jadeiteTranscriptWrite:
-		                      'postExecutionBlock started'.
-	                      self possibleSignalCompileError: service.
+		                      'postExecutionBlock started '
+		                      , service printString.
+	                      self possibleSignalCompileError: service. 
 	                      self applyUpdates: service.
 	                      service inCommand signal. "signal before continuing to let gui do further updates as needed."
 	                      service handleServiceCompletion.
@@ -131,19 +133,28 @@ RowanServiceUpdater >> applyUpdateWhile: block [
 
 { #category : 'commands' }
 RowanServiceUpdater >> applyUpdates: service [
+	"Note - do not apply updates in the gui thread - We need to finish
+	updates in this process before proceeding from the command. 
+	Let each update that needs to update the gui do it's own forking."
 
-	UIManager default defer: [
-		self applyUpdatesFromReturnedServices: service returnedServices ]
+	self applyUpdatesFromReturnedServices: service returnedServices
 ]
 
 { #category : 'accessing' }
 RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"
-	self applyUpdateWhile: 
-			[updates removeAll: updates. "get rid of compile error service"
-			updates addAll: aCollection.
-			self updatesReadyToApply]
+
+	self applyUpdateWhile: [
+		Processor activeProcess jadeiteTranscriptWrite:
+			'RowanServiceUpdater>>#applyUpdatesFromReturnedServices: updates - '
+			, updates printString.
+		Processor activeProcess jadeiteTranscriptWrite:
+			'RowanServiceUpdater>>#applyUpdatesFromReturnedServices: aCollection - '
+			, aCollection printString.
+		updates removeAll: updates. "get rid of compile error service"
+		updates addAll: aCollection.
+		self updatesReadyToApply ]
 ]
 
 { #category : 'commands' }
@@ -164,7 +175,7 @@ RowanServiceUpdater >> basicIssueCommand: service [
 			[
 			[
 			Processor activeProcess jadeiteTranscriptWrite:
-				'about to _basicIssueCommand:'.
+				'about to _basicIssueCommand: ', service printString.
 			self _basicIssueCommand: service ] ensure: [
 				Processor activeProcess jadeiteTranscriptWrite:
 					'_basicIssueCommand: complete - in ensure block'.

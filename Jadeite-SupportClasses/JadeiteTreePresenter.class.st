@@ -59,6 +59,20 @@ JadeiteTreePresenter >> scrollToSelection [
 		adapter scrollToSelection  ]
 ]
 
+{ #category : 'api - selection' }
+JadeiteTreePresenter >> selectItem: anItem [
+
+	self selection selectedItem = anItem ifFalse: [
+		self selection selectItem: anItem ]
+]
+
+{ #category : 'api - selection' }
+JadeiteTreePresenter >> selectPath: aPath [
+
+	self selection selectedPath = aPath ifFalse: [
+		self selection selectPath: aPath ]
+]
+
 { #category : 'selection' }
 JadeiteTreePresenter >> selectionIfNone: aBlock [
 

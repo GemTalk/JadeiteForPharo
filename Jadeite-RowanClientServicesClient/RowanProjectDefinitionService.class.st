@@ -280,9 +280,3 @@ RowanProjectDefinitionService >> subcomponentNamed: subcomponentName condition: 
 	commandArgs := Array with: subcomponentName with: condition.
 	self issueCommand: self session: session
 ]
-
-{ #category : 'commands' }
-RowanProjectDefinitionService >> updateInSession: session [
-	command := #update.
-	^self issueCommand: self session: session
-]
