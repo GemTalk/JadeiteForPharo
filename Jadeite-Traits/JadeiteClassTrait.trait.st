@@ -196,7 +196,8 @@ JadeiteClassTrait >> initializeBrowseClassMenu [
 JadeiteClassTrait >> initializeFullClassMenu [
 
 	self classListPresenter contextMenu: self newFullClassMenu.
-	self classHierarchyPresenter ifNotNil: [:presenter | presenter contextMenu: self newFullClassMenu]
+	self classHierarchyPresenter ifNotNil: [ :presenter |
+		presenter contextMenu: self newHierarchyClassMenu ]
 ]
 
 { #category : 'menus' }

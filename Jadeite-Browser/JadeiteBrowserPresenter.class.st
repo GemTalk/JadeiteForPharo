@@ -156,6 +156,19 @@ JadeiteBrowserPresenter >> addDictionary [
 			ifTrue: [^self basicAddDictionaryNamed: newDictionaryName]
 ]
 
+{ #category : 'menus' }
+JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
+
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Expand Hierarchy';
+				action: [
+					self expandAt:
+							self classHierarchyPresenter selection selectedItem ];
+				enabled: [ self isClassSelected ] ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> addNoneProject [
 	(projectListPresenter list includes: RowanProjectService noneProject)
@@ -2186,6 +2199,25 @@ JadeiteBrowserPresenter >> moveMethodsToPackageFilterUsing: transfer [
 		toPackageNamed: packageName.
 	self packageMethodListPresenter selectIndex: transfer index.
 	^ self methodListPresenter selectItem: transfer passenger first
+]
+
+{ #category : 'menus' }
+JadeiteBrowserPresenter >> newFullClassMenu [
+
+	| menu |
+	menu := self newBrowseClassMenu.
+	self addModifyClassMenuItemsTo: menu.
+	^ menu
+]
+
+{ #category : 'menus' }
+JadeiteBrowserPresenter >> newHierarchyClassMenu [
+
+	| menu |
+	menu := self newBrowseClassMenu.
+	self addModifyClassMenuItemsTo: menu.
+	self addHierarchySpecificMenuItemsTo: menu.
+	^ menu
 ]
 
 { #category : 'as yet unclassified' }
