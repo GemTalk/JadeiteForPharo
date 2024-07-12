@@ -163,6 +163,20 @@ RowanClassService >> basicPrepareForReplication [
 		packageService basicPrepareForReplication ]
 ]
 
+{ #category : 'updates' }
+RowanClassService >> basicUpdateFullHierarchy [
+	hierarchyServices ifNil: [ ^self ].
+	self subclassServices = (hierarchyServices at: #expand) ifTrue: [
+		^ self ].
+	self subclassServices: (hierarchyServices at: #expand).
+	self subclassServices do: [ :subclassService |
+		subclassService hasSubclasses ifTrue: [
+			subclassService subclassServices:
+				(subclassService hierarchyServices ifNotNil: [ :hier |
+					 hier at: #expand ]).
+			subclassService basicUpdateFullHierarchy ] ]
+]
+
 { #category : 'accessing' }
 RowanClassService >> behaviorIdentifier [
 	"for old school stuff"
@@ -490,18 +504,6 @@ RowanClassService >> indexOfMethodsInstVar [
 	^25
 ]
 
-{ #category : 'Init / Release' }
-RowanClassService >> initialize [
-	
-	super initialize. 
-	filters := Array new. 
-	selectedPackageServices := Array new. "method list browser will not have packages to select"
-	isTestCase := false. 
-	isNewClass := false. 
-	wasRemoved := false. 
-	hasSubclasses := false. 
-]
-
 { #category : 'accessing' }
 RowanClassService >> instVarNames [
 	^instVarNames
@@ -803,14 +805,6 @@ RowanClassService >> replicateFrom: newService [
 		ifTrue: [self = newService ifTrue: [^super basicReplicateFrom: newService]]
 ]
 
-{ #category : 'Init / Release' }
-RowanClassService >> rowanPostUpdate [
-	super rowanPostUpdate.
-	hierarchyServices := nil.
-	methods := Array new.
-	renamedName := nil
-]
-
 { #category : 'actions' }
 RowanClassService >> saveMethod: source category: category session: session [
 
@@ -1045,17 +1039,20 @@ RowanClassService >> updatedClassInHierarchy: classHierarchyPresenter browser: p
 ]
 
 { #category : 'updates' }
+RowanClassService >> updatedFullInClassHierarchy: classHierarchyPresenter browser: projectBrowser [
+
+	"must be specifically requested by server"
+	updateType = #updatedFullInClassHierarchy:browser: ifFalse: [ ^ self ].
+	self basicUpdateFullHierarchy
+]
+
+{ #category : 'updates' }
 RowanClassService >> updatedOneLevelInClassHierarchy: classHierarchyPresenter browser: projectBrowser [
-	updateType = #updatedOneLevelInClassHierarchy:browser: ifFalse: [ "must be specifically requested by server"
+
+	"must be specifically requested by server"
+	updateType = #updatedOneLevelInClassHierarchy:browser: ifFalse: [
 		^ self ].
-	self subclassServices = (hierarchyServices at: #expand) ifTrue: [ 
-		^ self ].
-	self subclassServices: (hierarchyServices at: #expand).
-	self subclassServices do: [ :subclassService | 
-		subclassService hasSubclasses ifTrue: [ 
-			subclassService subclassServices:
-				(subclassService hierarchyServices ifNotNil: [ :hier | 
-					 hier at: #expand ]) ] ]
+	self basicUpdateFullHierarchy
 ]
 
 { #category : 'accessing' }

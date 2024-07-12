@@ -162,9 +162,9 @@ JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
-				name: 'Expand Hierarchy';
+				name: 'Expand Full Hierarchy';
 				action: [
-					self expandAt:
+					self expandFullAt:
 							self classHierarchyPresenter selection selectedItem ];
 				enabled: [ self isClassSelected ] ] ]
 ]
@@ -1193,6 +1193,25 @@ JadeiteBrowserPresenter >> expandAt: classService [
 		collapsePath: path;
 		expandPath: path.
 	classHierarchyPresenter selectItem: classService
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> expandFullAt: classService [
+
+	| path |
+	classService subclassServices: Array new.
+	classService
+		command: #fullHierarchy;
+		commandArgs: Array new.
+	self issueCommand: classService onCompletion: [
+		self
+			resetChildrenFor: classService
+			parents: classHierarchyPresenter roots.
+		classHierarchyPresenter selectItem: classService
+		"path := classHierarchyPresenter selection selectedPath.
+		classHierarchyPresenter
+			collapsePath: path;
+			expandAll" ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2779,6 +2798,10 @@ JadeiteBrowserPresenter >> registerClassHierarchyForUpdates [
 	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedOneLevelInClassHierarchy:browser:
+		browser: self.
+	RowanServiceUpdater current
+		register: classHierarchyPresenter
+		selector: #updatedFullInClassHierarchy:browser:
 		browser: self
 ]
 
@@ -2953,6 +2976,22 @@ JadeiteBrowserPresenter >> resetCategoryText [
 		^ self displayMultipleCategories ].
 	methodCategoryText text: 'Category: '.
 	String new
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> resetChildrenFor: classService parents: parents [
+
+	| path children |
+	path := classHierarchyPresenter selection
+		        pathOf: classService
+		        from: parents.
+	classHierarchyPresenter recalculateChildrenFor: path.
+	children := classHierarchyPresenter childrenFor: classService.
+	classHierarchyPresenter
+		collapsePath: path;
+		expandAll.
+	children do: [ :child |
+		self resetChildrenFor: child parents: (Array with: classService) ]
 ]
 
 { #category : 'initialization' }

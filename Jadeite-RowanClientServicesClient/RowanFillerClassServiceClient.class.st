@@ -18,3 +18,23 @@ RowanFillerClassServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
 ]
+
+{ #category : 'Init / Release' }
+RowanFillerClassServiceClient >> initialize [
+	
+	super initialize. 
+	filters := Array new. 
+	selectedPackageServices := Array new. "method list browser will not have packages to select"
+	isTestCase := false. 
+	isNewClass := false. 
+	wasRemoved := false. 
+	hasSubclasses := false. 
+]
+
+{ #category : 'Init / Release' }
+RowanFillerClassServiceClient >> rowanPostUpdate [
+	super rowanPostUpdate.
+	hierarchyServices := nil.
+	methods := Array new.
+	renamedName := nil
+]
