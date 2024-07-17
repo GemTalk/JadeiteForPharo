@@ -1198,7 +1198,6 @@ JadeiteBrowserPresenter >> expandAt: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> expandFullAt: classService [
 
-	| path |
 	classService subclassServices: Array new.
 	classService
 		command: #fullHierarchy;
@@ -1207,11 +1206,9 @@ JadeiteBrowserPresenter >> expandFullAt: classService [
 		self
 			resetChildrenFor: classService
 			parents: classHierarchyPresenter roots.
-		classHierarchyPresenter selectItem: classService
-		"path := classHierarchyPresenter selection selectedPath.
-		classHierarchyPresenter
-			collapsePath: path;
-			expandAll" ]
+		classHierarchyPresenter selectItem: classService.
+		classHierarchyPresenter expandAll.
+		classHierarchyPresenter clickAtPath: #( 1 1 1 1 1 1 ) ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2987,11 +2984,8 @@ JadeiteBrowserPresenter >> resetChildrenFor: classService parents: parents [
 		        from: parents.
 	classHierarchyPresenter recalculateChildrenFor: path.
 	children := classHierarchyPresenter childrenFor: classService.
-	classHierarchyPresenter
-		collapsePath: path;
-		expandAll.
 	children do: [ :child |
-		self resetChildrenFor: child parents: (Array with: classService) ]
+		self resetChildrenFor: child parents: parents ]
 ]
 
 { #category : 'initialization' }
@@ -3803,7 +3797,7 @@ JadeiteBrowserPresenter >> updateGlobalsTab [
 JadeiteBrowserPresenter >> updateHierarchy [
 
 	| service |
-	classHierarchyPresenter roots: Array new.
+	classHierarchyPresenter clear.
 	self isDictionaryTabSelected
 		ifTrue: [
 		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ] ]

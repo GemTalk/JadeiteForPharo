@@ -44,8 +44,12 @@ JadeiteTreePresenter >> model [
 JadeiteTreePresenter >> recalculateChildrenFor: path [
 	"This will nil out the children for the FTBasicItem at the path so 
 	a lazy initialization is done again. Not very good hooks to make trees dynamic. "
-	self withAdapterDo:[:anAdapter |
-		anAdapter widgetDo:[:w | (w dataSource itemAtPath: path) updateData]]
+
+	self withAdapterDo: [ :anAdapter |
+		anAdapter widgetDo: [ :w |
+			(w dataSource itemAtPath: path)
+				updateData;
+				children ] ]
 ]
 
 { #category : 'selection' }

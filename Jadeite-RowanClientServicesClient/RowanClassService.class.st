@@ -204,44 +204,60 @@ RowanClassService >> categories: aCollection [
 
 { #category : 'public' }
 RowanClassService >> classHierarchyUpdate: presenter browser: browser [
+
 	| treeModel subclasses parent selectedPath |
-	browser isHierarchyTabSelected ifFalse: [^self].
-	(self shouldBeInTree: presenter) ifFalse: [^self].
-	(self reparentOrAddChildServiceIn: presenter) ifTrue: [^self].
-	hierarchyServices isNil ifTrue: [^self].
-	hierarchyServices isEmpty ifTrue:[^self].
-	(browser isNoneProjectSelected not and: [browser packageListPresenter selections isEmpty])
-		ifTrue: [^self].
-	(browser isNoneProjectSelected and: [browser dictionaryListPresenter selections isEmpty])
-		ifTrue: [^self].
-	(browser classHierarchyPresenter model notEmpty
-		and: [(browser classHierarchyPresenter model includes: self) not]) ifTrue: [^self].
-	presenter selectedItem ifNotNil: [^self].
+	Transcript cr; show: name; flush. 
+	browser isHierarchyTabSelected ifFalse: [ ^ self ].
+	(self shouldBeInTree: presenter) ifFalse: [ ^ self ].
+	(self reparentOrAddChildServiceIn: presenter) ifTrue: [ ^ self ].
+	hierarchyServices isNil ifTrue: [ ^ self ].
+	hierarchyServices isEmpty ifTrue: [ ^ self ].
+	(browser isNoneProjectSelected not and: [
+		 browser packageListPresenter selections isEmpty ]) ifTrue: [
+		^ self ].
+	(browser isNoneProjectSelected and: [
+		 browser dictionaryListPresenter selections isEmpty ]) ifTrue: [
+		^ self ].
+	(browser classHierarchyPresenter model notEmpty and: [
+		 (browser classHierarchyPresenter model includes: self) not ])
+		ifTrue: [ ^ self ].
+	presenter selectedItem ifNotNil: [ ^ self ].
 	treeModel := presenter.
 	parent := nil.
-	subclasses := hierarchyServices at: #nil
-				ifAbsent: 
-					[parent := presenter model parentOf: self.
-					hierarchyServices at: #expand].
-	presenter disableActivationDuring: [ 
-	self todo:[selectedPath := (presenter selection selectedPath collect: [ :each | self pathItemOf: each ])].
-	subclasses do:[:subclassService |
-		self addSubclassesOf: subclassService from: hierarchyServices]. 
-	presenter roots: subclasses. 
-	presenter selectItem: (self copy meta: false). "will this scroll if necessary? If not, perhaps #selectPath:scrollToSelection: will do it - presenter selection pathOf: self"
-	
-	self todo:[treeModel asBag do: 
-			[:classService |
-			| node |
-			classService selectedPackageServices: browser packageListPresenter selections browser: browser.
-			node := treeModel getNodeFor: classService.
-			(node children isEmpty and: [node object hasSubclasses])
-				ifTrue: [treeModel add: RowanFillerClassService new asChildOf: classService]].
-	selectedPath ifNotEmpty: [ 
-			self selectPaths: (selectedPath collect: [ :each | self pathIndexOf: each ]) ]
-	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first]]].
-	self todo:[presenter selection: self.
-	presenter view ensureSelectionVisible]
+	subclasses := hierarchyServices at: #nil ifAbsent: [
+		              parent := presenter model parentOf: self.
+		              hierarchyServices at: #expand ].
+	presenter disableActivationDuring: [
+		self todo: [
+			selectedPath := presenter selection selectedPath collect: [ :each |
+				                self pathItemOf: each ] ].
+		subclasses do: [ :subclassService |
+			self addSubclassesOf: subclassService from: hierarchyServices ].
+		presenter roots: subclasses.
+		presenter selectItem: (self copy meta: false). "will this scroll if necessary? If not, perhaps #selectPath:scrollToSelection: will do it - presenter selection pathOf: self"
+
+		self todo: [
+			treeModel asBag do: [ :classService |
+				| node |
+				classService
+					selectedPackageServices: browser packageListPresenter selections
+					browser: browser.
+				node := treeModel getNodeFor: classService.
+				(node children isEmpty and: [ node object hasSubclasses ])
+					ifTrue: [
+					treeModel
+						add: RowanFillerClassService new
+						asChildOf: classService ] ].
+			selectedPath
+				ifNotEmpty: [
+					self selectPaths:
+						(selectedPath collect: [ :each | self pathIndexOf: each ]) ]
+						presenter
+				selectionIfNone: [
+				^ presenter view ensureItemVisible: treeModel roots first ] ] ].
+	self todo: [
+		presenter selection: self.
+		presenter view ensureSelectionVisible ]
 ]
 
 { #category : 'public' }
