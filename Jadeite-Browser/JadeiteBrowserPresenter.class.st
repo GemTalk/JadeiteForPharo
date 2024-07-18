@@ -1207,8 +1207,7 @@ JadeiteBrowserPresenter >> expandFullAt: classService [
 			resetChildrenFor: classService
 			parents: classHierarchyPresenter roots.
 		classHierarchyPresenter selectItem: classService.
-		classHierarchyPresenter expandAll.
-		classHierarchyPresenter clickAtPath: #( 1 1 1 1 1 1 ) ]
+		classHierarchyPresenter expandAll]
 ]
 
 { #category : 'as yet unclassified' }
