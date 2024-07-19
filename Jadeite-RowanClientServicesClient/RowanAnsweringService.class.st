@@ -28,7 +28,7 @@ RowanAnsweringService >> answer: anObject [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> autoCommitIn: session [
+RowanAnsweringService >> autoCommitIn: session onCompletion: anObject [
 
 	command := #autoCommit.
 	RowanServiceUpdater current issueCommand: self session: session onCompletion: nil.

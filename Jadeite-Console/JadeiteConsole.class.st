@@ -674,26 +674,6 @@ JadeiteConsole >> onViewClosed [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> onViewOpened [
-	| answeringService installed breakPointsEnabled |
-	super onViewOpened.
-	self setRowanProjectsHomeIfNecessary: gciSession.
-	self initializeTransactionModeSettings.	"should have already been set when window was created ... but just in case"
-	projectListPresenter
-		gciSession: gciSession;
-		updateProjects.
-	JadeiteTextStyles default resetColors.	"reset colors on login"
-	answeringService := RowanAnsweringService new.
-	installed := answeringService isTranscriptInstalledIn: self gciSession.
-	isTranscriptInstalled value: installed.
-	areBreakpointsEnabled
-		value: (breakPointsEnabled := answeringService breakPointsAreEnabled: self gciSession).
-	RowanServiceUpdater current breakpointsEnabled: breakPointsEnabled.
-	self registerPresentersForUpdates.
-	self autoCommit: (RowanAnsweringService new autoCommitIn: self gciSession)
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> openDictionaryBrowser [
 	gciSession hasServer ifTrue: [^JadeiteBrowser showOnSession: gciSession]
 ]

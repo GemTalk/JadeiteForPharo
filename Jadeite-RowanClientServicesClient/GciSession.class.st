@@ -198,5 +198,10 @@ GciSession >> titleBarFor: windowName [
 
 { #category : 'initialization' }
 GciSession >> updateAutoCommit [
-	RowanAnsweringService new autoCommitIn: self
+
+	| service |
+	service := RowanAnsweringService new.
+	service
+		autoCommitIn: self
+		onCompletion: [ self autoCommit value: service answer ]
 ]
