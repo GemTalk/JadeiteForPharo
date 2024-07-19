@@ -41,9 +41,7 @@ GciSession class >> current [
 { #category : 'accessing' }
 GciSession >> autoCommit [
 
-	^ autoCommit ifNil: [
-		  self initializeAutoCommit.
-		  autoCommit ]
+	^ autoCommit
 ]
 
 { #category : 'accessing' }
@@ -94,10 +92,10 @@ GciSession >> flipAutoCommit [
 ]
 
 { #category : 'initialization' }
-GciSession >> initializeAutoCommit [ 
-	self autoCommit: (JadeiteValueHolder with: false). 
-	self updateAutoCommit. 
-	
+GciSession >> initializeAutoCommitRefreshing: console [
+
+	self autoCommit: (JadeiteValueHolder with: false).
+	self updateAutoCommitRefreshing: console
 ]
 
 { #category : 'testing' }
@@ -197,11 +195,12 @@ GciSession >> titleBarFor: windowName [
 ]
 
 { #category : 'initialization' }
-GciSession >> updateAutoCommit [
+GciSession >> updateAutoCommitRefreshing: console [
 
 	| service |
 	service := RowanAnsweringService new.
-	service
-		autoCommitIn: self
-		onCompletion: [ self autoCommit value: service answer ]
+	service autoCommitIn: self onCompletion: [
+		self autoCommit value: (service answer ifNil: [ false ]).
+		self autoCommit whenChangedSend: #updateAutoCommitButton to: console.
+		console updateAutoCommitButton ]
 ]

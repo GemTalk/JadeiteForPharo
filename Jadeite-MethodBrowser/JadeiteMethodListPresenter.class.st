@@ -574,17 +574,6 @@ JadeiteMethodListPresenter >> textTabs [
 	^(textAreaTabs subViews detect: [:each | each class == TabViewXP]) model
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> updateAutoCommitButton [
-	| autoCommitButtonView |
-	autoCommitButtonView := self topShell view viewNamed: 'autoCommitButton'.
-	autoCommit value == #failed ifTrue: [^autoCommitButtonView backcolor: Color red].
-	autoCommit value
-		ifTrue: [autoCommitButtonView backcolor: Color green]
-		ifFalse: [autoCommitButtonView backcolor: Color default].
-	autoCommitButtonView isEnabled: self transactionMode = #autoBegin
-]
-
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> updateCaptionFromSearchString: searchString [
 
