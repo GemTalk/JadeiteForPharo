@@ -47,6 +47,9 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 	| preferencesPath stream nextLine prefs |
 	preferencesPath := JadeitePreferences preferencesPath.
 	prefs := JadeitePreferences onSession: self.
+	prefs autocommitEnabled:
+		(JadeitePreferences current ifNotNil: [ :existingPrefs |
+			 existingPrefs autocommitEnabled ]). "temporary - experimenting with integrating with Pharo settings"
 	JadeitePreferences current: prefs.
 	(File exists: preferencesPath) ifFalse: [ ^ self ].
 	stream := (FileSystem disk open: preferencesPath writable: false)

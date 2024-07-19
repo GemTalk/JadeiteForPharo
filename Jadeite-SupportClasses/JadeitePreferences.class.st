@@ -16,7 +16,8 @@ Class {
 		'session',
 		'lastWindowPosition',
 		'font',
-		'textFont'
+		'textFont',
+		'autocommitEnabled'
 	],
 	#classVars : [
 		'Current',
@@ -25,6 +26,18 @@ Class {
 	],
 	#category : 'Jadeite-SupportClasses'
 }
+
+{ #category : 'settings' }
+JadeitePreferences class >> autocommitEnabled [
+
+	^ self current autocommitEnabled
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> autocommitEnabled: aBoolean [
+
+	self current autocommitEnabled: aBoolean
+]
 
 { #category : 'as yet unclassified' }
 JadeitePreferences class >> current [
@@ -117,6 +130,21 @@ JadeitePreferences class >> preferencesPath [
 	  , self preferencesFile
 ]
 
+{ #category : 'settings' }
+JadeitePreferences class >> settingsOn: aBuilder [
+
+	<systemsettings>
+	(aBuilder group: #jadeiteForPharo)
+		label: 'Jadeite For Pharo';
+		description:
+			'Settings applied when Jadeite For Pharo is initially connected to a stone';
+		with: [
+			(aBuilder setting: #autocommitEnabled) 
+				label: 'Auto Commit';
+				default: false;
+				description: 'Do a GemStone commit after every server interaction' ]
+]
+
 { #category : 'as yet unclassified' }
 JadeitePreferences >> allowsSpacesInArgument: commandSymbol [
 	^commandSymbol = #openWorkspace: or: 
@@ -148,13 +176,27 @@ JadeitePreferences >> applyPreference: preferencesString [
 ]
 
 { #category : 'as yet unclassified' }
+JadeitePreferences >> autocommitEnabled [
+
+	^autocommitEnabled
+]
+
+{ #category : 'as yet unclassified' }
 JadeitePreferences >> autocommitEnabled: booleanString [
-	| autoCommitService boolean |
-	boolean := booleanString = 'true'.
+
+	| autoCommitService |
+	autocommitEnabled := booleanString isString
+		                     ifTrue: [ booleanString = 'true' ]
+		                     ifFalse: [ booleanString ].
+	GciSession current isValidSession ifFalse: [ ^ self ].
 	autoCommitService := RowanAutoCommitService new
-				command: #autoCommit:;
-				commandArgs: (Array with: boolean).
-	RowanServiceUpdater current issueCommand: autoCommitService session: session
+		                     command: #autoCommit:;
+		                     commandArgs: (Array with: autocommitEnabled).
+	RowanServiceUpdater current
+		issueCommand: autoCommitService
+		session: session
+		onCompletion: [
+		GciSession current autoCommit value: autoCommitService autoCommit ]
 ]
 
 { #category : 'as yet unclassified' }

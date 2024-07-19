@@ -103,7 +103,7 @@ GciSession >> initializeAutoCommit [
 { #category : 'testing' }
 GciSession >> isValidSession [
 
-	^library notNil
+	^ library notNil and: [ library isOpen ]
 ]
 
 { #category : 'actions' }
