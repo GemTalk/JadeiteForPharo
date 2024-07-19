@@ -41,12 +41,21 @@ JadeitePreferencesWorkspace >> basicResetPreferences [
 JadeitePreferencesWorkspace >> initializeFileMenu [
 
 	| menu |
-	menu := super initializeFileMenu.
+	self
+		bindKeyCombination: $s meta asKeyCombination
+		toAction: [ self saveFile ].
+	menu := self newMenu.
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Reset Preferences';
-				action: [ self resetPreferences ] ] ].
+		group
+			addItem: [ :item |
+				item
+					name: 'Save';
+					shortcut: $s meta;
+					action: [ self saveFile ] ];
+			addItem: [ :item |
+				item
+					name: 'Reset Preferences';
+					action: [ self resetPreferences ] ] ].
 	^ menu
 ]
 
@@ -70,7 +79,7 @@ JadeitePreferencesWorkspace >> resetPreferences [
 ]
 
 { #category : 'actions' }
-JadeitePreferencesWorkspace >> saveServerFile [
+JadeitePreferencesWorkspace >> saveFile [
 
 	self writeDocumentTo: JadeitePreferences preferencesPath.
 	MessageBox notify: 'Jadeite.prefs file written to working directory'

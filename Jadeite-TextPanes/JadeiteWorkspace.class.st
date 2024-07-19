@@ -57,6 +57,12 @@ JadeiteWorkspace >> filename [
 { #category : 'initialization' }
 JadeiteWorkspace >> initializeFileMenu [
 
+	self
+		bindKeyCombination: $s meta asKeyCombination
+		toAction: [ self saveServerFile ].
+	self
+		bindKeyCombination: $o shift meta asKeyCombination
+		toAction: [ self openServerFile ].
 	^ self newMenu
 		  addItem: [ :item |
 			  item
@@ -73,18 +79,6 @@ JadeiteWorkspace >> initializeFileMenu [
 				  name: 'Save On Server As ...';
 				  action: [ self saveServerFileAs ] ];
 		  yourself
-]
-
-{ #category : 'initialization' }
-JadeiteWorkspace >> initializePresenters [
-
-	super initializePresenters.
-	self
-		bindKeyCombination: $s meta asKeyCombination
-		toAction: [ self saveServerFile ].
-	self
-		bindKeyCombination: $o shift meta asKeyCombination
-		toAction: [ self openServerFile ]
 ]
 
 { #category : 'initialization' }
@@ -149,8 +143,8 @@ JadeiteWorkspace >> saveServerFileAs [
 			            showOnSession: GciSession current
 			            defaultPath: self defaultSaveFileAsDirectory
 			            defaultFileName: self defaultSaveAsFileName.
-		filePath ifNil: [ ^ self ].
-		self writeDocumentTo: filePath ]
+		filePath ifNotNil: [ 
+		self writeDocumentTo: filePath ]]
 ]
 
 { #category : 'command support' }
