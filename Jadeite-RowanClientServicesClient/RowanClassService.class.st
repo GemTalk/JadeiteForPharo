@@ -520,6 +520,13 @@ RowanClassService >> indexOfMethodsInstVar [
 	^25
 ]
 
+{ #category : 'initialize' }
+RowanClassService >> initialize [  
+
+	super initialize. 
+	selectedPackageServices := Array new
+]
+
 { #category : 'accessing' }
 RowanClassService >> instVarNames [
 	^instVarNames

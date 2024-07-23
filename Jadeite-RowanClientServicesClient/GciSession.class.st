@@ -41,7 +41,7 @@ GciSession class >> current [
 { #category : 'accessing' }
 GciSession >> autoCommit [
 
-	^ autoCommit
+	^ autoCommit ifNil: [ autoCommit := JadeiteValueHolder with: false ]
 ]
 
 { #category : 'accessing' }
@@ -94,7 +94,6 @@ GciSession >> flipAutoCommit [
 { #category : 'initialization' }
 GciSession >> initializeAutoCommitRefreshing: console [
 
-	self autoCommit: (JadeiteValueHolder with: false).
 	self updateAutoCommitRefreshing: console
 ]
 

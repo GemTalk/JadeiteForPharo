@@ -34,13 +34,6 @@ JadeiteMethodListPresenter >> addStyle: aString [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> autoCommit [
-	"for testing"
-
-	^autoCommit value
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> autoCommit: boolean [
 	autoCommit value: boolean
 ]
