@@ -2,7 +2,6 @@ Class {
 	#name : 'MCRowanClassDefinition',
 	#superclass : 'MCClassDefinition',
 	#instVars : [
-		'packageName',
 		'definition'
 	],
 	#category : 'Jadeite-SupportClasses'
