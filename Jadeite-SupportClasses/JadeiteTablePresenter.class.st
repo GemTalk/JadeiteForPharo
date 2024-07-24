@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteTablePresenter',
 	#superclass : 'SpTablePresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'specs' }

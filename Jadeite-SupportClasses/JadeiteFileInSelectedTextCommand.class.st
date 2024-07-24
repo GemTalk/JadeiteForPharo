@@ -4,7 +4,8 @@ I filein text from a workspace into the server
 Class {
 	#name : 'JadeiteFileInSelectedTextCommand',
 	#superclass : 'JadeiteCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'default' }

@@ -7,7 +7,8 @@ under the DataCurator login.
 Class {
 	#name : 'JadeiteDataCuratorTestCase',
 	#superclass : 'JadeiteAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

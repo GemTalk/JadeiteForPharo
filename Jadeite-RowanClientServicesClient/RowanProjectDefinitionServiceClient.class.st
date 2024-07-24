@@ -1,5 +1,6 @@
 Class {
 	#name : 'RowanProjectDefinitionServiceClient',
 	#superclass : 'RowanProjectDefinitionService',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }

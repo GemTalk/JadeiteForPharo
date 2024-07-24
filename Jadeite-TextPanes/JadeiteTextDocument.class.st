@@ -14,7 +14,8 @@ Class {
 		'context',
 		'saveAction'
 	],
-	#category : 'Jadeite-TextPanes'
+	#category : 'Jadeite-TextPanes',
+	#package : 'Jadeite-TextPanes'
 }
 
 { #category : 'specs' }
@@ -432,6 +433,12 @@ JadeiteTextDocument >> getDocumentData [
 
 ]
 
+{ #category : 'TODO' }
+JadeiteTextDocument >> hasUnacceptedEdits: anObject [
+
+	self adapter ifNotNil: [ :a | a widget hasUnacceptedEdits: anObject ]
+]
+
 { #category : 'initialization' }
 JadeiteTextDocument >> initialize [
 
@@ -745,7 +752,8 @@ JadeiteTextDocument >> text [
 	"Answer current text. Currently there's a hidden bug that disconnected 
 	the spec widget from the underlying morphic widget. Once found, the 
 	`withWidgetDo:` code can be removed."
-	self withWidgetDo: [ :w | text := w editor text].
+
+	self todo: 'self adapter ifNotNil: [ :a | text := adapter widget editor text ].' "needed?". 
 	^ text
 ]
 

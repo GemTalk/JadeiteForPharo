@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'completionEngine'
 	],
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }
@@ -34,7 +35,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             setSelectionSelector: #setSelection:;
 		             ghostText: self placeholder;
 		             beWrapped;
-		             askBeforeDiscardingEdits: self askBeforeDiscardingEdits;
+		             askBeforeDiscardingEdits: false;
 		             autoAccept: false;
 		             vResizing: #spaceFill;
 		             hResizing: #spaceFill;
@@ -44,7 +45,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             registerScrollChanges: #scrollValueChanged:;
 		             hScrollbarShowWhenNeeded;
 		             yourself.
-	"mouse click announcement not used yet but will likely be soon"
+	"<<<<<< Jadeite changes. Mouse click announcement not used yet but will likely be soon"
 	newWidget textArea announcer
 		when: RubMouseClick
 		send: #mouseClickedAt:
@@ -56,14 +57,14 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	self setEnabled: self presenter isEnabled to: newWidget.
 	self setEditable: self presenter isEditable to: newWidget.
 	self setEditingModeFor: newWidget.
-	newWidget textArea newJadeiteEditor. "<<<<<<more Jadeite changes  (not fully implemented)"
+	newWidget textArea newJadeiteEditor. "<<<<<<Jadeite change"
 	newWidget textArea shoutStyler ifNotNil: [ :shoutStyler |
 		shoutStyler styler:
 			(JadeiteCodeTextStyler newWithAttributeTableNamed:
 				 self presenter syntaxHighlightTheme) ].
 	self presenter text ifNotNil: [ :text |
-		self setText: text to: newWidget ].
-	model hasUnacceptedEdits: false.
+		self setText: text to: newWidget ]. "<<<<<<Jadeite - Can text still be nil?"
+	newWidget hasUnacceptedEdits: false. "<<<<<<Jadeite - HOW IS THIS DONE in Pharo 12?"
 	self presenter selectionInterval ifNotNil: [ :anInterval |
 		self selectionInterval: anInterval on: newWidget ].
 	self presenter hasLineNumbers ifTrue: [ newWidget withLineNumbers ].
@@ -84,7 +85,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 	self setWrapWord: self presenter isWrapWord to: newWidget.
 	self setUndoRedo: self presenter hasUndoRedoHistory to: newWidget.
 	self presenter whenTextChangedDo: [ :text |
-		text ifNotNil: [ self setText: text to: newWidget ] ].
+		text ifNotNil: [ self setText: text to: newWidget ] ]. "<<<<<<Jadeite change. text can be nil"
 	self presenter whenSelectionChangedDo: [ :selectionInterval |
 		self selectionInterval: selectionInterval ].
 	self presenter whenPlaceholderChangedDo: [ :text |

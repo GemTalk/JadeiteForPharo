@@ -23,7 +23,8 @@ Class {
 		'packageConvention',
 		'diskSha'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'constants' }

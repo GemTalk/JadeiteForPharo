@@ -33,7 +33,8 @@ Class {
 	#pools : [
 		'ScintillaConstants'
 	],
-	#category : 'Jadeite-Browser'
+	#category : 'Jadeite-Browser',
+	#package : 'Jadeite-Browser'
 }
 
 { #category : 'utility' }
@@ -2759,7 +2760,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 			self resetCategoryText.
 			definedMethodPackageText text: String new ]
 		ifFalse: [ self updateMethodSource ].
-	methodListPresenter withWidgetDo: [ :w | w resetPosition ]
+	methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ]
 ]
 
 { #category : 'as yet unclassified' }

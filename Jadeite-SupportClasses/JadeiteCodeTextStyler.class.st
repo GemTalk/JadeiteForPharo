@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteCodeTextStyler',
 	#superclass : 'SpMorphicCodeTextStyler',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'private' }

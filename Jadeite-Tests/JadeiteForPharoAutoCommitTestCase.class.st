@@ -4,7 +4,8 @@ This class contains auto commit tests.
 Class {
 	#name : 'JadeiteForPharoAutoCommitTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'tests' }

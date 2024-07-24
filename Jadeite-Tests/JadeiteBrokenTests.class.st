@@ -5,5 +5,6 @@ but shouldn't be thrown away just yet.
 Class {
 	#name : 'JadeiteBrokenTests',
 	#superclass : 'TestCase2',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }

@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteSelectAllCommand',
 	#superclass : 'JadeiteCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'default' }

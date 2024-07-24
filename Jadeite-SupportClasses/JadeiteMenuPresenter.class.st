@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteMenuPresenter',
 	#superclass : 'SpMenuPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'api' }

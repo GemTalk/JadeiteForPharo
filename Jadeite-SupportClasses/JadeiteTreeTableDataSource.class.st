@@ -3,7 +3,8 @@ Class {
 	#superclass : 'SpMorphicTreeTableDataSource',
 	#traits : 'SpTMorphicTableDataSourceCommons',
 	#classTraits : 'SpTMorphicTableDataSourceCommons classTrait',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'testing' }

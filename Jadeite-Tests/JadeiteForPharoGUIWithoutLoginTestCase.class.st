@@ -9,7 +9,8 @@ Class {
 		'fileRef',
 		'launcher'
 	],
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'support' }

@@ -1,7 +1,8 @@
 Class {
 	#name : 'RowanPackageDefinitionService',
 	#superclass : 'RowanDefinitionService',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'commands' }

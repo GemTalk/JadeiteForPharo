@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteInspectorTestCase',
 	#superclass : 'JadeiteInspectorDataCuratorTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteDiffMorph',
 	#superclass : 'DiffMorph',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }

@@ -29,7 +29,8 @@ Class {
 		'Current',
 		'GemCursor'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'accessing' }
@@ -41,7 +42,10 @@ GciSession class >> current [
 { #category : 'accessing' }
 GciSession >> autoCommit [
 
-	^ autoCommit ifNil: [ autoCommit := JadeiteValueHolder with: false ]
+	autoCommit
+		ifNil: [ autoCommit := JadeiteValueHolder with: false ]
+		ifNotNil: [ autoCommit value ifNil: [ autoCommit value: false ] ].
+	^ autoCommit
 ]
 
 { #category : 'accessing' }

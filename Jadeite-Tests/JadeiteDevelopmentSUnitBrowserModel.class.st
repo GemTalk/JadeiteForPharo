@@ -4,5 +4,6 @@ Class {
 	#instVars : [
 		'testProcess'
 	],
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }

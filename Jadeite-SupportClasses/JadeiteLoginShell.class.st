@@ -1,5 +1,6 @@
 Class {
 	#name : 'JadeiteLoginShell',
 	#superclass : 'DolphinClass',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

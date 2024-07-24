@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteCompletionEngine',
 	#superclass : 'SpMorphicCodeCompletionEngine',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }

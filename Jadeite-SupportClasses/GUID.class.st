@@ -1,7 +1,8 @@
 Class {
 	#name : 'GUID',
 	#superclass : 'DolphinClass',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'instance creation' }

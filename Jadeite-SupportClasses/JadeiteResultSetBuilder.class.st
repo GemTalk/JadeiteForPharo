@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteResultSetBuilder',
 	#superclass : 'CoASTResultSetBuilder',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'API - building' }

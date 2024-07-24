@@ -6,7 +6,8 @@ Class {
 	#instVars : [
 		'methodService'
 	],
-	#category : 'Jadeite-TextPanes'
+	#category : 'Jadeite-TextPanes',
+	#package : 'Jadeite-TextPanes'
 }
 
 { #category : 'adding' }

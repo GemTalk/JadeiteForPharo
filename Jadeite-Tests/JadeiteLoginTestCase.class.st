@@ -11,5 +11,6 @@ Class {
 		'parmFileName',
 		'jadeiteShell'
 	],
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }

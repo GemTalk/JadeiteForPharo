@@ -9,7 +9,8 @@ test run wouldn't be too long to run in the test browser.
 Class {
 	#name : 'JadeiteProjectBrowserClassesTestCase',
 	#superclass : 'JadeiteProjectBrowserAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

@@ -1,5 +1,6 @@
 Class {
 	#name : 'ScintillaConstants',
 	#superclass : 'SharedPool',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

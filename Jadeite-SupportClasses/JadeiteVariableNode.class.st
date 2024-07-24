@@ -1,5 +1,6 @@
 Class {
 	#name : 'JadeiteVariableNode',
 	#superclass : 'RBVariableNode',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

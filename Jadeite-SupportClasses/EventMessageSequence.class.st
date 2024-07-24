@@ -1,5 +1,6 @@
 Class {
 	#name : 'EventMessageSequence',
 	#superclass : 'DifferencesPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

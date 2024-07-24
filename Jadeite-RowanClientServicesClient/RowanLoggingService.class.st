@@ -18,7 +18,8 @@ Class {
 		'isLogging',
 		'name'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'instance creation' }

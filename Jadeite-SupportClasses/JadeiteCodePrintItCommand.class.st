@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteCodePrintItCommand',
 	#superclass : 'JadeiteCodeExecutionCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'default' }

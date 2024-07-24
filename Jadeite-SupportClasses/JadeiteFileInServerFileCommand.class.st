@@ -4,7 +4,8 @@ I filein a file to the server
 Class {
 	#name : 'JadeiteFileInServerFileCommand',
 	#superclass : 'JadeiteCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'default' }

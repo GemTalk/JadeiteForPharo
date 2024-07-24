@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'path'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'accessing' }

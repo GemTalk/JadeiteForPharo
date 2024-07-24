@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteConfirmDialogDefaultCancel',
 	#superclass : 'SpConfirmDialog',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }

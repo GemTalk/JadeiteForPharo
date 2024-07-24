@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteMorphicWindowAdapter',
 	#superclass : 'SpMorphicWindowAdapter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'factory' }

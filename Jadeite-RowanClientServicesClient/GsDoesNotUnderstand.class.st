@@ -1,5 +1,6 @@
 Class {
 	#name : 'GsDoesNotUnderstand',
 	#superclass : 'GsRuntimeError',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }

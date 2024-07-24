@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteClassStyle',
 	#superclass : 'SpClassStyle',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'adding' }

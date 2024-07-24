@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteForPharoTestCase',
 	#superclass : 'JadeiteAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'accessing' }

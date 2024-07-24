@@ -8,7 +8,8 @@ Class {
 		'toolbar',
 		'postOpenBlock'
 	],
-	#category : 'Jadeite-Browser'
+	#category : 'Jadeite-Browser',
+	#package : 'Jadeite-Browser'
 }
 
 { #category : 'accessing' }

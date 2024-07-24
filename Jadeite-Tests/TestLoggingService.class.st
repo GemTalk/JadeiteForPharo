@@ -1,5 +1,6 @@
 Class {
 	#name : 'TestLoggingService',
 	#superclass : 'RowanLoggingService',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }

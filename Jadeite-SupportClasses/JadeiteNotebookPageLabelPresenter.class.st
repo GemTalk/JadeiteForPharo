@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteNotebookPageLabelPresenter',
 	#superclass : 'SpNotebookPageLabelPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }

@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteCompilationContext',
 	#superclass : 'CompilationContext',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }

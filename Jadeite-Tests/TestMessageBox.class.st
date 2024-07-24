@@ -5,5 +5,6 @@ Class {
 		'LastMessageBox',
 		'PlannedResult'
 	],
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }

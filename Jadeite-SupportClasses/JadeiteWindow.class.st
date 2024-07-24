@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteWindow',
 	#superclass : 'SpWindow',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'icons' }

@@ -1,5 +1,6 @@
 Class {
 	#name : 'OopType64',
 	#superclass : 'ExternalInteger',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

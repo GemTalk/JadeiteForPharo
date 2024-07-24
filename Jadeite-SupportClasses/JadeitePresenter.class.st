@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeitePresenter',
 	#superclass : 'SpPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'actions' }

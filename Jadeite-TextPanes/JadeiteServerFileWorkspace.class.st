@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'path'
 	],
-	#category : 'Jadeite-TextPanes'
+	#category : 'Jadeite-TextPanes',
+	#package : 'Jadeite-TextPanes'
 }
 
 { #category : 'instance creation' }

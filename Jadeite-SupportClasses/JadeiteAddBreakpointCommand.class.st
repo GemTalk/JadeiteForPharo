@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteAddBreakpointCommand',
 	#superclass : 'JadeiteBreakpointCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'default' }

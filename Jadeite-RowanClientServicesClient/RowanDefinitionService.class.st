@@ -6,7 +6,8 @@ Class {
 		'properties',
 		'session'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'comparing' }

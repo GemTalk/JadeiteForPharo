@@ -7,5 +7,6 @@ Class {
 	#instVars : [
 		'documentPresenter'
 	],
-	#category : 'Jadeite-TextPanes'
+	#category : 'Jadeite-TextPanes',
+	#package : 'Jadeite-TextPanes'
 }

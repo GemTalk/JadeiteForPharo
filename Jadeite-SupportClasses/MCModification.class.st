@@ -8,7 +8,8 @@ Class {
 		'obsoletion',
 		'modification'
 	],
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'instance creation' }

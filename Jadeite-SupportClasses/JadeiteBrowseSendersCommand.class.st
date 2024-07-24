@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteBrowseSendersCommand',
 	#superclass : 'SpBrowseSendersCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'accessing' }

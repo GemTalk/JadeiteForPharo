@@ -1,7 +1,8 @@
 Class {
 	#name : 'GsProcess',
 	#superclass : 'DolphinClass',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'public' }

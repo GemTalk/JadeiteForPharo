@@ -6,7 +6,8 @@ It's recommended to run this set of tests with a fresh login to avoid counting s
 Class {
 	#name : 'JadeiteDebuggerTestCase',
 	#superclass : 'JadeiteDebuggerDataCuratorTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

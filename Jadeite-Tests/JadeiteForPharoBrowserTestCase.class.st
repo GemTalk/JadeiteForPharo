@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteForPharoBrowserTestCase',
 	#superclass : 'JadeiteForPharoBrowserAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'support' }
@@ -395,8 +396,10 @@ JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
 	updatingCategoryIndex := self categoryListPresenter list indexOf:
 		                         'Updating'.
 	"select a different category with the underlying morphic code. That exposes the bug. "
-	self categoryListPresenter withWidgetDo: [ :w |
-		w selectIndexes: { updatingCategoryIndex } andMakeVisibleIf: true ].
+	self categoryListPresenter adapter ifNotNil: [ :a |
+		a widget
+			selectIndexes: { updatingCategoryIndex }
+			andMakeVisibleIf: true ].
 	self assert: self methodListPresenter selectedItems isEmpty "#answer is not in private category so no selection should be made"
 ]
 
@@ -515,10 +518,11 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
 	1 to: self projectsPresenter methodListPresenter list size do: [
 		:index |
 		self projectsPresenter methodListPresenter resetSelection.
-		self projectsPresenter methodListPresenter withWidgetDo: [ :widget |
-			widget selectIndexes: { index } andMakeVisibleIf: true.
+		self projectsPresenter methodListPresenter adapter ifNotNil: [ :a |
+			a widget selectIndexes: { index } andMakeVisibleIf: true.
 			self
-				assert: self projectsPresenter methodListPresenter selection selectedIndex
+				assert:
+				self projectsPresenter methodListPresenter selection selectedIndex
 				equals: index ] ]
 ]
 

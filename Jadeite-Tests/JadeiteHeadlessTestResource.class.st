@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteHeadlessTestResource',
 	#superclass : 'JadeiteTestResource',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'support' }

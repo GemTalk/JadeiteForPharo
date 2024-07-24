@@ -6,7 +6,8 @@ Test that this test infrastructure change works.
 Class {
 	#name : 'JadeiteMessageBoxTestCase',
 	#superclass : 'JadeiteAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

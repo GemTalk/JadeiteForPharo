@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteTextEditorDialogWindow',
 	#superclass : 'TextEditorDialogWindow',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialize' }

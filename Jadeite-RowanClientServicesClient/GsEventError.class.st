@@ -1,5 +1,6 @@
 Class {
 	#name : 'GsEventError',
 	#superclass : 'GsError',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }

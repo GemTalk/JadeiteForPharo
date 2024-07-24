@@ -8,7 +8,8 @@ Class {
 	#instVars : [
 		'visited'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'initialization' }

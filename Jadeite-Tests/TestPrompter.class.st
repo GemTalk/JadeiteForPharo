@@ -5,5 +5,6 @@ Class {
 		'LastPrompt',
 		'PlannedResult'
 	],
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }

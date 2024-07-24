@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeitePopoverPrintPresenter',
 	#superclass : 'SpCodePopoverPrintPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'private' }

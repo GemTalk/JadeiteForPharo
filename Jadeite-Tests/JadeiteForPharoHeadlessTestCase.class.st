@@ -4,7 +4,8 @@ These tests should not assume a connection to the server is present.
 Class {
 	#name : 'JadeiteForPharoHeadlessTestCase',
 	#superclass : 'JadeiteForPharoTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'accessing' }

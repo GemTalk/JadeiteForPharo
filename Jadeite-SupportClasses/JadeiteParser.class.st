@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteParser',
 	#superclass : 'RBParser',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'private - classes' }

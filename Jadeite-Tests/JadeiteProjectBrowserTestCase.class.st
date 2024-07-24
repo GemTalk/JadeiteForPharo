@@ -6,7 +6,8 @@ When running tests from SUnit Browser Tool, make sure to turn on Auto Initialize
 Class {
 	#name : 'JadeiteProjectBrowserTestCase',
 	#superclass : 'JadeiteProjectBrowserAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

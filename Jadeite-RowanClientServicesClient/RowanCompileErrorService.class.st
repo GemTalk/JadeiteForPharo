@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'gsArguments'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'accessing' }

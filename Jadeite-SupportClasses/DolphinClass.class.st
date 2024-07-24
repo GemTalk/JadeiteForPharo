@@ -4,5 +4,6 @@ I am the superclass of classes that are part of the Dolphin Smalltalk base but o
 Class {
 	#name : 'DolphinClass',
 	#superclass : 'Object',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

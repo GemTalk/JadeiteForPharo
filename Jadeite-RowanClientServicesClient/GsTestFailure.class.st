@@ -1,5 +1,6 @@
 Class {
 	#name : 'GsTestFailure',
 	#superclass : 'GsAnsiError',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }

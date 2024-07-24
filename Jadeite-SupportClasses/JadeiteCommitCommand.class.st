@@ -4,7 +4,8 @@ I execute a commit
 Class {
 	#name : 'JadeiteCommitCommand',
 	#superclass : 'JadeiteCommand',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'initialization' }

@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteTreeModel',
 	#superclass : 'TreeModel',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'constants' }

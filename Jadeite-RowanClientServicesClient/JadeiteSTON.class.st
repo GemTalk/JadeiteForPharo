@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteSTON',
 	#superclass : 'STON',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'accessing' }

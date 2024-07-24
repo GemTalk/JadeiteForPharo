@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteScrolledTextMorph',
 	#superclass : 'SpRubScrolledTextMorph',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'as yet unclassified' }

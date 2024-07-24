@@ -1,5 +1,6 @@
 Class {
 	#name : 'Dialog',
 	#superclass : 'JadeiteSessionPresenter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }

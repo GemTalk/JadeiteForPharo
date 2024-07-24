@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'transcriptPresenter'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'as yet unclassified' }

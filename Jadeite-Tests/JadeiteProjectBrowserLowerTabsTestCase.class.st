@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteProjectBrowserLowerTabsTestCase',
 	#superclass : 'JadeiteProjectBrowserAbstractTestCase',
-	#category : 'Jadeite-Tests'
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
 }
 
 { #category : 'as yet unclassified' }

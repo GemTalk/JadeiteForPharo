@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteDiffAdapter',
 	#superclass : 'SpMorphicDiffAdapter',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'factory' }

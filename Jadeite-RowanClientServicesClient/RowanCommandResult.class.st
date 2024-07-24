@@ -1,5 +1,6 @@
 Class {
 	#name : 'RowanCommandResult',
 	#superclass : 'DolphinClass',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }

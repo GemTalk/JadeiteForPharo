@@ -4,7 +4,8 @@ Don't expect to have a session for things like the caption
 Class {
 	#name : 'JadeiteNonSessionWorkspace',
 	#superclass : 'JadeiteTextDocument',
-	#category : 'Jadeite-TextPanes'
+	#category : 'Jadeite-TextPanes',
+	#package : 'Jadeite-TextPanes'
 }
 
 { #category : 'initialization' }

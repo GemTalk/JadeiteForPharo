@@ -6,7 +6,8 @@ Class {
 		'packageServices',
 		'projectName'
 	],
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'instance creation' }

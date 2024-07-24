@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteSTONWriter',
 	#superclass : 'STONWriter',
-	#category : 'Jadeite-RowanClientServicesClient'
+	#category : 'Jadeite-RowanClientServicesClient',
+	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'initialization' }

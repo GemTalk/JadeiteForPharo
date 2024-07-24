@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteValueHolder',
 	#superclass : 'ValueHolder',
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'printing' }

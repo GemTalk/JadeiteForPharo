@@ -24,7 +24,8 @@ Class {
 		'DefaultFont',
 		'DefaultTextFont'
 	],
-	#category : 'Jadeite-SupportClasses'
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'settings' }
