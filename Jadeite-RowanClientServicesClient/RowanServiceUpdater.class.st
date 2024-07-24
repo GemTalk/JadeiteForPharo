@@ -59,6 +59,7 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	Processor activeProcess jadeiteTranscriptWrite:
 		'service isInCommand - ' , service isInCommand printString.
 	service isInCommand ifTrue: [ ^ self ].
+	(service command = #update and: [ self isApplyingUpdates ]) ifTrue:[^self]. 
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
