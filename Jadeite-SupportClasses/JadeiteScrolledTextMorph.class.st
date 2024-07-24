@@ -30,6 +30,13 @@ JadeiteScrolledTextMorph >> drawOn: aCanvas [
 ]
 
 { #category : 'model protocol' }
+JadeiteScrolledTextMorph >> hasUnacceptedEdits: aBoolean [
+	"Set the hasUnacceptedEdits flag to the given value. "
+
+	self basicHasUnacceptedEdits: aBoolean. 
+]
+
+{ #category : 'model protocol' }
 JadeiteScrolledTextMorph >> resetState [
 
 	"do nothing. Don't want the hasUnacceptedEdits: to change because

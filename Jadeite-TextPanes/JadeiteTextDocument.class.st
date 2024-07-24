@@ -494,7 +494,7 @@ JadeiteTextDocument >> insertPrintPopoverAfterCurrentSelection: anObject [
 
 { #category : 'testing' }
 JadeiteTextDocument >> isModified [ 
-	^self hasUnacceptedEdits 
+	^self adapter ifNil: [ false ] ifNotNil: [:a | a widget hasUnacceptedEdits]
 ]
 
 { #category : 'testing' }
