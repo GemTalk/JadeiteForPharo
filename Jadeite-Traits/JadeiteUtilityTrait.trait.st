@@ -4,7 +4,8 @@ Hopefully, with good design, behavior in this class will be limited.
 "
 Trait {
 	#name : 'JadeiteUtilityTrait',
-	#category : 'Jadeite-Traits'
+	#category : 'Jadeite-Traits',
+	#package : 'Jadeite-Traits'
 }
 
 { #category : 'ambiguous' }

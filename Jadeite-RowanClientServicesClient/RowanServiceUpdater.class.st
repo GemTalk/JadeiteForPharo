@@ -161,7 +161,8 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service [
-
+	Processor activeProcess jadeiteTranscriptWrite: 'RowanServiceUpdater>>#basicIssueCommand: - ', service printString. 
+	true ifTrue:[^[self _basicIssueCommand: service] fork]. 
 	self activeProcessIsMorphicProcess
 		ifTrue: [
 			| sem processingCommand proc |

@@ -2,7 +2,8 @@ Trait {
 	#name : 'JadeiteClassTrait',
 	#traits : 'JadeiteUtilityTrait',
 	#classTraits : 'JadeiteUtilityTrait classTrait',
-	#category : 'Jadeite-Traits'
+	#category : 'Jadeite-Traits',
+	#package : 'Jadeite-Traits'
 }
 
 { #category : 'menus' }
@@ -30,7 +31,7 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 ]
 
 { #category : 'queries' }
-JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
+JadeiteClassTrait >> basicBrowseClassReferences: className session: session completionBlock: completionBlock [
 
 	| service |
 	service := RowanQueryService
@@ -39,7 +40,7 @@ JadeiteClassTrait >> basicBrowseClassReferences: className session: session [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: session
-		onCompletion: nil.
+		onCompletion: completionBlock.
 	^ service
 ]
 
@@ -67,15 +68,16 @@ JadeiteClassTrait >> browseClassReferences [
 { #category : 'queries' }
 JadeiteClassTrait >> browseClassReferences: className [
 
-	| service shell |
-	service := self
-		           basicBrowseClassReferences: className
-		           session: self gciSession.
-	shell := self openMethodListOn: service selecting: className.
-	shell updateCaptionFromSearchString:
-		service queryResults size printString , ' Class References to '
-		, className asString.
-	^ shell
+	| shell |
+	self
+		basicBrowseClassReferences: className
+		session: self gciSession
+		completionBlock: [ :service |
+			UIManager default defer: [
+				shell := self openMethodListOn: service selecting: className.
+				shell updateCaptionFromSearchString:
+					service queryResults size printString , ' Class References to '
+					, className asString ] ]
 ]
 
 { #category : 'menus' }

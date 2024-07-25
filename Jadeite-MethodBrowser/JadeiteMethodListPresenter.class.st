@@ -15,7 +15,8 @@ Class {
 	#pools : [
 		'ScintillaConstants'
 	],
-	#category : 'Jadeite-MethodBrowser'
+	#category : 'Jadeite-MethodBrowser',
+	#package : 'Jadeite-MethodBrowser'
 }
 
 { #category : 'actions' }
@@ -39,7 +40,7 @@ JadeiteMethodListPresenter >> autoCommit: boolean [
 ]
 
 { #category : 'queries' }
-JadeiteMethodListPresenter >> basicBrowseClassReferences: className session: session [
+JadeiteMethodListPresenter >> basicBrowseClassReferences: className session: session completionBlock: completionBlock [
 
 	| service |
 	service := RowanQueryService
@@ -48,7 +49,7 @@ JadeiteMethodListPresenter >> basicBrowseClassReferences: className session: ses
 	RowanServiceUpdater current
 		issueCommand: service
 		session: session
-		onCompletion: nil.
+		onCompletion: completionBlock.
 	^ service
 ]
 
@@ -61,16 +62,16 @@ JadeiteMethodListPresenter >> browseClassReferences [
 { #category : 'queries' }
 JadeiteMethodListPresenter >> browseClassReferences: className [
 
-	| service shell |
-	service := self
-		           basicBrowseClassReferences: className
-		           session: self gciSession.
-	shell := self openMethodListOn: service selecting: className.
-	shell updateCaptionFromSearchString:
-		service queryResults size printString , ' Class References to '
-		, className asString.
-
-	^ shell
+	| shell |
+	self
+		basicBrowseClassReferences: className
+		session: self gciSession
+		completionBlock: [ :service |
+			UIManager default defer: [
+				shell := self openMethodListOn: service selecting: className.
+				shell updateCaptionFromSearchString:
+					service queryResults size printString , ' Class References to '
+					, className asString ] ]
 ]
 
 { #category : 'testing' }

@@ -88,7 +88,7 @@ RowanService class >> templateClassName [
 { #category : 'service completion' }
 RowanService >> _handleServiceCompletionBlock [
 
-	[ self serviceCompletionBlock value ] ensure: [
+	[ self serviceCompletionBlock cull: self ] ensure: [
 		self serviceCompletionBlock: nil ]
 ]
 
@@ -240,6 +240,7 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 	| promise theCompletionBlock process |
 	process := Processor activeProcess.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
+	Processor activeProcess jadeiteTranscriptWrite: 'RowanService>>#executeCommandOnCompletion:semaphore:', self printString.
 	promise := remoteSelf executeCommand.
 	promise when: theCompletionBlock catch: [ :value |
 		[

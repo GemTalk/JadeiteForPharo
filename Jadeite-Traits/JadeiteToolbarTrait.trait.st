@@ -3,7 +3,8 @@ Trait {
 	#instVars : [
 		'toolbar'
 	],
-	#category : 'Jadeite-Traits'
+	#category : 'Jadeite-Traits',
+	#package : 'Jadeite-Traits'
 }
 
 { #category : 'toolbar support' }

@@ -8,7 +8,8 @@ Class {
 	#classVars : [
 		'DefaultInspectorClass'
 	],
-	#category : 'Jadeite-Inspector'
+	#category : 'Jadeite-Inspector',
+	#package : 'Jadeite-Inspector'
 }
 
 { #category : 'as yet unclassified' }
@@ -188,11 +189,4 @@ JadeInspector >> setDocumentPresenterLabel [
 { #category : 'as yet unclassified' }
 JadeInspector >> setLastGsShape: name [
 	codePane setDocumentPresenterWith: (self registry getClass: name)
-]
-
-{ #category : 'as yet unclassified' }
-JadeInspector >> shellNameExtraInfo [
-	(model isKindOf: String) ifTrue: [^' (' , model size printString , ' characters)'].
-	(model isKindOf: ByteArray) ifTrue: [^' (' , model size printString , ' bytes)'].
-	^String new
 ]

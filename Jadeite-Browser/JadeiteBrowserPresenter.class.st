@@ -279,20 +279,6 @@ JadeiteBrowserPresenter >> basicAddVariableAccessors [
 	self methodFilterListPresenter selections: cachedSelections
 ]
 
-{ #category : 'actions' }
-JadeiteBrowserPresenter >> basicBrowseClassReferences: className session: session [
-
-	| service |
-	service := RowanQueryService
-		           command: #browseClassReferences:
-		           withArgs: (Array with: className).
-	RowanServiceUpdater current
-		issueCommand: service
-		session: session
-		onCompletion: nil.
-	^ service
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 
@@ -2882,7 +2868,7 @@ JadeiteBrowserPresenter >> removeAppropriateTab [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> removeClass [
 
-	| classService answeringService classReferenceBrowser queryService |
+	| classService answeringService classReferenceBrowser |
 	classService := self selectedClass ifNil: [ ^ self ].
 	answeringService := RowanAnsweringService new.
 	answeringService
@@ -2893,18 +2879,18 @@ JadeiteBrowserPresenter >> removeClass [
 		^ MessageBox notify: 'Cannot remove class with subclasses' ].
 	(self selectedDictionaryOrPackage confirmClassRemoval: classService)
 		ifFalse: [ ^ self ].
-	queryService := self
-		                basicBrowseClassReferences: classService name
-		                session: self gciSession.
-	queryService hasResults ifTrue: [
-		classReferenceBrowser := self browseClassReferences:
-			                         classService name ].
-	self basicRemoveClass: classService.
-	queryService hasResults ifTrue: [
-		MessageBox notify: classService name
-			,
-			' was removed. You will need to remove references to the class or your code may not load in the future.' ].
-	^ classReferenceBrowser
+	self
+		basicBrowseClassReferences: classService name
+		session: self gciSession
+		completionBlock: [ :queryService |
+			queryService hasResults ifTrue: [
+				classReferenceBrowser := self browseClassReferences:
+					                         classService name ].
+			self basicRemoveClass: classService.
+			queryService hasResults ifTrue: [
+				MessageBox notify: classService name
+					,
+					' was removed. You will need to remove references to the class or your code may not load in the future.' ] ]
 ]
 
 { #category : 'as yet unclassified' }

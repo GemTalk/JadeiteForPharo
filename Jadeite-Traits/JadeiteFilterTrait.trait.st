@@ -1,6 +1,7 @@
 Trait {
 	#name : 'JadeiteFilterTrait',
-	#category : 'Jadeite-Traits'
+	#category : 'Jadeite-Traits',
+	#package : 'Jadeite-Traits'
 }
 
 { #category : 'actions' }

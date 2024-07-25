@@ -2,7 +2,8 @@ Trait {
 	#name : 'JadeiteMethodsTrait',
 	#traits : 'JadeiteUtilityTrait',
 	#classTraits : 'JadeiteUtilityTrait classTrait',
-	#category : 'Jadeite-Traits'
+	#category : 'Jadeite-Traits',
+	#package : 'Jadeite-Traits'
 }
 
 { #category : 'selecting' }
@@ -153,11 +154,12 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	shell := self openMethodListOn: service selecting: string.
-	shell updateCaptionFromSearchString:
-		service answer size printString , ' Senders of '
-		, string asString printString
+		onCompletion: [
+			UIManager default defer: [
+				shell := self openMethodListOn: service selecting: string.
+				shell updateCaptionFromSearchString:
+					service answer size printString , ' Senders of '
+					, string asString printString ] ]
 ]
 
 { #category : 'queries' }
@@ -217,6 +219,7 @@ JadeiteMethodsTrait >> browseImplementorsOf [
 JadeiteMethodsTrait >> browseImplementorsOf: string [
 
 	| service shell |
+	string ifNil: [ ^ self ].
 	string size > self maxSymbolSize ifTrue: [
 		^ MessageBox notify:
 			  'String exceeds max symbol size - '
@@ -228,12 +231,12 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	shell := self openMethodListOn: service selecting: nil.
-	shell updateCaptionFromSearchString:
-		service answer size printString , ' Implementors of '
-		, string asString printString.
-	^shell
+		onCompletion: [
+			UIManager default defer: [
+				shell := self openMethodListOn: service selecting: nil.
+				shell updateCaptionFromSearchString:
+					service answer size printString , ' Implementors of '
+					, string asString printString ] ]
 ]
 
 { #category : 'queries' }

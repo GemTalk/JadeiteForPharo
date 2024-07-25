@@ -4,7 +4,8 @@ Can't subclass SpCodeInspectItCommand because code context menus are built by it
 Class {
 	#name : 'JadeiteCodeInspectItCommand',
 	#superclass : 'SpToolCommand',
-	#category : 'Jadeite-Inspector'
+	#category : 'Jadeite-Inspector',
+	#package : 'Jadeite-Inspector'
 }
 
 { #category : 'accessing - defaults' }

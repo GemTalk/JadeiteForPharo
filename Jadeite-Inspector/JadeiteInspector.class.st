@@ -15,7 +15,8 @@ Class {
 		'oopsCollection',
 		'objectIndex'
 	],
-	#category : 'Jadeite-Inspector'
+	#category : 'Jadeite-Inspector',
+	#package : 'Jadeite-Inspector'
 }
 
 { #category : 'as yet unclassified' }
@@ -1079,6 +1080,14 @@ JadeiteInspector >> shellName [
 	| inspectionTarget |
 	inspectionTarget := className ifNil: [model ifNil: [String new] ifNotNil: [model printString]].
 	^'Jadeite Inspector on ' , inspectionTarget , self shellNameExtraInfo
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteInspector >> shellNameExtraInfo [
+	model ifNil: [ ^String new ].
+	(model isKindOf: String) ifTrue: [^' (' , model size printString , ' characters)'].
+	(model isKindOf: ByteArray) ifTrue: [^' (' , model size printString , ' bytes)'].
+	^String new
 ]
 
 { #category : 'as yet unclassified' }

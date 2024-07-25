@@ -5,7 +5,8 @@ Trait {
 	],
 	#traits : 'JadeiteUtilityTrait',
 	#classTraits : 'JadeiteUtilityTrait classTrait',
-	#category : 'Jadeite-Traits'
+	#category : 'Jadeite-Traits',
+	#package : 'Jadeite-Traits'
 }
 
 { #category : 'testing' }

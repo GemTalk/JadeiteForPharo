@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteInspectInstVarCommand',
 	#superclass : 'JadeiteCommand',
-	#category : 'Jadeite-Inspector'
+	#category : 'Jadeite-Inspector',
+	#package : 'Jadeite-Inspector'
 }
 
 { #category : 'executing' }

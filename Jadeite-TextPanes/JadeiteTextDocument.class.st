@@ -753,7 +753,7 @@ JadeiteTextDocument >> text [
 	the spec widget from the underlying morphic widget. Once found, the 
 	`withWidgetDo:` code can be removed."
 
-	self todo: 'self adapter ifNotNil: [ :a | text := adapter widget editor text ].' "needed?". 
+	self adapter ifNotNil: [ :a | text := adapter widget  text asString  ].
 	^ text
 ]
 

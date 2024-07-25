@@ -3,7 +3,8 @@ Class {
 	#superclass : 'RowanQueryService',
 	#instVars : [
 		'name',
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -14,6 +15,16 @@ RowanQueryServiceClient >> displayName [
 	"for logging. for now"
 
 	^name
+]
+
+{ #category : 'commands' }
+RowanQueryServiceClient >> implementorsOfAll: selectors [
+	command := #implementorsOfAll:.
+	commandArgs := Array with: selectors.
+	RowanServiceUpdater current
+		issueCommand: self
+		session: GciSession current
+		onCompletion: serviceCompletionBlock
 ]
 
 { #category : 'accessing' }
@@ -36,6 +47,35 @@ RowanQueryServiceClient >> name [
 { #category : 'accessing' }
 RowanQueryServiceClient >> name: aString [
 	name := aString asString
+]
+
+{ #category : 'as yet unclassified' }
+RowanQueryServiceClient >> perform: browseAction with: possibleSelectors completionBlock: aBlock [
+	serviceCompletionBlock := aBlock.
+	self perform: browseAction with: possibleSelectors
+]
+
+{ #category : 'commands' }
+RowanQueryServiceClient >> sendersOfAll: selectors [
+
+	command := #sendersOfAll:.
+	commandArgs := Array with: selectors.
+	RowanServiceUpdater current
+		issueCommand: self
+		session: GciSession current
+		onCompletion: serviceCompletionBlock
+]
+
+{ #category : 'service completion' }
+RowanQueryServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'service completion' }
+RowanQueryServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]
 
 { #category : 'accessing' }

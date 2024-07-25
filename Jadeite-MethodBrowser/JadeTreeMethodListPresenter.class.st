@@ -7,7 +7,8 @@ Class {
 		'historyEntries',
 		'entriesIndex'
 	],
-	#category : 'Jadeite-MethodBrowser'
+	#category : 'Jadeite-MethodBrowser',
+	#package : 'Jadeite-MethodBrowser'
 }
 
 { #category : 'as yet unclassified' }

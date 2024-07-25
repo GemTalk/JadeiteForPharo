@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteStatusBarPresenter',
 	#superclass : 'SpStatusBarPresenter',
-	#category : 'Jadeite-Inspector'
+	#category : 'Jadeite-Inspector',
+	#package : 'Jadeite-Inspector'
 }
 
 { #category : 'accessing' }
