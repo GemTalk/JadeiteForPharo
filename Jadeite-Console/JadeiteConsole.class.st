@@ -705,6 +705,13 @@ JadeiteConsole >> openSourceStyler [
 ]
 
 { #category : 'accessing' }
+JadeiteConsole >> postOpenBlock [
+
+	"no postOpenBlock yet"
+	^nil
+]
+
+{ #category : 'accessing' }
 JadeiteConsole >> projectDisplayAttributes [
 
 	| attributes |

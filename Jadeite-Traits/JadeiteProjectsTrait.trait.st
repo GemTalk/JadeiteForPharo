@@ -65,6 +65,14 @@ JadeiteProjectsTrait >> basicCheckoutTag: choice for: projectService [
 ]
 
 { #category : 'actions' }
+JadeiteProjectsTrait >> basicPostOpen [
+
+	^ self postOpenBlock ifNotNil: [
+		  [ self postOpenBlock cull: self ] ensure: [
+			  self postOpenBlock: nil ] ]
+]
+
+{ #category : 'actions' }
 JadeiteProjectsTrait >> basicReloadProject [
 
 	| selections |
@@ -637,7 +645,5 @@ JadeiteProjectsTrait >> updateProjects [
 			(self doProjectsNeedRefresh: browserService) ifFalse: [
 				self projectListPresenter items:
 					(self sortedProjectsFrom: browserService projects) ].
-			self postOpenBlock ifNotNil: [
-				[ self postOpenBlock cull: self ] ensure: [
-					self postOpenBlock: nil ] ] ]
+			self basicPostOpen ]
 ]

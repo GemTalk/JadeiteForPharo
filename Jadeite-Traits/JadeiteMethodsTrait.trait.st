@@ -25,13 +25,15 @@ JadeiteMethodsTrait >> _selectSymbolFrom: wildcardString list: possibleSelectors
 				                displayBlock: [ :e | e ];
 				                browseBlock: [ :arg |
 					                | queryService |
-					                queryService := RowanQueryService new
-						                                perform: browseAction
-						                                with: possibleSelectors.
-					                JadeiteMethodListBrowser
-						                openOn: queryService
-						                selecting: wildcardString
-						                session: self gciSession ];
+					                queryService := RowanQueryService new.
+					                queryService serviceCompletionBlock: [
+							                JadeiteMethodListBrowser
+								                openOn: queryService
+								                selecting: wildcardString
+								                session: self gciSession ].
+					                queryService
+						                perform: browseAction
+						                with: possibleSelectors ];
 				                doubleClickOk;
 				                title: listWindowTitle;
 				                yourself.
