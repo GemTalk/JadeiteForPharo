@@ -15,7 +15,8 @@ Class {
 		'rightMemoPresenter',
 		'includesIdenticalPresenter'
 	],
-	#category : 'Jadeite-Changes'
+	#category : 'Jadeite-Changes',
+	#package : 'Jadeite-Changes'
 }
 
 { #category : 'as yet unclassified' }
@@ -358,10 +359,14 @@ JadeiteChangesBrowser >> refresh [
 
 	| projectService operations |
 	projectService := RowanProjectService new name: name.
-	operations := projectService basicChangesUsing: gciSession.
-	includesIdenticalPresenter state ifFalse: [
-		operations := operations reject: [ :each | each hasEquivalentText ] ]. 
-	operationsListPresenter items: operations asSortedCollection
+	operations := projectService
+		              basicChangesUsing: gciSession
+		              onCompletion: [
+			              includesIdenticalPresenter state ifFalse: [
+				              operations := operations reject: [ :each |
+					                            each hasEquivalentText ] ].
+			              operationsListPresenter items:
+				              operations asSortedCollection ]
 ]
 
 { #category : 'as yet unclassified' }

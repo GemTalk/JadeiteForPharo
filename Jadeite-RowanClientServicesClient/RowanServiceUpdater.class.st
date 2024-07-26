@@ -9,7 +9,6 @@ Class {
 	#instVars : [
 		'updates',
 		'debug',
-		'inUpdate',
 		'logger',
 		'applyingUpdates',
 		'breakpointsEnabled',
@@ -18,7 +17,8 @@ Class {
 		'serviceQueue',
 		'serviceQueueProcess',
 		'morphicProcesses',
-		'serviceQueueSemaphore'
+		'serviceQueueSemaphore',
+		'disableCommands'
 	],
 	#classVars : [
 		'Current'
@@ -56,39 +56,23 @@ RowanServiceUpdater class >> stopLogging [
 RowanServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock |
-	Processor activeProcess jadeiteTranscriptWrite:
-		'service isInCommand - ' , service isInCommand printString.
 	service isInCommand ifTrue: [ ^ self ].
-	(service command = #update and: [ self isApplyingUpdates ]) ifTrue:[^self]. 
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
-	                      Processor activeProcess
-		                      jadeiteTranscriptWrite:
-		                      'postExecutionBlock started '
-		                      , service printString.
-	                      self possibleSignalCompileError: service. 
+	                      self possibleSignalCompileError: service.
 	                      self applyUpdates: service.
 	                      service inCommand signal. "signal before continuing to let gui do further updates as needed."
-	                      service handleServiceCompletion.
-	                      Processor activeProcess
-		                      jadeiteTranscriptWrite:
-		                      'postExecutionBlock complete' ]
+	                      service handleServiceCompletion ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
 			                      service inCommand signal ] ].
-	Processor activeProcess jadeiteTranscriptWrite:
-		'about to executeInSession:*'.
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: service inCommand.
-	Processor activeProcess jadeiteTranscriptWrite:
-		'about to wait on service inCommand'.
-	service inCommand wait.
-	Processor activeProcess jadeiteTranscriptWrite:
-		'service inCommand signaled'
+	service inCommand wait
 ]
 
 { #category : 'accessing' }
@@ -161,43 +145,10 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 
 { #category : 'commands' }
 RowanServiceUpdater >> basicIssueCommand: service [
-	Processor activeProcess jadeiteTranscriptWrite: 'RowanServiceUpdater>>#basicIssueCommand: - ', service printString. 
-	true ifTrue:[^[self _basicIssueCommand: service] fork]. 
-	self activeProcessIsMorphicProcess
-		ifTrue: [
-			| sem processingCommand proc |
-			Processor activeProcess jadeiteTranscriptWrite:
-				'-------------------------'.
-			sem := Semaphore new.
-			processingCommand := true.
-			proc := [
-			        MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
-				        newProcess priority: Processor userSchedulingPriority.
-			proc name: 'Morphic UI Process_Jadeite'.
-			proc jadeiteTranscriptWrite: 'named'.
-			[
-			[
-			Processor activeProcess jadeiteTranscriptWrite:
-				'about to _basicIssueCommand: ', service printString.
-			self _basicIssueCommand: service ] ensure: [
-				Processor activeProcess jadeiteTranscriptWrite:
-					'_basicIssueCommand: complete - in ensure block'.
-				processingCommand := false.
-				sem signal.
-				Processor activeProcess jadeiteTranscriptWrite:
-					'_basicIssueCommand: complete - ensure block complete' ] ] fork.
-			[
-			proc resume.
-			proc jadeiteTranscriptWrite: 'resumed'.
-			Processor activeProcess jadeiteTranscriptWrite:
-				'about to wait on sem'.
-			sem wait.
-			Processor activeProcess jadeiteTranscriptWrite: 'sem signaled' ]
-				ifCurtailed: [ "just in case forked ensure block doesn't run and we're terminated. 
-			Any observable slot that sends a service call can get into a stuck lock state if terminated"
-					processingCommand := false.
-					sem signal ] ]
-		ifFalse: [ self _basicIssueCommand: service ]
+	"Don't block the morphic process.
+	Any sending process has use completion blocks"
+	disableCommands ifTrue:[^self]. 
+	[ self _basicIssueCommand: service ] fork
 ]
 
 { #category : 'private' }
@@ -244,15 +195,18 @@ RowanServiceUpdater >> debug: aBoolean [
 	debug := aBoolean
 ]
 
+{ #category : 'commands' }
+RowanServiceUpdater >> disableCommandsWhile: aBlock [
+
+	[
+	disableCommands := true.
+	aBlock value ] ensure: [ disableCommands := false ]
+]
+
 { #category : 'events' }
 RowanServiceUpdater >> getEvents [
 
 	^ nil
-]
-
-{ #category : 'private' }
-RowanServiceUpdater >> inUpdate [
-	^inUpdate
 ]
 
 { #category : 'commands' }
@@ -278,7 +232,7 @@ RowanServiceUpdater >> initialize [
 	super initialize.
 	self initializeUpdates.
 	debug := false.
-	inUpdate := Semaphore forMutualExclusion.
+	disableCommands := false.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self.

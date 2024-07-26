@@ -9,7 +9,8 @@ Class {
 		'toolbarPresenter',
 		'transcriptPresenter'
 	],
-	#category : 'Jadeite-Console'
+	#category : 'Jadeite-Console',
+	#package : 'Jadeite-Console'
 }
 
 { #category : 'as yet unclassified' }
@@ -222,13 +223,6 @@ JadeTranscript >> onIdleEntered [
 			[Cursor current
 				ifNotNil: [[Cursor current ifNotNil: [Cursor current: nil]] forkAt: Processor userBackgroundPriority]].
 	^super onIdleEntered
-]
-
-{ #category : 'as yet unclassified' }
-JadeTranscript >> openRowanProjectList [
-	^(JadeiteProjectListBrowser showOnSession: self gciSession) primaryPresenter
-		updateProjects;
-		yourself
 ]
 
 { #category : 'as yet unclassified' }

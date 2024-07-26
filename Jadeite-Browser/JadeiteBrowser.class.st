@@ -12,6 +12,18 @@ Class {
 	#package : 'Jadeite-Browser'
 }
 
+{ #category : 'instance creation' }
+JadeiteBrowser class >> openOn: theOwner postOpen: aBlock [
+
+	| browser |
+	browser := self new
+		           owner: theOwner;
+		           gciSession: GciSession current;
+		           postOpenBlock: aBlock;
+		           open.
+	^ browser
+]
+
 { #category : 'accessing' }
 JadeiteBrowser >> activePresenter [
 
@@ -270,12 +282,11 @@ JadeiteBrowser >> openNewBrowserPresenter [
 		                    postOpenBlock: postOpenBlock;
 		                    application: self application;
 		                    gciSession: gciSession.
-	browserPresenter updateProjects.
 	browserPresenter
 		addStyle: 'jadeWorkspace';
-		owner: self;
-		build.
+		owner: self.
 	self application registerBrowserEventsFor: browserPresenter.
+	browserPresenter postOpen. 
 	^ browserPresenter
 ]
 

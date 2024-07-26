@@ -8,7 +8,8 @@ Class {
 		'methodService',
 		'versionListPresenter'
 	],
-	#category : 'Jadeite-MethodHistory'
+	#category : 'Jadeite-MethodHistory',
+	#package : 'Jadeite-MethodHistory'
 }
 
 { #category : 'instance creation' }
@@ -201,10 +202,10 @@ JadeiteHistoryBrowser >> updateHistory [
 		RowanServiceUpdater current
 			issueCommand: answeringService
 			session: self gciSession
-			onCompletion: nil ].
-	history := OrderedCollection new.
-	versionListPresenter items: answeringService answer reversed.
-	self todo: [ self setCaption ]
+			onCompletion: [
+				history := OrderedCollection new.
+				versionListPresenter items: answeringService answer reversed.
+				self todo: [ self setCaption ] ] ]
 ]
 
 { #category : 'events' }

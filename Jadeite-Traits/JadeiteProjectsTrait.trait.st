@@ -505,12 +505,6 @@ JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> postOpen [
-
-	"no postOpenBlock yet"
-]
-
-{ #category : 'actions' }
 JadeiteProjectsTrait >> projectChanges [
 
 	| changesBrowser operations projectService |
@@ -631,18 +625,19 @@ JadeiteProjectsTrait >> unloadProject [
 { #category : 'actions' }
 JadeiteProjectsTrait >> updateProjects [
 
-	UIManager default defer: [
-		| browserService |
-		browserService := RowanBrowserService new.
-		browserService
-			command: #updateProjects;
-			commandArgs: Array new.
-		RowanServiceUpdater current
-			issueCommand: browserService
-			session: self gciSession
-			onCompletion: [
-				(self doProjectsNeedRefresh: browserService) ifFalse: [
-					self projectListPresenter items:
-						(self sortedProjectsFrom: browserService projects) ] ].
-		UIManager default defer: [ self postOpen ] ]
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #updateProjects;
+		commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: self gciSession
+		onCompletion: [
+			(self doProjectsNeedRefresh: browserService) ifFalse: [
+				self projectListPresenter items:
+					(self sortedProjectsFrom: browserService projects) ].
+			self postOpenBlock ifNotNil: [
+				[ self postOpenBlock cull: self ] ensure: [
+					self postOpenBlock: nil ] ] ]
 ]

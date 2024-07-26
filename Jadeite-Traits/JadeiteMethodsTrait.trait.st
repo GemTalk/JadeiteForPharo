@@ -259,13 +259,14 @@ JadeiteMethodsTrait >> browseLiteralReferences: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil ]
+		onCompletion: [
+			shell := self openMethodListOn: service selecting: string.
+			shell updateCaptionFromSearchString:
+				'Literal References To ' , string asString printString ] ]
 		on: GsCompileError
-		do: [ :ex | ^MessageBox warning: 'Compile error: ' , (ex gsArguments first at: 3) ].
-	shell := self openMethodListOn: service selecting: string.
-	shell updateCaptionFromSearchString:
-		'Literal References To ' , string asString printString.
-	^ shell
+		do: [ :ex |
+			^ MessageBox warning:
+				  'Compile error: ' , (ex gsArguments first at: 3) ]
 ]
 
 { #category : 'queries' }
@@ -282,16 +283,17 @@ Example: To search for literal string add single quotes'
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseMethodClass [
 
-	| service className |
-	service := RowanClassService new name:
-		           self methodListPresenter jadeiteSelections first.
-	service meta: self methodListPresenter jadeiteSelections first meta.
-	RowanServiceUpdater current
-		updateService: service
-		session: self gciSession.
-	className := self methodListPresenter jadeiteSelections first
-		             className.
-	self openBrowser findClassNamed: className
+	| classService |
+	classService := RowanClassService new name:
+		                self methodListPresenter jadeiteSelections first
+			                className.
+	classService meta:
+		self methodListPresenter jadeiteSelections first meta.
+	self updateService: classService onCompletion: [
+		self
+			openBrowserOn: self
+			postOpen: [ :browserPresenter |
+			browserPresenter findClassService: classService ] ]
 ]
 
 { #category : 'actions' }
@@ -325,11 +327,10 @@ JadeiteMethodsTrait >> browseMethodsContaining: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	shell := self openMethodListOn: service selecting: string.
-	shell updateCaptionFromSearchString:
-		'Methods Containing ' , string asString printString.
-	^ shell
+		onCompletion: [shell := self openMethodListOn: service selecting: string.
+shell updateCaptionFromSearchString:
+	'Methods Containing ' , string asString printString].
+	
 ]
 
 { #category : 'queries' }
@@ -663,6 +664,12 @@ JadeiteMethodsTrait >> okToChangeSelections [
 				^ true ]
 			ifFalse: [ ^ false ] ].
 	^ true
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> openBrowserOn: theOwner postOpen: aBlock [
+
+	^ JadeiteBrowser openOn: theOwner postOpen: aBlock
 ]
 
 { #category : 'queries' }

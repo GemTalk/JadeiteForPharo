@@ -20,7 +20,8 @@ Class {
 	#classVars : [
 		'CurrentConsole'
 	],
-	#category : 'Jadeite-Console'
+	#category : 'Jadeite-Console',
+	#package : 'Jadeite-Console'
 }
 
 { #category : 'accessing' }

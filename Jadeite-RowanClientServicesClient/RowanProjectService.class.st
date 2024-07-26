@@ -90,22 +90,6 @@ RowanProjectService >> allClasses [
 ]
 
 { #category : 'presenter support' }
-RowanProjectService >> basicChangesUsing: session [
-
-	| operations |
-	command := #changes.
-	RowanServiceUpdater current
-		issueCommand: self
-		session: session
-		onCompletion: nil.
-	operations := OrderedCollection new.
-	changes do: [ :changeString |
-		operations addAll:
-			(RowanPatch fromString: changeString session: session) operations ].
-	^ operations
-]
-
-{ #category : 'presenter support' }
 RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock [
 
 	| operations |
@@ -113,13 +97,13 @@ RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock 
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil.
-	operations := OrderedCollection new.
-	changes do: [ :changeString |
-		operations addAll:
-			(RowanPatch fromString: changeString session: session) operations ].
-	changes := nil. "can be large, reclaim space"
-	completionBlock value: operations
+		onCompletion: [
+			operations := OrderedCollection new.
+			changes do: [ :changeString |
+				operations addAll:
+					(RowanPatch fromString: changeString session: session) operations ].
+			changes := nil. "can be large, reclaim space"
+			completionBlock value: operations ]
 ]
 
 { #category : 'presenter support' }
@@ -185,11 +169,10 @@ RowanProjectService >> branch: anObject [
 RowanProjectService >> changesUsing: session [
 
 	| operations |
-	operations := self basicChangesUsing: session.
-	changes isEmpty ifTrue: [ ^ MessageBox notify: 'No changes!' ].
-	[ 
-	^operations] ensure: [ 
-		changes := nil "clean this up. no longer needed and can be large" ]
+	operations := self basicChangesUsing: session onCompletion: [
+		              changes isEmpty ifTrue: [
+			              MessageBox notify: 'No changes!' ].
+		              changes := nil ]
 ]
 
 { #category : 'public' }

@@ -419,6 +419,13 @@ JadeiteBrowserPresenter >> basicUpdateProject [
 	self sundryCleanup
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> browseMethodClass [
+
+	self openBrowserOn: self postOpen: [ :browserPresenter |
+		browserPresenter findClassService: self selectedClass ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildGlobalsTab [
 	| globalsTabView cardLabel |
@@ -2340,30 +2347,6 @@ JadeiteBrowserPresenter >> onViewClosed [
 	RowanServiceUpdater current removeEventsTriggeredFor: packageGroupPresenter
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> onViewOpened [
-	super onViewOpened.
-	RowanServiceUpdater current logComment: 'Opening Projects Browser {' , self identityHash printString , '}'.
-	self registerPresentersForUpdates.
-	projectListPresenter view contextMenu: self class projectMenu.
-	self setupPackageMenu.
-	self updateMenuBar.
-	self updateProjects.
-	definedClassPackageText view isMultiline: false.
-	definedClassPackageText view alignment: #left.
-	definedMethodPackageText view isMultiline: false.
-	definedMethodPackageText view alignment: #left.
-	self buildPackageList.
-	self
-		buildProjectTab;
-		buildProjectReadMeTab.
-	self selectProjectTab.
-	JadePresenter packageListVisible ifTrue: [self showPackageList] ifFalse: [self hidePackageList].
-	JadePresenter packageGroupsVisible
-		ifTrue: [self showPackageGroups]
-		ifFalse: [self hidePackageGroups].
-]
-
 { #category : 'actions' }
 JadeiteBrowserPresenter >> openBrowser [
 
@@ -2458,9 +2441,8 @@ JadeiteBrowserPresenter >> populateFilterList [
 
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> postOpen [
-
-	postOpenBlock ifNotNil: [
-		[ postOpenBlock value ] ensure: [ postOpenBlock := nil ] ]
+	self updateProjects "this will run the postOpen block afterwards"
+	
 ]
 
 { #category : 'accessing' }
@@ -3101,15 +3083,15 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService [
 
-	UIManager default defer: [
-		| index |
-		projectListPresenter selectItem: projectService.
-		packageListPresenter list: projectService sortedPackages.
-		index := packageListPresenter list indexOf: packageService.
-		packageListPresenter selectIndex: index scrollToSelection: true.
-		classListPresenter list: packageService sortedClasses.
-		index := classListPresenter list indexOf: classService.
-		classListPresenter selectIndex: index scrollToSelection: true ]
+	| index |
+	index := projectListPresenter list indexOf: projectService.
+	projectListPresenter selectIndex: index scrollToSelection: true.
+	packageListPresenter list: projectService sortedPackages.
+	index := packageListPresenter list indexOf: packageService.
+	packageListPresenter selectIndex: index scrollToSelection: true.
+	classListPresenter list: packageService sortedClasses.
+	index := classListPresenter list indexOf: classService.
+	classListPresenter selectIndex: index scrollToSelection: true
 ]
 
 { #category : 'selections' }
@@ -3624,20 +3606,21 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
-	| packageService projectService completionBlock |
-	completionBlock := [ :array |
-	                   projectService := array first.
-	                   packageService := array last.
-	                   classService isMeta ifTrue: [ self setClassSide ].
-	                   self selectClassListTab.
-	                   self selectPackageListTab.
-	                   self
-		                   selectClassNamed: classService
-		                   package: packageService
-		                   project: projectService ].
+	| packageService projectService |
 	self
 		projectAndPackageServiceFor: classService
-		completionBlock: completionBlock
+		completionBlock: [ :array |
+			UIManager default defer: [
+				RowanServiceUpdater current disableCommandsWhile: [
+					projectService := array first.
+					packageService := array last.
+					classService isMeta ifTrue: [ self setClassSide ].
+					self selectClassListTab.
+					self selectPackageListTab.
+					self
+						selectClassNamed: classService
+						package: packageService
+						project: projectService ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
