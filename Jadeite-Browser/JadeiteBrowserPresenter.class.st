@@ -255,8 +255,7 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	self selectCategoriesNamed: (Array with: jadeiteCategory)
+		onCompletion: [self selectCategoriesNamed: (Array with: jadeiteCategory)]
 ]
 
 { #category : 'as yet unclassified' }
@@ -413,10 +412,10 @@ JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProject [
 
-	self updateProjectPackages.
-	self updateProjectInfo.
-	self todo: 'projectInfoTab ensureVisible'.
-	self sundryCleanup
+	self updateProjectPackagesOnCompletion: [
+		self updateProjectInfo.
+		self todo: 'projectInfoTab ensureVisible'.
+		self sundryCleanup ]
 ]
 
 { #category : 'actions' }
@@ -828,7 +827,7 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 				ifFalse: [
 					self updateProject.
 					self updatePackage ].
-			self updateClasses ] ].
+			self updateClassesOnCompletion: nil ] ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		self updateDictionary ]
 ]
@@ -1262,24 +1261,24 @@ JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 { #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 
-	UIManager default defer: [
-		self isClassSelected
-			ifTrue: [
-				RowanServiceUpdater current
-					updateService: self selectedClass
-					session: gciSession.
-				self populateFilterList.
-				self isCategoryTabSelected
-					ifTrue: [
-						methodListPresenter selectionOrNil
-							ifNil: [ self selectMethodSourceTab ]
-							ifNotNil: [ :methodService |
-								self selectCategoryFrom: methodService.
-								self selectMethodSourceTab ] ]
-					ifFalse: [
-						methodListPresenter selectionOrNil ifNotNil: [
-							self selectMethodSourceTab ] ] ]
-			ifFalse: [ self clearFilterLists ] ]
+	self isClassSelected
+		ifTrue: [
+			RowanServiceUpdater current
+				updateService: self selectedClass
+				session: self gciSession
+				onCompletion: [
+					self populateFilterList.
+					self isCategoryTabSelected
+						ifTrue: [
+							methodListPresenter selectionOrNil
+								ifNil: [ self selectMethodSourceTab ]
+								ifNotNil: [ :methodService |
+									self selectCategoryFrom: methodService.
+									self selectMethodSourceTab ] ]
+						ifFalse: [
+							methodListPresenter selectionOrNil ifNotNil: [
+								self selectMethodSourceTab ] ] ] ]
+		ifFalse: [ self clearFilterLists ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2660,11 +2659,11 @@ JadeiteBrowserPresenter >> refreshClass: selectedMethod [
 	selection
 		updateAfterCommand: false;
 		command: #fastRefresh.
-	self issueCommand: selection onCompletion: nil.
-	selection updateAfterCommand: true.
-	self updateClassInfo.
-	self selectMethodWithSameSelectorAs: selectedMethod.
-	self updateTabLabel
+	self issueCommand: selection onCompletion: [
+		selection updateAfterCommand: true.
+		self updateClassInfo.
+		self selectMethodWithSameSelectorAs: selectedMethod.
+		self updateTabLabel ]
 ]
 
 { #category : 'sunit support' }
@@ -2722,13 +2721,13 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 	classService filters: self selectedFilters.
 	self selectedFilterTab selectedItems isEmpty ifTrue: [
 		self clearMethodLists ].
-	self updateService: classService.
-	methodListPresenter selections isEmpty
-		ifTrue: [
-			self resetCategoryText.
-			definedMethodPackageText text: String new ]
-		ifFalse: [ self updateMethodSource ].
-	methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ]
+	self updateService: classService onCompletion: [
+		methodListPresenter selections isEmpty
+			ifTrue: [
+				self resetCategoryText.
+				definedMethodPackageText text: String new ]
+			ifFalse: [ self updateMethodSource ].
+		methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3709,10 +3708,17 @@ JadeiteBrowserPresenter >> updateClassMenu: menu [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateClasses [
+JadeiteBrowserPresenter >> updateClassesOnCompletion: completionBlock [
+
 	self isDictionaryTabSelected
-		ifTrue: [self updateServices: dictionaryListPresenter selections]
-		ifFalse: [self updateServices: packageListPresenter selections]
+		ifTrue: [
+			self
+				updateServices: dictionaryListPresenter selections
+				onCompletion: completionBlock ]
+		ifFalse: [
+			self
+				updateServices: packageListPresenter selections
+				onCompletion: completionBlock ]
 ]
 
 { #category : 'updates' }
@@ -3843,14 +3849,22 @@ JadeiteBrowserPresenter >> updatePackage [
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
 	self selectClassListTab.
-	self updateClasses.
-	self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-	self updatePackageInfo.
-	self resetSunitTestList.
-	self todo: [
-		packageListPresenter selectionIfNone: [ self selectProjectTab ].
-		self updateTabLabel ].
-	definedClassPackageText text: String new
+	self updateClassesOnCompletion: [
+		self updatePackageInfo.
+		self resetSunitTestList.
+		self todo: [
+			packageListPresenter selectionIfNone: [ self selectProjectTab ].
+			self updateTabLabel ].
+		definedClassPackageText text: String new ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updatePackageInfo [
+	| service |
+	self updateTabLabel.
+	service := packageListPresenter selectionIfNone: [^self].
+	self resetClassDefinitionPane.
+	self selectClassDefinitionTab
 ]
 
 { #category : 'updates' }
@@ -3927,12 +3941,12 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateProjectPackages [
+JadeiteBrowserPresenter >> updateProjectPackagesOnCompletion: completionBlock [
 
 	projectListPresenter selections isEmpty ifTrue: [ ^ self ].
 	self
 		updateServices: projectListPresenter selections
-		onCompletion: [ self sundryCleanup ]
+		onCompletion: completionBlock
 ]
 
 { #category : 'updates' }

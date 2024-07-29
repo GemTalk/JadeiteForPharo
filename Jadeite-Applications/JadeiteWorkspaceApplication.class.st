@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteWorkspaceApplication',
 	#superclass : 'JadeiteApplication',
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'accessing' }

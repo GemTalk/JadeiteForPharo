@@ -17,7 +17,8 @@ Class {
 		'SigAbortsProcessEnabled',
 		'TransactionMode'
 	],
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'public' }

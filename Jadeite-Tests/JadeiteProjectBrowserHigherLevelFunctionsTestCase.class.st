@@ -434,22 +434,34 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectDisplaysSync [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectListToolTip [
-	self rowanFixMe.	"when issue & title made, insert"
+
+	self rowanFixMe. "when issue & title made, insert"
 	self testsIssue: #issue withTitle: ''.
-	self projectListPresenter list do: 
-			[:projectService |
-			RowanServiceUpdater current updateService: projectService session: session.
-			projectService isDirty ifTrue: [self assert: ('*Dirty in image*' match: projectService toolTip)].
-			projectService isDiskDirty ifTrue: [self assert: ('*Dirty on disk*' match: projectService toolTip)].
-			projectService isSkew ifTrue: [self assert: ('*Skew in sha*' match: projectService toolTip)].
-			projectService displayName = RowanService notRowanizedPackageName
-				ifTrue: [self assert: projectService toolTip equals: 'Does not exist on disk'].
-			projectService existsOnDisk
-				ifTrue: 
-					[projectService isDirty not & projectService isDiskDirty not & projectService isSkew not
-						& (projectService existsOnDisk == false) not
-							ifTrue: [self assert: projectService toolTip = 'Disk/image consistent']]
-				ifFalse: [self assert: ('*Does not exist on disk*' match: projectService toolTip)]]
+	self projectListPresenter list do: [ :projectService |
+		RowanServiceUpdater current
+			updateService: projectService
+			session: session
+			onCompletion: nil.
+		projectService isDirty ifTrue: [
+			self assert: ('*Dirty in image*' match: projectService toolTip) ].
+		projectService isDiskDirty ifTrue: [
+			self assert: ('*Dirty on disk*' match: projectService toolTip) ].
+		projectService isSkew ifTrue: [
+			self assert: ('*Skew in sha*' match: projectService toolTip) ].
+		projectService displayName = RowanService notRowanizedPackageName
+			ifTrue: [
+				self
+					assert: projectService toolTip
+					equals: 'Does not exist on disk' ].
+		projectService existsOnDisk
+			ifTrue: [
+				projectService isDirty not & projectService isDiskDirty not
+				& projectService isSkew not
+				& (projectService existsOnDisk == false) not ifTrue: [
+					self assert: projectService toolTip = 'Disk/image consistent' ] ]
+			ifFalse: [
+				self assert:
+					('*Does not exist on disk*' match: projectService toolTip) ] ]
 ]
 
 { #category : 'as yet unclassified' }

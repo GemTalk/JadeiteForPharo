@@ -8,7 +8,8 @@ Class {
 		'testProcess',
 		'testResults'
 	],
-	#category : 'Jadeite-SUnitBrowser'
+	#category : 'Jadeite-SUnitBrowser',
+	#package : 'Jadeite-SUnitBrowser'
 }
 
 { #category : 'as yet unclassified' }

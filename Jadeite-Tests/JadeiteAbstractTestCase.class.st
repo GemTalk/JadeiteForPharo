@@ -398,15 +398,20 @@ JadeiteAbstractTestCase >> jadeitePrefsFilePath [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> loadRowanSample1InProjectList [
+
 	| sample1Path root selections |
 	sample1Path := self rowanSample1Path.
 	root := self rowanProjectsHome.
 	self transcriptTab basicLoadV2Project: sample1Path projectsHome: root.
 	self transcriptTab refresh.
-	self selectServicesNamed: (Array with: self sampleProject1Name)
+	self
+		selectServicesNamed: (Array with: self sampleProject1Name)
 		in: self transcriptTab projectListPresenter.
 	selections := self transcriptTab projectListPresenter selections.
-	RowanBrowserService new reloadProjects: selections presenter: self transcriptTab.
+	RowanBrowserService new
+		reloadProjects: selections
+		presenter: self transcriptTab
+		onCompletion: nil.
 	self transcriptTab refresh
 ]
 

@@ -677,11 +677,18 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_minimumProjectList [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_noneProjectNotRemovedOnUpdate [
+
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self selectNoneProject.
-	RowanServiceUpdater current updateService: self projectListPresenter selection session: session.
-	self assert: (self projectListPresenter list includes: RowanProjectService noneProject).
-	self assert: self projectListPresenter selection name equals: RowanProjectService noneProject name
+	RowanServiceUpdater current
+		updateService: self projectListPresenter selection
+		session: session
+		onCompletion: nil.
+	self assert: (self projectListPresenter list includes:
+			 RowanProjectService noneProject).
+	self
+		assert: self projectListPresenter selection name
+		equals: RowanProjectService noneProject name
 ]
 
 { #category : 'as yet unclassified' }

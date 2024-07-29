@@ -16,9 +16,10 @@ JadeiteSUnitSupportTestCase >> aggressivelyCleanupRowanProject: projectName [
 	RowanAnsweringService new
 		exec: 'RwAbstractTest cleanup.
 		(Rowan image loadedProjectNamed: ''' , projectName
-				, ''' ifAbsent: [  ])
+			, ''' ifAbsent: [  ])
 			ifNotNil: [ :proj | Rowan image _removeLoadedProject: proj ]'
 		in: session
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

@@ -319,7 +319,8 @@ JadeiteMiscellaneousTestCase >> test_releaseOops [
 	service := RowanProjectService new name: 'Rowan'.
 	RowanServiceUpdater current
 		updateServices: (Array with: service)
-		session: session.
+		session: session
+		onCompletion: nil.
 	self
 		assert: (session executeString: 'System hiddenSetSize: 39')
 		equals: 0.

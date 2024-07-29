@@ -1,7 +1,8 @@
 Class {
 	#name : 'SUnitToolbar',
 	#superclass : 'Toolbar',
-	#category : 'Jadeite-SUnitBrowser'
+	#category : 'Jadeite-SUnitBrowser',
+	#package : 'Jadeite-SUnitBrowser'
 }
 
 { #category : 'as yet unclassified' }

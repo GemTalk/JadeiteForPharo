@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeitePreferencesApplication',
 	#superclass : 'JadeiteApplication',
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'actions' }

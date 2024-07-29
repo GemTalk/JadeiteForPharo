@@ -189,7 +189,8 @@ JadeiteInspector >> browseClass [
 		                className substrings first. "strip off 'class' if meta"
 	RowanServiceUpdater current
 		updateService: classService
-		session: gciSession.
+		session: gciSession
+		onCompletion: nil.
 	shell := self openBrowser.
 	shell currentCard
 		updateAfterFindClass: classService

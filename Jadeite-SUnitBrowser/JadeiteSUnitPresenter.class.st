@@ -11,7 +11,8 @@ Class {
 		'methodColumns',
 		'toolbar'
 	],
-	#category : 'Jadeite-SUnitBrowser'
+	#category : 'Jadeite-SUnitBrowser',
+	#package : 'Jadeite-SUnitBrowser'
 }
 
 { #category : 'as yet unclassified' }
@@ -338,7 +339,7 @@ JadeiteSUnitPresenter >> onClassesChanged [
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> onPackageChanged [
 
-	self updateClasses.
+	self updateClassesOnCompletion: nil.
 	self todo: [
 		status value: nil.
 		status value: self ].
@@ -376,17 +377,21 @@ JadeiteSUnitPresenter >> queryCommand: commandQuery [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> refresh [
+
 	| packageSelections classSelections methodSelections |
 	packageSelections := packageListPresenter selections.
 	classSelections := classListPresenter selections.
 	methodSelections := methodListPresenter selections.
-	self updateProjectPackages.
-	packageListPresenter selections: (packageListPresenter list
-				select: [:packageService | packageSelections includes: packageService]).
-	classListPresenter selections: (classListPresenter list
-				select: [:packageService | classSelections includes: packageService]).
-	methodListPresenter selections: (methodListPresenter list
-				select: [:packageService | methodSelections includes: packageService]).
+	self updateProjectPackagesOnCompletion: nil.
+	packageListPresenter selections:
+		(packageListPresenter list select: [ :packageService |
+			 packageSelections includes: packageService ]).
+	classListPresenter selections:
+		(classListPresenter list select: [ :packageService |
+			 classSelections includes: packageService ]).
+	methodListPresenter selections:
+		(methodListPresenter list select: [ :packageService |
+			 methodSelections includes: packageService ]).
 	self reset
 ]
 
@@ -618,7 +623,7 @@ JadeiteSUnitPresenter >> update: newMethods orRemove: removals [
 ]
 
 { #category : 'updates' }
-JadeiteSUnitPresenter >> updateClasses [
+JadeiteSUnitPresenter >> updateClassesOnCompletion: anObject [
 
 	| packageServices |
 	self initializeClassList.
@@ -674,18 +679,20 @@ JadeiteSUnitPresenter >> updateMethodsFrom: classServices [
 ]
 
 { #category : 'initialization' }
-JadeiteSUnitPresenter >> updatePresenter [ 
-	super updatePresenter. 
+JadeiteSUnitPresenter >> updatePresenter [
+
+	super updatePresenter.
 	testCounter := Array with: 0 with: OrderedCollection new.
-	self updateProjectPackages.
+	self updateProjectPackagesOnCompletion: nil
 ]
 
 { #category : 'updates' }
-JadeiteSUnitPresenter >> updateProjectPackages [
+JadeiteSUnitPresenter >> updateProjectPackagesOnCompletion: anObject [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #packagesWithTests.
-	self issueCommand: browserService onCompletion: nil.
-	testCounter at: 1 put: browserService testCount
+	self
+		issueCommand: browserService
+		onCompletion: [ testCounter at: 1 put: browserService testCount ]
 ]

@@ -152,11 +152,14 @@ RowanServiceUpdater >> basicIssueCommand: service [
 ]
 
 { #category : 'private' }
-RowanServiceUpdater >> basicUpdateServices: services session: session [
+RowanServiceUpdater >> basicUpdateServices: services session: session onCompletion: completionBlock [
 
 	services do: [ :service |
 		service command: #update.
-		self issueCommand: service session: session onCompletion: nil ]
+		self
+			issueCommand: service
+			session: session
+			onCompletion: completionBlock ]
 ]
 
 { #category : 'accessing' }
@@ -277,7 +280,7 @@ RowanServiceUpdater >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
-
+	completionBlock ifNil: [ self halt ].
 	session ifNil: [ ^ nil ].
 	service serviceCompletionBlock: completionBlock. 
 	self basicIssueCommand: service
@@ -625,17 +628,25 @@ RowanServiceUpdater >> update: updater withSelector: selector browser: browser [
 ]
 
 { #category : 'public' }
-RowanServiceUpdater >> updateService: service session: session [
-	^self updateServices: (Array with: service) session: session
+RowanServiceUpdater >> updateService: service session: session onCompletion: completionBlock [
+
+	^ self
+		  updateServices: (Array with: service)
+		  session: session
+		  onCompletion: completionBlock
 ]
 
 { #category : 'public' }
-RowanServiceUpdater >> updateServices: services session: session [
+RowanServiceUpdater >> updateServices: services session: session onCompletion: completionBlock [
+
 	| commandResult |
-	services isEmpty ifTrue: [^self].
-	self inUpdateWhile: 
-			[commandResult := self basicUpdateServices: services session: session.
-			^commandResult]
+	services isEmpty ifTrue: [ ^ self ].
+	self inUpdateWhile: [
+		commandResult := self
+			                 basicUpdateServices: services
+			                 session: session
+			                 onCompletion: completionBlock.
+		^ commandResult ]
 ]
 
 { #category : 'accessing' }

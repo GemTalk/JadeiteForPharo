@@ -1353,21 +1353,25 @@ JadeiteInspectorDataCuratorTestCase >> test_interactionInspect [
 	| answeringService inspectorCount |
 	self testsIssue: #issue303 withTitle: 'Need to handle confirm:'.
 	inspectorCount := JadeiteInspector allInstances size.
-	answeringService := RowanAnsweringService new exec: 'UserGlobals inspect. nil' in: session.
-	self assert: inspectorCount + 1 equals: JadeiteInspector allInstances size.
+	answeringService := RowanAnsweringService new
+		                    exec: 'UserGlobals inspect. nil'
+		                    in: session
+		                    onCompletion: nil.
+	self
+		assert: inspectorCount + 1
+		equals: JadeiteInspector allInstances size.
 	"test that at least one is inspecting UserGlobals.
 	Note - Opening a browser on a Test case will create an instance of JadeiteInspector
 	even if all instances are closed. Therefore it's not straightforward to find our inspector. "
-	JadeiteInspector allInstances copy do: 
-			[:anInspector |
-			('Inspector on SymbolDictionary for*' match: anInspector caption)
-				ifTrue: 
-					[
-					[self assert: ('Inspector on SymbolDictionary for*' match: anInspector caption).
-					self denyIsNil: (anInspector instVarListPresenter list
-								detect: [:item | item key = '#''UserGlobals''']
-								ifNone: [])]
-							ensure: [self closeBrowser: anInspector]]]
+	JadeiteInspector allInstances copy do: [ :anInspector |
+		('Inspector on SymbolDictionary for*' match: anInspector caption)
+			ifTrue: [
+				[
+				self assert:
+					('Inspector on SymbolDictionary for*' match: anInspector caption).
+				self denyIsNil: (anInspector instVarListPresenter list
+						 detect: [ :item | item key = '#''UserGlobals''' ]
+						 ifNone: [  ]) ] ensure: [ self closeBrowser: anInspector ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2197,17 +2201,28 @@ JadeiteInspectorDataCuratorTestCase >> test_unicodeInspectCharacterKNOWNBROKEN [
 
 { #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_unicodeInspectCharacterWithService [
+
 	| openInspectors |
-	self testsIssue: #issue963
-		withTitle: '[3.2.12] Filein/fileout need to behave correctly in the presence of Characters [128..254] and [255+]'.	"not exactly the issue, but need to connect the test to something"
+	self
+		testsIssue: #issue963
+		withTitle:
+		'[3.2.12] Filein/fileout need to behave correctly in the presence of Characters [128..254] and [255+]'. "not exactly the issue, but need to connect the test to something"
 	openInspectors := JadeiteInspector allInstances.
-	RowanAnsweringService new exec: '$Å inspect' in: session.
-	inspector := (JadeiteInspector allInstances difference: openInspectors) first.
-	self assert: inspector instVarListPresenter selection key equals: 'self'.
+	RowanAnsweringService new
+		exec: '$Å inspect'
+		in: session
+		onCompletion: nil.
+	inspector := (JadeiteInspector allInstances difference:
+		              openInspectors) first.
+	self
+		assert: inspector instVarListPresenter selection key
+		equals: 'self'.
 	self assert: inspector documentPresenter value equals: '$Å'.
 	self assert: inspector instVarListPresenter list size equals: 2.
 	inspector instVarListPresenter selectionByIndex: 2.
-	self assert: inspector instVarListPresenter selection key equals: '-.asOop'
+	self
+		assert: inspector instVarListPresenter selection key
+		equals: '-.asOop'
 ]
 
 { #category : 'as yet unclassified' }

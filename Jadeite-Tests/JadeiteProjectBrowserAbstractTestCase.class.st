@@ -99,10 +99,13 @@ JadeiteProjectBrowserAbstractTestCase >> projectNamed: aString [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> reloadProjectNamed: projectName [
+
 	| projectService |
 	projectService := RowanProjectService new name: projectName.
-	RowanBrowserService new reloadProjects: (Array with: projectService)
+	RowanBrowserService new
+		reloadProjects: (Array with: projectService)
 		presenter: self projectsPresenter
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

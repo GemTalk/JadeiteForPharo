@@ -5,7 +5,8 @@ Class {
 		'methodName',
 		'result'
 	],
-	#category : 'Jadeite-SUnitBrowser'
+	#category : 'Jadeite-SUnitBrowser',
+	#package : 'Jadeite-SUnitBrowser'
 }
 
 { #category : 'as yet unclassified' }

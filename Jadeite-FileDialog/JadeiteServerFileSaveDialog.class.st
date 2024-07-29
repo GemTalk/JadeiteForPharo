@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'fileNamePresenter'
 	],
-	#category : 'Jadeite-FileDialog'
+	#category : 'Jadeite-FileDialog',
+	#package : 'Jadeite-FileDialog'
 }
 
 { #category : 'as yet unclassified' }

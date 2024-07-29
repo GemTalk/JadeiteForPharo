@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadePresenterA',
 	#superclass : 'JadePresenter',
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'public' }

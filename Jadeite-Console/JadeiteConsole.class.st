@@ -973,6 +973,6 @@ JadeiteConsole >> transactionMode: aSymbol [
 ]
 
 { #category : 'updates' }
-JadeiteConsole >> updateProjectPackages [
+JadeiteConsole >> updateProjectPackagesOnCompletion: anObject [
 	"no op for project list"
 ]

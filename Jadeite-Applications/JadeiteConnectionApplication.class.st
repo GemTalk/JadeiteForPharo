@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteConnectionApplication',
 	#superclass : 'JadePresenterA',
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'world menu' }

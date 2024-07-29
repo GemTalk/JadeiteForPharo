@@ -440,36 +440,37 @@ JadeiteProjectsBrowserPresenter >> projectListPresenter [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> refreshClassListOrHierarchy [
+
 	| newSelection listSelection hierarchySelection |
-	(textAreaTabs currentCard name = 'classDefinition' and: [self selectedClass isNil])
-		ifTrue: [self resetClassTemplate].
+	(textAreaTabs currentCard name = 'classDefinition' and: [
+		 self selectedClass isNil ]) ifTrue: [ self resetClassTemplate ].
 	self isClassListTabSelected
-		ifTrue: 
-			[listSelection := classListPresenter selectionOrNil.
+		ifTrue: [
+			listSelection := classListPresenter selectionOrNil.
 			hierarchySelection := classHierarchyPresenter selectionOrNil.
-			listSelection = hierarchySelection
-				ifTrue: 
-					[self resetDefinedClassPackage.
-					^self].
-			hierarchySelection isNil ifTrue: [^self updateClasses].
-			self updateClasses.
-			newSelection := classListPresenter list detect: [:service | hierarchySelection name = service name]
-						ifNone: 
-							[self resetDefinedClassPackage.
-							^classListPresenter resetSelection].
-			classListPresenter selection: newSelection]
-		ifFalse: 
-			[| selectedFilters selectedMethods |
+			listSelection = hierarchySelection ifTrue: [
+				self resetDefinedClassPackage.
+				^ self ].
+			hierarchySelection isNil ifTrue: [
+				^ self updateClassesOnCompletion: nil ].
+			self updateClassesOnCompletion: nil.
+			newSelection := classListPresenter list
+				                detect: [ :service |
+				                hierarchySelection name = service name ]
+				                ifNone: [
+					                self resetDefinedClassPackage.
+					                ^ classListPresenter resetSelection ].
+			classListPresenter selection: newSelection ]
+		ifFalse: [
+			| selectedFilters selectedMethods |
 			selectedFilters := self selectedFilters.
 			selectedMethods := methodListPresenter selections.
 			self updateHierarchy.
 			self isCategoryTabSelected
-				ifTrue: [categoryListPresenter selections: selectedFilters]
-				ifFalse: [variableListPresenter selections: selectedFilters].
-			classHierarchyPresenter selections isEmpty
-				ifFalse: 
-					["No selection if in the refreshing after rename. Done later"
-					self selectMethods: selectedMethods]]
+				ifTrue: [ categoryListPresenter selections: selectedFilters ]
+				ifFalse: [ variableListPresenter selections: selectedFilters ].
+			classHierarchyPresenter selections isEmpty ifFalse: [ "No selection if in the refreshing after rename. Done later"
+				self selectMethods: selectedMethods ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -653,6 +654,11 @@ JadeiteProjectsBrowserPresenter >> savePackage [
 JadeiteProjectsBrowserPresenter >> selectCategoryFrom: methodService [
 	^categoryListPresenter selectionOrNil = methodService category
 		ifFalse: [categoryListPresenter selection: methodService category]
+]
+
+{ #category : 'selections' }
+JadeiteProjectsBrowserPresenter >> selectClassDefinitionTab [
+	self selectSourceTabNamed: 'classDefinition'
 ]
 
 { #category : 'selections' }
@@ -899,19 +905,6 @@ JadeiteProjectsBrowserPresenter >> updateMultiMethodComparison [
 		compare: (methodListPresenter selections at: 1) source
 			with: (methodListPresenter selections at: 2) source.
 	comparisonPresenter view invalidate
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> updatePackageInfo [
-	| service |
-	self updateTabLabel.
-	service := packageListPresenter selectionIfNone: [^self].
-	self todo:[classDefinitionPresenter value: service defaultTemplate.
-	self resetClassDefinitionPane.
-	classCommentPresenter view
-		backcolor: JadeiteTextStyles default colorForNoEdits;
-		isModified: false.
-	classDefinitionPresenter ensureVisible]
 ]
 
 { #category : 'as yet unclassified' }

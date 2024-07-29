@@ -7,7 +7,8 @@ Class {
 		'passed',
 		'summary'
 	],
-	#category : 'Jadeite-SUnitBrowser'
+	#category : 'Jadeite-SUnitBrowser',
+	#package : 'Jadeite-SUnitBrowser'
 }
 
 { #category : 'as yet unclassified' }

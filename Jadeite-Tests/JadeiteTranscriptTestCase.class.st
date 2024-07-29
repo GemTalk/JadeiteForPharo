@@ -1105,22 +1105,29 @@ JadeiteTranscriptTestCase >> test_transcriptNamedConsole [
 
 { #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_unicodeCharactersDisplay [
+
 	| service |
-	self testsIssue: #issue963
-		withTitle: '[3.2.12] Filein/fileout need to behave correctly in the presence of Characters [128..254] and [255+]'.	"not exactly the issue, but need to connect the test to something"
-	self extendedCharacters do: 
-			[:char |
-			char isSeparator
-				ifFalse: 
-					[session executeString: 'Transcript cr; show: ''' , char printString , '''; flush'.
-					self assert: self transcriptLastLine equals: '''' , char printString , '''']].
+	self
+		testsIssue: #issue963
+		withTitle:
+		'[3.2.12] Filein/fileout need to behave correctly in the presence of Characters [128..254] and [255+]'. "not exactly the issue, but need to connect the test to something"
+	self extendedCharacters do: [ :char |
+		char isSeparator ifFalse: [
+			session executeString:
+				'Transcript cr; show: ''' , char printString , '''; flush'.
+			self
+				assert: self transcriptLastLine
+				equals: '''' , char printString , '''' ] ].
 	service := RowanAnsweringService new.
-	self extendedCharacters do: 
-			[:char |
-			char isSeparator
-				ifFalse: 
-					[service exec: 'Transcript cr; show: ''' , char printString , '''; flush' in: session.
-					self assert: self transcriptLastLine equals: '''' , char printString , '''']]
+	self extendedCharacters do: [ :char |
+		char isSeparator ifFalse: [
+			service
+				exec: 'Transcript cr; show: ''' , char printString , '''; flush'
+				in: session
+				onCompletion: nil.
+			self
+				assert: self transcriptLastLine
+				equals: '''' , char printString , '''' ] ]
 ]
 
 { #category : 'as yet unclassified' }

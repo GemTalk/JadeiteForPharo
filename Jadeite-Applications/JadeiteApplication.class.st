@@ -20,7 +20,8 @@ Class {
 	#classVars : [
 		'InTransaction'
 	],
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'actions' }
@@ -101,8 +102,12 @@ JadeiteApplication class >> openOn: aSymbol [
 
 { #category : 'added manually from Dolphin' }
 JadeiteApplication class >> setInTransaction: answeringService session: session [
-	answeringService exec: 'System inTransaction' in: session.
-	self inTransaction: answeringService answer = 'true'
+
+	answeringService
+		exec: 'System inTransaction'
+		in: session
+		onCompletion: [
+		self inTransaction: answeringService answer = 'true' ]
 ]
 
 { #category : 'instance creation' }

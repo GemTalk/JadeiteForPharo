@@ -16,7 +16,8 @@ Class {
 		'PreviousFilePath',
 		'PreviousProjectHomePath'
 	],
-	#category : 'Jadeite-FileDialog'
+	#category : 'Jadeite-FileDialog',
+	#package : 'Jadeite-FileDialog'
 }
 
 { #category : 'as yet unclassified' }
@@ -255,19 +256,29 @@ JadeiteLoadProjectDialog >> showDirectoryContents [
 
 { #category : 'as yet unclassified' }
 JadeiteLoadProjectDialog >> updateProperties [
+
 	| loadSpecService |
-	fileSelectorPresenter directoryContentsList selectionOrNil ifNil: [^self].
-	loadSpecService := RowanLoadSpecService new loadSpecPath: fileSelectorPresenter pathText value , '/'
-						, fileSelectorPresenter directoryContentsList selection key.
-	[RowanServiceUpdater current updateService: loadSpecService session: session] on: Error
-		do: 
-			[:ex |
+	fileSelectorPresenter directoryContentsList selectionOrNil ifNil: [
+		^ self ].
+	loadSpecService := RowanLoadSpecService new loadSpecPath:
+		                   fileSelectorPresenter pathText value , '/'
+		                   ,
+		                   fileSelectorPresenter directoryContentsList
+			                   selection key.
+	[
+	RowanServiceUpdater current
+		updateService: loadSpecService
+		session: session
+		onCompletion: nil ]
+		on: Error
+		do: [ :ex |
 			customAttributesList list: OrderedCollection new.
 			componentList list: OrderedCollection new.
-			^self	"not a valid load spec"].
+			^ self "not a valid load spec" ].
 	customAttributesList list: loadSpecService conditionalAttributes.
 	customAttributesList view selectAll.
-	componentList list: loadSpecService componentNames asOrderedCollection.
+	componentList list:
+		loadSpecService componentNames asOrderedCollection.
 	componentList view selectAll
 ]
 

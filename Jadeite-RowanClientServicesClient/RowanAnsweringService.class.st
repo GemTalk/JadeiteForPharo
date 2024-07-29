@@ -71,14 +71,14 @@ RowanAnsweringService >> canAccessServiceClasses: session [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> exec: string in: session [
+RowanAnsweringService >> exec: string in: session onCompletion: completionBlock [
 
 	command := #exec:.
 	commandArgs := Array with: string.
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'commands' }

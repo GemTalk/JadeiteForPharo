@@ -1114,9 +1114,15 @@ JadeiteDebuggerTestCase >> test_copyFrameString [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_copyNotifierStack [
+
 	| notifierShell copiedStack |
-	[RowanAnsweringService new exec: '1 zork' in: session] on: Error
-		do: [:ex | notifierShell := JadeErrorShell new gsError: ex].
+	[
+	RowanAnsweringService new
+		exec: '1 zork'
+		in: session
+		onCompletion: nil ]
+		on: Error
+		do: [ :ex | notifierShell := JadeErrorShell new gsError: ex ].
 	copiedStack := notifierShell doCopy.
 	self assert: ('a MessageNotUnderstood*' match: copiedStack).
 	self assert: Clipboard current getText equals: copiedStack
@@ -1925,31 +1931,36 @@ JadeiteDebuggerTestCase >> test_processAdHocDebugReleasedOnResume [
 	"When debugging, make sure the GsProcess is held to avoid garbage collection by the server"
 
 	| workspace processOop count |
-	self testsIssue: #issue884
-		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	self
+		testsIssue: #issue884
+		withTitle:
+		'Breakpoint within a block is only honored for a few iterations'.
 	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self assert: (workspace isKindOf: JadeiteWorkspace).
+
+	[
+	self assert: (workspace isKindOf: JadeiteWorkspace).
 	workspace setDocumentData: '| sum | sum := 1 + 2. sum'.
-	self debuggerDo: 
-			[process := 
-					[workspace codePane documentPresenter setFocus.
-					workspace codePane jadeDebug]
-							forkAt: Processor activePriority + 1].
+	self debuggerDo: [
+		process := [
+		           workspace codePane documentPresenter setFocus.
+		           workspace codePane jadeDebug ] forkAt:
+			           Processor activePriority + 1 ].
 	self getDebugger.
 	processOop := debugger gsProcess oop.
 	self assert: (self processHeldOnServer: processOop).
 	debugger resumeProcess.
 	count := 0.
-	[debugger isDeafObject] whileFalse: 
-			[count := count + 1.
-			(Delay forMilliseconds: 1) wait].
+	[ debugger isDeafObject ] whileFalse: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ].
 	self assert: debugger isDeafObject.
-	RowanAnsweringService new exec: '''do something to update server cache''' in: session.
-	self deny: (self processHeldOnServer: processOop)]
-			ensure: 
-				[workspace isModified: false.
-				workspace view close]
+	RowanAnsweringService new
+		exec: '''do something to update server cache'''
+		in: session
+		onCompletion: nil.
+	self deny: (self processHeldOnServer: processOop) ] ensure: [
+		workspace isModified: false.
+		workspace view close ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1992,33 +2003,38 @@ JadeiteDebuggerTestCase >> test_processHaltedReleasedOnResume [
 	"When debugging, make sure the GsProcess is held to avoid garbage collection by the server"
 
 	| workspace processOop count |
-	self testsIssue: #issue884
-		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	self
+		testsIssue: #issue884
+		withTitle:
+		'Breakpoint within a block is only honored for a few iterations'.
 	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self assert: (workspace isKindOf: JadeiteWorkspace).
+
+	[
+	self assert: (workspace isKindOf: JadeiteWorkspace).
 	workspace setDocumentData: '| sum | self halt.  sum := 1 + 2. sum'.
-	self debuggerDo: 
-			[process := 
-					[workspace codePane documentPresenter setFocus.
-					workspace codePane jadeExecute]
-							forkAt: Processor activePriority + 1].
+	self debuggerDo: [
+		process := [
+		           workspace codePane documentPresenter setFocus.
+		           workspace codePane jadeExecute ] forkAt:
+			           Processor activePriority + 1 ].
 	self getDebugger.
 	processOop := debugger gsProcess oop.
 	self assert: (self processHeldOnServer: processOop).
 	debugger stepOver.
-	debugger stepOver. 
+	debugger stepOver.
 	debugger resumeProcess.
 	count := 0.
-	[debugger isDeafObject] whileFalse: 
-			[count := count + 1.
-			(Delay forMilliseconds: 1) wait].
+	[ debugger isDeafObject ] whileFalse: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ].
 	self assert: debugger isDeafObject.
-	RowanAnsweringService new exec: '''do something to update server cache''' in: session.
-	self deny: (self processHeldOnServer: processOop)]
-			ensure: 
-				[workspace isModified: false.
-				workspace view close]
+	RowanAnsweringService new
+		exec: '''do something to update server cache'''
+		in: session
+		onCompletion: nil.
+	self deny: (self processHeldOnServer: processOop) ] ensure: [
+		workspace isModified: false.
+		workspace view close ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2195,25 +2211,29 @@ JadeiteDebuggerTestCase >> test_registeredPresentersInProjectBrowserCleanedUp [
 JadeiteDebuggerTestCase >> test_reloadWithDebuggerOpen [
 	"reload a project with a debugger open. That was enough to trigger the error"
 
-	self testsIssue: #issue359
-		withTitle: '(3.0.52 & 3.0.62) `a UserDefinedError occurred (error 2318), reason:halt, Use on*Process: constructors` Error'.
-	self openProjectBrowser. 
-	
-	[self selectRowanSample1Class.
+	self
+		testsIssue: #issue359
+		withTitle:
+		'(3.0.52 & 3.0.62) `a UserDefinedError occurred (error 2318), reason:halt, Use on*Process: constructors` Error'.
+	self openProjectBrowser.
+
+	[
+	self selectRowanSample1Class.
 	self saveIssue169Method.
 	self denyIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #issue169]
-				ifNone: []).
+			 detect: [ :methodService | methodService selector = #issue169 ]
+			 ifNone: [  ]).
 	self assert: self projectListPresenter selection isDirty.
 	self openDebuggerOn: 'RowanSample1 new issue169'.
-	RowanBrowserService new reloadProjects: self projectListPresenter selections
-		presenter: self projectsPresenter.
+	RowanBrowserService new
+		reloadProjects: self projectListPresenter selections
+		presenter: self projectsPresenter
+		onCompletion: nil.
 	self deny: self projectListPresenter selection isDirty.
 	self selectRowanSample1Class.
 	self assertIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #issue169]
-				ifNone: [])]
-			ensure: [self destroy: projectsBrowser]
+			 detect: [ :methodService | methodService selector = #issue169 ]
+			 ifNone: [  ]) ] ensure: [ self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2342,9 +2362,12 @@ JadeiteDebuggerTestCase >> test_resumeRepeated [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_resumeRepeatedHoldsProcess [
+
 	| inspector processOop |
-	self testsIssue: #issue884
-		withTitle: 'Breakpoint within a block is only honored for a few iterations'.
+	self
+		testsIssue: #issue884
+		withTitle:
+		'Breakpoint within a block is only honored for a few iterations'.
 	self
 		saveMethod: 'blockIteration
 "ThreeTest new blockIteration"
@@ -2361,31 +2384,39 @@ JadeiteDebuggerTestCase >> test_resumeRepeatedHoldsProcess [
 	self openProjectBrowser.
 	self selectRowanSample1Class.
 	self selectMethodNamed: #blockIteration.
-	self setBreakAt: 10.	"#size"
-	self openDebuggerOn: '| report | report := RowanSample1 new blockIteration'.
+	self setBreakAt: 10. "#size"
+	self openDebuggerOn:
+		'| report | report := RowanSample1 new blockIteration'.
 	(Delay forMilliseconds: 250) wait.
 	processOop := debugger gsProcess oop.
 	self assert: (self processHeldOnServer: processOop).
-	8 timesRepeat: 
-			[debugger
-				ifNotNil: 
-					[self debuggerDo: [process := [debugger resumeProcess] forkAt: Processor activePriority + 1].
-					(Delay forMilliseconds: 250) wait.
-					self getDebugger.
-					self assert: (self processHeldOnServer: processOop)]].
-	self debuggerDo: [process := [debugger resumeProcess] forkAt: Processor activePriority + 1]. "final resume, no more debuggers" 
+	8 timesRepeat: [
+		debugger ifNotNil: [
+			self debuggerDo: [
+				process := [ debugger resumeProcess ] forkAt:
+					           Processor activePriority + 1 ].
+			(Delay forMilliseconds: 250) wait.
+			self getDebugger.
+			self assert: (self processHeldOnServer: processOop) ] ].
+	self debuggerDo: [
+		process := [ debugger resumeProcess ] forkAt:
+			           Processor activePriority + 1 ]. "final resume, no more debuggers"
 	(Delay forMilliseconds: 250) wait.
-	RowanAnsweringService new exec: '3+4' in: session. 
+	RowanAnsweringService new exec: '3+4' in: session onCompletion: nil.
 	self deny: (self processHeldOnServer: processOop).
-	inspector := JadeiteInspector showOn: executionResult session: session.
-	
-	[self assert: (inspector isKindOf: JadeiteInspector).
+	inspector := JadeiteInspector
+		             showOn: executionResult
+		             session: session.
+
+	[
+	self assert: (inspector isKindOf: JadeiteInspector).
 	inspector instVarListPresenter selectionByIndex: 3.
-	self assert: inspector documentPresenter value equals: '#''asString''']
-			ensure: 
-				[self destroy: inspector.
-				debugger := nil.
-				self clearBreakAt: 10	"#size"]
+	self
+		assert: inspector documentPresenter value
+		equals: '#''asString''' ] ensure: [
+		self destroy: inspector.
+		debugger := nil.
+		self clearBreakAt: 10 "#size" ]
 ]
 
 { #category : 'as yet unclassified' }

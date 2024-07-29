@@ -65,7 +65,8 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 	| service |
 	service := RowanAnsweringService new
 		           exec: 'UserGlobals at: #jadeite_test_abort put: true'
-		           in: GciSession current.
+		           in: GciSession current
+		           onCompletion: nil.
 	service := RowanAnsweringService new
 		           command: #execReturningObject:;
 		           commandArgs:
@@ -138,10 +139,10 @@ JadeiteForPharoHeadlessTestCase >> test_copyToClipboard [
 
 { #category : 'tests' }
 JadeiteForPharoHeadlessTestCase >> test_execution [
-	
+
 	| service |
 	service := RowanAnsweringService new.
-	service exec: '3+4' in: GciSession current.
+	service exec: '3+4' in: GciSession current onCompletion: nil.
 	self assert: service answer equals: '7'
 ]
 

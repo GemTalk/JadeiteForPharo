@@ -172,14 +172,16 @@ RowanBrowserService >> projectsUpdate: presenter [
 
 { #category : 'updates' }
 RowanBrowserService >> projectsUpdate: presenter browser: browser [
+
 	| removals |
-	projects isNil ifTrue:[^self].
-	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
-	removals := presenter list select: 
-					[:projectService |
-					(projects includes: projectService) not].
+	projects isNil ifTrue: [ ^ self ].
+	presenter list isEmpty ifTrue: [
+		self initializePresenterList: presenter ].
+	removals := presenter list select: [ :projectService |
+		            (projects includes: projectService) not ].
 	presenter model removeAll: removals.
-	presenter selections isEmpty ifTrue: [browser updateProjectPackages].
+	presenter selections isEmpty ifTrue: [
+		browser updateProjectPackagesOnCompletion: nil ].
 	self
 		updateList: presenter
 		whilePreservingSelections: (self sortedProjectsFrom: projects)
@@ -212,7 +214,7 @@ RowanBrowserService >> releaseWindow: handle session: session [
 ]
 
 { #category : 'commands' }
-RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presenter [
+RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presenter onCompletion: completionBlock [
 
 	| selectedServices |
 	selectedServices := RowanServiceUpdater current selectedServices
@@ -225,7 +227,7 @@ RowanBrowserService >> reloadProjects: selectedProjectServices presenter: presen
 	RowanServiceUpdater current
 		issueCommand: self
 		session: presenter gciSession
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'accessing' }

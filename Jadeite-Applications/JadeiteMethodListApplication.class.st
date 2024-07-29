@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteMethodListApplication',
 	#superclass : 'JadePresenterA',
-	#category : 'Jadeite-Applications'
+	#category : 'Jadeite-Applications',
+	#package : 'Jadeite-Applications'
 }
 
 { #category : 'accessing' }

@@ -46,13 +46,14 @@ JadeiteProjectsTrait >> basicAllSelectedProjectsDirty: aProjectListPresenter [
 
 { #category : 'menus' }
 JadeiteProjectsTrait >> basicCheckoutBranch: branchName for: projectService [
+
 	projectService
 		command: #checkout:;
 		commandArgs: (Array with: (branchName copyWithout: $*)).
 	RowanServiceUpdater current
 		issueCommand: projectService
-		session: self gciSession.
-	projectService branch: (branchName copyWithout: $*).
+		session: self gciSession
+		onCompletion: [ projectService branch: (branchName copyWithout: $*) ]
 ]
 
 { #category : 'menus' }
@@ -83,10 +84,14 @@ JadeiteProjectsTrait >> basicReloadProject [
 { #category : 'actions' }
 JadeiteProjectsTrait >> basicReloadProject: selections [
 
-	RowanBrowserService new reloadProjects: selections presenter: self.
-	RowanServiceUpdater current selectedServices do: [ :service |
-		service postReload ].
-	self projectListPresenter update
+	RowanBrowserService new
+		reloadProjects: selections
+		presenter: self
+		onCompletion: [
+			RowanServiceUpdater current selectedServices do: [ :service |
+				service postReload ].
+			self projectListPresenter update.
+			MessageBox notify: 'Projects reloaded' ]
 ]
 
 { #category : 'actions' }
@@ -217,7 +222,6 @@ JadeiteProjectsTrait >> gitCheckoutBranch [
 	| selectedProjectService |
 	selectedProjectService := self projectListPresenter selectedItem.
 	self gitCheckoutBranch: selectedProjectService.
-	self refreshFromServer 
 ]
 
 { #category : 'menus' }
@@ -234,8 +238,7 @@ JadeiteProjectsTrait >> gitCheckoutTag [
 
 	| selectedProjectService |
 	selectedProjectService := self projectListPresenter selectedItem.
-	self gitCheckoutTag: selectedProjectService.
-	self refreshFromServer 
+	self gitCheckoutTag: selectedProjectService
 ]
 
 { #category : 'menus' }
@@ -282,13 +285,10 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	RowanBrowserService new
-		reloadProjects: self projectListPresenter selections
-		presenter: self.
-	self basicReloadProject.
-	MessageBox notify:
-		'Project ' , projectName , ' committed to local repository!'
+		onCompletion: [
+			MessageBox notify:
+				'Project ' , projectName , ' committed to local repository!'.
+			self basicReloadProject: self projectListPresenter selections ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -301,33 +301,31 @@ JadeiteProjectsTrait >> gitProjectLog [
 	RowanServiceUpdater current
 		issueCommand: queryService
 		session: self gciSession
-		onCompletion: nil. 
-	self openGitLogInWorkspaceUsing: queryService
+		onCompletion: [self openGitLogInWorkspaceUsing: queryService]
 ]
 
 { #category : 'actions' }
 JadeiteProjectsTrait >> gitWriteProject [
 
-	| projectService ws repositoryRoots |
+	| projectService ws |
 	projectService := self projectListPresenter selectionIfNone: [
 		                  ^ MessageBox notify: 'No project selected' ].
 	ws := WriteStream on: String new.
-	repositoryRoots := RowanAnsweringService new
-		                   projectRepositoryRoots:
-		                   (Array with: projectService)
-		                   session: self gciSession
-		                   onCompletion: nil.
-	ws
-		nextPutAll: projectService name;
-		space;
-		nextPut: $(;
-		nextPutAll: (repositoryRoots at: projectService name);
-		nextPut: $);
-		space.
-	(MessageBox confirm:
-		 'Write projects - ' , ws contents , 'to disk without committing?')
-		ifFalse: [ ^ false ].
-	^ self gitBasicWriteProject: (Array with: projectService)
+	RowanAnsweringService new
+		projectRepositoryRoots: (Array with: projectService)
+		session: self gciSession
+		onCompletion: [ :answeringService |
+			ws
+				nextPutAll: projectService name;
+				space;
+				nextPut: $(;
+				nextPutAll: (answeringService answer at: projectService name);
+				nextPut: $);
+				space.
+			(MessageBox confirm:
+				 'Write projects - ' , ws contents , 'to disk without committing?')
+				ifFalse: [ ^ false ].
+			self gitBasicWriteProject: (Array with: projectService) ]
 ]
 
 { #category : 'menus' }
@@ -561,14 +559,15 @@ JadeiteProjectsTrait >> pushToGit [
 		nextPutAll: projectService name;
 		space.
 	(MessageBox confirm: 'Push projects - ' , ws contents
-		 , '- from the local repository to the remote server?') ifTrue: [
-		projectService command: #pushToGit.
-		RowanServiceUpdater current
-			issueCommand: projectService
-			session: self gciSession ].
-
-	MessageBox notify:
-		'Project ' , projectService name , ' pushed to remote repository!'
+		 , '- from the local repository to the remote server?') ifFalse: [
+		^ self ].
+	projectService command: #pushToGit.
+	RowanServiceUpdater current
+		issueCommand: projectService
+		session: self gciSession
+		onCompletion: [
+			MessageBox notify:
+				'Project ' , projectService name , ' pushed to remote repository!' ]
 ]
 
 { #category : 'actions' }
