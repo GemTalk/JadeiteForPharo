@@ -11,7 +11,8 @@ Class {
 	#classVars : [
 		'#ConnectionProfile'
 	],
-	#category : 'Jadeite-Connection'
+	#category : 'Jadeite-Connection',
+	#package : 'Jadeite-Connection'
 }
 
 { #category : 'accessing' }

@@ -378,9 +378,8 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: GciSession current
-		onCompletion: nil.
-	answeringService ifNotNil: [
-		self displayResult: showResult orShowCompileError: answeringService ]
+		onCompletion: [answeringService ifNotNil: [
+	self displayResult: showResult orShowCompileError: answeringService ]]
 ]
 
 { #category : 'as yet unclassified' }
@@ -751,9 +750,11 @@ JadeiteTextDocument >> showSelection [
 JadeiteTextDocument >> text [
 	"Answer current text. Currently there's a hidden bug that disconnected 
 	the spec widget from the underlying morphic widget. Once found, the 
-	`withWidgetDo:` code can be removed."
+	this method can be removed."
 
-	self adapter ifNotNil: [ :a | text := adapter widget  text asString  ].
+	self adapter ifNotNil: [ :a |
+		adapter widget text asString = text ifFalse: [
+			text := adapter widget text asString ] ].
 	^ text
 ]
 

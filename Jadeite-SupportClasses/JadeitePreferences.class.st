@@ -186,6 +186,7 @@ JadeitePreferences >> autocommitEnabled [
 JadeitePreferences >> autocommitEnabled: booleanString [
 
 	| autoCommitService |
+	booleanString ifNil: [ ^ self ].
 	autocommitEnabled := booleanString isString
 		                     ifTrue: [ booleanString = 'true' ]
 		                     ifFalse: [ booleanString ].

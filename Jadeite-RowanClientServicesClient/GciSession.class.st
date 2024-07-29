@@ -44,7 +44,7 @@ GciSession >> autoCommit [
 
 	autoCommit
 		ifNil: [ autoCommit := JadeiteValueHolder with: false ]
-		ifNotNil: [ autoCommit value ifNil: [ autoCommit value: false ] ].
+		ifNotNil: [ autoCommit value ].
 	^ autoCommit
 ]
 

@@ -173,14 +173,14 @@ JadeiteMethodsTrait >> browseBreakpoints [
 		           withArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: service
-		session: GciSession current.
-	browser := JadeiteMethodListBrowser
-		           openOn: service
-		           selectingAnyMatch: String new
-		           session: GciSession current.
-	browser updateCaptionFromSearchString:
-		'Methods Containing BreakPoints'.
-	^ browser
+		session: GciSession current
+		onCompletion: [
+			browser := JadeiteMethodListBrowser
+				           openOn: service
+				           selectingAnyMatch: String new
+				           session: GciSession current.
+			browser updateCaptionFromSearchString:
+				'Methods Containing BreakPoints' ]
 ]
 
 { #category : 'actions' }

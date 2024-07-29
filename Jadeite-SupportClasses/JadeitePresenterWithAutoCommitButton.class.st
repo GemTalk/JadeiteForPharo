@@ -48,7 +48,7 @@ JadeitePresenterWithAutoCommitButton >> updateAutoCommitButton [
 
 	self gciSession autoCommit value == #failed ifTrue: [
 		autoCommitButton label: 'Auto Commit - failed'.
-		^ autoCommitButton color: Color red ].
+		autoCommitButton color: Color red ].
 	self gciSession autoCommit value
 		ifTrue: [
 			autoCommitButton color: Color green.

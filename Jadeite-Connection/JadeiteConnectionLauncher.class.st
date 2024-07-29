@@ -20,7 +20,8 @@ Class {
 	#classVars : [
 		'ConnectionProfile'
 	],
-	#category : 'Jadeite-Connection'
+	#category : 'Jadeite-Connection',
+	#package : 'Jadeite-Connection'
 }
 
 { #category : 'actions' }
@@ -170,9 +171,10 @@ JadeiteConnectionLauncher >> displayClientandServerCommitIds: workspace [
 		nextPutAll: self clientCommitIdDescription;
 		cr;
 		nextPutAll: '---------------------------------------------';
-		cr;
-		nextPutAll: self serverCommitIdDescription.
-	^ workspace text: ws contents
+		cr.
+	self
+		serverCommitIdDescription: ws
+		onCompletion: [ workspace text: ws contents ]
 ]
 
 { #category : 'actions' }

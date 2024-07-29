@@ -35,8 +35,7 @@ RowanAnsweringService >> autoCommitIn: session onCompletion: completionBlock [
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: completionBlock.
-	^ answer
+		onCompletion: completionBlock
 ]
 
 { #category : 'commands' }

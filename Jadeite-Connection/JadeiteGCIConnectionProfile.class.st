@@ -14,7 +14,8 @@ Class {
 	#classVars : [
 		'DefaultPath'
 	],
-	#category : 'Jadeite-Connection'
+	#category : 'Jadeite-Connection',
+	#package : 'Jadeite-Connection'
 }
 
 { #category : 'accessing' }

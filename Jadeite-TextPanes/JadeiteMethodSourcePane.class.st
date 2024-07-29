@@ -30,8 +30,7 @@ JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 	service := RowanAnsweringService
 		           command: #clearMethodBreaks:
 		           withArgs: (Array with: (Array with: self methodService)).
-	self issueCommand: service onCompletion: nil.
-	self outerJadeiteBrowser updateMethodSource
+	self issueCommand: service onCompletion: [self outerJadeiteBrowser updateMethodSource]
 ]
 
 { #category : 'breakpoints' }
@@ -251,20 +250,22 @@ JadeiteMethodSourcePane >> selectedStepPoint [
 ]
 
 { #category : 'breakpoints' }
-JadeiteMethodSourcePane >> setBreakPointAt: stepPoint [
-	
+JadeiteMethodSourcePane >> setBreakPointAt: stepPoint onCompletion: completionBlock [
+
 	self methodService
 		command: #setBreakAt:;
 		commandArgs: (Array with: stepPoint).
-	RowanServiceUpdater current issueCommand: self methodService session: self gciSession.
+	RowanServiceUpdater current
+		issueCommand: self methodService
+		session: self gciSession
+		onCompletion: completionBlock
 ]
 
 { #category : 'commands' }
 JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 
 	stepPoint isNil ifTrue: [ ^ self ].
-	self setBreakPointAt: stepPoint.
-	self outerJadeiteBrowser updateMethodSource
+	self setBreakPointAt: stepPoint onCompletion: [self outerJadeiteBrowser updateMethodSource]
 ]
 
 { #category : 'as yet unclassified' }

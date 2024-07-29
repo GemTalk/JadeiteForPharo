@@ -85,9 +85,10 @@ JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace [
 		nextPutAll: self clientCommitIdDescription;
 		cr;
 		nextPutAll: '---------------------------------------------';
-		cr;
-		nextPutAll: self serverCommitIdDescription.
-	^ workspace text: ws contents
+		cr.
+	self
+		serverCommitIdDescription: ws
+		onCompletion: [ workspace text: ws contents ]
 ]
 
 { #category : 'initialization' }
@@ -188,16 +189,7 @@ JadeiteToolbarTrait >> openWorkspace [
 ]
 
 { #category : 'actions' }
-JadeiteToolbarTrait >> serverCommitIdDescription [
-
-	| ws | 
-	ws := WriteStream on: String new. 
-	self serverCommitIdDescriptionOn: ws. 
-	^ws contents
-]
-
-{ #category : 'actions' }
-JadeiteToolbarTrait >> serverCommitIdDescriptionOn: ws [
+JadeiteToolbarTrait >> serverCommitIdDescription: ws onCompletion: completionBlock [
 
 	| browserService |
 	browserService := RowanBrowserService new.
@@ -205,16 +197,17 @@ JadeiteToolbarTrait >> serverCommitIdDescriptionOn: ws [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: (GciSession new library: self connection)
-		onCompletion: nil.
-	self jadeiteServerGitRepositories do: [ :projectName |
-		| project |
-		project := browserService projects detect: [ :projectService |
-			           projectService name = projectName ].
-		ws
-			nextPutAll: projectName;
-			space;
-			nextPutAll: project sha;
-			cr ]
+		onCompletion: [
+			self jadeiteServerGitRepositories do: [ :projectName |
+				| project |
+				project := browserService projects detect: [ :projectService |
+					           projectService name = projectName ].
+				ws
+					nextPutAll: projectName;
+					space;
+					nextPutAll: project sha;
+					cr ].
+			completionBlock value ]
 ]
 
 { #category : 'initialization' }
