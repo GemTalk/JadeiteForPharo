@@ -34,20 +34,21 @@ JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 ]
 
 { #category : 'breakpoints' }
-JadeiteMethodSourcePane >> clearBreakPointAt: stepPoint [
+JadeiteMethodSourcePane >> clearBreakPointAt: stepPoint onCompletion: completionBlock [
 
 	self methodService
 		command: #clearBreakAt:;
 		commandArgs: (Array with: stepPoint).
-	self issueCommand: self methodService onCompletion: nil
+	self issueCommand: self methodService onCompletion: completionBlock
 ]
 
 { #category : 'commands' }
 JadeiteMethodSourcePane >> clearBreakpoint: stepPoint [
 
 	stepPoint isNil ifTrue: [ ^ self ].
-	self clearBreakPointAt: stepPoint.
-	self outerJadeiteBrowser updateMethodSource
+	self
+		clearBreakPointAt: stepPoint
+		onCompletion: [ self outerJadeiteBrowser updateMethodSource ]
 ]
 
 { #category : 'actions - saving methods' }

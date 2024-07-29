@@ -349,35 +349,38 @@ JadeiteInspector >> evaluateSelectedTextIn: textPresenter thenInspectInContext: 
 
 { #category : 'evaluating' }
 JadeiteInspector >> evaluateText: string thenInspectInContext: context [
+
 	| service |
 	self createView: self class defaultView.
 	service := RowanInspectorService new
-				executeThenInspect: string
-				context: context
-				session: gciSession
-				windowHandle: self view handle value.
-	^service
+		           executeThenInspect: string
+		           context: context
+		           session: gciSession
+		           windowHandle: self view handle value
+		           onCompletion: nil.
+	^ service
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> executeThenInspect: aString inContext: context [
 
-	| service window |
+	| window |
 	window := self asWindow.
-
-	service := RowanInspectorService new
-		           executeThenInspect: aString
-		           context: context
-		           session: gciSession
-		           windowHandle: window identityHash.
-	service compileErrorArray ifNotNil: [
-		SyntaxErrorNotification
-			inClass: Object
-			withCode: aString
-			doitFlag: false
-			errorMessage: (service compileErrorArray first at: 3)
-			location: (service compileErrorArray first at: 2) ].
-	service oop ifNotNil: [ self show: window on: service ]
+self halt. 
+	RowanInspectorService new
+		executeThenInspect: aString
+		context: context
+		session: gciSession
+		windowHandle: window identityHash
+		onCompletion: [ :service | Transcript cr; show: 'JadeiteInspector>>#executeThenInspect:inContext: block'; flush. 
+			service compileErrorArray ifNotNil: [
+				SyntaxErrorNotification
+					inClass: Object
+					withCode: aString
+					doitFlag: false
+					errorMessage: (service compileErrorArray first at: 3)
+					location: (service compileErrorArray first at: 2) ].
+			service oop ifNotNil: [ self show: window on: service ] ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -65,18 +65,6 @@ RowanInspectorService >> defaultIndexedSize [
 ]
 
 { #category : 'inspecting' }
-RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle [
-
-	self
-		command: #executeThenInspect:context:inWindow:;
-		commandArgs: (Array with: string with: anOop with: handle).
-	RowanServiceUpdater current
-		issueCommand: self
-		session: session
-		onCompletion: nil
-]
-
-{ #category : 'inspecting' }
 RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle debugger: debugger [
 
 	self
@@ -91,6 +79,18 @@ RowanInspectorService >> executeThenInspect: string context: anOop session: sess
 		issueCommand: self
 		session: session
 		onCompletion: nil
+]
+
+{ #category : 'inspecting' }
+RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle onCompletion: completionBlock [
+
+	self
+		command: #executeThenInspect:context:inWindow:;
+		commandArgs: (Array with: string with: anOop with: handle).
+	RowanServiceUpdater current
+		issueCommand: self
+		session: session
+		onCompletion: completionBlock
 ]
 
 { #category : 'comparison' }

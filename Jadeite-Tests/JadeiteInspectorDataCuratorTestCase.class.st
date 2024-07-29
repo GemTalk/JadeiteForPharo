@@ -810,25 +810,28 @@ JadeiteInspectorDataCuratorTestCase >> test_dive [
 
 { #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_diveIntoDoubleByteString [
+
 	| service |
 	inspector := JadeiteInspector new gciSession: session.
 	inspector createView: inspector class defaultView.
 	service := RowanInspectorService new
-				executeThenInspect: 'Array with: (''aa'', (String with: (Character withValue: 353)), ''b'')'
-				context: session oopNil value
-				session: session
-				windowHandle: inspector view handle value.
+		           executeThenInspect:
+		           'Array with: (''aa'', (String with: (Character withValue: 353)), ''b'')'
+		           context: session oopNil value
+		           session: session
+		           windowHandle: inspector view handle value
+		           onCompletion: nil.
 	inspector showOn: service.
-	self selectInstVarAtIndex: #(3).
+	self selectInstVarAtIndex: #( 3 ).
 	inspector inspectInstVar.
 	self assert: inspector documentPresenter value equals: '''aaÅ¡b'''.
-	self selectInstVarAtIndex: #(3).
+	self selectInstVarAtIndex: #( 3 ).
 	self assert: inspector documentPresenter value equals: '$a'.
-	self selectInstVarAtIndex: #(4).
+	self selectInstVarAtIndex: #( 4 ).
 	self assert: inspector documentPresenter value equals: '$a'.
-	self selectInstVarAtIndex: #(5).
+	self selectInstVarAtIndex: #( 5 ).
 	self assert: inspector documentPresenter value equals: '$Å¡'.
-	self selectInstVarAtIndex: #(6).
+	self selectInstVarAtIndex: #( 6 ).
 	self assert: inspector documentPresenter value equals: '$b'
 ]
 
@@ -1066,23 +1069,26 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectBytes [
 
 { #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_inspectDoubleByteString [
+
 	| service |
 	inspector := JadeiteInspector new gciSession: session.
 	inspector createView: inspector class defaultView.
 	service := RowanInspectorService new
-				executeThenInspect: '''aa'', (String with: (Character withValue: 353)), ''b'''
-				context: session oopNil value
-				session: session
-				windowHandle: inspector view handle value.
+		           executeThenInspect:
+		           '''aa'', (String with: (Character withValue: 353)), ''b'''
+		           context: session oopNil value
+		           session: session
+		           windowHandle: inspector view handle value
+		           onCompletion: nil.
 	inspector showOn: service.
 	self assert: inspector documentPresenter value equals: '''aaÅ¡b'''.
-	self selectInstVarAtIndex: #(3).
+	self selectInstVarAtIndex: #( 3 ).
 	self assert: inspector documentPresenter value equals: '$a'.
-	self selectInstVarAtIndex: #(4).
+	self selectInstVarAtIndex: #( 4 ).
 	self assert: inspector documentPresenter value equals: '$a'.
-	self selectInstVarAtIndex: #(5).
+	self selectInstVarAtIndex: #( 5 ).
 	self assert: inspector documentPresenter value equals: '$Å¡'.
-	self selectInstVarAtIndex: #(6).
+	self selectInstVarAtIndex: #( 6 ).
 	self assert: inspector documentPresenter value equals: '$b'
 ]
 
