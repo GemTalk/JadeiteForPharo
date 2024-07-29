@@ -366,13 +366,12 @@ JadeiteInspector >> executeThenInspect: aString inContext: context [
 
 	| window |
 	window := self asWindow.
-self halt. 
 	RowanInspectorService new
 		executeThenInspect: aString
 		context: context
 		session: gciSession
 		windowHandle: window identityHash
-		onCompletion: [ :service | Transcript cr; show: 'JadeiteInspector>>#executeThenInspect:inContext: block'; flush. 
+		onCompletion: [ :service |
 			service compileErrorArray ifNotNil: [
 				SyntaxErrorNotification
 					inClass: Object

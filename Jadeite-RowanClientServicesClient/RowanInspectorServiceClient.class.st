@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanInspectorServiceClient',
 	#superclass : 'RowanInspectorService',
 	#instVars : [
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -18,4 +19,16 @@ RowanInspectorServiceClient >> inCommand [
 RowanInspectorServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
+]
+
+{ #category : 'service completion' }
+RowanInspectorServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'service completion' }
+RowanInspectorServiceClient >> serviceCompletionBlock: anObject [ 
+
+	serviceCompletionBlock := anObject
 ]
