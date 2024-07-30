@@ -52,7 +52,7 @@ JadeiteApplication class >> changedTextBackgroundColor [
 ]
 
 { #category : 'actions' }
-JadeiteApplication class >> commitTransactionInSession: session [
+JadeiteApplication class >> commitTransactionInSession: session onCompletion: completionBlock [
 	"Even if it takes a windy path, try to make sure
 	all aborts in Jadeite pass through here"
 
@@ -70,7 +70,8 @@ JadeiteApplication class >> commitTransactionInSession: session [
 					UIManager default inform: 'Commit succeeded'.
 					JadeiteSound informationBeep ]
 				ifFalse: [
-				UIManager default alert: 'Commit failure' title: 'Jaded warning' ] ]
+				UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
+			completionBlock value ]
 ]
 
 { #category : 'constants' }
@@ -167,7 +168,7 @@ JadeiteApplication >> commitTransaction [
 	"Even if it takes a windy path, try to make sure
 	all commits in Jadeite pass through here"
 
-	self class commitTransactionInSession: gciSession.
+	self class commitTransactionInSession: gciSession onCompletion: nil
 ]
 
 { #category : 'constants' }

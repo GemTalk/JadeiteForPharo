@@ -147,19 +147,18 @@ JadeiteFilterTrait >> fileoutCategories [
 
 	| service filePath categoryStrings |
 	service := self selectedClass.
-	UIManager default defer: [
-		filePath := self fileoutFileSelection:
-			            service name , '_categories.gs'.
-		filePath ifNotNil: [
-			categoryStrings := self categoryListPresenter selections collect: [
-				                   :category | category categoryName ].
-			service
-				command: #fileoutCategories:on:;
-				commandArgs: (Array with: categoryStrings with: filePath).
-			RowanServiceUpdater current
-				issueCommand: service
-				session: self gciSession
-				onCompletion: nil ] ]
+	filePath := self fileoutFileSelection:
+		            service name , '_categories.gs'.
+	filePath ifNotNil: [
+		categoryStrings := self categoryListPresenter selections collect: [
+			                   :category | category categoryName ].
+		service
+			command: #fileoutCategories:on:;
+			commandArgs: (Array with: categoryStrings with: filePath).
+		RowanServiceUpdater current
+			issueCommand: service
+			session: self gciSession
+			onCompletion: nil ]
 ]
 
 { #category : 'menus' }

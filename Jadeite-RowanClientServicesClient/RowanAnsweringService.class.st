@@ -190,7 +190,7 @@ RowanAnsweringService >> projectRepositoryRoots: projectServices session: sessio
 { #category : 'commands' }
 RowanAnsweringService >> setAutoCommit: boolean for: session [
 
-	command := #setRemoteAutoCommit:.
+	command := #setRemoteAutoCommit:onCompletion:.
 	self commandArgs: (Array with: boolean).
 	RowanServiceUpdater current
 		issueCommand: self

@@ -70,7 +70,8 @@ GciSession >> basicFlipAutoCommit [
 
 { #category : 'actions' }
 GciSession >> commit [
-	JadeiteApplication commitTransactionInSession: self
+
+	JadeiteApplication commitTransactionInSession: self onCompletion: nil
 ]
 
 { #category : 'actions' }

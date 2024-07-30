@@ -299,10 +299,18 @@ JadeiteAbstractTestCase >> ensureOneTab [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoaded [
 
-	self testResourceClass current unloadSampleProject1.
-	self testResourceClass current unloadSampleProject9.
-	session commit.
-	self testResourceClass current ensureRowanSampleProjectsLoaded
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #unloadProjectsNamed:;
+		commandArgs: (Array with: (Array
+				 with: self testResourceClass sampleProject1Name
+				 with: self testResourceClass sampleProject9Name)).
+	self issueCommand: browserService onCompletion: [
+		JadeiteApplication
+			commitTransactionInSession: session
+			onCompletion: [
+			self testResourceClass current createRowanSample1Project ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -378,12 +386,12 @@ JadeiteAbstractTestCase >> isSampleProject1Loaded [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> issueCommand: service onCompletion: anObject [
+JadeiteAbstractTestCase >> issueCommand: service onCompletion: completionBlock [
 
 	^ RowanServiceUpdater current
 		  issueCommands: (Array with: service)
 		  session: session
-		  onCompletion: nil
+		  onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }
@@ -455,7 +463,7 @@ JadeiteAbstractTestCase >> logoutThenLoginAs: theUser forceClose: aBoolean [
 	self testResourceClass current
 		logoutThenLoginAs: theUser
 		forceClose: aBoolean.
-	jadeiteShell := self testResourceClass current jadeiteShell
+	jadeiteShell := JadeiteConsole currentConsole "needed?"
 ]
 
 { #category : 'as yet unclassified' }
@@ -928,10 +936,7 @@ JadeiteAbstractTestCase >> selectRowanSample1Class [
 JadeiteAbstractTestCase >> selectRowanSample1Test [
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
 	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
-	self projectsPresenter isHierarchyTabSelected
-		ifTrue: 
-			[self selectTreeServicesNamed: (Array with: 'RowanSample1Test') in: self classHierarchyPresenter]
-		ifFalse: [self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter]
+	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter
 ]
 
 { #category : 'selection' }
@@ -962,7 +967,7 @@ JadeiteAbstractTestCase >> selectServicesNamed: anArray in: presenter [
 			           detect: [ :svc | svc name = name ]
 			           ifNone: [
 			           self error: 'List element ' , name , ' not found' ].
-		presenter selections: (presenter selections asOrderedCollection
+		presenter selectItems: (presenter selections asOrderedCollection
 				 add: service;
 				 yourself)]
 ]
@@ -1028,13 +1033,13 @@ JadeiteAbstractTestCase >> setBreakAt: anInteger [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> setRemoteAutoCommit: aBoolean [
+JadeiteAbstractTestCase >> setRemoteAutoCommit: aBoolean onCompletion: completionBlock [
 
 	| autoCommitService |
 	autoCommitService := RowanAutoCommitService new
 		                     command: #autoCommit:;
 		                     commandArgs: (Array with: aBoolean).
-	self issueCommand: autoCommitService onCompletion: nil
+	self issueCommand: autoCommitService onCompletion: completionBlock
 ]
 
 { #category : 'support' }
@@ -1042,14 +1047,13 @@ JadeiteAbstractTestCase >> setUp [
 
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
-	self logoutThenLoginAs: user forceClose: true. "temporarily logout and login before each test."
+	self logoutThenLoginAs: user forceClose: true.
 	session := self testResourceClass current session.
 	transcript := self testResourceClass current transcript.
-	self setRemoteAutoCommit: false.
-	self switchTransactionModeTo: #autoBegin. "Ensure tests start with transaction mode that is predictable - most tests assume #autoBegin"
-	self ensureRowanSampleProjectsLoaded.
-	JadeiteLoginShell allInstances size > 1 ifTrue: [
-		RsrGarbageCollector maximumReclamation ]
+	self setRemoteAutoCommit: false onCompletion: [
+		self ensureRowanSampleProjectsLoaded.
+		JadeiteLoginShell allInstances size > 1 ifTrue: [
+			RsrGarbageCollector maximumReclamation ] ]
 ]
 
 { #category : 'as yet unclassified' }

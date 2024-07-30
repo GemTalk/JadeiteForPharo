@@ -46,12 +46,11 @@ JadeiteProjectBrowserAbstractTestCase >> disableTranscriptWrites [
 JadeiteProjectBrowserAbstractTestCase >> findClassNamed: selection [
 
 	| classService browser |
-	UIManager default defer: [
-		browser := self openBrowser.
-		classService := RowanClassService new name: selection.
-		browser activePresenter
-			updateAfterFindClass: classService
-			onCompletion: nil ]
+	browser := self openBrowser.
+	classService := RowanClassService new name: selection.
+	browser activePresenter
+		updateAfterFindClass: classService
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }

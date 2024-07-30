@@ -19,5 +19,5 @@ JadeiteMenuItemPresenter >> performMenuActionWith: aMenuItem [
 	en isBlock ifTrue: [ en := en value ].
 	en ifFalse: [ ^ self ].
 
-	UIManager default defer: [ self action cull: aMenuItem ]
+	self action cull: aMenuItem
 ]

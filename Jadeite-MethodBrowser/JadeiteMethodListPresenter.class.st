@@ -67,11 +67,10 @@ JadeiteMethodListPresenter >> browseClassReferences: className [
 		basicBrowseClassReferences: className
 		session: self gciSession
 		completionBlock: [ :service |
-			UIManager default defer: [
-				shell := self openMethodListOn: service selecting: className.
-				shell updateCaptionFromSearchString:
-					service queryResults size printString , ' Class References to '
-					, className asString ] ]
+			shell := self openMethodListOn: service selecting: className.
+			shell updateCaptionFromSearchString:
+				service queryResults size printString , ' Class References to '
+				, className asString ]
 ]
 
 { #category : 'testing' }
@@ -604,16 +603,15 @@ JadeiteMethodListPresenter >> updateMultiMethodComparison [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateSingleMethodSource [
+
 	| selection |
 	selection := methodListPresenter selectedItem.
-	methodSourcePresenter isModified ifTrue: [^self].
+	methodSourcePresenter isModified ifTrue: [ ^ self ].
 	methodSourcePresenter value: selection source.
-	selection firstReference
-		ifNotNil: 
-			[:index |
-			methodSourcePresenter value ifNotNil: [self selecting: index]].
+	selection firstReference ifNotNil: [ :index |
+		methodSourcePresenter value ifNotNil: [ self selecting: index ] ].
 	methodSourcePresenter ensureVisible.
-	UIManager default defer: [self updateMethodSourceGlyphs]
+	self updateMethodSourceGlyphs
 ]
 
 { #category : 'as yet unclassified' }

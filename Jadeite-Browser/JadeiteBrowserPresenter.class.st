@@ -776,7 +776,6 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenActivatedDo: [ :selection |
 			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
-		UIManager default defer: [
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
 			ifFalse: [
@@ -784,7 +783,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 					classListPresenter
 						selectIndex: (classListPresenter items indexOf: sel)
 						scrollToSelection: true ] ].
-		self classSelected: self selectedClass ] ].
+		self classSelected: self selectedClass ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
 ]
@@ -806,10 +805,10 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 JadeiteBrowserPresenter >> connectMethodPresenters [
 
 	methodListPresenter whenSelectionChangedDo: [ :selection |
-		UIManager default defer: [ self methodSelectionChanged ] ].
+		self methodSelectionChanged ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
-		UIManager default defer: [ self classSelected: self selectedClass ] ]
+		self classSelected: self selectedClass ]
 ]
 
 { #category : 'initialization' }
@@ -819,15 +818,14 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 		whenSelectionChangedDo: [ :selection | self updatePackage ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
-		UIManager default defer: [
-			self classListPresenter clear.
-			self classHierarchyPresenter roots: OrderedCollection new.
-			self isDictionaryTabSelected
-				ifTrue: [ self updateDictionaries ]
-				ifFalse: [
-					self updateProject.
-					self updatePackage ].
-			self updateClassesOnCompletion: nil ] ].
+		self classListPresenter clear.
+		self classHierarchyPresenter roots: OrderedCollection new.
+		self isDictionaryTabSelected
+			ifTrue: [ self updateDictionaries ]
+			ifFalse: [
+				self updateProject.
+				self updatePackage ].
+		self updateClassesOnCompletion: nil ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		self updateDictionary ]
 ]
@@ -842,7 +840,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
-		UIManager default defer: [ self filterTabChanged: selection ] ].
+		self filterTabChanged: selection ].
 	self connectMethodPresenters.
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
@@ -1082,29 +1080,15 @@ JadeiteBrowserPresenter >> editSaveClass [
 	self selectedClass ifNotNil: [ :classService |
 		browserService selectedClass: classService name ].
 	[
-	[ self issueCommand: browserService onCompletion: nil ]
+	self issueCommand: browserService onCompletion: [
+		self recompileMethods: browserService.
+		self resetClassDefinitionPane ] ]
 		on: Error
 		do: [ :ex |
 			(ex isKindOf: GsCompileError)
 				ifTrue: [ self handleClassCompileError: ex ]
 				ifFalse: [ self statusBarText: 'ERROR: ' , ex messageText ].
-			^ self ].
-
-	[
-	browserService
-		command: #recompileMethodsAfterClassCompilation;
-		commandArgs: #(  ).
-	self issueCommand: browserService onCompletion: nil ]
-		on: GsApplicationError , GsCompileError
-		do: [ :ex |
-			('*poolDictionaries not supported yet*' match: ex description)
-				ifTrue: [
-				^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
-			^ self showMethodRecompilationError: ex ] ] ensure: [
-		self resetClassDefinitionPane ].
-	self
-		updateAfterFindClass: browserService selectedClass
-		onCompletion: nil
+			^ self ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2459,14 +2443,13 @@ JadeiteBrowserPresenter >> postOpenBlock: anObject [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> postUpdateMethodSource [
 
-	^ UIManager default defer: [
-		  | methodService |
-		  (methodService := methodListPresenter selectedItem) ifNotNil: [
-			  methodSourcePresenter value: methodService source.
-			  self updateMethodSourceGlyphs.
-			  definedMethodPackageText text:
-				  'Defined Package: ' , methodService definedPackage.
-			  methodCategoryText text: 'Category: ' , methodService category ] ]
+	| methodService |
+	(methodService := methodListPresenter selectedItem) ifNotNil: [
+		methodSourcePresenter value: methodService source.
+		self updateMethodSourceGlyphs.
+		definedMethodPackageText text:
+			'Defined Package: ' , methodService definedPackage.
+		methodCategoryText text: 'Category: ' , methodService category ]
 ]
 
 { #category : 'updates' }
@@ -2599,6 +2582,26 @@ JadeiteBrowserPresenter >> projectTabLabel [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> protectedDictionaries [
 	^#('Published' 'Globals' 'UserGlobals')
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> recompileMethods: browserService [
+
+	browserService
+		command: #recompileMethodsAfterClassCompilation;
+		commandArgs: #(  ).
+	[
+	self issueCommand: browserService onCompletion: [
+		self resetClassDefinitionPane.
+		self
+			updateAfterFindClass: browserService selectedClass
+			onCompletion: nil ] ]
+		on: GsApplicationError , GsCompileError
+		do: [ :ex |
+			('*poolDictionaries not supported yet*' match: ex description)
+				ifTrue: [
+				^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
+			^ self showMethodRecompilationError: ex ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3609,17 +3612,16 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |
-			UIManager default defer: [
-				RowanServiceUpdater current disableCommandsWhile: [
-					projectService := array first.
-					packageService := array last.
-					classService isMeta ifTrue: [ self setClassSide ].
-					self selectClassListTab.
-					self selectPackageListTab.
-					self
-						selectClassNamed: classService
-						package: packageService
-						project: projectService ] ] ]
+			RowanServiceUpdater current disableCommandsWhile: [
+				projectService := array first.
+				packageService := array last.
+				classService isMeta ifTrue: [ self setClassSide ].
+				self selectClassListTab.
+				self selectPackageListTab.
+				self
+					selectClassNamed: classService
+					package: packageService
+					project: projectService ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3740,14 +3742,13 @@ JadeiteBrowserPresenter >> updateDictionary [
 	self
 		updateServices: dictionaryListPresenter selections
 		onCompletion: [
-			UIManager default defer: [
-				self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-				self updateTabLabel.
-				self todo: [ self updateGlobalsTab ].
-				dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
-				classDefinitionPresenter value:
-					dictionaryListPresenter selectedItem defaultTemplate.
-				self resetClassDefinitionPane ] ]
+			self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+			self updateTabLabel.
+			self todo: [ self updateGlobalsTab ].
+			dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
+			classDefinitionPresenter value:
+				dictionaryListPresenter selectedItem defaultTemplate.
+			self resetClassDefinitionPane ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3784,7 +3785,7 @@ JadeiteBrowserPresenter >> updateHierarchy [
 	service
 		updateAfterCommand: false;
 		command: #classHierarchy.
-	self issueCommand: service onCompletion: nil.
+	self issueCommand: service onCompletion: [].
 ]
 
 { #category : 'updates' }

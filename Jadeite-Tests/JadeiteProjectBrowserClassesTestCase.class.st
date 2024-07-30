@@ -246,17 +246,26 @@ JadeiteProjectBrowserClassesTestCase >> test_allClassesAutoCommitOn [
 	an empty list when auto commit was turned on"
 
 	| classCount |
-	self testsIssue: #issue484 withTitle: '(Oscar-3.0.72) Empty Find Class dialog'.
-	self setRemoteAutoCommit: false.
+	self
+		testsIssue: #issue484
+		withTitle: '(Oscar-3.0.72) Empty Find Class dialog'.
+	self setRemoteAutoCommit: false onCompletion: nil.
 	self assert: self projectsPresenter allClasses notEmpty.
-	classCount := session executeString: 'ClassOrganizer new classes size'.
-	self assert: self projectsPresenter allClasses size equals: classCount.
-	self setRemoteAutoCommit: true.
-	
-	[self assert: self projectsPresenter allClasses notEmpty.
-	classCount := session executeString: 'ClassOrganizer new classes size'.
-	self assert: self projectsPresenter allClasses size equals: classCount]
-			ensure: [self setRemoteAutoCommit: false]
+	classCount := session executeString:
+		              'ClassOrganizer new classes size'.
+	self
+		assert: self projectsPresenter allClasses size
+		equals: classCount.
+	self setRemoteAutoCommit: true onCompletion: nil.
+
+	[
+	self assert: self projectsPresenter allClasses notEmpty.
+	classCount := session executeString:
+		              'ClassOrganizer new classes size'.
+	self
+		assert: self projectsPresenter allClasses size
+		equals: classCount ] ensure: [
+		self setRemoteAutoCommit: false onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

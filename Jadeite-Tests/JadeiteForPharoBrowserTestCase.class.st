@@ -66,10 +66,6 @@ JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
 { #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 
-	self unloadSampleProject1.
-	self commitTransaction. "if sample project was loaded and committed outside test, test will fail"
-	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
 	self selectRowanSample1Test.
 	self projectsPresenter selectVariableTab.
 	self projectsPresenter variableListPresenter selectIndex: 1.

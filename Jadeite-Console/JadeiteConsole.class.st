@@ -54,10 +54,9 @@ JadeiteConsole class >> showOnSession: aGciSession [
 { #category : 'events' }
 JadeiteConsole >> abortedTransaction [
 
-	UIManager default defer: [
-		self updateProjects.
-		self todo: [ self displayLastKnownCommitOrAbort ].
-		self projectListPresenter invalidate ]
+	self updateProjects.
+	self todo: [ self displayLastKnownCommitOrAbort ].
+	self projectListPresenter invalidate
 ]
 
 { #category : 'updates' }

@@ -87,6 +87,20 @@ JadeiteTestResource >> closeTranscripts [
 		do: [:transcript | self closeTranscript: transcript	"hopeful none, but just in case"]
 ]
 
+{ #category : 'support' }
+JadeiteTestResource >> connectSignaling: sem [
+
+	| profile |
+	^ [
+	  profile := JadeiteConnectionProfile connectionProfile.
+	  profile isConnected ifTrue: [ profile disconnect ].
+	  RowanTestServiceUpdater installTestUpdater.
+	  profile connect ] ensure: [
+		  [ JadeiteConsole currentConsole ] whileNil: [
+			  (Delay forMilliseconds: 1) wait ].
+		  sem signal ]
+]
+
 { #category : 'projects creating' }
 JadeiteTestResource >> createRowanSample1Project [
 	"Don't get RowanSample1 project from disk.
@@ -97,7 +111,9 @@ JadeiteTestResource >> createRowanSample1Project [
 	testService := RowanTestService new.
 	testService command: #createRowanSample1Project.
 	testService commandArgs: Array new.
-	self issueCommand: testService onCompletion: nil
+	self
+		issueCommand: testService
+		onCompletion: []
 ]
 
 { #category : 'actions' }
@@ -149,10 +165,8 @@ JadeiteTestResource >> ensureRowanSample9Loaded [
 
 { #category : 'projects loading' }
 JadeiteTestResource >> ensureRowanSampleProjectsLoaded [
-	"make sure we have the correct server state in the browser"
-	self unloadSampleProject1.
-	self createRowanSample1Project.
-	self ensureRowanSample9Loaded
+
+	self createRowanSample1Project
 ]
 
 { #category : 'projects loading' }
@@ -198,8 +212,12 @@ JadeiteTestResource >> isAvailable [
 ]
 
 { #category : 'support' }
-JadeiteTestResource >> issueCommand: service onCompletion: anObject [
-	^RowanServiceUpdater current issueCommand: service session: self session
+JadeiteTestResource >> issueCommand: service onCompletion: completionBlock [
+
+	^ RowanServiceUpdater current
+		  issueCommand: service
+		  session: self session
+		  onCompletion: completionBlock
 ]
 
 { #category : 'support' }
@@ -257,12 +275,11 @@ JadeiteTestResource >> logout [
 { #category : 'support' }
 JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
 
-	self todo: 'add userName connect/disconnect'.
 	forceClose ifTrue: [
-		| profile |
-		profile := JadeiteConnectionProfile connectionProfile.
-		profile isConnected ifTrue: [ profile disconnect ].
-		profile connect ]
+		| sem |
+		sem := Semaphore new.
+		[ self connectSignaling: sem ] fork.
+		sem wait ]
 ]
 
 { #category : 'support' }

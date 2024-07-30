@@ -408,53 +408,69 @@ JadeiteInspectorDataCuratorTestCase >> test_addStringToString [
 
 { #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_autoCommitInAdHocInspect [
+
 	| workspace |
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
 	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self setRemoteAutoCommit: true.
+
+	[
+	self setRemoteAutoCommit: true onCompletion: nil.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace setDocumentData: '123'.
 	workspace setFocus.
 	inspector := workspace codePane jadeInspect.
 	self assert: inspector documentPresenter model value equals: '123'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')]
-			ensure: 
-				[self closeBrowser: inspector topShell primaryPresenter.
-				workspace isModified: false.
-				self closeBrowser: workspace.
-				self setRemoteAutoCommit: false	"should have committed already"].
-	
-	[self abortTransaction.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')]
-			ensure: 
-				[session executeString: 'UserGlobals removeKey: #TestCommit'.
-				self commitTransaction]
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') ]
+		ensure: [
+			self closeBrowser: inspector topShell primaryPresenter.
+			workspace isModified: false.
+			self closeBrowser: workspace.
+			self setRemoteAutoCommit: false onCompletion: nil "should have committed already" ].
+
+	[
+	self abortTransaction.
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') ]
+		ensure: [
+			session executeString: 'UserGlobals removeKey: #TestCommit'.
+			self commitTransaction ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_autoCommitOffInAdHocInspect [
+
 	| workspace |
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
 	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self setRemoteAutoCommit: false.
+
+	[
+	self setRemoteAutoCommit: false onCompletion: nil.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
 	workspace setDocumentData: '123'.
 	workspace setFocus.
 	inspector := workspace codePane jadeInspect.
 	self assert: inspector documentPresenter model value equals: '123'.
-	self assert: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')]
-			ensure: 
-				[self closeBrowser: inspector topShell primaryPresenter.
-				workspace isModified: false.
-				self closeBrowser: workspace].
-	
-	[self abortTransaction.
-	self assertIsNil: (session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]')]
-			ensure: [self commitTransaction]
+	self assert:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') ]
+		ensure: [
+			self closeBrowser: inspector topShell primaryPresenter.
+			workspace isModified: false.
+			self closeBrowser: workspace ].
+
+	[
+	self abortTransaction.
+	self assertIsNil:
+		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]') ]
+		ensure: [ self commitTransaction ]
 ]
 
 { #category : 'as yet unclassified' }

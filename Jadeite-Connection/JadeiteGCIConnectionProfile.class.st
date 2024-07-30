@@ -65,7 +65,6 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
-	RowanServiceUpdater clearCurrent. "clear out all old services"
 	session ifNotNil: [ session logout ].
 	user = 'SystemUser' ifFalse: [
 		^ MessageBox notify: 'Only SystemUser is currently supported.' ].
@@ -85,7 +84,7 @@ JadeiteGCIConnectionProfile >> connect [
 	GciSession current stoneName: stone.
 	connection := self setupRSRConnection.
 	GciSession current library: connection.
-	UIManager default defer: [ self applyPreferences ].
+	self applyPreferences.
 	"Uncomment following three lines to enable RSR tracing"
 	"connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).

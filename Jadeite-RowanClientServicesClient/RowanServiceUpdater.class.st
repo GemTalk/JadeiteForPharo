@@ -42,6 +42,12 @@ RowanServiceUpdater class >> current [
 	^Current ifNil: [Current := self new]
 ]
 
+{ #category : 'accessing' }
+RowanServiceUpdater class >> current: anUpdater [
+
+	Current := anUpdater
+]
+
 { #category : 'logging' }
 RowanServiceUpdater class >> startLogging [
 	Current startLogging
@@ -88,13 +94,6 @@ RowanServiceUpdater >> activeMethodServices [
 { #category : 'accessing' }
 RowanServiceUpdater >> activePackageServices [
 	^self registeredListServices select: [:service | service isService and:[service isPackageService]]
-]
-
-{ #category : 'testing' }
-RowanServiceUpdater >> activeProcessIsMorphicProcess [
-
-	^ UIManager default uiProcess == Processor activeProcess or: [
-		  Processor activeProcess name = 'Morphic UI Process_Jadeite' ]
 ]
 
 { #category : 'accessing' }

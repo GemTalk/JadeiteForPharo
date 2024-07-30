@@ -826,10 +826,9 @@ JadeiteMethodsTrait >> setCompileWarningColor [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateMethodSourceGlyphs [
 
-	UIManager default defer: [
-		self methodSourcePresenter removeAllTextSegmentDecorations.
-		self displayMethodSourceStepPoints.
-		self displayBreakpoints ]
+	self methodSourcePresenter removeAllTextSegmentDecorations.
+	self displayMethodSourceStepPoints.
+	self displayBreakpoints
 ]
 
 { #category : 'updates' }

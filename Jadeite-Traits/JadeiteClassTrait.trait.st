@@ -73,11 +73,10 @@ JadeiteClassTrait >> browseClassReferences: className [
 		basicBrowseClassReferences: className
 		session: self gciSession
 		completionBlock: [ :service |
-			UIManager default defer: [
-				shell := self openMethodListOn: service selecting: className.
-				shell updateCaptionFromSearchString:
-					service queryResults size printString , ' Class References to '
-					, className asString ] ]
+			shell := self openMethodListOn: service selecting: className.
+			shell updateCaptionFromSearchString:
+				service queryResults size printString , ' Class References to '
+				, className asString ]
 ]
 
 { #category : 'menus' }
@@ -86,16 +85,16 @@ JadeiteClassTrait >> fileoutClass [
 
 	| service filePath |
 	service := self selectedClass.
-	UIManager default defer: [
-		filePath := self fileoutFileSelection: service name , '.gs'.
-		filePath ifNotNil: [
-			service
-				command: #fileoutClassOn:;
-				commandArgs: (Array with: filePath).
-			RowanServiceUpdater current
-				issueCommand: service
-				session: self gciSession
-				onCompletion: nil ] ]
+
+	filePath := self fileoutFileSelection: service name , '.gs'.
+	filePath ifNotNil: [
+		service
+			command: #fileoutClassOn:;
+			commandArgs: (Array with: filePath).
+		RowanServiceUpdater current
+			issueCommand: service
+			session: self gciSession
+			onCompletion: nil ]
 ]
 
 { #category : 'private' }
@@ -109,17 +108,16 @@ JadeiteClassTrait >> findClass [
 		issueCommand: answeringService
 		session: self gciSession
 		onCompletion: [
-			UIManager default defer: [
-				| classService |
-				selection := self openClassSelectionDialogOn:
-					             answeringService answer.
-				selection ifNotNil: [
-					classService := RowanClassService new
-						                name: selection;
-						                meta: false.
-					self
-						updateService: classService
-						onCompletion: [ self findClassService: classService ] ] ] ]
+			| classService |
+			selection := self openClassSelectionDialogOn:
+				             answeringService answer.
+			selection ifNotNil: [
+				classService := RowanClassService new
+					                name: selection;
+					                meta: false.
+				self
+					updateService: classService
+					onCompletion: [ self findClassService: classService ] ] ]
 ]
 
 { #category : 'private' }

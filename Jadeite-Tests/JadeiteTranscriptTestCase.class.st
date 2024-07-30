@@ -150,7 +150,7 @@ JadeiteTranscriptTestCase >> test_autoCommitOff [
 	self
 		testsIssue: #issue396
 		withTitle: 'Ability to turn on autocommit would be nice'.
-	self setRemoteAutoCommit: false.
+	self setRemoteAutoCommit: false onCompletion: nil.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -190,7 +190,7 @@ JadeiteTranscriptTestCase >> test_autoCommitOn [
 		withTitle: 'Ability to turn on autocommit would be nice'.
 
 	[
-	self setRemoteAutoCommit: true.
+	self setRemoteAutoCommit: true onCompletion: nil.
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -215,20 +215,27 @@ JadeiteTranscriptTestCase >> test_autoCommitOn [
 		ensure: [
 			session executeString: 'UserGlobals removeKey: #TestCommit'.
 			self commitTransaction.
-			self setRemoteAutoCommit: false ]
+			self setRemoteAutoCommit: false onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_autoCommitSet [
-	self testsIssue: #issue396 withTitle: 'Ability to turn on autocommit would be nice'.
-	self setRemoteAutoCommit: false.
-	self assert: (session executeString: 'SessionTemps current at: #''Jadeite_AutoCommit''')
+
+	self
+		testsIssue: #issue396
+		withTitle: 'Ability to turn on autocommit would be nice'.
+	self setRemoteAutoCommit: false onCompletion: nil.
+	self
+		assert: (session executeString:
+				 'SessionTemps current at: #''Jadeite_AutoCommit''')
 		equals: false.
-	self setRemoteAutoCommit: true.
-	
-	[self assert: (session executeString: 'SessionTemps current at: #''Jadeite_AutoCommit''')
-		equals: true]
-			ensure: [transcript autoCommit: false]
+	self setRemoteAutoCommit: true onCompletion: nil.
+
+	[
+	self
+		assert: (session executeString:
+				 'SessionTemps current at: #''Jadeite_AutoCommit''')
+		equals: true ] ensure: [ transcript autoCommit: false ]
 ]
 
 { #category : 'as yet unclassified' }
