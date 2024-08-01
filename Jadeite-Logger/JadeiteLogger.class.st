@@ -1,3 +1,7 @@
+"
+Simple class to log comments on the client. 
+jadeiteCallTracing* file put in Pharo image directory. 
+"
 Class {
 	#name : 'JadeiteLogger',
 	#superclass : 'Model',
@@ -9,7 +13,8 @@ Class {
 		'shouldGetNewLoggerGroup',
 		'semaphore'
 	],
-	#category : 'Jadeite-Logger'
+	#category : 'Jadeite-Logger',
+	#package : 'Jadeite-Logger'
 }
 
 { #category : 'transcript' }

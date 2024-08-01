@@ -2193,13 +2193,24 @@ JadeiteProjectBrowserTestCase >> test_issue261 [
 
 	"this test will only work if 'Izmir' project has been checked out to $ROWEN_PROJECTS_HOME"
 
-	self testsIssue: #issue261 withTitle: 'Project tab should display reason for project font styling'.
+	self
+		testsIssue: #issue261
+		withTitle:
+		'Project tab should display reason for project font styling'.
 	self issue261createTestProject.
-	
-	[self selectServiceNamed: 'Izmir' in: self projectListPresenter.
-	self assert: (self projectsPresenter projectInfoList list at: 4) first name equals: 'Izmir'.
-	self assert: (self projectsPresenter projectInfoList list at: 4) first isDirty	"isDirty"]
-			ensure: [self projectsPresenter basicUnloadProjects: #('Izmir')]
+
+	[
+	self selectServiceNamed: 'Izmir' in: self projectListPresenter.
+	self
+		assert:
+		(self projectsPresenter projectInfoList list at: 4) first name
+		equals: 'Izmir'.
+	self assert:
+		(self projectsPresenter projectInfoList list at: 4) first isDirty "isDirty" ]
+		ensure: [
+			self projectsPresenter
+				basicUnloadProjects: #( 'Izmir' )
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2358,35 +2369,42 @@ JadeiteProjectBrowserTestCase >> test_projectDisplaysSync [
 
 	"project removal in projects browser"
 
-	self disableInteractionsWhile: 
-			[self denyIsNil: (self projectNamed: 'RowanSample1').
-			self assert: self transcriptTab isKindOf: JadeiteProjectListPresenter.
-			self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			self unloadSampleProject1.
-			self assertIsNil: (self projectNamed: 'RowanSample1').
-			self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			"project addition in projects browser"
-			self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded.
-			
-			[self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			self denyIsNil: (self projectNamed: 'RowanSample1')]
-					ensure: [self unloadSampleProject1].
-			self assertIsNil: (self projectNamed: 'RowanSample1').
-			self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			"project addition in project list"
-			self loadRowanSample1InProjectList.
-			self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			self denyIsNil: (self projectNamed: 'RowanSample1').
-			"project removal in project list"
-			(self transcriptTab projectListPresenter list
-				detect: [:projectService | projectService name = self sampleProject1Name]
-				ifNone: []) notNil
-				ifTrue: [self transcriptTab basicUnloadProjects: (Array with: self sampleProject1Name)].
-			
-			[self assertIsNil: (self projectNamed: 'RowanSample1').
-			self assertIsNil: (self transcriptProjectNamed: 'RowanSample1')]
-					ensure: [self loadRowanSample1InProjectList]]
+	self disableInteractionsWhile: [
+		self denyIsNil: (self projectNamed: 'RowanSample1').
+		self
+			assert: self transcriptTab
+			isKindOf: JadeiteProjectListPresenter.
+		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		self unloadSampleProject1.
+		self assertIsNil: (self projectNamed: 'RowanSample1').
+		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		"project addition in projects browser"
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded.
+
+		[
+		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		self denyIsNil: (self projectNamed: 'RowanSample1') ] ensure: [
+			self unloadSampleProject1 ].
+		self assertIsNil: (self projectNamed: 'RowanSample1').
+		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		"project addition in project list"
+		self loadRowanSample1InProjectList.
+		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		self denyIsNil: (self projectNamed: 'RowanSample1').
+		"project removal in project list"
+		(self transcriptTab projectListPresenter list
+			 detect: [ :projectService |
+			 projectService name = self sampleProject1Name ]
+			 ifNone: [  ]) notNil ifTrue: [
+			self transcriptTab
+				basicUnloadProjects: (Array with: self sampleProject1Name)
+				onCompletion: nil ].
+
+		[
+		self assertIsNil: (self projectNamed: 'RowanSample1').
+		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1') ]
+			ensure: [ self loadRowanSample1InProjectList ] ]
 ]
 
 { #category : 'as yet unclassified' }

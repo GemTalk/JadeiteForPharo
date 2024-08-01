@@ -318,30 +318,39 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_loadProjectDialogTabOr
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_loadProjectFromURL [
+
 	| projectNames answer loadedProjectName |
-	self testsIssue: #issue939
-		withTitle: '(3.2.10) need to be able to specify an http url in ''Load project spec'' dialog ...'.
-	projectNames := self projectListPresenter list collect: [:projectService | projectService name].
+	self
+		testsIssue: #issue939
+		withTitle:
+		'(3.2.10) need to be able to specify an http url in ''Load project spec'' dialog ...'.
+	projectNames := self projectListPresenter list collect: [
+		                :projectService | projectService name ].
 	self deny: (projectNames includes: 'RowanSample9V3').
-	loadProjectDialog := JadeiteLoadProjectDialog showNonModalOnSession: session.
+	loadProjectDialog := JadeiteLoadProjectDialog showNonModalOnSession:
+		                     session.
 	(loadProjectDialog view viewNamed: 'Tabs') nextCard.
 	(loadProjectDialog view viewNamed: 'Tabs') nextCard.
 	self assert: loadProjectDialog isURLTabSelected.
-	loadProjectDialog urlText
-		value: 'https://raw.githubusercontent.com/dalehenrich/RowanSample9V3/spec_0061/rowan/specs/spec_0061.ston'.
+	loadProjectDialog urlText value:
+		'https://raw.githubusercontent.com/dalehenrich/RowanSample9V3/spec_0061/rowan/specs/spec_0061.ston'.
 	"simulate load for testing"
 	loadProjectDialog lastSelectedTabName: loadProjectDialog selectedTab.
 	answer := loadProjectDialog
-				apply;
-				answer.
+		          apply;
+		          answer.
 	self assert: answer first = 'URL Container'.
 	loadedProjectName := 'RowanSample9V3'.
 	self projectsPresenter installProjectFromURL: answer last.
 	self projectsPresenter selectProjectNamed: loadedProjectName.
-	
-	[projectNames := self projectListPresenter list collect: [:projectService | projectService name].
-	self assert: (projectNames includes: loadedProjectName)]
-			ensure: [self projectsPresenter basicUnloadProjects: (Array with: loadedProjectName)]
+
+	[
+	projectNames := self projectListPresenter list collect: [
+		                :projectService | projectService name ].
+	self assert: (projectNames includes: loadedProjectName) ] ensure: [
+		self projectsPresenter
+			basicUnloadProjects: (Array with: loadedProjectName)
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -401,35 +410,42 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectDisplaysSync [
 
 	"project removal in projects browser"
 
-	self disableInteractionsWhile: 
-			[self denyIsNil: (self projectNamed: 'RowanSample1').
-			self assert: self transcriptTab isKindOf: JadeiteProjectListPresenter.
-			self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			self unloadSampleProject1.
-			self assertIsNil: (self projectNamed: 'RowanSample1').
-			self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			"project addition in projects browser"
-			self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded.
-			
-			[self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			self denyIsNil: (self projectNamed: 'RowanSample1')]
-					ensure: [self unloadSampleProject1].
-			self assertIsNil: (self projectNamed: 'RowanSample1').
-			self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			"project addition in project list"
-			self loadRowanSample1InProjectList.
-			self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
-			self denyIsNil: (self projectNamed: 'RowanSample1').
-			"project removal in project list"
-			(self transcriptTab projectListPresenter list
-				detect: [:projectService | projectService name = self sampleProject1Name]
-				ifNone: []) notNil
-				ifTrue: [self transcriptTab basicUnloadProjects: (Array with: self sampleProject1Name)].
-			
-			[self assertIsNil: (self projectNamed: 'RowanSample1').
-			self assertIsNil: (self transcriptProjectNamed: 'RowanSample1')]
-					ensure: [self loadRowanSample1InProjectList]]
+	self disableInteractionsWhile: [
+		self denyIsNil: (self projectNamed: 'RowanSample1').
+		self
+			assert: self transcriptTab
+			isKindOf: JadeiteProjectListPresenter.
+		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		self unloadSampleProject1.
+		self assertIsNil: (self projectNamed: 'RowanSample1').
+		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		"project addition in projects browser"
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded.
+
+		[
+		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		self denyIsNil: (self projectNamed: 'RowanSample1') ] ensure: [
+			self unloadSampleProject1 ].
+		self assertIsNil: (self projectNamed: 'RowanSample1').
+		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		"project addition in project list"
+		self loadRowanSample1InProjectList.
+		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
+		self denyIsNil: (self projectNamed: 'RowanSample1').
+		"project removal in project list"
+		(self transcriptTab projectListPresenter list
+			 detect: [ :projectService |
+			 projectService name = self sampleProject1Name ]
+			 ifNone: [  ]) notNil ifTrue: [
+			self transcriptTab
+				basicUnloadProjects: (Array with: self sampleProject1Name)
+				onCompletion: nil ].
+
+		[
+		self assertIsNil: (self projectNamed: 'RowanSample1').
+		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1') ]
+			ensure: [ self loadRowanSample1InProjectList ] ]
 ]
 
 { #category : 'as yet unclassified' }

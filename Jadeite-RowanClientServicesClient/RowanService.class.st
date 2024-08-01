@@ -238,23 +238,29 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
+	self jadeiteLog: 'enter'.
 	process := Processor activeProcess.
 	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
-	Processor activeProcess jadeiteTranscriptWrite: 'RowanService>>#executeCommandOnCompletion:semaphore:', self printString.
 	promise := remoteSelf executeCommand.
-	promise when: theCompletionBlock catch: [ :value |
-		[
-		value tag = 'rsrProcessTerminated' ifTrue: [
-			RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
-		self terminate: process error: value.
-		self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
+	promise
+		when: [:arg | 
+			self jadeiteLog: 'enter completion block'.
+			theCompletionBlock value: arg.
+			self jadeiteLog: 'exit completion block' ]
+		catch: [ :value |
+			[
+			self jadeiteLog: 'enter catch block'.
+			value tag = 'rsrProcessTerminated' ifTrue: [
+				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
+			self terminate: process error: value.
+			self raiseCompileErrorIfNeeded ] ensure: [ sem signal ].
+			self jadeiteLog: 'exit catch block' ].
+	self jadeiteLog: 'exit'
 ]
 
 { #category : 'rsr' }
 RowanService >> executeInSession: session onCompletion: completionBlock semaphore: sem [
-
-	RowanServiceUpdater current logComment:
-		'RowanService>>#executeInSession:onCompletion:semaphore: - session: '.
+	self jadeiteLog: 'enter'. 
 	[ self registerWith: session library ]
 		on: RsrAlreadyRegistered
 		do: [ :ex |  ].

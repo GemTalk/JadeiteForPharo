@@ -12,15 +12,57 @@ RowanTestServiceUpdater class >> installTestUpdater [
 ]
 
 { #category : 'commands' }
+RowanTestServiceUpdater >> _basicIssueCommand: service [
+
+	| postExecutionBlock |
+	service jadeiteLog: 'enter'.
+	service isInCommand ifTrue: [ ^ self ].
+	service prepareForReplication.
+	postExecutionBlock := [ :aService |
+	                      [
+	                      service jadeiteLog: 'enter completion block'.
+	                      self possibleSignalCompileError: service.
+	                      self applyUpdates: service. 
+	                      service handleServiceCompletion.
+	                      service inCommand signal.
+	                      service jadeiteLog: 'exit completion block' ]
+		                      on: GsCompileError
+		                      do: [ :ex |
+			                      service handleCompileError: ex.
+			                      service inCommand signal ] ].
+	service
+		executeInSession: GciSession current
+		onCompletion: postExecutionBlock
+		semaphore: service inCommand.
+	service jadeiteLog: 'wait'.
+	service inCommand wait.
+	service jadeiteLog: 'exit'
+]
+
+{ #category : 'commands' }
 RowanTestServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has use completion blocks"
 
-	| sem |
-	sem := Semaphore new.
+	| sem processingCommand |
 	disableCommands ifTrue: [ ^ self ].
-	[ [ self _basicIssueCommand: service ] ensure: [ sem signal ] ] fork.
-	sem wait
+	sem := Semaphore new.
+	processingCommand := true.
+	Processor activeProcess name = 'Morphic UI Process' ifTrue: [
+		[ MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
+			fork ].
+	service jadeiteLog:
+		'------------------ enter ' , service printString
+		, '------------------------------'.
+	[
+	service jadeiteLog: 'enter forked block'.
+	[ self _basicIssueCommand: service ] ensure: [
+		sem signal.
+		processingCommand := false.
+		service jadeiteLog: 'exit forked block' ] ] fork.
+	sem wait.
+	service jadeiteLog: '------------------ exit ' , service printString
+		, '------------------------------'
 ]
 
 { #category : 'commands' }

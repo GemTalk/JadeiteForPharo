@@ -1654,10 +1654,13 @@ JadeiteProjectBrowserClassesTestCase >> test_hierarchyCleanedUpAfterUnload [
 	self selectRowanSample1Test.
 	self selectHierarchyTab.
 	self deny: self classHierarchyPresenter model isEmpty.
-	self projectsPresenter basicUnloadProjects: (self projectsPresenter projectListPresenter selections
-				collect: [:service | service name]).
-	[self assert: self classHierarchyPresenter model isEmpty]
-		ensure: [self cloneRowanSample1	"rest of tests expect project to be available"]
+	self projectsPresenter
+		basicUnloadProjects:
+			(self projectsPresenter projectListPresenter selections collect: [
+				 :service | service name ])
+		onCompletion: nil.
+	[ self assert: self classHierarchyPresenter model isEmpty ] ensure: [
+		self cloneRowanSample1 "rest of tests expect project to be available" ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1749,26 +1752,38 @@ JadeiteProjectBrowserClassesTestCase >> test_hierarchySelectTwoBrowsers [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_hierarchyWithNonResolvableClass [
+
 	| unresolvableClassService |
-	self testsIssue: #issue442
-		withTitle: '(3.0.62) odd (but legal) class hierarchy causes trouble for Project Browser'.
-	session
-		executeString: 'Rowan platform _alternateImageClass: Rowan image testImageClass.
+	self
+		testsIssue: #issue442
+		withTitle:
+		'(3.0.62) odd (but legal) class hierarchy causes trouble for Project Browser'.
+	session executeString:
+		'Rowan platform _alternateImageClass: Rowan image testImageClass.
 		RowanClassServiceTest new createHierarchyWithNonResolvableClass.'.
-	
-	[self projectsPresenter refreshFromServer.
+
+	[
+	self projectsPresenter refreshFromServer.
 	self selectServiceNamed: 'Issue470' in: self projectListPresenter.
-	self selectServiceNamed: 'Issue470-Core' in: self packageListPresenter.
+	self
+		selectServiceNamed: 'Issue470-Core'
+		in: self packageListPresenter.
 	self selectServiceNamed: 'Issue470Class3' in: self classListPresenter.
 	self selectHierarchyTab.
-	self assert: self projectsPresenter selectedClass name equals: 'Issue470Class3'.
-	unresolvableClassService := self projectsPresenter classHierarchyPresenter model asArray at: 3.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'Issue470Class3'.
+	unresolvableClassService := self projectsPresenter
+		                            classHierarchyPresenter model asArray
+		                            at: 3.
 	self assert: unresolvableClassService name equals: 'Issue470Class2'.
-	self assert: ('Issue470Class2 {*}' match: unresolvableClassService displayString).
-	self deny: unresolvableClassService isInSymbolList]
-			ensure: 
-				[self projectsPresenter basicUnloadProjects: #('Issue470').
-				session executeString: ' Rowan platform _alternateImageClass: nil.']
+	self assert:
+		('Issue470Class2 {*}' match: unresolvableClassService displayString).
+	self deny: unresolvableClassService isInSymbolList ] ensure: [
+		self projectsPresenter
+			basicUnloadProjects: #( 'Issue470' )
+			onCompletion: nil.
+		session executeString: ' Rowan platform _alternateImageClass: nil.' ]
 ]
 
 { #category : 'as yet unclassified' }

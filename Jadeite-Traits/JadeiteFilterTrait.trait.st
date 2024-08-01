@@ -26,7 +26,7 @@ JadeiteFilterTrait >> basicRemoveMethodCategories [
 		           commandArgs:
 			           (Array with:
 					            (minusExtensions collect: [ :ea | ea categoryName ])).
-	self issueCommand: service onCompletion: nil
+	self issueCommand: service onCompletion: [  ]
 ]
 
 { #category : 'actions' }

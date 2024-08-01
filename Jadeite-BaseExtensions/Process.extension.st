@@ -1,14 +1,15 @@
 Extension { #name : 'Process' }
 
 { #category : '*Jadeite-BaseExtensions' }
-Process >> jadeitePrintOn: aStream [
+Process >> jadeiteLog: message [
 
-	self printOn: aStream.
-	aStream
-		space;
-		nextPut: ${;
-		nextPutAll: self identityHash printString;
-		nextPut: $}
+	| stream |
+	stream := WriteStream on: String new.
+	self printOn: stream.
+	stream
+		tab;
+		nextPutAll: message.
+	RowanServiceUpdater current logComment: stream contents
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
@@ -16,7 +17,7 @@ Process >> jadeiteTranscriptWrite: message [
 
 	| stream |
 	stream := WriteStream on: String new.
-	self jadeitePrintOn: stream.
+	self printOn: stream.
 	stream
 		tab;
 		nextPutAll: message.

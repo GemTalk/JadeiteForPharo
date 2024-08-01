@@ -68,8 +68,8 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	                      [
 	                      self possibleSignalCompileError: service.
 	                      self applyUpdates: service.
-	                      service inCommand signal. "signal before continuing to let gui do further updates as needed."
-	                      service handleServiceCompletion ]
+	                      service handleServiceCompletion.
+	                      service inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
@@ -131,12 +131,6 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	presenters are registered to that object"
 
 	self applyUpdateWhile: [
-		Processor activeProcess jadeiteTranscriptWrite:
-			'RowanServiceUpdater>>#applyUpdatesFromReturnedServices: updates - '
-			, updates printString.
-		Processor activeProcess jadeiteTranscriptWrite:
-			'RowanServiceUpdater>>#applyUpdatesFromReturnedServices: aCollection - '
-			, aCollection printString.
 		updates removeAll: updates. "get rid of compile error service"
 		updates addAll: aCollection.
 		self updatesReadyToApply ]

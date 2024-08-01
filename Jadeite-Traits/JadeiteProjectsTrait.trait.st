@@ -95,15 +95,16 @@ JadeiteProjectsTrait >> basicReloadProject: selections [
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> basicUnloadProjects: projectNames [
+JadeiteProjectsTrait >> basicUnloadProjects: projectNames onCompletion: anObject [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService onCompletion: nil.
-	self refreshGlobalSelections
+	self
+		issueCommand: browserService
+		onCompletion: [ self refreshGlobalSelections ]
 ]
 
 { #category : 'testing' }
@@ -625,8 +626,11 @@ JadeiteProjectsTrait >> unloadProject [
 
 	(MessageBox confirm: 'Really unload selected projects?') ifFalse: [
 		^ self ].
-	self basicUnloadProjects:
-		(self projectListPresenter selections collect: [ :service | service name ])
+	self
+		basicUnloadProjects:
+			(self projectListPresenter selections collect: [ :service |
+				 service name ])
+		onCompletion: nil
 ]
 
 { #category : 'actions' }

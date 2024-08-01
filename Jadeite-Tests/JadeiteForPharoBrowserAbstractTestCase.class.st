@@ -19,8 +19,10 @@ JadeiteForPharoBrowserAbstractTestCase >> isAbstract [
 
 { #category : 'support' }
 JadeiteForPharoBrowserAbstractTestCase >> setUp [
-	super setUp. 
-	self setupProjectBrowser
+	super setUp.
+	self jadeiteLog: 'setUp complete'.
+	self setupProjectBrowser.
+	self jadeiteLog: 'setupProjectBrowser complete'.
 ]
 
 { #category : 'support' }

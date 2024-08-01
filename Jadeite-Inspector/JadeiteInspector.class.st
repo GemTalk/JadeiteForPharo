@@ -835,7 +835,7 @@ JadeiteInspector >> oopsCollection: anObject [
 JadeiteInspector >> printInstVar [
 
 	| answeringService oop theValue |
-	^ [ 
+	^ [
 	  answeringService := RowanAnsweringServiceClient new registerWith:
 		                      gciSession library.
 	  theValue := instVarListPresenter selectedItems first last. "oop or Array"
@@ -845,10 +845,16 @@ JadeiteInspector >> printInstVar [
 	  answeringService
 		  command: #printStringOf:toMaxSize:;
 		  commandArgs: (Array with: oop with: self maxPrintStringSize).
-	  RowanServiceUpdater current issueCommand: answeringService session: gciSession. 
+	  RowanServiceUpdater current
+		  issueCommand: answeringService
+		  session: gciSession
+		  onCompletion: [
+			  codePane
+				  text: answeringService answer;
+				  hasUnacceptedEdits: false ].
 	  answeringService answer ]
 		  on: Error
-		  do: [ :ex | 
+		  do: [ :ex |
 			  self
 				  displayInstVarError: ex
 				  instVar: instVarListPresenter selectedItems first last ]
@@ -1040,7 +1046,7 @@ JadeiteInspector >> selectedDynamicInstVars [
 { #category : 'as yet unclassified' }
 JadeiteInspector >> selectedInstVar [
 
-	| string key |
+	| key |
 	instVarListPresenter selectedItems isEmpty ifTrue: [
 		codePane text: String new.
 		^ self ].
@@ -1052,16 +1058,14 @@ JadeiteInspector >> selectedInstVar [
 			text: instVarListPresenter selectedItems first last;
 			hasUnacceptedEdits: false.
 		^ self ].
-	[ string := self printInstVar ]
+	[ self printInstVar ]
 		on: GsRuntimeError
 		do: [ :ex |
-			ex errorReport number == 2106 ifTrue: [ "Forward reference error"
+			ex number == 2106 ifTrue: [ "Forward reference error"
 				ex return:
 					'an invalid or hidden object (perhaps a LargeObjectNode)' ].
 			ex pass ].
-	codePane
-		text: string;
-		hasUnacceptedEdits: false
+
 ]
 
 { #category : 'as yet unclassified' }

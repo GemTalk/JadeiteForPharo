@@ -852,7 +852,7 @@ JadeiteMethodsTrait >> updateService: service onCompletion: completionBlock [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateServices: services [
 
-	self updateServices: services onCompletion: nil
+	self updateServices: services onCompletion: []
 ]
 
 { #category : 'updates' }

@@ -45,15 +45,14 @@ JadeiteTestResource class >> signalInitializationError [
 ]
 
 { #category : 'projects loading' }
-JadeiteTestResource >> basicUnloadProjects: projectNames [
+JadeiteTestResource >> basicUnloadProjects: projectNames onCompletion: anObject [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService onCompletion: nil.
-	self refreshGlobalSelections
+	self issueCommand: browserService onCompletion: [ self refreshGlobalSelections ]
 ]
 
 { #category : 'support' }
@@ -435,15 +434,13 @@ JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 JadeiteTestResource >> tearDown [
 
 	super tearDown.
-	"self logoutThenLoginAs: 'SystemUser' forceClose: false."
 	projectsBrowser ifNil: [ ^ self ].
 	(self projectsPresenter projectListPresenter list
 		 detect: [ :service | service name = self sampleProject1Name ]
 		 ifNone: [  ]) ifNotNil: [
-		self projectsPresenter basicUnloadProjects:
-			(Array with: self sampleProject1Name) ].
-	self destroy: projectsBrowser.
-	projectsBrowser := nil
+		self projectsPresenter
+			basicUnloadProjects: (Array with: self sampleProject1Name)
+			onCompletion: [  ] ]
 ]
 
 { #category : 'support' }
@@ -482,8 +479,11 @@ JadeiteTestResource >> unloadSampleProject9 [
 
 { #category : 'projects loading' }
 JadeiteTestResource >> unloadSampleProject: sampleProject [
-	sampleProject ifNil:[^self]. 
-	self basicUnloadProjects: (Array with: sampleProject name).
+
+	sampleProject ifNil: [ ^ self ].
+	self
+		basicUnloadProjects: (Array with: sampleProject name)
+		onCompletion: nil
 ]
 
 { #category : 'updates' }

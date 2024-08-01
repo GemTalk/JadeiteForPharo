@@ -112,12 +112,12 @@ JadeiteBrowserPresenter >> abortTransaction [
 
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
-
 	self updateProjects.
+	self projectListPresenter invalidate.
 	self resetClassTemplate.
 	self resetClassComment.
-	self projectListPresenter invalidate.
 	self updateMethodSource. 
+
 ]
 
 { #category : 'as yet unclassified' }
@@ -390,23 +390,6 @@ JadeiteBrowserPresenter >> basicRemoveGlobal: qualifiedString [
 	self issueCommand: dictionaryService onCompletion: nil.
 	self removeGlobalsTab.
 	self buildGlobalsTab
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> basicUnloadProjects: projectNames [
-
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService
-		command: #unloadProjectsNamed:;
-		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService onCompletion: nil.
-	projectListPresenter unselectAll.
-	packageListPresenter clear.
-	classListPresenter clear.
-	self clearMethodLists.
-	self refreshGlobalSelections.
-	dictionaryListPresenter clear
 ]
 
 { #category : 'as yet unclassified' }
@@ -1081,7 +1064,7 @@ JadeiteBrowserPresenter >> editSaveClass [
 		browserService selectedClass: classService name ].
 	[
 	self issueCommand: browserService onCompletion: [
-		self recompileMethods: browserService.
+		self recompileMethods.
 		self resetClassDefinitionPane ] ]
 		on: Error
 		do: [ :ex |
@@ -2021,12 +2004,6 @@ JadeiteBrowserPresenter >> isValidClassService: classService [
 	^true
 ]
 
-{ #category : 'services' }
-JadeiteBrowserPresenter >> issueCommand: service onCompletion: aBlock [
-
-	^RowanServiceUpdater current issueCommand: service session: gciSession onCompletion: aBlock
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> jadeDebug [
 	RowanServiceUpdater current inUpdateWhile: [self jadeExecuteAndDisplay: false shouldDebug: true]
@@ -2585,6 +2562,28 @@ JadeiteBrowserPresenter >> protectedDictionaries [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> recompileMethods [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #recompileMethodsAfterClassCompilation;
+		commandArgs: #(  ).
+	[
+	self issueCommand: browserService onCompletion: [
+		self resetClassDefinitionPane.
+		self
+			updateAfterFindClass: browserService selectedClass
+			onCompletion: [  ] ] ]
+		on: GsApplicationError , GsCompileError
+		do: [ :ex |
+			('*poolDictionaries not supported yet*' match: ex description)
+				ifTrue: [
+				^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
+			^ self showMethodRecompilationError: ex ]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> recompileMethods: browserService [
 
 	browserService
@@ -2595,7 +2594,7 @@ JadeiteBrowserPresenter >> recompileMethods: browserService [
 		self resetClassDefinitionPane.
 		self
 			updateAfterFindClass: browserService selectedClass
-			onCompletion: nil ] ]
+			onCompletion: [  ] ] ]
 		on: GsApplicationError , GsCompileError
 		do: [ :ex |
 			('*poolDictionaries not supported yet*' match: ex description)
@@ -3093,7 +3092,8 @@ JadeiteBrowserPresenter >> selectClassNamed: classService package: packageServic
 	packageListPresenter selectIndex: index scrollToSelection: true.
 	classListPresenter list: packageService sortedClasses.
 	index := classListPresenter list indexOf: classService.
-	classListPresenter selectIndex: index scrollToSelection: true
+	classListPresenter selectIndex: index scrollToSelection: true.
+	self updateClassInfo. 
 ]
 
 { #category : 'selections' }
@@ -3580,19 +3580,21 @@ JadeiteBrowserPresenter >> togglePackageGroupsColumn [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> unloadProjects [
+
 	| projectNames ws |
-	projectNames := projectListPresenter selections collect: [:projectService | projectService name].
-	projectNames isEmpty ifTrue: [^self].
+	projectNames := projectListPresenter selections collect: [
+		                :projectService | projectService name ].
+	projectNames isEmpty ifTrue: [ ^ self ].
 	ws := WriteStream on: String new.
-	projectNames do: 
-			[:projectName |
-			ws
-				space;
-				nextPutAll: projectName].
+	projectNames do: [ :projectName |
+		ws
+			space;
+			nextPutAll: projectName ].
 	(MessageBox
-		confirm: 'Really unload project(s) - ' , ws contents , '?  You will lose any unsaved changes! '
-		caption: 'UNLOAD PROJECTS WARNING!') ifFalse: [^self].
-	self basicUnloadProjects: projectNames
+		 confirm: 'Really unload project(s) - ' , ws contents
+			 , '?  You will lose any unsaved changes! '
+		 caption: 'UNLOAD PROJECTS WARNING!') ifFalse: [ ^ self ].
+	self basicUnloadProjects: projectNames onCompletion: nil
 ]
 
 { #category : 'initialization' }

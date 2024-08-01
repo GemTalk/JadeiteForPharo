@@ -150,7 +150,6 @@ RowanClassService >> basicPrepareForReplication [
 	method & package services don't iterate over subcollections"
 
 	"methods := Array new. "
-	Processor activeProcess jadeiteTranscriptWrite: 'RowanClassService>>#basicPrepareForReplication {', self identityHash printString, '} ', self printString.  
 	hierarchyServices := Dictionary new.
 	selectedMethods := Array new.
 	visibleTests := Array new.

@@ -89,6 +89,8 @@ JadeiteGCIConnectionProfile >> connect [
 	"connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace."
+	RowanServiceUpdater current isLogging: true.
+	RowanServiceUpdater current logComment: 'Connection established!'.
 	^ connection
 ]
 
@@ -97,7 +99,7 @@ JadeiteGCIConnectionProfile >> disconnect [
 	"not only close & logout the session, but cleanup any 
 	subscriptions to the connection so launcher's don't get
 	stuck open"
-
+	connection ifNil: [ ^self ].
 	connection close.
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
 	session ifNotNil: [ session logout ].

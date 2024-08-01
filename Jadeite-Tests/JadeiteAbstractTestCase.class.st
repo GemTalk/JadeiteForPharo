@@ -388,10 +388,10 @@ JadeiteAbstractTestCase >> isSampleProject1Loaded [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> issueCommand: service onCompletion: completionBlock [
 
-	^ RowanServiceUpdater current
-		  issueCommands: (Array with: service)
-		  session: session
-		  onCompletion: completionBlock
+	RowanServiceUpdater current
+		issueCommands: (Array with: service)
+		session: session
+		onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }

@@ -25,6 +25,26 @@ Object >> isRowanService [
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
+Object >> jadeiteLog: aString [
+
+	| ws sender |
+	ws := WriteStream on: String new.
+	sender := thisContext sender.
+	sender isBlockContext ifTrue: [ ws nextPut: $[ ].
+	ws
+		nextPutAll: sender methodClass printString;
+		nextPutAll: '>>';
+		nextPutAll: sender selector.
+	sender isBlockContext ifTrue: [ ws nextPut: $] ].
+	ws
+		tab;
+		nextPutAll: aString;
+		tab;
+		nextPutAll: self printString.
+	Processor activeProcess jadeiteLog: ws contents
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
 Object >> prepareForReplication [
 ]
 
