@@ -95,16 +95,17 @@ JadeiteProjectsTrait >> basicReloadProject: selections [
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> basicUnloadProjects: projectNames onCompletion: anObject [
+JadeiteProjectsTrait >> basicUnloadProjects: projectNames onCompletion: completionBlock [
 
 	| browserService |
+	self jadeiteLog: 'enter'.
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
 	self
 		issueCommand: browserService
-		onCompletion: [ self refreshGlobalSelections ]
+		onCompletion: [ self refreshGlobalSelections. completionBlock value ]
 ]
 
 { #category : 'testing' }
@@ -585,8 +586,8 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
-		onCompletion: nil.
-	self updateServices: RowanServiceUpdater current selectedServices
+		onCompletion: [
+		self updateServices: RowanServiceUpdater current selectedServices ]
 ]
 
 { #category : 'actions' }

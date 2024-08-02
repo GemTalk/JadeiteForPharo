@@ -72,7 +72,6 @@ JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 	self projectsPresenter selectVariableTab.
 	self projectsPresenter variableListPresenter selectIndex: 1.
 	self abortTransaction.
-	true ifTrue:[^self].
 	[
 	self assert:
 		self projectsPresenter variableListPresenter list isEmpty.

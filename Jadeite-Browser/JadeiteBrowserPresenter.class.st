@@ -72,12 +72,12 @@ JadeiteBrowserPresenter class >> issueCommand: service session: gciSession [
 ]
 
 { #category : 'utility' }
-JadeiteBrowserPresenter class >> issueCommands: service session: gciSession onCompletion: anObject [
+JadeiteBrowserPresenter class >> issueCommands: service session: gciSession onCompletion: completionBlock [
 
 	^ RowanServiceUpdater current
 		  issueCommands: service
 		  session: gciSession
-		  onCompletion: nil
+		  onCompletion: completionBlock
 ]
 
 { #category : 'utility' }

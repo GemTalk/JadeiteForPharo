@@ -206,7 +206,6 @@ RowanClassService >> categories: aCollection [
 RowanClassService >> classHierarchyUpdate: presenter browser: browser [
 
 	| treeModel subclasses parent selectedPath |
-	Transcript cr; show: name; flush. 
 	browser isHierarchyTabSelected ifFalse: [ ^ self ].
 	(self shouldBeInTree: presenter) ifFalse: [ ^ self ].
 	(self reparentOrAddChildServiceIn: presenter) ifTrue: [ ^ self ].

@@ -53,7 +53,7 @@ JadeiteLogger >> initialize [
 	super initialize.
 	isLogging := false.
 	shouldGetNewLoggerGroup := true.
-	semaphore := Semaphore forMutualExclusion. 
+	semaphore := RowanSemaphore forMutualExclusion. 
 	self newLoggingService.
 ]
 

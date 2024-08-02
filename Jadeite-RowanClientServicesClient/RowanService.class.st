@@ -433,12 +433,12 @@ RowanService >> issueCommand: service session: session [
 ]
 
 { #category : 'commands' }
-RowanService >> issueCommands: services session: session onCompletion: anObject [
+RowanService >> issueCommands: services session: session onCompletion: completionBlock [
 
 	^ RowanServiceUpdater current
 		  issueCommands: services
 		  session: session
-		  onCompletion: nil
+		  onCompletion: completionBlock
 ]
 
 { #category : 'rsr' }

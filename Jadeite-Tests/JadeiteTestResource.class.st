@@ -45,14 +45,17 @@ JadeiteTestResource class >> signalInitializationError [
 ]
 
 { #category : 'projects loading' }
-JadeiteTestResource >> basicUnloadProjects: projectNames onCompletion: anObject [
+JadeiteTestResource >> basicUnloadProjects: projectNames onCompletion: completionBlock [
 
 	| browserService |
+	self jadeiteLog: 'enter'.
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService onCompletion: [ self refreshGlobalSelections ]
+	self issueCommand: browserService onCompletion: [
+		self refreshGlobalSelections.
+		completionBlock value ]
 ]
 
 { #category : 'support' }

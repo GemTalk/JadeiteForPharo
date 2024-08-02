@@ -86,9 +86,10 @@ JadeiteGCIConnectionProfile >> connect [
 	GciSession current library: connection.
 	self applyPreferences.
 	"Uncomment following three lines to enable RSR tracing"
-	"connection log addSink: (RsrCustomSink action: [ :message |
+"	connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace."
+	"Uncomment following two lines to enable jadeite tracing"
 	RowanServiceUpdater current isLogging: true.
 	RowanServiceUpdater current logComment: 'Connection established!'.
 	^ connection

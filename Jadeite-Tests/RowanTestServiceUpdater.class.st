@@ -51,18 +51,11 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	Processor activeProcess name = 'Morphic UI Process' ifTrue: [
 		[ MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
 			fork ].
-	service jadeiteLog:
-		'------------------ enter ' , service printString
-		, '------------------------------'.
 	[
-	service jadeiteLog: 'enter forked block'.
 	[ self _basicIssueCommand: service ] ensure: [
-		sem signal.
 		processingCommand := false.
-		service jadeiteLog: 'exit forked block' ] ] fork.
-	sem wait.
-	service jadeiteLog: '------------------ exit ' , service printString
-		, '------------------------------'
+		sem signal ] ] fork.
+	sem wait
 ]
 
 { #category : 'commands' }

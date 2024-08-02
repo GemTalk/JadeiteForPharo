@@ -447,12 +447,6 @@ RowanServiceUpdater >> removeEventsTriggeredFor: anObject [
 	self removeActionsWithReceiver: anObject
 ]
 
-{ #category : 'initialization' }
-RowanServiceUpdater >> resetLoggingService [
-	logger loggingService: nil. 
-	logger newLoggingService
-]
-
 { #category : 'commands' }
 RowanServiceUpdater >> returnedCompileError: service [
 
