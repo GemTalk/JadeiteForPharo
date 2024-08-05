@@ -174,14 +174,14 @@ RowanBrowserService >> projectsUpdate: presenter [
 RowanBrowserService >> projectsUpdate: presenter browser: browser [
 
 	| removals selectedProjectService |
-	projects isNil ifTrue: [ ^ self ].
+	projects ifNil: [ ^ self ].
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
-	removals := presenter list select: [ :projectService |
-		            (projects includes: projectService) not ].
+	removals := presenter list reject: [ :projectService |
+		            (projects includes: projectService) ].
 	selectedProjectService := presenter selectedItem. 
 	(removals includes: selectedProjectService) ifTrue:[presenter unselectAll]. 
-	presenter model removeAll: removals.
+	presenter removeAll: removals.
 	presenter selections isEmpty ifTrue: [
 		browser updateProjectPackagesOnCompletion: nil ].
 	self

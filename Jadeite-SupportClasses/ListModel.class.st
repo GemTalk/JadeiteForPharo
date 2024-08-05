@@ -98,6 +98,12 @@ ListModel >> refreshList [
 		collection := (collection sorted: aSortFunction) asOrderedCollection ]
 ]
 
+{ #category : 'enumerating' }
+ListModel >> reject: aBlock [
+
+	^collection reject: aBlock
+]
+
 { #category : 'removing' }
 ListModel >> remove: anObject [
 
