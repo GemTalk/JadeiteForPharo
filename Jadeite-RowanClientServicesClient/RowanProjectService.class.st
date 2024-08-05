@@ -166,13 +166,10 @@ RowanProjectService >> branch: anObject [
 ]
 
 { #category : 'presenter support' }
-RowanProjectService >> changesUsing: session [
+RowanProjectService >> changesUsing: session onCompletion: completionBlock [
 
-	| operations |
-	operations := self basicChangesUsing: session onCompletion: [
-		              changes isEmpty ifTrue: [
-			              MessageBox notify: 'No changes!' ].
-		              changes := nil ]
+	self basicChangesUsing: session onCompletion: [ :operations |
+		completionBlock value: operations ]
 ]
 
 { #category : 'public' }

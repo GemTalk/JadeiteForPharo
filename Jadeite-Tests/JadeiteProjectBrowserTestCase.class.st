@@ -1156,39 +1156,78 @@ JadeiteProjectBrowserTestCase >> test_changeClassComment [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_changeListSortOrder [
+
 	| changesBrowser |
-	self testsIssue: #issue384
-		withTitle: '(3.0.53) sort by `type` in changes view does not do complete job'.
+	self
+		testsIssue: #issue384
+		withTitle:
+		'(3.0.53) sort by `type` in changes view does not do complete job'.
 	self dirtyProjectForChangeBrowser.
-	changesBrowser := (RowanProjectService new name: 'RowanSample1') changesUsing: session.
-	
-	[changesBrowser operationListPresenter view columnClicked: 1.	"ascending Type"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch typeString])
-		equals: #('Addition' 'Addition' 'Addition' 'Addition' 'Modification' 'Removal') asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 1.	"descending Type"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch typeString])
-		equals: #('Removal' 'Modification' 'Addition' 'Addition' 'Addition' 'Addition') asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 2.	"ascending class name"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch className])
-		equals: #('DirtyProject1' 'DirtyProject2' 'RowanSample1' 'RowanSample1' 'RowanSample1' 'RowanSample1Test')
-				asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 2.	"descending class name"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch className])
-		equals: #('RowanSample1Test' 'RowanSample1' 'RowanSample1' 'RowanSample1' 'DirtyProject2' 'DirtyProject1')
-				asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 4.	"ascending selector"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch selector])
-		equals: #('' '' 'foo' 'goo' 'hoo' 'test1') asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 4.	"descending selector"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch selector])
-		equals: #('test1' 'hoo' 'goo' 'foo' '' '') asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 5.	"ascending details"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch detailsString])
-		equals: #('Class Definition' 'Class Definition' 'other' 'other' 'other' 'tests') asOrderedCollection.
-	changesBrowser operationListPresenter view columnClicked: 5.	"descending details"
-	self assert: (changesBrowser operationListPresenter model collect: [:patch | patch detailsString])
-		equals: #('tests' 'other' 'other' 'other' 'Class Definition' 'Class Definition') asOrderedCollection]
-			ensure: [self destroy: changesBrowser]
+	changesBrowser := (RowanProjectService new name: 'RowanSample1')
+		                  changesUsing: session
+		                  onCompletion: nil.
+
+	[
+	changesBrowser operationListPresenter view columnClicked: 1. "ascending Type"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch typeString ])
+		equals:
+			#( 'Addition' 'Addition' 'Addition' 'Addition' 'Modification'
+			   'Removal' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 1. "descending Type"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch typeString ])
+		equals:
+			#( 'Removal' 'Modification' 'Addition' 'Addition' 'Addition'
+			   'Addition' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 2. "ascending class name"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch className ])
+		equals:
+			#( 'DirtyProject1' 'DirtyProject2' 'RowanSample1' 'RowanSample1'
+			   'RowanSample1' 'RowanSample1Test' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 2. "descending class name"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch className ])
+		equals:
+			#( 'RowanSample1Test' 'RowanSample1' 'RowanSample1' 'RowanSample1'
+			   'DirtyProject2' 'DirtyProject1' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 4. "ascending selector"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch selector ])
+		equals: #( '' '' 'foo' 'goo' 'hoo' 'test1' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 4. "descending selector"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch selector ])
+		equals: #( 'test1' 'hoo' 'goo' 'foo' '' '' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 5. "ascending details"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch detailsString ])
+		equals:
+			#( 'Class Definition' 'Class Definition' 'other' 'other' 'other'
+			   'tests' ) asOrderedCollection.
+	changesBrowser operationListPresenter view columnClicked: 5. "descending details"
+	self
+		assert:
+			(changesBrowser operationListPresenter model collect: [ :patch |
+				 patch detailsString ])
+		equals: #( 'tests' 'other' 'other' 'other' 'Class Definition'
+			   'Class Definition' ) asOrderedCollection ] ensure: [
+		self destroy: changesBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

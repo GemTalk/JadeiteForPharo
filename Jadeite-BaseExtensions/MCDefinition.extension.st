@@ -7,19 +7,13 @@ MCDefinition class >> fromStream: aStream [
 	char := aStream next.
 	aStream next.
 	class := 
-		char = $M ifTrue: [MCMethodDefinition] ifFalse: [
+		char = $M ifTrue: [MCRowanMethodDefinition] ifFalse: [
 		char = $O ifTrue: [MCOrganizationDefinition] ifFalse: [
 		char = $C ifTrue: [MCRowanClassDefinition] ifFalse: [
 		self error: 'Invalid MCDefinition']]].
 	^class new
 		initialize: aStream;
 		yourself.
-]
-
-{ #category : '*Jadeite-BaseExtensions' }
-MCDefinition >> packageName [
-
-	^packageName
 ]
 
 { #category : '*Jadeite-BaseExtensions' }

@@ -123,7 +123,7 @@ JadeiteChangesBrowser >> flipIdenticalSource [
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowser >> initialize [
 	super initialize.
-	includeIdenticalPresenter := ValueHolder with: true
+	self todo: ["includeIdenticalPresenter := ValueHolder with: true"]
 ]
 
 { #category : 'initialization' }

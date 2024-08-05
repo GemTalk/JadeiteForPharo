@@ -515,7 +515,7 @@ JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
 { #category : 'actions' }
 JadeiteProjectsTrait >> projectChanges [
 
-	| changesBrowser operations projectService |
+	| changesBrowser projectService |
 	self projectListPresenter selections isEmpty ifTrue: [
 		^ MessageBox notify: 'No project selected' ].
 	projectService := self projectListPresenter selectedItem.
@@ -523,15 +523,19 @@ JadeiteProjectsTrait >> projectChanges [
 		^ UIManager default inform:
 			  ('Project <1s> does not exist on disk' expandMacrosWith:
 				   projectService name) ].
-	operations := projectService changesUsing: self gciSession.
-	changesBrowser := JadeiteChangesBrowser
-		                  showOn: (RowanPatch new
-				                   operations: operations;
-				                   gciSession: self gciSession)
-		                  name: projectService name
-		                  application: self application.
-	changesBrowser owner application: self application.
-	^ changesBrowser
+	projectService
+		changesUsing: self gciSession
+		onCompletion: [ :operations |
+			operations isEmpty
+				ifTrue: [ MessageBox notify: 'No changes!' ]
+				ifFalse: [
+					changesBrowser := JadeiteChangesBrowser
+						                  showOn: (RowanPatch new
+								                   operations: operations;
+								                   gciSession: self gciSession)
+						                  name: projectService name
+						                  application: self application.
+					changesBrowser owner application: self application ] ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -393,12 +393,13 @@ JadeiteBrowserPresenter >> basicRemoveGlobal: qualifiedString [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> basicUpdateProject [
+JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
 
 	self updateProjectPackagesOnCompletion: [
 		self updateProjectInfo.
 		self todo: 'projectInfoTab ensureVisible'.
-		self sundryCleanup ]
+		self sundryCleanup.
+		completionBlock value ]
 ]
 
 { #category : 'actions' }
@@ -805,10 +806,8 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 		self classHierarchyPresenter roots: OrderedCollection new.
 		self isDictionaryTabSelected
 			ifTrue: [ self updateDictionaries ]
-			ifFalse: [
-				self updateProject.
-				self updatePackage ].
-		self updateClassesOnCompletion: nil ].
+			ifFalse: [ self updateProjectOnCompletion: [ self updatePackage ] ].
+		self updateClassesOnCompletion: [  ] ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		self updateDictionary ]
 ]
@@ -819,7 +818,8 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectClassPresenters.
 	self connectPackageDictionaryPresenters.
 	projectListPresenter
-		whenSelectionChangedDo: [ :selection | self updateProject ];
+		whenSelectionChangedDo: [ :selection |
+			self updateProjectOnCompletion: [  ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
@@ -1145,14 +1145,14 @@ JadeiteBrowserPresenter >> expandAt: classService [
 	classService
 		command: #oneLevelClassHierarchy;
 		commandArgs: Array new.
-	self issueCommand: classService onCompletion: nil.
-	classHierarchyPresenter childrenFor: classService.
-	path := classHierarchyPresenter selection selectedPath.
-	classHierarchyPresenter recalculateChildrenFor: path.
-	classHierarchyPresenter
-		collapsePath: path;
-		expandPath: path.
-	classHierarchyPresenter selectItem: classService
+	self issueCommand: classService onCompletion: [
+		classHierarchyPresenter childrenFor: classService.
+		path := classHierarchyPresenter selection selectedPath.
+		classHierarchyPresenter recalculateChildrenFor: path.
+		classHierarchyPresenter
+			collapsePath: path;
+			expandPath: path.
+		classHierarchyPresenter selectItem: classService ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3741,7 +3741,7 @@ JadeiteBrowserPresenter >> updateDictionaries [
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateDictionaries.
-	self issueCommand: browserService onCompletion: nil
+	self issueCommand: browserService onCompletion: []
 ]
 
 { #category : 'updates' }
@@ -3814,7 +3814,7 @@ JadeiteBrowserPresenter >> updateHierarchyForPacktionaries [
 			service
 				command: #classHierarchyForPackagesNamed:;
 				commandArgs: (Array with: self selectedPackageNames) ].
-	self issueCommand: service onCompletion: nil
+	self issueCommand: service onCompletion: [  ]
 ]
 
 { #category : 'history' }
@@ -3895,25 +3895,6 @@ JadeiteBrowserPresenter >> updatePackageMenu: menu [
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenter >> updateProject [
-
-	self packageListPresenter clear.
-	self dictionaryListPresenter clear.
-	self cleanupProjectInfoTab.
-	self updateTabLabel.
-	classHierarchyPresenter clear.
-	classListPresenter clear.
-	self selectClassListTab.
-	self packageListPresenter selectionIfNone: [
-		classListPresenter clear.
-		classHierarchyPresenter clear ].
-	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
-	self updateTabLabel.
-	self basicUpdateProject.
-	definedClassPackageText text: String new
-]
-
-{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfo [
 
 	| service |
@@ -3951,6 +3932,25 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 			array nextPut: (Array with: service with: 'packageConvention').
 			service == service ifFalse: [array nextPut: (Array with: RowanProjectService new with: nil)]].
 	projectInfoList items: array contents
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> updateProjectOnCompletion: completionBlock [
+
+	self packageListPresenter clear.
+	self dictionaryListPresenter clear.
+	self cleanupProjectInfoTab.
+	self updateTabLabel.
+	classHierarchyPresenter clear.
+	classListPresenter clear.
+	self selectClassListTab.
+	self packageListPresenter selectionIfNone: [
+		classListPresenter clear.
+		classHierarchyPresenter clear ].
+	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
+	self updateTabLabel.
+	self basicUpdateProjectOnCompletion: completionBlock.
+	definedClassPackageText text: String new
 ]
 
 { #category : 'as yet unclassified' }
