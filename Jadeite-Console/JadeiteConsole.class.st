@@ -727,6 +727,11 @@ JadeiteConsole >> projectListPresenter [
 	^projectListPresenter
 ]
 
+{ #category : 'actions' }
+JadeiteConsole >> projectListUpdated [
+	"no other lists to clear"
+]
+
 { #category : 'accessing' }
 JadeiteConsole >> queryCommand: aCommandQuery [
 	super queryCommand: aCommandQuery.

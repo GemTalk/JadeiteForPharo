@@ -2511,6 +2511,16 @@ JadeiteBrowserPresenter >> projectInfoValueDisplay: array [
 			  ifFalse: [ array first perform: array last asSymbol ] ]
 ]
 
+{ #category : 'events' }
+JadeiteBrowserPresenter >> projectListUpdated [
+
+	self packageListPresenter clear. 
+	self classListPresenter clear. 
+	self classHierarchyPresenter clear. 
+	self clearFilterLists. 
+	self clearMethodLists. 
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectMenuCommands [
 	^self class projectMenu items collect: [:item | item command]

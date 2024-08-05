@@ -14,6 +14,13 @@ JadeiteProjectsTrait >> allSelectedProjectsDirty [
 	^self basicAllSelectedProjectsDirty: self projectListPresenter
 ]
 
+{ #category : 'actions' }
+JadeiteProjectsTrait >> areProjectsInSync: projects [
+
+	^ (self sortedProjectsFrom: projects) asArray
+	  = self projectListPresenter items asArray
+]
+
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> auditProject [
 	self auditProjectFor: self projectListPresenter selectedItem name
@@ -164,13 +171,6 @@ JadeiteProjectsTrait >> dirtyDiskConfirmation [
 	ws := WriteStream on: String new.
 	message := 'The on-disk state of the git repository is dirty. This may be due to a previous project write without commit, or change to the repository outside Jadeite. It is recommended to check status on the git command line before committing. Proceed?'.
 	^ MessageBox confirm: (message skinnyPrintOn: ws) contents
-]
-
-{ #category : 'actions' }
-JadeiteProjectsTrait >> doProjectsNeedRefresh: browserService [
-
-	^ (self sortedProjectsFrom: browserService projects) asArray
-	  = self projectListPresenter items asArray
 ]
 
 { #category : 'actions' }
@@ -646,8 +646,9 @@ JadeiteProjectsTrait >> updateProjects [
 		issueCommand: browserService
 		session: self gciSession
 		onCompletion: [
-			(self doProjectsNeedRefresh: browserService) ifFalse: [
+			(self areProjectsInSync: browserService projects) ifFalse: [
 				self projectListPresenter items:
-					(self sortedProjectsFrom: browserService projects) ].
+					(self sortedProjectsFrom: browserService projects).
+				self projectListUpdated ].
 			self basicPostOpen ]
 ]

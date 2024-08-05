@@ -66,8 +66,10 @@ JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
 { #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 
-	self jadeiteLog: 'enter'. 
-	self commitTransaction. 
+	self jadeiteLog: 'enter'.
+	self unloadSampleProject1.
+	self commitTransaction.
+	self ensureRowanSampleProjectsLoaded.
 	self selectRowanSample1Test.
 	self projectsPresenter selectVariableTab.
 	self projectsPresenter variableListPresenter selectIndex: 1.
