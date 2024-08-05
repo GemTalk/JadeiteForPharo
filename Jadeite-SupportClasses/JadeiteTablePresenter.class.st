@@ -57,6 +57,12 @@ JadeiteTablePresenter >> newEmptyModel [
 	^ ListModel on: OrderedCollection new
 ]
 
+{ #category : 'removing' }
+JadeiteTablePresenter >> removeAll: removals [
+
+	self model removeAll: removals 
+]
+
 { #category : 'api - selection' }
 JadeiteTablePresenter >> resetSelection [ 
 	self unselectAll

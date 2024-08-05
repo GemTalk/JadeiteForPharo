@@ -339,12 +339,12 @@ JadeiteSUnitPresenter >> onClassesChanged [
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> onPackageChanged [
 
-	self updateClassesOnCompletion: nil.
-	self todo: [
-		status value: nil.
-		status value: self ].
-	self reset.
-	classListPresenter unselectAll
+	self updateClassesOnCompletion: [
+		self todo: [
+			status value: nil.
+			status value: self ].
+		self reset.
+		classListPresenter unselectAll ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -623,7 +623,7 @@ JadeiteSUnitPresenter >> update: newMethods orRemove: removals [
 ]
 
 { #category : 'updates' }
-JadeiteSUnitPresenter >> updateClassesOnCompletion: anObject [
+JadeiteSUnitPresenter >> updateClassesOnCompletion: completionBlock [
 
 	| packageServices |
 	self initializeClassList.
@@ -633,7 +633,7 @@ JadeiteSUnitPresenter >> updateClassesOnCompletion: anObject [
 	RowanServiceUpdater current
 		issueCommands: packageServices
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'updates' }

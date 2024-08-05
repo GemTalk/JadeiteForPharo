@@ -31,15 +31,15 @@ RowanProcessServiceClient >> openDebugger [
 	| activeProcess |
 	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
-	UIManager default defer: [
-		debugger := JadeiteDebuggerApplication showOnSession:
-			            GciSession current library.
-		debugger
-			suspendedProcess: activeProcess;
-			gsProcess: self.
-		debugger errorMessagePresenter text: errorMessage.
-		debugger frameListPresenter items: frames.
-		debugger selectInitialFrame ].
+
+	debugger := JadeiteDebuggerApplication showOnSession:
+		            GciSession current library.
+	debugger
+		suspendedProcess: activeProcess;
+		gsProcess: self.
+	debugger errorMessagePresenter text: errorMessage.
+	debugger frameListPresenter items: frames.
+	debugger selectInitialFrame.
 	activeProcess suspend.
 	^ debugger answer
 ]

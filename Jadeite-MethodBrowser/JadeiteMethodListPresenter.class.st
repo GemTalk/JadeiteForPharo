@@ -28,6 +28,13 @@ JadeiteMethodListPresenter >> abortTransaction [
 	^ abortResults
 ]
 
+{ #category : 'events' }
+JadeiteMethodListPresenter >> abortedTransaction [
+
+	self methodListPresenter selectedItem ifNotNil: [ :service |
+		self methodSourcePresenter value: service source ]
+]
+
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> addStyle: aString [
 	"don't send the super because we don't want the toolbar to be the same color as source pane"
@@ -129,7 +136,11 @@ JadeiteMethodListPresenter >> connectPresenters [
 	methodSourcePresenter whenResetDo: [
 		methodSourcePresenter text:
 			methodSourcePresenter methodService source.
-		methodSourcePresenter isModified: false ]
+		methodSourcePresenter isModified: false ].
+	self application
+		when: #abortedTransaction
+		send: #abortedTransaction
+		to: self.
 ]
 
 { #category : 'as yet unclassified' }
@@ -182,14 +193,14 @@ JadeiteMethodListPresenter >> editSaveMethod: classService onCompletion: complet
 		                 in: methodSourcePresenter
 		                 category: methodListPresenter selectedItem category
 		                 onCompletion: [
-			                 self updateService: classService.
-			                 self statusBarText message ifNotNil: [ :text |
-				                 text isEmpty ifTrue: [ "don't reselect methods when status bar is full so as not to upset the compile information"
-					                 classService selectedMethods ifNotNil: [
-						                 :methodServices |
-						                 methodServices notEmpty ifTrue: [ "there will be no method selected on a compiler error"
-							                 self selectMethodsFrom: classService ] ].
-					                 completionBlock value ] ] ]
+			                 self updateService: classService onCompletion: [
+				                 self statusBarText message ifNotNil: [ :text |
+					                 text isEmpty ifTrue: [ "don't reselect methods when status bar is full so as not to upset the compile information"
+						                 classService selectedMethods ifNotNil: [
+							                 :methodServices |
+							                 methodServices notEmpty ifTrue: [ "there will be no method selected on a compiler error"
+								                 self selectMethodsFrom: classService ] ].
+						                 completionBlock value ] ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
