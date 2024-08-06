@@ -1406,14 +1406,13 @@ JadeiteBrowserPresenter >> hierarchyClassDoubleClicked [
 { #category : 'history' }
 JadeiteBrowserPresenter >> historyBack [
 
-	UIManager default defer: [
-		self jumpToHistoryIndex: (historyIndex - 1 max: 1) ]
+	self jumpToHistoryIndex: (historyIndex - 1 max: 1)
 ]
 
 { #category : 'history' }
 JadeiteBrowserPresenter >> historyForward [
 
-	UIManager default defer: [ self jumpToHistoryIndex: historyIndex + 1 ]
+	self jumpToHistoryIndex: historyIndex + 1
 ]
 
 { #category : 'initialization' }

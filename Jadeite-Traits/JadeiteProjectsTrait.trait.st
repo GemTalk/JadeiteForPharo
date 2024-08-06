@@ -177,16 +177,15 @@ JadeiteProjectsTrait >> fileoutProject [
 
 	| service filePath |
 	service := self projectListPresenter selectedItem.
-	UIManager default defer: [
-		filePath := self fileoutFileSelection: service name.
-		filePath ifNotNil: [
-			service
-				command: #exportTopazFormatTo:;
-				commandArgs: (Array with: filePath).
-			RowanServiceUpdater current
-				issueCommand: service
-				session: self gciSession
-				onCompletion: nil ] ]
+	filePath := self fileoutFileSelection: service name.
+	filePath ifNotNil: [
+		service
+			command: #exportTopazFormatTo:;
+			commandArgs: (Array with: filePath).
+		RowanServiceUpdater current
+			issueCommand: service
+			session: self gciSession
+			onCompletion: nil ]
 ]
 
 { #category : 'actions' }
@@ -212,9 +211,7 @@ JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 				issueCommands: projectServices
 				session: self gciSession
 				onCompletion: [
-					UIManager default defer: [
-						MessageBox notify:
-							'Projects ' , ws contents , ' written to disk' ] ] ]
+				MessageBox notify: 'Projects ' , ws contents , ' written to disk' ] ]
 ]
 
 { #category : 'menus' }
@@ -259,20 +256,18 @@ JadeiteProjectsTrait >> gitCommit [
 
 	| projectName message |
 	self canCommit ifFalse: [ ^ self ].
-
 	projectName := self projectListPresenter selectedItem name.
-	UIManager default defer: [
-		message := UIManager default
-			           jadeiteMultiLineRequest:
-			           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
-			           initialAnswer: '<enter commit comment here>'
-			           answerHeight: 250.
-		message ifNotNil: [
-			message value isEmpty
-				ifTrue: [
-					MessageBox notify:
-						'Commit message must not be empty. Commit to local repository NOT done.' ]
-				ifFalse: [ self gitCommit: projectName message: message ] ] ]
+	message := UIManager default
+		           jadeiteMultiLineRequest:
+		           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
+		           initialAnswer: '<enter commit comment here>'
+		           answerHeight: 250.
+	message ifNotNil: [
+		message value isEmpty
+			ifTrue: [
+				MessageBox notify:
+					'Commit message must not be empty. Commit to local repository NOT done.' ]
+			ifFalse: [ self gitCommit: projectName message: message ] ]
 ]
 
 { #category : 'actions' }

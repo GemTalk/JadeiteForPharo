@@ -139,13 +139,11 @@ JadeiteWorkspace >> saveServerFile [
 JadeiteWorkspace >> saveServerFileAs [
 
 	| filePath |
-	UIManager default defer: [
-		filePath := JadeiteServerFileSaveDialog
-			            showOnSession: GciSession current
-			            defaultPath: self defaultSaveFileAsDirectory
-			            defaultFileName: self defaultSaveAsFileName.
-		filePath ifNotNil: [ 
-		self writeDocumentTo: filePath ]]
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: self defaultSaveFileAsDirectory
+		            defaultFileName: self defaultSaveAsFileName.
+	filePath ifNotNil: [ self writeDocumentTo: filePath ]
 ]
 
 { #category : 'command support' }

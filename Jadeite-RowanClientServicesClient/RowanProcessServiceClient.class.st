@@ -49,10 +49,9 @@ RowanProcessServiceClient >> updateClient [
 
 	| activeProcess |
 	activeProcess := Processor activeProcess.
-	UIManager default defer: [
-		debugger suspendedProcess: activeProcess.
-		debugger frameListPresenter items: frames.
-		debugger selectInitialFrame ].
+	debugger suspendedProcess: activeProcess.
+	debugger frameListPresenter items: frames.
+	debugger selectInitialFrame.
 	activeProcess suspend.
 	^ debugger answer
 ]
