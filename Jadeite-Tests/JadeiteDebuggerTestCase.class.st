@@ -1470,130 +1470,186 @@ JadeiteDebuggerTestCase >> test_doubleClickIncludesColon [
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_duplicateInstVars [
-	self testsIssue: #issue228
-		withTitle: 'lose selected class in project browser when new version created'.
+
+	self
+		testsIssue: #issue228
+		withTitle:
+		'lose selected class in project browser when new version created'.
 	self openProjectBrowser.
-	
-	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
-	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
-	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+
+	[
+	self
+		selectServicesNamed: (Array with: 'RowanSample1')
+		in: self projectListPresenter.
+	self
+		selectServicesNamed: #( 'RowanSample1-Tests' )
+		in: self packageListPresenter.
+	self
+		saveTestClassWithInstVars: Array new
+		package: 'RowanSample1-Tests'.
 	self selectClassTab.
 	self
 		saveClass: 'SubClass'
 		superclass: 'TestClass'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectServiceNamed: 'SubClass' in: self classListPresenter.
 	self
 		saveClass: 'SubSubClass'
 		superclass: 'SubClass'
-		instVars: #('aa')
+		instVars: #( 'aa' )
 		package: 'RowanSample1-Tests'.
 	self selectServiceNamed: 'SubClass' in: self classListPresenter.
-	self debuggerDo: 
-			[process := 
-					[self selectServiceNamed: 'SubClass' in: self classListPresenter.
-					self
-						saveClass: 'SubClass'
-						withInstVars: #('aa')
-						package: 'RowanSample1-Tests']
-							forkAt: Processor activePriority + 1].
+	self debuggerDo: [
+		process := [
+		           self
+			           selectServiceNamed: 'SubClass'
+			           in: self classListPresenter.
+		           self
+			           saveClass: 'SubClass'
+			           withInstVars: #( 'aa' )
+			           package: 'RowanSample1-Tests' ] forkAt:
+			           Processor activePriority + 1 ].
 	self getDebugger.
-	self assert: debugger variableListPresenter list first key value equals: #receiver.
-	self assert: debugger variableListPresenter list first className equals: 'ImproperOperation']
-			ensure: 
-				[self projectsPresenter classDefinitionPresenter view isModified: false.
-				self selectServiceNamed: 'SubSubClass' in: self classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self selectServiceNamed: 'SubClass' in: self classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self destroy: projectsBrowser]
+	self
+		assert: debugger variableListPresenter list first key value
+		equals: #receiver.
+	self
+		assert: debugger variableListPresenter list first className
+		equals: 'ImproperOperation' ] ensure: [
+		self projectsPresenter classDefinitionPresenter view isModified:
+			false.
+		self selectServiceNamed: 'SubSubClass' in: self classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self selectServiceNamed: 'SubClass' in: self classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_duplicateInstVarsHierarchy [
-	self testsIssue: #issue228
-		withTitle: 'lose selected class in project browser when new version created'.
+
+	self
+		testsIssue: #issue228
+		withTitle:
+		'lose selected class in project browser when new version created'.
 	self openProjectBrowser.
-	
-	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
-	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
+
+	[
+	self
+		selectServicesNamed: (Array with: 'RowanSample1')
+		in: self projectListPresenter.
+	self
+		selectServicesNamed: #( 'RowanSample1-Tests' )
+		in: self packageListPresenter.
 	self selectHierarchyTab.
-	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+	self
+		saveTestClassWithInstVars: Array new
+		package: 'RowanSample1-Tests'.
 	self selectClassInHierarchyNamed: 'TestClass'.
 	self
 		saveClass: 'SubClass'
 		superclass: 'TestClass'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectClassInHierarchyNamed: 'SubClass'.
 	self
 		saveClass: 'SubSubClass'
 		superclass: 'SubClass'
-		instVars: #('aa')
+		instVars: #( 'aa' )
 		package: 'RowanSample1-Tests'.
 	self selectClassInHierarchyNamed: 'SubSubClass'.
-	self debuggerDo: 
-			[process := 
-					[self selectClassInHierarchyNamed: 'SubClass'.
-					self
-						saveClass: 'SubClass'
-						withInstVars: #('aa')
-						package: 'RowanSample1-Tests']
-							forkAt: Processor activePriority + 1].
+	self debuggerDo: [
+		process := [
+		           self selectClassInHierarchyNamed: 'SubClass'.
+		           self
+			           saveClass: 'SubClass'
+			           withInstVars: #( 'aa' )
+			           package: 'RowanSample1-Tests' ] forkAt:
+			           Processor activePriority + 1 ].
 	self getDebugger.
-	self assert: debugger variableListPresenter list first key value equals: #receiver.
-	self assert: debugger variableListPresenter list first className equals: 'ImproperOperation']
-			ensure: 
-				[self projectsPresenter classDefinitionPresenter view isModified: false.
-				self selectClassInHierarchyNamed: 'SubSubClass'.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self selectClassInHierarchyNamed: 'SubClass'.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self destroy: projectsBrowser]
+	self
+		assert: debugger variableListPresenter list first key value
+		equals: #receiver.
+	self
+		assert: debugger variableListPresenter list first className
+		equals: 'ImproperOperation' ] ensure: [
+		self projectsPresenter classDefinitionPresenter view isModified:
+			false.
+		self selectClassInHierarchyNamed: 'SubSubClass'.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self selectClassInHierarchyNamed: 'SubClass'.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_duplicateInstVarsInHierarchy [
-	self testsIssue: #issue228
-		withTitle: 'lose selected class in project browser when new version created'.
+
+	self
+		testsIssue: #issue228
+		withTitle:
+		'lose selected class in project browser when new version created'.
 	self openProjectBrowser.
-	
-	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
-	self selectServicesNamed: #('RowanSample1-Tests') in: self packageListPresenter.
-	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Tests'.
+
+	[
+	self
+		selectServicesNamed: (Array with: 'RowanSample1')
+		in: self projectListPresenter.
+	self
+		selectServicesNamed: #( 'RowanSample1-Tests' )
+		in: self packageListPresenter.
+	self
+		saveTestClassWithInstVars: Array new
+		package: 'RowanSample1-Tests'.
 	self selectHierarchyTab.
 	self selectServiceNamed: 'TestClass' in: self classListPresenter.
 	self
 		saveClass: 'SubClass'
 		superclass: 'TestClass'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectClassInHierarchyNamed: 'SubClass'.
 	self
 		saveClass: 'SubSubClass'
 		superclass: 'SubClass'
-		instVars: #('aa')
+		instVars: #( 'aa' )
 		package: 'RowanSample1-Tests'.
 	self selectClassInHierarchyNamed: 'SubSubClass'.
-	self debuggerDo: 
-			[process := 
-					[self selectClassInHierarchyNamed: 'SubClass'.
-					self
-						saveClass: 'SubClass'
-						withInstVars: #('aa')
-						package: 'RowanSample1-Tests']
-							forkAt: Processor activePriority + 1].
+	self debuggerDo: [
+		process := [
+		           self selectClassInHierarchyNamed: 'SubClass'.
+		           self
+			           saveClass: 'SubClass'
+			           withInstVars: #( 'aa' )
+			           package: 'RowanSample1-Tests' ] forkAt:
+			           Processor activePriority + 1 ].
 	self getDebugger.
-	self assert: debugger variableListPresenter list first key value equals: #receiver.
-	self assert: debugger variableListPresenter list first className equals: 'ImproperOperation']
-			ensure: 
-				[self projectsPresenter classDefinitionPresenter view isModified: false.
-				self selectClassInHierarchyNamed: 'SubSubClass'.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self selectClassInHierarchyNamed: 'SubClass'.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self destroy: projectsBrowser]
+	self
+		assert: debugger variableListPresenter list first key value
+		equals: #receiver.
+	self
+		assert: debugger variableListPresenter list first className
+		equals: 'ImproperOperation' ] ensure: [
+		self projectsPresenter classDefinitionPresenter view isModified:
+			false.
+		self selectClassInHierarchyNamed: 'SubSubClass'.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self selectClassInHierarchyNamed: 'SubClass'.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

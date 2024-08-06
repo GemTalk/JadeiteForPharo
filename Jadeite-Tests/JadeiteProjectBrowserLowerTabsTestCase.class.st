@@ -396,15 +396,23 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonTabSuperclass [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_compileClass [
-	self testsIssue: #issue390 withTitle: 'Rename instance variable with accessor method is... wonky'.
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	[self assert: self projectsPresenter selectedClass name = 'TestClass']
-		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	[
+	self assert: self projectsPresenter selectedClass name = 'TestClass' ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -412,10 +420,13 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassCompilerError [
 	"class definition string has a compile error. 
 	Should get handled by the project browser"
 
-	self testsIssue: #issue390 withTitle: 'Rename instance variable with accessor method is... wonky'.
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
 	self selectRowanSample1Class.
-	self projectsPresenter classDefinitionPresenter
-		value: 'Object rwSubclass: ''TestClass''
+	self projectsPresenter classDefinitionPresenter value:
+		'Object rwSubclass: ''TestClass''
 	instVarNames: # abc )
 	classVars: #()
 	classInstVars: #()
@@ -423,18 +434,22 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassCompilerError [
 	category: ''RowanSample1-Core''
 	options: #()'.
 	self projectsPresenter editSaveClass.
-	
-	[self assert: self projectsPresenter classDefinitionPresenter value
+
+	[
+	self
+		assert: self projectsPresenter classDefinitionPresenter value
 		equals: 'Object rwSubclass: ''TestClass''
 	instVarNames:  invalid pound sign # abc )
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
 	category: ''RowanSample1-Core''
-	options: #()']
-			ensure: 
-				[self projectsPresenter classDefinitionPresenter view isModified: false.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	options: #()' ] ensure: [
+		self projectsPresenter classDefinitionPresenter view isModified:
+			false.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -481,44 +496,59 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassExistingInAnotherPack
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassWithFailingMethods [
+
 	| failedMethodService |
-	self testsIssue: #issue692 withTitle: 'removing instance variables from class definition (3.0.92)'.
+	self
+		testsIssue: #issue692
+		withTitle:
+		'removing instance variables from class definition (3.0.92)'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	
-	[self projectsPresenter selectVariableTab.
+
+	[
+	self projectsPresenter selectVariableTab.
 	self assert: (self variableListPresenter list includes: 'abc').
-	self variableListPresenter selections: #('abc').
+	self variableListPresenter selections: #( 'abc' ).
 	self projectsPresenter addVariableAccessors.
 	methodListBrowser := self
-				saveClass: 'TestClass'
-				superclass: 'Object'
-				instVars: #()
-				package: 'RowanSample1-Core'.
-	failedMethodService := methodListBrowser primaryPresenter methodListPresenter methodListPresenter
-				list first.
-	self assert: ('abc*' match: failedMethodService selector). 
+		                     saveClass: 'TestClass'
+		                     superclass: 'Object'
+		                     instVars: #(  )
+		                     package: 'RowanSample1-Core'.
+	failedMethodService := methodListBrowser primaryPresenter
+		                       methodListPresenter methodListPresenter list
+		                       first.
+	self assert: ('abc*' match: failedMethodService selector).
 	self assert: failedMethodService projectName equals: 'RowanSample1'.
-	self assert: failedMethodService packageName equals: 'RowanSample1-Core'.
+	self
+		assert: failedMethodService packageName
+		equals: 'RowanSample1-Core'.
 	self assert: failedMethodService className equals: 'TestClass'.
-	self assert: self projectsPresenter selectedClass name = 'TestClass']
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self assert: self projectsPresenter selectedClass name = 'TestClass' ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassWithMethodWarnings [
-	self testsIssue: #issue569
-		withTitle: 'Method Compile on class update should not warn about unused temps (3.0.79)'.
+
+	self
+		testsIssue: #issue569
+		withTitle:
+		'Method Compile on class update should not warn about unused temps (3.0.79)'.
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #yes.
 	self selectRowanSample1Class.
 	self assertIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #methodWithUnusedTemp]
-				ifNone: []).
+			 detect: [ :methodService |
+			 methodService selector = #methodWithUnusedTemp ]
+			 ifNone: [  ]).
 	self
 		saveMethod: 'methodWithUnusedTemp  | unused | ^123'
 		in: 'RowanSample1'
@@ -526,16 +556,19 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassWithMethodWarnings [
 	self
 		saveClass: 'RowanSample1'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	self assert: TestMessageBox plannedResult equals: #yes.	"no dialog was raised"
-	
-	[self denyIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector = #methodWithUnusedTemp]
-				ifNone: [])]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self assert: TestMessageBox plannedResult equals: #yes. "no dialog was raised"
+
+	[
+	self denyIsNil: (self methodListPresenter list
+			 detect: [ :methodService |
+			 methodService selector = #methodWithUnusedTemp ]
+			 ifNone: [  ]) ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1413,15 +1446,19 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunSelected [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunTestAsSelectedSubclass [
+
 	| runSelectedItem selection errorOccurred |
-	self testsIssue: #issue731
-		withTitle: 'On error when Sunit debug of inherited test, walkback displays class confusion (new in 3.0.93-6)'.
+	self
+		testsIssue: #issue731
+		withTitle:
+		'On error when Sunit debug of inherited test, walkback displays class confusion (new in 3.0.93-6)'.
 	self selectRowanSample1Test.
-	
-	[self
+
+	[
+	self
 		saveClass: 'LisaTest'
 		superclass: 'TestCase'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self
 		saveMethod: 'test_error
@@ -1443,7 +1480,7 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunTestAsSelectedSubclass [
 	self
 		saveClass: 'LisaSubTest'
 		superclass: 'LisaTest'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self
 		saveMethod: 'zork
@@ -1451,26 +1488,34 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sunitRunTestAsSelectedSubclass [
 		in: 'LisaSubTest'
 		category: 'other'.
 	self selectSUnitTab.
-	runSelectedItem := self projectsPresenter sunitPresenter methodListPresenter view queryContextMenu
-				items detect: [:menuItem | menuItem command == #debug].
-	selection := self projectsPresenter sunitPresenter methodListPresenter list
-				detect: [:methodService | methodService selector = #test_error].
-	self projectsPresenter sunitPresenter methodListPresenter selections: (Array with: selection).
+	runSelectedItem := self projectsPresenter sunitPresenter
+		                   methodListPresenter view queryContextMenu items
+		                   detect: [ :menuItem | menuItem command == #debug ].
+	selection := self projectsPresenter sunitPresenter
+		             methodListPresenter list detect: [ :methodService |
+		             methodService selector = #test_error ].
+	self projectsPresenter sunitPresenter methodListPresenter
+		selections: (Array with: selection).
 	self projectsPresenter sunitPresenter reset.
 	errorOccurred := false.
-	[runSelectedItem commandDescription performAgainst: self projectsPresenter sunitPresenter] on: Error
-		do: 
-			[:ex |
+	[
+	runSelectedItem commandDescription performAgainst:
+		self projectsPresenter sunitPresenter ]
+		on: Error
+		do: [ :ex |
 			| matchString |
 			errorOccurred := true.
 			matchString := 'a TestFailure occurred (error *), Assertion failed'.
-			self assert: (matchString match: ex description)].
-	self assert: errorOccurred]
-			ensure: 
-				[self selectServiceNamed: 'LisaSubTest' in: self classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-				self selectServiceNamed: 'LisaTest' in: self classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+			self assert: (matchString match: ex description) ].
+	self assert: errorOccurred ] ensure: [
+		self selectServiceNamed: 'LisaSubTest' in: self classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil.
+		self selectServiceNamed: 'LisaTest' in: self classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

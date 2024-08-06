@@ -98,12 +98,16 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_addSubclassNoSupercla
 	self selectNoneProject.
 	self selectServiceNamed: 'Globals' in: self dictionaryPresenter.
 	self projectsPresenter selectClassNamed: 'Dictionary'.
-	self assert: self projectsPresenter selectedClass packageName equals: 'Filein1C'.
+	self
+		assert: self projectsPresenter selectedClass packageName
+		equals: 'Filein1C'.
 	self projectsPresenter addSubclass.
-	self assert: self projectsPresenter classDefinitionPresenter view isModified.
-	self assertClassDefinitionPaneMatches: 'Dictionary rwSubclass: ''NewSubclass'''.
-	self projectsPresenter classDefinitionPresenter
-		value: 'Dictionary rwSubclass: ''NewSubclassAbc''
+	self assert:
+		self projectsPresenter classDefinitionPresenter view isModified.
+	self assertClassDefinitionPaneMatches:
+		'Dictionary rwSubclass: ''NewSubclass'''.
+	self projectsPresenter classDefinitionPresenter value:
+		'Dictionary rwSubclass: ''NewSubclassAbc''
 	instVarNames: #()
 	classVars: #()
 	classInstVars: #()
@@ -112,9 +116,15 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_addSubclassNoSupercla
 	options: #()
 '.
 	self projectsPresenter editSaveClass.
-	self assert: self packageListPresenter selection name equals: 'RowanSample1-Tests'.
-	self assert: self projectsPresenter selectedClass name equals: 'NewSubclassAbc'.
-	self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass
+	self
+		assert: self packageListPresenter selection name
+		equals: 'RowanSample1-Tests'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'NewSubclassAbc'.
+	self projectsPresenter
+		basicRemoveClass: self projectsPresenter selectedClass
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -412,11 +422,14 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_globalsInspectMenuIte
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_globalsTabHandlesBadPrintString [
+
 	| badPrintEntry |
-	self testsIssue: #issue492
-		withTitle: 'In (NONE), there are bad-printstring walkbacks under conditions of issue #433 (3.0.73)'.
-	self projectsPresenter classDefinitionPresenter
-		value: 'Object rwSubclass: ''BadPrintString''
+	self
+		testsIssue: #issue492
+		withTitle:
+		'In (NONE), there are bad-printstring walkbacks under conditions of issue #433 (3.0.73)'.
+	self projectsPresenter classDefinitionPresenter value:
+		'Object rwSubclass: ''BadPrintString''
 	instVarNames: #()
 	classVars: #()
 	classInstVars: #()
@@ -429,15 +442,18 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_globalsTabHandlesBadP
 		saveMethod: 'printOn: aStream   aStream nextPutAll: self fnoodle'
 		in: 'BadPrintString'
 		category: 'printing'.
-	session executeString: 'UserGlobals at: #badPrint put: BadPrintString new'.
+	session executeString:
+		'UserGlobals at: #badPrint put: BadPrintString new'.
 	self selectNoneProject.
 	self selectServiceNamed: 'UserGlobals' in: self dictionaryPresenter.
-	badPrintEntry := self projectsPresenter globalsTab list
-				detect: [:array | array first = 'UserGlobals.badPrint'].
+	badPrintEntry := self projectsPresenter globalsTab list detect: [
+		                 :array | array first = 'UserGlobals.badPrint' ].
 	self assert: ('*unprintable string*' match: (badPrintEntry at: 4)).
 	session executeString: 'UserGlobals removeKey: #badPrint'.
-	self findClassNamed: 'BadPrintString'. 
-	self projectsPresenter basicRemoveClass: self classListPresenter selection
+	self findClassNamed: 'BadPrintString'.
+	self projectsPresenter
+		basicRemoveClass: self classListPresenter selection
+		onCompletion: nil
 ]
 
 { #category : 'as yet unclassified' }
@@ -853,16 +869,24 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_removeDictionaryNoSel
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_renameClassInDictionaryView [
+
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self selectNoneProject.
-	self selectServiceNamed: self rowanSample1Dictionary in: self dictionaryPresenter.
+	self
+		selectServiceNamed: self rowanSample1Dictionary
+		in: self dictionaryPresenter.
 	self projectsPresenter selectClassNamed: 'RowanSample1Test'.
-	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1Test'.
-	self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanSample1Test'.
+	self projectsPresenter
+		basicRemoveClass: self projectsPresenter selectedClass
+		onCompletion: nil.
 	self assertIsNil: self projectsPresenter selectedClass.
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
-	self rowanFixMe. 
-	self assert: self projectsPresenter classDefinitionPresenter value notEmpty	"not sure what this should be yet"
+	self rowanFixMe.
+	self assert:
+		self projectsPresenter classDefinitionPresenter value notEmpty "not sure what this should be yet"
 ]
 
 { #category : 'as yet unclassified' }

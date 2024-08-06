@@ -148,6 +148,7 @@ JadeiteMethodsTrait >> addSendersItemTo: group [
 
 { #category : 'queries' }
 JadeiteMethodsTrait >> basicSendersOf: string [
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
 
 	| service shell |
 	service := RowanQueryService
@@ -157,11 +158,11 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 		issueCommand: service
 		session: self gciSession
 		onCompletion: [
-			UIManager default defer: [
-				shell := self openMethodListOn: service selecting: string.
-				shell updateCaptionFromSearchString:
-					service answer size printString , ' Senders of '
-					, string asString printString ] ]
+			shell := self openMethodListOn: service selecting: string.
+			shell updateCaptionFromSearchString:
+				service answer size printString , ' Senders of '
+				, string asString printString ].
+	^ shell
 ]
 
 { #category : 'queries' }
@@ -219,7 +220,7 @@ JadeiteMethodsTrait >> browseImplementorsOf [
 
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseImplementorsOf: string [
-
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
 	| service shell |
 	string ifNil: [ ^ self ].
 	string size > self maxSymbolSize ifTrue: [
@@ -234,11 +235,11 @@ JadeiteMethodsTrait >> browseImplementorsOf: string [
 		issueCommand: service
 		session: self gciSession
 		onCompletion: [
-			UIManager default defer: [
-				shell := self openMethodListOn: service selecting: nil.
-				shell updateCaptionFromSearchString:
-					service answer size printString , ' Implementors of '
-					, string asString printString ] ]
+			shell := self openMethodListOn: service selecting: nil.
+			shell updateCaptionFromSearchString:
+				service answer size printString , ' Implementors of '
+				, string asString printString ].
+	^shell
 ]
 
 { #category : 'queries' }
@@ -251,6 +252,7 @@ JadeiteMethodsTrait >> browseLiteralReferences [
 
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseLiteralReferences: string [
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
 
 	| service shell |
 	(string isNil or: [ string isEmpty ]) ifTrue: [ ^ nil ].
@@ -268,7 +270,8 @@ JadeiteMethodsTrait >> browseLiteralReferences: string [
 		on: GsCompileError
 		do: [ :ex |
 			^ MessageBox warning:
-				  'Compile error: ' , (ex gsArguments first at: 3) ]
+				  'Compile error: ' , (ex gsArguments first at: 3) ].
+	^ shell
 ]
 
 { #category : 'queries' }
@@ -759,7 +762,7 @@ JadeiteMethodsTrait >> removeMethodSelectors: selectors [
 	selectedClass
 		command: #removeMethods:;
 		commandArgs: (Array with: self methodListPresenter selections).
-	self issueCommand: selectedClass onCompletion: nil
+	self issueCommand: selectedClass onCompletion: [  ]
 ]
 
 { #category : 'actions' }

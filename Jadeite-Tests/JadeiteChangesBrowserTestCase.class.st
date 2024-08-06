@@ -689,8 +689,9 @@ JadeiteChangesBrowserTestCase >> test_packageNamesInClassChanges [
 	self assert: change modification className equals: 'RowanSample1Test'.
 	self assert: change packageName equals: 'RowanSample1-Tests'.
 	self selectRowanSample1Class.
-	self projectsPresenter basicRemoveClass:
-		self projectsPresenter selectedClass.
+	self projectsPresenter
+		basicRemoveClass: self projectsPresenter selectedClass
+		onCompletion: nil.
 	changesBrowser refresh.
 	self
 		assert: changesBrowser operationListPresenter list size

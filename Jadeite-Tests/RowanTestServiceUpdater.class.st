@@ -15,17 +15,14 @@ RowanTestServiceUpdater class >> installTestUpdater [
 RowanTestServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock |
-	service jadeiteLog: 'enter'.
 	service isInCommand ifTrue: [ ^ self ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
-	                      service jadeiteLog: 'enter completion block'.
 	                      self possibleSignalCompileError: service.
-	                      self applyUpdates: service. 
+	                      self applyUpdates: service.
 	                      service handleServiceCompletion.
-	                      service inCommand signal.
-	                      service jadeiteLog: 'exit completion block' ]
+	                      service inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
@@ -34,9 +31,7 @@ RowanTestServiceUpdater >> _basicIssueCommand: service [
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock
 		semaphore: service inCommand.
-	service jadeiteLog: 'wait'.
-	service inCommand wait.
-	service jadeiteLog: 'exit'
+	service inCommand wait
 ]
 
 { #category : 'commands' }

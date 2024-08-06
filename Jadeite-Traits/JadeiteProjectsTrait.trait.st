@@ -105,7 +105,6 @@ JadeiteProjectsTrait >> basicReloadProject: selections [
 JadeiteProjectsTrait >> basicUnloadProjects: projectNames onCompletion: completionBlock [
 
 	| browserService |
-	self jadeiteLog: 'enter'.
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;

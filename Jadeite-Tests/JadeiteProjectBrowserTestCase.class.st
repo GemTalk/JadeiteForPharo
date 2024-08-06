@@ -545,19 +545,27 @@ JadeiteProjectBrowserTestCase >> test_adHocInspectComplexObjectInProjectBrowser2
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_addAccessorsVariablesStaySelected [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+
+	self
+		testsIssue: #issue382
+		withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('var1' 'var2' 'var3')
+		instVars: #( 'var1' 'var2' 'var3' )
 		package: 'RowanSample1-Core'.
-	
-	[self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('var1' 'var3').
+
+	[
+	self projectsPresenter selectVariableTab.
+	self variableListPresenter selections: #( 'var1' 'var3' ).
 	self projectsPresenter addVariableAccessors.
-	self assert: self variableListPresenter selections equals: #('var1' 'var3')]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assert: self variableListPresenter selections
+		equals: #( 'var1' 'var3' ) ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1440,34 +1448,38 @@ JadeiteProjectBrowserTestCase >> test_closeConsoleValidSession [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_confirmOverrideExistingAccessorMethods [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+
+	self
+		testsIssue: #issue382
+		withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	
-	[self
-		saveMethod: 'abc  ^123'
-		in: 'TestClass'
-		category: 'accessing'.
+
+	[
+	self saveMethod: 'abc  ^123' in: 'TestClass' category: 'accessing'.
 	self
 		saveMethod: 'abc: foo ^123'
 		in: 'TestClass'
 		category: 'accessing'.
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('abc').
+	self variableListPresenter selections: #( 'abc' ).
 	TestMessageBox enableJadeiteTestMessageBox.
-	TestMessageBox plannedResult: #yes.	"proceed with accessor creation"
-	[self projectsPresenter addVariableAccessors] ensure: [TestMessageBox disableJadeiteTestMessageBox].
+	TestMessageBox plannedResult: #yes. "proceed with accessor creation"
+	[ self projectsPresenter addVariableAccessors ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox ].
 	self selectMethodNamed: #abc.
 	self assert: self methodSourcePresenter value equals: 'abc
 	^abc' replaceCrLfWithLf.
 	self selectMethodNamed: #abc:.
 	self assert: self methodSourcePresenter value equals: 'abc: object
-	abc := object' replaceCrLfWithLf]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	abc := object' replaceCrLfWithLf ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1627,33 +1639,38 @@ JadeiteProjectBrowserTestCase >> test_dontChangeTabOnMethodSave [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_dontOverrideExistingAccessorMethods [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+
+	self
+		testsIssue: #issue382
+		withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	
-	[self
-		saveMethod: 'abc  ^123'
-		in: 'TestClass'
-		category: 'accessing'.
+
+	[
+	self saveMethod: 'abc  ^123' in: 'TestClass' category: 'accessing'.
 	self
 		saveMethod: 'abc: foo ^123'
 		in: 'TestClass'
 		category: 'accessing'.
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('abc').
+	self variableListPresenter selections: #( 'abc' ).
 	TestMessageBox enableJadeiteTestMessageBox.
-	TestMessageBox plannedResult: #no.	"do not create accessors"
-	[self projectsPresenter addVariableAccessors] ensure: [TestMessageBox disableJadeiteTestMessageBox].
-	self variableListPresenter selections: #().
+	TestMessageBox plannedResult: #no. "do not create accessors"
+	[ self projectsPresenter addVariableAccessors ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox ].
+	self variableListPresenter selections: #(  ).
 	self selectMethodNamed: #abc.
 	self assert: self methodSourcePresenter value equals: 'abc  ^123'.
 	self selectMethodNamed: #abc:.
-	self assert: self methodSourcePresenter value equals: 'abc: foo ^123']
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self assert: self methodSourcePresenter value equals: 'abc: foo ^123' ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3029,142 +3046,228 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersAddedClassAppears [
 	"if the same package is selected, a new class appears but the existing
 	class selection doesn't change"
 
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self selectRowanSample1Class.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: secondPresenter classListPresenter.
 	self assert: secondPresenter classListPresenter list size equals: 1.
 	self assertIsNil: (secondPresenter classListPresenter list
-				detect: [:classService | classService name = 'TestClass']
-				ifNone: []).
-	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Core'.	"add new class in first browser"
-	
-	[self assert: self classListPresenter selection name = 'TestClass'.
-	self assert: secondPresenter classListPresenter selection name equals: 'RowanSample1'.	"no selection change in second browser ..."
-	self assert: secondPresenter classListPresenter list size equals: 2.	"... but new class shows up"
-	self assert: secondPresenter classListPresenter list last name equals: 'TestClass']
-			ensure: 
-				[self selectServiceNamed: 'TestClass' in: secondPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: secondPresenter selectedClass]
+			 detect: [ :classService | classService name = 'TestClass' ]
+			 ifNone: [  ]).
+	self
+		saveTestClassWithInstVars: Array new
+		package: 'RowanSample1-Core'. "add new class in first browser"
+
+	[
+	self assert: self classListPresenter selection name = 'TestClass'.
+	self
+		assert: secondPresenter classListPresenter selection name
+		equals: 'RowanSample1'. "no selection change in second browser ..."
+	self assert: secondPresenter classListPresenter list size equals: 2. "... but new class shows up"
+	self
+		assert: secondPresenter classListPresenter list last name
+		equals: 'TestClass' ] ensure: [
+		self
+			selectServiceNamed: 'TestClass'
+			in: secondPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: secondPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersAddedClassAppearsInHierarchy1 [
+
 	| family |
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self selectRowanSample1Class.
 	self selectHierarchyTab.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: secondPresenter classListPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self assertLinearAncestry: #('Object' 'RowanSample1') in: secondPresenter classHierarchyPresenter.
-	self assertIsNil: (secondPresenter classHierarchyPresenter model asBag
-				detect: [:classService | classService name = 'TestClass']
-				ifNone: []).
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' )
+		in: secondPresenter classHierarchyPresenter.
+	self assertIsNil:
+		(secondPresenter classHierarchyPresenter model asBag
+			 detect: [ :classService | classService name = 'TestClass' ]
+			 ifNone: [  ]).
 	self
 		saveClass: 'TestClass'
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self assert: self classHierarchyPresenter selection name = 'TestClass'.
-	self assert: secondPresenter classHierarchyPresenter selection name equals: 'RowanSample1'.
+
+	[
+	self assert:
+		self classHierarchyPresenter selection name = 'TestClass'.
+	self
+		assert: secondPresenter classHierarchyPresenter selection name
+		equals: 'RowanSample1'.
 	self denyIsNil: (secondPresenter classHierarchyPresenter model asBag
-				detect: [:classService | classService name = 'TestClass']
-				ifNone: []).
-	family := Array
-				with: 'Object'
-				with: 'RowanSample1'
-				with: 'TestClass'.
-	self assertLinearAncestry: family in: secondPresenter classHierarchyPresenter]
-			ensure: 
-				[secondPresenter selectClassListTab.
-				self selectServiceNamed: 'TestClass' in: secondPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: secondPresenter selectedClass]
+			 detect: [ :classService | classService name = 'TestClass' ]
+			 ifNone: [  ]).
+	family := Array with: 'Object' with: 'RowanSample1' with: 'TestClass'.
+	self
+		assertLinearAncestry: family
+		in: secondPresenter classHierarchyPresenter ] ensure: [
+		secondPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'TestClass'
+			in: secondPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: secondPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersAddedClassAppearsInHierarchy2 [
+
 	| family |
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self selectRowanSample1Class.
 	self selectHierarchyTab.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: secondPresenter classListPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self assertLinearAncestry: #('Object' 'RowanSample1') in: secondPresenter classHierarchyPresenter.
-	self assertIsNil: (secondPresenter classHierarchyPresenter model asBag
-				detect: [:classService | classService name = 'TestClass']
-				ifNone: []).
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' )
+		in: secondPresenter classHierarchyPresenter.
+	self assertIsNil:
+		(secondPresenter classHierarchyPresenter model asBag
+			 detect: [ :classService | classService name = 'TestClass' ]
+			 ifNone: [  ]).
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	self assert: self classHierarchyPresenter selection name = 'TestClass'.
+	self assert:
+		self classHierarchyPresenter selection name = 'TestClass'.
 	self
 		saveClass: 'SubSubSub'
 		superclass: 'TestClass'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self assert: self classHierarchyPresenter selection name = 'SubSubSub'.
-	self assert: secondPresenter classHierarchyPresenter selection name equals: 'RowanSample1'.	"did not change selection ..."
-	family := Array with: 'Object' with: 'TestClass' with: 'SubSubSub'. 	"...but added new classes"
-	self assertLinearAncestry: family in: secondPresenter classHierarchyPresenter]
-			ensure: 
-				[secondPresenter selectClassListTab.
-				self selectServiceNamed: 'SubSubSub' in: secondPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: secondPresenter selectedClass.
-				self selectServiceNamed: 'TestClass' in: secondPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: secondPresenter selectedClass]
+
+	[
+	self assert:
+		self classHierarchyPresenter selection name = 'SubSubSub'.
+	self
+		assert: secondPresenter classHierarchyPresenter selection name
+		equals: 'RowanSample1'. "did not change selection ..."
+	family := Array with: 'Object' with: 'TestClass' with: 'SubSubSub'. "...but added new classes"
+	self
+		assertLinearAncestry: family
+		in: secondPresenter classHierarchyPresenter ] ensure: [
+		secondPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'SubSubSub'
+			in: secondPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: secondPresenter selectedClass
+			onCompletion: nil.
+		self
+			selectServiceNamed: 'TestClass'
+			in: secondPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: secondPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersAddedClassDoesNotAppearInDifferentHierarchy [
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self
 		saveClass: 'RowanSubClass'
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
 	self selectRowanSample1Class.
-	
-	[self selectHierarchyTab.
+
+	[
+	self selectHierarchyTab.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: secondPresenter classListPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: secondPresenter classHierarchyPresenter.
-	self assertIsNil: (secondPresenter classHierarchyPresenter model asBag
-				detect: [:classService | classService name = 'TestClass']
-				ifNone: []).
-	self saveTestClassWithInstVars: Array new package: 'RowanSample1-Core'.	"add new class in first browser"
-	self assert: self classHierarchyPresenter selection name = 'TestClass'.
-	self assert: secondPresenter classHierarchyPresenter selection name equals: 'RowanSample1'	"no change in second browser because new class not in hierarchy"]
-			ensure: 
-				[secondPresenter selectClassListTab.
-				self selectServiceNamed: 'RowanSubClass' in: secondPresenter classListPresenter.
-				secondPresenter basicRemoveClass: secondPresenter selectedClass]
+	self assertIsNil:
+		(secondPresenter classHierarchyPresenter model asBag
+			 detect: [ :classService | classService name = 'TestClass' ]
+			 ifNone: [  ]).
+	self
+		saveTestClassWithInstVars: Array new
+		package: 'RowanSample1-Core'. "add new class in first browser"
+	self assert:
+		self classHierarchyPresenter selection name = 'TestClass'.
+	self
+		assert: secondPresenter classHierarchyPresenter selection name
+		equals: 'RowanSample1' "no change in second browser because new class not in hierarchy" ]
+		ensure: [
+			secondPresenter selectClassListTab.
+			self
+				selectServiceNamed: 'RowanSubClass'
+				in: secondPresenter classListPresenter.
+			secondPresenter
+				basicRemoveClass: secondPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersAddedClassRearrangesItselfInHierarchy [
+
 	| family |
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self
 		saveClass: 'RowanSubClass'
 		superclass: 'RowanSample1'
@@ -3173,41 +3276,75 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersAddedClassRearrangesItselfInHie
 	self selectRowanSample1Class.
 	self selectHierarchyTab.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: secondPresenter classListPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: secondPresenter classHierarchyPresenter.
-	self assertIsNil: (secondPresenter classHierarchyPresenter model asBag
-				detect: [:classService | classService name = 'TestClass']
-				ifNone: []).
+	self assertIsNil:
+		(secondPresenter classHierarchyPresenter model asBag
+			 detect: [ :classService | classService name = 'TestClass' ]
+			 ifNone: [  ]).
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self assert: self classHierarchyPresenter selection name = 'TestClass'.
-	self assert: secondPresenter classHierarchyPresenter selection name equals: 'RowanSample1'.
-	family := Array with: 'Object' with: 'RowanSample1' with: 'RowanSubClass'. 
-	self assertLinearAncestry: family in: secondPresenter classHierarchyPresenter.
+
+	[
+	self assert:
+		self classHierarchyPresenter selection name = 'TestClass'.
+	self
+		assert: secondPresenter classHierarchyPresenter selection name
+		equals: 'RowanSample1'.
+	family := Array
+		          with: 'Object'
+		          with: 'RowanSample1'
+		          with: 'RowanSubClass'.
+	self
+		assertLinearAncestry: family
+		in: secondPresenter classHierarchyPresenter.
 	family := Array with: 'Object' with: 'TestClass'.
-	self assertLinearAncestry: family in: secondPresenter classHierarchyPresenter.
+	self
+		assertLinearAncestry: family
+		in: secondPresenter classHierarchyPresenter.
 	self
 		saveClass: 'TestClass'
 		superclass: 'RowanSubClass'
 		instVars: Array new
-		package: 'RowanSample1-Core'.	"changed superclass"
-	self assert: secondPresenter classHierarchyPresenter selection name equals: 'RowanSample1'.
-	family := Array with: 'Object' with: 'RowanSample1' with: 'RowanSubClass' with: 'TestClass'.
-	self assertLinearAncestry: family in: secondPresenter classHierarchyPresenter]
-			ensure: 
-				[secondPresenter selectClassListTab.
-				self selectServiceNamed: 'RowanSubClass' in: secondPresenter classListPresenter.
-				secondPresenter basicRemoveClass: secondPresenter selectedClass.
-				self selectServiceNamed: 'TestClass' in: secondPresenter classListPresenter.
-				secondPresenter basicRemoveClass: secondPresenter selectedClass]
+		package: 'RowanSample1-Core'. "changed superclass"
+	self
+		assert: secondPresenter classHierarchyPresenter selection name
+		equals: 'RowanSample1'.
+	family := Array
+		          with: 'Object'
+		          with: 'RowanSample1'
+		          with: 'RowanSubClass'
+		          with: 'TestClass'.
+	self
+		assertLinearAncestry: family
+		in: secondPresenter classHierarchyPresenter ] ensure: [
+		secondPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'RowanSubClass'
+			in: secondPresenter classListPresenter.
+		secondPresenter
+			basicRemoveClass: secondPresenter selectedClass
+			onCompletion: nil.
+		self
+			selectServiceNamed: 'TestClass'
+			in: secondPresenter classListPresenter.
+		secondPresenter
+			basicRemoveClass: secondPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3233,10 +3370,14 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersDontClearMethodList [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersNoUpdateWithoutPackageSelection [
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self selectRowanSample1Class.
-	transcript projectListPresenter projectListPresenter selections: #().	"to ensure project list has no selection"
+	transcript projectListPresenter projectListPresenter selections:
+		#(  ). "to ensure project list has no selection"
 	self openSecondBrowser.
 	self assert: secondPresenter projectListPresenter selections isEmpty.
 	self assert: secondPresenter packageListPresenter model isEmpty.
@@ -3250,20 +3391,25 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersNoUpdateWithoutPackageSelection
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self assert: self classListPresenter selection name = 'TestClass'.
+
+	[
+	self assert: self classListPresenter selection name = 'TestClass'.
 	self assert: secondPresenter projectListPresenter selections isEmpty.
 	self assert: secondPresenter packageListPresenter model isEmpty.
 	self assert: secondPresenter classListPresenter model isEmpty.
 	self assert: secondPresenter classHierarchyPresenter model isEmpty.
 	self assert: secondPresenter categoryListPresenter model isEmpty.
 	self assert: secondPresenter variableListPresenter model isEmpty.
-	self assert: secondPresenter methodListPresenter model isEmpty]
-			ensure: 
-				[self selectRowanSample1Class.
-				self projectsPresenter selectClassListTab.
-				self selectServiceNamed: 'TestClass' in: self projectsPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self assert: secondPresenter methodListPresenter model isEmpty ]
+		ensure: [
+			self selectRowanSample1Class.
+			self projectsPresenter selectClassListTab.
+			self
+				selectServiceNamed: 'TestClass'
+				in: self projectsPresenter classListPresenter.
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3287,102 +3433,178 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersRemoveMethod [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersUpdate [
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self
 		saveClass: 'RowanSubClass'
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self selectRowanSample1Class.
-	self assert: self classListPresenter selection name equals: 'RowanSample1'.
+
+	[
+	self selectRowanSample1Class.
+	self
+		assert: self classListPresenter selection name
+		equals: 'RowanSample1'.
 	self assert: self classListPresenter list size equals: 2.
-	self assert: self classListPresenter list first name equals: 'RowanSample1'.
-	self assert: self classListPresenter list last name equals: 'RowanSubClass'.
+	self
+		assert: self classListPresenter list first name
+		equals: 'RowanSample1'.
+	self
+		assert: self classListPresenter list last name
+		equals: 'RowanSubClass'.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: secondPresenter classListPresenter.
-	self assert: self classListPresenter selection name equals: 'RowanSample1'.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: secondPresenter classListPresenter.
+	self
+		assert: self classListPresenter selection name
+		equals: 'RowanSample1'.
 	self assert: self classListPresenter list size equals: 2.
-	self assert: self classListPresenter list first name equals: 'RowanSample1'.
-	self assert: self classListPresenter list last name equals: 'RowanSubClass'.
-	self assert: self packageListPresenter selection name equals: 'RowanSample1-Core'.
-	self assert: secondPresenter classListPresenter selection name equals: 'RowanSample1'.
+	self
+		assert: self classListPresenter list first name
+		equals: 'RowanSample1'.
+	self
+		assert: self classListPresenter list last name
+		equals: 'RowanSubClass'.
+	self
+		assert: self packageListPresenter selection name
+		equals: 'RowanSample1-Core'.
+	self
+		assert: secondPresenter classListPresenter selection name
+		equals: 'RowanSample1'.
 	self assert: secondPresenter classListPresenter list size equals: 2.
-	self assert: secondPresenter classListPresenter list first name equals: 'RowanSample1'.
-	self assert: secondPresenter classListPresenter list last name equals: 'RowanSubClass'.
-	self assert: secondPresenter packageListPresenter selection name equals: 'RowanSample1-Core'.
+	self
+		assert: secondPresenter classListPresenter list first name
+		equals: 'RowanSample1'.
+	self
+		assert: secondPresenter classListPresenter list last name
+		equals: 'RowanSubClass'.
+	self
+		assert: secondPresenter packageListPresenter selection name
+		equals: 'RowanSample1-Core'.
 	self selectRowanSample1Test.
-	self assert: self classListPresenter selection name equals: 'RowanSample1Test'.
+	self
+		assert: self classListPresenter selection name
+		equals: 'RowanSample1Test'.
 	self assert: self classListPresenter list size equals: 1.
-	self assert: self classListPresenter list first name equals: 'RowanSample1Test'.
-	self assert: self packageListPresenter selection name equals: 'RowanSample1-Tests'.
-	self assert: secondPresenter classListPresenter selection name equals: 'RowanSample1'.
+	self
+		assert: self classListPresenter list first name
+		equals: 'RowanSample1Test'.
+	self
+		assert: self packageListPresenter selection name
+		equals: 'RowanSample1-Tests'.
+	self
+		assert: secondPresenter classListPresenter selection name
+		equals: 'RowanSample1'.
 	self assert: secondPresenter classListPresenter list size equals: 2.
-	self assert: secondPresenter classListPresenter list first name equals: 'RowanSample1'.
-	self assert: secondPresenter classListPresenter list last name equals: 'RowanSubClass'.
-	self assert: secondPresenter packageListPresenter selection name equals: 'RowanSample1-Core']
-			ensure: 
-				[self selectRowanSample1Class.
-				self projectsPresenter selectClassListTab.
-				self selectServiceNamed: 'RowanSubClass' in: self projectsPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assert: secondPresenter classListPresenter list first name
+		equals: 'RowanSample1'.
+	self
+		assert: secondPresenter classListPresenter list last name
+		equals: 'RowanSubClass'.
+	self
+		assert: secondPresenter packageListPresenter selection name
+		equals: 'RowanSample1-Core' ] ensure: [
+		self selectRowanSample1Class.
+		self projectsPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'RowanSubClass'
+			in: self projectsPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersUpdateClassHierarchyDifferentDictionarySelected [
+
 	self
 		saveClass: 'RowanSubClass'
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self selectRowanSample1Class.
+
+	[
+	self selectRowanSample1Class.
 	self openSecondBrowser.
 	"no dictionary selected"
-	self selectServiceNamed: RowanProjectService noneProject name
+	self
+		selectServiceNamed: RowanProjectService noneProject name
 		in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'Published' in: secondPresenter dictionaryPresenter.
+	self
+		selectServiceNamed: 'Published'
+		in: secondPresenter dictionaryPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self assertLinearAncestry: #('Object' 'Rowan') in: secondPresenter classHierarchyPresenter.
-	self selectHierarchyTab.	"in first browser"
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self
+		assertLinearAncestry: #( 'Object' 'Rowan' )
+		in: secondPresenter classHierarchyPresenter.
+	self selectHierarchyTab. "in first browser"
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: self classHierarchyPresenter.
-	self assertLinearAncestry: #('Object' 'Rowan') in: secondPresenter classHierarchyPresenter]
-			ensure: 
-				[self projectsPresenter selectClassListTab.
-				self selectServiceNamed: 'RowanSubClass' in: self projectsPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assertLinearAncestry: #( 'Object' 'Rowan' )
+		in: secondPresenter classHierarchyPresenter ] ensure: [
+		self projectsPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'RowanSubClass'
+			in: self projectsPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersUpdateClassHierarchyDifferentPackageSelected [
+
 	self
 		saveClass: 'RowanSubClass'
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self openSecondBrowser.
+
+	[
+	self openSecondBrowser.
 
 	"different package selected"
 	self selectRowanSample1Class.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: secondPresenter packageListPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self assertLinearAncestry: #('Object' 'TestAsserter' 'TestCase' 'RowanSample1Test')
+	self
+		assertLinearAncestry:
+		#( 'Object' 'TestAsserter' 'TestCase' 'RowanSample1Test' )
 		in: secondPresenter classHierarchyPresenter.
-	self selectHierarchyTab.	"in first browser"
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self selectHierarchyTab. "in first browser"
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: self classHierarchyPresenter.
-	self assertLinearAncestry: #('Object' 'TestAsserter' 'TestCase' 'RowanSample1Test')
-		in: secondPresenter classHierarchyPresenter]
-			ensure: 
-				[self projectsPresenter selectClassListTab.
-				self selectServiceNamed: 'RowanSubClass' in: self projectsPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assertLinearAncestry:
+		#( 'Object' 'TestAsserter' 'TestCase' 'RowanSample1Test' )
+		in: secondPresenter classHierarchyPresenter ] ensure: [
+		self projectsPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'RowanSubClass'
+			in: self projectsPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3430,41 +3652,65 @@ JadeiteProjectBrowserTestCase >> test_twoBrowsersUpdateClassHierarchyNoProjectSe
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_twoBrowsersUpdateHierarchy [
-	self testsIssue: #issue374
-		withTitle: '(3.0.53) selecting package in one project browser causes sympathetic update in other'.
+
+	self
+		testsIssue: #issue374
+		withTitle:
+		'(3.0.53) selecting package in one project browser causes sympathetic update in other'.
 	self
 		saveClass: 'RowanSubClass'
 		superclass: 'RowanSample1'
 		instVars: Array new
 		package: 'RowanSample1-Core'.
-	
-	[self selectRowanSample1Class.
+
+	[
+	self selectRowanSample1Class.
 	self selectHierarchyTab.
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: self classHierarchyPresenter.
 	self openSecondBrowser.
-	self selectServiceNamed: 'RowanSample1' in: secondPresenter projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: secondPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1'
+		in: secondPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Core'
+		in: secondPresenter packageListPresenter.
 	self selectHierarchyTabIn: secondPresenter.
-	self selectTreeServicesNamed: (Array with: self sampleClassName)
+	self
+		selectTreeServicesNamed: (Array with: self sampleClassName)
 		in: secondPresenter classHierarchyPresenter.
-	self assert: self classHierarchyPresenter selection name equals: 'RowanSample1'.
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self
+		assert: self classHierarchyPresenter selection name
+		equals: 'RowanSample1'.
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: self classHierarchyPresenter.
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
 		in: secondPresenter classHierarchyPresenter.
 	self selectRowanSample1Test.
-	self assertLinearAncestry: #('Object' 'TestAsserter' 'TestCase' 'RowanSample1Test')
+	self
+		assertLinearAncestry:
+		#( 'Object' 'TestAsserter' 'TestCase' 'RowanSample1Test' )
 		in: self classHierarchyPresenter.
-	self assert: self packageListPresenter selection name equals: 'RowanSample1-Tests'.
-	self assert: secondPresenter classHierarchyPresenter selection name equals: 'RowanSample1'.
-	self assertLinearAncestry: #('Object' 'RowanSample1' 'RowanSubClass')
-		in: secondPresenter classHierarchyPresenter]
-			ensure: 
-				[self selectRowanSample1Class.
-				self projectsPresenter selectClassListTab.
-				self selectServiceNamed: 'RowanSubClass' in: self projectsPresenter classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assert: self packageListPresenter selection name
+		equals: 'RowanSample1-Tests'.
+	self
+		assert: secondPresenter classHierarchyPresenter selection name
+		equals: 'RowanSample1'.
+	self
+		assertLinearAncestry: #( 'Object' 'RowanSample1' 'RowanSubClass' )
+		in: secondPresenter classHierarchyPresenter ] ensure: [
+		self selectRowanSample1Class.
+		self projectsPresenter selectClassListTab.
+		self
+			selectServiceNamed: 'RowanSubClass'
+			in: self projectsPresenter classListPresenter.
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3601,24 +3847,36 @@ JadeiteProjectBrowserTestCase >> test_unicodeSpecialMethodNotRed [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_variableTabSortOrder [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+
+	self
+		testsIssue: #issue382
+		withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'RowanSample2Test'
 		superclass: 'RowanSample1Test'
-		instVars: #('_var1' 'var2' 'var3')
+		instVars: #( '_var1' 'var2' 'var3' )
 		package: 'RowanSample1-Tests'.
-	
-	[self projectsPresenter selectVariableTab.
-	self assert: self variableListPresenter list asArray equals: #('_var1' 'testSelector' 'var2' 'var3').
+
+	[
+	self projectsPresenter selectVariableTab.
+	self
+		assert: self variableListPresenter list asArray
+		equals: #( '_var1' 'testSelector' 'var2' 'var3' ).
 	self selectHierarchyTab.
 	self selectClassInHierarchyNamed: 'RowanSample1Test'.
 	self selectClassInHierarchyNamed: 'RowanSample2Test'.
-	self assert: self variableListPresenter list asArray equals: #('_var1' 'testSelector' 'var2' 'var3').
+	self
+		assert: self variableListPresenter list asArray
+		equals: #( '_var1' 'testSelector' 'var2' 'var3' ).
 	self projectsPresenter selectCategoryTab.
 	self projectsPresenter selectVariableTab.
-	self assert: self variableListPresenter list asArray equals: #('_var1' 'testSelector' 'var2' 'var3')]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assert: self variableListPresenter list asArray
+		equals: #( '_var1' 'testSelector' 'var2' 'var3' ) ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

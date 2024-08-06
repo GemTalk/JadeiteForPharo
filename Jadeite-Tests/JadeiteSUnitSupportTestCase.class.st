@@ -334,8 +334,9 @@ JadeiteSUnitSupportTestCase >> test_addNewNonTestClassDoesNotGetAdded [
 		withInstVars: #( 'abc' )
 		package: 'RowanSample1-Tests'.
 	[ self denyClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ].
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -354,8 +355,9 @@ JadeiteSUnitSupportTestCase >> test_addNewTestClass [
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ].
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -453,8 +455,9 @@ JadeiteSUnitSupportTestCase >> test_addRemoveTestClass [
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ].
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -790,8 +793,9 @@ JadeiteSUnitSupportTestCase >> test_extensionTestShowsUpInSUnitBrowser [
 			 detect: [ :methodService |
 			 methodService selector = #test_inExtensionMethod ]
 			 ifNone: [  ]) ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ]
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -882,95 +886,157 @@ JadeiteSUnitSupportTestCase >> test_inheritedTests [
 	testClassTestSelectors do: [ :selector |
 		self assert: (subTestClassTestSelectors includes: selector) ] ]
 		ensure: [
-			self projectsPresenter basicRemoveClass:
-				self projectsPresenter classListPresenter selection ]
+			self projectsPresenter
+				basicRemoveClass:
+				self projectsPresenter classListPresenter selection
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_maintainColumnSort [
+
 	| firstSortedMethods secondSortedMethods |
 	self openProjectBrowser.
-	self testsIssue: #issue775 withTitle: 'Stubborn sorting in the Sunit browser'.
+	self
+		testsIssue: #issue775
+		withTitle: 'Stubborn sorting in the Sunit browser'.
 	self
 		saveClass: 'RowanTestSubClassServiceTest'
 		superclass: 'RowanTestClassServiceTest'
 		instVars: Array new
 		package: 'Rowan-Services-Tests'.
-	
-	[self selectServiceNamed: 'Rowan-Services-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServicesNamed: #('RowanTestClassServiceTest' 'RowanTestSubClassServiceTest')
-		in: self sunitPresenter classListPresenter.	"select two so both sortable columns appear"
-	self sunitPresenter methodListPresenter view columnClicked: 1.	"class column"
-	self sunitPresenter methodListPresenter list first className = 'RowanTestSubClassServiceTest'
-		ifTrue: [self sunitPresenter methodListPresenter view columnClicked: 1	"resort if necessary"].
+
+	[
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServicesNamed:
+		#( 'RowanTestClassServiceTest' 'RowanTestSubClassServiceTest' )
+		in: self sunitPresenter classListPresenter. "select two so both sortable columns appear"
+	self sunitPresenter methodListPresenter view columnClicked: 1. "class column"
+	self sunitPresenter methodListPresenter list first className
+	= 'RowanTestSubClassServiceTest' ifTrue: [
+		self sunitPresenter methodListPresenter view columnClicked: 1 "resort if necessary" ].
 	firstSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService className].
-	self selectServicesNamed: Array new in: self sunitPresenter classListPresenter.	"clear selection just in case"
-	self selectServicesNamed: #('RowanTestClassServiceTest' 'RowanTestSubClassServiceTest')
+		                      collect: [ :methodService |
+		                      methodService className ].
+	self
+		selectServicesNamed: Array new
+		in: self sunitPresenter classListPresenter. "clear selection just in case"
+	self
+		selectServicesNamed:
+		#( 'RowanTestClassServiceTest' 'RowanTestSubClassServiceTest' )
 		in: self sunitPresenter classListPresenter.
 	secondSortedMethods := (self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService className]) asSortedCollection
-				asOrderedCollection.
+		                        collect: [ :methodService |
+		                        methodService className ])
+		                       asSortedCollection asOrderedCollection.
 	self assert: firstSortedMethods equals: secondSortedMethods.
-	self sunitPresenter methodListPresenter view columnClicked: 2.	"method column"
+	self sunitPresenter methodListPresenter view columnClicked: 2. "method column"
 	firstSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector].
-	self selectServicesNamed: Array new in: self sunitPresenter classListPresenter.	"clear selection just in case"
-	self selectServicesNamed: #('RowanTestClassServiceTest' 'RowanTestSubClassServiceTest')
+		                      collect: [ :methodService |
+		                      methodService selector ].
+	self
+		selectServicesNamed: Array new
+		in: self sunitPresenter classListPresenter. "clear selection just in case"
+	self
+		selectServicesNamed:
+		#( 'RowanTestClassServiceTest' 'RowanTestSubClassServiceTest' )
 		in: self sunitPresenter classListPresenter.
 	secondSortedMethods := (self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector]) asSortedCollection
-				asOrderedCollection.
-	self assert: firstSortedMethods equals: secondSortedMethods]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter classListPresenter selection]
+		                        collect: [ :methodService |
+		                        methodService selector ]) asSortedCollection
+		                       asOrderedCollection.
+	self assert: firstSortedMethods equals: secondSortedMethods ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass:
+				self projectsPresenter classListPresenter selection
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_maintainColumnSortChangeFromProjectBrowser [
+
 	| firstSortedMethods secondSortedMethods |
-	self testsIssue: #issue775 withTitle: 'Stubborn sorting in the Sunit browser'.
+	self
+		testsIssue: #issue775
+		withTitle: 'Stubborn sorting in the Sunit browser'.
 	self openProjectBrowser.
 	self
 		saveClass: 'RowanTestSubClassServiceTest'
 		superclass: 'RowanTestClassServiceTest'
 		instVars: Array new
 		package: 'Rowan-Services-Tests'.
-	
-	[self selectServiceNamed: 'Rowan-Services-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServicesNamed: #('RowanTestClassServiceTest' 'RowanTestSubClassServiceTest')
+
+	[
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServicesNamed:
+		#( 'RowanTestClassServiceTest' 'RowanTestSubClassServiceTest' )
 		in: self sunitPresenter classListPresenter.
-	self sunitPresenter methodListPresenter view columnClicked: 1.	"class column"
-	self sunitPresenter methodListPresenter list first className = 'RowanTestSubClassServiceTest'
-		ifTrue: 
-			[self sunitPresenter methodListPresenter view columnClicked: 1	"resort if necessary for ascending list"].
+	self sunitPresenter methodListPresenter view columnClicked: 1. "class column"
+	self sunitPresenter methodListPresenter list first className
+	= 'RowanTestSubClassServiceTest' ifTrue: [
+		self sunitPresenter methodListPresenter view columnClicked: 1 "resort if necessary for ascending list" ].
 	firstSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService className].
+		                      collect: [ :methodService |
+		                      methodService className ].
 	self openProjectBrowser.
-	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
-	self selectServiceNamed: 'Rowan-Services-Tests' in: self packageListPresenter.
-	self selectServicesNamed: #('RowanTestSubClassServiceTest') in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self
+		selectServicesNamed: #( 'RowanTestSubClassServiceTest' )
+		in: self classListPresenter.
 	secondSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService className].
+		                       collect: [ :methodService |
+		                       methodService className ].
 	self assert: firstSortedMethods equals: secondSortedMethods.
-	self selectServicesNamed: #('RowanTestClassServiceTest') in: self classListPresenter.
+	self
+		selectServicesNamed: #( 'RowanTestClassServiceTest' )
+		in: self classListPresenter.
 	secondSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService className].
+		                       collect: [ :methodService |
+		                       methodService className ].
 	self assert: firstSortedMethods equals: secondSortedMethods.
-	self sunitPresenter methodListPresenter view columnClicked: 2.	"method column"
-	self sunitPresenter methodListPresenter list first className = 'RowanTestSubClassServiceTest'
-		ifTrue: [self sunitPresenter methodListPresenter view columnClicked: 1	"resort if necessary"].
+	self sunitPresenter methodListPresenter view columnClicked: 2. "method column"
+	self sunitPresenter methodListPresenter list first className
+	= 'RowanTestSubClassServiceTest' ifTrue: [
+		self sunitPresenter methodListPresenter view columnClicked: 1 "resort if necessary" ].
 	firstSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector].
-	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
-	self selectServiceNamed: 'Rowan-Services-Tests' in: self packageListPresenter.
-	self selectServicesNamed: #('RowanTestClassServiceTest') in: self classListPresenter.
+		                      collect: [ :methodService |
+		                      methodService selector ].
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self
+		selectServicesNamed: #( 'RowanTestClassServiceTest' )
+		in: self classListPresenter.
 	secondSortedMethods := self sunitPresenter methodListPresenter list
-				collect: [:methodService | methodService selector].
-	self assert: firstSortedMethods equals: secondSortedMethods]
-			ensure: 
-				[self selectServiceNamed: 'Rowan-Services-Tests' in: self packageListPresenter.
-				self selectServicesNamed: #('RowanTestSubClassServiceTest') in: self classListPresenter.
-				self projectsPresenter basicRemoveClass: self projectsPresenter classListPresenter selection]
+		                       collect: [ :methodService |
+		                       methodService selector ].
+	self assert: firstSortedMethods equals: secondSortedMethods ]
+		ensure: [
+			self
+				selectServiceNamed: 'Rowan-Services-Tests'
+				in: self packageListPresenter.
+			self
+				selectServicesNamed: #( 'RowanTestSubClassServiceTest' )
+				in: self classListPresenter.
+			self projectsPresenter
+				basicRemoveClass:
+				self projectsPresenter classListPresenter selection
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1162,8 +1228,9 @@ JadeiteSUnitSupportTestCase >> test_packageRemovedOnClassRemoval [
 	self assertPackageInList: 'RowanSample1-Tests'.
 	projectsBrowser := self testResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
-	self projectsPresenter basicRemoveClass:
-		self projectsPresenter selectedClass.
+	self projectsPresenter
+		basicRemoveClass: self projectsPresenter selectedClass
+		onCompletion: nil.
 	self assert: self projectsPresenter classListPresenter list isEmpty.
 	self denyPackageInList: 'RowanSample1-Tests'
 ]
@@ -1294,8 +1361,9 @@ JadeiteSUnitSupportTestCase >> test_removeTestClass [
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ].
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -1959,8 +2027,9 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdateRightClassInHierarchy [
 		assert:
 		self sunitPresenter methodListPresenter list first testResult
 		equals: 'passed' ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ]
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2022,8 +2091,9 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdateRightClassInHierarchy2 [
 		assert:
 		self sunitPresenter methodListPresenter list first testResult
 		equals: 'passed' ] ensure: [
-		self projectsPresenter basicRemoveClass:
-			self projectsPresenter selectedClass ]
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -45,6 +45,7 @@ JadeiteFilterTrait >> basicRenameCategoryFrom: old to: new [
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarReaders [
+
 	^ self
 		  browseInstVarReaders: self variableListPresenter selectedItem
 		  in: self selectedClassName
@@ -53,6 +54,7 @@ JadeiteFilterTrait >> browseInstVarReaders [
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: session [
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
 
 	| service shell |
 	instVarName ifNil: [ ^ nil ].
@@ -62,27 +64,29 @@ JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: s
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	shell := self
-		         openMethodListOn: service
-		         selectingAnyMatch: instVarName
-		         session: session.
-	shell updateCaptionFromSearchString:
-		'Instance Variable Readers For ' , instVarName asString printString.
+		onCompletion: [
+			shell := self
+				         openMethodListOn: service
+				         selectingAnyMatch: instVarName
+				         session: session.
+			shell updateCaptionFromSearchString:
+				'Instance Variable Readers For '
+				, instVarName asString printString ].
 	^ shell
 ]
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarWriters [
 
-	self
-		browseInstVarWriters: self variableListPresenter selectedItem
-		in: self selectedClassName
-		session: self gciSession
+	^ self
+		  browseInstVarWriters: self variableListPresenter selectedItem
+		  in: self selectedClassName
+		  session: self gciSession
 ]
 
 { #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: session [
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
 
 	| service shell |
 	instVarName ifNil: [ ^ nil ].
@@ -92,13 +96,15 @@ JadeiteFilterTrait >> browseInstVarWriters: instVarName in: className session: s
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: nil.
-	shell := self
-		         openMethodListOn: service
-		         selectingAnyMatch: instVarName
-		         session: session.
-	shell updateCaptionFromSearchString:
-		'Instance Variable Writers For ' , instVarName asString printString
+		onCompletion: [
+			shell := self
+				         openMethodListOn: service
+				         selectingAnyMatch: instVarName
+				         session: session.
+			shell updateCaptionFromSearchString:
+				'Instance Variable Writers For '
+				, instVarName asString printString ].
+	^ shell
 ]
 
 { #category : 'actions' }

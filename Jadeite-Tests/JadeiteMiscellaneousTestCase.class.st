@@ -49,23 +49,34 @@ JadeiteMiscellaneousTestCase >> test_autocompleteClearsSymbolsOnLogout [
 
 { #category : 'tests' }
 JadeiteMiscellaneousTestCase >> test_autocompleteSaveClassSymbolAdded [
-	self testsIssue: #issue647 withTitle: 'Adding class doesn''t update autocomplete symbols'.
+
+	self
+		testsIssue: #issue647
+		withTitle: 'Adding class doesn''t update autocomplete symbols'.
 	self openProjectBrowser.
 	JadeiteSearch initializeAutocompleteSymbolsIn: session.
 	JadeiteSearch autoCompleteEnabled: true.
-	self deny: (JadeiteSearch allClassNames includes: #TestCacheSaveClassName).
+	self deny:
+		(JadeiteSearch allClassNames includes: #TestCacheSaveClassName).
 	self selectRowanSample1Test.
 	self
 		saveClass: 'TestCacheSaveClassName'
 		superclass: 'Object'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Tests'.
-	[self assert: (JadeiteSearch allClassNames includes: 'TestCacheSaveClassName')] ensure: 
-			[self assert: self projectsPresenter selectedClass name equals: 'TestCacheSaveClassName'.
-			self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass.
-			JadeiteSearch allClassNames remove: 'TestCacheSaveClassName'.	"for test reruns"
+	[
+	self assert:
+		(JadeiteSearch allClassNames includes: 'TestCacheSaveClassName') ]
+		ensure: [
+			self
+				assert: self projectsPresenter selectedClass name
+				equals: 'TestCacheSaveClassName'.
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil.
+			JadeiteSearch allClassNames remove: 'TestCacheSaveClassName'. "for test reruns"
 			projectsBrowser view close.
-			projectsBrowser := nil]
+			projectsBrowser := nil ]
 ]
 
 { #category : 'tests' }

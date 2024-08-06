@@ -577,34 +577,46 @@ JadeiteTranscriptTestCase >> test_doubleClickOpenProjectBrowser [
 
 { #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_fileIn [
+
 	| path className |
 	self openProjectBrowser.
-	
-	[path := '/home/ewinger/temp/TestFileIn.gs'.
+
+	[
+	path := '/home/ewinger/temp/TestFileIn.gs'.
 	(session executeString: '''' , path , ''' asFileReference exists')
-		ifTrue: [session executeString: '''' , path , ''' asFileReference delete'].
-	
-	[className := 'TestFileIn'.
+		ifTrue: [
+		session executeString: '''' , path , ''' asFileReference delete' ].
+
+	[
+	className := 'TestFileIn'.
 	self
 		saveClass: className
 		superclass: 'Object'
-		instVars: #('instVarA')
+		instVars: #( 'instVarA' )
 		package: 'RowanSample1-Core'.
 	self saveMethod: 'method1 ^true' in: 'TestFileIn'.
 	self saveMethod: 'method2 ^true' in: 'TestFileIn'.
 	self saveMethod: 'method3 ^true' in: 'TestFileIn'.
 	self projectsPresenter fileOutClassOnPath: path.
-	self assert: (session executeString: '''' , path , ''' asFileReference exists')]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass].
-	
-	[self assertIsNil: (session executeString: 'Rowan globalNamed: ''' , className , '''').
+	self assert:
+		(session executeString: '''' , path , ''' asFileReference exists') ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ].
+
+	[
+	self assertIsNil:
+		(session executeString: 'Rowan globalNamed: ''' , className , '''').
 	transcript basicFileInFromFile: path.
-	self denyIsNil: (session executeString: 'Rowan globalNamed: ''' , className , '''').
+	self denyIsNil:
+		(session executeString: 'Rowan globalNamed: ''' , className , '''').
 	self assert: (session executeString: 'TestFileIn new method1').
 	self assert: (session executeString: 'TestFileIn new method2').
-	self assert: (session executeString: 'TestFileIn new method3')]
-			ensure: [session executeString: '''' , path , ''' asFileReference delete']]
-			ensure: [self destroy: projectsBrowser]
+	self assert: (session executeString: 'TestFileIn new method3') ]
+		ensure: [
+		session executeString: '''' , path , ''' asFileReference delete' ] ]
+		ensure: [ self destroy: projectsBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -812,16 +812,20 @@ JadeiteAbstractTestCase >> saveTestClassWithInstVars: instVars package: aString 
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectCategoriesNamed: categories [
-	self categoryListPresenter selections: Array new. 
-	categories do: 
-			[:category |
-			| categoryString |
-			categoryString := self categoryListPresenter list
-						detect: [:listCategory | categories includes: listCategory]
-						ifNone: [self error: 'Category ''' , category , ''' not found'].
-			self categoryListPresenter selections: (self categoryListPresenter selections asOrderedCollection
-						add: categoryString;
-						yourself)]
+
+	self categoryListPresenter selections: Array new.
+	categories do: [ :category |
+		| categoryString |
+		categoryString := self projectsPresenter categoryNames
+			                  detect: [ :listCategory |
+			                  categories includes: listCategory ]
+			                  ifNone: [
+			                  self error:
+				                  'Category ''' , category , ''' not found' ].
+		self categoryListPresenter selections:
+			(self categoryListPresenter selections asOrderedCollection
+				 add: categoryString;
+				 yourself) ]
 ]
 
 { #category : 'selection' }

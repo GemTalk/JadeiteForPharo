@@ -48,7 +48,6 @@ JadeiteTestResource class >> signalInitializationError [
 JadeiteTestResource >> basicUnloadProjects: projectNames onCompletion: completionBlock [
 
 	| browserService |
-	self jadeiteLog: 'enter'.
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
@@ -437,13 +436,9 @@ JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 JadeiteTestResource >> tearDown [
 
 	super tearDown.
-	projectsBrowser ifNil: [ ^ self ].
-	(self projectsPresenter projectListPresenter list
-		 detect: [ :service | service name = self sampleProject1Name ]
-		 ifNone: [  ]) ifNotNil: [
-		self projectsPresenter
-			basicUnloadProjects: (Array with: self sampleProject1Name)
-			onCompletion: [  ] ]
+	self transcript
+		basicUnloadProjects: (Array with: self sampleProject1Name)
+		onCompletion: [  ]
 ]
 
 { #category : 'support' }

@@ -29,9 +29,7 @@ JadeiteForPharoBrowserAbstractTestCase >> runCaseManaged [
 { #category : 'support' }
 JadeiteForPharoBrowserAbstractTestCase >> setUp [
 	super setUp.
-	self jadeiteLog: 'setUp complete'.
 	self setupProjectBrowser.
-	self jadeiteLog: 'setupProjectBrowser complete'.
 ]
 
 { #category : 'support' }

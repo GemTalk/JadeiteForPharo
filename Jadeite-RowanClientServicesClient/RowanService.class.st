@@ -253,7 +253,6 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 { #category : 'rsr' }
 RowanService >> executeInSession: session onCompletion: completionBlock semaphore: sem [
-	self jadeiteLog: 'enter'. 
 	[ self registerWith: session library ]
 		on: RsrAlreadyRegistered
 		do: [ :ex |  ].

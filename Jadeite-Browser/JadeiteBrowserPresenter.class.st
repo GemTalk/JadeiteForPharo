@@ -343,7 +343,7 @@ JadeiteBrowserPresenter >> basicProjectTabLabel [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> basicRemoveClass: theClassService [
+JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: completionBlock [
 
 	| service |
 	self isHierarchyTabSelected ifTrue: [
@@ -355,13 +355,14 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService [
 	service
 		command: #removeClass:;
 		commandArgs: (Array with: theClassService).
-	self issueCommand: service onCompletion: nil.
-	self selectedClass
-		ifNil: [
-			self resetClassTemplate "just emptied the last class in the package" ]
-		ifNotNil: [
-			classDefinitionPresenter value: self selectedClass template.
-			self resetClassDefinitionPane ]
+	self issueCommand: service onCompletion: [
+		self selectedClass
+			ifNil: [
+				self resetClassTemplate "just emptied the last class in the package" ]
+			ifNotNil: [
+				classDefinitionPresenter value: self selectedClass template.
+				self resetClassDefinitionPane ].
+		completionBlock value ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -552,23 +553,10 @@ JadeiteBrowserPresenter >> canDiscardEdits [
 	^ true
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> categoriesMenuStrings [
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> categoryNames [
 
-	false ifTrue: [
-		self addMethodCategory; renameMethodCategory; removeMethodCategories; fileOutCategories.
-	].
-	^#(
-		'&Categories'
-		'&Add//addMethodCategory'
-		'&Rename//renameMethodCategory'
-		'&Remove//removeMethodCategories'
-		'-'
-		'&Browse category methods//browseSelectedCategoryMethods'
-		'-'
-		'&File out categories ...//fileOutCategories'
-	)
-
+	^categoryListPresenter list collect:[:jadeiteCategory | jadeiteCategory categoryName]
 ]
 
 { #category : 'as yet unclassified' }
@@ -910,14 +898,14 @@ JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 
 	self clearMethodListTestResultIn: methodServices.
 	self refreshClassAndMethodPresenters.
-	[
 	methodServices do: [ :methodService |
 		methodService
 			command: #debugTest:inClassName:;
 			commandArgs:
 				(Array with: methodService selector with: methodService className).
-		self issueCommand: methodService onCompletion: nil ] ] ensure: [
-		self refreshClassAndMethodPresenters ]
+		self
+			issueCommand: methodService
+			onCompletion: [ self refreshClassAndMethodPresenters ] ]
 ]
 
 { #category : 'initialization' }
@@ -2867,23 +2855,23 @@ JadeiteBrowserPresenter >> removeClass [
 	answeringService
 		command: #classHasSubclasses:;
 		commandArgs: (Array with: classService oop).
-	self issueCommand: answeringService onCompletion: nil.
-	answeringService answer ifTrue: [
-		^ MessageBox notify: 'Cannot remove class with subclasses' ].
-	(self selectedDictionaryOrPackage confirmClassRemoval: classService)
-		ifFalse: [ ^ self ].
-	self
-		basicBrowseClassReferences: classService name
-		session: self gciSession
-		completionBlock: [ :queryService |
-			queryService hasResults ifTrue: [
-				classReferenceBrowser := self browseClassReferences:
-					                         classService name ].
-			self basicRemoveClass: classService.
-			queryService hasResults ifTrue: [
-				MessageBox notify: classService name
-					,
-					' was removed. You will need to remove references to the class or your code may not load in the future.' ] ]
+	self issueCommand: answeringService onCompletion: [
+		answeringService answer ifTrue: [
+			^ MessageBox notify: 'Cannot remove class with subclasses' ].
+		(self selectedDictionaryOrPackage confirmClassRemoval: classService)
+			ifFalse: [ ^ self ].
+		self
+			basicBrowseClassReferences: classService name
+			session: self gciSession
+			completionBlock: [ :queryService |
+				queryService hasResults ifTrue: [
+					classReferenceBrowser := self browseClassReferences:
+						                         classService name ].
+				self basicRemoveClass: classService onCompletion: [
+					queryService hasResults ifTrue: [
+						MessageBox notify: classService name
+							,
+							' was removed. You will need to remove references to the class or your code may not load in the future.' ] ] ] ]
 ]
 
 { #category : 'as yet unclassified' }

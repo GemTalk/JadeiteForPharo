@@ -30,23 +30,33 @@ JadeiteDataCuratorTestCase >> tearDown [
 
 { #category : 'as yet unclassified' }
 JadeiteDataCuratorTestCase >> test_addAccessorsClassTab [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+
+	self
+		testsIssue: #issue382
+		withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #()
+		instVars: #(  )
 		package: 'RowanSample1-Core'.
-	
-	[self projectsPresenter selectClassTab.
+
+	[
+	self projectsPresenter selectClassTab.
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('format').
+	self variableListPresenter selections: #( 'format' ).
 	self projectsPresenter addVariableAccessors.
 	self selectMethodNamed: #format.
-	self assert: self methodListPresenter selections first selector equals: #format.
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #format.
 	self selectMethodNamed: #format:.
-	self assert: self methodListPresenter selections first selector equals: #format:]
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self
+		assert: self methodListPresenter selections first selector
+		equals: #format: ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -104,15 +114,23 @@ JadeiteDataCuratorTestCase >> test_basicInspection [
 
 { #category : 'as yet unclassified' }
 JadeiteDataCuratorTestCase >> test_compileClass [
-	self testsIssue: #issue390 withTitle: 'Rename instance variable with accessor method is... wonky'.
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	[self assert: self projectsPresenter selectedClass name = 'TestClass']
-		ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	[
+	self assert: self projectsPresenter selectedClass name = 'TestClass' ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -173,33 +191,38 @@ JadeiteDataCuratorTestCase >> test_dontDuplicateBreakpoints [
 
 { #category : 'as yet unclassified' }
 JadeiteDataCuratorTestCase >> test_dontOverrideExistingAccessorMethods [
-	self testsIssue: #issue382 withTitle: 'Add Accessors menu item is disabled'.
+
+	self
+		testsIssue: #issue382
+		withTitle: 'Add Accessors menu item is disabled'.
 	self selectRowanSample1Class.
 	self
 		saveClass: 'TestClass'
 		superclass: 'Object'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-	
-	[self
-		saveMethod: 'abc  ^123'
-		in: 'TestClass'
-		category: 'accessing'.
+
+	[
+	self saveMethod: 'abc  ^123' in: 'TestClass' category: 'accessing'.
 	self
 		saveMethod: 'abc: foo ^123'
 		in: 'TestClass'
 		category: 'accessing'.
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #('abc').
+	self variableListPresenter selections: #( 'abc' ).
 	TestMessageBox enableJadeiteTestMessageBox.
-	TestMessageBox plannedResult: #no.	"do not create accessors"
-	[self projectsPresenter addVariableAccessors] ensure: [TestMessageBox disableJadeiteTestMessageBox].
-	self variableListPresenter selections: #().
+	TestMessageBox plannedResult: #no. "do not create accessors"
+	[ self projectsPresenter addVariableAccessors ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox ].
+	self variableListPresenter selections: #(  ).
 	self selectMethodNamed: #abc.
 	self assert: self methodSourcePresenter value equals: 'abc  ^123'.
 	self selectMethodNamed: #abc:.
-	self assert: self methodSourcePresenter value equals: 'abc: foo ^123']
-			ensure: [self projectsPresenter basicRemoveClass: self projectsPresenter selectedClass]
+	self assert: self methodSourcePresenter value equals: 'abc: foo ^123' ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }
