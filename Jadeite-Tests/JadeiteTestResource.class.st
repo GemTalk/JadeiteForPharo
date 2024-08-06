@@ -436,9 +436,10 @@ JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 JadeiteTestResource >> tearDown [
 
 	super tearDown.
-	self transcript
-		basicUnloadProjects: (Array with: self sampleProject1Name)
-		onCompletion: [  ]
+	self transcript ifNotNil: [ :console |
+		console
+			basicUnloadProjects: (Array with: self sampleProject1Name)
+			onCompletion: [  ] ]
 ]
 
 { #category : 'support' }

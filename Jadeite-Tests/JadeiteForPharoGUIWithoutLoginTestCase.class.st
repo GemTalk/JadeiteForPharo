@@ -42,6 +42,7 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_exportConnection [
 		testsJadeiteForPharoIssue: #issue67
 		title: 'Need to be able to save connections'.
 	profile := JadeiteConnectionProfile connectionProfile.
+	profile isConnected ifTrue: [ profile disconnect ].
 	isConnected := profile isConnected.
 	self getLauncher.
 	fileRef := FileSystem workingDirectory resolveString:

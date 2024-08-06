@@ -244,10 +244,10 @@ JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
 	self projectsPresenter addVariableAccessors.
 	self selectMethodNamed: #var1.
 	self assert: self methodSourcePresenter text equals: 'var1
-	^var1'.
+	^var1' replaceCrWithLf .
 	self selectMethodNamed: #var1:.
 	self assert: self methodSourcePresenter text equals: 'var1: object
-	var1 := object' replaceCrLfWithLf ] ensure: [
+	var1 := object' replaceCrWithLf ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self projectsPresenter selectedClass
 			onCompletion: nil ]
@@ -773,7 +773,6 @@ JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 		title:
 		'loading a new project externally and then aborting ends up with new project at bottom of console'.
 	JadeiteApplication abortTransactionInSession: session.
-	[
 	projects := self projectList collect: [ :projectService |
 		            projectService name ].
 	self deny: (projects includes: 'RowanSample1').
@@ -785,10 +784,9 @@ JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 		            projectService name ].
 	self
 		assert: projects
-		equals: projects asSortedCollection asOrderedCollection ] ensure: [
-		self testResourceClass current
-			tearDown;
-			"reset the world after abort. Need to improve this. "setUp ]
+		equals:
+			(projects asSortedCollection: [ :x :y |
+				 x asLowercase < y asLowercase ]) asOrderedCollection
 ]
 
 { #category : 'tests' }
