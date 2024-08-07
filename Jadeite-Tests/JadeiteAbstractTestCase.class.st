@@ -663,14 +663,16 @@ JadeiteAbstractTestCase >> saveClass: className withInstVars: instVars package: 
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveClassMethod: source in: className category: category [
+
 	| classService |
 	classService := RowanClassService named: className.
-	classService meta: true. 
+	classService meta: true.
 	classService
 		saveMethod: source
 		category: category
-		session: session.
-	^classService
+		session: session
+		onCompletion: nil.
+	^ classService
 ]
 
 { #category : 'as yet unclassified' }
@@ -768,14 +770,16 @@ JadeiteAbstractTestCase >> saveMethod: source in: className category: category [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveMethod: source in: className category: category meta: meta [
+
 	| classService |
 	classService := RowanClassService named: className.
-	classService meta: meta. 
+	classService meta: meta.
 	classService
 		saveMethod: source
 		category: category
-		session: session.
-	^classService
+		session: session
+		onCompletion: nil.
+	^ classService
 ]
 
 { #category : 'as yet unclassified' }

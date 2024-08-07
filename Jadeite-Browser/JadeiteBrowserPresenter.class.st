@@ -260,22 +260,25 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicAddVariableAccessors [
+
 	| cachedSelections |
-	(cachedSelections := self methodFilterListPresenter selections) do: 
-			[:variable |
-			| sourceStream classService |
-			classService := self selectedClass.
-			sourceStream := self getterMethodSourceFor: variable.
-			classService
-				saveMethod: sourceStream contents
-				category: 'accessing'
-				session: self gciSession.
-			sourceStream := self setterMethodSourceFor: variable.
-			classService
-				saveMethod: sourceStream contents
-				category: 'accessing'
-				session: self gciSession].
-	self methodFilterListPresenter selections: cachedSelections
+	(cachedSelections := self methodFilterListPresenter selections) do: [
+		:variable |
+		| sourceStream classService |
+		classService := self selectedClass.
+		sourceStream := self getterMethodSourceFor: variable.
+		classService
+			saveMethod: sourceStream contents
+			category: 'accessing'
+			session: self gciSession
+			onCompletion: [
+				sourceStream := self setterMethodSourceFor: variable.
+				classService
+					saveMethod: sourceStream contents
+					category: 'accessing'
+					session: self gciSession
+					onCompletion: [
+					self methodFilterListPresenter selections: cachedSelections ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -300,36 +303,6 @@ JadeiteBrowserPresenter >> basicDictionaryTabLabel [
 	^ self selectedClass
 		  ifNil: [ label ]
 		  ifNotNil: [ self selectedClass name ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> basicOnDropClassList: dragDropSession [
-	| classService failedCompilations newSelections |
-	failedCompilations := OrderedCollection new.
-	classService := dragDropSession suggestedTarget.
-	classService meta: self isClassSideSelected.
-	dragDropSession dragObjects do: 
-			[:dragDropObject |
-			
-			[dragDropObject object source ifNil: [self updateService: dragDropObject object].
-			classService
-				saveMethod: dragDropObject object source
-				category: dragDropObject object category
-				session: gciSession]
-					on: GsCompileError
-					do: [:ex | failedCompilations add: dragDropObject object]].
-	failedCompilations isEmpty
-		ifTrue: 
-			[self selectedClass == classService
-				ifFalse: 
-					[self isHierarchyTabSelected
-						ifTrue: [self selectClassInClassHierarchyNamed: classService name]
-						ifFalse: [self selectClassNamed: classService name]].
-			newSelections := methodListPresenter list select: 
-							[:methodService |
-							(dragDropSession dragObjects collect: [:ea | ea object selector]) includes: methodService selector].
-			methodListPresenter selections: newSelections].
-	^failedCompilations
 ]
 
 { #category : 'tab labels' }
@@ -966,33 +939,39 @@ JadeiteBrowserPresenter >> displayVariable: displayThing [
 
 { #category : 'drag & drop' }
 JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classService [
+	"doesn't handle failed compilations well yet or multiple dragged methods. "
 
 	| failedCompilations selection |
 	failedCompilations := OrderedCollection new.
-	methodServices do: [ :methodService |
+	1 to: methodServices size do: [ :index |
+		| methodService |
+		methodService := methodServices at: index.
 		[
-		classService meta: methodService meta. 
+		classService meta: methodService meta.
 		classService
 			saveMethod: methodService source
 			category: methodService category
-			session: GciSession current ]
+			session: GciSession current
+			onCompletion: [
+				failedCompilations ifNotEmpty: [
+					| ws |
+					ws := WriteStream on: String new.
+					ws nextPutAll: 'Methods failing compilation:'.
+					failedCompilations do: [ :aMethodService |
+						ws
+							cr;
+							nextPutAll: aMethodService selectorPrintString ].
+					UIManager default alert: ws contents ].
+				selection := methodServices
+					             detect: [ :service |
+					             (failedCompilations includes: service) not ]
+					             ifNone: [  ].
+				selection ifNotNil: [
+					self updateService: classService onCompletion: [
+						self selectClassNamed: classService name.
+						self selectMethod: selection ] ] ] ]
 			on: GsCompileError
-			do: [ :ex | failedCompilations add: methodService ] ].
-	failedCompilations ifNotEmpty: [
-		| ws |
-		ws := WriteStream on: String new.
-		ws nextPutAll: 'Methods failing compilation:'.
-		failedCompilations do: [ :methodService |
-			ws
-				cr;
-				nextPutAll: methodService selectorPrintString ].
-		UIManager default alert: ws contents ].
-	selection := methodServices
-		             detect: [ :service |
-		             (failedCompilations includes: service) not ]
-		             ifNone: [ ^ self ].
-	self selectClassNamed: classService name.
-	self selectMethod: selection
+			do: [ :ex | failedCompilations add: methodService ] ]
 ]
 
 { #category : 'drag & drop' }
@@ -1482,9 +1461,10 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 		wantsDrop: [ :transfer |
 			transfer passenger allSatisfy: #isMethodService ];
 		acceptDrop: [ :transfer |
-			self
-				dropMethods: transfer passenger
-				onSelectedClass: transfer target ].
+			transfer index = 0 ifFalse: [
+					self
+						dropMethods: transfer passenger
+						onSelectedClass: transfer target ] ].
 	classHierarchyPage := JadeiteNotebookPage
 		                      title: 'Hierarchy'
 		                      icon: nil
@@ -1504,11 +1484,12 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 		                      displayIcon: [ :classService |
 			                      self testClassResultIconFor: classService ];
 		                      acceptDrop: [ :transfer |
-			                      self
-				                      dropMethods: transfer passenger
-				                      onSelectedClass:
-					                      (self classListPresenter items at:
-							                       transfer index) ].
+			                      transfer index = 0 ifFalse: [
+					                      self
+						                      dropMethods: transfer passenger
+						                      onSelectedClass:
+							                      (self classListPresenter items at:
+									                       transfer index) ] ].
 	classListPresenter beSingleSelection.
 	classListPresenter displayColor: [ :classService |
 		self classDisplayColor: classService ].
@@ -2240,11 +2221,6 @@ JadeiteBrowserPresenter >> onDropClassesOnPackageList: aSession [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> onDropMethodsOnClassHierarchy: aSession [
-	^self onDropOnClassList: aSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> onDropMethodsOnPackageList: aSession [
 	self onDropMethodsOnPackageList: aSession suggestedTarget session: aSession
 ]
@@ -2260,16 +2236,6 @@ JadeiteBrowserPresenter >> onDropMethodsOnPackageList: packageServiceOrName sess
 						ifFalse: [packageServiceOrName])].
 	MessageBox notify: 'Sorry, we are not yet prepared to handle ' , aSession printString , '!'.
 	SessionManager current pause
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> onDropOnClassList: dragDropSession [
-	| failedCompilations |
-	failedCompilations := self basicOnDropClassList: dragDropSession.
-	failedCompilations isEmpty
-		ifFalse: 
-			[MessageBox notify: 'Methods failing compilation: '
-						, (failedCompilations collect: [:methodService | methodService selector]) asArray printString]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2657,7 +2623,8 @@ JadeiteBrowserPresenter >> refreshClass: selectedMethod [
 		browser: self.
 	selection
 		updateAfterCommand: false;
-		command: #fastRefresh.
+		command: #fastRefresh;
+		commandArgs: Array new.
 	self issueCommand: selection onCompletion: [
 		selection updateAfterCommand: true.
 		self updateClassInfo.

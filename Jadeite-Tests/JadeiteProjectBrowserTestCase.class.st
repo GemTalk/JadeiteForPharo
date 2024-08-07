@@ -435,8 +435,12 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindowStayOnMetho
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_adHocContextClassSide [
+
 	| classService |
-	self testsIssue: #issue517 withTitle: 'Context of non-debugger source panes should be the class'.
+	self
+		testsIssue: #issue517
+		withTitle:
+		'Context of non-debugger source panes should be the class'.
 	self selectRowanSample1Test.
 	self selectClassTab.
 	classService := RowanClassService named: 'RowanSample1Test'.
@@ -444,19 +448,26 @@ JadeiteProjectBrowserTestCase >> test_adHocContextClassSide [
 	classService
 		saveMethod: 'fnoodle  ^#fnoodle'
 		category: 'deleteMe'
-		session: session.
+		session: session
+		onCompletion: nil.
 	self selectMethodNamed: #fnoodle.
-	self assert: self methodListPresenter selection selector equals: #fnoodle.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #fnoodle.
 	self methodSourcePresenter value: 'self fnoodle'.
 	self methodSourcePresenter setFocus.
-	
-	[self methodSourcePresenter view selectAll.
+
+	[
+	self methodSourcePresenter view selectAll.
 	self projectsPresenter jadeDisplay.
-	self assert: self methodSourcePresenter value equals: 'self fnoodle #''fnoodle''']
-			ensure: 
-				[self assert: self methodListPresenter selection selector equals: #fnoodle.
-				self methodSourcePresenter view isModified: false.
-				self projectsPresenter basicRemoveMethods]
+	self
+		assert: self methodSourcePresenter value
+		equals: 'self fnoodle #''fnoodle''' ] ensure: [
+		self
+			assert: self methodListPresenter selection selector
+			equals: #fnoodle.
+		self methodSourcePresenter view isModified: false.
+		self projectsPresenter basicRemoveMethods ]
 ]
 
 { #category : 'as yet unclassified' }

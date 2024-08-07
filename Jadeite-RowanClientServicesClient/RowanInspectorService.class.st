@@ -137,7 +137,7 @@ RowanInspectorService >> inspect: oopOrObject session: session [
 ]
 
 { #category : 'inspecting' }
-RowanInspectorService >> inspect: theOop session: session inWindow: handle [
+RowanInspectorService >> inspect: theOop session: session inWindow: handle onCompletion: completionBlock [
 
 	oop := theOop.
 	self
@@ -146,7 +146,7 @@ RowanInspectorService >> inspect: theOop session: session inWindow: handle [
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'inspecting' }

@@ -36,10 +36,10 @@ JadeiteProjectsTrait >> auditProjectFor: projectName [
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
-		onCompletion: nil.
-	self
-		openAuditResultsInWorkspaceUsing: answeringService
-		projectNamed: projectName
+		onCompletion: [
+			self
+				openAuditResultsInWorkspaceUsing: answeringService
+				projectNamed: projectName ]
 ]
 
 { #category : 'testing' }

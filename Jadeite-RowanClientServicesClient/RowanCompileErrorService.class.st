@@ -34,6 +34,6 @@ RowanCompileErrorService >> isCompileError [
 
 { #category : 'rsr' }
 RowanCompileErrorService >> signalCompileError [
-
+	Transcript cr; show: 'RowanCompileErrorService>>#signalCompileError'; flush. 
 	GsCompileError signal: self gsArguments
 ]

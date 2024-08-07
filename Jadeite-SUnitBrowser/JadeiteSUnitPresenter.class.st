@@ -644,7 +644,8 @@ JadeiteSUnitPresenter >> updateMethods [
 	classServices do: [ :service |
 		service
 			updateAfterCommand: false;
-			command: #fastRefresh ].
+			command: #fastRefresh;
+			commandArgs: Array new ].
 	RowanServiceUpdater current
 		issueCommands: classServices
 		session: self gciSession

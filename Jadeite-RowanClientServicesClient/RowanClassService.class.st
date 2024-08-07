@@ -828,7 +828,7 @@ RowanClassService >> replicateFrom: newService [
 ]
 
 { #category : 'actions' }
-RowanClassService >> saveMethod: source category: category session: session [
+RowanClassService >> saveMethod: source category: category session: session onCompletion: completionBlock [
 
 	self
 		command: #saveMethodSource:category:;
@@ -836,7 +836,7 @@ RowanClassService >> saveMethod: source category: category session: session [
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'accessing' }

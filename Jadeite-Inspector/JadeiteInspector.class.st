@@ -543,13 +543,14 @@ JadeiteInspector >> initializeWindow: aWindowPresenter [
 
 { #category : 'inspecting' }
 JadeiteInspector >> inspect: oop inContext: context [
-	| service window |
+
+	| window |
 	window := self asWindow.
-	service := RowanInspectorService new
-				inspect: oop
-				session: gciSession
-				inWindow: window identityHash.
-	^self show: window on: service
+	RowanInspectorService new
+		inspect: oop
+		session: gciSession
+		inWindow: window identityHash
+		onCompletion: [ :service | self show: window on: service ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -614,16 +615,17 @@ JadeiteInspector >> inspectKeyInNewWindow [
 
 { #category : 'as yet unclassified' }
 JadeiteInspector >> inspectOop: oop [
-	| service |
-	service := RowanInspectorService new
-				inspect: oop
-				session: gciSession
-				inWindow: self owner identityHash.
-	model := service.
-	self addOop: oop.
-	self todo:["needed?" self setDocumentPresenterLabel].
-	self displayObjectSelecting: nil.
-	self updateCaption
+
+	RowanInspectorService new
+		inspect: oop
+		session: gciSession
+		inWindow: self owner identityHash
+		onCompletion: [ :service |
+			model := service.
+			self addOop: oop.
+			self todo: [ "needed?" self setDocumentPresenterLabel ].
+			self displayObjectSelecting: nil.
+			self updateCaption ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -746,34 +748,35 @@ JadeiteInspector >> multipleInstVarsSelected [
 		commandArgs: (Array with: oops with: self maxPrintStringSize).
 	RowanServiceUpdater current
 		issueCommand: answeringService
-		session: gciSession.
-	computedSelections := self computedListSelections.
-	boldNeeded := OrderedCollection new.
-	computedSelections do: [ :assoc |
-		boldNeeded add:
-			(writeStream position to: writeStream position + assoc key size).
-		writeStream
-			nextPutAll: assoc key;
-			nextPut: $:;
-			space;
-			nextPutAll: assoc last;
-			cr ].
-	1 to: oops size do: [ :index |
-		| key |
-		key := (instVarListPresenter selections at:
-			        index + computedSelections size) key.
-		boldNeeded add:
-			(writeStream position to: writeStream position + key size).
-		writeStream
-			nextPutAll: key;
-			nextPut: $:;
-			space;
-			nextPutAll: (answeringService answer at: index).
-		index = oops size ifFalse: [ writeStream cr ] ].
-	contents := writeStream contents.
-	contents last = Character lf ifTrue: [
-		contents := contents copyFrom: 1 to: contents size - 2 "crlf" ].
-	documentPresenter value: contents
+		session: gciSession
+		onCompletion: [
+			computedSelections := self computedListSelections.
+			boldNeeded := OrderedCollection new.
+			computedSelections do: [ :assoc |
+				boldNeeded add:
+					(writeStream position to: writeStream position + assoc key size).
+				writeStream
+					nextPutAll: assoc key;
+					nextPut: $:;
+					space;
+					nextPutAll: assoc last;
+					cr ].
+			1 to: oops size do: [ :index |
+				| key |
+				key := (instVarListPresenter selections at:
+					        index + computedSelections size) key.
+				boldNeeded add:
+					(writeStream position to: writeStream position + key size).
+				writeStream
+					nextPutAll: key;
+					nextPut: $:;
+					space;
+					nextPutAll: (answeringService answer at: index).
+				index = oops size ifFalse: [ writeStream cr ] ].
+			contents := writeStream contents.
+			contents last = Character lf ifTrue: [
+				contents := contents copyFrom: 1 to: contents size - 2 "crlf" ].
+			documentPresenter value: contents ]
 ]
 
 { #category : 'initialization' }

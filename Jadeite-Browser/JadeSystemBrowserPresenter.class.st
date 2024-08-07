@@ -1068,15 +1068,6 @@ JadeSystemBrowserPresenter >> onDropOnClassCategory: aSession [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> onDropOnClassHierarchy: aSession [ 
-
-	(aSession isFormatAvailable: #'method') ifTrue: [^self onDropMethodsOnClassHierarchy: aSession].
-	MessageBox notify: 'Sorry, we are not yet prepared to handle ' , aSession printString , '!'.
-	SessionManager current pause.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> onDropOnClassList: aSession [ 
 
 	(aSession isFormatAvailable: #'method') ifTrue: [^self onDropMethodsOnClassList: aSession].

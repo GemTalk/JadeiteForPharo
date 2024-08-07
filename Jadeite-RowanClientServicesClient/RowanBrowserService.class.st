@@ -125,7 +125,7 @@ RowanBrowserService >> newProjectNamed: projectName session: session windowHandl
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: [ ]
 ]
 
 { #category : 'public' }

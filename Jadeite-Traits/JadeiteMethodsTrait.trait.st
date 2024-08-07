@@ -536,15 +536,6 @@ JadeiteMethodsTrait >> initializeFullMethodListMenu [
 ]
 
 { #category : 'commands' }
-JadeiteMethodsTrait >> issueCommand: service [
-
-	^ RowanServiceUpdater current
-		  issueCommands: (Array with: service)
-		  session: self gciSession
-		  onCompletion: nil
-]
-
-{ #category : 'commands' }
 JadeiteMethodsTrait >> issueCommand: service onCompletion: completionBlock [
 
 	^ RowanServiceUpdater current

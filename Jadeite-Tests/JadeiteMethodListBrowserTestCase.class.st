@@ -427,8 +427,12 @@ JadeiteMethodListBrowserTestCase >> test_UnsavedChangesActionCloseWindowStayOnMe
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_adHocContextClassSide [
+
 	| classService |
-	self testsIssue: #issue517 withTitle: 'Context of non-debugger source panes should be the class'.
+	self
+		testsIssue: #issue517
+		withTitle:
+		'Context of non-debugger source panes should be the class'.
 	self openProjectBrowser.
 	self selectRowanSample1Test.
 	self selectClassTab.
@@ -437,41 +441,58 @@ JadeiteMethodListBrowserTestCase >> test_adHocContextClassSide [
 	classService
 		saveMethod: 'fnoodle  ^#fnoodle'
 		category: 'deleteMe'
-		session: session.
-	methodListBrowser := JadePresenter browseImplementorsOf: 'fnoodle' session: session.
+		session: session
+		onCompletion: nil.
+	methodListBrowser := JadePresenter
+		                     browseImplementorsOf: 'fnoodle'
+		                     session: session.
 	self methodSourcePresenter value: 'self fnoodle'.
 	self methodSourcePresenter setFocus.
-	
-	[self methodSourcePresenter documentPresenter view selectAll.
+
+	[
+	self methodSourcePresenter documentPresenter view selectAll.
 	self methodSourcePresenter jadeDisplay.
-	self assert: self methodSourcePresenter documentPresenter value equals: 'self fnoodle #''fnoodle''']
-			ensure: 
-				[self methodSourcePresenter documentPresenter view isModified: false.
-				self removeMethods: self methodListMethodListPresenter selections inClassService: classService]
+	self
+		assert: self methodSourcePresenter documentPresenter value
+		equals: 'self fnoodle #''fnoodle''' ] ensure: [
+		self methodSourcePresenter documentPresenter view isModified: false.
+		self
+			removeMethods: self methodListMethodListPresenter selections
+			inClassService: classService ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_adHocContextInstanceSide [
+
 	| classService |
-	self testsIssue: #issue517 withTitle: 'Context of non-debugger source panes should be the class'.
+	self
+		testsIssue: #issue517
+		withTitle:
+		'Context of non-debugger source panes should be the class'.
 	self openProjectBrowser.
 	self selectRowanSample1Test.
 	classService := RowanClassService named: 'RowanSample1Test'.
 	classService
 		saveMethod: 'fnoodle  ^#fnoodle'
 		category: 'deleteMe'
-		session: session.
-	methodListBrowser := JadePresenter browseImplementorsOf: 'fnoodle' session: session.
+		session: session
+		onCompletion: nil.
+	methodListBrowser := JadePresenter
+		                     browseImplementorsOf: 'fnoodle'
+		                     session: session.
 	self methodSourcePresenter value: 'self new fnoodle'.
 	self methodSourcePresenter setFocus.
-	
-	[self methodSourcePresenter documentPresenter view selectAll.
+
+	[
+	self methodSourcePresenter documentPresenter view selectAll.
 	self methodSourcePresenter jadeDisplay.
-	self assert: self methodSourcePresenter documentPresenter value
-		equals: 'self new fnoodle #''fnoodle''']
-			ensure: 
-				[self methodSourcePresenter documentPresenter view isModified: false.
-				self removeMethods: self methodListMethodListPresenter selections inClassService: classService]
+	self
+		assert: self methodSourcePresenter documentPresenter value
+		equals: 'self new fnoodle #''fnoodle''' ] ensure: [
+		self methodSourcePresenter documentPresenter view isModified: false.
+		self
+			removeMethods: self methodListMethodListPresenter selections
+			inClassService: classService ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1341,21 +1362,29 @@ JadeiteMethodListBrowserTestCase >> test_firstReferenceRemovedAfterRecompile [
 	classService
 		saveMethod: 'fnoodle  ^#fnoodle'
 		category: 'deleteMe'
-		session: session.
+		session: session
+		onCompletion: nil.
 	classService
 		saveMethod: 'callFnoodle ^self fnoodle'
 		category: 'deleteMe'
-		session: session.
-	
-	[methodListBrowser := JadePresenter browseSendersOf: #fnoodle session: session.
+		session: session
+		onCompletion: nil.
+
+	[
+	methodListBrowser := JadePresenter
+		                     browseSendersOf: #fnoodle
+		                     session: session.
 	self methodSourcePresenter value: 'callFnoodle ^1 + self fnoodle'.
 	self methodSourcePresenter editSaveMethod.
 	self methodListMethodListPresenter view resetSelection.
 	self methodListMethodListPresenter view selectAll.
-	self assertIsNil: self methodListMethodListPresenter selection firstReference]
-			ensure: 
-				[self methodListMethodListPresenter view selectAll.
-				self removeMethods: self methodListMethodListPresenter selections inClassService: classService]
+	self assertIsNil:
+		self methodListMethodListPresenter selection firstReference ]
+		ensure: [
+			self methodListMethodListPresenter view selectAll.
+			self
+				removeMethods: self methodListMethodListPresenter selections
+				inClassService: classService ]
 ]
 
 { #category : 'as yet unclassified' }

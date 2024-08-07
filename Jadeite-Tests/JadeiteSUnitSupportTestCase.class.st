@@ -388,7 +388,8 @@ JadeiteSUnitSupportTestCase >> test_addNewTestPackage [
 	classService1
 		saveMethod: 'test_blah'
 		category: 'tests'
-		session: session.
+		session: session
+		onCompletion: nil.
 	self assertPackageInList: packageName.
 	self
 		selectServiceNamed: packageName
@@ -411,33 +412,40 @@ JadeiteSUnitSupportTestCase >> test_addNewTestPackage [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_addPackageReloadProject [
+
 	| packageName classService1 className |
-	self testsIssue: #issue183
-		withTitle: 'Add package but don''t write it to disk then reload - walkback'.
+	self
+		testsIssue: #issue183
+		withTitle:
+		'Add package but don''t write it to disk then reload - walkback'.
 	self openProjectBrowser.
-	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
+	self
+		selectServicesNamed: (Array with: 'RowanSample1')
+		in: self projectListPresenter.
 	packageName := 'NewPackage'.
 	className := 'NewClass'.
 	self denyPackageInList: packageName.
 	self addPackageNamed: packageName.
-	self denyPackageInList: packageName.	"need method to be there"
+	self denyPackageInList: packageName. "need method to be there"
 	self
 		saveClass: className
 		superclass: 'TestCase'
-		instVars: #('abc')
+		instVars: #( 'abc' )
 		package: packageName.
 	classService1 := RowanClassService named: className.
 	classService1
 		saveMethod: 'test_blah'
 		category: 'tests'
-		session: session.
+		session: session
+		onCompletion: nil.
 	self assertPackageInList: packageName.
 	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[TestMessageBox plannedResult: #yes.	"confirm we want to reload project"
+
+	[
+	TestMessageBox plannedResult: #yes. "confirm we want to reload project"
 	self projectsPresenter reloadProject.
-	self denyPackageInList: packageName]
-			ensure: [TestMessageBox disableJadeiteTestMessageBox]
+	self denyPackageInList: packageName ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox ]
 ]
 
 { #category : 'as yet unclassified' }
