@@ -578,7 +578,8 @@ JadeiteBrowserPresenter >> classSelected: classService [
 		self clearMethodLists.
 		self clearFilterLists. 
 		self refreshClass: methodListPresenter selectedItem.
-		self updateTabLabel ]
+		self updateTabLabel.
+		self selectCategoryTab ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3778,8 +3779,10 @@ JadeiteBrowserPresenter >> updateMethodSource [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		^ self setDefaultMethod ].
+	methodListPresenter selectedItem isInCommand ifTrue: [
+		^ self postUpdateMethodSource "service already updated"].
 	self
-		updateServices: methodListPresenter selections
+		updateService: methodListPresenter selectedItem
 		onCompletion: [ self postUpdateMethodSource ]
 ]
 
