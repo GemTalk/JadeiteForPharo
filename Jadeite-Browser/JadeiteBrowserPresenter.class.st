@@ -261,24 +261,20 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicAddVariableAccessors [
 
-	| cachedSelections |
-	(cachedSelections := self methodFilterListPresenter selections) do: [
-		:variable |
-		| sourceStream classService |
-		classService := self selectedClass.
-		sourceStream := self getterMethodSourceFor: variable.
-		classService
-			saveMethod: sourceStream contents
-			category: 'accessing'
-			session: self gciSession
-			onCompletion: [
-				sourceStream := self setterMethodSourceFor: variable.
-				classService
-					saveMethod: sourceStream contents
-					category: 'accessing'
-					session: self gciSession
-					onCompletion: [
-					self methodFilterListPresenter selections: cachedSelections ] ] ]
+	| variables sources |
+	variables := self methodFilterListPresenter selections.
+	sources := variables
+		           inject: OrderedCollection new
+		           into: [ :oc :var |
+			           oc
+				           add: (self getterMethodSourceFor: var);
+				           add: (self setterMethodSourceFor: var);
+				           yourself ].
+	self selectedClass
+		saveMethods: sources
+		category: 'accessing'
+		session: self gciSession
+		onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1230,22 +1226,6 @@ JadeiteBrowserPresenter >> findProjectNamed: projectName [
 		projectListPresenter selection: projectService.
 		projectListPresenter refresh ].
 	
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> findRemovedServices [
-
-	| browserService |
-	browserService := RowanBrowserService new
-		                  command: #findRemovedServices:;
-		                  commandArgs:
-			                  (Array with:
-					                   RowanServiceUpdater current activeServices
-						                   asArray).
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: self gciSession
-		onCompletion: nil
 ]
 
 { #category : 'accessing' }
@@ -2941,9 +2921,13 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 	classDefinitionPresenter value: (presenter selections isEmpty
 			 ifTrue: [ String new ]
 			 ifFalse: [
-				 self selectedClassTab activePresenter selection selectedItem ifNil:[
-					  presenter selectedItem defaultTemplate ]
-					 ifNotNil: [ self selectedClassTab activePresenter selectedItem template ] ]).
+				 self selectedClassTab
+					 ifNil: [ presenter selectedItem defaultTemplate ]
+					 ifNotNil: [
+						 self selectedClassTab activePresenter selection selectedItem
+							 ifNil: [ presenter selectedItem defaultTemplate ]
+							 ifNotNil: [
+							 self selectedClassTab activePresenter selectedItem template ] ] ]).
 	self resetClassDefinitionPane
 ]
 

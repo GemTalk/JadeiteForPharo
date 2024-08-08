@@ -857,6 +857,12 @@ JadeiteConsole >> resetTransactionModeRadioButtons [
 	(transactionModePresenter view viewNamed: self transactionMode asString) displayValue: true
 ]
 
+{ #category : 'accessing' }
+JadeiteConsole >> selectedPackageServices [
+
+	^Array new
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> setFont [
 	| newFont currentFont |

@@ -276,7 +276,7 @@ JadeiteProjectsBrowserPresenter >> getterMethodSourceFor: variable [
 		tab;
 		nextPut: $^;
 		nextPutAll: variable.
-	^sourceStream
+	^sourceStream contents
 ]
 
 { #category : 'as yet unclassified' }
@@ -785,7 +785,7 @@ JadeiteProjectsBrowserPresenter >> setterMethodSourceFor: variable [
 		lf;
 		tab;
 		nextPutAll: variable , ' := object'.
-	^sourceStream
+	^sourceStream contents
 ]
 
 { #category : 'as yet unclassified' }

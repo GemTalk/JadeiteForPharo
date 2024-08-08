@@ -839,6 +839,18 @@ RowanClassService >> saveMethod: source category: category session: session onCo
 		onCompletion: completionBlock
 ]
 
+{ #category : 'actions' }
+RowanClassService >> saveMethods: sources category: category session: session onCompletion: completionBlock [
+
+	self
+		command: #saveMethodSources:category:;
+		commandArgs: (Array with: sources with: category).
+	RowanServiceUpdater current
+		issueCommand: self
+		session: session
+		onCompletion: completionBlock
+]
+
 { #category : 'accessing' }
 RowanClassService >> selectedMethods [
 

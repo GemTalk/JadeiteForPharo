@@ -164,7 +164,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 	[
 	self projectsPresenter selectVariableTab.
 	self variableListPresenter selections: #( 'var1' ).
-	self projectsPresenter addVariableAccessors.
+	self projectsPresenter basicAddVariableAccessors.
 	self selectMethodNamed: #var1.
 	self
 		assert: self methodListPresenter selections first selector

@@ -164,7 +164,7 @@ JadeiteFilterTrait >> fileoutCategories [
 		RowanServiceUpdater current
 			issueCommand: service
 			session: self gciSession
-			onCompletion: nil ]
+			onCompletion: [ ] ]
 ]
 
 { #category : 'menus' }

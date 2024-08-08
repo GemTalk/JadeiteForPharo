@@ -207,7 +207,7 @@ RowanAnsweringService >> setBreakpointsEnabled: boolean session: session [
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: [  ]
 ]
 
 { #category : 'commands' }

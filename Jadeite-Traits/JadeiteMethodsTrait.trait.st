@@ -494,7 +494,7 @@ JadeiteMethodsTrait >> fileoutMethods [
 		RowanServiceUpdater current
 			issueCommand: fileService
 			session: self gciSession
-			onCompletion: nil ]
+			onCompletion: [  ] ]
 ]
 
 { #category : 'menus' }

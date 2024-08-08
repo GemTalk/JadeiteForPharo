@@ -100,8 +100,10 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 	self assert: launcher versionText text equals: profile version.
 	self assert: launcher netldiText text equals: profile netldi.
 	self assert: launcher pathText text equals: profile path.
-
+	Transcript cr; show: '1'; flush. 
 	launcher connect.
-	[ self assert: launcher connectionProfile isConnected ] ensure: [
-		launcher disconnect ]
+	Transcript cr; show: '2'; flush. 
+	[ self assert: launcher connectionProfile isConnected. Transcript cr; show: '3'; flush.  ] ensure: [
+		launcher disconnect. Transcript cr; show: '4'; flush.  ].
+	Transcript cr; show: '5'; flush. 
 ]

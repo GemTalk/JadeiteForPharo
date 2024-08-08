@@ -99,9 +99,11 @@ RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock 
 		session: session
 		onCompletion: [
 			operations := OrderedCollection new.
-			changes do: [ :changeString |
-				operations addAll:
-					(RowanPatch fromString: changeString session: session) operations ].
+			changes ifNotNil: [
+				changes do: [ :changeString |
+					operations addAll:
+						(RowanPatch fromString: changeString session: session)
+							operations ] ].
 			changes := nil. "can be large, reclaim space"
 			completionBlock value: operations ]
 ]
@@ -114,14 +116,6 @@ RowanProjectService >> basicCheckout: branchName using: presenter [
 		commandArgs: (Array with: (branchName copyWithout: $*)).
 	presenter issueCommand: self onCompletion: nil.
 	presenter refresh
-]
-
-{ #category : 'presenter support' }
-RowanProjectService >> basicCheckoutTag: tag using: session [
-	self
-		command: #checkoutTag:;
-		commandArgs: (Array with: tag).
-	RowanServiceUpdater current issueCommand: self session: session
 ]
 
 { #category : 'presenter support' }
