@@ -484,17 +484,18 @@ JadeiteMethodsTrait >> fileoutMethods [
 	"append .gs to the file so it matches what rowan does for packages & projects"
 
 	| service fileService filePath |
-	service := self selectedMethods.
-	filePath := self fileoutFileSelection: 'methods.gs'.
-	filePath ifNotNil: [
-		fileService := RowanFileService new path: filePath.
-		fileService
-			command: #fileoutMethods:;
-			commandArgs: (Array with: self selectedMethods).
-		RowanServiceUpdater current
-			issueCommand: fileService
-			session: self gciSession
-			onCompletion: [  ] ]
+	RowanServiceUpdater current critical: [
+		service := self selectedMethods.
+		filePath := self fileoutFileSelection: 'methods.gs'. self halt. 
+		filePath ifNotNil: [
+			fileService := RowanFileService new path: filePath.
+			fileService
+				command: #fileoutMethods:;
+				commandArgs: (Array with: self selectedMethods).
+			RowanServiceUpdater current
+				issueCommand: fileService
+				session: self gciSession
+				onCompletion: [  ] ] ]
 ]
 
 { #category : 'menus' }

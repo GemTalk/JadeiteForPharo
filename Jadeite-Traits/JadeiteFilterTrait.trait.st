@@ -152,19 +152,20 @@ JadeiteFilterTrait >> fileoutCategories [
 	"append .gs to the file so it matches what rowan does for packages & projects"
 
 	| service filePath categoryStrings |
-	service := self selectedClass.
-	filePath := self fileoutFileSelection:
-		            service name , '_categories.gs'.
-	filePath ifNotNil: [
-		categoryStrings := self categoryListPresenter selections collect: [
-			                   :category | category categoryName ].
-		service
-			command: #fileoutCategories:on:;
-			commandArgs: (Array with: categoryStrings with: filePath).
-		RowanServiceUpdater current
-			issueCommand: service
-			session: self gciSession
-			onCompletion: [ ] ]
+	RowanServiceUpdater current critical: [
+		service := self selectedClass.
+		filePath := self fileoutFileSelection:
+			            service name , '_categories.gs'.
+		filePath ifNotNil: [
+			categoryStrings := self categoryListPresenter selections collect: [
+				                   :category | category categoryName ].
+			service
+				command: #fileoutCategories:on:;
+				commandArgs: (Array with: categoryStrings with: filePath).
+			RowanServiceUpdater current
+				issueCommand: service
+				session: self gciSession
+				onCompletion: [  ] ] ]
 ]
 
 { #category : 'menus' }

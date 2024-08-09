@@ -69,7 +69,7 @@ JadeiteServerFileSelectorDialog >> defaultShellName [
 
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorDialog >> fileSelectorPresenter [
-	"for testing" 
+
 	^fileSelectorPresenter
 ]
 
@@ -80,9 +80,10 @@ JadeiteServerFileSelectorDialog >> gciSession [
 ]
 
 { #category : 'accessing' }
-JadeiteServerFileSelectorDialog >> gciSession: anObject [
+JadeiteServerFileSelectorDialog >> gciSession: aSession [
 
-	gciSession := anObject
+	gciSession := aSession.
+	fileSelectorPresenter gciSession: aSession
 ]
 
 { #category : 'initialization' }

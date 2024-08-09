@@ -3,7 +3,8 @@ Class {
 	#superclass : 'RowanFileService',
 	#instVars : [
 		'session',
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -44,6 +45,18 @@ RowanFileServiceClient >> path [
 { #category : 'accessing' }
 RowanFileServiceClient >> path: anObject [
 	path := anObject
+]
+
+{ #category : 'service completion' }
+RowanFileServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'service completion' }
+RowanFileServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]
 
 { #category : 'accessing' }

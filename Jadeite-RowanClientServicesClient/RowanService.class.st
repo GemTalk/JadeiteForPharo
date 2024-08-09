@@ -421,7 +421,7 @@ RowanService >> isUpdatableService [
 { #category : 'commands' }
 RowanService >> issueCommand: service session: session [
 
-	^ RowanServiceUpdater current issueCommand: service session: session onCompletion: nil
+	^ RowanServiceUpdater current issueCommand: service session: session onCompletion: [  ]
 ]
 
 { #category : 'commands' }

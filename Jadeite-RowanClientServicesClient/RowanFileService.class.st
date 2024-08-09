@@ -15,14 +15,6 @@ RowanFileService class >> templateClassName [
 ]
 
 { #category : 'commands' }
-RowanFileService >> directoryContents [
-	command := #directoryContents.
-	commandArgs := Array new.
-	self issueFileServiceCommand.
-	^answer ifNotNil: [self shortNames]
-]
-
-{ #category : 'commands' }
 RowanFileService >> directoryPath [
 	command := #directoryPath.
 	commandArgs := Array new.
@@ -99,7 +91,7 @@ RowanFileService >> isDirectory [
 
 { #category : 'commands' }
 RowanFileService >> issueFileServiceCommand [
-	self issueCommand: self session: self session
+	RowanServiceUpdater current issueCommand: self session: self session onCompletion: [  ]
 ]
 
 { #category : 'commands' }

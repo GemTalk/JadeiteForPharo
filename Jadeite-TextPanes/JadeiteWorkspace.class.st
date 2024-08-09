@@ -102,18 +102,20 @@ JadeiteWorkspace >> inspectOop: anOop [
 JadeiteWorkspace >> openServerFile [
 
 	| filePath service |
-	filePath := JadeiteServerFileSelectorDialog
-		            showOnSession: gciSession
-		            defaultPath: self defaultSaveFileAsDirectory.
-	filePath ifNil: [ ^ self ].
-	filePathString := filePath.
-	service := RowanFileService new
-		           session: gciSession;
-		           path: filePathString.
-	service isDirectory ifTrue: [
-		^ MessageBox notify: 'Cannot open a directory' ].
-	codePane text: service fileContents.
-	self updateCaption
+	RowanServiceUpdater current critical: [
+		filePath := JadeiteServerFileSelectorDialog
+			            showOnSession: gciSession
+			            defaultPath: self defaultSaveFileAsDirectory.
+		filePath ifNil: [ ^ self ].
+		filePathString := filePath.
+		service := RowanFileService new
+			           session: gciSession;
+			           path: filePathString.
+		service isDirectory ifTrue: [
+			^ MessageBox notify: 'Cannot open a directory' ].
+		codePane text: service fileContents.
+		self updateCaption.
+		self hasUnacceptedEdits: false ]
 ]
 
 { #category : 'public' }
@@ -139,11 +141,12 @@ JadeiteWorkspace >> saveServerFile [
 JadeiteWorkspace >> saveServerFileAs [
 
 	| filePath |
-	filePath := JadeiteServerFileSaveDialog
-		            showOnSession: GciSession current
-		            defaultPath: self defaultSaveFileAsDirectory
-		            defaultFileName: self defaultSaveAsFileName.
-	filePath ifNotNil: [ self writeDocumentTo: filePath ]
+	RowanServiceUpdater current critical: [
+		filePath := JadeiteServerFileSaveDialog
+			            showOnSession: GciSession current
+			            defaultPath: self defaultSaveFileAsDirectory
+			            defaultFileName: self defaultSaveAsFileName.
+		filePath ifNotNil: [ self writeDocumentTo: filePath ] ]
 ]
 
 { #category : 'command support' }
@@ -213,10 +216,11 @@ JadeiteWorkspace >> writeDocumentTo: newPath [
 		           command: #write:;
 		           commandArgs:
 			           (Array with:
-					            codePane documentPresenter text asString replaceCrWithLf);
-		           path: newPath.
-	self issueCommand: service onCompletion: nil.
-	filePathString := newPath.
-	self updateCaption.
-	self hasUnacceptedEdits: false. 
+					            codePane documentPresenter text asString
+						            replaceCrWithLf);
+		           path: newPath. 
+	self issueCommand: service onCompletion: [
+		filePathString := newPath.
+		self updateCaption.
+		self hasUnacceptedEdits: false ]
 ]

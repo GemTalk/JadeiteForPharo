@@ -204,7 +204,16 @@ JadeiteServerFileSelectorPresenter >> setPath: path [
 
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> showDirectoryContents [
-	| directoryContents |
-	directoryContents := fileService directoryContents.
-	directoryContentsList list: directoryContents
+
+	fileService := RowanFileService new.
+	fileService
+		command: #directoryContents;
+		commandArgs: Array new;
+		path: pathText text. 
+	RowanServiceUpdater current
+		issueCommand: fileService
+		session: self gciSession
+		onCompletion: [
+			fileService answer ifNotNil: [
+				directoryContentsList list: fileService shortNames ] ]
 ]
