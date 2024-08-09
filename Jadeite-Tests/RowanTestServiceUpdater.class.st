@@ -40,7 +40,6 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	Any sending process has use completion blocks"
 
 	| sem processingCommand |
-	disableCommands ifTrue: [ ^ self ].
 	sem := Semaphore new.
 	processingCommand := true.
 	Processor activeProcess name = 'Morphic UI Process' ifTrue: [

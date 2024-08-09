@@ -23,7 +23,7 @@ JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
 ]
 
 { #category : 'selecting' }
-JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName [
+JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName onCompletion: completionBlock [
 
 	| dialogWindow answeringService |
 	answeringService := RowanAnsweringService new
@@ -33,6 +33,7 @@ JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName [
 		issueCommand: answeringService
 		session: self gciSession
 		onCompletion: [
+			| selection |
 			dialogWindow := ListDialogWindow new
 				                getList: [ :rxMatcher |
 					                answeringService answer select: [ :substring |
@@ -44,13 +45,16 @@ JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName [
 				                doubleClickOk;
 				                title: 'Jadeite Regex Find ' , searchName;
 				                yourself.
-			dialogWindow chooseFromOwner: self currentWorld ]
+			selection := dialogWindow chooseFromOwner: self currentWorld.
+			completionBlock value: selection ]
 ]
 
 { #category : 'selecting' }
-JadeiteUtilityTrait >> selectPackage [
+JadeiteUtilityTrait >> selectPackageOnCompletion: completionBlock [
 
-	^self openPackageSelectionDialogFor: 'Package'.
+	^ self
+		  openPackageSelectionDialogFor: 'Package'
+		  onCompletion: completionBlock
 ]
 
 { #category : 'updates' }

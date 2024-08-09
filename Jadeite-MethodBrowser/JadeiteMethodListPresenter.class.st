@@ -411,7 +411,7 @@ JadeiteMethodListPresenter >> postEditSaveMethod [
 ]
 
 { #category : 'actions' }
-JadeiteMethodListPresenter >> postMoveToPackage: packageName className: className selectedMethods: selectedMethods [
+JadeiteMethodListPresenter >> postMoveToPackage: packageName classService: className selectedMethods: selectedMethods [
 
 	self refreshList
 ]

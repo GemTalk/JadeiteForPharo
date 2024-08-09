@@ -52,7 +52,7 @@ RowanBrowserService >> basicPrepareForReplication [
 ]
 
 { #category : 'commands' }
-RowanBrowserService >> checkForAddedProjects: projectServices [
+RowanBrowserService >> checkForAddedProjects: projectServices onCompletion: completionBlock [
 
 	| browserService |
 	browserService := RowanBrowserService new.
@@ -62,6 +62,7 @@ RowanBrowserService >> checkForAddedProjects: projectServices [
 	RowanServiceUpdater current 
 		issueCommand: browserService
 		session: GciSession current
+		onCompletion: completionBlock
 ]
 
 { #category : 'public' }

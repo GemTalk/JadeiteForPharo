@@ -16,9 +16,8 @@ Class {
 		'postCompletionBlock',
 		'serviceQueue',
 		'serviceQueueProcess',
-		'morphicProcesses',
 		'serviceQueueSemaphore',
-		'disableCommands'
+		'singleThreaded'
 	],
 	#classVars : [
 		'Current'
@@ -140,8 +139,13 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has use completion blocks"
-	disableCommands ifTrue:[^self]. 
-	[ self _basicIssueCommand: service ] fork
+
+	singleThreaded
+		ifTrue: [
+			serviceQueueSemaphore critical: [
+				self _basicIssueCommand: service.
+				WorldMorph doOneCycle ] ]
+		ifFalse: [ [ self _basicIssueCommand: service ] fork ]
 ]
 
 { #category : 'private' }
@@ -178,6 +182,14 @@ RowanServiceUpdater >> convertEventSymbolToClass: aSymbol [
 	^ Smalltalk classNamed: classSymbolStream contents
 ]
 
+{ #category : 'commands' }
+RowanServiceUpdater >> critical: aBlock [
+	"single thread services - only for limited use"
+
+	singleThreaded := true.
+	aBlock ensure: [ singleThreaded := false ]
+]
+
 { #category : 'accessing' }
 RowanServiceUpdater >> debug [
 	^debug
@@ -189,14 +201,6 @@ RowanServiceUpdater >> debug: aBoolean [
 		ifTrue: 
 			[Smalltalk at: #roundTrips put: 0].
 	debug := aBoolean
-]
-
-{ #category : 'commands' }
-RowanServiceUpdater >> disableCommandsWhile: aBlock [
-
-	[
-	disableCommands := true.
-	aBlock value ] ensure: [ disableCommands := false ]
 ]
 
 { #category : 'events' }
@@ -228,14 +232,14 @@ RowanServiceUpdater >> initialize [
 	super initialize.
 	self initializeUpdates.
 	debug := false.
-	disableCommands := false.
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self.
 	"Keep this code around - might need it again if we reimplement service queue.
 	serviceQueue := OrderedCollection new.
-	serviceQueueSemaphore := Semaphore new.
-	self startServiceQueueProcess" 
+	self startServiceQueueProcess."
+	serviceQueueSemaphore := Semaphore forMutualExclusion.
+	singleThreaded := false. 
 ]
 
 { #category : 'initialization' }
@@ -343,13 +347,6 @@ RowanServiceUpdater >> loggingService [
 	"for testing"
 
 	^logger loggingService
-]
-
-{ #category : 'accessing' }
-RowanServiceUpdater >> morphicProcesses [
-
-	^ morphicProcesses ifNil: [
-		  morphicProcesses := OrderedCollection new ]
 ]
 
 { #category : 'private' }
@@ -561,8 +558,8 @@ RowanServiceUpdater >> startServiceQueueProcess [
 		                       ifFalse: [
 			                       block := serviceQueue remove:
 				                                serviceQueue first.
-			                       block fork ] ] repeat ] forkNamed:
-		                       'Jadeite Service Queue'
+			                       serviceQueueSemaphore critical: block ] ]
+		                       repeat ] forkNamed: 'Jadeite Service Queue'
 ]
 
 { #category : 'logging' }

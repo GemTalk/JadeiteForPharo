@@ -2635,10 +2635,11 @@ JadeiteBrowserPresenter >> refreshFromServer [
 	services addAll: methodListPresenter selections.
 	services last serviceCompletionBlock: [
 		self updateSUnitTab.
-		RowanBrowserService new checkForAddedProjects:
-			projectListPresenter items asArray.
-		self redrawAllViews ].
-	self updateServices: services
+		RowanBrowserService new
+			checkForAddedProjects: projectListPresenter items asArray
+			onCompletion: [
+				self redrawAllViews.
+				self updateServices: services ] ]
 ]
 
 { #category : 'actions' }
@@ -3563,7 +3564,7 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |
-			RowanServiceUpdater current disableCommandsWhile: [
+			RowanServiceUpdater current critical: [
 				projectService := array first.
 				packageService := array last.
 				classService isMeta ifTrue: [ self setClassSide ].

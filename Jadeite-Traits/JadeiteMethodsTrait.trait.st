@@ -552,10 +552,8 @@ JadeiteMethodsTrait >> maxSymbolSize [
 
 { #category : 'actions' }
 JadeiteMethodsTrait >> moveMethodToPackage [
-	| packageName | 
-	packageName := self selectPackage. 
-	packageName ifNil: [^self].
-	self moveMethodsToPackageNamed: packageName
+	self selectPackageOnCompletion: [ :packageName |
+		packageName ifNotNil: [ self moveMethodsToPackageNamed: packageName ] ]
 ]
 
 { #category : 'actions' }
@@ -572,10 +570,10 @@ JadeiteMethodsTrait >> moveMethods: selectedMethods inClass: selectedClass toPac
 	RowanServiceUpdater current
 		issueCommand: classService
 		session: self gciSession
-		onCompletion: [
+		onCompletion: [ 	
 			self
 				postMoveToPackage: packageName
-				className: selectedClass name
+				classService: selectedClass
 				selectedMethods: selectedMethods ]
 ]
 
@@ -679,21 +677,22 @@ JadeiteMethodsTrait >> openMethodListOn: service selecting: string [
 ]
 
 { #category : 'actions' }
-JadeiteMethodsTrait >> postMoveToPackage: packageName className: className selectedMethods: selectedMethods [
+JadeiteMethodsTrait >> postMoveToPackage: packageName classService: classService selectedMethods: selectedMethods [
 
-	| packageServiceToSelect newSelectedMethods |
-	packageServiceToSelect := self packageListPresenter list
-		                          detect: [ :packageService |
-		                          packageService name = packageName ]
-		                          ifNone: [ ^ self ].
-	self packageListPresenter unselectAll.
-	self packageListPresenter selectItem: packageServiceToSelect.
-	self selectClassNamed: className.
-	newSelectedMethods := selectedMethods select: [ :oldSelMethod |
-		                      self methodListPresenter list includes:
-			                      oldSelMethod ].
-	self methodListPresenter selections: newSelectedMethods.
-	self refresh
+	| packageServiceToSelect index |
+	RowanServiceUpdater current critical: [
+		packageServiceToSelect := self packageListPresenter list
+			                          detect: [ :packageService |
+			                          packageService name = packageName ]
+			                          ifNone: [ ^ self ].
+		index := self packageListPresenter list indexOf:
+			         packageServiceToSelect.
+		self packageListPresenter selectIndex: index scrollToSelection: true.
+		index := self classListPresenter list indexOf: classService.
+		self classListPresenter selectIndex: index scrollToSelection: true.
+		index := self methodListPresenter list indexOf:
+			         selectedMethods first.
+		self methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'updates' }
