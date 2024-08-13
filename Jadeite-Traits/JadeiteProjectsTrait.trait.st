@@ -561,7 +561,9 @@ JadeiteProjectsTrait >> pushToGit [
 	(MessageBox confirm: 'Push projects - ' , ws contents
 		 , '- from the local repository to the remote server?') ifFalse: [
 		^ self ].
-	projectService command: #pushToGit.
+	projectService
+		command: #pushToGit;
+		commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: projectService
 		session: self gciSession

@@ -364,14 +364,17 @@ JadeiteChangesBrowser >> revert [
 	| operation revertedSource |
 	operation := operationsListPresenter selectedItem.
 	revertedSource := diffsPresenter leftText.
-	operation isClassPatch ifTrue:[MessageBox notify: 'Class definition changes cannot be reverted yet. Make changes in browser.'. ^self browseMethodClass].
-	operation revert: gciSession.
-	diffsPresenter rightText: revertedSource.
-	operationsListPresenter invalidate. 
-	self todo: [
-		self
-			on: Error
-			do: [ :ex | MessageBox notify: 'Not able to revert this item yet' ] ]
+	operation isClassPatch ifTrue: [
+		MessageBox notify:
+			'Class definition changes cannot be reverted yet. Make changes in browser.'.
+		^ self browseMethodClass ].
+	operation revert: gciSession onCompletion: [
+		diffsPresenter rightText: revertedSource.
+		operationsListPresenter invalidate.
+		self todo: [
+			self
+				on: Error
+				do: [ :ex | MessageBox notify: 'Not able to revert this item yet' ] ] ]
 ]
 
 { #category : 'accessing' }
