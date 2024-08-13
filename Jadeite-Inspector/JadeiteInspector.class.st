@@ -190,12 +190,11 @@ JadeiteInspector >> browseClass [
 	RowanServiceUpdater current
 		updateService: classService
 		session: gciSession
-		onCompletion: nil.
-	shell := self openBrowser.
-	shell currentCard
-		updateAfterFindClass: classService
-		onCompletion: nil.
-	^ shell
+		onCompletion: [
+			shell := self openBrowser.
+			shell currentCard
+				updateAfterFindClass: classService
+				onCompletion: nil ]
 ]
 
 { #category : 'as yet unclassified' }

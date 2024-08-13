@@ -391,6 +391,13 @@ RowanInspectorService >> removeOop: theOop session: session [
 		onCompletion: nil
 ]
 
+{ #category : 'replication' }
+RowanInspectorService >> replicateFrom: newService [
+
+	newService class = self class ifTrue: [
+		self basicReplicateFrom: newService ]
+]
+
 { #category : 'accessing' }
 RowanInspectorService >> selectionOop [
 	^selectionOop

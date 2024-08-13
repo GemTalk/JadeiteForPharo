@@ -500,28 +500,6 @@ RowanServiceUpdater >> serviceQueuePutFirst: aBlock [
 	serviceQueue addFirst: aBlock
 ]
 
-{ #category : 'service queue' }
-RowanServiceUpdater >> serviceQueueUIPut: aBlock [
-	"push a block onto the queue but run it in the ui process.
-	No commands should be sent to the server in aBlock"
-
-	serviceQueue add: [
-		| sem |
-		sem := Semaphore new.
-		UIManager default defer: [ aBlock ensure: [ sem signal ] ].
-		sem wait ]
-]
-
-{ #category : 'service queue' }
-RowanServiceUpdater >> serviceQueueUIPutFirst: aBlock [
-
-	serviceQueue addFirst: [
-		| sem |
-		sem := Semaphore new.
-		UIManager default defer: [ aBlock ensure: [ sem signal ] ].
-		sem wait ]
-]
-
 { #category : 'private' }
 RowanServiceUpdater >> shouldApply: selector forService: service [
 	service isNil ifTrue:[^false]. "if a service is gc'd we could possibly end up with a nil here"

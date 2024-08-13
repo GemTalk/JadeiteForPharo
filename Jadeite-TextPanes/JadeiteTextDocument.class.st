@@ -223,13 +223,13 @@ JadeiteTextDocument >> defaultColor [
 
 { #category : 'ad hoc execution' }
 JadeiteTextDocument >> displayResult: showResult orShowCompileError: theService [
-	theService answer ifNil: [ ^self ]. "might have terminated out of an error"
+
+	theService answer ifNil: [ ^ self ]. "might have terminated out of an error"
 	^ theService answer first
 		  ifTrue: [
 			  showResult ifTrue: [
-				  UIManager default defer: [
-					  self insertPrintPopoverAfterCurrentSelection:
-						  theService answer last ] ] ]
+				  self insertPrintPopoverAfterCurrentSelection:
+					  theService answer last ] ]
 		  ifFalse: [ self reportCompileError: theService answer ]
 ]
 

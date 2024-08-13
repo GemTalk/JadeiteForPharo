@@ -243,7 +243,8 @@ JadeiteClassTrait >> newBrowseClassMenu [
 			  addItem: [ :item |
 				  item
 					  name: 'Browse Class';
-					  action: [ self browseClass ] ];
+					  action: [ self browseClass ];
+					  enabled: [ self isClassSelected ] ];
 			  addItem: [ :item |
 				  item
 					  name: 'Browse References';

@@ -724,11 +724,6 @@ JadeSystemBrowserPresenter >> isVariablesTabSelected [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> jadeDisplay [
-	self jadeExecuteAndDisplay: true shouldDebug: false
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> jadeExecute [
 	self jadeExecuteAndDisplay: false shouldDebug: false
 ]
