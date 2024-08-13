@@ -105,7 +105,7 @@ RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock 
 						(RowanPatch fromString: changeString session: session)
 							operations ] ].
 			changes := nil. "can be large, reclaim space"
-			completionBlock value: operations ]
+			completionBlock cull: operations ]
 ]
 
 { #category : 'presenter support' }

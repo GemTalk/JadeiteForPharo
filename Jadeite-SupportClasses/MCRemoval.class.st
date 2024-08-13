@@ -89,6 +89,13 @@ MCRemoval >> revert: session [
 	reverted := true.  
 ]
 
+{ #category : 'private - factory' }
+MCRemoval >> revert: session onCompletion: completionBlock [
+
+	definition revert: session onCompletion: completionBlock.
+	reverted := true
+]
+
 { #category : 'accessing' }
 MCRemoval >> selector [
 

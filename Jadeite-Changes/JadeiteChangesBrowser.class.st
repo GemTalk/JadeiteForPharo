@@ -28,8 +28,8 @@ JadeiteChangesBrowser class >> showOn: aRowanPatch name: aString application: ap
 		name: aString;
 		gciSession: aRowanPatch gciSession.
 	changesBrowser operationsListPresenter items: aRowanPatch operations. 
+	changesBrowser application: application. 
 	changesBrowser open.
-	changesBrowser owner application: application. 
 	^ changesBrowser
 ]
 
@@ -52,28 +52,6 @@ JadeiteChangesBrowser >> afterTitle: operation [
 	^operation obsoletionMemo = operation modificationMemo
 		ifTrue: ['Image (no change)']
 		ifFalse: ['Image']
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteChangesBrowser >> browseImplementors [
-	| selection shell methodListPresenter changedMethod modifiedSelector |
-	selection := operationsListPresenter selectionOrNil.
-	selection isNil ifTrue: [^MessageBox notify: 'Nothing to browse'].
-	selection isClassPatch ifTrue: [^MessageBox notify: 'Cannot browse implementors of a non-method'].
-	modifiedSelector := self modifiedSelectorForBrowsing: selection.
-	
-	[shell := self browseImplementorsOf: modifiedSelector.
-	methodListPresenter := shell methodListPresenter.
-	changedMethod := shell methodListPresenter list
-				detect: [:methodService | methodService className = selection className]
-				ifNone: [^shell].
-	methodListPresenter selectItem: changedMethod]
-			on: Error
-			do: 
-				[:ex |
-				shell close.
-				MessageBox notify: 'The change you have selected cannot be browsed'].
-	^shell
 ]
 
 { #category : 'queries' }
@@ -361,10 +339,13 @@ JadeiteChangesBrowser >> refresh [
 	projectService := RowanProjectService new name: name.
 	operations := projectService
 		              basicChangesUsing: gciSession
-		              onCompletion: [
-			              includesIdenticalPresenter state ifFalse: [
-				              operations := operations reject: [ :each |
+		              onCompletion: [ :theOperations |
+			              operations := includesIdenticalPresenter state
+				                            ifTrue: [ theOperations ]
+				                            ifFalse: [
+				                            theOperations reject: [ :each |
 					                            each hasEquivalentText ] ].
+			
 			              operationsListPresenter items:
 				              operations asSortedCollection ]
 ]
@@ -391,6 +372,12 @@ JadeiteChangesBrowser >> revert [
 		self
 			on: Error
 			do: [ :ex | MessageBox notify: 'Not able to revert this item yet' ] ]
+]
+
+{ #category : 'accessing' }
+JadeiteChangesBrowser >> selectedMethodName [
+
+	^self operationsListPresenter jadeiteSelections first selector
 ]
 
 { #category : 'as yet unclassified' }

@@ -2101,8 +2101,7 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 	classService
 		command: #moveMethods:to:;
 		commandArgs: (Array with: methodServices with: targetCategory categoryName).
-	self issueCommand: classService onCompletion: nil.
-	self selectMethodsFrom: classService
+	self issueCommand: classService onCompletion: [self selectMethodsFrom: classService]
 ]
 
 { #category : 'initialization' }
@@ -3687,6 +3686,8 @@ JadeiteBrowserPresenter >> updateDictionaries [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateDictionary [
 
+	self selectClassListTab.
+	self setInstanceSide. 
 	dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
 	self isPackageListTabSelected ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
@@ -3798,6 +3799,7 @@ JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 JadeiteBrowserPresenter >> updatePackage [
 
 	self selectClassListTab.
+	self setInstanceSide. 
 	self resetClassComment.
 	self resetClassTemplate.
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].

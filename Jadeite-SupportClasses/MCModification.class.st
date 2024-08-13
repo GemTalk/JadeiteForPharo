@@ -112,6 +112,12 @@ MCModification >> revert: session [
 	reverted := true. 
 ]
 
+{ #category : 'private - factory' }
+MCModification >> revert: session onCompletion: completionBlock [
+	obsoletion revert: session onCompletion: completionBlock.
+	reverted := true. 
+]
+
 { #category : 'accessing' }
 MCModification >> selector [
 

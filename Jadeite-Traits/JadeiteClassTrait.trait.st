@@ -127,8 +127,9 @@ JadeiteClassTrait >> findClassNamed: selection [
 	classService := RowanClassService new
 		                name: selection;
 		                meta: false.
-	self updateService: classService.
-	self findClassService: classService
+	self
+		updateService: classService
+		onCompletion: [ self findClassService: classService ]
 ]
 
 { #category : 'private' }

@@ -1,14 +1,3 @@
-"
-Will eventually be the entry point for the Jaded project. Right now, just open a server workspace. 
-
-I hold a ""session-like thing"" and hold information about the Jaded windows like style. 
-
-The Dolphin class JadePresenter is a subclass and became an application here since it holds so much behavior in Jadeite. 
-
-To open the workspace, first use Sparkle to get a connection then open the workspace using: 
-JadePresenter showOnSession: SpkConnectionListPresenter allInstances first selectedConnection
-
-"
 Class {
 	#name : 'JadeiteApplication',
 	#superclass : 'StPharoApplication',

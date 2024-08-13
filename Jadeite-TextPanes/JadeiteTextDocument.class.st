@@ -433,9 +433,8 @@ JadeiteTextDocument >> getDocumentData [
 ]
 
 { #category : 'TODO' }
-JadeiteTextDocument >> hasUnacceptedEdits: anObject [
-
-	self adapter ifNotNil: [ :a | a widget hasUnacceptedEdits: anObject ]
+JadeiteTextDocument >> hasUnacceptedEdits: aBoolean [
+	self adapter ifNotNil: [ :a | a widget hasUnacceptedEdits: aBoolean ]
 ]
 
 { #category : 'initialization' }

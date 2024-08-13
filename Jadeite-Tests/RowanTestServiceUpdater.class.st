@@ -29,8 +29,7 @@ RowanTestServiceUpdater >> _basicIssueCommand: service [
 			                      service inCommand signal ] ].
 	service
 		executeInSession: GciSession current
-		onCompletion: postExecutionBlock
-		semaphore: service inCommand.
+		onCompletion: postExecutionBlock.
 	service inCommand wait
 ]
 

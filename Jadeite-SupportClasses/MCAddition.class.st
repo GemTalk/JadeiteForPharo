@@ -87,6 +87,12 @@ MCAddition >> revert: session [
 	reverted := true.  
 ]
 
+{ #category : 'private - factory' }
+MCAddition >> revert: session onCompletion: completionBlock [
+	definition revertAddition: session onCompletion: completionBlock.
+	reverted := true.  
+]
+
 { #category : 'accessing' }
 MCAddition >> selector [
 

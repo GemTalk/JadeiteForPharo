@@ -60,23 +60,24 @@ RowanServiceUpdater class >> stopLogging [
 { #category : 'commands' }
 RowanServiceUpdater >> _basicIssueCommand: service [
 
-	| postExecutionBlock |
-	service isInCommand ifTrue: [ ^ self ].
-	service prepareForReplication.
+	| postExecutionBlock copy |
+	service commandArgs ifNil: [ service commandArgs: Array new ].
+	copy := service copy.
+	copy prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
+	                      service replicateFrom: aService.
 	                      self possibleSignalCompileError: service.
 	                      self applyUpdates: service.
 	                      service handleServiceCompletion.
-	                      service inCommand signal ]
+	                      aService inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
 			                      service inCommand signal ] ].
-	service
+	copy
 		executeInSession: GciSession current
-		onCompletion: postExecutionBlock
-		semaphore: service inCommand.
+		onCompletion: postExecutionBlock.
 	service inCommand wait
 ]
 
@@ -140,12 +141,15 @@ RowanServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has use completion blocks"
 
+	service isInCommand ifTrue: [ ^ self ].
 	singleThreaded
 		ifTrue: [
 			serviceQueueSemaphore critical: [
 				self _basicIssueCommand: service.
 				WorldMorph doOneCycle ] ]
-		ifFalse: [ [ self _basicIssueCommand: service ] fork ]
+		ifFalse: [
+			[ self _basicIssueCommand: service ] fork.
+			Processor yield ]
 ]
 
 { #category : 'private' }

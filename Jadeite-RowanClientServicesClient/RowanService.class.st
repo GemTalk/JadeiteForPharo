@@ -235,6 +235,23 @@ RowanService >> excludedInstVars [
 ]
 
 { #category : 'rsr' }
+RowanService >> executeCommandOnCompletion: completionBlock [
+
+	| promise theCompletionBlock process |
+	process := Processor activeProcess.
+	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
+	promise := remoteSelf executeCommand.
+	promise
+		when: [ :arg | theCompletionBlock value: arg ]
+		catch: [ :value |
+			[
+			value tag = 'rsrProcessTerminated' ifTrue: [
+				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
+			self terminate: process error: value.
+			self raiseCompileErrorIfNeeded ] ensure: [ self inCommand signal ] ]
+]
+
+{ #category : 'rsr' }
 RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 
 	| promise theCompletionBlock process |
@@ -249,6 +266,14 @@ RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
 				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
 			self terminate: process error: value.
 			self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
+]
+
+{ #category : 'rsr' }
+RowanService >> executeInSession: session onCompletion: completionBlock [
+	[ self registerWith: session library ]
+		on: RsrAlreadyRegistered
+		do: [ :ex |  ].
+	^ self executeCommandOnCompletion: completionBlock
 ]
 
 { #category : 'rsr' }
