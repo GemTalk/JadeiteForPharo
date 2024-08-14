@@ -657,6 +657,12 @@ RowanService >> postUpdateBlock [
 	^nil
 ]
 
+{ #category : 'rsr' }
+RowanService >> preUpdate [
+
+	^ self copy
+]
+
 { #category : 'replication' }
 RowanService >> preUpdate: browser [
 
