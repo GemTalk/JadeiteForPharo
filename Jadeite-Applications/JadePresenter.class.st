@@ -283,12 +283,6 @@ JadePresenter >> isValidClassService: classService [
 ]
 
 { #category : 'event handlers' }
-JadePresenter >> onViewOpened [
-	super onViewOpened.
-	self positionToDefaultLocation
-]
-
-{ #category : 'event handlers' }
 JadePresenter >> positionToDefaultLocation [
 	self topShell position: JadePresenter defaultWindowPosition
 ]

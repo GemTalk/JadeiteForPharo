@@ -45,7 +45,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		             registerScrollChanges: #scrollValueChanged:;
 		             hScrollbarShowWhenNeeded;
 		             yourself.
-	"<<<<<< Jadeite changes. Mouse click announcement not used yet but will likely be soon"
+	"<<<<<< Jadeite changes."
 	newWidget textArea announcer
 		when: RubMouseClick
 		send: #mouseClickedAt:

@@ -161,22 +161,10 @@ JadeiteTextDocument >> codePane [
 	^codePane
 ]
 
-{ #category : 'accessing' }
-JadeiteTextDocument >> codePane: anObject [
-	codePane := anObject
-]
-
 { #category : 'private' }
 JadeiteTextDocument >> codePresenterIsMethod [
 
 	^false
-]
-
-{ #category : 'private' }
-JadeiteTextDocument >> codeSourcePresenterClass [
-
-	^CodeSourcePresenter
-
 ]
 
 { #category : 'Jade' }
@@ -524,54 +512,6 @@ JadeiteTextDocument >> jadeExecute [
 		  showResult: false
 ]
 
-{ #category : 'ad hoc execution' }
-JadeiteTextDocument >> jadeExecuteAndDisplay: showResult result: anAssociation view: focusViewOrNil [
-	| textView result value selectionRange offset |
-	anAssociation
-		ifNil: 
-			[MessageBox notify: 'nil result returned from execution. Terminated process?'.
-			^self].
-	(result := anAssociation) key isNil
-		ifTrue: 
-			[MessageBox notify: result value.
-			^self].
-	textView := focusViewOrNil ifNil: [self activeTextEdit].
-	result key
-		ifTrue: 
-			[value := result value.
-			result := ''.
-			showResult
-				ifTrue: 
-					[(gciSession isOopType: value)
-						ifFalse: [result := ' ' , value printString]
-						ifTrue: [result := String new , (gciSession printString: value)]].
-			selectionRange := textView selectionRange.
-			result := result.	"replaceLfWithCrLf"
-			textView
-				caretPosition: selectionRange stop + 1;
-				replaceSelection: result;
-				selectionStart: textView caretPosition - result size length: result size]
-		ifFalse: 
-			[| string count |
-			(result := result value first) isNil ifTrue: [^self].
-			offset := result at: 2.
-			result := result at: 3.
-			selectionRange := textView selectionRange.
-			(string := textView text) size < selectionRange stop
-				ifTrue: 
-					[self error: 'Selection range is beyond text size!?'.
-					string := documentPresenter value].
-			string := string copyFrom: selectionRange start to: selectionRange stop.
-			string := string replaceCrLfWithLf copyFrom: 1 to: offset - 1.
-			count := (string select: [:each | each = Character lf]) size.
-			offset := offset + count.
-			textView
-				caretPosition: selectionRange start + offset - 1;
-				replaceSelection: result;
-				selectionStart: textView caretPosition - result size length: result size].
-	^value
-]
-
 { #category : 'accessing' }
 JadeiteTextDocument >> keystrokeAt: click [
 
@@ -616,11 +556,6 @@ JadeiteTextDocument >> open [
 JadeiteTextDocument >> openOn: openFilename [
 	super openOn: openFilename.
 	lastSave := self model value
-]
-
-{ #category : 'event handlers support' }
-JadeiteTextDocument >> positionToDefaultLocation [
-	self view position: JadePresenter defaultWindowPosition
 ]
 
 { #category : 'private' }
