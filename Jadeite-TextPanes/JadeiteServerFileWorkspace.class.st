@@ -12,22 +12,22 @@ Class {
 JadeiteServerFileWorkspace class >> showOnSession: aGciSession path: path [
 
 	| inst service |
-	service := RowanFileService new
-		           session: aGciSession;
-		           path: path.
-	service isDirectory ifTrue: [ 
-		^ MessageBox notify: 'Cannot open a directory' ].
-	service fileContents.
-	inst := self new
-		        application:
-			        (JadeiteWorkspaceApplication new gciSession: aGciSession);
-		        addStyle: 'jadeiteTextBackgroundColor';
-		        gciSession: aGciSession;
-		        path: path;
-		        open;
-		        yourself.
-	inst codePane documentPresenter value: service answer.
-	^ inst
+	RowanServiceUpdater current critical: [
+		service := RowanFileService new
+			           session: aGciSession;
+			           path: path.
+		service isDirectory ifTrue: [
+			^ MessageBox notify: 'Cannot open a directory' ].
+		service fileContents.
+		inst := self new
+			        application:
+				        (JadeiteWorkspaceApplication new gciSession: aGciSession);
+			        addStyle: 'jadeiteTextBackgroundColor';
+			        gciSession: aGciSession;
+			        path: path;
+			        open;
+			        yourself.
+		inst codePane documentPresenter value: service answer ]
 ]
 
 { #category : 'testing' }
