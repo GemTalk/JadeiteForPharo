@@ -390,14 +390,6 @@ JadeiteMethodListPresenter >> onViewDestroyed [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> onViewOpened [
-
-	super onViewOpened. 
-	self registerPresentersForUpdates.
-	self updateAutoCommitButton.
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> postEditSaveMethod [
 	| methodService |
 	methodService := self methodListPresenter methodListPresenter selectionIfNone: [^self].

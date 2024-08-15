@@ -17,12 +17,10 @@ JadeiteHistoryBrowser class >> showOn: methodService application: application [
 
 	| historyBrowser |
 	historyBrowser := self new methodService: methodService.
-	historyBrowser
-		gciSession: application gciSession.
+	historyBrowser gciSession: application gciSession.
 	historyBrowser open.
-	historyBrowser updateHistory. 
-	historyBrowser owner application: application.
-	^ historyBrowser
+	historyBrowser updateHistory.
+	historyBrowser owner application: application
 ]
 
 { #category : 'actions' }

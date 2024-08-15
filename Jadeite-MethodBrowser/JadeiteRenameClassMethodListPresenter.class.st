@@ -63,14 +63,6 @@ JadeiteRenameClassMethodListPresenter >> nextSelection [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteRenameClassMethodListPresenter >> onViewOpened [
-
-	super onViewOpened. 
-	self registerPresentersForUpdates.
-	self updateAutoCommitButton.
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteRenameClassMethodListPresenter >> previousSelection [
 	| sourceView offset |
 	sourceView := self methodSourcePresenter documentPresenter view.

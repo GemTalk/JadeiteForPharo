@@ -9,15 +9,14 @@ Class {
 JadeiteConsoleApplication >> start [
 
 	| inst |
-	inst := self new: JadeiteConsole.
-	inst
-		addStyle: 'jadeiteTextBackgroundColor';
-		gciSession: gciSession;
-		installTranscript;
-		updateProjects;
-		initializeAutoCommit.
-	JadeiteConsole currentConsole: inst.
-	inst
-		open;
-		updateAutoCommitButton
+	RowanServiceUpdater current critical: [
+		inst := self new: JadeiteConsole.
+		inst
+			addStyle: 'jadeiteTextBackgroundColor';
+			gciSession: gciSession;
+			installTranscript;
+			updateProjects;
+			initializeAutoCommit.
+		JadeiteConsole currentConsole: inst.
+		inst open ]
 ]
