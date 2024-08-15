@@ -60,10 +60,9 @@ RowanServiceUpdater class >> stopLogging [
 { #category : 'commands' }
 RowanServiceUpdater >> _basicIssueCommand: service [
 
-	| postExecutionBlock copy |
+	| postExecutionBlock |
 	service commandArgs ifNil: [ service commandArgs: Array new ].
-	copy := service copy.
-	copy prepareForReplication.
+	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
 	                      service replicateFrom: aService.
@@ -75,7 +74,7 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
 			                      service inCommand signal ] ].
-	copy
+	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.
 	service inCommand wait

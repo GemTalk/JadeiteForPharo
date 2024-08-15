@@ -2981,7 +2981,8 @@ JadeiteBrowserPresenter >> selectCategoryNamed: category [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoryTab [
-	methodFilterTabs selectPageIndex: 1
+	methodFilterTabs selectPageIndex: 1.
+	methodFilterTabs rebuildLayout "seems to be needed to redraw tabs properly"
 ]
 
 { #category : 'selections' }
