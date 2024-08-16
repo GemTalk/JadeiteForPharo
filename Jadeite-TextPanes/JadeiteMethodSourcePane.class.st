@@ -51,6 +51,13 @@ JadeiteMethodSourcePane >> clearBreakpoint: stepPoint [
 		onCompletion: [ self outerBrowser updateMethodSource ]
 ]
 
+{ #category : 'initialization' }
+JadeiteMethodSourcePane >> connectPresenters [
+
+	super connectPresenters.
+	self whenResetDo: [ self isModified: false ]
+]
+
 { #category : 'actions - saving methods' }
 JadeiteMethodSourcePane >> currentMethodSourceFrom: sourceString [
 
@@ -96,7 +103,7 @@ JadeiteMethodSourcePane >> displayStepPointAt: sourcePosition [
 		'Step Point: ' , stepPoint asString
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteMethodSourcePane >> ensureVisible [
 
 	self todo:'may need to implement this'
@@ -112,7 +119,7 @@ JadeiteMethodSourcePane >> findClassService: classService [
 		onCompletion: nil
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteMethodSourcePane >> formatSource [
 
 	| answeringService |
@@ -263,7 +270,7 @@ JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 	self setBreakPointAt: stepPoint onCompletion: [self outerBrowser updateMethodSource]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteMethodSourcePane >> showStepPoint: anInteger [
 	| stepPoint stringToHighlight |
 	anInteger ifNil: [ ^self ].

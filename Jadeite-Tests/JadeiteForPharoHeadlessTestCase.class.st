@@ -14,22 +14,6 @@ JadeiteForPharoHeadlessTestCase class >> classForTestResource [
 	^JadeiteHeadlessTestResource
 ]
 
-{ #category : 'defaults' }
-JadeiteForPharoHeadlessTestCase class >> defaultGciConnectionProfile [
-
-	| gciConnectionProfile |
-	gciConnectionProfile := JadeiteGCIConnectionProfile new.
-	gciConnectionProfile
-		host: 'uffda';
-		stone: 'gs_370';
-		user: 'SystemUser';
-		password: 'swordfish';
-		version: '3.7.0';
-		netldi: 'ldibert9';
-		path: '/home/ewinger/Pharo/clientlibs'.
-	^ gciConnectionProfile
-]
-
 { #category : 'accessing' }
 JadeiteForPharoHeadlessTestCase class >> testResourceClass [
 

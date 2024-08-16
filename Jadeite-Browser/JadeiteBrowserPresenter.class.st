@@ -2938,7 +2938,8 @@ JadeiteBrowserPresenter >> resetMethodSource [
 	methodSourcePresenter text:
 		methodSourcePresenter methodService source.
 	self statusBarText pushMessage: String new.
-	^ methodSourcePresenter isModified: false
+	methodSourcePresenter isModified: false.
+	self updateMethodSourceGlyphs
 ]
 
 { #category : 'as yet unclassified' }

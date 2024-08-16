@@ -733,8 +733,3 @@ JadeiteTextDocument >> value: aString [
 	[self text: aString ] ensure: [ 
 	self isModified: false. "I think it's ok to always mark the it not dirty if Jadeite changes the value directly "]
 ]
-
-{ #category : 'Jade' }
-JadeiteTextDocument >> waitForAnswer: answeringService [
-	^JadePresenter waitForAnswer: answeringService
-]

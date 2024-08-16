@@ -12,11 +12,7 @@ JadeiteScrolledTextMorph >> drawOn: aCanvas [
 		fillRectangle: self bounds
 		fillStyle: self fillStyle
 		borderStyle: self borderStyle. "from super super drawOn:"
-	JadeiteBrowserPresenter allInstances do: [ :browser | 
-		"the ugliest of uglies!  We don't have access to the methodSource tab
-	morph when we need to draw the dot on the tab label but when this 
-	method is accessed, it's redrawing the text pane. "
-		browser sourcePaneChanged ].
+	self setTabIcon.
 	self hasUnacceptedEdits
 		ifTrue: [
 			aCanvas
@@ -48,4 +44,16 @@ JadeiteScrolledTextMorph >> resetState [
 JadeiteScrolledTextMorph >> segments: aCollection [
 
 	self textArea segments: aCollection
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteScrolledTextMorph >> setTabIcon [
+
+	| methodSourceTab |
+	(self presenter owner class canUnderstand: #pageAt:) ifFalse: [
+		^ self ].
+	methodSourceTab := self presenter owner pageAt: 3.
+	self presenter isModified
+		ifTrue: [ methodSourceTab icon: (self iconNamed: #protocolPrivate) ]
+		ifFalse: [ methodSourceTab icon: nil ]
 ]

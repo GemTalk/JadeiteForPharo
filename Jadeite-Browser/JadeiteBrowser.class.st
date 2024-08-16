@@ -105,6 +105,7 @@ JadeiteBrowser >> gciSession [
 JadeiteBrowser >> gciSession: anObject [
 
 	gciSession := anObject.
+	gciSession ifNil: [ ^self ]. 
 	gciSession autoCommit
 		whenChangedSend: #updateAutoCommitButton
 		to: self.
