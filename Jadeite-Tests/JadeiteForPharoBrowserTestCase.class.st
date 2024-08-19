@@ -67,7 +67,12 @@ JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
 JadeiteForPharoBrowserTestCase >> tearDown [
 
 	super tearDown.
+	secondBrowser ifNotNil: [ :two |
+		two methodSourcePresenter adapter widget hasUnacceptedEdits: false ].
 	self destroy: secondBrowser.
+	projectsBrowser ifNotNil: [
+		self projectsPresenter methodSourcePresenter adapter ifNotNil: [ :a |
+			a widget hasUnacceptedEdits: false ] ].
 	self destroy: projectsBrowser
 ]
 
@@ -134,6 +139,32 @@ JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 			ensure: 
 				[self cloneRowanSample1.
 				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_abuseMethodList [
+	"This test doesn't appear to do much but it does exercise
+	list selection aggressively. There have been occassions when
+	selecting methods was progressively getting slower with no 
+	explanation. This might catch one of those occasions for debugging."
+
+	self
+		testsJadeiteForPharoIssue: #issue44
+		title:
+		'While editing a method, can click on other methods, but method text pane not updated'.
+	self selectRowanServicesPackage.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter.
+	1 to: self projectsPresenter methodListPresenter list size do: [
+		:index |
+		self projectsPresenter methodListPresenter resetSelection.
+		self projectsPresenter methodListPresenter adapter ifNotNil: [ :a |
+			a widget selectIndexes: { index } andMakeVisibleIf: true.
+			self
+				assert:
+				self projectsPresenter methodListPresenter selection selectedIndex
+				equals: index ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -533,32 +564,6 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 		self
 			assert: self methodSourcePresenter text asString
 			equals: changedMethodSource ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges_investigate [
-	"This test doesn't appear to do much but it does exercise
-	list selection aggressively. There have been occassions when
-	selecting methods was progressively getting slower with no 
-	explanation. This might catch one of those occasions for debugging."
-
-	self
-		testsJadeiteForPharoIssue: #issue44
-		title:
-		'While editing a method, can click on other methods, but method text pane not updated'.
-	self selectRowanServicesPackage.
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter.
-	1 to: self projectsPresenter methodListPresenter list size do: [
-		:index |
-		self projectsPresenter methodListPresenter resetSelection.
-		self projectsPresenter methodListPresenter adapter ifNotNil: [ :a |
-			a widget selectIndexes: { index } andMakeVisibleIf: true.
-			self
-				assert:
-				self projectsPresenter methodListPresenter selection selectedIndex
-				equals: index ] ]
 ]
 
 { #category : 'tests' }
