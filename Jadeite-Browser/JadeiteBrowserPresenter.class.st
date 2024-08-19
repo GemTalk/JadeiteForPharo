@@ -2924,8 +2924,9 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> resetMethodSource [
 
-	methodSourcePresenter text:
-		methodSourcePresenter methodService source.
+	methodSourcePresenter methodService
+		ifNil: [ methodSourcePresenter text: self defaultMethod ]
+		ifNotNil: [ :service | methodSourcePresenter text: service source ].
 	self statusBarText pushMessage: String new.
 	methodSourcePresenter isModified: false.
 	self updateMethodSourceGlyphs

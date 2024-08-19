@@ -49,11 +49,12 @@ JadeiteScrolledTextMorph >> segments: aCollection [
 { #category : 'as yet unclassified' }
 JadeiteScrolledTextMorph >> setTabIcon [
 
-	| methodSourceTab |
 	(self presenter owner class canUnderstand: #pageAt:) ifFalse: [
 		^ self ].
-	methodSourceTab := self presenter owner pageAt: 3.
-	self presenter isModified
-		ifTrue: [ methodSourceTab icon: (self iconNamed: #protocolPrivate) ]
-		ifFalse: [ methodSourceTab icon: nil ]
+	self presenter owner pages do: [ :page |
+		page activePresenter ifNotNil: [ :pres |
+			(pres class canUnderstand: #isModified) ifTrue: [
+				pres isModified
+					ifTrue: [ page icon: (self iconNamed: #protocolPrivate) ]
+					ifFalse: [ page icon: nil ] ] ] ]
 ]

@@ -23,6 +23,12 @@ JadeiteMethodSourcePane >> addTextSegmentDecoration: aDecorationSegment [
 				flush ]
 ]
 
+{ #category : 'testing' }
+JadeiteMethodSourcePane >> canDiscardEdits [
+	"needed?"
+	^true
+]
+
 { #category : 'commands' }
 JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 

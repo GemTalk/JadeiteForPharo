@@ -78,6 +78,12 @@ JadeiteChangesBrowser >> browseSenders [
 	^shell
 ]
 
+{ #category : 'testing' }
+JadeiteChangesBrowser >> canDiscardEdits [
+
+	^ true
+]
+
 { #category : 'initialization' }
 JadeiteChangesBrowser >> connectPresenters [
 

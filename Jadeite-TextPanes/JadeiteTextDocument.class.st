@@ -156,6 +156,13 @@ JadeiteTextDocument >> additionalAccelerators [
 	^#(#(#raiseConsole 'Ctrl+F7') )
 ]
 
+{ #category : 'testing' }
+JadeiteTextDocument >> canDiscardEdits [
+
+	self todo: 'need to improve'.
+	^ true
+]
+
 { #category : 'accessing' }
 JadeiteTextDocument >> codePane [
 	^codePane

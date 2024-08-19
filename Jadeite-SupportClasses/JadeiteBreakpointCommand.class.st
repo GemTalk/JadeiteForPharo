@@ -19,6 +19,7 @@ JadeiteBreakpointCommand >> selectedStepPoint [
 
 	| stepPointRanges range |
 	context adapter ifNil: [ ^ self "not built yet" ].
+	context methodService ifNil: [ ^ self "not built yet" ].
 	stepPointRanges := context methodService stepPointRanges.
 	range := stepPointRanges
 		         detect: [ :theRange |

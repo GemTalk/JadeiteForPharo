@@ -45,6 +45,12 @@ JadeiteHistoryBrowser >> browseDifferences [
 	diffsPresenter leftLabel: 'Second Selection'
 ]
 
+{ #category : 'testing' }
+JadeiteHistoryBrowser >> canDiscardEdits [
+
+	^ true
+]
+
 { #category : 'initialization' }
 JadeiteHistoryBrowser >> connectPresenters [
 
