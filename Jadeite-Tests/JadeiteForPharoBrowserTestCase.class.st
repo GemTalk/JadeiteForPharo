@@ -63,6 +63,14 @@ JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
 		in: self classListPresenter
 ]
 
+{ #category : 'support' }
+JadeiteForPharoBrowserTestCase >> tearDown [
+
+	super tearDown.
+	self destroy: secondBrowser.
+	self destroy: projectsBrowser
+]
+
 { #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 
@@ -320,6 +328,22 @@ JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
 				self abortTransaction.
 				self cloneRowanSample1.
 				self ensureRowanSampleProjectsLoaded]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_browseClassMethodSourceNotDirty [
+	"was seeing method source dirty when method selected.
+	Seemed to happen more when browser first opened."
+
+	self selectRowanSample1Test.
+	secondBrowser := self projectsPresenter browseClass.
+	self
+		assert: secondBrowser activePresenter selectedClass name
+		equals: 'RowanSample1Test'.
+	self selectMethodNamed: 'test1'.
+	self deny:
+		secondBrowser activePresenter methodSourcePresenter
+			hasUnacceptedEdits
 ]
 
 { #category : 'as yet unclassified' }

@@ -2356,6 +2356,7 @@ JadeiteBrowserPresenter >> postUpdateMethodSource [
 	| methodService |
 	(methodService := methodListPresenter selectedItem) ifNotNil: [
 		methodSourcePresenter value: methodService source.
+		methodSourcePresenter isModified: false. 
 		self updateMethodSourceGlyphs.
 		definedMethodPackageText text:
 			'Defined Package: ' , methodService definedPackage.

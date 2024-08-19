@@ -64,7 +64,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 				 self presenter syntaxHighlightTheme) ].
 	self presenter text ifNotNil: [ :text |
 		self setText: text to: newWidget ]. "<<<<<<Jadeite - Can text still be nil?"
-	newWidget hasUnacceptedEdits: false. "<<<<<<Jadeite - HOW IS THIS DONE in Pharo 12?"
+	newWidget hasUnacceptedEdits: false. 
 	self presenter selectionInterval ifNotNil: [ :anInterval |
 		self selectionInterval: anInterval on: newWidget ].
 	self presenter hasLineNumbers ifTrue: [ newWidget withLineNumbers ].
@@ -94,7 +94,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 		self setEditable: value to: newWidget ].
 	self presenter whenWrapWordChangedDo: [ :value |
 		self setWrapWord: value to: newWidget ].
-
+	newWidget hasUnacceptedEdits: false. 
 	^ newWidget
 ]
 
