@@ -34,6 +34,13 @@ Class {
 }
 
 { #category : 'accessing' }
+GciSession class >> clearCurrent [
+	Current ifNotNil: [ :session |
+		session autoCommit: nil]. 
+	Current := nil 
+]
+
+{ #category : 'accessing' }
 GciSession class >> current [
 
 	^Current ifNil: [ Current := self new ]
@@ -128,7 +135,8 @@ GciSession >> library: anObject [
 { #category : 'actions' }
 GciSession >> logout [
 
-	library close
+	library close.
+	self class clearCurrent. 
 ]
 
 { #category : 'accessing' }
