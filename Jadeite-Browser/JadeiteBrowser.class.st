@@ -44,6 +44,12 @@ JadeiteBrowser >> basicAddMethodCategory: aString [
 	^self activePresenter basicAddMethodCategory: aString
 ]
 
+{ #category : 'testing' }
+JadeiteBrowser >> canDiscardEdits [
+
+	^ self activePresenter canDiscardEdits
+]
+
 { #category : 'initialization' }
 JadeiteBrowser >> cards [
 

@@ -383,6 +383,22 @@ JadeiteMethodsTrait >> browseSendersOf: string [
 	self basicSendersOf: string
 ]
 
+{ #category : 'testing' }
+JadeiteMethodsTrait >> canDiscardEdits [
+
+	| theAdapter |
+	theAdapter := self methodSourcePresenter adapter.
+	theAdapter ifNil: [ ^ true ].
+	theAdapter widget hasUnacceptedEdits ifTrue: [
+		^ (MessageBox confirm:
+			   'You have unsaved changes. Discard changes and continue?')
+			  ifTrue: [
+				  self methodSourcePresenter hasUnacceptedEdits: false.
+				  true ]
+			  ifFalse: [ false ] ].
+	^ true
+]
+
 { #category : 'actions' }
 JadeiteMethodsTrait >> compilationWarningFrom: methodServices [
 	methodServices do: 
@@ -738,7 +754,7 @@ JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: theMe
 	^ presenter value
 ]
 
-{ #category : 'actions' }
+{ #category : 'compiler warning' }
 JadeiteMethodsTrait >> removeCompileWarningColor [
 	self statusBarText withAdapterDo: [ :theAdapter | 
 		theAdapter widgetDo: [ :widget |
@@ -809,7 +825,7 @@ JadeiteMethodsTrait >> selectedMethods [
 	^self methodListPresenter selectedItems
 ]
 
-{ #category : 'actions' }
+{ #category : 'compiler warning' }
 JadeiteMethodsTrait >> setCompileWarningColor [
 
 	self statusBarText withAdapterDo: [ :theAdapter | 

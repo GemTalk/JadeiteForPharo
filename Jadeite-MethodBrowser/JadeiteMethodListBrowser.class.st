@@ -34,13 +34,6 @@ JadeiteMethodListBrowser class >> openOn: service selectingAnyMatch: string sess
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowser >> createSchematicWiring [
-
-	super createSchematicWiring. 
-	self  	 when: #'closeRequested:'		send: #'onCloseRequested:'	to: self primaryPresenter.
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowser >> editSaveMethod [
 	self primaryPresenter methodSourcePresenter editSaveMethod
 ]

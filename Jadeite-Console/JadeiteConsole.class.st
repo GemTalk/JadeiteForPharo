@@ -162,6 +162,12 @@ JadeiteConsole >> browseUsers [
 
 ]
 
+{ #category : 'testing' }
+JadeiteConsole >> canDiscardEdits [
+
+	^ true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> cardContainer [
 	^cardContainer

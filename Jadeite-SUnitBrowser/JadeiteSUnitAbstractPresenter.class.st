@@ -12,6 +12,12 @@ Class {
 	#package : 'Jadeite-SUnitBrowser'
 }
 
+{ #category : 'edits' }
+JadeiteSUnitAbstractPresenter >> canDiscardEdits [
+
+	^true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> debugTestAsFailureMethodServices: methodServices className: className [
 	| jadeResult |

@@ -345,13 +345,6 @@ JadePresenter >> sigAbortsProcessEnabled: aBoolean [
 	self class sigAbortsProcessEnabled: aBoolean
 ]
 
-{ #category : 'public' }
-JadePresenter >> statusBarText: aString [
-	self topShell statusBarText: aString.
-	(self view topShell view viewNamed: 'statusBarField') invalidate
-
-]
-
 { #category : 'menus' }
 JadePresenter >> subMenuName [
 

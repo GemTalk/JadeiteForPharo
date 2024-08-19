@@ -32,7 +32,9 @@ JadeiteMethodListPresenter >> abortTransaction [
 JadeiteMethodListPresenter >> abortedTransaction [
 
 	self methodListPresenter selectedItem ifNotNil: [ :service |
-		self methodSourcePresenter value: service source ]
+		self methodSourcePresenter value: service source ].
+	self removeCompileWarningColor. 
+	self statusBarText pushMessage: String new. 
 ]
 
 { #category : 'initialization' }
@@ -78,19 +80,6 @@ JadeiteMethodListPresenter >> browseClassReferences: className [
 			shell updateCaptionFromSearchString:
 				service queryResults size printString , ' Class References to '
 				, className asString ]
-]
-
-{ #category : 'testing' }
-JadeiteMethodListPresenter >> canDiscardEdits [
-
-	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
-		(MessageBox confirm:
-			 'You have unsaved changes. Discard changes and continue?')
-			ifTrue: [
-				self methodSourcePresenter hasUnacceptedEdits: false.
-				^ true ]
-			ifFalse: [ ^ false ] ].
-	^ true
 ]
 
 { #category : 'as yet unclassified' }
@@ -591,7 +580,7 @@ JadeiteMethodListPresenter >> updateMethodSource [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateMethodSourceFor: aMethodService [
-	"do something here?"
+	self updateSingleMethodSource
 ]
 
 { #category : 'as yet unclassified' }

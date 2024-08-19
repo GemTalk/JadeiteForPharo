@@ -117,6 +117,8 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self resetClassTemplate.
 	self resetClassComment.
 	self updateMethodSource. 
+	self removeCompileWarningColor.
+	self statusBarText pushMessage: String new. 
 
 ]
 
@@ -507,19 +509,6 @@ JadeiteBrowserPresenter >> buildProjectTab [
 	projectInfoTab view
 		arrangement: cardLabel;
 		name: 'projectInfoTab'
-]
-
-{ #category : 'testing' }
-JadeiteBrowserPresenter >> canDiscardEdits [
-
-	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
-		(MessageBox confirm:
-			 'You have unsaved changes. Discard changes and continue?')
-			ifTrue: [
-				self methodSourcePresenter hasUnacceptedEdits: false.
-				^ true ].
-		^ false ].
-	^ true
 ]
 
 { #category : 'accessing' }
@@ -1065,8 +1054,7 @@ JadeiteBrowserPresenter >> editSaveMethod [
 	self editSaveMethod: selection onCompletion: [
 		self updateSUnitTab.
 		self redrawAllViews.
-		self updateSystemTab.
-		self statusBarText pushMessage: String new ]
+		self updateSystemTab. ]
 ]
 
 { #category : 'actions' }
@@ -3416,7 +3404,7 @@ JadeiteBrowserPresenter >> statusBarText [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> statusBarText: string [
-	self todo: [statusBarText value: string]
+	statusBarText pushMessage: string
 ]
 
 { #category : 'as yet unclassified' }
