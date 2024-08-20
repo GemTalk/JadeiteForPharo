@@ -25,7 +25,8 @@ Class {
 		'suspendedProcess',
 		'statusBarText'
 	],
-	#category : 'Jadeite-Debugger'
+	#category : 'Jadeite-Debugger',
+	#package : 'Jadeite-Debugger'
 }
 
 { #category : 'initialization' }
@@ -603,6 +604,14 @@ JadeiteDebuggerPresenter >> trimStack [
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> updateCaption [
 	self caption: (self gciSession titleBarFor: self shellName)
+]
+
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> updateMethodSource [
+
+	"to get rid of breakpoint highlights, resetting the source appears to be necessary"
+	codePane value: frameListPresenter selectedItem source. 
+	self updateMethodSourceGlyphs
 ]
 
 { #category : 'initialization' }

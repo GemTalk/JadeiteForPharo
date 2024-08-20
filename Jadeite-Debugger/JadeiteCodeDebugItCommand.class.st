@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteCodeDebugItCommand',
 	#superclass : 'SpToolCommand',
-	#category : 'Jadeite-Debugger'
+	#category : 'Jadeite-Debugger',
+	#package : 'Jadeite-Debugger'
 }
 
 { #category : 'default' }

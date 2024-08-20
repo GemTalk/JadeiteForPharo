@@ -397,27 +397,6 @@ JadeiteMethodListPresenter >> postMoveToPackage: packageName classService: class
 	self refreshList
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> queryCommand: aCommandQuery [
-	| command |
-	command := aCommandQuery command.
-	(#(#clearMethodBreakpoints #browseSelectedMethods) includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: methodListPresenter selections notEmpty.
-			^true].
-	command = #flipAutoCommit
-		ifTrue: 
-			[aCommandQuery isEnabled: self transactionMode = #autoBegin.
-			^true].
-	#browseMethodHistory = command
-		ifTrue: 
-			[| selections |
-			selections := self methodListPresenter selections.
-			aCommandQuery isEnabled: (selections size = 1 and: [selections first hasMethodHistory]).
-			^true].
-	^super queryCommand: aCommandQuery
-]
-
 { #category : 'drag & drop' }
 JadeiteMethodListPresenter >> refreshList [
 

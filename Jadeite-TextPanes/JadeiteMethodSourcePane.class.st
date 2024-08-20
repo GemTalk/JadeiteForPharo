@@ -170,8 +170,10 @@ JadeiteMethodSourcePane >> methodService: anObject [
 { #category : 'events' }
 JadeiteMethodSourcePane >> mouseClickedAt: click [
 
-	| sourcePosition |
-	click event handler hasUnacceptedEdits ifTrue: [
+	| sourcePosition handler |
+	handler := click event handler. 
+	handler ifNil: [^self]. 
+	handler hasUnacceptedEdits ifTrue: [
 		^ self outerBrowser statusBarText pushMessage:
 			  'Step Point: <method changed>' ].
 	sourcePosition := click event handler scrollPane textArea startIndex.
@@ -191,7 +193,9 @@ JadeiteMethodSourcePane >> outerBrowser [
 JadeiteMethodSourcePane >> removeAllTextSegmentDecorations [
 
 	self withAdapterDo: [ :anAdapter |
-		anAdapter widgetDo: [ :w | w segments: OrderedCollection new ] ]
+		anAdapter widgetDo: [ :w |
+			w segments: OrderedCollection new.
+			w changed ] ]
 ]
 
 { #category : 'actions - saving methods' }
@@ -273,7 +277,9 @@ JadeiteMethodSourcePane >> setBreakPointAt: stepPoint onCompletion: completionBl
 JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 
 	stepPoint isNil ifTrue: [ ^ self ].
-	self setBreakPointAt: stepPoint onCompletion: [self outerBrowser updateMethodSource]
+	self
+		setBreakPointAt: stepPoint
+		onCompletion: [ self outerBrowser updateMethodSource ]
 ]
 
 { #category : 'actions' }
