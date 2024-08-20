@@ -94,6 +94,8 @@ JadeiteDebuggerPresenter >> browseFrameMethod [
 	| className selector |
 	frameListPresenter selectedItem ifNil: [ ^ self ].
 	className := frameListPresenter selectedItem homeMethodClassName.
+	(className includes: Character space) ifTrue: [
+		className := (ReadStream on: className) upTo: Character space ].
 	selector := frameListPresenter selectedItem homeMethodSelector.
 	self openBrowser findClassNamed: className
 ]
@@ -107,11 +109,13 @@ JadeiteDebuggerPresenter >> connectPresenters [
 			self displayVariables: sel.
 			self updateSourcePaneWith: selection.
 			variableDataPresenter
+				context: sel oop;
 				text: String new;
 				hasUnacceptedEdits: false ] ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection selectedItem ifNotNil: [ :sel |
 			variableDataPresenter
+				context: sel oop;
 				text: sel value;
 				hasUnacceptedEdits: false ] ].
 	self methodSourcePresenter whenSubmitDo: [ :text | self editSave ].

@@ -280,7 +280,7 @@ RowanServiceUpdater >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
-	completionBlock ifNil: [ self halt ].
+	completionBlock ifNil: [ self halt: 'This halt means GemTalk needs to fix something' ].
 	session ifNil: [ ^ nil ].
 	service serviceCompletionBlock: completionBlock. 
 	self basicIssueCommand: service

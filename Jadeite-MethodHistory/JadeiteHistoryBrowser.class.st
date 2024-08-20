@@ -171,20 +171,29 @@ JadeiteHistoryBrowser >> reportCompileError: gsArguments [
 JadeiteHistoryBrowser >> revert [
 
 	| compileResult selectedService classService |
-	selectedService := versionListPresenter selectedItem. 
-	classService := (RowanClassService new name: selectedService className; meta: selectedService meta). 
+	selectedService := versionListPresenter selectedItem.
+	classService := RowanClassService new
+		                name: selectedService className;
+		                meta: selectedService meta.
 	classService
 		command: #saveMethodSource:category:;
-		commandArgs: (Array with: selectedService source with: selectedService category).
-	compileResult := [ self issueCommand: classService onCompletion: nil ]
-		on: GsCompileError
-		do: [ :ex | self todo: 'need to work on compile errors everywhere'.
-			self reportCompileError: ex gsArguments.
-			^ false ].
-	self updateHistory. 
-	versionListPresenter selectIndex: 1.
-	self todo:[compileResult "do something with this?"].
-	self todo:[self statusBarText message ifNotNil:[:text | text isEmpty ifFalse:[^self]]]
+		commandArgs:
+			(Array with: selectedService source with: selectedService category).
+	compileResult := [
+	                 self issueCommand: classService onCompletion: [
+		                 self updateHistory.
+		                 versionListPresenter selectIndex: 1.
+		                 self todo: [
+			                 compileResult "do something with this?" ].
+		                 self todo: [
+			                 self statusBarText message ifNotNil: [ :text |
+				                 text isEmpty ifFalse: [ ^ self ] ] ] ] ]
+		                 on: GsCompileError
+		                 do: [ :ex |
+			                 self todo:
+				                 'need to work on compile errors everywhere'.
+			                 self reportCompileError: ex gsArguments.
+			                 ^ false ]
 ]
 
 { #category : 'constants' }

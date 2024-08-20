@@ -97,6 +97,12 @@ JadeiteSUnitPresenter >> browseMethods [
 	^self browseSelectedMethods
 ]
 
+{ #category : 'testing' }
+JadeiteSUnitPresenter >> canDiscardEdits [
+
+	^true
+]
+
 { #category : 'accessing' }
 JadeiteSUnitPresenter >> classHierarchyPresenter [
 
