@@ -3034,6 +3034,9 @@ JadeiteBrowserPresenter >> selectClassNamed: classService package: packageServic
 		self packageListPresenter selectIndex: index scrollToSelection: true.
 		self classListPresenter list: packageService sortedClasses ].
 	index := self classListPresenter list indexOf: classService.
+	index = 0 ifTrue: [
+		index := self classListPresenter list indexOf:
+			         (classService copy meta: classService meta not) ].
 	self classListPresenter selection selectedIndex = index ifFalse: [
 		self classListPresenter selection unselectAll.
 		self classListPresenter selectIndex: index scrollToSelection: true.
@@ -3309,6 +3312,14 @@ JadeiteBrowserPresenter >> selectedPackageServices [
 	^packageListPresenter selectedItems
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> setAppropriateMeta: classOrMethodService [
+
+	classOrMethodService meta
+		ifTrue: [ self setClassSide ]
+		ifFalse: [ self setInstanceSide ]
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> setClassSide [
 
@@ -3562,7 +3573,8 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodServ
 
 	| index |
 	self updateAfterFindClass: classService onCompletion: [
-		self methodListPresenter selection unselectAll. 
+		self setAppropriateMeta: classService.
+		self methodListPresenter selection unselectAll.
 		index := self methodListPresenter list indexOf: methodService.
 		self methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
@@ -3577,7 +3589,7 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: comp
 			RowanServiceUpdater current critical: [
 				projectService := array first.
 				packageService := array last.
-				classService isMeta ifTrue: [ self setClassSide ].
+				self setAppropriateMeta: classService. 
 				self selectClassListTab.
 				self selectPackageListTab.
 				self
