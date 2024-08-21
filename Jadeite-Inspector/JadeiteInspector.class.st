@@ -328,25 +328,6 @@ JadeiteInspector >> evaluateSelectedTextIn: textPresenter thenInspectInContext: 
 ]
 
 { #category : 'evaluating' }
-JadeiteInspector >> evaluateSelectedTextIn: textPresenter thenInspectInContext: context debugger: debugger [
-	| service |
-	self createView: self class defaultView.
-	service := RowanInspectorService new
-				executeThenInspect: textPresenter currentSelectionOrLine
-				context: context
-				session: gciSession
-				windowHandle: self view handle value
-				debugger: debugger.
-	service compileErrorArray
-		ifNotNil: 
-			[
-			[self view close.
-			^textPresenter showCompileError: service compileErrorArray first]
-					ensure: [service compileErrorArray: nil]].
-	^self showOn: service
-]
-
-{ #category : 'evaluating' }
 JadeiteInspector >> evaluateText: string thenInspectInContext: context [
 
 	| service |
@@ -361,7 +342,7 @@ JadeiteInspector >> evaluateText: string thenInspectInContext: context [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspector >> executeThenInspect: aString inContext: context [
+JadeiteInspector >> executeThenInspect: aString inContext: context onCompletion: completionBlock [
 
 	| window |
 	window := self asWindow.
@@ -371,13 +352,7 @@ JadeiteInspector >> executeThenInspect: aString inContext: context [
 		session: gciSession
 		windowHandle: window identityHash
 		onCompletion: [ :service |
-			service compileErrorArray ifNotNil: [
-				SyntaxErrorNotification
-					inClass: Object
-					withCode: aString
-					doitFlag: false
-					errorMessage: (service compileErrorArray first at: 3)
-					location: (service compileErrorArray first at: 2) ].
+			completionBlock value: service.
 			service oop ifNotNil: [ self show: window on: service ] ]
 ]
 

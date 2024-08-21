@@ -466,6 +466,7 @@ JadeiteDebuggerPresenter >> inspectVariable [
 			  , variableListPresenter selectedItem oop printString
 		  session: gciSession
 		  context: 20
+		  onCompletion: [  ]
 ]
 
 { #category : 'accessing' }

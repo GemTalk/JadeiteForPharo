@@ -49,6 +49,9 @@ JadeiteTextDocument >> executeSelectionOrLineInspectingResult: aString shouldDeb
 		  executeThenShowOn: aString
 		  session: gciSession
 		  context: (context ifNil: [ 20 ])
+		  onCompletion: [ :service |
+			  service compileErrorArray ifNotNil: [
+				  self reportCompileError: service compileErrorArray ] ]
 ]
 
 { #category : '*Jadeite-SupportClasses' }

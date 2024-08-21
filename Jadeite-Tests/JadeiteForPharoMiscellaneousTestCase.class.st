@@ -89,7 +89,7 @@ JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
 		testsIssue: #issue29
 		withTitle:
 		'Need a report to show what all git repository shas I have loaded'.
-	connectionLauncher := JadeiteConnectionLauncher allInstances first. 
+	connectionLauncher := JadeiteConnectionLauncher allInstances first.
 	self deny: connectionLauncher connectionProfile connection isNil. "assume connected"
 	workspace := connectionLauncher openCommitIdWindow.
 	[
@@ -108,7 +108,8 @@ JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: (GciSession new library:
-				 connectionLauncher connectionProfile connection).
+				 connectionLauncher connectionProfile connection)
+		onCompletion: [  ].
 	clientServicesSha := (browserService projects detect: [
 		                      :projectService |
 		                      projectService name = 'RowanClientServices' ])

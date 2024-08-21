@@ -6,12 +6,14 @@ Class {
 }
 
 { #category : 'instance creation' }
-JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSession context: context [
+JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSession context: context onCompletion: completionBlock [
 
 	| inst |
 	inst := self new gciSession: gciSession.
-	^inst executeThenInspect: aString inContext: context.
-
+	^ inst
+		  executeThenInspect: aString
+		  inContext: context
+		  onCompletion: completionBlock
 ]
 
 { #category : 'instance creation' }
@@ -24,14 +26,17 @@ JadeiteInspectorApplication class >> show: oop onSession: gciSession [
 ]
 
 { #category : 'accessing' }
-JadeiteInspectorApplication >> executeThenInspect: aString inContext: context [
+JadeiteInspectorApplication >> executeThenInspect: aString inContext: context onCompletion: completionBlock [
 
 	| inst |
-	inst := self new: JadeiteInspector. 
+	inst := self new: JadeiteInspector.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
-	^inst executeThenInspect: aString inContext: context
+	^ inst
+		  executeThenInspect: aString
+		  inContext: context
+		  onCompletion: completionBlock
 ]
 
 { #category : 'accessing' }
