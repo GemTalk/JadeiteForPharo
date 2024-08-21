@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeToolsToolBarPresenter',
 	#superclass : 'JadePresenter',
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'Jade' }

@@ -71,6 +71,23 @@ JadeiteForPharoMiscellaneousTestCase >> test_adHocExecute [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMiscellaneousTestCase >> test_adHocInspect [
+	| inspector | 
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	self assert: (workspace isKindOf: JadeiteWorkspace).
+	workspace text: '123'.
+	workspace codePane documentPresenter setFocus.
+	inspector := workspace codePane  
+evaluateInspectingResult: workspace codePane text onCompileError: [  ] onError: [  ]. 	
+	self assert: inspector selectedInstVar equals: 'self'. 
+	self assert: inspector _documentPresenter text equals: '123'.
+	self destroy: inspector. 
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMiscellaneousTestCase >> test_classServiceNameIsString [
 	| classService |
 	self testsIssue: #issue441

@@ -77,7 +77,7 @@ JadeiteToolbarTrait >> displayClientCommitId: workspace [
 ]
 
 { #category : 'actions' }
-JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace [
+JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace onCompletion: completionBlock [
 
 	| ws |
 	ws := WriteStream on: String new.
@@ -86,9 +86,9 @@ JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace [
 		cr;
 		nextPutAll: '---------------------------------------------';
 		cr.
-	self
-		serverCommitIdDescription: ws
-		onCompletion: [ workspace text: ws contents ]
+	self serverCommitIdDescription: ws onCompletion: [
+		workspace text: ws contents.
+		completionBlock value ]
 ]
 
 { #category : 'initialization' }
@@ -160,13 +160,17 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 	self connection
 		ifNil: [
 			workspace := JadeiteNonSessionApplication new start.
-			self displayClientCommitId: workspace ]
+			self displayClientCommitId: workspace.
+			workspace setCaption: windowCaption.
+			workspace hasUnacceptedEdits: false ]
 		ifNotNil: [
-			workspace := JadeiteWorkspaceApplication showOnSession: self connection.
-			self displayClientandServerCommitIds: workspace ].
-	workspace setCaption: windowCaption.
-	workspace hasUnacceptedEdits: false.
-	^workspace
+			workspace := JadeiteWorkspaceApplication showOnSession:
+				             self connection.
+			self displayClientandServerCommitIds: workspace onCompletion: [
+				workspace setCaption: windowCaption.
+				workspace hasUnacceptedEdits: false ] ].
+
+	^ workspace
 ]
 
 { #category : 'actions' }

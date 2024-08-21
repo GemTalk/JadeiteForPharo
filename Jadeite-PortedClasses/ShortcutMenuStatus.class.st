@@ -4,7 +4,8 @@ Class {
 	#classVars : [
 		'Status'
 	],
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'public' }

@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeValueDialog',
 	#superclass : 'ValueDialog',
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'public' }

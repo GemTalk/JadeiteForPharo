@@ -884,12 +884,20 @@ RowanMethodService >> testResult: anObject [
 ]
 
 { #category : 'accessing' }
-RowanMethodService >> testResultIcon [
-
-	^ testResult
-		  ifNil: [ Smalltalk ui icons iconNamed: #testNotRun ]
-		  ifNotNil: [ 
-		  Smalltalk ui icons iconNamed: (self testResultMap at: testResult) ]
+RowanMethodService >> testResultIconForBrowser: browser [
+	^ IconicButtonMorph new
+		  target: browser;
+		  labelGraphic: (testResult
+				   ifNil: [ Smalltalk ui icons iconNamed: #testNotRun ]
+				   ifNotNil: [
+					   Smalltalk ui icons iconNamed:
+							   (self testResultMap at: testResult) ]);
+		  actionSelector: #debugTests:;
+		  arguments: (Array with: { self });
+		  color: Color transparent;
+		  helpText: 'Run Tests';
+		  borderWidth: 0;
+		  yourself
 ]
 
 { #category : 'accessing' }

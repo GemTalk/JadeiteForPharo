@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeTextPresenter',
 	#superclass : 'TextPresenter',
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'accessing' }

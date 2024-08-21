@@ -163,21 +163,6 @@ JadeiteConnectionLauncher >> displayClientCommitId: workspace [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> displayClientandServerCommitIds: workspace [
-
-	| ws |
-	ws := WriteStream on: String new.
-	ws
-		nextPutAll: self clientCommitIdDescription;
-		cr;
-		nextPutAll: '---------------------------------------------';
-		cr.
-	self
-		serverCommitIdDescription: ws
-		onCompletion: [ workspace text: ws contents ]
-]
-
-{ #category : 'actions' }
 JadeiteConnectionLauncher >> enableButtons [
 
 	self connectionProfile ifNil: [ ^ self ].

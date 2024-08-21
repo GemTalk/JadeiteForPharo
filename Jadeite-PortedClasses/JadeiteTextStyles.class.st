@@ -8,7 +8,8 @@ Class {
 		'textStyles',
 		'colorForUndisplayableSource'
 	],
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'public' }

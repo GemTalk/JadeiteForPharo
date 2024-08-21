@@ -461,7 +461,7 @@ JadeiteConsole >> initializeHelpMenu [
 			  group
 				  addItem: [ :item |
 					  item
-						  name: 'About Jadeite';
+						  name: 'Git Commit Ids';
 						  action: [ self openCommitIdWindow ] ];
 				  addItem: [ :item |
 					  item

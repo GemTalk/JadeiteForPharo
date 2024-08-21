@@ -7,7 +7,8 @@ Class {
 		'migrateInstancesPresenter',
 		'removeFromClassHistoryPresenter'
 	],
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'public' }

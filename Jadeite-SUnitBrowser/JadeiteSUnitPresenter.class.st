@@ -246,7 +246,7 @@ JadeiteSUnitPresenter >> initializePresenters [
 		                       headerTitle: 'Test Selector'.
 	methodListPresenter
 		beMultipleSelection;
-		displayIcon: [ :item | item testResultIcon ].
+		displayIcon: [ :item | item testResultIconForBrowser: self ].
 	self initializeBrowseMethodListMenu.
 	self addSUnitMethodListMenuItems.
 	listPresenters add: methodListPresenter
@@ -350,7 +350,14 @@ JadeiteSUnitPresenter >> onPackageChanged [
 			status value: nil.
 			status value: self ].
 		self reset.
-		classListPresenter unselectAll ]
+		classListPresenter unselectAll.
+		methodListPresenter list: Array new ]
+]
+
+{ #category : 'initialization' }
+JadeiteSUnitPresenter >> open [
+	super open.
+	self updatePresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -528,7 +535,7 @@ JadeiteSUnitPresenter >> selectPackageOrDictionaryNamed: name for: anObject [
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> selectedClass [
 
-	^classListPresenter selectionOrNil
+	^self classListPresenter selectedItem 
 ]
 
 { #category : 'accessing' }
@@ -690,16 +697,16 @@ JadeiteSUnitPresenter >> updatePresenter [
 
 	super updatePresenter.
 	testCounter := Array with: 0 with: OrderedCollection new.
-	self updateProjectPackagesOnCompletion: nil
+	self updateProjectPackagesOnCompletion: [  ]
 ]
 
 { #category : 'updates' }
-JadeiteSUnitPresenter >> updateProjectPackagesOnCompletion: anObject [
+JadeiteSUnitPresenter >> updateProjectPackagesOnCompletion: completionBlock [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #packagesWithTests.
-	self
-		issueCommand: browserService
-		onCompletion: [ testCounter at: 1 put: browserService testCount ]
+	self issueCommand: browserService onCompletion: [
+		testCounter at: 1 put: browserService testCount.
+		completionBlock value ]
 ]

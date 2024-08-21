@@ -12,7 +12,8 @@ Class {
 	#classVars : [
 		'CodeFont'
 	],
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'public' }

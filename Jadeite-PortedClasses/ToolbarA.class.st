@@ -1,7 +1,8 @@
 Class {
 	#name : 'ToolbarA',
 	#superclass : 'Toolbar',
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'commands' }

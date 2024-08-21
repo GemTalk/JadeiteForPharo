@@ -26,6 +26,12 @@ JadeiteInspector class >> showOn: oop session: aGciSession [
 	^inspector inspect: oop inContext: aGciSession oopNil
 ]
 
+{ #category : 'accessing' }
+JadeiteInspector >> _documentPresenter [
+
+	^ documentPresenter
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector >> aboutToChange: aSelectionChangingEvent [
 	aSelectionChangingEvent value ifTrue: [
@@ -1034,7 +1040,7 @@ JadeiteInspector >> selectedInstVar [
 		codePane
 			text: instVarListPresenter selectedItems first last;
 			hasUnacceptedEdits: false.
-		^ self ].
+		^key ].
 	[ self printInstVar ]
 		on: GsRuntimeError
 		do: [ :ex |

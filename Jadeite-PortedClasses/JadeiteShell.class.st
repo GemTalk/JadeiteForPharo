@@ -5,7 +5,8 @@ Class {
 		'gciSession',
 		'myPresenter'
 	],
-	#category : 'Jadeite-PortedClasses'
+	#category : 'Jadeite-PortedClasses',
+	#package : 'Jadeite-PortedClasses'
 }
 
 { #category : 'constants' }
@@ -93,29 +94,6 @@ JadeiteShell >> onViewClosed [
 		temp removeEventsTriggeredFor: self.
 	].
 	super onViewClosed.
-
-]
-
-{ #category : 'private' }
-JadeiteShell >> onViewOpened [
-	"If we have a presenter that is responsible for the entire window, then let it set up the MenuBar"
-
-	super onViewOpened.
-	[
-		| menuBar |
-		menuBar := self view menuBar.
-		menuBar isNil ifTrue: [menuBar := MenuBar new].
-		myPresenter notNil ifTrue: [myPresenter updateMenuBar: menuBar].
-		self view menuBar: menuBar.
-	] on: Error do: [:ex | 
-		SessionManager current logError: ex.
-		MessageBox
-			notify: ex description 
-			caption: 'Unable to Open ' , self class name.
-		SessionManager current pause.
-		self view close.
-	].
-
 
 ]
 

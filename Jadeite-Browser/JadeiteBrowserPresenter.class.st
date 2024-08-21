@@ -161,7 +161,9 @@ JadeiteBrowserPresenter >> addDictionary [
 
 { #category : 'menus' }
 JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
-
+	"Someday we should be able to see the entire class hierarchy
+	of Object but for now it's far too slow. User can double click
+	on Object and see the immediate subclasses instead."
 	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
@@ -169,7 +171,8 @@ JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
 				action: [
 					self expandFullAt:
 							self classHierarchyPresenter selection selectedItem ];
-				enabled: [ self isClassSelected ] ] ]
+				enabled: [
+					self isClassSelected and: [ self selectedClass name ~= 'Object' ] ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3035,6 +3038,7 @@ JadeiteBrowserPresenter >> selectClassNamed: classService package: packageServic
 		self classListPresenter list: packageService sortedClasses ].
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [
+		classService meta ifNil: [ classService meta: true ].
 		index := self classListPresenter list indexOf:
 			         (classService copy meta: classService meta not) ].
 	self classListPresenter selection selectedIndex = index ifFalse: [
@@ -3315,9 +3319,10 @@ JadeiteBrowserPresenter >> selectedPackageServices [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> setAppropriateMeta: classOrMethodService [
 
-	classOrMethodService meta
-		ifTrue: [ self setClassSide ]
-		ifFalse: [ self setInstanceSide ]
+	classOrMethodService meta ifNil: [ ^ self ] ifNotNil: [ :meta |
+		meta
+			ifTrue: [ self setClassSide ]
+			ifFalse: [ self setInstanceSide ] ]
 ]
 
 { #category : 'initialization' }
