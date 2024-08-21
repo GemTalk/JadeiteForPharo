@@ -55,7 +55,7 @@ JadeiteMethodsTrait >> addBrowseClassItemTo: group [
 
 	group addItem: [ :item |
 		item
-			name: 'Browse Class';
+			name: 'Browse';
 			action: [ self browseMethodClass ];
 			enabled: [ self methodListPresenter selections size = 1 ] ]
 ]
@@ -288,17 +288,15 @@ Example: To search for literal string add single quotes'
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseMethodClass [
 
-	| classService |
-	classService := RowanClassService new name:
-		                self methodListPresenter jadeiteSelections first
-			                className.
-	classService meta:
-		self methodListPresenter jadeiteSelections first meta.
+	| classService methodService |
+	methodService := self methodListPresenter jadeiteSelections first.
+	classService := RowanClassService new name: methodService className.
+	classService meta: methodService meta.
 	self updateService: classService onCompletion: [
-		self
-			openBrowserOn: self
-			postOpen: [ :browserPresenter |
-			browserPresenter findClassService: classService ] ]
+		self openBrowserOn: self postOpen: [ :browserPresenter |
+			browserPresenter
+				updateAfterFindClass: classService
+				method: methodService ] ]
 ]
 
 { #category : 'actions' }

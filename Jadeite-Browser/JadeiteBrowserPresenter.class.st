@@ -378,7 +378,9 @@ JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
 JadeiteBrowserPresenter >> browseMethodClass [
 
 	self openBrowserOn: self postOpen: [ :browserPresenter |
-		browserPresenter findClassService: self selectedClass ]
+		browserPresenter
+			updateAfterFindClass: self selectedClass
+			method: self methodListPresenter selectedItem ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1958,19 +1960,13 @@ JadeiteBrowserPresenter >> jadeInspect [
 { #category : 'history' }
 JadeiteBrowserPresenter >> jumpToHistoryIndex: anInteger [
 
-	| historyEntry |
+	| historyEntry classService |
 	historyEntry := historyList at: anInteger ifAbsent: [ ^ self ].
 	historyIndex := anInteger.
-	historyEntry className = self selectedClassName ifFalse: [
-		self selectProjectNamed: historyEntry projectName.
-		self selectPackageNamed: historyEntry packageName.
-		self selectClassNamed: historyEntry className ].
-	historyEntry meta
-		ifTrue: [ classRadioButton state: true ]
-		ifFalse: [ instanceRadioButton state: true ].
-	(self isMethodVisible: historyEntry) ifFalse: [
-		self selectCategoryNamed: historyEntry category ].
-	self selectMethod: historyEntry
+	classService := RowanClassService new
+		                name: historyEntry className;
+		                meta: historyEntry meta.
+	self updateAfterFindClass: classService method: historyEntry
 ]
 
 { #category : 'as yet unclassified' }
@@ -3027,15 +3023,21 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService [
 
 	| index |
-	index := projectListPresenter list indexOf: projectService.
-	projectListPresenter selectIndex: index scrollToSelection: true.
-	packageListPresenter list: projectService sortedPackages.
-	index := packageListPresenter list indexOf: packageService.
-	packageListPresenter selectIndex: index scrollToSelection: true.
-	classListPresenter list: packageService sortedClasses.
-	index := classListPresenter list indexOf: classService.
-	classListPresenter selectIndex: index scrollToSelection: true.
-	self updateClassInfo. 
+	index := self projectListPresenter list indexOf: projectService.
+	self projectListPresenter selection selectedIndex = index ifFalse: [
+		self projectListPresenter selection unselectAll.
+		self projectListPresenter selectIndex: index scrollToSelection: true.
+		self packageListPresenter list: projectService sortedPackages ].
+	index := self packageListPresenter list indexOf: packageService.
+	self packageListPresenter selection selectedIndex = index ifFalse: [
+		self packageListPresenter selection unselectAll.
+		self packageListPresenter selectIndex: index scrollToSelection: true.
+		self classListPresenter list: packageService sortedClasses ].
+	index := self classListPresenter list indexOf: classService.
+	self classListPresenter selection selectedIndex = index ifFalse: [
+		self classListPresenter selection unselectAll.
+		self classListPresenter selectIndex: index scrollToSelection: true.
+		self updateClassInfo ]
 ]
 
 { #category : 'selections' }
@@ -3552,6 +3554,22 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
+	self updateAfterFindClass: classService onCompletion: [  ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodService [
+
+	| index |
+	self updateAfterFindClass: classService onCompletion: [
+		self methodListPresenter selection unselectAll. 
+		index := self methodListPresenter list indexOf: methodService.
+		self methodListPresenter selectIndex: index scrollToSelection: true ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
+
 	| packageService projectService |
 	self
 		projectAndPackageServiceFor: classService
@@ -3565,13 +3583,8 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 				self
 					selectClassNamed: classService
 					package: packageService
-					project: projectService ] ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
-
-	^self updateAfterFindClass: classService
+					project: projectService.
+				completionBlock value ] ]
 ]
 
 { #category : 'as yet unclassified' }
