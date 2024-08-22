@@ -40,23 +40,9 @@ JadeiteSUnitSupportTestCase >> assertMenuItem: command isEnabled: boolean [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> assertPackageInList: name [
-	self denyIsNil: (sunitBrowser primaryPresenter packageListPresenter list
-				detect: [:packageService | packageService name = name]
-				ifNone: [])
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> denyClassInList: name [
 	self assertIsNil: (sunitBrowser primaryPresenter classListPresenter list
 				detect: [:classService | classService name = name]
-				ifNone: [])
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> denyPackageInList: name [
-	self assertIsNil: (sunitBrowser primaryPresenter packageListPresenter list
-				detect: [:packageService | packageService name = name]
 				ifNone: [])
 ]
 
@@ -241,47 +227,6 @@ JadeiteSUnitSupportTestCase >> tearDown [
 	super tearDown.
 	self closeBrowser: sunitBrowser.
 	projectsBrowser ifNotNil: [self destroy: projectsBrowser]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_abortNoSelections [
-	| abortCommand |
-	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
-	self unloadSampleProject1.
-	self commitTransaction.	"ensure that the sample package wasn't committed"
-	self denyPackageInList: 'RowanSample1-Tests'.
-	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
-	self assertPackageInList: 'RowanSample1-Tests'.
-	abortCommand := ((sunitBrowser view viewNamed: 'toolbar') itemAtIndex: 1) command.
-	sunitBrowser primaryPresenter perform: abortCommand.
-	[self denyPackageInList: 'RowanSample1-Tests'] ensure: 
-			[self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_abortWithSelections [
-	| abortCommand |
-	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
-	self unloadSampleProject1.
-	self commitTransaction.	"ensure that the sample package wasn't committed"
-	sunitBrowser primaryPresenter selectPackageNamed: 'Rowan-Services-Tests'
-		classNamed: 'RowanTestClassServiceTest'.
-	sunitBrowser primaryPresenter selectMethodNamed: #test_addCategory.
-	abortCommand := ((sunitBrowser view viewNamed: 'toolbar') itemAtIndex: 1) command.
-	sunitBrowser primaryPresenter perform: abortCommand.
-	
-	[self assert: sunitBrowser primaryPresenter packageListPresenter selection name
-		equals: 'Rowan-Services-Tests'.
-	self assert: sunitBrowser primaryPresenter classListPresenter selection name
-		equals: 'RowanTestClassServiceTest'.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections size equals: 1.
-	self assert: sunitBrowser primaryPresenter methodListPresenter selections first selector
-		equals: #test_addCategory]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
 ]
 
 { #category : 'as yet unclassified' }

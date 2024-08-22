@@ -354,12 +354,6 @@ JadeiteSUnitPresenter >> onPackageChanged [
 		methodListPresenter list: Array new ]
 ]
 
-{ #category : 'initialization' }
-JadeiteSUnitPresenter >> open [
-	super open.
-	self updatePresenter
-]
-
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> packageListPresenter [
 	^packageListPresenter
@@ -511,7 +505,7 @@ JadeiteSUnitPresenter >> selectPackageNamed: packageName [
 	| packageService |
 	packageService := packageListPresenter list detect: [:service | service name = packageName]
 				ifNone: [^self].
-	packageListPresenter selection: packageService
+	packageListPresenter selectItem: packageService
 ]
 
 { #category : 'as yet unclassified' }
@@ -520,7 +514,7 @@ JadeiteSUnitPresenter >> selectPackageNamed: packageName classNamed: className [
 	self selectPackageNamed: packageName.
 	classService := classListPresenter list detect: [:service | service name asString = className]
 				ifNone: [^self].
-	classListPresenter selection: classService
+	classListPresenter selectItem: classService
 ]
 
 { #category : 'as yet unclassified' }

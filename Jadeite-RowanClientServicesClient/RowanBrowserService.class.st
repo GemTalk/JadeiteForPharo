@@ -284,8 +284,9 @@ RowanBrowserService >> testPackages [
 { #category : 'public' }
 RowanBrowserService >> testPackages: presenter [
 	| additions |
+	testPackages ifNil: [ ^self ].
 	additions := OrderedCollection new.
-	self testPackages do: 
+	testPackages do: 
 			[:newPackageService |
 			| updatedPackage |
 			updatedPackage := presenter list detect: [:packageService | packageService = newPackageService]

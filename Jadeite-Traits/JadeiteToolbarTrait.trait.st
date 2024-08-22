@@ -139,8 +139,7 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 				 icon: (self iconNamed: #smallPaint);
 				 help: 'open SUnit Browser and Test Runner';
 				 action: [ self openSUnitBrowser ];
-				 yourself);
-		yourself.
+				 yourself).
 	^ toolbar
 ]
 
@@ -177,13 +176,16 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 JadeiteToolbarTrait >> openSUnitBrowser [
 
 	| inst |
-	inst := JadeiteSUnitPresenter basicNew.
-	inst
-		application: self application;
-		gciSession: self gciSession;
-		initialize.
-	inst open.
-	inst addStyle: 'jadeWorkspace'
+	RowanServiceUpdater current critical: [
+		inst := JadeiteSUnitPresenter basicNew.
+		inst
+			application: self application;
+			gciSession: self gciSession;
+			initialize.
+		inst open.
+		inst addStyle: 'jadeWorkspace'.
+		inst identityHash traceCr.
+		^inst ]
 ]
 
 { #category : 'actions' }
