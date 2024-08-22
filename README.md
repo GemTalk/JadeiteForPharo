@@ -2,7 +2,7 @@
 IDE for GemStone Smalltalk application development in Pharo using Rowan code management 
 
 ## To load JadeiteForPharo into a Pharo image:
-(Currently, Pharo 11 is supported)
+(Currently, only Pharo 12 is supported)
 After a Rowan server is created, clone git projects 'PharoGemStoneFFI' 'RemoteServiceReplication' 'JadeiteForPharo' to your local disk with a common parent directory. 
 Then, run the following script in a Pharo image playground
 
