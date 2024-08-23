@@ -242,6 +242,55 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
+	"test package should show up when test method is added"
+
+	| packageName className methodService |
+	"doesn't matter which component for test""don't pick a symbol list so default symbol list is used"
+	packageName := 'AddedPackage'.
+	className := 'AddedTestClass'.
+	self denyClassInList: className.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	self selectRowanSample1Test.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self addPackageNamed: packageName.
+
+	[
+	| classService1 |
+	self denyPackageInList: packageName. "not added until method is created"
+	self
+		saveClass: className
+		superclass: 'TestCase'
+		instVars: #( 'abc' )
+		package: packageName.
+	self denyPackageInList: packageName. "not added until method is created"
+	classService1 := RowanClassService named: className.
+	classService1
+		saveMethod: 'test_blah'
+		category: 'tests'
+		session: session
+		onCompletion: nil.
+	self assertPackageInList: packageName.
+	self
+		selectServiceNamed: packageName
+		in: self sunitPresenter packageListPresenter.
+	self assertClassInList: className.
+	self
+		selectServiceNamed: className
+		in: self sunitPresenter classListPresenter.
+	methodService := self sunitPresenter methodListPresenter list
+		                 detect: [ :svc | svc selector = #test_blah ]
+		                 ifNone: [  ].
+	self assert: methodService selector equals: #test_blah.
+	self
+		assert: self sunitPresenter methodListPresenter list size
+		equals: 1 ] ensure: [
+		self abortTransaction.
+		self cloneRowanSample1.
+		self ensureRowanSampleProjectsLoaded ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 	"packages weren't showing up in an sunit browser due to a timing issue. 
 	Not directly reproducible, but open and close the sunit browser a number of times

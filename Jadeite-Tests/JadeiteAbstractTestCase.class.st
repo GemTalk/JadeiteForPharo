@@ -35,10 +35,11 @@ JadeiteAbstractTestCase >> abortTransaction [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> addPackageNamed: packageName [
-	self projectsPresenter addPackagePresenter newPackagePresenter value: packageName.
-	self projectsPresenter addPackagePresenter componentPresenter selectionByIndex: 1.	"doesn't matter which component for test"
-	"don't pick a symbol list so default symbol list is used"
-	self projectsPresenter addPackagePresenter addPackage
+
+	self projectsPresenter 
+		basicAddPackageNamed: packageName
+		symbolDictionary: 'UserGlobals'
+		componentName: 'Core'
 ]
 
 { #category : 'as yet unclassified' }

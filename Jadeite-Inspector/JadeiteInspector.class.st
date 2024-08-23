@@ -200,7 +200,8 @@ JadeiteInspector >> browseClass [
 			shell := self openBrowser.
 			shell currentCard
 				updateAfterFindClass: classService
-				onCompletion: nil ]
+				onCompletion: nil ].
+	^shell
 ]
 
 { #category : 'as yet unclassified' }

@@ -211,12 +211,15 @@ RowanAnsweringService >> setBreakpointsEnabled: boolean session: session [
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> symbolDictionaryNames: session [
+RowanAnsweringService >> symbolDictionaryNames: session onCompletion: completionBlock [
+
 	self
 		command: #symbolDictionaryNames;
 		commandArgs: Array new.
-	RowanServiceUpdater current issueCommand: self session: session.
-	^answer
+	RowanServiceUpdater current
+		issueCommand: self
+		session: session
+		onCompletion: [ :service | completionBlock value: service ]
 ]
 
 { #category : 'commands' }

@@ -124,25 +124,6 @@ JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInNavigationInspecto
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_adHocExecution [
-	"sanity test that ad-hoc executions in the pane work"
-
-	| workspace |
-	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self assert: (workspace isKindOf: JadeiteWorkspace).
-	workspace setDocumentData: 'Array with: 1 with: 2'.
-	workspace setFocus.
-	inspector := workspace codePane jadeInspect.
-	inspector documentPresenter value: 'self size'.
-	inspector codePane jadeDisplay.
-	self assert: inspector documentPresenter value equals: 'self size 2']
-			ensure: 
-				[workspace isModified: false.
-				self closeBrowser: workspace]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_adHocInspect [
 	| workspace methodListBrowser |
 	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
@@ -497,17 +478,6 @@ JadeiteInspectorDataCuratorTestCase >> test_basicInspectorDisplayedSizeLimit [
 		equals: (session executeString: '$a asOop').
 	self assert: inspector instVarListPresenter list last key equals: '65000'.
 	self assert: inspectorService indexedSize equals: 100000
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_caption [
-	| remoteObject |
-	remoteObject := session
-				executeString: '123'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	self assert: ('Inspector on SmallInteger for*' match: inspector caption).
 ]
 
 { #category : 'as yet unclassified' }

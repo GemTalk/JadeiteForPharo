@@ -109,11 +109,11 @@ JadeiteAddPackageDialog >> initializePresenters [
 { #category : 'initialization' }
 JadeiteAddPackageDialog >> initializeSymbolDictionaries [
 
-	| dictionaryNames |
 	projectService = RowanProjectService noneProject ifTrue: [ ^ self ].
-	dictionaryNames := RowanAnsweringService new symbolDictionaryNames:
-		                   self gciSession.
-	symbolDictionaryNamePresenter items: dictionaryNames
+	RowanAnsweringService new
+		symbolDictionaryNames: self gciSession
+		onCompletion: [ :service |
+		symbolDictionaryNamePresenter items: service answer ]
 ]
 
 { #category : 'initialization' }
