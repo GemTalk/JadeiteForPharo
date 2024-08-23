@@ -13,6 +13,31 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'tests' }
+JadeiteForPharoGUITestCase class >> testCount [
+	"self testCount
+	show and count the number of tests in my subclasses"
+
+	| testDictionary allTestCount |
+	testDictionary := Dictionary new.
+	allTestCount := 0.
+	self allSubclassesDo: [ :sub |
+		| count |
+		sub traceCr.
+		count := 0.
+		sub localMethods do: [ :method |
+			('test_*' match: method selector) ifTrue: [
+				count := count + 1.
+				method selector traceCr ] ].
+		'--------------------' traceCr.
+		('Test count for ' , sub name , ' - ' , count printString) traceCr.
+		String new traceCr.
+		allTestCount := allTestCount + count ].
+	'--------------------' traceCr.
+	'--------------------' traceCr.
+	('Total tests - ' , allTestCount printString) traceCr
+]
+
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> dismissPopoverAndPrint [
 
