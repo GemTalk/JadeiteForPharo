@@ -25,15 +25,16 @@ JadeiteForPharoBrowserAbstractTestCase >> setUp [
 
 { #category : 'support' }
 JadeiteForPharoBrowserAbstractTestCase >> tearDown [
+
 	super tearDown.
-	session isValidSession
-		ifTrue: [transcriptWritesWereEnabled == true ifTrue: [transcript flipTranscript]].
-	methodListBrowser
-		ifNotNil: 
-			[self destroy: methodListBrowser.
-			methodListBrowser := nil].
-	secondBrowser
-		ifNotNil: 
-			[self destroy: secondBrowser.
-			secondBrowser := nil]
+	session isValidSession ifTrue: [
+		transcriptWritesWereEnabled == true ifTrue: [
+			transcript flipTranscript ] ].
+	methodListBrowser ifNotNil: [
+		self destroy: methodListBrowser.
+		methodListBrowser := nil ].
+	secondBrowser ifNotNil: [ :two |
+		two activePresenter methodSourcePresenter adapter ifNotNil: [ :a |
+			a widget hasUnacceptedEdits: false ] ].
+	self destroy: secondBrowser
 ]

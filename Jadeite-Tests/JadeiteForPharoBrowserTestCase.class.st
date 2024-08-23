@@ -63,19 +63,6 @@ JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
 		in: self classListPresenter
 ]
 
-{ #category : 'support' }
-JadeiteForPharoBrowserTestCase >> tearDown [
-
-	super tearDown.
-	secondBrowser ifNotNil: [ :two |
-		two methodSourcePresenter adapter widget hasUnacceptedEdits: false ].
-	self destroy: secondBrowser.
-	projectsBrowser ifNotNil: [
-		self projectsPresenter methodSourcePresenter adapter ifNotNil: [ :a |
-			a widget hasUnacceptedEdits: false ] ].
-	self destroy: projectsBrowser
-]
-
 { #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 

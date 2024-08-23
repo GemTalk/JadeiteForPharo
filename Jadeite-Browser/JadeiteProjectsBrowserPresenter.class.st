@@ -36,21 +36,6 @@ JadeiteProjectsBrowserPresenter >> addPackageDictionaryInfoTo: aStream [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> addSubclass [
-
-	| classService answerService |
-	classService := self selectedClass ifNil: [ ^ self ].
-	classService
-		command: #subclassCreationTemplate;
-		commandArgs: Array new.
-	answerService := (self issueCommand: classService onCompletion: nil)
-		                 first.
-	classDefinitionPresenter
-		ensureVisible;
-		value: answerService answer
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> allClasses [
 
 	| browserService |

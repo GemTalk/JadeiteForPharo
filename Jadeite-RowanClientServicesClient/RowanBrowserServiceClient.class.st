@@ -3,11 +3,31 @@ Class {
 	#superclass : 'RowanBrowserService',
 	#instVars : [
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'compileErrorHandler'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanBrowserServiceClient >> compileErrorHandler [
+
+	^ compileErrorHandler
+]
+
+{ #category : 'accessing' }
+RowanBrowserServiceClient >> compileErrorHandler: anObject [
+
+	compileErrorHandler := anObject
+]
+
+{ #category : 'actions' }
+RowanBrowserServiceClient >> handleCompileError: compileError [
+
+	compileErrorHandler ifNotNil: [
+		compileErrorHandler value: compileError ]
+]
 
 { #category : 'accessing' }
 RowanBrowserServiceClient >> inCommand [

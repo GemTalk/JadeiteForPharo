@@ -200,6 +200,23 @@ JadeiteBrowserPresenter >> addStyle: aString [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> addSubclass [
+
+	| classService answeringService |
+	classService := self selectedClass ifNil: [ ^ self ].
+	classService
+		command: #subclassCreationTemplate;
+		commandArgs: Array new.
+	self issueCommand: classService onCompletion: nil.
+	answeringService := RowanServiceUpdater current updates detect: [ :ea |
+		                    ea isAnsweringService ].
+	self selectClassDefinitionTab.
+	classDefinitionPresenter
+		value: answeringService answer;
+		hasUnacceptedEdits: true
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> addSystemBrowser [
 	| browser position |
 	position := self topShell view position.	"don't let default position takeover when adding tab"
@@ -1018,7 +1035,9 @@ JadeiteBrowserPresenter >> editSaveClass [
 	browserService := RowanBrowserService new.
 	browserService
 		command: #compileClass:;
-		commandArgs: (Array with: classDefinitionPresenter text asString).
+		commandArgs: (Array with: classDefinitionPresenter text asString);
+		compileErrorHandler: [ :ex |
+			self classDefinitionPresenter reportCompileError: ex gsArguments ].
 	self selectedClass ifNotNil: [ :classService |
 		browserService selectedClass: classService name ].
 	[

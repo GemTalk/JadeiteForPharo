@@ -23,13 +23,6 @@ JadeiteSUnitSupportTestCase >> aggressivelyCleanupRowanProject: projectName [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> assertClassInList: name [
-	self denyIsNil: (sunitBrowser primaryPresenter classListPresenter list
-				detect: [:classService | classService name = name]
-				ifNone: [])
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> assertMenuItem: command isEnabled: boolean [
 	| commandQuery |
 	commandQuery := self
@@ -37,13 +30,6 @@ JadeiteSUnitSupportTestCase >> assertMenuItem: command isEnabled: boolean [
 				inPresenter: self projectsPresenter
 				view: self dictionaryPresenter view.
 	boolean ifTrue: [self assert: commandQuery isEnabled] ifFalse: [self deny: commandQuery isEnabled]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> denyClassInList: name [
-	self assertIsNil: (sunitBrowser primaryPresenter classListPresenter list
-				detect: [:classService | classService name = name]
-				ifNone: [])
 ]
 
 { #category : 'as yet unclassified' }
@@ -100,49 +86,6 @@ JadeiteSUnitSupportTestCase >> setUp [
 	super setUp.
 	sunitBrowser := self openWindow: [transcript jadeBrowseTests].
 	transcript projectListPresenter refresh
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> setupAbstractSuperWithTest [
-	"setup abstract super class with single test + 2 subclasses"
-
-	| source |
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
-	self
-		saveClass: 'JadeiteTest'
-		superclass: 'TestCase'
-		instVars: #(  )
-		package: 'RowanSample1-Tests'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self packageListPresenter.
-	self selectServiceNamed: 'JadeiteTest' in: self classListPresenter.
-	self projectsPresenter selectClassTab.
-	source := 'isAbstract
-		^self name = #JadeiteTest'.
-	self methodSourcePresenter value: source.
-	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
-		onCompletion: nil.
-	self selectInstanceSide.
-	source := 'test_className
-		"fail in one subclass only" 
-		self assert: self class name = #JadeiteTestSubclass1'.
-	self methodSourcePresenter value: source.
-	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
-		onCompletion: nil.
-	self
-		saveClass: 'JadeiteTestSubclass1'
-		superclass: 'JadeiteTest'
-		instVars: #(  )
-		package: 'RowanSample1-Tests'.
-	self
-		saveClass: 'JadeiteTestSubclass2'
-		superclass: 'JadeiteTest'
-		instVars: #(  )
-		package: 'RowanSample1-Tests'
 ]
 
 { #category : 'as yet unclassified' }
@@ -229,84 +172,7 @@ JadeiteSUnitSupportTestCase >> tearDown [
 	projectsBrowser ifNotNil: [self destroy: projectsBrowser]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_abstractTestAppearsOnlyInSubclasses [
-	| subclass1MethodService subclass2MethodService classNames |
-	self testsIssue: #issue755
-		withTitle: 'SUnit browser runs test in abstract test class if more than one test class selected'.
-	self testsIssue: #issue756
-		withTitle: 'SUnit Browser does not handle duplicated test method selectors well'.
-	self setupAbstractSuperWithTest.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	classNames := self sunitPresenter classListPresenter list
-				collect: [:classService | classService name].
-	self assert: (classNames includes: 'JadeiteTestSubclass1').
-	self assert: (classNames includes: 'JadeiteTestSubclass2').
-	self deny: (classNames includes: 'JadeiteTest').
-	self selectServicesNamed: #('JadeiteTestSubclass1' 'JadeiteTestSubclass2')
-		in: self sunitPresenter classListPresenter.
-	subclass1MethodService := self sunitPresenter methodListPresenter list detect: 
-					[:methodService |
-					methodService selector = #test_className and: [methodService className = 'JadeiteTestSubclass1']]
-				ifNone: [].
-	self denyIsNil: subclass1MethodService.
-	subclass2MethodService := self sunitPresenter methodListPresenter list detect: 
-					[:methodService |
-					methodService selector = #test_className and: [methodService className = 'JadeiteTestSubclass2']]
-				ifNone: [].
-	self denyIsNil: subclass2MethodService.
-	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-	self assert: subclass1MethodService testResult equals: #passed.
-	self assert: subclass2MethodService testResult equals: #failure
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_addNewNonTestClassDoesNotGetAdded [
-
-	self
-		testsIssue: #issue879
-		withTitle: 'Removing class does not remove class from sunit browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
-	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
-	self selectRowanSample1Test.
-	self denyClassInList: 'NewSubclass'.
-	self
-		saveClass: 'NewNonTestClass'
-		withInstVars: #( 'abc' )
-		package: 'RowanSample1-Tests'.
-	[ self denyClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ].
-	self denyClassInList: 'NewSubclass'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_addNewTestClass [
-
-	self
-		testsIssue: #issue879
-		withTitle: 'Removing class does not remove class from sunit browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
-	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
-	self selectRowanSample1Test.
-	self projectsPresenter addSubclass.
-	self projectsPresenter editSaveClass.
-	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ].
-	self denyClassInList: 'NewSubclass'
-]
-
-{ #category : 'as yet unclassified' }
+{ #category : 'not ready for porting to pharo' }
 JadeiteSUnitSupportTestCase >> test_addNewTestPackage [
 	"test package should show up when test method is added"
 

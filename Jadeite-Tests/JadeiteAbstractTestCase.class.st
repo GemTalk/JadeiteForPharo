@@ -1114,6 +1114,16 @@ JadeiteAbstractTestCase >> switchTransactionModeTo: aSymbol [
 		self testResourceClass current switchTransactionModeTo: aSymbol ]
 ]
 
+{ #category : 'support' }
+JadeiteAbstractTestCase >> tearDown [
+
+	super tearDown.
+	projectsBrowser ifNotNil: [
+		self projectsPresenter methodSourcePresenter adapter ifNotNil: [ :a |
+			a widget hasUnacceptedEdits: false ] ].
+	self destroy: projectsBrowser
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> testResourceClass [
 	^ self class testResourceClass
