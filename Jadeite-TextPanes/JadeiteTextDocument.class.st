@@ -95,7 +95,7 @@ JadeiteTextDocument class >> open: filename onSession: aGciSession [
 	openFilename := filename.
 	openFilename isNil ifTrue: [^nil].
 	workspace := (self showOnSession: aGciSession).
-	workspace text: ((FileSystem disk open: filename writable: false) reference readStream) contents.
+	workspace text: ((FileSystem disk open: filename writable: false) reference readStream) contents replaceOSLineEndingWithLf.
 	workspace hasUnacceptedEdits: false. 
 	^workspace
 ]

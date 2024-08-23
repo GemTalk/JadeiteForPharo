@@ -49,6 +49,14 @@ String >> replaceCrWithLf [
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
+String >> replaceLfWith: lineEndingString [
+
+	^ self
+		  copyReplaceAll: Character lf asString
+		  with: lineEndingString
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
 String >> replaceLfWithCr [
 
 	^self 
@@ -62,6 +70,14 @@ String >> replaceLfWithCrLf [
 	^self 
 		copyReplaceAll: Character lf asString 
 		with: Character cr asString , Character lf asString.
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
+String >> replaceOSLineEndingWithLf [
+
+	^ self
+		  copyReplaceAll: OSPlatform current lineEnding
+		  with: Character lf asString
 ]
 
 { #category : '*Jadeite-BaseExtensions' }

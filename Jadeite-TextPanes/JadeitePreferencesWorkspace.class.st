@@ -22,7 +22,8 @@ JadeitePreferencesWorkspace class >> browseJadeitePrefs: session [
 			              writeStream.
 		[
 		fileStream
-			nextPutAll: JadeitePreferences preferencesFileDefaultContents;
+			nextPutAll: JadeitePreferences preferencesFileDefaultContents
+					replaceOSLineEndingWithLf;
 			flush ] ensure: [ fileStream close ] ].
 	^ (self open: path onSession: session) caption:
 		  'Jadeite Preferences File: ' , path
@@ -82,6 +83,13 @@ JadeitePreferencesWorkspace >> resetPreferences [
 { #category : 'actions' }
 JadeitePreferencesWorkspace >> saveFile [
 
-	self writeDocumentTo: JadeitePreferences preferencesPath.
+	| fileReference ws |
+	fileReference := JadeitePreferences preferencesPath asFileReference.
+	ws := fileReference writeStream.
+	[
+	ws nextPutAll:
+		(codePane text replaceLfWith: OSPlatform current lineEnding) ]
+		ensure: [ ws close ].
+	codePane hasUnacceptedEdits: false.
 	MessageBox notify: 'Jadeite.prefs file written to working directory'
 ]

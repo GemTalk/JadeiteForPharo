@@ -124,3 +124,11 @@ JadeiteMorphicCodeAdapter >> setSyntaxHighlightThemeFor: textArea [
 		styler: (JadeiteCodeTextStyler newWithAttributeTableNamed: theme);
 		refreshStyling
 ]
+
+{ #category : 'private' }
+JadeiteMorphicCodeAdapter >> setText: text to: aWidget [
+
+	[ super setText: text to: aWidget ]
+		on: Error
+		do: [ :ex | ex traceCr , 'in SpMorphicTextAdapter>>#setText:to:' ]
+]
