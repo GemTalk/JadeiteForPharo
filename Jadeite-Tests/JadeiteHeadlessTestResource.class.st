@@ -14,7 +14,7 @@ JadeiteHeadlessTestResource >> basicUnloadProject: projectName [
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService onCompletion: nil
+	self issueCommand: browserService onCompletion: [  ]
 ]
 
 { #category : 'support' }
@@ -64,4 +64,11 @@ JadeiteHeadlessTestResource >> reset [
 JadeiteHeadlessTestResource >> setUp [
 
 	self ensureLoggedIn
+]
+
+{ #category : 'support' }
+JadeiteHeadlessTestResource >> tearDown [
+
+	self connectionProfile isConnected ifTrue: [
+		self connectionProfile disconnect ].
 ]

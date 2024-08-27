@@ -116,9 +116,9 @@ GciSession >> isValidSession [
 ]
 
 { #category : 'actions' }
-GciSession >> issueCommand: service onCompletion: anObject [
+GciSession >> issueCommand: service onCompletion: completionBlock [
 
-	RowanServiceUpdater current issueCommand: service session: self
+	RowanServiceUpdater current issueCommand: service session: self onCompletion: completionBlock 
 ]
 
 { #category : 'accessing' }

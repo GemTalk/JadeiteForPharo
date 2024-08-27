@@ -839,7 +839,8 @@ RowanService >> terminate: process error: value [
 		[ UIManager default terminateUIProcess ] ensure: [
 			UIManager default spawnNewProcess.
 			value class = RsrConnectionClosedBeforeReceivingResponse ifTrue: [
-				JadeiteConnectionProfile connectionProfile disconnect ] ] ]
+				JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
+					:conn | conn disconnect ] ] ] ]
 ]
 
 { #category : 'printing' }

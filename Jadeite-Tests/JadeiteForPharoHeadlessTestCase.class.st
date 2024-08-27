@@ -21,25 +21,21 @@ JadeiteForPharoHeadlessTestCase class >> testResourceClass [
 ]
 
 { #category : 'support' }
+JadeiteForPharoHeadlessTestCase >> performTest [
+
+	RowanServiceUpdater current critical: [ super performTest ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> resourceConnectionProfile [
 
 	^ self testResourceClass current connectionProfile
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> runCaseManaged [
-	"In order to preserve RSR connections across test boundaries
-	(to speed up the tests and expose bugs) we can't let the 
-	watchdog loose. The watchdog is started by the test execution process"
-
-	^DefaultExecutionEnvironment beActiveDuring: [ self runCase]
-]
-
-{ #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> setUp [
 
 	self closeConnectionLaunchers.
-	RsrGarbageCollector maximumReclamation.
 	self resourceConnectionProfile reconnectIfNecessary.
 ]
 
@@ -50,13 +46,13 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 	service := RowanAnsweringService new
 		           exec: 'UserGlobals at: #jadeite_test_abort put: true'
 		           in: GciSession current
-		           onCompletion: nil.
+		           onCompletion: [  ].
 	service := RowanAnsweringService new
 		           command: #execReturningObject:;
 		           commandArgs:
 			           (Array with:
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
-	GciSession current issueCommand: service onCompletion: nil.
+	GciSession current issueCommand: service onCompletion: [  ].
 	self assert: service answer.
 	(JadeiteApplication new gciSession: GciSession current)
 		abortTransaction.
@@ -65,8 +61,8 @@ JadeiteForPharoHeadlessTestCase >> test_abort [
 		           commandArgs:
 			           (Array with:
 					            'UserGlobals at: #jadeite_test_abort ifAbsent: [false]').
-	GciSession current issueCommand: service onCompletion: nil.
-	self deny: service answer
+	GciSession current issueCommand: service onCompletion: [  ].
+	self deny: service answer.
 ]
 
 { #category : 'tests' }
@@ -197,7 +193,7 @@ JadeiteForPharoHeadlessTestCase >> test_serviceUpdater [
 		               command: #isClassService
 		               withArgs: Array new.
 	self assert: oc isEmpty.
-	GciSession current issueCommand: testService onCompletion: nil.
+	GciSession current issueCommand: testService onCompletion: [].
 	self assert: oc first equals: #testServiceUpdate: ] ensure: [
 		RowanServiceUpdater current removeEventsTriggeredFor: oc "in theory, this eventually goes away on it's own" ].
 	oc := nil.
@@ -221,7 +217,7 @@ JadeiteForPharoHeadlessTestCase >> test_updates [
 	service := RowanQueryService
 		           command: #implementorsOf:
 		           withArgs: (Array with: #size).
-	GciSession current issueCommand: service onCompletion: nil.
+	GciSession current issueCommand: service onCompletion: [].
 	self assert: service returnedServices first identicalTo: service.
 	self assert: service updates notEmpty.
 	service updates do: [ :theUpdate |

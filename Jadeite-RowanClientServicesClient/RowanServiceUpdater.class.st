@@ -275,7 +275,7 @@ RowanServiceUpdater >> isLogging: boolean [
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session [
 
-	^ self issueCommand: service session: session onCompletion: nil
+	^ self issueCommand: service session: session onCompletion: [  ]
 ]
 
 { #category : 'commands' }

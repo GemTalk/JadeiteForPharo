@@ -207,7 +207,7 @@ JadeiteBrowserPresenter >> addSubclass [
 	classService
 		command: #subclassCreationTemplate;
 		commandArgs: Array new.
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [].
 	answeringService := RowanServiceUpdater current updates detect: [ :ea |
 		                    ea isAnsweringService ].
 	self selectClassDefinitionTab.
@@ -1061,7 +1061,7 @@ JadeiteBrowserPresenter >> editSaveClassComment [
 		command: #classComment:;
 		commandArgs:
 			(Array with: classCommentPresenter text asString trimBoth).
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [].
 	self refreshFromServer.
 	classCommentPresenter view isModified: false.
 	self todo: [

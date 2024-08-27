@@ -269,7 +269,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
 		saveMethod: 'test_blah'
 		category: 'tests'
 		session: session
-		onCompletion: nil.
+		onCompletion: [].
 	self assertPackageInList: packageName.
 	self
 		selectServiceNamed: packageName

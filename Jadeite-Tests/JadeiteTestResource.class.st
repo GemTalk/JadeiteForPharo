@@ -71,7 +71,7 @@ JadeiteTestResource >> cloneRowanSample1 [
 		RowanServiceUpdater current
 			issueCommand: service
 			session: GciSession current
-			onCompletion: nil ]
+			onCompletion: [  ] ]
 ]
 
 { #category : 'support' }
@@ -136,17 +136,17 @@ JadeiteTestResource >> disableInteractionsWhile: block [
 	answeringService
 		command: #interactionHandlerActive;
 		commandArgs: Array new.
-	self issueCommand: answeringService onCompletion: nil.
+	self issueCommand: answeringService onCompletion: [].
 	wasEnabled := answeringService answer.
 	answeringService
 		command: #setEnableInteractionHandler:;
 		commandArgs: (Array with: false).
-	self issueCommand: answeringService onCompletion: nil.
+	self issueCommand: answeringService onCompletion: [].
 	[ block value ] ensure: [
 		answeringService
 			command: #setEnableInteractionHandler:;
 			commandArgs: (Array with: wasEnabled).
-		self issueCommand: answeringService onCompletion: nil ]
+		self issueCommand: answeringService onCompletion: [  ] ]
 ]
 
 { #category : 'projects loading' }
@@ -242,7 +242,7 @@ JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHom
 	RowanServiceUpdater current
 		issueCommand: projectService
 		session: self session
-		onCompletion: nil
+		onCompletion: [ ]
 ]
 
 { #category : 'support' }
@@ -330,7 +330,7 @@ JadeiteTestResource >> refreshGlobalSelections [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
-		onCompletion: nil.
+		onCompletion: [].
 	self updateServices: RowanServiceUpdater current selectedServices
 ]
 
@@ -436,6 +436,7 @@ JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 JadeiteTestResource >> tearDown [
 
 	super tearDown.
+	GciSession current isValidSession ifFalse:[^self]. 
 	self transcript ifNotNil: [ :console |
 		console
 			basicUnloadProjects: (Array with: self sampleProject1Name)

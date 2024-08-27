@@ -206,7 +206,7 @@ JadeiteDebuggerPresenter >> displayVariables: selectedFrame [
 		ifTrue: 
 			[displayVariables add: (RowanDisplayLabelVariableService new value: 'args and temps').
 			displayVariables addAll: argsAndTemps].
-	variableListPresenter items: displayVariables] on: Error do:[:ex | Transcript cr; show: ex printString; flush]. 
+	variableListPresenter items: displayVariables] on: Error do:[:ex | Transcript cr; show: 'JadeiteDebuggerPresenter>>#displayVariables: got an error - ', ex printString; flush]. 
 ]
 
 { #category : 'actions' }

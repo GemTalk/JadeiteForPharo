@@ -355,7 +355,7 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 				 with: componentNames
 				 with: attributes
 				 with: resolveStrict).
-	self issueCommand: projectService onCompletion: nil
+	self issueCommand: projectService onCompletion: [  ]
 ]
 
 { #category : 'actions' }

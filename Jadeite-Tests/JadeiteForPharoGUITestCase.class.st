@@ -51,15 +51,6 @@ JadeiteForPharoGUITestCase >> displayAndPrint [
 	self dismissPopoverAndPrint
 ]
 
-{ #category : 'running' }
-JadeiteForPharoGUITestCase >> runCaseManaged [
-	"In order to preserve RSR connections across test boundaries
-	(to speed up the tests and expose bugs) we can't let the 
-	watchdog loose. The watchdog is started by the test execution process"
-
-	^DefaultExecutionEnvironment beActiveDuring: [ self runCase]
-]
-
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> tearDown [
 	super tearDown.

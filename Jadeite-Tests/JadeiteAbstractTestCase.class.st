@@ -779,7 +779,7 @@ JadeiteAbstractTestCase >> saveMethod: source in: className category: category m
 		saveMethod: source
 		category: category
 		session: session
-		onCompletion: nil.
+		onCompletion: [].
 	^ classService
 ]
 

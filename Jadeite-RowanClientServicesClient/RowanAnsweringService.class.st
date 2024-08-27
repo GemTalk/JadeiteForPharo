@@ -91,7 +91,7 @@ RowanAnsweringService >> execReturningObject: string in: session [
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: [  ]
 ]
 
 { #category : 'commands' }
