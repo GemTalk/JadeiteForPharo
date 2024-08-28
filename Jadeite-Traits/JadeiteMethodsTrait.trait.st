@@ -502,7 +502,7 @@ JadeiteMethodsTrait >> fileoutMethods [
 	| service fileService filePath |
 	RowanServiceUpdater current critical: [
 		service := self selectedMethods.
-		filePath := self fileoutFileSelection: 'methods.gs'. self halt. 
+		filePath := self fileoutFileSelection: 'methods.gs'.
 		filePath ifNotNil: [
 			fileService := RowanFileService new path: filePath.
 			fileService

@@ -364,7 +364,7 @@ JadeiteInspector >> executeThenInspect: aString inContext: context onCompletion:
 		session: gciSession
 		windowHandle: window identityHash
 		onCompletion: [ :service |
-			completionBlock value: service.
+			completionBlock cull: service.
 			service oop ifNotNil: [ self show: window on: service ] ]
 ]
 

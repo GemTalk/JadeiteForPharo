@@ -37,6 +37,32 @@ RowanFileServiceClient >> isDirectory: directory [
 	^answer
 ]
 
+{ #category : 'commands' }
+RowanFileServiceClient >> isDirectory: directory onCompletion: completionBlock [
+
+	command := #isDirectory:.
+	commandArgs := Array with: path , '/' , directory.
+	self issueFileServiceCommandOnCompletion: completionBlock.
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> issueFileServiceCommand [
+
+	RowanServiceUpdater current
+		issueCommand: self
+		session: self session
+		onCompletion: [  ]
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
+
+	RowanServiceUpdater current
+		issueCommand: self
+		session: self session
+		onCompletion: completionBlock
+]
+
 { #category : 'accessing' }
 RowanFileServiceClient >> path [
 	^path

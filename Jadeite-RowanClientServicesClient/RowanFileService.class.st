@@ -90,11 +90,6 @@ RowanFileService >> isDirectory [
 ]
 
 { #category : 'commands' }
-RowanFileService >> issueFileServiceCommand [
-	RowanServiceUpdater current issueCommand: self session: self session onCompletion: [  ]
-]
-
-{ #category : 'commands' }
 RowanFileService >> parentDirectoryPath [
 
 	command := #parentDirectoryPath.

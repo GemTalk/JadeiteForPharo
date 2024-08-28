@@ -88,8 +88,10 @@ JadeiteServerFileSelectorDialog >> gciSession: aSession [
 
 { #category : 'initialization' }
 JadeiteServerFileSelectorDialog >> initializePresenters [
+
 	super initializePresenters.
-	fileSelectorPresenter := JadeiteServerFileSelectorPresenter new. 
+	fileSelectorPresenter := JadeiteServerFileSelectorPresenter new
+		                         gciSession: gciSession.
 	self layout add: fileSelectorPresenter
 ]
 

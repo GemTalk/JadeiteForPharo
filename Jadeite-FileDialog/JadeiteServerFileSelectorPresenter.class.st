@@ -37,16 +37,21 @@ JadeiteServerFileSelectorPresenter >> directoryContentsList [
 
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> dive [
-	(fileService isDirectory: directoryContentsList selectedItem key)
-		ifTrue: 
-			[| directoryName |
-			directoryName := directoryContentsList selectedItem key.
-			directoryName = '..' ifTrue: [^self pop].
-			directoryName = '.'
-				ifFalse: [pathText text: pathText text , '/' , directoryContentsList selectedItem key].
-			fileService path: pathText text.
-			self showDirectoryContents]
-		ifFalse: [self window triggerOkAction]
+
+	fileService
+		isDirectory: directoryContentsList selectedItem key
+		onCompletion: [ :service |
+			service answer
+				ifTrue: [
+					| directoryName |
+					directoryName := directoryContentsList selectedItem key.
+					directoryName = '..' ifTrue: [ ^ self pop ].
+					directoryName = '.' ifFalse: [
+						pathText text:
+							pathText text , '/' , directoryContentsList selectedItem key ].
+					fileService path: pathText text.
+					self showDirectoryContents ]
+				ifFalse: [ self window triggerOkAction ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -63,7 +68,8 @@ JadeiteServerFileSelectorPresenter >> fileService [
 { #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> fileService: anObject [
 
-	fileService := anObject
+	fileService := anObject. 
+	fileService session: gciSession
 ]
 
 { #category : 'as yet unclassified' }
@@ -205,7 +211,7 @@ JadeiteServerFileSelectorPresenter >> setPath: path [
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> showDirectoryContents [
 
-	fileService := RowanFileService new.
+	fileService := RowanFileService new session: self gciSession.
 	fileService
 		command: #directoryContents;
 		commandArgs: Array new;

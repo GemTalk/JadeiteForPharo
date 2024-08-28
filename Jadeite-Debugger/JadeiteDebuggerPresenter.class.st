@@ -152,7 +152,7 @@ JadeiteDebuggerPresenter >> defaultLayout [
 	^SpBoxLayout newVertical
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteDebuggerPresenter >> displayBreakpoints [
 	| methodService | 
 	methodService := self frameListPresenter selectedItem method. 
@@ -167,7 +167,7 @@ JadeiteDebuggerPresenter >> displayBreakpoints [
 				 interval: range) ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteDebuggerPresenter >> displayMethodSourceStepPoints [
 
 	| methodService |
