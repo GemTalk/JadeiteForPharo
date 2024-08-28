@@ -34,8 +34,7 @@ JadeiteHeadlessTestResource >> ensureLoggedIn [
 { #category : 'testing' }
 JadeiteHeadlessTestResource >> isAvailable [
 
-	self ensureLoggedIn. 
-	^ self isConnected
+	^true
 ]
 
 { #category : 'testing' }
@@ -47,10 +46,11 @@ JadeiteHeadlessTestResource >> isConnected [
 { #category : 'support' }
 JadeiteHeadlessTestResource >> login [
 
-	GciSession current library: self connectionProfile connect.
-	self
-		basicUnloadProject: self sampleProject1Name;
-		createRowanSample1Project
+	RowanServiceUpdater current critical: [
+		GciSession current library: self connectionProfile connect.
+		self
+			basicUnloadProject: self sampleProject1Name;
+			createRowanSample1Project ]
 ]
 
 { #category : 'support' }
@@ -62,13 +62,13 @@ JadeiteHeadlessTestResource >> reset [
 
 { #category : 'support' }
 JadeiteHeadlessTestResource >> setUp [
-
-	self ensureLoggedIn
+	self closeConnectionLaunchers. 
+	self ensureLoggedIn.
 ]
 
 { #category : 'support' }
 JadeiteHeadlessTestResource >> tearDown [
 
 	self connectionProfile isConnected ifTrue: [
-		self connectionProfile disconnect ].
+		self connectionProfile disconnect ]
 ]

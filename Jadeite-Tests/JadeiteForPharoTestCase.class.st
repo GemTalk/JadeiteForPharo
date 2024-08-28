@@ -14,11 +14,7 @@ JadeiteForPharoTestCase class >> defaultTimeLimit [
 { #category : 'support' }
 JadeiteForPharoTestCase >> closeConnectionLaunchers [ 
 
-	JadeiteConnectionLauncher allInstances do: [ :launcher |
-		| profile |
-		profile := launcher connectionProfile.
-		profile isConnected ifTrue: [ profile disconnect ].
-		self destroy: launcher ].
+	self testResourceClass current closeConnectionLaunchers
 ]
 
 { #category : 'running' }

@@ -90,8 +90,8 @@ JadeiteGCIConnectionProfile >> connect [
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace."
 	"Uncomment following two lines to enable jadeite tracing"
-	RowanServiceUpdater current isLogging: true.
-	RowanServiceUpdater current logComment: 'Connection established!'.
+	"RowanServiceUpdater current isLogging: true.
+	RowanServiceUpdater current logComment: 'Connection established!'."
 	^ connection
 ]
 

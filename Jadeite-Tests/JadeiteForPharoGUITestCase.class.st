@@ -52,6 +52,14 @@ JadeiteForPharoGUITestCase >> displayAndPrint [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> setUp [
+
+	super setUp.
+	JadeiteConnectionLauncher allInstances isEmpty ifTrue: [
+		JadeiteConnectionApplication new start ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> tearDown [
 	super tearDown.
 	workspace

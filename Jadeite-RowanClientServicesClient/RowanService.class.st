@@ -567,6 +567,12 @@ RowanService >> name [
 RowanService >> newProject: presenter [
 ]
 
+{ #category : 'testing' }
+RowanService >> notInCompletionBlock [
+
+	^true 
+]
+
 { #category : 'displaying' }
 RowanService >> notRowanizedPackageName [
 	^self class notRowanizedPackageName

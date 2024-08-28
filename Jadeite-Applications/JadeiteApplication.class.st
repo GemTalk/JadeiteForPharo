@@ -28,10 +28,13 @@ JadeiteApplication class >> abortTransactionInSession: session [
 		issueCommand: browserService
 		session: session
 		onCompletion: [
-			self setInTransaction: RowanAnsweringService new session: session.
-			JadePresenter trigger: #abortedTransaction.
-			UIManager default inform: 'Abort succeeded'.
-			JadeiteSound informationBeep ]
+			self
+				setInTransaction: RowanAnsweringServiceClient newInCompletionBlock
+				session: session
+				onCompletion: [
+					JadePresenter trigger: #abortedTransaction.
+					UIManager default inform: 'Abort succeeded'.
+					JadeiteSound informationBeep ] ]
 ]
 
 { #category : 'constants' }
@@ -91,13 +94,14 @@ JadeiteApplication class >> openOn: aSymbol [
 ]
 
 { #category : 'added manually from Dolphin' }
-JadeiteApplication class >> setInTransaction: answeringService session: session [
+JadeiteApplication class >> setInTransaction: answeringService session: session onCompletion: completionBlock [
 
 	answeringService
 		exec: 'System inTransaction'
 		in: session
 		onCompletion: [
-		self inTransaction: answeringService answer = 'true' ]
+		self inTransaction: answeringService answer = 'true'. 
+		completionBlock value ]
 ]
 
 { #category : 'instance creation' }
@@ -127,11 +131,12 @@ JadeiteApplication >> abortTransaction [
 		session: gciSession
 		onCompletion: [
 			self
-				setInTransaction: RowanAnsweringService new
-				session: gciSession.
-			self triggerEvent: #abortedTransaction.
-			UIManager default inform: 'Abort succeeded'.
-			JadeiteSound informationBeep ]
+				setInTransaction: RowanAnsweringServiceClient newInCompletionBlock
+				session: gciSession
+				onCompletion: [
+					self triggerEvent: #abortedTransaction.
+					UIManager default inform: 'Abort succeeded'.
+					JadeiteSound informationBeep ] ]
 ]
 
 { #category : 'constants' }
@@ -237,8 +242,12 @@ JadeiteApplication >> registerBrowserEventsFor: browserPresenter [
 ]
 
 { #category : 'added manually from Dolphin' }
-JadeiteApplication >> setInTransaction: answeringService session: session [
-	^self class setInTransaction: answeringService session: session
+JadeiteApplication >> setInTransaction: answeringService session: session onCompletion: completionBlock [
+
+	^ self class
+		  setInTransaction: answeringService
+		  session: session
+		  onCompletion: completionBlock
 ]
 
 { #category : 'actions' }

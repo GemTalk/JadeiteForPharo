@@ -55,7 +55,6 @@ JadeiteForPharoSUnitBrowserTestCase >> setUp [
 
 	super setUp. 
 	sunitBrowser := self openSUnitBrowser. 
-	sunitBrowser identityHash traceCr. 
 ]
 
 { #category : 'support' }

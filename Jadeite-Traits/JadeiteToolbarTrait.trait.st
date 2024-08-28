@@ -184,7 +184,6 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 			initialize.
 		inst open.
 		inst addStyle: 'jadeWorkspace'.
-		inst identityHash traceCr.
 		^inst ]
 ]
 

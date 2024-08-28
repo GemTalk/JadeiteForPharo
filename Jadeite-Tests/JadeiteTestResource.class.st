@@ -75,6 +75,16 @@ JadeiteTestResource >> cloneRowanSample1 [
 ]
 
 { #category : 'support' }
+JadeiteTestResource >> closeConnectionLaunchers [ 
+
+	JadeiteConnectionLauncher allInstances do: [ :launcher |
+		| profile |
+		profile := launcher connectionProfile.
+		profile isConnected ifTrue: [ profile disconnect ].
+		self destroy: launcher ].
+]
+
+{ #category : 'support' }
 JadeiteTestResource >> closeTranscript: aTranscript [
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #no.	"closing the transcript will logout the session. don't commit"

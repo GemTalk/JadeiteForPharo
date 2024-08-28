@@ -35,6 +35,7 @@ Class {
 
 { #category : 'accessing' }
 GciSession class >> clearCurrent [
+	"self clearCurrent"
 	Current ifNotNil: [ :session |
 		session autoCommit: nil]. 
 	Current := nil 

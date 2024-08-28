@@ -3,11 +3,18 @@ Class {
 	#superclass : 'RowanAnsweringService',
 	#instVars : [
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'inCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'instance creation' }
+RowanAnsweringServiceClient class >> newInCompletionBlock [
+
+	^ self new inCompletionBlock: true
+]
 
 { #category : 'accessing' }
 RowanAnsweringServiceClient >> inCommand [
@@ -19,6 +26,31 @@ RowanAnsweringServiceClient >> inCommand [
 RowanAnsweringServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
+]
+
+{ #category : 'accessing' }
+RowanAnsweringServiceClient >> inCompletionBlock [
+
+	^ inCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanAnsweringServiceClient >> inCompletionBlock: anObject [
+
+	inCompletionBlock := anObject
+]
+
+{ #category : 'initialization' }
+RowanAnsweringServiceClient >> initialize [
+
+	super initialize.
+	inCompletionBlock := false
+]
+
+{ #category : 'testing' }
+RowanAnsweringServiceClient >> notInCompletionBlock [
+
+	^ self inCompletionBlock not
 ]
 
 { #category : 'accessing' }

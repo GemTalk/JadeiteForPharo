@@ -27,16 +27,16 @@ JadeiteForPharoHeadlessTestCase >> performTest [
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> resourceConnectionProfile [
-
-	^ self testResourceClass current connectionProfile
+JadeiteForPharoHeadlessTestCase >> setUp [
+	self closeConnectionLaunchers. 
+	JadeiteConnectionProfile connectionProfile disconnect. 
+	JadeiteConnectionProfile connectionProfile connect.
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> setUp [
+JadeiteForPharoHeadlessTestCase >> tearDown [ 
 
-	self closeConnectionLaunchers.
-	self resourceConnectionProfile reconnectIfNecessary.
+	JadeiteConnectionProfile connectionProfile disconnect.
 ]
 
 { #category : 'tests' }
@@ -92,12 +92,12 @@ JadeiteForPharoHeadlessTestCase >> test_cleanUpServiceOnDisconnect [
 	service
 		command: #update;
 		commandArgs: Array new.
-	GciSession current issueCommand: service onCompletion: nil.
+	GciSession current issueCommand: service onCompletion: [].
 	"make sure a few random fields are filled in so we know the update succeeded"
 	self assert: service comment notEmpty.
 	self assert: service packageName equals: 'Rowan-Services-Core'.
 	self assert: service oop isInteger.
-	self resourceConnectionProfile disconnect.
+	JadeiteConnectionProfile connectionProfile disconnect.
 	1 to: RowanClassService instSize do: [ :index |
 	self assert: (service instVarAt: index) isNil ]
 ]
@@ -122,7 +122,7 @@ JadeiteForPharoHeadlessTestCase >> test_execution [
 
 	| service |
 	service := RowanAnsweringService new.
-	service exec: '3+4' in: GciSession current onCompletion: nil.
+	service exec: '3+4' in: GciSession current onCompletion: [].
 	self assert: service answer equals: '7'
 ]
 
@@ -140,22 +140,28 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	"will need customization if Jadeite for Pharo tests are ever run in github's CI space"
 
 	| service |
-	self resourceConnectionProfile isConnected ifTrue: [
-		self resourceConnectionProfile disconnect ].
-	self resourceConnectionProfile isGciConnection ifFalse: [ ^ self ].
-	self resourceConnectionProfile connect.
+	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
+		JadeiteConnectionProfile connectionProfile disconnect ].
+	JadeiteConnectionProfile connectionProfile isGciConnection ifFalse: [
+		^ self ].
+	JadeiteConnectionProfile connectionProfile connect.
 	[
-	self assert: self resourceConnectionProfile connection isOpen.
 	self assert:
-		(GsSession sessionIsValid: self resourceConnectionProfile session).
-	service := RowanAnsweringService new
-		           command: #execReturningObject:;
-		           commandArgs: (Array with: '3 + 4').
-	GciSession current issueCommand: service onCompletion: nil.
-	self assert: service answer equals: 7 ] ensure: [
-		self resourceConnectionProfile disconnect ].
-	self assert: self resourceConnectionProfile connection isNil.
-	self assert: self resourceConnectionProfile session isNil
+		JadeiteConnectionProfile connectionProfile connection isOpen.
+	self assert: (GsSession sessionIsValid:
+			 JadeiteConnectionProfile connectionProfile session).
+	"this test disconnects so we have to use the critical block with the new updater"
+	RowanServiceUpdater current critical: [
+		service := RowanAnsweringService new
+			           command: #execReturningObject:;
+			           commandArgs: (Array with: '3 + 4').
+		GciSession current
+			issueCommand: service
+			onCompletion: [ self assert: service answer equals: 7 ] ] ]
+		ensure: [ JadeiteConnectionProfile connectionProfile disconnect ].
+	self assert:
+		JadeiteConnectionProfile connectionProfile connection isNil.
+	self assert: JadeiteConnectionProfile connectionProfile session isNil
 ]
 
 { #category : 'tests' }
