@@ -100,20 +100,25 @@ JadeiteInspector >> basicAddObject: string [
 
 	| addedObject additionIndex newSelectionIndex |
 	additionIndex := (self indexedOffsetFromInstVarList:
-		                  instVarListPresenter selectionsByIndex) first.
+		                  instVarListPresenter selection selectedIndexes)
+		                 first.
 	model
 		command: #addObject:after:;
 		commandArgs: (Array with: string with: additionIndex).
-	self issueCommand: model onCompletion: nil.
-	addedObject := model objects
-		               detect: [ :assoc | assoc value = model selectionOop ]
-		               ifNone: [  ].
-	newSelectionIndex := model objects indexOf: addedObject.
-	newSelectionIndex := newSelectionIndex = 0
-		                     ifTrue: [
-			                     1 "might have inserted a string into another string so it won't find the object" ]
-		                     ifFalse: [ newSelectionIndex + 2 ].
-	self displayObjectSelecting: newSelectionIndex
+	RowanServiceUpdater current
+		issueCommand: model
+		session: self gciSession
+		onCompletion: [
+			addedObject := model objects
+				               detect: [ :array |
+				               array last = model selectionOop ]
+				               ifNone: [  ].
+			newSelectionIndex := model objects indexOf: addedObject.
+			newSelectionIndex := newSelectionIndex = 0
+				                     ifTrue: [
+					                     1 "might have inserted a string into another string so it won't find the object" ]
+				                     ifFalse: [ newSelectionIndex + 2 ].
+			self displayObjectSelecting: newSelectionIndex ]
 ]
 
 { #category : 'as yet unclassified' }

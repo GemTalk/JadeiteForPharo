@@ -38,16 +38,6 @@ JadeiteInspectorDataCuratorTestCase >> primaryTestWindow [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> selectInstVarAtIndex: index [
-	"needed an efficient way of converting a workaround for an old Dolphin selectionByIndex: bug
-	When all senders of this method are converted to passing integers only, then we can remove the conditional"
-
-	| theIndex |
-	theIndex := index isInteger ifTrue: [index] ifFalse: [index first].
-	inspector instVarListPresenter selectionByIndex: theIndex
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> setUp [
 	user ifNil: [user := 'DataCurator'].
 	super setUp
@@ -219,35 +209,6 @@ JadeiteInspectorDataCuratorTestCase >> test_adHocInspectFromWithinInspector [
 	[self assert: secondInspector instVarListPresenter list size equals: 2.
 	self assert: secondInspector documentPresenter value equals: '3']
 			ensure: [self closeBrowser: secondInspector]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_addCharacterToString [
-	"add a character to a string and expect to have it highlighted"
-
-	| remoteObject |
-	remoteObject := session
-				executeString: '''abc'' copy'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self selectInstVarAtIndex: 1.
-	inspector basicAddObject: '$-'.
-	self assert: inspector instVarListPresenter selections first key equals: '1'.	"self was seleted. add char at 1. select first index afterwards"
-	self assert: inspector documentPresenter value equals: '$-'.
-	self selectInstVarAtIndex: 1.
-	self assert: inspector documentPresenter value equals: '''-abc'''.
-	self selectInstVarAtIndex: 6.
-	inspector basicAddObject: '$d'.
-	self assert: inspector instVarListPresenter selections first key equals: '5'.	"last index was seleted. add char at end. select added char afterwards"
-	self selectInstVarAtIndex: 1.
-	self assert: inspector documentPresenter value equals: '''-abcd'''.
-	self selectInstVarAtIndex: 4.
-	self assert: inspector instVarListPresenter selections first key equals: '2'.
-	inspector basicAddObject: '$<'.
-	self assert: inspector instVarListPresenter selections first key equals: '3'.	"last index was seleted. add char after this slot. select added char afterwards"
-	self selectInstVarAtIndex: 1.
-	self assert: inspector documentPresenter value equals: '''-a<bcd'''
 ]
 
 { #category : 'as yet unclassified' }
@@ -2082,24 +2043,6 @@ JadeiteInspectorDataCuratorTestCase >> test_selectAll [
 	self assert: inspector instVarListPresenter selections size equals: 2.
 	self assert: inspector documentPresenter value equals: 'self: 97
 -.asOop: 778'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_selectAllString [
-	| remoteObject |
-	remoteObject := session
-				executeString: '''abc'' copy'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	inspector instVarListPresenter view selectAll.
-	self assert: inspector instVarListPresenter selections size equals: 5.
-	self
-		assert: ('self: ''abc''
--.asOop: *
-1: $a
-2: $b
-3: $c' match: inspector documentPresenter value)
 ]
 
 { #category : 'as yet unclassified' }

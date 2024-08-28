@@ -5,3 +5,9 @@ JadeiteInspector >> codePane [
 
 	^codePane
 ]
+
+{ #category : '*Jadeite-Tests' }
+JadeiteInspector >> value [
+
+	^self codePane text
+]

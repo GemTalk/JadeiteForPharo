@@ -387,15 +387,6 @@ JadeiteAbstractTestCase >> isSampleProject1Loaded [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> issueCommand: service onCompletion: completionBlock [
-
-	RowanServiceUpdater current
-		issueCommands: (Array with: service)
-		session: session
-		onCompletion: completionBlock
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> itemNamed: menuName in: menuBar [
 	^menuBar items detect: [:item | '*' , menuName , '*' match: item text]
 ]
