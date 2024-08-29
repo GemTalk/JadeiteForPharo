@@ -10,20 +10,6 @@ Class {
 	#package : 'Jadeite-FileDialog'
 }
 
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorPresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	directoryContentsList
-		when: #actionPerformed
-		send: #dive
-		to: self. 
-	pathText
-		when: #focusLost
-		send: #goto
-		to: self.
-	
-]
-
 { #category : 'defaults' }
 JadeiteServerFileSelectorPresenter >> defaultLayout [ 
 
@@ -93,6 +79,19 @@ JadeiteServerFileSelectorPresenter >> initializeBottomWidgets [
 ]
 
 { #category : 'initialization' }
+JadeiteServerFileSelectorPresenter >> initializeContextMenu [
+
+	| menu |
+	menu := JadeiteMenuPresenter new.
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Dive';
+				action: [ self dive ] ] ].
+	self directoryContentsList contextMenu: menu
+]
+
+{ #category : 'initialization' }
 JadeiteServerFileSelectorPresenter >> initializePresenters [
 
 	super initializePresenters.
@@ -107,7 +106,8 @@ JadeiteServerFileSelectorPresenter >> initializePresenters [
 	directoryContentsList
 		activateOnDoubleClick;
 		whenActivatedDo: [ :selection | self dive ].
-	self layout add: directoryContentsList
+	self layout add: directoryContentsList.
+	self initializeContextMenu
 ]
 
 { #category : 'initialization' }

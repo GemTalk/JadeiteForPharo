@@ -95,16 +95,6 @@ JadeiteLoadProjectDialog >> apply [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteLoadProjectDialog >> createComponents [
-	super createComponents.
-	projectHomePresenter := self add: JadeiteServerFileSelectorPresenter new name: 'projectHomeSelector'.
-	customAttributesList := self add: ListPresenter new name: 'conditionalAttributesList'.
-	componentList := self add: ListPresenter new name: 'componentList'.
-	resolveStrictCheckbox := self add: BooleanPresenter new name: 'resolveStrictCheckbox'.
-	urlText := self add: (TextPresenter new value: 'https://') name: 'urlText'.
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteLoadProjectDialog >> createSchematicWiring [
 	super createSchematicWiring.
 	fileSelectorPresenter directoryContentsList

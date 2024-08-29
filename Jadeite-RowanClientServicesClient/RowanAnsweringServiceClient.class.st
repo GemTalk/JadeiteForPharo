@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-RowanAnsweringServiceClient class >> newInCompletionBlock [
+RowanAnsweringServiceClient class >> newForked [
 
 	^ self new inCompletionBlock: true
 ]

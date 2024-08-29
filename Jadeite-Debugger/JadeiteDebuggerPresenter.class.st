@@ -628,3 +628,15 @@ JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
 	self updateMethodSourceGlyphs.
 	codePane showStepPoint: frameListPresenter selectedItem stepPoint.
 ]
+
+{ #category : 'accessing' }
+JadeiteDebuggerPresenter >> variableListPresenter [
+
+	^ variableListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteDebuggerPresenter >> variableListPresenter: anObject [
+
+	variableListPresenter := anObject
+]

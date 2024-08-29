@@ -29,7 +29,7 @@ JadeiteApplication class >> abortTransactionInSession: session [
 		session: session
 		onCompletion: [
 			self
-				setInTransaction: RowanAnsweringServiceClient newInCompletionBlock
+				setInTransaction: RowanAnsweringServiceClient newForked
 				session: session
 				onCompletion: [
 					JadePresenter trigger: #abortedTransaction.
@@ -131,7 +131,7 @@ JadeiteApplication >> abortTransaction [
 		session: gciSession
 		onCompletion: [
 			self
-				setInTransaction: RowanAnsweringServiceClient newInCompletionBlock
+				setInTransaction: RowanAnsweringServiceClient newForked
 				session: gciSession
 				onCompletion: [
 					self triggerEvent: #abortedTransaction.

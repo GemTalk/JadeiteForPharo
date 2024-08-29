@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'session',
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'inCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -27,6 +28,25 @@ RowanFileServiceClient >> inCommand [
 RowanFileServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> inCompletionBlock [
+
+	^ inCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> inCompletionBlock: anObject [
+
+	inCompletionBlock := anObject
+]
+
+{ #category : 'initialization' }
+RowanFileServiceClient >> initialize [
+
+	super initialize.
+	inCompletionBlock := false
 ]
 
 { #category : 'commands' }
@@ -57,10 +77,17 @@ RowanFileServiceClient >> issueFileServiceCommand [
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
 
+	self inCompletionBlock: true.
 	RowanServiceUpdater current
 		issueCommand: self
 		session: self session
 		onCompletion: completionBlock
+]
+
+{ #category : 'testing' }
+RowanFileServiceClient >> notInCompletionBlock [
+
+	^ self inCompletionBlock not
 ]
 
 { #category : 'accessing' }

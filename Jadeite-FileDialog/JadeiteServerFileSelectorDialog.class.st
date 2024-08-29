@@ -10,6 +10,19 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
+JadeiteServerFileSelectorDialog class >> _showOnSession: aGciSession defaultPath: path shellName: shellName [
+	"private for testing - return the dialog instead of the answer and  do not open modal"
+	| inst theWindow answer |
+	inst := self createDialogOn: aGciSession path: path.
+	inst shellName: shellName.
+	theWindow := inst asWindow.
+	inst initializeWith: path.
+	answer := theWindow open.
+	answer cancelled ifTrue: [ ^ nil ].
+	^ inst
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path [
 
 	| service inst |
@@ -46,13 +59,6 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath:
 JadeiteServerFileSelectorDialog >> cancel [
 
 	^nil
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorDialog >> createComponents [
-	super createComponents.
-	fileSelectorPresenter := self add: JadeiteServerFileSelectorPresenter new name: 'fileSelectorPresenter'.
-
 ]
 
 { #category : 'initialization' }

@@ -19,6 +19,12 @@ RowanProcessServiceClient class >> debuggedProcessServices [
 		  DebuggedProcessServices := OrderedCollection new ]
 ]
 
+{ #category : 'accessing' }
+RowanProcessServiceClient class >> debuggedProcessServices: aCollection [
+
+	DebuggedProcessServices := OrderedCollection new
+]
+
 { #category : 'debugger' }
 RowanProcessServiceClient >> cleanUpClient [
 
