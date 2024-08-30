@@ -11,12 +11,6 @@ JadeiteForPharoMiscellaneousTestCase >> focusWidgetText [
 	^ UIManager default world activeHand keyboardFocus model model text
 ]
 
-{ #category : 'support' }
-JadeiteForPharoMiscellaneousTestCase >> setUp [
-
-	super setUp
-]
-
 { #category : 'tests' }
 JadeiteForPharoMiscellaneousTestCase >> test_adHocCompileError [
 	"When the popup is raised in the workspace, the focus widget should be the popover.

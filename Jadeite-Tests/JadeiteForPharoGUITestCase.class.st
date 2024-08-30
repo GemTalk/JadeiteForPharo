@@ -54,9 +54,14 @@ JadeiteForPharoGUITestCase >> displayAndPrint [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
 
-	super setUp.
-	JadeiteConnectionLauncher allInstances isEmpty ifTrue: [
-		JadeiteConnectionApplication new start ]
+	| launchers |
+	launchers := JadeiteConnectionLauncher allInstances.
+	launchers
+		ifEmpty: [ JadeiteConnectionApplication new start ]
+		ifNotEmpty: [
+			(launchers noneSatisfy: [ :launcher | launcher window isOpen ])
+				ifTrue: [ JadeiteConnectionApplication new start ] ].
+	super setUp
 ]
 
 { #category : 'support' }
