@@ -12,6 +12,17 @@ Class {
 	#package : 'Jadeite-SUnitBrowser'
 }
 
+{ #category : 'as yet unclassified' }
+JadeiteSUnitAbstractPresenter >> addError: methodService to: jadeResult [
+
+	methodService testResult = 'error' ifTrue: [
+		jadeResult addError: methodService ].
+	methodService testResult = 'failure' ifTrue: [
+		jadeResult addFailure: methodService ].
+	methodService testResult = 'passed' ifTrue: [
+		jadeResult addPassed: methodService ]
+]
+
 { #category : 'edits' }
 JadeiteSUnitAbstractPresenter >> canDiscardEdits [
 
@@ -101,26 +112,26 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 			commandArgs: (Array
 					 with: methodService selector
 					 with: (className ifNil: [ methodService className ]));
-			testResult: nil.
+			testResult: nil;
+			catchBlock: [
+				shouldStopTestRun := true.
+				self addError: methodService to: jadeResult.
+				self updateResult: jadeResult.
+				continueTest signal ].
 		RowanServiceUpdater current
 			issueCommand: methodService
 			session: self gciSession
 			onCompletion: [
-				methodService testResult = 'error' ifTrue: [
-					jadeResult addError: methodService ].
-				methodService testResult = 'failure' ifTrue: [
-					jadeResult addFailure: methodService ].
-				methodService testResult = 'passed' ifTrue: [
-					jadeResult addPassed: methodService ].
+				self addError: methodService to: jadeResult.
 				continueTest signal ].
-		continueTest wait. 
+		continueTest wait.
 		shouldStopTestRun ifFalse: [
 			index := index + 1.
 			index > methodServices size
 				ifTrue: [
 					shouldStopTestRun := true.
 					self updateResult: jadeResult ]
-				ifFalse: [ methodService := methodServices at: index ] ] ].
+				ifFalse: [ methodService := methodServices at: index ] ] ]
 ]
 
 { #category : 'as yet unclassified' }

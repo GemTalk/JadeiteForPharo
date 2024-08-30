@@ -3,11 +3,24 @@ Class {
 	#superclass : 'RowanMethodService',
 	#instVars : [
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'catchBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanMethodServiceClient >> catchBlock [
+
+	^ catchBlock
+]
+
+{ #category : 'accessing' }
+RowanMethodServiceClient >> catchBlock: anObject [
+
+	catchBlock := anObject
+]
 
 { #category : 'accessing' }
 RowanMethodServiceClient >> inCommand [

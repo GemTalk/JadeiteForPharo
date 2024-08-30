@@ -106,6 +106,13 @@ RowanService >> basicReplicateFrom: newService [
 				ifTrue: [self instVarAt: index put: (newService instVarAt: index)]]
 ]
 
+{ #category : 'accessing' }
+RowanService >> catchBlock [
+	"some services need special processing in case of error or terminated remote process"
+
+	^ [  ]
+]
+
 { #category : 'private' }
 RowanService >> chooseModel: presenter using: browser [
 	| treeModel |
@@ -248,24 +255,8 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 			value tag = 'rsrProcessTerminated' ifTrue: [
 				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
 			self terminate: process error: value.
-			self raiseCompileErrorIfNeeded ] ensure: [ self inCommand signal ] ]
-]
-
-{ #category : 'rsr' }
-RowanService >> executeCommandOnCompletion: completionBlock semaphore: sem [
-
-	| promise theCompletionBlock process |
-	process := Processor activeProcess.
-	theCompletionBlock := completionBlock ifNil: [ [ :unused |  ] ].
-	promise := remoteSelf executeCommand.
-	promise
-		when: [ :arg | theCompletionBlock value: arg ]
-		catch: [ :value |
-			[
-			value tag = 'rsrProcessTerminated' ifTrue: [
-				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
-			self terminate: process error: value.
-			self raiseCompileErrorIfNeeded ] ensure: [ sem signal ] ]
+			self raiseCompileErrorIfNeeded.
+			self catchBlock cull: value ] ensure: [ self inCommand signal ] ]
 ]
 
 { #category : 'rsr' }
@@ -274,14 +265,6 @@ RowanService >> executeInSession: session onCompletion: completionBlock [
 		on: RsrAlreadyRegistered
 		do: [ :ex |  ].
 	^ self executeCommandOnCompletion: completionBlock
-]
-
-{ #category : 'rsr' }
-RowanService >> executeInSession: session onCompletion: completionBlock semaphore: sem [
-	[ self registerWith: session library ]
-		on: RsrAlreadyRegistered
-		do: [ :ex |  ].
-	^ self executeCommandOnCompletion: completionBlock semaphore: sem
 ]
 
 { #category : 'public' }

@@ -39,8 +39,6 @@ JadeiteForPharoDebuggerTestCase >> test_instpectVar [
 	service := RowanAnsweringServiceClient newForked.
 	service exec: '$abc' in: GciSession current onCompletion: [  ].
 	self waitForDebugger.
-	[ debugger variableListPresenter list collection isEmpty ]
-		whileTrue: [ (Delay forMilliseconds: 1) wait ].
 	item := debugger variableListPresenter list collection detect: [
 		        :thing | thing key = #receiver ].
 	debugger variableListPresenter selectItem: item.
