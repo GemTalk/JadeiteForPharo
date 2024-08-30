@@ -31,13 +31,17 @@ RowanProcessServiceClient >> cleanUpClient [
 	self class debuggedProcessServices remove: self ifAbsent:[]
 ]
 
+{ #category : 'accessing' }
+RowanProcessServiceClient >> debugger [
+
+	^ debugger
+]
+
 { #category : 'debugger' }
 RowanProcessServiceClient >> openDebugger [
 
 	| activeProcess |
-	self class debuggedProcessServices add: self.
 	activeProcess := Processor activeProcess.
-
 	debugger := JadeiteDebuggerApplication showOnSession:
 		            GciSession current library.
 	debugger
@@ -46,6 +50,7 @@ RowanProcessServiceClient >> openDebugger [
 	debugger errorMessagePresenter text: errorMessage.
 	debugger frameListPresenter items: frames.
 	debugger selectInitialFrame.
+	self class debuggedProcessServices add: self.
 	activeProcess suspend.
 	^ debugger answer
 ]

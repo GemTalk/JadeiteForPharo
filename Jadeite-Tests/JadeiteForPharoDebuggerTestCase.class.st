@@ -8,15 +8,21 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'accessing' }
+JadeiteForPharoDebuggerTestCase class >> testResourceClass [ 
+
+	^TestResource
+]
+
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> setUp [
-
-	super setUp.
+	"Debuggers should be closed before debugger test is run.
+	Don't call super setUp as we don't want to use the JadeiteTestResource for this test class"
+	self ensureLauncherOpened.
 	JadeiteConnectionProfile connectionProfile disconnect.
-	RowanProcessServiceClient debuggedProcessServices:
-		OrderedCollection new.
 	JadeiteConnectionProfile connectionProfile connect.
-	RowanServiceUpdater current: RowanServiceUpdater new "don't use test updater so we can force forking"
+	RowanProcessServiceClient debuggedProcessServices:
+		OrderedCollection new
 ]
 
 { #category : 'support' }
@@ -30,8 +36,6 @@ JadeiteForPharoDebuggerTestCase >> tearDown [
 JadeiteForPharoDebuggerTestCase >> test_instpectVar [
 
 	| service item inspector |
-	self assert:
-		RowanProcessServiceClient debuggedProcessServices isEmpty.
 	service := RowanAnsweringServiceClient newForked.
 	service exec: '$abc' in: GciSession current onCompletion: [  ].
 	self waitForDebugger.
@@ -52,8 +56,6 @@ JadeiteForPharoDebuggerTestCase >> test_openDebugger [
 
 	| service |
 	"force it to be forked "
-	self assert:
-		RowanProcessServiceClient debuggedProcessServices isEmpty.
 	service := RowanAnsweringServiceClient newForked.
 	service exec: '$abc' in: GciSession current onCompletion: [  ].
 	self waitForDebugger.
@@ -63,15 +65,10 @@ JadeiteForPharoDebuggerTestCase >> test_openDebugger [
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 
-	[ RowanProcessServiceClient debuggedProcessServices isEmpty ]
-		whileTrue: [ (Delay forMilliseconds: 1) wait ].
-	[
-	(debugger := JadeiteDebuggerPresenter allInstances
-		             detect: [ :theDebugger |
-			             theDebugger gsProcess
-			             ==
-			             RowanProcessServiceClient debuggedProcessServices
-				             first ]
-		             ifNone: [  ]) isNil ] whileTrue: [
-		(Delay forMilliseconds: 1) wait ]
+	| debuggedProcesses |
+	debuggedProcesses := RowanProcessServiceClient
+		                     debuggedProcessServices.
+	[ debuggedProcesses isEmpty ] whileTrue: [
+		(Delay forMilliseconds: 1) wait ].
+	debugger := debuggedProcesses first debugger
 ]

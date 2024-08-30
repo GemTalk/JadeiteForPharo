@@ -454,8 +454,11 @@ JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 	self updateCaption.
 	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [
-		answer ifNil: [ answer := #terminate ].
-		[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
+		self gciSession isValidSession
+			ifTrue: [
+				answer ifNil: [ answer := #terminate ].
+				[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
+			ifFalse: [ self gsProcess cleanUpClient ] ]
 ]
 
 { #category : 'menus' }
