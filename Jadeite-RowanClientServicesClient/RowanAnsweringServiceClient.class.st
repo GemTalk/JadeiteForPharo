@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'inCommand',
 		'serviceCompletionBlock',
-		'inCompletionBlock'
+		'alwaysForked'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -13,7 +13,19 @@ Class {
 { #category : 'instance creation' }
 RowanAnsweringServiceClient class >> newForked [
 
-	^ self new inCompletionBlock: true
+	^ self new alwaysForked: true
+]
+
+{ #category : 'accessing' }
+RowanAnsweringServiceClient >> alwaysForked [
+
+	^ alwaysForked
+]
+
+{ #category : 'accessing' }
+RowanAnsweringServiceClient >> alwaysForked: anObject [
+
+	alwaysForked := anObject
 ]
 
 { #category : 'accessing' }
@@ -28,29 +40,17 @@ RowanAnsweringServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
-{ #category : 'accessing' }
-RowanAnsweringServiceClient >> inCompletionBlock [
-
-	^ inCompletionBlock
-]
-
-{ #category : 'accessing' }
-RowanAnsweringServiceClient >> inCompletionBlock: anObject [
-
-	inCompletionBlock := anObject
-]
-
 { #category : 'initialization' }
 RowanAnsweringServiceClient >> initialize [
 
 	super initialize.
-	inCompletionBlock := false
+	alwaysForked := false.
 ]
 
 { #category : 'testing' }
-RowanAnsweringServiceClient >> notInCompletionBlock [
+RowanAnsweringServiceClient >> notAlwaysForked [
 
-	^ self inCompletionBlock not
+	^ self alwaysForked not
 ]
 
 { #category : 'accessing' }

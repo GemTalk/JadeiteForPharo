@@ -551,7 +551,7 @@ RowanService >> newProject: presenter [
 ]
 
 { #category : 'testing' }
-RowanService >> notInCompletionBlock [
+RowanService >> notAlwaysForked [
 
 	^true 
 ]
@@ -824,12 +824,6 @@ RowanService >> terminate: process error: value [
 	process
 		suspend;
 		terminate.
-	DefaultExecutionEnvironment beActiveDuring: [
-		[ UIManager default terminateUIProcess ] ensure: [
-			UIManager default spawnNewProcess.
-			value class = RsrConnectionClosedBeforeReceivingResponse ifTrue: [
-				JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
-					:conn | conn disconnect ] ] ] ]
 ]
 
 { #category : 'printing' }

@@ -211,7 +211,7 @@ GciSession >> titleBarFor: windowName [
 GciSession >> updateAutoCommitRefreshing: console [
 
 	| service |
-	service := RowanAnsweringService new.
+	service := RowanAnsweringServiceClient new.
 	service autoCommitIn: self onCompletion: [
 		self autoCommit value: (service answer ifNil: [ false ]).
 		self autoCommit whenChangedSend: #updateAutoCommitButton to: console.

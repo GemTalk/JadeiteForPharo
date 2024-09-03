@@ -5,11 +5,23 @@ Class {
 		'session',
 		'inCommand',
 		'serviceCompletionBlock',
-		'inCompletionBlock'
+		'alwaysForked'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> alwaysForked [
+
+	^ alwaysForked
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> alwaysForked: anObject [
+
+	alwaysForked := anObject
+]
 
 { #category : 'commands' }
 RowanFileServiceClient >> fileIn [
@@ -30,23 +42,11 @@ RowanFileServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
-{ #category : 'accessing' }
-RowanFileServiceClient >> inCompletionBlock [
-
-	^ inCompletionBlock
-]
-
-{ #category : 'accessing' }
-RowanFileServiceClient >> inCompletionBlock: anObject [
-
-	inCompletionBlock := anObject
-]
-
 { #category : 'initialization' }
 RowanFileServiceClient >> initialize [
 
 	super initialize.
-	inCompletionBlock := false
+	alwaysForked := false
 ]
 
 { #category : 'commands' }
@@ -77,7 +77,7 @@ RowanFileServiceClient >> issueFileServiceCommand [
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
 
-	self inCompletionBlock: true.
+	self alwaysForked: true.
 	RowanServiceUpdater current
 		issueCommand: self
 		session: self session
@@ -85,9 +85,9 @@ RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
 ]
 
 { #category : 'testing' }
-RowanFileServiceClient >> notInCompletionBlock [
+RowanFileServiceClient >> notAlwaysForked [
 
-	^ self inCompletionBlock not
+	^ self alwaysForked not
 ]
 
 { #category : 'accessing' }

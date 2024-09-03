@@ -53,7 +53,6 @@ JadeiteForPharoDebuggerTestCase >> test_instpectVar [
 JadeiteForPharoDebuggerTestCase >> test_openDebugger [
 
 	| service |
-	"force it to be forked "
 	service := RowanAnsweringServiceClient newForked.
 	service exec: '$abc' in: GciSession current onCompletion: [  ].
 	self waitForDebugger.

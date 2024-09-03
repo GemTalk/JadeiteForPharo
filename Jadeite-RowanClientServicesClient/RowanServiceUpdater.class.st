@@ -140,7 +140,7 @@ RowanServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has use completion blocks"
 	service isInCommand ifTrue: [ ^ self ].
-	(singleThreaded and: [ service notInCompletionBlock ])
+	(singleThreaded and: [ service notAlwaysForked ])
 		ifTrue: [
 			serviceQueueSemaphore critical: [
 				self _basicIssueCommand: service.
