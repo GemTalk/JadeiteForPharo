@@ -1,5 +1,5 @@
 # JadeiteForPharo
-IDE for GemStone Smalltalk application development in Pharo using Rowan code management 
+IDE for GemStone Smalltalk application development in Pharo using Rowan code management. Note that Jadeite for Pharo requires Rowan 3. 
 
 ## To load JadeiteForPharo into a Pharo image:
 (Currently, only Pharo 12 is supported)
