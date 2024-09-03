@@ -19,11 +19,10 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpen
 	[
 	projectsBrowser ifNil: [ self setupProjectBrowser ].
 
-	[
+
 	RowanServiceUpdater current loggingService services do: [ :service |
 		self deny: (service updateType includes: #updateAutoCommitButton) ] ]
-		ensure: [ self destroy: projectsBrowser ] ] ensure: [
-		RowanServiceUpdater current isLogging: loggingState ]
+		ensure: [ RowanServiceUpdater current isLogging: loggingState ]
 ]
 
 { #category : 'tests' }
@@ -34,7 +33,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocDisplay [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setRemoteAutoCommit: true onCompletion: nil.
+	self setRemoteAutoCommit: true onCompletion: [].
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -52,7 +51,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocDisplay [
 		equals: '123 "123"' ] ensure: [
 		session executeString: 'UserGlobals removeKey: #TestCommit'.
 		self commitTransaction.
-		self setRemoteAutoCommit: false onCompletion: nil.
+		self setRemoteAutoCommit: false onCompletion: [].
 		workspace isModified: false ]
 ]
 
@@ -64,7 +63,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocExecution [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setRemoteAutoCommit: true onCompletion: nil.
+	self setRemoteAutoCommit: true onCompletion: [].
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -80,7 +79,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitInAdHocExecution [
 		ensure: [
 			session executeString: 'UserGlobals removeKey: #TestCommit'.
 			self commitTransaction.
-			self setRemoteAutoCommit: false onCompletion: nil.
+			self setRemoteAutoCommit: false onCompletion: [].
 			workspace isModified: false ]
 ]
 
@@ -92,7 +91,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocDisplay [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setRemoteAutoCommit: false onCompletion: nil.
+	self setRemoteAutoCommit: false onCompletion: [].
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -118,7 +117,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocExecution [
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
 
 	[
-	self setRemoteAutoCommit: false onCompletion: nil.
+	self setRemoteAutoCommit: false onCompletion: [].
 	session executeString: 'UserGlobals at: #TestCommit put: true'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -137,7 +136,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitOffInAdHocExecution [
 { #category : 'tests' }
 JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatedInSession [
 
-	self setRemoteAutoCommit: false onCompletion: nil.
+	self setRemoteAutoCommit: false onCompletion: [].
 	session flipAutoCommit.
 	self assert: session autoCommit.
 	session flipAutoCommit.
@@ -152,7 +151,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatesButtons [
 		title: 'Could us an autocommit status indication in Console'.
 
 
-	self setRemoteAutoCommit: false onCompletion: nil.
+	self setRemoteAutoCommit: false onCompletion: [].
 	[
 	session flipAutoCommit.
 	self assert: session autoCommit value.
