@@ -302,3 +302,34 @@ JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 		self assert: sunitBrowser packageListPresenter list notEmpty.
 		self destroy: sunitBrowser ]
 ]
+
+{ #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
+
+	| waitSempahore testProcess |
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self sunitPresenter classListPresenter.
+	self
+		selectServiceNamed: 'test_loadedPackageExists'
+		in: self sunitPresenter methodListPresenter.
+	self assert: sunitBrowser textResultPresenter text equals: String new.
+	self
+		assert:
+		sunitBrowser textResultPresenter adapter widget scrollPane color
+		equals: JadeiteApplication defaultBackgroundColor.
+	self assertIsNil: sunitBrowser testResults.
+	sunitBrowser testSemaphore: Semaphore new.
+	sunitBrowser basicRunSelected.
+	sunitBrowser testSemaphore waitTimeoutMilliseconds: 500.
+	self
+		assert: sunitBrowser textResultPresenter text
+		equals: '1 run, 1 passed, 0 failures, 0 errors'.
+	self
+		assert:
+		sunitBrowser textResultPresenter adapter widget scrollPane color
+		equals: JadeTestResult new colorPass
+]

@@ -3834,7 +3834,8 @@ JadeiteBrowserPresenter >> updateMethodSource [
 JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 
 	methodSourcePresenter methodService: aMethodService. 
-	methodSourcePresenter value: aMethodService source. 
+	methodSourcePresenter value: aMethodService source.
+	self updateMethodSourceGlyphs. 
 ]
 
 { #category : 'updates' }

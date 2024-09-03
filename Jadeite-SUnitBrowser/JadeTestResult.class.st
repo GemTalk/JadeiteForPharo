@@ -38,13 +38,31 @@ JadeTestResult >> addPassed: selector [
 { #category : 'as yet unclassified' }
 JadeTestResult >> backgroundColor [
 
-	self hasErrors ifTrue: [^Color red muchLighter].
+	self hasErrors ifTrue: [ ^ self colorErrors ].
 
-	self hasWarnings ifTrue: [^Color yellow muchLighter].
+	self hasWarnings ifTrue: [ ^ self colorFailures ].
 
-	self hasPassed ifTrue: [^Color fromHexString: #CEF1D1].
+	self hasPassed ifTrue: [ ^ self colorPass ].
 
-	^JadeiteApplication defaultBackgroundColor
+	^ JadeiteApplication defaultBackgroundColor
+]
+
+{ #category : 'constants' }
+JadeTestResult >> colorErrors [
+
+	^ Color red muchLighter
+]
+
+{ #category : 'constants' }
+JadeTestResult >> colorFailures [
+
+	^ Color yellow muchLighter
+]
+
+{ #category : 'constants' }
+JadeTestResult >> colorPass [
+
+	^ Color fromHexString: #CEF1D1
 ]
 
 { #category : 'as yet unclassified' }

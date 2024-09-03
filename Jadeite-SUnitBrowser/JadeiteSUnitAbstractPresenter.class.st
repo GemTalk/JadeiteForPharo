@@ -197,9 +197,3 @@ JadeiteSUnitAbstractPresenter >> textResultPresenter [
 JadeiteSUnitAbstractPresenter >> textResultPresenter: anObject [
 	textResultPresenter := anObject
 ]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitAbstractPresenter >> updateResult: jadeResult [
-	jadeResult setSummary.
-	self setColorFor: jadeResult
-]

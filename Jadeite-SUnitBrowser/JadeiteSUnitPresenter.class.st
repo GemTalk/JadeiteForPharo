@@ -9,7 +9,8 @@ Class {
 		'status',
 		'testCounter',
 		'methodColumns',
-		'toolbar'
+		'toolbar',
+		'testSemaphore'
 	],
 	#category : 'Jadeite-SUnitBrowser',
 	#package : 'Jadeite-SUnitBrowser'
@@ -90,6 +91,31 @@ JadeiteSUnitPresenter >> basicDelete [
 		command: #removeMethods:;
 		commandArgs: (Array with: methodListPresenter selections).
 	self issueCommand: classListPresenter selection onCompletion: nil
+]
+
+{ #category : 'actions' }
+JadeiteSUnitPresenter >> basicRunSelected [
+	"if multiple classes are selected, we really don't know which test class
+	the user intended for the test to be run so pick the class the test is defined in"
+
+	classListPresenter selectedItems isEmpty ifTrue: [ ^ self ].
+	testProcess := [
+	               [
+	               testResults := classListPresenter selections size = 1
+		                              ifTrue: [
+			                              self
+				                              runTests:
+				                              methodListPresenter selections
+				                              in:
+				                              classListPresenter selections first
+					                              name ]
+		                              ifFalse: [
+		                              self runTests:
+			                              methodListPresenter selections ] ]
+		               ensure: [
+			               testSemaphore signal.
+			               testProcess := nil.
+			               shouldStopTestRun := false ] ] fork
 ]
 
 { #category : 'as yet unclassified' }
@@ -365,24 +391,6 @@ JadeiteSUnitPresenter >> packagesSize [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitPresenter >> queryCommand: commandQuery [
-	commandQuery isEnabled: true.
-	(#(#browseMethods #debug #runSelected) includes: commandQuery command)
-		ifTrue: 
-			[methodListPresenter selections isEmpty ifTrue: [commandQuery isEnabled: false].
-			^true].
-	(#(#browseClass) includes: commandQuery command)
-		ifTrue: 
-			[classListPresenter selections isEmpty ifTrue: [commandQuery isEnabled: false].
-			^true].
-	(#(#stopTestProcess) includes: commandQuery command)
-		ifTrue: 
-			[commandQuery isEnabled: testProcess notNil.
-			^true].
-	^true
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> refresh [
 
 	| packageSelections classSelections methodSelections |
@@ -446,26 +454,9 @@ JadeiteSUnitPresenter >> runAll [
 
 { #category : 'actions' }
 JadeiteSUnitPresenter >> runSelected [
-	"if multiple classes are selected, we really don't know which test class
-	the user intended for the test to be run so pick the class the test is defined in"
-
-	classListPresenter selectedItems isEmpty ifTrue: [ ^ self ].
-	testProcess := [
-	               [
-	               testResults := classListPresenter selections size = 1
-		                              ifTrue: [
-			                              self
-				                              runTests:
-				                              methodListPresenter selections
-				                              in:
-				                              classListPresenter selections first
-					                              name ]
-		                              ifFalse: [
-		                              self runTests:
-			                              methodListPresenter selections ] ]
-		               ensure: [
-			               testProcess := nil.
-			               shouldStopTestRun := false ] ] fork
+	
+	testSemaphore := Semaphore new. 
+	self basicRunSelected
 ]
 
 { #category : 'as yet unclassified' }
@@ -607,6 +598,18 @@ JadeiteSUnitPresenter >> testResults: anObject [
 	^testResults := anObject
 ]
 
+{ #category : 'accessing' }
+JadeiteSUnitPresenter >> testSemaphore [
+
+	^ testSemaphore
+]
+
+{ #category : 'accessing' }
+JadeiteSUnitPresenter >> testSemaphore: anObject [
+
+	testSemaphore := anObject
+]
+
 { #category : 'updates' }
 JadeiteSUnitPresenter >> update: newMethods orRemove: removals [
 	| listModel |
@@ -703,4 +706,10 @@ JadeiteSUnitPresenter >> updateProjectPackagesOnCompletion: completionBlock [
 	self issueCommand: browserService onCompletion: [
 		testCounter at: 1 put: browserService testCount.
 		completionBlock value ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitPresenter >> updateResult: jadeResult [
+	jadeResult setSummary.
+	self setColorFor: jadeResult
 ]
