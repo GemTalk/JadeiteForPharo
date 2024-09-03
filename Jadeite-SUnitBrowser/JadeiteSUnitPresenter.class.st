@@ -94,6 +94,30 @@ JadeiteSUnitPresenter >> basicDelete [
 ]
 
 { #category : 'actions' }
+JadeiteSUnitPresenter >> basicRunAll [
+
+	testProcess := [
+	               [
+	               self reset.
+	               methodListPresenter resetSelection.
+	               testResults := (classListPresenter selections size > 1
+		                               or: [
+		                               classListPresenter selections isEmpty ])
+		                              ifTrue: [
+		                              self runTests:
+			                              methodListPresenter model ]
+		                              ifFalse: [
+			                              self
+				                              runTests: methodListPresenter model
+				                              in:
+				                              classListPresenter selections first
+					                              name ] ] ensure: [
+		               testSemaphore signal.
+		               testProcess := nil.
+		               shouldStopTestRun := false ] ] fork
+]
+
+{ #category : 'actions' }
 JadeiteSUnitPresenter >> basicRunSelected [
 	"if multiple classes are selected, we really don't know which test class
 	the user intended for the test to be run so pick the class the test is defined in"
@@ -439,17 +463,9 @@ JadeiteSUnitPresenter >> registerPresentersForUpdates [
 
 { #category : 'actions' }
 JadeiteSUnitPresenter >> runAll [
-	testProcess := 
-			[
-			[self reset.
-			methodListPresenter resetSelection.
-			testResults := (classListPresenter selections size > 1 or: [classListPresenter selections isEmpty])
-						ifTrue: [self runTests: methodListPresenter model]
-						ifFalse: [self runTests: methodListPresenter model in: classListPresenter selections first name]]
-					ensure: 
-						[testProcess := nil.
-						shouldStopTestRun := false]]
-					fork.
+
+	testSemaphore := Semaphore new.
+	self basicRunAll
 ]
 
 { #category : 'actions' }

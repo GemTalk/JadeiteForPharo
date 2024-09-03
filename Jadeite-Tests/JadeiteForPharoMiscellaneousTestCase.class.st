@@ -82,6 +82,34 @@ evaluateInspectingResult: workspace codePane text onCompileError: [  ] onError: 
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMiscellaneousTestCase >> test_cancel [
+	"make sure text reverts after cancel"
+
+	| path |
+	path := '$HOME/jfp_testfile_deleteme'.
+	workspace := JadeiteWorkspace showOnSession: session.
+	workspace setDocumentData: '#(1 2 3)'.
+	workspace filePathString: path.
+	workspace saveServerFile.
+	[
+	self deny: workspace adapter widget hasUnacceptedEdits.
+	workspace codePane text: '#(1 2 3)  add some text'.
+	self assert: workspace adapter widget hasUnacceptedEdits.
+	self
+		assert: workspace codePane text
+		equals: '#(1 2 3)  add some text'.
+	workspace triggerResetAction.
+	self deny: workspace adapter widget hasUnacceptedEdits.
+	self assert: workspace codePane text equals: '#(1 2 3)' ] ensure: [
+		| fileService |
+		fileService := RowanFileService new
+			               path: path;
+			               session: GciSession current;
+			               yourself.
+		fileService remove ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMiscellaneousTestCase >> test_classServiceNameIsString [
 	| classService |
 	self testsIssue: #issue441

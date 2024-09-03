@@ -25,6 +25,15 @@ JadeiteWorkspace >> codePane [
 	^codePane
 ]
 
+{ #category : 'initialization' }
+JadeiteWorkspace >> connectPresenters [
+
+	super connectPresenters.
+	self whenResetDo: [
+		self isModified: false.
+		filePathString ifNotNil: [ self resetFileText ] ]
+]
+
 { #category : 'accessing' }
 JadeiteWorkspace >> defaultSaveAsFileName [
 	| tail | 
@@ -48,6 +57,12 @@ JadeiteWorkspace >> defaultSaveFileAsDirectory [
 { #category : 'menu handlers' }
 JadeiteWorkspace >> editRevert [
 	codePane documentPresenter value: lastSave
+]
+
+{ #category : 'accessing' }
+JadeiteWorkspace >> filePathString: anObject [
+
+	filePathString := anObject
 ]
 
 { #category : 'accessing' }
@@ -128,6 +143,19 @@ JadeiteWorkspace >> queryCommand: aCommandQuery [
 	(cmd == #'setEnvironment1' and: [environment == 1]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
 	(cmd == #'setEnvironment2' and: [environment == 2]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
 	^super queryCommand: aCommandQuery
+]
+
+{ #category : 'actions' }
+JadeiteWorkspace >> resetFileText [
+
+	| service |
+	RowanServiceUpdater current critical: [
+		service := RowanFileService new
+			           session: gciSession;
+			           path: filePathString.
+		codePane text: service fileContents.
+		self updateCaption.
+		codePane hasUnacceptedEdits: false ]
 ]
 
 { #category : 'actions' }

@@ -306,7 +306,6 @@ JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 { #category : 'tests' }
 JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 
-	| waitSempahore testProcess |
 	self
 		selectServiceNamed: 'Rowan-Services-Tests'
 		in: self sunitPresenter packageListPresenter.

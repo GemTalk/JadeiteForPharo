@@ -57,13 +57,6 @@ JadeiteMethodSourcePane >> clearBreakpoint: stepPoint [
 		onCompletion: [ self outerBrowser updateMethodSource ]
 ]
 
-{ #category : 'initialization' }
-JadeiteMethodSourcePane >> connectPresenters [
-
-	super connectPresenters.
-	self whenResetDo: [ self isModified: false ]
-]
-
 { #category : 'actions - saving methods' }
 JadeiteMethodSourcePane >> currentMethodSourceFrom: sourceString [
 
