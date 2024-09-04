@@ -159,6 +159,21 @@ JadeiteForPharoInspectorTestCase >> test_captionChange [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_deselectClearsPane [
+	self openWorkspaceAndInspect: '97'.
+	inspector instVarListPresenter selectIndex: 1.
+	self assert: inspector codePane text equals: '97'.
+	inspector instVarListPresenter view selectAll.
+	self assert: inspector instVarListPresenter selections size equals: 2.
+	self assert: inspector codePane text equals: 'self: 97
+-.asOop: 778
+'.
+	inspector instVarListPresenter view selections: #().
+	self assert: inspector codePane text equals: String new. 
+	
+]
+
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_inspectBag [
 
 	self openWorkspaceAndInspect: 'Bag new add: ''abc''; yourself'.
@@ -246,6 +261,17 @@ JadeiteForPharoInspectorTestCase >> test_openProjectsBrowser [
 	self openWorkspaceAndInspect: 'RowanClassService new'.
 	projectsBrowser := inspector browseClass.
 	self assert: (projectsBrowser isKindOf: JadeiteBrowser)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_selectAll [
+
+	self openWorkspaceAndInspect: '97'.
+	inspector instVarListPresenter view selectAll.
+	self assert: inspector instVarListPresenter selections size equals: 2.
+	self assert: inspector codePane text equals: 'self: 97
+-.asOop: 778
+'
 ]
 
 { #category : 'tests' }

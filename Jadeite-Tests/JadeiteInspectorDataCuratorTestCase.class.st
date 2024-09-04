@@ -579,25 +579,6 @@ a'
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_deselectClearsPane [
-	| remoteObject |
-	remoteObject := session
-				executeString: '97'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	self assert: inspector instVarListPresenter selectionByIndex equals: 1.
-	self assert: inspector documentPresenter value equals: '97'.
-	inspector instVarListPresenter view selectAll.
-	self assert: inspector instVarListPresenter selections size equals: 2.
-	self assert: inspector documentPresenter value equals: 'self: 97
--.asOop: 778'.
-	inspector instVarListPresenter view selections: #().
-	self assert: inspector documentPresenter value equals: String new. 
-	
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_displayAllMenuEnablement [
 	| remoteObject jadeiteMenu displayAlltem query |
 	self testsIssue: #issue668 withTitle: 'More efficient handling of large collections. #668'.
@@ -1917,20 +1898,6 @@ JadeiteInspectorDataCuratorTestCase >> test_rootObjectNotOverwritten [
 				environment: 0.
 	self assert: firstOop equals: oop	"origin root object still held"]
 			ensure: [self closeBrowser: secondInspector]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_selectAll [
-	| remoteObject |
-	remoteObject := session
-				executeString: '97'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	inspector instVarListPresenter view selectAll.
-	self assert: inspector instVarListPresenter selections size equals: 2.
-	self assert: inspector documentPresenter value equals: 'self: 97
--.asOop: 778'
 ]
 
 { #category : 'as yet unclassified' }
