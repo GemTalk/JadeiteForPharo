@@ -195,7 +195,7 @@ GciSession >> titleBarFor: windowName [
 	stream := WriteStream on: String new.
 	stream
 		nextPutAll: windowName;
-		nextPutAll: ' on ';
+		nextPutAll: ' for ';
 		nextPutAll: stoneName;
 		space;
 		nextPut: $@;

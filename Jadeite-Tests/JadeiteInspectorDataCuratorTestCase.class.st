@@ -25,14 +25,6 @@ JadeiteInspectorDataCuratorTestCase >> enableForward: forwardQuery andBack: back
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> inspectInstVarAt: index [
-	| instVarPresenter |
-	instVarPresenter := inspector instVarListPresenter.
-	self selectInstVarAtIndex: index.
-	inspector inspectInstVar
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> primaryTestWindow [
 	^inspector
 ]
@@ -442,32 +434,6 @@ JadeiteInspectorDataCuratorTestCase >> test_basicInspectorDisplayedSizeLimit [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_captionChange [
-	| remoteObject ocIndex |
-	self testsIssue: #issue154 withTitle: 'Change inspector title on dive #154'.
-	remoteObject := session
-				executeString: 'Array with: (Dictionary new at: #oc put: (OrderedCollection with: #leaf); yourself)'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	self assert: ('Inspector on Array for*' match: inspector caption).
-	self inspectInstVarAt: 3.
-	self assert: ('Inspector on Dictionary for*' match: inspector caption).
-	ocIndex := inspector instVarListPresenter list
-				indexOf: (inspector instVarListPresenter list detect: [:item | item key = '#''oc''']).
-	self inspectInstVarAt: ocIndex.
-	self assert: ('Inspector on OrderedCollection for*' match: inspector caption).
-	self inspectInstVarAt: 3.
-	self assert: ('Inspector on Symbol for*' match: inspector caption).
-	inspector getPreviousObject.
-	self assert: ('Inspector on OrderedCollection for*' match: inspector caption).
-	inspector getPreviousObject.
-	self assert: ('Inspector on Dictionary for*' match: inspector caption).
-	inspector getPreviousObject.
-	self assert: ('Inspector on Array for*' match: inspector caption)
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_closeWithUnsavedChanges [
 	| remoteObject |
 	self testsIssue: #issue722
@@ -629,28 +595,6 @@ JadeiteInspectorDataCuratorTestCase >> test_deselectClearsPane [
 	inspector instVarListPresenter view selections: #().
 	self assert: inspector documentPresenter value equals: String new. 
 	
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_displayAll [
-	| remoteObject |
-	self testsIssue: #issue668 withTitle: 'More efficient handling of large collections. #668'.
-	remoteObject := session
-				executeString: '| coll oop inspectorService |
-coll := Array new.
-1 to: 20000 do: [:i |
-coll add: ''entry'', i asString].
-oop := coll asOop.
-coll
- '
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	self assert: inspector statusText equals: 'Displaying 1000 of 20000 variable inst vars'.
-	self assert: inspector instVarListPresenter list size equals: 1002.
-	inspector displayAll.
-	self assert: inspector statusText equals: 'Displaying 20000 of 20000 variable inst vars'.
-	self assert: inspector instVarListPresenter list size equals: 20002
 ]
 
 { #category : 'as yet unclassified' }
@@ -954,34 +898,6 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectAsOopField [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectBag [
-	| remoteObject |
-	remoteObject := session
-				executeString: 'Bag new add: ''abc''; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: inspector documentPresenter value equals: 'aBag( ''abc'')'.
-	self selectInstVarAtIndex: #(2).
-	self assert: inspector instVarListPresenter selection key equals: '-.asOop'.
-	self selectInstVarAtIndex: #(3).
-	self assert: inspector instVarListPresenter selection key equals: '-_varyingSize'.
-	self selectInstVarAtIndex: #(4).
-	self assert: inspector instVarListPresenter selection key equals: '-_numEntries'.
-	self selectInstVarAtIndex: #(5).
-	self assert: inspector instVarListPresenter selection key equals: '-_indexedPaths'.
-	self selectInstVarAtIndex: #(6).
-	self assert: inspector instVarListPresenter selection key equals: '-_levels'.
-	self selectInstVarAtIndex: #(7).
-	self assert: inspector instVarListPresenter selection key equals: '-dict'.
-	self selectInstVarAtIndex: #(8).
-	self assert: inspector instVarListPresenter selection key equals: '-size'.
-	self selectInstVarAtIndex: #(9).
-	self assert: inspector instVarListPresenter selection key equals: '''abc'''.
-	self assert: inspector instVarListPresenter list size equals: 9
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_inspectBytes [
 	| remoteObject bytesInspector |
 	remoteObject := session
@@ -1037,34 +953,6 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectDoubleByteString [
 	self assert: inspector documentPresenter value equals: '$Å¡'.
 	self selectInstVarAtIndex: #( 6 ).
 	self assert: inspector documentPresenter value equals: '$b'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectIdentityBag [
-	| remoteObject |
-	remoteObject := session
-				executeString: '| abc | 
-				abc := ''abc''. 
-				IdentityBag new add: abc; add: abc; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: inspector documentPresenter value equals: 'anIdentityBag( ''abc'', ''abc'')'.
-	self selectInstVarAtIndex: #(2).
-	self assert: inspector instVarListPresenter selection key equals: '-.asOop'.
-	self selectInstVarAtIndex: #(3).
-	self assert: inspector instVarListPresenter selection key equals: '-_varyingSize'.
-	self selectInstVarAtIndex: #(4).
-	self assert: inspector instVarListPresenter selection key equals: '-_numEntries'.
-	self selectInstVarAtIndex: #(5).
-	self assert: inspector instVarListPresenter selection key equals: '-_indexedPaths'.
-	self selectInstVarAtIndex: #(6).
-	self assert: inspector instVarListPresenter selection key equals: '-_levels'.
-	self selectInstVarAtIndex: #(7).
-	self assert: inspector instVarListPresenter selection key equals: '''abc'''.
-	self selectInstVarAtIndex: #(8).
-	self assert: inspector instVarListPresenter selection key equals: '''abc'''.
-	self assert: inspector instVarListPresenter list size equals: 8
 ]
 
 { #category : 'as yet unclassified' }

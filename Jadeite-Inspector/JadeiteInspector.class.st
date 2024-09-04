@@ -215,6 +215,12 @@ JadeiteInspector >> canSave [
 		and: [self isSelfSelected not and: [self isAsOopSelected not]]
 ]
 
+{ #category : 'accessing' }
+JadeiteInspector >> caption [
+
+	^ GciSession current titleBarFor: self shellName
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector >> computedListSelections [
 	^instVarListPresenter selections difference: self nonComputedListSelections
@@ -1075,7 +1081,7 @@ JadeiteInspector >> setNewInspectedObject [
 JadeiteInspector >> shellName [
 	| inspectionTarget |
 	inspectionTarget := className ifNil: [model ifNil: [String new] ifNotNil: [model printString]].
-	^'Jadeite Inspector on ' , inspectionTarget , self shellNameExtraInfo
+	^'Inspector on ' , inspectionTarget , self shellNameExtraInfo
 ]
 
 { #category : 'as yet unclassified' }
@@ -1120,6 +1126,12 @@ JadeiteInspector >> showOn: service [
 { #category : 'as yet unclassified' }
 JadeiteInspector >> statusText [
 	^statusTextPresenter value
+]
+
+{ #category : 'accessing' }
+JadeiteInspector >> updateCaption [
+
+	self caption: self caption
 ]
 
 { #category : 'as yet unclassified' }

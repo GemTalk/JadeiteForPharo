@@ -164,12 +164,19 @@ JadeiteMethodSourcePane >> methodService: anObject [
 JadeiteMethodSourcePane >> mouseClickedAt: click [
 
 	| sourcePosition handler |
-	handler := click event handler. 
-	handler ifNil: [^self]. 
+	[
+	handler := click event handler.
+	handler ifNil: [ ^ self ].
 	handler hasUnacceptedEdits ifTrue: [
 		^ self outerBrowser statusBarText pushMessage:
 			  'Step Point: <method changed>' ].
-	sourcePosition := click event handler scrollPane textArea startIndex.
+
+	sourcePosition := click event handler scrollPane textArea startIndex ]
+		on: Error
+		do: [ :ex | "morphic seems to get the wrong handler occassionally - a JadeiteWindow. Just ignore and let the next mouse or keystroke fix step point display"
+			('JadeiteMethodSourcePane>>#mouseClickedAt: error - '
+			 , ex printString) traceCr.
+			^ self ].
 	self displayStepPointAt: sourcePosition
 ]
 

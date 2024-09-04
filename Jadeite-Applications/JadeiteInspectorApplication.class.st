@@ -21,8 +21,7 @@ JadeiteInspectorApplication class >> show: oop onSession: gciSession [
 
 	| inst |
 	inst := self new gciSession: gciSession.
-	inst startOn: oop.
-	^ inst
+	^ inst startOn: oop
 ]
 
 { #category : 'accessing' }
@@ -54,9 +53,10 @@ JadeiteInspectorApplication >> start [
 JadeiteInspectorApplication >> startOn: oop [
 
 	| inst |
-	inst := self new: JadeiteInspector. 
+	inst := self new: JadeiteInspector.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
-	inst inspect: oop inContext: nil
+	inst inspect: oop inContext: nil.
+	^ inst
 ]

@@ -91,14 +91,6 @@ JadeInspector >> expectedModelClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeInspector >> inspectInstVar [	
-	JadeInspector 
-		showOn: instVarListPresenter selection value 
-		session: gciSession.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeInspector >> instVarListPresenter [
 	^instVarListPresenter
 ]

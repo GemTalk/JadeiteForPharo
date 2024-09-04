@@ -2,11 +2,52 @@ Class {
 	#name : 'JadeiteForPharoInspectorTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
-		'inspector'
+		'inspector',
+		'secondInspector'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
+
+{ #category : 'not working tests' }
+JadeiteForPharoInspectorTestCase >> _test_displayAll [
+	self todo: 'need large inspector work to be completed'.
+	self
+		testsIssue: #issue668
+		withTitle: 'More efficient handling of large collections. #668'.
+	self openWorkspaceAndInspect: '| coll oop inspectorService |
+coll := Array new.
+1 to: 20000 do: [:i |
+coll add: ''entry'', i asString].
+oop := coll asOop.
+coll
+ '.
+	self
+		assert: inspector statusText
+		equals: 'Displaying 1000 of 20000 variable inst vars'.
+	self assert: inspector instVarListPresenter list size equals: 1002.
+	inspector displayAll.
+	self
+		assert: inspector statusText
+		equals: 'Displaying 20000 of 20000 variable inst vars'.
+	self assert: inspector instVarListPresenter list size equals: 20002
+]
+
+{ #category : 'support' }
+JadeiteForPharoInspectorTestCase >> diveAt: index [
+	| instVarPresenter |
+	instVarPresenter := inspector instVarListPresenter.
+	self selectInstVarAtIndex: index.
+	^inspector dive
+]
+
+{ #category : 'support' }
+JadeiteForPharoInspectorTestCase >> inspectInstVarAt: index [
+	| instVarPresenter |
+	instVarPresenter := inspector instVarListPresenter.
+	self selectInstVarAtIndex: index.
+	^inspector inspectInstVar
+]
 
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> openWorkspaceAndInspect: aString [
@@ -33,7 +74,8 @@ JadeiteForPharoInspectorTestCase >> selectInstVarAtIndex: index [
 JadeiteForPharoInspectorTestCase >> tearDown [ 
 
 	super tearDown. 
-	self destroy: inspector 
+	self destroy: inspector.
+	self destroy: secondInspector
 ]
 
 { #category : 'tests' }
@@ -82,7 +124,120 @@ JadeiteForPharoInspectorTestCase >> test_addCharacterToString [
 JadeiteForPharoInspectorTestCase >> test_caption [
 
 	self openWorkspaceAndInspect: '123'.
-	self assert: ('Jadeite Inspector on SmallInteger on*' match: inspector owner title).
+	self assert: ('Inspector on SmallInteger for*' match: inspector owner title).
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_captionChange [
+
+	| ocIndex |
+	self
+		testsIssue: #issue154
+		withTitle: 'Change inspector title on dive #154'.
+	self openWorkspaceAndInspect:
+		'Array with: (Dictionary new at: #oc put: (OrderedCollection with: #leaf); yourself)'.
+	self assert: ('Inspector on Array for*' match: inspector caption).
+	self diveAt: 3.
+	self assert:
+		('Inspector on Dictionary for*' match: inspector caption).
+	ocIndex := inspector instVarListPresenter list indexOf:
+		           (inspector instVarListPresenter list detect: [ :item |
+			            item first = '#''oc''' ]).
+	self diveAt: ocIndex.
+	self assert:
+		('Inspector on OrderedCollection for*' match: inspector caption).
+	self diveAt: 3.
+	self assert: ('Inspector on Symbol for*' match: inspector caption).
+	inspector getPreviousObject.
+	self assert:
+		('Inspector on OrderedCollection for*' match: inspector caption).
+	inspector getPreviousObject.
+	self assert:
+		('Inspector on Dictionary for*' match: inspector caption).
+	inspector getPreviousObject.
+	self assert: ('Inspector on Array for*' match: inspector caption)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_inspectBag [
+
+	self openWorkspaceAndInspect: 'Bag new add: ''abc''; yourself'.
+	self
+		assert:inspector codePane text
+		equals: 'aBag( ''abc'')'.
+	self selectInstVarAtIndex: #( 2 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-.asOop'.
+	self selectInstVarAtIndex: #( 3 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_varyingSize'.
+	self selectInstVarAtIndex: #( 4 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_numEntries'.
+	self selectInstVarAtIndex: #( 5 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_indexedPaths'.
+	self selectInstVarAtIndex: #( 6 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_levels'.
+	self selectInstVarAtIndex: #( 7 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-dict'.
+	self selectInstVarAtIndex: #( 8 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-size'.
+	self selectInstVarAtIndex: #( 9 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '''abc'''.
+	self assert: inspector instVarListPresenter list size equals: 9
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_inspectIdentityBag [
+
+	self openWorkspaceAndInspect: '| abc | 
+				abc := ''abc''. 
+				IdentityBag new add: abc; add: abc; yourself'.
+	self
+		assert: inspector codePane text
+		equals: 'anIdentityBag( ''abc'', ''abc'')'.
+	self selectInstVarAtIndex: #( 2 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-.asOop'.
+	self selectInstVarAtIndex: #( 3 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_varyingSize'.
+	self selectInstVarAtIndex: #( 4 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_numEntries'.
+	self selectInstVarAtIndex: #( 5 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_indexedPaths'.
+	self selectInstVarAtIndex: #( 6 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '-_levels'.
+	self selectInstVarAtIndex: #( 7 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '''abc'''.
+	self selectInstVarAtIndex: #( 8 ).
+	self
+		assert: inspector instVarListPresenter selectedItem key
+		equals: '''abc'''.
+	self assert: inspector instVarListPresenter list size equals: 8
 ]
 
 { #category : 'tests' }
