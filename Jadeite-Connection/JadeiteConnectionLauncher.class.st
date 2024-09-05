@@ -106,6 +106,12 @@ JadeiteConnectionLauncher >> connect [
 				ifFalse: [ ^ self ] ]
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> connectButton [
+
+	^ connectButton
+]
+
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> connectConnection [
 
@@ -158,6 +164,12 @@ JadeiteConnectionLauncher >> defaultVerticalSpacing [
 JadeiteConnectionLauncher >> disconnect [
 
 	self connectionProfile disconnect
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> disconnectButton [
+
+	^ disconnectButton
 ]
 
 { #category : 'actions' }
