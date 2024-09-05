@@ -165,7 +165,7 @@ JadeiteConsole >> browseUsers [
 { #category : 'testing' }
 JadeiteConsole >> canDiscardEdits [
 
-	^ true
+	^ self confirmDisconnect
 ]
 
 { #category : 'as yet unclassified' }

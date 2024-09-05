@@ -23,6 +23,19 @@ JadeitePresenter >> commitTransaction [
 	^self application commitTransaction
 ]
 
+{ #category : 'as yet unclassified' }
+JadeitePresenter >> confirmDisconnect [
+
+	| shouldClose |
+	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
+		^ true ].
+	shouldClose := UIManager default confirm:
+		               'Really close window? This will disconnect and close all Jadeite windows.'.
+	shouldClose ifFalse: [ ^ false ].
+	JadeiteConnectionProfile connectionProfile disconnect.
+	^ true
+]
+
 { #category : 'actions' }
 JadeitePresenter >> preUpdate: services [
 ]

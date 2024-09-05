@@ -60,6 +60,12 @@ JadeiteConnectionLauncher >> basicImportProfile: fileStream [
 	self connectConnection
 ]
 
+{ #category : 'testing' }
+JadeiteConnectionLauncher >> canDiscardEdits [
+
+	^ self confirmDisconnect
+]
+
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 
