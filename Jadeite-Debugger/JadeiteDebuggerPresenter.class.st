@@ -94,10 +94,14 @@ JadeiteDebuggerPresenter >> browseFrameMethod [
 	| className selector |
 	frameListPresenter selectedItem ifNil: [ ^ self ].
 	className := frameListPresenter selectedItem homeMethodClassName.
+	className ifNil: [ ^ self ].
 	(className includes: Character space) ifTrue: [
 		className := (ReadStream on: className) upTo: Character space ].
 	selector := frameListPresenter selectedItem homeMethodSelector.
-	self openBrowser findClassNamed: className
+	^ self openBrowser
+		  updateAfterFindClassName: className
+		  methodSelector: selector
+		  meta: frameListPresenter selectedItem method meta
 ]
 
 { #category : 'initialization' }
@@ -404,7 +408,12 @@ JadeiteDebuggerPresenter >> initializeStackMenu [
 			  group addItem: [ :item |
 					  item
 						  name: 'Browse';
-						  action: [ self browseFrameMethod ] ] ];
+						  action: [ self browseFrameMethod ];
+						  enabled: [
+							  frameListPresenter selectedItem
+								  ifNil: [ false ]
+								  ifNotNil: [ :frameService |
+									  frameService homeMethodClassName notNil ] ] ] ];
 		  yourself
 ]
 

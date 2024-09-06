@@ -882,6 +882,24 @@ JadeiteForPharoBrowserTestCase >> test_selectVariable [
 		do: [:methodService | self assert: (methodService source substrings includes: 'isNewClass')]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_sendersOfOptimizedSelector [
+	"senders of optimized selectors were giving walkback"
+
+	| existingMethodListPresenters |
+	existingMethodListPresenters := JadeiteMethodListPresenter
+		                                allInstances.
+	methodListBrowser := self projectsPresenter browseSendersOf:
+		                     #_isNumber.
+	methodListBrowser := (JadeiteMethodListPresenter allInstances
+		                      difference: existingMethodListPresenters)
+		                     first.
+	self assert: methodListBrowser methodListPresenter list notEmpty.
+	self
+		assert: methodListBrowser methodSourcePresenter selection
+		equals: '_isNumber'
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
 

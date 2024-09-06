@@ -369,6 +369,15 @@ JadeiteBrowser >> tabs: anObject [
 	tabs := anObject
 ]
 
+{ #category : 'actions' }
+JadeiteBrowser >> updateAfterFindClassName: className methodSelector: selector meta: meta [
+
+	^ self activePresenter
+		  updateAfterFindClassName: className
+		  methodSelector: selector
+		  meta: meta
+]
+
 { #category : 'initialization' }
 JadeiteBrowser >> updateCaption [
 	self caption: (self gciSession titleBarFor: self shellName)

@@ -3642,6 +3642,20 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: selector meta: meta [
+
+	| classService methodService |
+	classService := RowanClassService new
+		                name: className;
+		                meta: meta.
+	methodService := RowanMethodService new
+		                 selector: selector;
+		                 className: className;
+		                 meta: meta.
+	^ self updateAfterFindClass: classService method: methodService
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClass: classService [
 	" a class service was updated, refresh our display"
 

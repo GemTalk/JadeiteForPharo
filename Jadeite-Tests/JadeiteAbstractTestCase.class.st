@@ -535,7 +535,9 @@ JadeiteAbstractTestCase >> projectListPresenter [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> projectsPresenter [
-	^projectsBrowser tabs currentCard activePresenter
+
+	^ projectsBrowser tabs currentCard ifNotNil: [
+		  projectsBrowser tabs currentCard activePresenter ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1111,8 +1113,9 @@ JadeiteAbstractTestCase >> tearDown [
 
 	super tearDown.
 	projectsBrowser ifNotNil: [
-		self projectsPresenter methodSourcePresenter adapter ifNotNil: [ :a |
-			a widget hasUnacceptedEdits: false ] ].
+		self projectsPresenter ifNotNil: [ :presenter |
+			presenter methodSourcePresenter adapter ifNotNil: [ :a |
+				a widget hasUnacceptedEdits: false ] ] ].
 	self destroy: projectsBrowser
 ]
 

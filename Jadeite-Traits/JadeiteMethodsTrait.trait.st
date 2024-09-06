@@ -161,8 +161,7 @@ JadeiteMethodsTrait >> basicSendersOf: string [
 			shell := self openMethodListOn: service selecting: string.
 			shell updateCaptionFromSearchString:
 				service answer size printString , ' Senders of '
-				, string asString printString ].
-	^ shell
+				, string asString printString ]
 ]
 
 { #category : 'queries' }
