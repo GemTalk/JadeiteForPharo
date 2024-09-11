@@ -664,7 +664,7 @@ JadeiteMethodsTrait >> noMatchesFoundMessageFor: wildcardString [
 { #category : 'testing' }
 JadeiteMethodsTrait >> okToChangeSelections [
 
-	self methodSourcePresenter hasUnacceptedEdits ifTrue: [
+	self methodSourcePresenter adapter widget hasUnacceptedEdits ifTrue: [
 		(MessageBox confirm:
 			 'You have unsaved changes. Discard changes and continue?')
 			ifTrue: [

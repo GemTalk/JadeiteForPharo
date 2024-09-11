@@ -354,6 +354,12 @@ JadeiteMethodListPresenter >> methods: services selectingAnyMatch: string [
 
 ]
 
+{ #category : 'testing' }
+JadeiteMethodListPresenter >> okToClose [
+
+	^ self okToChangeSelections
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> onCloseRequested: aCloseEvent [
 	aCloseEvent value: (methodSourcePresenter documentPresenter view isModified

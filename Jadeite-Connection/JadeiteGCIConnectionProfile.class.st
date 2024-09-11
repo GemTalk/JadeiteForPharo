@@ -62,6 +62,14 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 ]
 
 { #category : 'actions' }
+JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
+
+	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+		:window | window okToClose ifFalse: [ ^ false ] ].
+	^ true
+]
+
+{ #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
@@ -101,6 +109,7 @@ JadeiteGCIConnectionProfile >> disconnect [
 	subscriptions to the connection so launcher's don't get
 	stuck open"
 	connection ifNil: [ ^self ].
+	self confirmAllWindowsCanClose ifFalse: [^self]. 
 	connection close.
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
 	session ifNotNil: [ session logout ].
