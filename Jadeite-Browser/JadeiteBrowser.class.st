@@ -270,9 +270,10 @@ JadeiteBrowser >> methodsListPresenter [
 ]
 
 { #category : 'testing' }
-JadeiteBrowser >> okToClose [ 
+JadeiteBrowser >> okToClose [
 
-	^self activePresenter canDiscardEdits
+	self window isOpen ifFalse: [ ^ true ].
+	^ self activePresenter canDiscardEdits
 ]
 
 { #category : 'actions' }
