@@ -15,14 +15,38 @@ Class {
 		'disconnectButton',
 		'setPathButton',
 		'lastConnection',
-		'lastImportedFileName'
+		'lastImportedFileName',
+		'availableConnectionPresenter',
+		'displayFullPath'
 	],
 	#classVars : [
-		'ConnectionProfile'
+		'ConnectionProfile',
+		'ImportedConnections'
 	],
 	#category : 'Jadeite-Connection',
 	#package : 'Jadeite-Connection'
 }
+
+{ #category : 'as yet unclassified' }
+JadeiteConnectionLauncher class >> addImportedConnection: filePath [
+
+	(ImportedConnections collection includes: filePath) ifFalse: [
+		ImportedConnections add: filePath ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConnectionLauncher class >> importedConnections [
+
+	^ ImportedConnections 
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConnectionLauncher class >> importedConnections: aSpCollectionListModel [
+
+	ImportedConnections ifNotNil: [ :conn |
+		aSpCollectionListModel addAll: conn items ].
+	ImportedConnections := aSpCollectionListModel
+]
 
 { #category : 'actions' }
 JadeiteConnectionLauncher >> addStyle: style [
@@ -34,6 +58,7 @@ JadeiteConnectionLauncher >> addStyle: style [
 	versionText addStyle: style. 
 	netldiText addStyle: style. 
 	pathText addStyle: style. 
+	availableConnectionPresenter addStyle: style
 ]
 
 { #category : 'actions' }
@@ -127,7 +152,10 @@ JadeiteConnectionLauncher >> connectConnection [
 JadeiteConnectionLauncher >> connectPresenters [
 
 	super connectPresenters.
-	self connectConnection
+	self connectConnection.
+	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
+		self installImportedConnection: selection selectedItem.
+		self populateTextFields ]
 ]
 
 { #category : 'actions' }
@@ -238,7 +266,14 @@ JadeiteConnectionLauncher >> importProfile [
 		              answer.
 	fileStream ifNil: [ ^ self ].
 	lastImportedFileName := fileWindow selectedFileName. 
+	self class addImportedConnection: fileWindow selectedPathName. 
 	self basicImportProfile: fileStream
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initialize [ 
+	super initialize. 
+	displayFullPath := false
 ]
 
 { #category : 'initialization' }
@@ -253,6 +288,26 @@ JadeiteConnectionLauncher >> initializeAboutMenu [
 ]
 
 { #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
+
+	self layout
+		add: (self newLabel
+				 label: 'Available Connections:';
+				 help: 'Imported Connections will show up in this list')
+		withConstraints: [ :constraints | constraints height: 20 ].
+	availableConnectionPresenter := JadeiteListPresenter new
+		                                display: [ :filePath |
+			                                displayFullPath
+				                                ifTrue: [ filePath ]
+				                                ifFalse: [
+					                                self shortPathFor: filePath ] ];
+		                                contextMenu:
+			                                self initializeConnectionsMenu.
+	self layout add: availableConnectionPresenter.
+	self class importedConnections: availableConnectionPresenter model
+]
+
+{ #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeButtons [
 
 	connectButton := self newButton
@@ -261,17 +316,64 @@ JadeiteConnectionLauncher >> initializeButtons [
 	disconnectButton := self newButton
 		                    label: 'Disconnect';
 		                    action: [ self disconnect ].
-	self layout add: (SpBoxLayout newHorizontal
-			 hAlign: SpLayoutWidgetAlignment center;
-			 add: connectButton withConstraints: [ :constraints |
+	self layout
+		add: (SpBoxLayout newHorizontal
+				 hAlign: SpLayoutWidgetAlignment center;
+				 add: connectButton withConstraints: [ :constraints |
+					 constraints
+						 height: 30;
+						 padding: 10 "put a little extra space around button beyond 'spacing'" ];
+				 add: disconnectButton withConstraints: [ :constraints |
 				 constraints
 					 height: 30;
-					 padding: 10 "put a little extra space around button beyond 'spacing'" ];
-			 add: disconnectButton withConstraints: [ :constraints |
-			 constraints
-				 height: 30;
-				 padding: 10 ]).
+					 padding: 10 ])
+		withConstraints: [ :constraints |
+			constraints
+				height: 30 ].
 	self enableButtons
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
+
+	| pathBox |
+	pathBox := SpBoxLayout newHorizontal.
+	pathBox
+		add: (self newLabel label: 'Client Libraries Path:')
+		withConstraints: [ :constraints | constraints height: 20 ].
+	setPathButton := self newButton
+		                 label: 'Set Path';
+		                 icon: (self iconNamed: #smallHome);
+		                 action: [ self setPath ].
+	pathBox add: setPathButton withConstraints: [ :constraints1 |
+		constraints1
+			height: 20;
+			width: 200;
+			padding: 5 ].
+	self layout
+		add: pathBox
+		withConstraints: [ :constraints | constraints height: 50 ].
+	pathText := self newTextInput beNotEditable.
+	self layout
+		add: pathText
+		withConstraints: [ :constraints | constraints height: 30 ]
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeConnectionsMenu [
+
+	| menu |
+	menu := self newMenu.
+	menu
+		addItem: [ :item |
+			item
+				name: 'Toggle Full Path Display';
+				action: [ self toggleFullPathDisplay ] ];
+		addItem: [ :item |
+			item
+				name: 'Remove Item';
+				action: [ self removeSelectedConnection ] ].
+	^ menu
 ]
 
 { #category : 'initialization' }
@@ -343,30 +445,6 @@ JadeiteConnectionLauncher >> initializePasswordPresenter [
 ]
 
 { #category : 'initialization' }
-JadeiteConnectionLauncher >> initializePathPresenter [
-
-	| pathBox |
-	pathBox := SpBoxLayout newHorizontal.
-	pathBox
-		add: (self newLabel label: 'Client Libraries Path:')
-		withConstraints: [ :constraints | constraints height: 20 ].
-	setPathButton := self newButton
-		                 label: 'Set Path';
-		                 icon: (self iconNamed: #smallHome);
-		                 action: [ self setPath ].
-	pathBox add: setPathButton withConstraints: [ :constraints1 | 
-		constraints1
-			height: 20;
-			width: 150;
-			padding: 10 ].
-	self layout add: pathBox.
-	pathText := self newTextInput beNotEditable.
-	self layout
-		add: pathText
-		withConstraints: [ :constraints | constraints height: 30 ]
-]
-
-{ #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePresenter [
 	super initializePresenter. 
 	self populateTextFields.
@@ -383,7 +461,8 @@ JadeiteConnectionLauncher >> initializePresenters [
 	self initializePasswordPresenter.
 	self initializeVersionPresenter.
 	self initializeNetldiPresenter.
-	self initializePathPresenter.
+	self initializeClientLibPathPresenter.
+	self initializeAvailableConnectionPresenter. 
 	self initializeButtons. 
 	self setFocusOrder
 	
@@ -429,10 +508,20 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 400 @ 550;
+		initialExtent: 400 @ 650;
 		menu: self initializeMenubar.
 	self updateCaption.
 	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> installImportedConnection: filePath [
+
+	| fileStream |
+	fileStream := ZnCharacterReadStream
+		              on: filePath asFileReference binaryReadStream
+		              encoding: 'utf8'.
+	self basicImportProfile: fileStream
 ]
 
 { #category : 'accessing' }
@@ -503,6 +592,12 @@ JadeiteConnectionLauncher >> populateTextFields [
 	pathText text: self connectionProfile path
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> removeSelectedConnection [
+
+	availableConnectionPresenter model remove: availableConnectionPresenter selectedItem 
+]
+
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> setFocusOrder [
 
@@ -532,6 +627,12 @@ JadeiteConnectionLauncher >> setPath [
 ]
 
 { #category : 'accessing' }
+JadeiteConnectionLauncher >> shortPathFor: filePath [
+
+	^ filePath asFileReference basename
+]
+
+{ #category : 'accessing' }
 JadeiteConnectionLauncher >> stoneText [
 
 	^ stoneText
@@ -541,6 +642,13 @@ JadeiteConnectionLauncher >> stoneText [
 JadeiteConnectionLauncher >> stoneText: anObject [
 
 	stoneText := anObject
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> toggleFullPathDisplay [
+
+	displayFullPath := displayFullPath not.
+	availableConnectionPresenter invalidate. 
 ]
 
 { #category : 'actions' }
