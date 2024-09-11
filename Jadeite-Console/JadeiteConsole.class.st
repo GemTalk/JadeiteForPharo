@@ -165,7 +165,7 @@ JadeiteConsole >> browseUsers [
 { #category : 'testing' }
 JadeiteConsole >> canDiscardEdits [
 
-	^ self confirmDisconnect
+	^true
 ]
 
 { #category : 'as yet unclassified' }
@@ -259,10 +259,16 @@ JadeiteConsole >> createNewProject [
 	^projectListPresenter createNewProject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'defaults' }
 JadeiteConsole >> defaultLayout [ 
 
 	^SpBoxLayout newVertical
+]
+
+{ #category : 'defaults' }
+JadeiteConsole >> defaultWindowPresenterClass [
+		
+	^ JadeiteGlobalWindowPresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -625,6 +631,18 @@ JadeiteConsole >> jadeiteHelpFileNameRoot [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> lastKnownTransaction [
 	^lastKnownTransaction
+]
+
+{ #category : 'testing' }
+JadeiteConsole >> okToChangeSelections [
+
+	^true
+]
+
+{ #category : 'testing' }
+JadeiteConsole >> okToClose [
+
+	^true
 ]
 
 { #category : 'as yet unclassified' }

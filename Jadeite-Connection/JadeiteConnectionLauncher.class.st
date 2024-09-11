@@ -88,7 +88,7 @@ JadeiteConnectionLauncher >> basicImportProfile: fileStream [
 { #category : 'testing' }
 JadeiteConnectionLauncher >> canDiscardEdits [
 
-	^ self confirmDisconnect
+	^true
 ]
 
 { #category : 'initialization' }
@@ -186,6 +186,12 @@ JadeiteConnectionLauncher >> defaultLayout [
 JadeiteConnectionLauncher >> defaultVerticalSpacing [
 
 	^5
+]
+
+{ #category : 'defaults' }
+JadeiteConnectionLauncher >> defaultWindowPresenterClass [
+		
+	^ JadeiteGlobalWindowPresenter
 ]
 
 { #category : 'actions' }
@@ -348,11 +354,10 @@ JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 	pathBox add: setPathButton withConstraints: [ :constraints1 |
 		constraints1
 			height: 20;
-			width: 200;
 			padding: 5 ].
 	self layout
 		add: pathBox
-		withConstraints: [ :constraints | constraints height: 50 ].
+		withConstraints: [ :constraints | constraints height: 30 ].
 	pathText := self newTextInput beNotEditable.
 	self layout
 		add: pathText
