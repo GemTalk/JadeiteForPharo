@@ -4,6 +4,9 @@ Can't subclass SpCodeInspectItCommand because code context menus are built by it
 Class {
 	#name : 'JadeiteCodeInspectItCommand',
 	#superclass : 'SpToolCommand',
+	#instVars : [
+		'inspector'
+	],
 	#category : 'Jadeite-Inspector',
 	#package : 'Jadeite-Inspector'
 }
@@ -32,6 +35,12 @@ JadeiteCodeInspectItCommand class >> defaultShortcutKey [
 	^ $i command mac 
 		| $i control win
 		| $i control unix
+]
+
+{ #category : 'accessing' }
+JadeiteCodeInspectItCommand >> _inspector [
+
+	^ inspector
 ]
 
 { #category : 'executing' }
@@ -71,8 +80,9 @@ JadeiteCodeInspectItCommand >> execute [
 	"copied from SpCodeInspectItCommand>>execute. 
 	Cannot subclass from SpCodeInspectItCommand because the Spec2 framework instantiates
 	the menu items from it's subclasses which causes problems."
-	self evaluateSelectionAndDo: [ :result | 
-		"do nothing for now. inspection done earlier"] 
+
+	self evaluateSelectionAndDo: [ :result |
+		inspector := result "save result for testing" ]
 ]
 
 { #category : 'executing' }

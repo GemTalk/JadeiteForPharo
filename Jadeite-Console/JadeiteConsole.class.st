@@ -211,6 +211,7 @@ JadeiteConsole >> columnWithAspect: aspect title: title [
 				          ifNotNil: [ :value | value asString ] ].
 	column
 		displayBold: [ :projectService | projectService isDirty ];
+		displayItalic: [ :projectService | projectService existsOnDisk not ];
 		displayColor: [ :projectService |
 			projectService isSkew
 				ifTrue: [ Color red ]
@@ -241,17 +242,6 @@ JadeiteConsole >> connectPresenters [
 JadeiteConsole >> connection [
 
 	^self gciSession library
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> createComponents [
-	super createComponents.
-	projectListPresenter := self add: JadeiteProjectListPresenter new name: 'Projects'.
-	lastKnownTransaction := self add: TextPresenter new name: 'lastKnownTransaction'.
-	lastKnownTransaction value: 'Last Known Commit or Abort: (unknown)'. 
-	transactionModePresenter := self add: RadioButtonSetPresenter new name: 'transactionMode'.
-	transactionModePresenter model: (self aspectValue: #transactionMode).
-	cardContainer := self add: Presenter new name: 'cardContainer'. "for testing"
 ]
 
 { #category : 'as yet unclassified' }
@@ -535,8 +525,6 @@ JadeiteConsole >> initializeProjectListPresenter: tabs [
 		column := columns at: index.
 		column width: (initialWidths at: index).
 		projectListPresenter addColumn: column ].
-	"projectListPresenter items:
-		(Array with: RowanProjectService new with: RowanProjectService new)."
 	tabs add: projectListPresenter label: 'Projects'.
 	self initializeProjectListMenu
 ]
@@ -754,71 +742,6 @@ JadeiteConsole >> projectListPresenter [
 { #category : 'actions' }
 JadeiteConsole >> projectListUpdated [
 	"no other lists to clear"
-]
-
-{ #category : 'accessing' }
-JadeiteConsole >> queryCommand: aCommandQuery [
-	super queryCommand: aCommandQuery.
-	aCommandQuery commandSymbol = #loadProject
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			^true].
-	aCommandQuery commandSymbol = #reloadProject
-		ifTrue: 
-			[aCommandQuery isEnabled: projectListPresenter projectListPresenter selections notEmpty.
-			^true].
-	aCommandQuery commandSymbol = #begin
-		ifTrue: 
-			[aCommandQuery isEnabled: self isBeginTransactionEnabled.
-			^true].
-	aCommandQuery commandSymbol = #commitTransaction
-		ifTrue: 
-			[aCommandQuery isEnabled: self isCommitEnabled.
-			^true].
-	aCommandQuery commandSymbol = #flipTranscript
-		ifTrue: 
-			[aCommandQuery isChecked: self isTranscriptInstalled.
-			^true].
-	aCommandQuery commandSymbol = #flipAutoCommit
-		ifTrue: 
-			[aCommandQuery
-				isChecked: (GciSession current ifNil: [false] ifNotNil: [:session | session autoCommit == true]).
-			^true].
-	aCommandQuery commandSymbol = #flipDebugger
-		ifTrue: 
-			[aCommandQuery isChecked: JadeiteDebugger debuggerClass = JadeiteDebugger.
-			^true].
-	aCommandQuery commandSymbol = #flipLogging
-		ifTrue: 
-			[aCommandQuery isChecked: RowanServiceUpdater current isLogging.
-			^true].
-	aCommandQuery commandSymbol = #flipBreakpointsEnabled
-		ifTrue: 
-			[aCommandQuery isChecked: areBreakpointsEnabled value.
-			^true].
-	aCommandQuery commandSymbol = #flipAutocomplete
-		ifTrue: 
-			[aCommandQuery isChecked: autoCompleteEnabled value.
-			^true].
-	aCommandQuery commandSymbol = #fileSave
-		ifTrue: 
-			[aCommandQuery isEnabled: codePane view hasFocus.
-			^true].
-	aCommandQuery commandSymbol = #fileSaveAs
-		ifTrue: 
-			[aCommandQuery isEnabled: codePane view hasFocus.
-			^true].
-	#togglePackageList == aCommandQuery command
-		ifTrue: 
-			[ aCommandQuery isEnabled: true.
-			aCommandQuery isChecked: JadePresenter packageListVisible.
-			^true].
-	#togglePackageGroups == aCommandQuery command
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			aCommandQuery isChecked: JadePresenter packageGroupsVisible.
-			^true].
-	^false
 ]
 
 { #category : 'as yet unclassified' }

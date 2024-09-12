@@ -1008,17 +1008,6 @@ JadeiteMethodListBrowserTestCase >> test_browseSendersEnablement [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_browseSendersFoo [
-	self testsIssue: #issue500
-		withTitle: '(Oscar-3.0.74) highlighting of multi-keyword selectors in senders/implementors browser is broken'.
-	methodListBrowser := JadePresenter browseSendersOf: #foo session: session.
-	self methodListMethodListPresenter list do: 
-			[:methodService |
-			self methodListMethodListPresenter selection: methodService.
-			self assert: ('foo*' match: self methodSourcePresenter documentPresenter selection)	"use match because we might pickup a '.'"]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_browseSendersIsDirty [
 	self testsIssue: #issue500
 		withTitle: '(Oscar-3.0.74) highlighting of multi-keyword selectors in senders/implementors browser is broken'.

@@ -1726,15 +1726,17 @@ JadeiteBrowserPresenter >> initializePresenters [
 JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 
 	projectListPresenter := JadeiteListPresenter new
-		                        display: [ :projectService | 
+		                        display: [ :projectService |
 			                        projectService displayName ];
-		                        displayBold: [ :projectService | 
+		                        displayBold: [ :projectService |
 			                        projectService isDirty ];
-		                        displayColor: [ :projectService | 
+		                        displayItalic: [ :projectService |
+			                        projectService existsOnDisk not ];
+		                        displayColor: [ :projectService |
 			                        projectService isSkew
 				                        ifTrue: [ Color red ]
 				                        ifFalse: [ self theme textColor ] ].
-	projectListPresenter owner: self. 
+	projectListPresenter owner: self.
 	tabs add: projectListPresenter.
 	self initializeProjectListMenu
 ]

@@ -360,6 +360,23 @@ JadeiteAbstractTestCase >> haltTestForHardToCatchErrors: reason [
 	proc halt: proc topFrame sender cause: reason
 ]
 
+{ #category : 'accessing' }
+JadeiteAbstractTestCase >> inspectMethodSourceSelectionIn: browser [
+
+	| menuPresenter command |
+	"ugly dive into the code that the browser uses to inspect"
+	menuPresenter := browser methodSourcePresenter
+		                 contextMenu value.
+	command := (menuPresenter menuGroups first menuItems detect: [
+		            :menuItemPresenter |
+		            menuItemPresenter description
+		            = 'Evaluate selection and inspect the result.' ]) action
+		           value.
+	[ command innerCommand _inspector ] whileNil: [
+		(Delay forMilliseconds: 1) wait ].
+	^ command innerCommand _inspector
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> interestingLoopMethodSource [
 	^'interestingLoop
@@ -496,8 +513,8 @@ JadeiteAbstractTestCase >> nonSystemSessionCount [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> openProjectBrowser [
-	projectsBrowser
-		ifNil: [projectsBrowser := self openWindow: [JadeiteBrowser showOnSession: session]]
+
+	projectsBrowser ifNil: [ self setupProjectBrowser ]
 ]
 
 { #category : 'as yet unclassified' }

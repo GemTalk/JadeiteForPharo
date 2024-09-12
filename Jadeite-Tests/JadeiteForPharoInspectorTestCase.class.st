@@ -88,6 +88,52 @@ JadeiteForPharoInspectorTestCase >> test_adHocExecution [
 	self assert: inspector codePane text equals: 'self size "2"'
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_adHocInspect [
+
+	| methodListBrowser |
+	self
+		testsIssue: #issue427
+		withTitle: '(3.0.60) autocommit not done after successful doits'.
+	self
+		testsIssue: #issue712
+		withTitle:
+		'Inspect UserGlobals from Method list, get ByteArray DNE asHexString'.
+
+	self openProjectBrowser.
+
+	self selectRowanSample1Test.
+	self
+		saveMethod: 'bartooee  ^UserGlobals size'
+		in: 'RowanSample1Test'
+		category: 'deleteme'.
+	self selectMethodNamed: #bartooee.
+	self projectsPresenter methodSourcePresenter selectionInterval:
+		(12 to: 22).
+	inspector := self inspectMethodSourceSelectionIn:
+		             self projectsPresenter.
+	[
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: 'self'.
+	self
+		assert: inspector codePane text
+		equals: 'aSymbolDictionary( name: #''UserGlobals'' )' ] ensure: [
+		self destroy: inspector ].
+	methodListBrowser := self projectsPresenter browseImplementors.
+	[
+	methodListBrowser methodSourcePresenter selectionInterval:
+		(12 to: 22).
+	inspector := self inspectMethodSourceSelectionIn: methodListBrowser.
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: 'self'.
+	self
+		assert: inspector codePane text
+		equals: 'aSymbolDictionary( name: #''UserGlobals'' )' ] ensure: [
+		self destroy: methodListBrowser ]
+]
+
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_addCharacterToString [
 	"add a character to a string and expect to have it highlighted"

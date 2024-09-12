@@ -106,49 +106,6 @@ JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInNavigationInspecto
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_adHocInspect [
-	| workspace methodListBrowser |
-	self testsIssue: #issue427 withTitle: '(3.0.60) autocommit not done after successful doits'.
-	self testsIssue: #issue712
-		withTitle: 'Inspect UserGlobals from Method list, get ByteArray DNE asHexString'.
-	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self assert: (workspace isKindOf: JadeiteWorkspace).
-	workspace setDocumentData: '123'.
-	workspace setFocus.
-	inspector := workspace codePane jadeInspect.
-	self assert: inspector documentPresenter model value equals: '123'.
-	self assert: inspector instVarListPresenter selection key equals: 'self']
-			ensure: 
-				[workspace isModified: false.
-				self closeBrowser: workspace.
-				self closeBrowser: inspector].
-	self openProjectBrowser.
-	
-	[self selectRowanSample1Test.
-	self
-		saveMethod: 'bartooee  ^UserGlobals size'
-		in: 'RowanSample1Test'
-		category: 'deleteme'.
-	self selectMethodNamed: #bartooee.
-	self projectsPresenter methodSourcePresenter view selectionRanges: (Array with: (12 to: 22)).
-	self projectsPresenter methodSourcePresenter view setFocus.
-	inspector := self projectsPresenter jadeInspect.
-	[self assert: inspector instVarListPresenter selection key equals: 'self']
-		ensure: [self closeBrowser: inspector].
-	methodListBrowser := self projectsPresenter browseImplementors.
-	methodListBrowser primaryPresenter methodSourcePresenter documentPresenter view
-		selectionRange: (12 to: 22).
-	methodListBrowser primaryPresenter methodSourcePresenter view setFocus.
-	inspector := self projectsPresenter jadeInspect.
-	self assert: inspector instVarListPresenter selection key equals: 'self']
-			ensure: 
-				[self closeBrowser: projectsBrowser.
-				self closeBrowser: inspector.
-				self closeBrowser: methodListBrowser]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_adHocInspectCompileError [
 	| workspace |
 	self testsIssue: #issue688 withTitle: '(3.0.92) Compile Errors in Workspace broken'.
