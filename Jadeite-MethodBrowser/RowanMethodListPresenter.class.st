@@ -76,22 +76,3 @@ RowanMethodListPresenter >> updateSaveMethodOop: anInteger [
 	super updateSaveMethodOop: anInteger.
 	methodListPresenter primaryPresenter selection
 ]
-
-{ #category : 'as yet unclassified' }
-RowanMethodListPresenter >> updateSource [
-	| gsClass rowanMethodDef gsMethod | 
-	(gsClass := self selectedClass)
-		ifNotNil: 
-			[(rowanMethodDef := methodListPresenter selectedMethod)
-				ifNotNil: 
-					[rowanMethodDef gsClass ~= gsClass ifTrue: [self error: 'Method not from selected class!'].
-					gsMethod := GsMethod fromOopType: rowanMethodDef oopType session: rowanMethodDef gciSession]].
-	gsMethod
-		ifNotNil: 
-			[methodSourcePresenter gsMethod: gsMethod.
-			rowanMethodDef source: gsMethod source.
-			self doSearch].
-	methodListPresenter selectedMethod ifNil: [^self].
-	methodSourcePresenter documentPresenter
-		lastGsShape: (self registry getClass: methodListPresenter selectedMethod gsClass name)
-]

@@ -167,6 +167,35 @@ JadeiteForPharoInspectorTestCase >> test_addCharacterToString [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_browseClass [
+
+	self openWorkspaceAndInspect: 'RowanClassService new'.
+	projectsBrowser := inspector browseClass.
+	self assert: (projectsBrowser isKindOf: JadeiteBrowser).
+	self
+		assert: projectsBrowser projectListPresenter selectedItem name
+		equals: 'RowanClientServices'.
+	self
+		assert: projectsBrowser packageListPresenter selectedItem name
+		equals: 'Rowan-Services-Core'.
+	self
+		assert: projectsBrowser classListPresenter selectedItem name
+		equals: 'RowanClassService'.
+	self deny: projectsBrowser activePresenter isClassSideSelected.
+	self assert: projectsBrowser activePresenter isCategoryTabSelected
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_browseProjects [
+
+	self openWorkspaceAndInspect:
+		'''test toolbar button from inspector'''.
+
+	projectsBrowser := inspector openBrowser.
+	self assert: projectsBrowser isKindOf: JadeiteBrowser
+]
+
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_caption [
 
 	self openWorkspaceAndInspect: '123'.
@@ -327,14 +356,6 @@ JadeiteForPharoInspectorTestCase >> test_inspectIdentityBag [
 		assert: inspector instVarListPresenter selectedItem key
 		equals: '''abc'''.
 	self assert: inspector instVarListPresenter list size equals: 8
-]
-
-{ #category : 'tests' }
-JadeiteForPharoInspectorTestCase >> test_openProjectsBrowser [
-
-	self openWorkspaceAndInspect: 'RowanClassService new'.
-	projectsBrowser := inspector browseClass.
-	self assert: (projectsBrowser isKindOf: JadeiteBrowser)
 ]
 
 { #category : 'tests' }

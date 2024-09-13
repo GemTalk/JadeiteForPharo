@@ -70,25 +70,6 @@ JadeTreeMethodListPresenter >> buildHistoryForwardMenu [
 ]
 
 { #category : 'as yet unclassified' }
-JadeTreeMethodListPresenter >> buildHistoryMenuWith: entryCollection command: command [
-	| popup subMenu classesNames |
-
-	classesNames := Set new.
-	popup := Menu new.
-
-	(entryCollection select: [:each | each notNil]) do: [:historyEntry | 
-		(classesNames includes: historyEntry getClassName) 
-		ifFalse: [subMenu := popup addSubmenu: historyEntry getClassName.
-				classesNames add: historyEntry getClassName].
-		subMenu addCommand: (Message selector: command argument: historyEntry) description: historyEntry getMethodName.
-		subMenu setDefault: 1
-	].
-
-	popup setDefault: 1.
-	^popup
-]
-
-{ #category : 'as yet unclassified' }
 JadeTreeMethodListPresenter >> createComponents [
 
 	super createComponents.

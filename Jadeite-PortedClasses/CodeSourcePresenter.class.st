@@ -494,11 +494,6 @@ CodeSourcePresenter >> setCaretToEndOfSelection [
 
 ]
 
-{ #category : 'public' }
-CodeSourcePresenter >> setDocumentPresenterWith: aJadeGsClassShape [
-	documentPresenter lastGsShape: aJadeGsClassShape
-]
-
 { #category : 'private' }
 CodeSourcePresenter >> setFont [
 

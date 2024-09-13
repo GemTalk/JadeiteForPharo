@@ -1684,37 +1684,6 @@ JadeSystemBrowserPresenter >> updateMethodFilter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updateMethodList [
-
-	| fullList selections |
-	fullList := (readStream nextParagraph subStrings: Character lf) collect: [:each | (each subStrings: Character tab) , #('' '' '' '' '')].
-	fullList := fullList do: [:each | 	"JadeServer>>#'sbUpdateMethods' "
-		each 
-			at: 2 put: (each at: 2) = 'T';		"has a superclass implementation"
-			at: 3 put: (each at: 3) = 'T';		"is in a TestCase class"
-			at: 4 put: (each at: 4) = 'T';		"method replaced by GsPackagePolicy"
-			yourself.
-	].
-	fullList = methodListPresenter list ifFalse: [
-		methodListPresenter list: (ListModel withAll: fullList).
-	].
-	selections := readStream nextLineAsList.	"JadeServer>>#'sbUpdateMethodSelectionsIn:' "
-	selections := methodListPresenter list select: [:eachArray | selections includes: eachArray first].
-	selections = methodListPresenter selections ifFalse: [
-		methodListPresenter selections: selections.
-	].
-	selections notEmpty ifTrue: [
-		methodListPresenter view ensureSelectionVisible.
-	] ifFalse: [
-		fullList notEmpty ifTrue: [
-			methodListPresenter view ensureVisible: 1.
-		].
-	].
-
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> updateOverrideList [
 
 	| list selection |

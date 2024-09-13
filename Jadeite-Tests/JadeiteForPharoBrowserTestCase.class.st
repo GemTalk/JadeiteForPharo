@@ -349,6 +349,19 @@ JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_browseClass [
+	"project browser opened in setup"
+
+	projectsBrowser ifNotNil: [
+		self closeBrowser: projectsBrowser.
+		self setupProjectBrowser ].
+	self assert: projectsBrowser class equals: JadeiteBrowser.
+	self denyIsNil: (self projectList
+			 detect: [ :projectService | projectService name = 'Rowan' ]
+			 ifNone: [  ])
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_browseClassMethodSourceNotDirty [
 	"was seeing method source dirty when method selected.
 	Seemed to happen more when browser first opened."
@@ -765,19 +778,6 @@ JadeiteForPharoBrowserTestCase >> test_methodSourcechangeIndicator [
 	self projectsPresenter resetMethodSource. 
 	self assert: self methodSourcePresenter text = 'foo  ^''instance side'''. 
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_openProjectsBrowser [
-	"project browser opened in setup"
-
-	projectsBrowser ifNotNil: [
-		self closeBrowser: projectsBrowser.
-		self setupProjectBrowser ].
-	self assert: projectsBrowser class equals: JadeiteBrowser.
-	self denyIsNil: (self projectList
-			 detect: [ :projectService | projectService name = 'Rowan' ]
-			 ifNone: [  ])
 ]
 
 { #category : 'tests' }

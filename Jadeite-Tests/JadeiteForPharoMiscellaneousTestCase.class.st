@@ -228,6 +228,18 @@ JadeiteForPharoMiscellaneousTestCase >> test_serviceClassBookkeeping [
 
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoMiscellaneousTestCase >> test_workspaceBrowseProjects [
+
+	self
+		testsIssue: #issue265
+		withTitle: 'workspace could use a `browse projects` menu item ... '.
+	workspace := JadeiteWorkspace showOnSession: session.
+
+	projectsBrowser := workspace openBrowser.
+	self assert: projectsBrowser isKindOf: JadeiteBrowser
+]
+
 { #category : 'support' }
 JadeiteForPharoMiscellaneousTestCase >> writeUnicodeFile [
 	"write out a text file with unicode characters"

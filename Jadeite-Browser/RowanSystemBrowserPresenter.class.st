@@ -1,6 +1,6 @@
 Class {
 	#name : 'RowanSystemBrowserPresenter',
-	#superclass : 'JadeAutoSystemBrowserPresenter',
+	#superclass : 'JadeSystemBrowserPresenter',
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }

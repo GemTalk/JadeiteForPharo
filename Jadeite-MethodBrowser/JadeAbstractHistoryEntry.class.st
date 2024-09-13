@@ -72,13 +72,6 @@ JadeAbstractHistoryEntry >> hasAllValues [
 ]
 
 { #category : 'as yet unclassified' }
-JadeAbstractHistoryEntry >> hasClassName [
-	"<className> is anArray with all hierarchy names"
-
-	^self getClassName notEmpty
-]
-
-{ #category : 'as yet unclassified' }
 JadeAbstractHistoryEntry >> hasMethodName [
 
 	^self getMethodName notEmpty
@@ -94,11 +87,4 @@ JadeAbstractHistoryEntry >> methodName [
 { #category : 'as yet unclassified' }
 JadeAbstractHistoryEntry >> methodName: anObject [
 	methodName := anObject
-]
-
-{ #category : 'as yet unclassified' }
-JadeAbstractHistoryEntry >> printOn: target [
-
-
-	target nextPutAll: ('aHistoryEntry ', self getClassName, '>>', self getMethodName)
 ]

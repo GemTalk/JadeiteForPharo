@@ -34,20 +34,6 @@ JadeiteWorkspaceTestCase >> test_workspaceAdHocDisplayUnicodeCharacters [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteWorkspaceTestCase >> test_workspaceBrowseProjects [
-	| jadeiteMenu browseProjectsItem |
-	self testsIssue: #issue265 withTitle: 'workspace could use a `browse projects` menu item ... '.
-	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[jadeiteMenu := self itemNamed: 'Jadeite' in: workspace view menuBar.
-	browseProjectsItem := self itemNamed: 'Browse Projects' in: jadeiteMenu.
-	projectsBrowser := browseProjectsItem commandDescription performAgainst: workspace]
-			ensure: 
-				[workspace view close.
-				self destroy: projectsBrowser]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteWorkspaceTestCase >> test_workspaceConfirmInteraction [
 	| result |
 	self testsIssue: #issue303 withTitle: 'Need to handle confirm:'.
