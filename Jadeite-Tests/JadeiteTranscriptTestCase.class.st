@@ -339,22 +339,6 @@ JadeiteTranscriptTestCase >> test_browseFindClassMenuItem [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteTranscriptTestCase >> test_browseImplementors [
-	| methodListBrowser methodList |
-	self testsIssue: #issue235 withTitle: 'Need Find Class/Method from console'.
-	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[TestPrompter plannedResult: 'size'.
-	methodListBrowser := transcript browseImplementorsOf.
-	methodList := methodListBrowser primaryPresenter methodListPresenter methodListPresenter list.
-	self assert: methodList notEmpty.
-	self assert: ('Implementors of ''size'' for*' match: methodListBrowser caption)]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				self destroy: methodListBrowser]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_browseImplementorsMenuItem [
 	| browseMenu browseImplementorsItem |
 	self testsIssue: #issue251 withTitle: '`Browse Methods Containing` available from Console menu'.

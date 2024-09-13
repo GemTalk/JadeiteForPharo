@@ -648,15 +648,6 @@ JadeiteMethodListBrowserTestCase >> test_browseClassReferenceCaptionTitle [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_browseClassReferences [
-	methodListBrowser := JadePresenter browseClassReferences: 'AbstractCharacter' session: session.
-	self methodListMethodListPresenter list do: 
-			[:methodService |
-			self methodListMethodListPresenter selection: methodService.
-			self assert: ('AbstractCharacter*' match: self methodSourcePresenter documentPresenter selection)	"use match because we might pickup a '.'"]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_browseClassReferencesEnablement [
 	| commandQuery methodListPresenter |
 	methodListBrowser := JadePresenter browseImplementorsOf: #defaultAction session: session.

@@ -11,6 +11,28 @@ JadeiteForPharoTestCase class >> defaultTimeLimit [
 	^ 30 seconds
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoTestCase class >> testCount [
+	"self testCount
+	show and count the number of tests in my subclasses"
+
+	| testDictionary allTestCount count |
+	testDictionary := Dictionary new.
+	allTestCount := 0.
+	'======================' traceCr.
+	self traceCr.
+	count := 0.
+	self localMethods do: [ :method |
+		('test_*' match: method selector) ifTrue: [
+			count := count + 1.
+			Character tab trace. method selector traceCr ] ].
+	allTestCount := allTestCount + count.
+	'--------------------' traceCr.
+	(self name, 'test count - ' , allTestCount printString) traceCr.
+	'======================' traceCr.
+	^allTestCount 
+]
+
 { #category : 'support' }
 JadeiteForPharoTestCase >> closeConnectionLaunchers [ 
 

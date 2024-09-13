@@ -9,6 +9,16 @@ Class {
 }
 
 { #category : 'support' }
+JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfImplementorsOf: aString [
+	"just calling this method #browserImplementorsOf: would confuse it with production methods"
+
+	self waitForMethodListBrowserWhile: [
+		[ jadeiteShell browseImplementorsOf ]
+			on: ProvideAnswerNotification
+			do: [ :notification | notification resume: aString ] ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoMethodListTestCase >> tearDown [
 
 	super tearDown.
@@ -16,7 +26,41 @@ JadeiteForPharoMethodListTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseClassReferences [
+
+	| methodService originalMethodListBrowser |
+	self openMethodListBrowserOfImplementorsOf: 'size'.
+	methodService := methodListBrowser methodListPresenter items
+		                 detect: [ :service | service className = 'Bag' ]
+		                 ifNone: [  ].
+	methodListBrowser methodListPresenter unselectAll. "Apparently you have to deselect all items before a single selection can be made"
+	methodListBrowser methodListPresenter selectItem: methodService.
+	originalMethodListBrowser := methodListBrowser.
+	[
+	self waitForMethodListBrowserWhile: [
+		originalMethodListBrowser browseClassReferences ].
+	methodListBrowser methodListPresenter items do: [ :service |
+		methodListBrowser methodListPresenter selectItem: service.
+		self assert:
+			('*Bag*' match: methodListBrowser methodSourcePresenter text) ] ]
+		ensure: [ self destroy: originalMethodListBrowser ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseImplementors [
+
+	| methodService |
+	self openMethodListBrowserOfImplementorsOf: 'answer'.
+	methodService := methodListBrowser methodListPresenter items
+		                 detect: [ :service |
+		                 service className = 'RowanAnsweringService' ]
+		                 ifNone: [  ].
+	self denyIsNil: methodService.
+	self assert: methodService selector equals: #answer
+]
+
+{ #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseImplementorsOf [
 
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #size ].
@@ -48,10 +92,15 @@ JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 JadeiteForPharoMethodListTestCase >> waitForMethodListBrowserWhile: aBlock [
 	"would really like a more determinate way of getting the write method list"
 
+	| existingMethodLists newMethodLists |
 	RsrGarbageCollector maximumReclamation.
-	self assert: JadeiteMethodListPresenter allInstances isEmpty.
+	existingMethodLists := JadeiteMethodListPresenter allInstances.
 	aBlock fork.
-	[ JadeiteMethodListPresenter allInstances isEmpty ] whileTrue: [
+	[
+	(newMethodLists := JadeiteMethodListPresenter allInstances
+		                   asOrderedCollection) size
+	> existingMethodLists size ] whileFalse: [
 		(Delay forMilliseconds: 1) wait ].
-	methodListBrowser := JadeiteMethodListPresenter allInstances first
+	newMethodLists removeAll: existingMethodLists.
+	methodListBrowser := newMethodLists first
 ]

@@ -736,48 +736,6 @@ JadeiteInspectorDataCuratorTestCase >> test_fileSaveEnabled [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_forwardBack [
-	| remoteObject backQuery forwardQuery ocIndex |
-	self testsIssue: #issue153 withTitle: 'Inspector Back goes too far'.
-	remoteObject := session
-				executeString: 'Array with: (Dictionary new at: #oc put: (OrderedCollection with: #leaf); yourself)'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	backQuery := self commandQueryOn: #getPreviousObject.
-	forwardQuery := self commandQueryOn: #getNextObject.
-	self enableForward: forwardQuery andBack: backQuery.
-	self deny: backQuery isEnabled.
-	self deny: forwardQuery isEnabled.
-	self inspectInstVarAt: 3.	"dictionary"
-	self enableForward: forwardQuery andBack: backQuery.
-	self assert: backQuery isEnabled.
-	self deny: forwardQuery isEnabled.
-	ocIndex := inspector instVarListPresenter list
-				indexOf: (inspector instVarListPresenter list detect: [:item | item key = '#''oc''']).
-	self inspectInstVarAt: ocIndex."ordered collection"
-	self enableForward: forwardQuery andBack: backQuery.
-	self assert: backQuery isEnabled.
-	self deny: forwardQuery isEnabled.
-	self inspectInstVarAt: 3.	"symbol"
-	self enableForward: forwardQuery andBack: backQuery.
-	self assert: backQuery isEnabled.
-	self deny: forwardQuery isEnabled.
-	inspector getPreviousObject.	"ordered collection"
-	self enableForward: forwardQuery andBack: backQuery.
-	self assert: backQuery isEnabled.
-	self assert: forwardQuery isEnabled.
-	inspector getPreviousObject.	"dictionary"
-	self enableForward: forwardQuery andBack: backQuery.
-	self assert: backQuery isEnabled.
-	self assert: forwardQuery isEnabled.
-	inspector getPreviousObject.	"array - root"
-	self enableForward: forwardQuery andBack: backQuery.
-	self deny: backQuery isEnabled.
-	self assert: forwardQuery isEnabled
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_fullInspectArray [
 	| remoteObject list |
 	self testsIssue: #issue657

@@ -219,6 +219,34 @@ JadeiteForPharoInspectorTestCase >> test_deselectClearsPane [
 	
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_forwardBack [
+	| ocIndex |
+	self testsIssue: #issue153 withTitle: 'Inspector Back goes too far'.
+	self openWorkspaceAndInspect: 'Array with: (Dictionary new at: #oc put: (OrderedCollection with: #leaf); yourself)'.
+	inspector instVarListPresenter unselectAll. 
+	inspector instVarListPresenter selectIndex: 3. "dictionary"
+	inspector dive. 
+	self assert: inspector codePane text equals:	'aDictionary( #''oc''->anOrderedCollection( #''leaf''))'.
+	ocIndex := inspector instVarListPresenter list
+				indexOf: (inspector instVarListPresenter list detect: [:item | item key = '#''oc''']).
+	inspector instVarListPresenter unselectAll. 
+	inspector instVarListPresenter selectIndex: ocIndex. 
+	inspector dive. 
+	self assert: inspector codePane text equals:	'anOrderedCollection( #''leaf'')'.
+	inspector instVarListPresenter unselectAll. 
+	inspector instVarListPresenter selectIndex: 3. "symbol"
+	inspector dive. 
+	self assert: inspector codePane text equals: '#''leaf'''. 
+	inspector getPreviousObject.	"ordered collection"
+	self assert: inspector codePane text equals:	'anOrderedCollection( #''leaf'')'.
+	inspector getPreviousObject.	"dictionary"
+	self assert: inspector codePane text equals:	'aDictionary( #''oc''->anOrderedCollection( #''leaf''))'.
+	inspector getPreviousObject.	"array - root"
+	self assert: inspector codePane text equals:	'anArray( aDictionary( #''oc''->anOrderedCollection( #''leaf'')))'.
+
+]
+
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_inspectBag [
 

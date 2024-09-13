@@ -15,7 +15,7 @@ JadeiteTestCountCommand class >> canBeExecutedInContext: aToolContext [
 	(aToolContext class canUnderstand: #selectedClassItems) ifFalse: [
 		^ false ].
 	^ aToolContext selectedClassItems allSatisfy: [ :item |
-		  item actualObject = JadeiteForPharoGUITestCase or: [
+		  item actualObject = JadeiteForPharoTestCase or: [
 			  item actualObject allSuperclasses includes:
 				  JadeiteForPharoGUITestCase ] ]
 ]
