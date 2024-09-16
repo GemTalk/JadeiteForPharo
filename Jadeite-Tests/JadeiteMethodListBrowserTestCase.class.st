@@ -775,40 +775,6 @@ JadeiteMethodListBrowserTestCase >> test_browseImplementorsEnablement [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_browseInstVarReaders [
-	self openProjectBrowser.
-	self
-		saveClass: 'TestInstVarReaders'
-		superclass: 'Object'
-		instVars: #('foo')
-		package: 'RowanSample1-Core'.
-	self
-		saveMethod: 'foo  ^foo'
-		in: 'TestInstVarReaders'
-		category: 'accessing'.
-	self
-		saveMethod: 'foo: anObject  foo := anObject'
-		in: 'TestInstVarReaders'
-		category: 'accessing'.
-	methodListBrowser := JadePresenter
-				browseInstVarReaders: 'foo'
-				in: 'TestInstVarReaders'
-				session: session.
-	self assert: self methodListMethodListPresenter list size equals: 1.
-	self assert: self methodListMethodListPresenter list first selector = #foo
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_browseInstVarWriters [
-	methodListBrowser := JadePresenter
-				browseInstVarWriters: 'autoCommit'
-				in: 'RowanAutoCommitService'
-				session: session.
-	self methodListMethodListPresenter list
-		do: [:methodService | self assert: ('*autoCommit :=*' match: methodService source)]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_browseLiteralReferences [
 	self testsIssue: #issue328
 		withTitle: '(3.0.50) I would have thought that the literal string ''filetree'' would have been found'.

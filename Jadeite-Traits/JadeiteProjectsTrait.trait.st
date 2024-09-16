@@ -320,8 +320,7 @@ JadeiteProjectsTrait >> gitWriteProject [
 				space.
 			(MessageBox confirm:
 				 'Write projects - ' , ws contents , 'to disk without committing?')
-				ifFalse: [ ^ false ].
-			self gitBasicWriteProject: (Array with: projectService) ]
+				ifTrue: [ self gitBasicWriteProject: (Array with: projectService) ] ]
 ]
 
 { #category : 'menus' }

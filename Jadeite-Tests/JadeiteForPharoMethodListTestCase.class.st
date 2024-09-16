@@ -71,6 +71,42 @@ JadeiteForPharoMethodListTestCase >> test_browseImplementorsOf [
 			 methodListBrowser owner title)
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoMethodListTestCase >> test_browseInstVarReaders [
+
+	self setupProjectBrowser.
+	self
+		saveClass: 'TestInstVarReaders'
+		superclass: 'Object'
+		instVars: #( 'testbrowseInstVarReaders' )
+		package: 'RowanSample1-Core'.
+	self
+		saveMethod: 'testbrowseInstVarReaders  ^testbrowseInstVarReaders'
+		in: 'TestInstVarReaders'
+		category: 'accessing'.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			browseInstVarReaders: 'testbrowseInstVarReaders'
+			in: 'TestInstVarReaders'
+			session: session ].
+	self assert: self methodListPresenter list size equals: 1.
+	self assert: self methodListPresenter list first selector
+		= #testbrowseInstVarReaders
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoMethodListTestCase >> test_browseInstVarWriters [
+
+	self setupProjectBrowser.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			browseInstVarWriters: 'autoCommit'
+			in: 'RowanAutoCommitService'
+			session: session ].
+	self methodListPresenter list do: [ :methodService |
+		self assert: ('*autoCommit :=*' match: methodService source) ]. 
+]
+
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 

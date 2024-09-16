@@ -368,23 +368,6 @@ JadeiteMethodListPresenter >> onCloseRequested: aCloseEvent [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> onViewClosed [
-	super onViewClosed.
-	RowanServiceUpdater current removeEventsTriggeredFor: methodListPresenter methodListPresenter.
-	RowanServiceUpdater current removeEventsTriggeredFor: self.
-	methodListPresenter removeEventsTriggeredFor: self.
-	methodSourcePresenter removeEventsTriggeredFor: self.
-	autoCommit removeEventsTriggeredFor: self.
-	methodSourcePresenter documentPresenter removeEventsTriggeredFor: self
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> onViewDestroyed [
-	super onViewDestroyed.
-	subPresenters := nil
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> postEditSaveMethod [
 	| methodService |
 	methodService := self methodListPresenter methodListPresenter selectionIfNone: [^self].

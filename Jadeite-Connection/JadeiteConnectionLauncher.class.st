@@ -170,6 +170,15 @@ JadeiteConnectionLauncher >> connectionProfile [
 	^JadeiteConnectionProfile connectionProfile
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> copyConnection [
+	"a copy is essentially a do nothing operation"
+
+	Clipboard clipboardText:
+		(STON toString: JadeiteConnectionProfile connectionProfile).
+	UIManager default inform: 'Jadeite connection copied'
+]
+
 { #category : 'defaults' }
 JadeiteConnectionLauncher >> defaultHorizontalSpacing [
 
@@ -230,9 +239,7 @@ JadeiteConnectionLauncher >> exportProfile [
 		           chooseForSaveFileReferenceIn: Smalltalk ui
 		           title: 'Export Connection File'
 		           extensions: nil
-		           path:
-		           (lastImportedFileName ifNil: [
-			            'jadeiteConnectionProfile.txt' ])
+		           path: '*'
 		           preview: nil.
 	fileRef ifNil: [ ^ self ].
 	fileRef exists ifTrue: [
@@ -387,6 +394,14 @@ JadeiteConnectionLauncher >> initializeFileMenu [
 	^ self newMenu
 		  addItem: [ :item |
 			  item
+				  name: 'New Connection';
+				  action: [ self newConnection ] ];
+		  addItem: [ :item |
+			  item
+				  name: 'Copy Connection';
+				  action: [ self copyConnection ] ];
+		  addItem: [ :item |
+			  item
 				  name: 'Export Connection ...';
 				  action: [ self exportProfile ] ];
 		  addItem: [ :item |
@@ -539,6 +554,20 @@ JadeiteConnectionLauncher >> netldiText [
 JadeiteConnectionLauncher >> netldiText: anObject [
 
 	netldiText := anObject
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> newConnection [
+	"blank the fields so the user can enter entirely new connction information"
+
+	UIManager default confirm:
+		'Clear all fields to enter new connection information?'.
+	hostText text: String new.
+	stoneText text: String new.
+	userText text: String new.
+	passwordText text: String new.
+	versionText text: String new.
+	netldiText text: String new
 ]
 
 { #category : 'accessing' }
