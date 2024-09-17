@@ -304,9 +304,7 @@ JadeiteConnectionLauncher >> initializeAboutMenu [
 JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 
 	self layout
-		add: (self newLabel
-				 label: 'Available Connections:';
-				 help: 'Imported Connections will show up in this list')
+		add: (self newLabel label: 'Imported Connections:')
 		withConstraints: [ :constraints | constraints height: 20 ].
 	availableConnectionPresenter := JadeiteListPresenter new
 		                                display: [ :filePath |
