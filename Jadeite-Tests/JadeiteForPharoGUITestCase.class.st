@@ -7,7 +7,8 @@ Class {
 	#name : 'JadeiteForPharoGUITestCase',
 	#superclass : 'JadeiteForPharoTestCase',
 	#instVars : [
-		'workspace'
+		'workspace',
+		'methodListBrowser'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -55,4 +56,21 @@ JadeiteForPharoGUITestCase >> tearDown [
 		ifNotNil: 
 			[workspace isModified: false.
 			self destroy: workspace]
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
+	"would really like a more determinate way of getting the write method list"
+
+	| existingMethodLists newMethodLists |
+	RsrGarbageCollector maximumReclamation.
+	existingMethodLists := JadeiteMethodListPresenter allInstances.
+	aBlock fork.
+	[
+	(newMethodLists := JadeiteMethodListPresenter allInstances
+		                   asOrderedCollection) size
+	> existingMethodLists size ] whileFalse: [
+		(Delay forMilliseconds: 1) wait ].
+	newMethodLists removeAll: existingMethodLists.
+	methodListBrowser := newMethodLists first
 ]

@@ -88,16 +88,6 @@ JadeiteMethodListBrowserTestCase >> removeMultiKeywordSenderAndSendee [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> removeMultipleReferencesToStringMethods [
-	self projectsPresenter categoryListPresenter selections: #('other' 'tests').
-	#('flub1' 'flub2' 'flub3') do: 
-			[:selector |
-			self selectServiceNamed: selector in: self projectsPresenter methodListPresenter.
-			self removeMethods: self methodListPresenter selections
-				inClassService: self projectsPresenter selectedClass]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> removeTestMethodAndCloseProjectBrowser [
 	self removeMethods: (Array with: self projectsPresenter methodListPresenter selection)
 		inClassService: self projectsPresenter selectedClass. 
@@ -218,50 +208,6 @@ JadeiteMethodListBrowserTestCase >> setupMultiKeywordSenderAndSendee [
 		editSaveMethod: self classListPresenter selection
 		onCompletion: nil.
 	source := 'jadeiteSendeeWith: multiple keyword: arguments	^multiple+arguments'.
-	self projectsPresenter selectMethodSourceTab.
-	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
-		onCompletion: nil
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> setupMultipleReferencesToString [
-
-	| source |
-	self openProjectBrowser.
-	self selectRowanSample1Test.
-	source := 'flub1
-| array |
-array := Array new. 
-array add: ''blerf''.
-array add: ''blerf''. 
-array add: ''blerf''. 
-^array'.
-	self projectsPresenter selectMethodSourceTab.
-	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
-		onCompletion: nil.
-	source := 'flub2
-| array |
-array := Array new. 
-array add: ''blerf''.
-array add: ''blerf''. 
-array add: ''blerf''. 
-^array'.
-	self projectsPresenter selectMethodSourceTab.
-	self projectsPresenter methodSourcePresenter value: source.
-	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
-		onCompletion: nil.
-	source := 'flub3
-| array |
-array := Array new. 
-array add: ''blerf''.
-array add: ''blerf''. 
-array add: ''blerf''. 
-^array'.
 	self projectsPresenter selectMethodSourceTab.
 	self projectsPresenter methodSourcePresenter value: source.
 	self projectsPresenter
@@ -973,36 +919,6 @@ JadeiteMethodListBrowserTestCase >> test_browseSendersIsDirty [
 			[:methodService |
 			self methodListMethodListPresenter selection: methodService.
 			self assert: ('isDirty*' match: self methodSourcePresenter documentPresenter selection)	"use match because we might pickup a '.'"]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_categoryUpdates [
-	| flub1MethodInMethodList |
-	self testsIssue: #issue693
-		withTitle: 'Would like to be able to open method browser on all methods in selected categories'.
-	self setupMultipleReferencesToString.
-	
-	[self openProjectBrowser.
-	self projectsPresenter categoryListPresenter selection: 'other'.
-	self
-		assert: (self projectsPresenter methodListPresenter list
-				collect: [:methodService | methodService selector]) asArray
-		equals: #(#flub1 #flub2 #flub3).
-	self projectsPresenter categoryListPresenter selections: #('other' 'tests').
-	methodListBrowser := self projectsPresenter browseSelectedCategoryMethods.
-	self
-		assert: (self methodListMethodListPresenter list collect: [:methodService | methodService selector])
-				asArray
-		equals: #(#flub1 #flub2 #flub3 #test1 #test2 #testError #testFailure).
-	flub1MethodInMethodList := self methodListMethodListPresenter list
-				detect: [:methodService | methodService selector = #flub1]
-				ifNone: [].
-	self assert: flub1MethodInMethodList category equals: 'other'.
-	self projectsPresenter
-		moveMethods: (Array with: self projectsPresenter methodListPresenter list first)
-		toCategory: 'tests'.	"#flub1"
-	self assert: flub1MethodInMethodList category equals: 'tests']
-			ensure: [self removeMultipleReferencesToStringMethods]
 ]
 
 { #category : 'as yet unclassified' }

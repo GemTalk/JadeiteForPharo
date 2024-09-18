@@ -63,7 +63,50 @@ JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
 		in: self classListPresenter
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
+JadeiteForPharoBrowserTestCase >> setupMultipleReferencesToString [
+
+	| source |
+	self selectRowanSample1Test.
+	source := 'flub1
+| array |
+array := Array new. 
+array add: ''blerf''.
+array add: ''blerf''. 
+array add: ''blerf''. 
+^array'.
+	self projectsPresenter selectMethodSourceTab.
+	self projectsPresenter methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: [  ].
+	source := 'flub2
+| array |
+array := Array new. 
+array add: ''blerf''.
+array add: ''blerf''. 
+array add: ''blerf''. 
+^array'.
+	self projectsPresenter selectMethodSourceTab.
+	self projectsPresenter methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: [  ].
+	source := 'flub3
+| array |
+array := Array new. 
+array add: ''blerf''.
+array add: ''blerf''. 
+array add: ''blerf''.  
+^array'.
+	self projectsPresenter selectMethodSourceTab.
+	self projectsPresenter methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: [  ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 
 	self unloadSampleProject1.
@@ -81,7 +124,7 @@ JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 		self ensureRowanSampleProjectsLoaded ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_abortRemovesClassAndMethod [
 	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
 	self selectRowanSample1Test.
@@ -107,7 +150,7 @@ JadeiteForPharoBrowserTestCase >> test_abortRemovesClassAndMethod [
 				self ensureRowanSampleProjectsLoaded]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 	self selectRowanSample1Test.
 	[self denyIsNil: (self projectListPresenter list
@@ -154,7 +197,7 @@ JadeiteForPharoBrowserTestCase >> test_abuseMethodList [
 				equals: index ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self testsIssue: #issue375
 		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
@@ -220,7 +263,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 			onCompletion: nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addAccessorsClassTab [
 
 	self
@@ -251,7 +294,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessorsClassTab [
 			onCompletion: nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
 
 	self
@@ -279,7 +322,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
 			onCompletion: nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addDuplicatePackage [
 	"don't open the add package dialog window as it's hard to test a modal window,
 	just fill in the values so the browser can extract them and do the actual work."
@@ -321,7 +364,7 @@ JadeiteForPharoBrowserTestCase >> test_addDuplicatePackage [
 		equals: 1
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
 	self selectRowanSample1Class.
 	self deny: (self categoryListPresenter list includes: 'jadeite test').
@@ -332,7 +375,7 @@ JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
 	self deny: (self categoryListPresenter list includes: 'jadeite test')
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
 	self testsIssue: #issue956
 		withTitle: '[3.2.12] Use of *category to specify package depends on a repository quality that needs to be visible'.
@@ -377,7 +420,7 @@ JadeiteForPharoBrowserTestCase >> test_browseClassMethodSourceNotDirty [
 			hasUnacceptedEdits
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 
 	| methodListPresenter source |
@@ -415,7 +458,7 @@ JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 		ensure: [ self destroy: methodListPresenter ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_categorySelection [
 
 	self
@@ -443,7 +486,7 @@ JadeiteForPharoBrowserTestCase >> test_categorySelection [
 		self assert: methodService category equals: 'private' ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
 	"method selection was retained incorrectly on category changes.
 	Method selection should only be retained if selected method is 
@@ -469,7 +512,48 @@ JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
 	self assert: self methodListPresenter selectedItems isEmpty "#answer is not in private category so no selection should be made"
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_categoryUpdates [
+
+	| flub1MethodInMethodList |
+	self
+		testsIssue: #issue693
+		withTitle:
+		'Would like to be able to open method browser on all methods in selected categories'.
+	self setupMultipleReferencesToString.
+
+	[
+	self selectCategoriesNamed: #( 'as yet unclassified' ).
+	self
+		assert: (self methodListPresenter list collect: [ :methodService |
+				 methodService selector ]) asArray
+		equals: #( #flub1 #flub2 #flub3 ).
+	self selectCategoriesNamed: #( 'as yet unclassified'
+	   'tests' ).
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter browseSelectedCategoryMethods ].
+	self
+		assert:
+			(methodListBrowser methodListPresenter list collection collect: [
+				 :methodService | methodService selector ]) asArray
+		equals:
+		#( #flub1 #flub2 #flub3 #test1 #test2 #testError #testFailure ).
+	flub1MethodInMethodList := methodListBrowser methodListPresenter list
+		                           detect: [ :methodService |
+		                           methodService selector = #flub1 ]
+		                           ifNone: [  ].
+	self
+		assert: flub1MethodInMethodList category
+		equals: 'as yet unclassified'.
+	self projectsPresenter
+		moveMethods: (Array with:
+				 self projectsPresenter methodListPresenter list first)
+		toCategory: (JadeiteCategory named: 'tests'). "#flub1"
+	self assert: flub1MethodInMethodList category equals: 'tests' ]
+		ensure: [ self abortTransaction ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classCommentReset [
 	"also tests that abort restores original comment from class service"
 
@@ -493,7 +577,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentReset [
 		equals: originalComment
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 	"also tests that abort restores original comment from class service"
 
@@ -601,7 +685,7 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 		self selectClassListTab ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_instVarReaders [
 	"should browse the whole hierarchy"
 
@@ -657,7 +741,7 @@ JadeiteForPharoBrowserTestCase >> test_instVarReaders [
 		equals: #( #fooInstVar #fooInstVarSize #fooInstVarSubSize )
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_instVarWriters [
 	"should browse the whole hierarchy"
 
@@ -869,7 +953,7 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 		self ensureRowanSampleProjectsLoaded ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_selectVariable [
 	self selectRowanServicesPackage.
 	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
@@ -882,7 +966,7 @@ JadeiteForPharoBrowserTestCase >> test_selectVariable [
 		do: [:methodService | self assert: (methodService source substrings includes: 'isNewClass')]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_sendersOfOptimizedSelector [
 	"senders of optimized selectors were giving walkback"
 

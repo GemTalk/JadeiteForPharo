@@ -3,7 +3,6 @@ Class {
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
 		'secondBrowser',
-		'methodListBrowser',
 		'secondPresenter',
 		'transcriptWritesWereEnabled'
 	],

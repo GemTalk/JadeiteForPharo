@@ -79,18 +79,6 @@ JadeiteProjectsBrowserPresenter >> behaviorIdentifier [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> browseHierarchyImplementors [
-	^self browseHierarchyImplementorsOf: self selectedMethodName
-		className: methodListPresenter selections first className
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> browseHierarchySenders [
-	^self browseHierarchySendersOf: self selectedMethodName
-		className: methodListPresenter selection className
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> categoryListPresenter [
 	^categoryListPresenter
 ]

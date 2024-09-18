@@ -1,9 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoMethodListTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
-	#instVars : [
-		'methodListBrowser'
-	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -196,21 +193,4 @@ JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 				 methodListBrowser methodSourcePresenter documentPresenter
 					 selection) "use match because we might pickup a '.'" ].
 	self assert: ('* Senders of ''foo'' for *' match: methodListBrowser owner title)
-]
-
-{ #category : 'support' }
-JadeiteForPharoMethodListTestCase >> waitForMethodListBrowserWhile: aBlock [
-	"would really like a more determinate way of getting the write method list"
-
-	| existingMethodLists newMethodLists |
-	RsrGarbageCollector maximumReclamation.
-	existingMethodLists := JadeiteMethodListPresenter allInstances.
-	aBlock fork.
-	[
-	(newMethodLists := JadeiteMethodListPresenter allInstances
-		                   asOrderedCollection) size
-	> existingMethodLists size ] whileFalse: [
-		(Delay forMilliseconds: 1) wait ].
-	newMethodLists removeAll: existingMethodLists.
-	methodListBrowser := newMethodLists first
 ]

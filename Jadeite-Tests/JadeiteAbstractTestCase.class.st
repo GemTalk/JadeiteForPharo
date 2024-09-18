@@ -581,6 +581,16 @@ JadeiteAbstractTestCase >> reloadProjectNamed: projectName [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> removeMultipleReferencesToStringMethods [
+	self projectsPresenter categoryListPresenter selections: #('other' 'tests').
+	#('flub1' 'flub2' 'flub3') do: 
+			[:selector |
+			self selectServiceNamed: selector in: self projectsPresenter methodListPresenter.
+			self removeMethods: self methodListPresenter selections
+				inClassService: self projectsPresenter selectedClass]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> removePreferencesFile [
 	| path prefsExist |
 	path := self jadeitePrefsFilePath.
@@ -828,19 +838,13 @@ JadeiteAbstractTestCase >> saveTestClassWithInstVars: instVars package: aString 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectCategoriesNamed: categories [
 
-	self categoryListPresenter selections: Array new.
+	| indexes |
+	self categoryListPresenter unselectAll.
+	indexes := OrderedCollection new.
 	categories do: [ :category |
-		| categoryString |
-		categoryString := self projectsPresenter categoryNames
-			                  detect: [ :listCategory |
-			                  categories includes: listCategory ]
-			                  ifNone: [
-			                  self error:
-				                  'Category ''' , category , ''' not found' ].
-		self categoryListPresenter selections:
-			(self categoryListPresenter selections asOrderedCollection
-				 add: categoryString;
-				 yourself) ]
+		indexes add:
+			(self projectsPresenter categoryNames indexOf: category) ].
+	self categoryListPresenter selectIndexes: indexes
 ]
 
 { #category : 'selection' }
