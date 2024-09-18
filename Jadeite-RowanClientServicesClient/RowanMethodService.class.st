@@ -253,6 +253,7 @@ RowanMethodService >> className: anObject [
 RowanMethodService >> classService [
 
 	^ (RowanClassService named: className)
+		  meta: meta;
 		  shouldUpdate: true;
 		  updateAfterCommand: true;
 		  yourself

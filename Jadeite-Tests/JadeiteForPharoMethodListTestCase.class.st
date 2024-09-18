@@ -47,6 +47,80 @@ JadeiteForPharoMethodListTestCase >> test_browseClassReferences [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseHierarchyImplementors [
+
+	| methodService |
+	self setupProjectBrowser.
+	self
+		selectServiceNamed: 'gemstoneBaseImage'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Filein2Streams'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'ReadStreamPortable'
+		in: self classListPresenter.
+	self selectServiceNamed: 'size' in: self methodListPresenter.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter browseHierarchyImplementors ].
+	self assert:
+		('4 Hierarchy Implementors of ''size'' in ReadStreamPortable for*'
+			 match: methodListBrowser owner title).
+	methodService := methodListBrowser methodListPresenter items
+		                 detect: [ :service | service className = 'Object' ]
+		                 ifNone: [  ].
+	self denyIsNil: methodService.
+	self assert: methodService selector equals: #size.
+	methodService := methodListBrowser methodListPresenter items
+		                 detect: [ :service |
+		                 service className = 'PPStream' ]
+		                 ifNone: [  ].
+	self denyIsNil: methodService.
+	self assert: methodService selector equals: #size.
+	methodService := methodListBrowser methodListPresenter items
+		                 detect: [ :service |
+		                 service className = 'ReadByteStreamPortable' ]
+		                 ifNone: [  ].
+	self denyIsNil: methodService.
+	self assert: methodService selector equals: #size.
+	methodService := methodListBrowser methodListPresenter items
+		                 detect: [ :service |
+		                 service className = 'ReadStreamPortable' ]
+		                 ifNone: [  ].
+	self denyIsNil: methodService.
+	self assert: methodService selector equals: #size
+]
+
+{ #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseHierarchySenders [
+
+	| hierarchyClassNames |
+	self setupProjectBrowser.
+	self
+		selectServiceNamed: 'gemstoneBaseImage'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Filein2Streams'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'ReadStreamPortable'
+		in: self classListPresenter.
+	self selectServiceNamed: 'size' in: self methodListPresenter.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter browseHierarchySenders ].
+	self assert:
+		('* Hierarchy Senders of ''size'' in ReadStreamPortable for*'
+			 match: methodListBrowser owner title).
+	self selectHierarchyTab.
+	self projectsPresenter expandFullHierarchy.
+	hierarchyClassNames := self projectsPresenter classHierarchyPresenter
+		                       adapter widget dataSource allShownItems
+		                       collect: [ :ea | ea data name ]. "got to be an easier way to get the tree's objects"
+	methodListBrowser methodListPresenter items do: [ :methodService |
+		self assert: (hierarchyClassNames includes: methodService className) ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseImplementors [
 
 	| methodService |

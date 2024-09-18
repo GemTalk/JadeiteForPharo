@@ -147,6 +147,28 @@ JadeiteMethodsTrait >> addSendersItemTo: group [
 ]
 
 { #category : 'queries' }
+JadeiteMethodsTrait >> basicHierarchySendersOf: string [
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
+
+	| service shell |
+	service := RowanQueryService
+		           command: #hierarchySendersOf:inClass:
+		           withArgs:
+		           (Array
+			            with: string asSymbol
+			            with: self selectedClass name).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: [
+			shell := self openMethodListOn: service selecting: string.
+			shell updateCaptionFromSearchString:
+				service answer size printString , ' Hierarchy Senders of '
+				, string asString printString , ' in ' , self selectedClass name ].
+	^ shell
+]
+
+{ #category : 'queries' }
 JadeiteMethodsTrait >> basicSendersOf: string [
 	"In a test, method won't return until completion block finished. Don't use return value except in tests"
 
@@ -193,6 +215,55 @@ JadeiteMethodsTrait >> browseDifferences [
 		application: self application.
 	diffBrowser owner application: self application. 
 	^diffBrowser
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> browseHierarchyImplementors [
+
+	^ self browseHierarchyImplementorsOf: self selectedMethodName
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> browseHierarchyImplementorsOf: string [
+	"In a test, method won't return until completion block finished. Don't use return value except in tests"
+
+	| service shell |
+	string ifNil: [ ^ self ].
+	string size > self maxSymbolSize ifTrue: [
+		^ MessageBox notify:
+			  'String exceeds max symbol size - '
+			  , self maxSymbolSize printString , ' characters' ].
+
+	service := RowanQueryService
+		           command: #hierarchyImplementorsOf:inClass:
+		           withArgs:
+		           (Array
+			            with: string asSymbol
+			            with: self selectedClass name).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: [
+			shell := self openMethodListOn: service selecting: nil.
+			shell updateCaptionFromSearchString:
+				service answer size printString , ' Hierarchy Implementors of '
+				, string asString printString , ' in ' , self selectedClass name ].
+	^ shell
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> browseHierarchySenders [
+ 
+	self browseHierarchySendersOf: self selectedMethodName
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> browseHierarchySendersOf: string [
+	string size > self maxSymbolSize
+		ifTrue: 
+			[^MessageBox
+				notify: 'String exceeds max symbol size - ' , self maxSymbolSize printString , ' characters'].
+	self basicHierarchySendersOf: string
 ]
 
 { #category : 'queries' }
@@ -622,6 +693,18 @@ JadeiteMethodsTrait >> newBrowseMethodListMenu [
 						  action: [ self browseSenders ];
 						  enabled: [ self methodListPresenter selections size = 1 ] ].
 			  self addDialogSendersItemTo: group ];
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item2 |
+					  item2
+						  name: 'Browse Hierarchy Implementors';
+						  action: [ self browseHierarchyImplementors ];
+						  enabled: [ self methodListPresenter selections size = 1 ] ];
+				  addItem: [ :item2 |
+					  item2
+						  name: 'Browse Hierarchy Senders';
+						  action: [ self browseHierarchySenders ];
+						  enabled: [ self methodListPresenter selections size = 1 ] ] ];
 		  addGroup: [ :group |
 			  self addMethodsContainingTo: group.
 			  self addLiteralReferencesTo: group.

@@ -1152,7 +1152,7 @@ JadeiteBrowserPresenter >> expandFullHierarchy [
 	self selectClassHierarchyTab.
 	self selectClassInClassHierarchyNamed: self selectedClass. 
 	self expandAt: self selectedClass. 
-	classHierarchyPresenter view ensureSelectionVisible
+	classHierarchyPresenter scrollToSelection
 ]
 
 { #category : 'accessing' }
