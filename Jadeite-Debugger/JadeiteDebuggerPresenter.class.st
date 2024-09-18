@@ -118,10 +118,16 @@ JadeiteDebuggerPresenter >> connectPresenters [
 				hasUnacceptedEdits: false ] ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection selectedItem ifNotNil: [ :sel |
-			variableDataPresenter
-				context: sel oop;
-				text: sel value;
-				hasUnacceptedEdits: false ] ].
+			sel isVariableDisplayLabel
+				ifTrue: [
+					variableDataPresenter
+						text: String new;
+						hasUnacceptedEdits: false ]
+				ifFalse: [
+					variableDataPresenter
+						context: sel oop;
+						text: sel value;
+						hasUnacceptedEdits: false ] ] ].
 	self methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	self methodSourcePresenter whenResetDo: [
 		self methodSourcePresenter text:
@@ -639,6 +645,18 @@ JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
 	codePane value: selection selectedItem source.
 	self updateMethodSourceGlyphs.
 	codePane showStepPoint: frameListPresenter selectedItem stepPoint.
+]
+
+{ #category : 'accessing' }
+JadeiteDebuggerPresenter >> variableDataPresenter [
+
+	^ variableDataPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteDebuggerPresenter >> variableDataPresenter: anObject [
+
+	variableDataPresenter := anObject
 ]
 
 { #category : 'accessing' }

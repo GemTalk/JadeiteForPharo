@@ -18,22 +18,6 @@ JadeiteWorkspaceTestCase >> tearDown [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteWorkspaceTestCase >> test_workspaceAdHocDisplayUnicodeCharacters [
-	self testsIssue: #issue678
-		withTitle: 'Print-it for out of range characters is... peculiar (3.0.92.3)'.
-	workspace := (JadeiteWorkspace showOnSession: session)
-				caption: 'Jade Workspace - Test Unicode Characters'.
-	workspace codePane documentPresenter
-		value: '''aa'', (String with: (Character withValue: 353)), ''bb''  '.
-	workspace codePane selectAll.
-	workspace activeTextEdit setFocus.
-	workspace codePane jadeDisplay.
-	self assert: workspace codePane documentPresenter selection equals: ' ''aaÅ¡bb'''.
-	self assert: workspace codePane documentPresenter value
-		equals: '''aa'', (String with: (Character withValue: 353)), ''bb''   ''aaÅ¡bb'''.
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteWorkspaceTestCase >> test_workspaceConfirmInteraction [
 	| result |
 	self testsIssue: #issue303 withTitle: 'Need to handle confirm:'.

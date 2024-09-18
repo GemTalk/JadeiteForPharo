@@ -82,6 +82,28 @@ JadeiteForPharoDebuggerTestCase >> test_openDebugger [
 	self assert: debugger isKindOf: JadeiteDebuggerPresenter
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoDebuggerTestCase >> test_selectDebuggerVariable [
+	"selecting the display labels was giving walkback"
+
+	| service |
+	service := RowanAnsweringServiceClient newForked.
+	service exec: '$abc' in: GciSession current onCompletion: [  ].
+	self waitForDebugger.
+	debugger frameListPresenter selectIndex:
+		debugger frameListPresenter selectionMode selectedIndex - 1.
+	self assert: ('*doesNotUnderstand*' match:
+			 debugger frameListPresenter selectedItem label).
+	debugger variableListPresenter selectionMode selectIndex: 1.
+	self deny:
+		debugger variableListPresenter selectedItem isVariableDisplayLabel.
+	self assert: debugger variableDataPresenter text equals: '$a'.
+	debugger variableListPresenter selectionMode selectIndex: 2.
+	self assert:
+		debugger variableListPresenter selectedItem isVariableDisplayLabel.
+	self assert: debugger variableDataPresenter text equals: String new
+]
+
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 
