@@ -290,6 +290,66 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> test_addRemoveTestClass [
+
+	self
+		testsIssue: #issue879
+		withTitle: 'Removing class does not remove class from sunit browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self denyClassInList: 'NewSubclass'.
+	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	self selectRowanSample1Test.
+	self projectsPresenter addSubclass.
+	self projectsPresenter editSaveClass.
+	[ self assertClassInList: 'NewSubclass' ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ].
+	self denyClassInList: 'NewSubclass'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> test_browseSelectedMethodForNewlyAddedTest [
+
+	| newMethodService |
+	self
+		testsIssue: #issue828
+		withTitle:
+		'`UndefinedObject does not understand #asString` from `Browse Selected method` in SUnit Browser'.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self sunitPresenter packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self sunitPresenter classListPresenter.
+	self assertIsNil: (self sunitPresenter methodListPresenter list
+			 detect: [ :methodService |
+			 methodService selector == #test_newMethod ]
+			 ifNone: [  ]).
+	self
+		saveMethod: 'test_newMethod'
+		in: 'RowanSample1Test'
+		category: 'dontcare?'.
+	newMethodService := self sunitPresenter methodListPresenter list
+		                    detect: [ :methodService |
+		                    methodService selector == #test_newMethod ]
+		                    ifNone: [  ].
+	self denyIsNil: newMethodService.
+	self
+		assert: newMethodService definedClassName
+		equals: 'RowanSample1Test'. "this inst var was nil which was the bug"
+	self sunitPresenter methodListPresenter selections:
+		(Array with: newMethodService).
+	methodListBrowser := self sunitPresenter browseSelectedMethods.
+
+	self
+		assert: methodListBrowser methodListPresenter selectedItem selector
+		equals: #test_newMethod
+]
+
+{ #category : 'tests' }
 JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 	"packages weren't showing up in an sunit browser due to a timing issue. 
 	Not directly reproducible, but open and close the sunit browser a number of times

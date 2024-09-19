@@ -211,27 +211,6 @@ JadeiteSUnitSupportTestCase >> test_addPackageReloadProject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_addRemoveTestClass [
-
-	self
-		testsIssue: #issue879
-		withTitle: 'Removing class does not remove class from sunit browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
-	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
-	self selectRowanSample1Test.
-	self projectsPresenter addSubclass.
-	self projectsPresenter editSaveClass.
-	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ].
-	self denyClassInList: 'NewSubclass'
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitSupportTestCase >> test_browseMethods [
 	| browseMethodMenuItem browser selectors |
 	self testsIssue: #issue207 withTitle: 'should be able to browe source for test from SUit browser'.
@@ -253,34 +232,6 @@ JadeiteSUnitSupportTestCase >> test_browseMethods [
 	self assert: browser primaryPresenter methodSourcePresenter documentPresenter value
 		equals: self sunitPresenter methodListPresenter selections first source]
 			ensure: [browser view close]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitSupportTestCase >> test_browseSelectedMethodForNewlyAddedTest [
-	| newMethodService methodListBrowser |
-	self testsIssue: #issue828
-		withTitle: '`UndefinedObject does not understand #asString` from `Browse Selected method` in SUnit Browser'.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self sunitPresenter classListPresenter.
-	self assertIsNil: (self methodListPresenter list
-				detect: [:methodService | methodService selector == #test_newMethod]
-				ifNone: []).
-	self
-		saveMethod: 'test_newMethod'
-		in: 'RowanSample1Test'
-		category: 'dontcare?'.
-	newMethodService := self methodListPresenter list
-				detect: [:methodService | methodService selector == #test_newMethod]
-				ifNone: [].
-	self denyIsNil: newMethodService.
-	self assert: newMethodService definedClassName equals: 'RowanSample1Test'.	"this inst var was nil which was the bug"
-	self sunitPresenter methodListPresenter selections: (Array with: newMethodService).
-	methodListBrowser := self sunitPresenter browseSelectedMethods.
-	
-	[self assert: methodListBrowser primaryPresenter methodListPresenter methodListPresenter selection
-				selector
-		equals: #test_newMethod]
-			ensure: [self destroy: methodListBrowser]
 ]
 
 { #category : 'as yet unclassified' }

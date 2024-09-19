@@ -15,13 +15,6 @@ JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfImplementorsOf: aStr
 			do: [ :notification | notification resume: aString ] ]
 ]
 
-{ #category : 'support' }
-JadeiteForPharoMethodListTestCase >> tearDown [
-
-	super tearDown.
-	self destroy: methodListBrowser
-]
-
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseClassReferences [
 

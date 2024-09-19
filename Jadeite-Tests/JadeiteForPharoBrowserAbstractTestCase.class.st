@@ -16,6 +16,13 @@ JadeiteForPharoBrowserAbstractTestCase >> isAbstract [
 	^self == JadeiteForPharoBrowserAbstractTestCase
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserAbstractTestCase >> projectNamed: aString [
+	^self projectsPresenter projectListPresenter list
+		detect: [:projectService | projectService name = aString]
+		ifNone: []
+]
+
 { #category : 'support' }
 JadeiteForPharoBrowserAbstractTestCase >> setUp [
 	super setUp.

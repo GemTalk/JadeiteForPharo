@@ -1290,29 +1290,6 @@ JadeiteProjectBrowserClassesTestCase >> test_expandFullHierarchyFromClassesMenu 
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserClassesTestCase >> test_expansion [
-	"When no classes are selected and the hierarchy tab is chosen, we should
-	see a hierarchy showing all superclasses of the packaged classes. 
-	Subclasses are available with the > arrow. 
-	"
-	self testsIssue: #issue156 withTitle: 'Double click on hierarchy class should expand list #156'.
-	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
-	self selectServicesNamed: #('Rowan-Kernel') in: self packageListPresenter.
-	self assert: self classListPresenter model size equals: 2.
-	self assert: self classListPresenter model first name equals: 'Rowan'.
-	self assert: self classListPresenter model last name equals: 'RwPlatform'.
-	self selectHierarchyTab.
-	self assert: (self classHierarchyPresenter model asArray at: 1) name equals: 'Object'.
-	self assert: (self classHierarchyPresenter model asArray at: 1) expand.
-	self assert: (self classHierarchyPresenter model asArray at: 2) name equals: 'Rowan'.
-	self deny: (self classHierarchyPresenter model asArray at: 2) expand.
-	self assert: (self classHierarchyPresenter model asArray at: 3) name equals: 'RwPlatform'. "not expanded beyond packaged class"
-	self deny: (self classHierarchyPresenter model asArray at: 3) expand.
-	self assert: (self classHierarchyPresenter model asArray at: 4) name equals: 'RwGsPlatform'. "subclass in list available by > in super"
-	self deny: (self classHierarchyPresenter model asArray at: 4) expand
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_extensionColoringInHierarchy [
 	| testClass |
 	self selectServicesNamed: (Array with: 'RowanClientServices') in: self projectListPresenter.

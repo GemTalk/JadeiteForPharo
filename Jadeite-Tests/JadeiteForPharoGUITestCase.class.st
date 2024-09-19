@@ -51,11 +51,12 @@ JadeiteForPharoGUITestCase >> setUp [
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> tearDown [
+
 	super tearDown.
-	workspace
-		ifNotNil: 
-			[workspace isModified: false.
-			self destroy: workspace]
+	workspace ifNotNil: [
+		workspace isModified: false.
+		self destroy: workspace ].
+	self destroy: methodListBrowser
 ]
 
 { #category : 'support' }

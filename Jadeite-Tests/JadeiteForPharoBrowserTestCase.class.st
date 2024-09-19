@@ -45,6 +45,12 @@ JadeiteForPharoBrowserTestCase >> openSecondBrowser [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> projectBrowserTabs [
+
+	^ projectsBrowser tabs pages
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> projectList [
 	^self projectListPresenter list
 ]
@@ -651,6 +657,18 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
+	"make sure it updates the tab label"
+
+	self deselectProjects.
+	self assert: self projectBrowserTabs first title equals: '1 Projects'.
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self assert: self projectBrowserTabs first title equals: '1 Rowan'.
+	self deselectProjects.
+	self assert: self projectBrowserTabs first title equals: '1 Projects'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
@@ -683,6 +701,59 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 			 (self hierarchyVisibleItems detect: [ :service |
 				  service name = 'RowanProjectService' ])) ] ensure: [
 		self selectClassListTab ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_hierarchyExpansion [
+	"When no classes are selected and the hierarchy tab is chosen, we should
+	see a hierarchy showing all superclasses of the packaged classes. 
+	Subclasses are available with the > arrow. 
+	"
+
+	| hierarchyModel |
+	self
+		testsIssue: #issue156
+		withTitle: 'Double click on hierarchy class should expand list #156'.
+	self
+		selectServicesNamed: (Array with: 'Rowan')
+		in: self projectListPresenter.
+	self
+		selectServicesNamed: #( 'Rowan-Kernel' )
+		in: self packageListPresenter.
+	self assert: self classListPresenter model collection size equals: 2.
+	self
+		assert: self classListPresenter model collection first name
+		equals: 'Rowan'.
+	self
+		assert: self classListPresenter model collection last name
+		equals: 'RwPlatform'.
+	self selectHierarchyTab.
+	
+	hierarchyModel := self classHierarchyPresenter model.
+	
+	self assert: hierarchyModel first name equals: 'Object'.
+	
+	hierarchyModel := self classHierarchyPresenter childrenFor:
+		                  hierarchyModel first.
+		
+	self assert: hierarchyModel first name equals: 'Rowan'.
+	self assert: (self classHierarchyPresenter itemAtPath: #(1 1)) equals: hierarchyModel first.
+	self assert: (self classHierarchyPresenter isExpanded: #(1 1)). 
+	self assert: (self classHierarchyPresenter childrenFor: hierarchyModel first) isEmpty.
+	
+	self assert: hierarchyModel last name equals: 'RwPlatform'.
+	self assert: (self classHierarchyPresenter itemAtPath: #(1 2)) equals: hierarchyModel last.
+	self assert: (self classHierarchyPresenter isExpanded: #(1 2)). 
+	self assert: (self classHierarchyPresenter childrenFor: hierarchyModel last) notEmpty.
+	
+	hierarchyModel := self classHierarchyPresenter childrenFor:
+		                  hierarchyModel last.
+		
+	self assert: hierarchyModel first name equals: 'RwGsPlatform'.
+	self assert: (self classHierarchyPresenter itemAtPath: #(1 2 1)) equals: hierarchyModel first.
+	self assert: (self classHierarchyPresenter isExpanded: #(1 2 1)). 
+	self assert: (self classHierarchyPresenter childrenFor: hierarchyModel first) isEmpty.
+	
 ]
 
 { #category : 'tests' }
@@ -911,6 +982,30 @@ JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
 		self testResourceClass current
 			tearDown;
 			"reset the world after abort. Need to improve this. "setUp ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_projectRemoved [
+	"Gracefully remove a project from the project list if it was 
+	removed behind the tool's back"
+
+	| sampleProject |
+	self
+		selectServicesNamed: (Array with: 'RowanSample1')
+		in: self projectListPresenter.
+	sampleProject := self projectNamed: 'RowanSample1'.
+	self denyIsNil: sampleProject.
+	self
+		selectServicesNamed: (Array with: 'Rowan')
+		in: self projectListPresenter.
+	session executeString:
+		'Rowan projectTools delete deleteProjectNamed: ''RowanSample1''. true'. "delete project behind tool's back"
+	self auditAll.
+	self
+		selectServicesNamed: (Array with: 'RowanSample1')
+		in: self projectListPresenter. "expect project to disappear but not walkback"
+	sampleProject := self projectNamed: 'RowanSample1'.
+	self assertIsNil: sampleProject
 ]
 
 { #category : 'tests' }

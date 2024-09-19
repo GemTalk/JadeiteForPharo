@@ -90,13 +90,6 @@ JadeiteProjectBrowserAbstractTestCase >> primaryTestWindow [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserAbstractTestCase >> projectNamed: aString [
-	^self projectsPresenter projectListPresenter list
-		detect: [:projectService | projectService name = aString]
-		ifNone: []
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> reloadProjectNamed: projectName [
 
 	| projectService |

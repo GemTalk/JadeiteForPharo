@@ -84,17 +84,22 @@ GciSession >> commit [
 
 { #category : 'actions' }
 GciSession >> executeString: aString [
+	"only tests should rely on the result of the execution. 
+	Tests are guaranteed to not proceed until the completion block is finished."
 
 	| answeringService answer oop |
 	oop := 20.
-	answeringService := RowanAnsweringServiceClient new registerWith:
-		                    library.
+	answeringService := RowanAnsweringServiceClient new.
 	answeringService
 		command: #exec:context:shouldDebug:;
 		commandArgs: (Array with: aString with: oop with: false).
-	RowanServiceUpdater current issueCommand: answeringService session: self.
-	answer := answeringService answer.
-	answer first ifFalse: [ ^ answer at: 2 ].
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self
+		onCompletion: [  ].
+	answeringService ifNotNil: [
+		answer := answeringService answer.
+		answer first ifFalse: [ ^ answer at: 2 ] ].
 	^ answer last
 ]
 

@@ -231,18 +231,6 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_createProject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_deselectProjectOnly [
-	"make sure it updates the tab label"
-
-	self deselectProjects.
-	self assert: projectsBrowser cardsPresenter view currentCard arrangement text equals: '1 Projects'.
-	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
-	self assert: projectsBrowser cardsPresenter view currentCard arrangement text equals: '1 Rowan'.
-	self deselectProjects.
-	self assert: projectsBrowser cardsPresenter view currentCard arrangement text equals: '1 Projects'
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_loadProjectDialogDiveIntoDoublePeriod [
 	"should effectively be a pop"
 
@@ -513,27 +501,6 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectMenuGitCommitMe
 			self projectListPresenter selection: projectService.
 			self projectsPresenter queryCommand: query.
 			projectService isDirty ifTrue: [self assert: query isEnabled] ifFalse: [self deny: query isEnabled]]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectRemoved [
-	"Gracefully remove a project from the project list if it was 
-	removed behind the tool's back"
-
-	| sampleProject |
-	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
-	sampleProject := self projectNamed: 'RowanSample1'.
-	self denyIsNil: sampleProject.
-	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
-	session executeString: 'Rowan projectTools delete deleteProjectNamed: ''RowanSample1'''.	"delete project behind tool's back"
-	self auditAll.
-	
-	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.	"expect project to disappear but not walkback"
-	sampleProject := self projectNamed: 'RowanSample1'.
-	self assertIsNil: sampleProject]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
 ]
 
 { #category : 'as yet unclassified' }

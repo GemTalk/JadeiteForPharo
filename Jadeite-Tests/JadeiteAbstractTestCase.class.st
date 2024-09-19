@@ -252,7 +252,7 @@ JadeiteAbstractTestCase >> denyProjectInList: name [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> deselectProjects [
 
-	self projectListPresenter selectionByIndex: 0
+	self projectListPresenter unselectAll
 ]
 
 { #category : 'as yet unclassified' }
