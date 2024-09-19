@@ -784,6 +784,9 @@ JadeiteMethodsTrait >> postMoveToPackage: packageName classService: classService
 			                          detect: [ :packageService |
 			                          packageService name = packageName ]
 			                          ifNone: [ ^ self ].
+		self packageListPresenter unselectAll.
+		self classListPresenter unselectAll.
+		self classHierarchyPresenter unselectAll.
 		index := self packageListPresenter list indexOf:
 			         packageServiceToSelect.
 		self packageListPresenter selectIndex: index scrollToSelection: true.

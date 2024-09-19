@@ -249,6 +249,20 @@ JadeiteForPharoInspectorTestCase >> test_deselectClearsPane [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_dynamicInstVars [
+
+	self openWorkspaceAndInspect:
+		'Array new dynamicInstVarAt: #foo put: ''bar''; yourself'.
+	self selectInstVarAtIndex: #( 3 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '--foo'.
+	self
+		assert: inspector codePane text
+		equals: '''bar'''
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteForPharoInspectorTestCase >> test_forwardBack [
 	| ocIndex |
 	self testsIssue: #issue153 withTitle: 'Inspector Back goes too far'.

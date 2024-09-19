@@ -665,23 +665,6 @@ JadeiteInspectorDataCuratorTestCase >> test_diveIntoDoubleByteString [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_dynamicInstVars [
-	| workspace |
-	workspace := JadeiteWorkspace showOnSession: session.
-	
-	[self assert: (workspace isKindOf: JadeiteWorkspace).
-	workspace setDocumentData: 'Array new dynamicInstVarAt: #foo put: ''bar''; yourself'.
-	workspace setFocus.
-	inspector := workspace codePane jadeInspect.
-	self selectInstVarAtIndex: #(3).
-	self assert: inspector instVarListPresenter selection key equals: '--foo'.
-	self assert: inspector documentPresenter model value equals: '''bar''']
-			ensure: 
-				[workspace isModified: false.
-				self closeBrowser: workspace]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_dynamicInstVarsInDictionary [
 	| workspace |
 	workspace := JadeiteWorkspace showOnSession: session.

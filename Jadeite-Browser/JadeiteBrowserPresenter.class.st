@@ -948,54 +948,40 @@ JadeiteBrowserPresenter >> displayVariable: displayThing [
 
 { #category : 'drag & drop' }
 JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classService [
-	"doesn't handle failed compilations well yet or multiple dragged methods. "
 
-	| failedCompilations selection |
-	failedCompilations := OrderedCollection new.
-	1 to: methodServices size do: [ :index |
-		| methodService |
-		methodService := methodServices at: index.
-		[
-		classService meta: methodService meta.
-		classService
-			saveMethod: methodService source
-			category: methodService category
-			session: GciSession current
-			onCompletion: [
-				failedCompilations ifNotEmpty: [
-					| ws |
-					ws := WriteStream on: String new.
-					ws nextPutAll: 'Methods failing compilation:'.
-					failedCompilations do: [ :aMethodService |
-						ws
-							cr;
-							nextPutAll: aMethodService selectorPrintString ].
-					UIManager default alert: ws contents ].
-				selection := methodServices
-					             detect: [ :service |
-					             (failedCompilations includes: service) not ]
-					             ifNone: [  ].
-				selection ifNotNil: [
-					self updateService: classService onCompletion: [
-						self selectClassNamed: classService name.
-						self selectMethod: selection ] ] ] ]
-			on: GsCompileError
-			do: [ :ex | failedCompilations add: methodService ] ]
+	self todo:
+		'does not handle failed compilations well yet or multiple dragged methods'.
+
+	classService meta: methodServices first meta.
+	classService
+		saveMethods: (methodServices collect: [ :ea | ea source ])
+		category: methodServices first category
+		session: GciSession current
+		onCompletion: [ "can't just update the class service here as we're still in the previous command for the class service"
+			| index methodService |
+			index := self classListPresenter list indexOf: classService.
+			self classListPresenter selectIndex: index scrollToSelection: true.
+			self categoryListPresenter list: classService categories.
+			self methodListPresenter list: classService methods.
+			methodService := self methodListPresenter list
+				                 detect: [ :ea |
+				                 ea selector = methodServices first selector ]
+				                 ifNone: [  ].
+			index := self methodListPresenter list indexOf: methodService.
+			self methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'drag & drop' }
 JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedPackage: packageListIndex [
 
-	| packageService className | 
-	packageService := self packageListPresenter items at: packageListIndex.
-	className := self selectedClass name. 
+	| packageService className |
+	packageService := self packageListPresenter items at:
+		                  packageListIndex.
+	className := self selectedClass name.
 	self
 		moveMethods: methodServices
 		inClass: self selectedClass
-		toPackageNamed: packageService name.
-	self packageListPresenter selectIndex: packageListIndex.
-	self selectClassNamed: className. 
-	self methodListPresenter selectItem: methodServices first. 
+		toPackageNamed: packageService name
 ]
 
 { #category : 'as yet unclassified' }
