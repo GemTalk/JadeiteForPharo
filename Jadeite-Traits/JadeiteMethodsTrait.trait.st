@@ -951,14 +951,14 @@ JadeiteMethodsTrait >> updateServices: services [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 
+	| answeringService |
 	services isEmpty ifTrue: [ ^ self ].
 	self preUpdate: services.
-	services do: [ :service |
-		service
-			command: #update;
-			commandArgs: #(  ).
-		RowanServiceUpdater current
-			issueCommand: service
-			session: self gciSession
-			onCompletion: (service serviceCompletionBlock ifNil: [ completionBlock ]) ]
+	answeringService := RowanAnsweringService new
+		                    command: #updateServices:;
+		                    commandArgs: (Array with: services).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession
+		onCompletion: completionBlock
 ]

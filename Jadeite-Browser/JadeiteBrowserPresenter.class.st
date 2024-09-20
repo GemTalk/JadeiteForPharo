@@ -949,28 +949,23 @@ JadeiteBrowserPresenter >> displayVariable: displayThing [
 { #category : 'drag & drop' }
 JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classService [
 
-	classService meta: methodServices first meta.
-	classService compileErrorHandler: [ :ex |
-		UIManager default alert: 
-			'Compile error: ' , (ex gsArguments first at: 3) printString ].
-	classService
-		saveMethods: (methodServices collect: [ :ea | ea source ])
-		category: methodServices first category
-		session: GciSession current
-		onCompletion: [ "can't just update the class service here as we're still in the previous command for the class service"
-			| index indexes targetSelectors |
-			index := self classListPresenter list indexOf: classService.
-			self classListPresenter selectIndex: index scrollToSelection: true.
-			self categoryListPresenter list: classService categories.
-			self methodListPresenter list: classService methods.
-			targetSelectors := methodServices collect: [ :ea | ea selector ].
-			indexes := self methodListPresenter list
-				           select: [ :ea | targetSelectors includes: ea selector ]
-				           thenCollect: [ :ea |
-				           self methodListPresenter list indexOf: ea ].
-			self methodListPresenter
-				selectIndexes: indexes
-				scrollToSelection: true ]
+	self
+		updateServices: methodServices
+		onCompletion: [ "method services may not have a source yet if they haven't been displayed so update"
+			classService meta: methodServices first meta.
+			classService compileErrorHandler: [ :ex |
+				UIManager default alert:
+					'Move method(s) to class failed with compile error: '
+					, (ex gsArguments first at: 3) printString.
+				self
+					ensureSelectionAfterDropClass: self selectedClass
+					methods: methodServices "make sure current selections stays selected" ].
+			classService
+				saveMethods: (methodServices collect: [ :ea | ea source ])
+				category: methodServices first category
+				session: GciSession current
+				onCompletion: [ "can't just update the class service here as we're still in the previous command for the class service"
+					self ensureSelectionAfterDropClass: classService methods: methodServices ] ]
 ]
 
 { #category : 'drag & drop' }
@@ -1100,6 +1095,24 @@ JadeiteBrowserPresenter >> editSaveReadMe [
 		           commandArgs: (Array with: projectReadMeTab value);
 		           path: self projectReadmePath.
 	self issueCommand: service onCompletion: nil
+]
+
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> ensureSelectionAfterDropClass: classService methods: methodServices [
+
+	| targetSelectors indexes index |
+	index := self classListPresenter list indexOf: classService.
+	self classListPresenter selectIndex: index scrollToSelection: true.
+	self categoryListPresenter list: classService categories.
+	self methodListPresenter list: classService methods.
+	targetSelectors := methodServices collect: [ :ea | ea selector ].
+	indexes := self methodListPresenter list
+		           select: [ :ea | targetSelectors includes: ea selector ]
+		           thenCollect: [ :ea |
+		           self methodListPresenter list indexOf: ea ].
+	self methodListPresenter
+		selectIndexes: indexes
+		scrollToSelection: true
 ]
 
 { #category : 'as yet unclassified' }
