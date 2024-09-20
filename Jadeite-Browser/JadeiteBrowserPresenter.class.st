@@ -949,26 +949,28 @@ JadeiteBrowserPresenter >> displayVariable: displayThing [
 { #category : 'drag & drop' }
 JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classService [
 
-	self todo:
-		'does not handle failed compilations well yet or multiple dragged methods'.
-
 	classService meta: methodServices first meta.
+	classService compileErrorHandler: [ :ex |
+		UIManager default alert: 
+			'Compile error: ' , (ex gsArguments first at: 3) printString ].
 	classService
 		saveMethods: (methodServices collect: [ :ea | ea source ])
 		category: methodServices first category
 		session: GciSession current
 		onCompletion: [ "can't just update the class service here as we're still in the previous command for the class service"
-			| index methodService |
+			| index indexes targetSelectors |
 			index := self classListPresenter list indexOf: classService.
 			self classListPresenter selectIndex: index scrollToSelection: true.
 			self categoryListPresenter list: classService categories.
 			self methodListPresenter list: classService methods.
-			methodService := self methodListPresenter list
-				                 detect: [ :ea |
-				                 ea selector = methodServices first selector ]
-				                 ifNone: [  ].
-			index := self methodListPresenter list indexOf: methodService.
-			self methodListPresenter selectIndex: index scrollToSelection: true ]
+			targetSelectors := methodServices collect: [ :ea | ea selector ].
+			indexes := self methodListPresenter list
+				           select: [ :ea | targetSelectors includes: ea selector ]
+				           thenCollect: [ :ea |
+				           self methodListPresenter list indexOf: ea ].
+			self methodListPresenter
+				selectIndexes: indexes
+				scrollToSelection: true ]
 ]
 
 { #category : 'drag & drop' }
