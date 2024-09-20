@@ -116,14 +116,15 @@ JadeiteFilterTrait >> browseSelectedCategoryMethods [
 		^ MessageBox notify: 'No category selected' ].
 	self methodListPresenter list isEmpty ifTrue: [
 		^ MessageBox notify: 'No methods in category' ].
-	self methodListPresenter list last serviceCompletionBlock: [
-		browser := (JadeiteMethodListApplication showOnSession:
-			            self gciSession library) methods:
-			           self methodListPresenter list.
-		browser caption: 'Selected Methods in Categories - '
-			, (self categoryListPresenter selectedItems collect: [ :ea |
-					 ea categoryName ]) asArray printString ].
-	self updateServices: self methodListPresenter list asArray
+	self
+		updateServices: self methodListPresenter list asArray
+		onCompletion: [
+			browser := (JadeiteMethodListApplication showOnSession:
+				            self gciSession library) methods:
+				           self methodListPresenter list.
+			browser caption: 'Selected Methods in Categories - '
+				, (self categoryListPresenter selectedItems collect: [ :ea |
+						 ea categoryName ]) asArray printString ]
 ]
 
 { #category : 'messages' }
