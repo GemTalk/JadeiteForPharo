@@ -42,7 +42,7 @@ JadeitePreferences class >> autocommitEnabled: aBoolean [
 
 { #category : 'as yet unclassified' }
 JadeitePreferences class >> current [
-	^Current
+	^Current ifNil: [ Current := JadeitePreferences new ]
 ]
 
 { #category : 'as yet unclassified' }
