@@ -17,7 +17,8 @@ Class {
 		'lastWindowPosition',
 		'font',
 		'textFont',
-		'autocommitEnabled'
+		'autocommitEnabled',
+		'openBrowserOnClass'
 	],
 	#classVars : [
 		'Current',
@@ -86,6 +87,18 @@ JadeitePreferences class >> onSession: session [
 	^self new session: session
 ]
 
+{ #category : 'settings' }
+JadeitePreferences class >> openBrowserOnClass [
+
+	^ self current openBrowserOnClass
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> openBrowserOnClass: aString [
+
+	self current openBrowserOnClass: aString
+]
+
 { #category : 'as yet unclassified' }
 JadeitePreferences class >> preferencesFile [
 
@@ -96,7 +109,7 @@ JadeitePreferences class >> preferencesFile [
 JadeitePreferences class >> preferencesFileDefaultContents [
 
 	^ '#Remove # to uncomment option. 
-
+#Preferences are now found in Pharo Settings Browser
 #legal values are a boolean
 
 #autocommitEnabled: false
@@ -143,7 +156,12 @@ JadeitePreferences class >> settingsOn: aBuilder [
 			(aBuilder setting: #autocommitEnabled) 
 				label: 'Auto Commit';
 				default: false;
-				description: 'Do a GemStone commit after every server interaction' ]
+				description: 'Do a GemStone commit after every server interaction'.
+		(aBuilder setting: #openBrowserOnClass) 
+				label: 'Open Browser On Class';
+				default: String new;
+				description: 'After connection, open a browser on a class' ].
+		
 ]
 
 { #category : 'as yet unclassified' }
@@ -153,9 +171,41 @@ JadeitePreferences >> allowsSpacesInArgument: commandSymbol [
 ]
 
 { #category : 'as yet unclassified' }
+JadeitePreferences >> applicablePreferences [
+	"Which inst vars are actual preferences"
+
+	^ #( autocommitEnabled openBrowserOnClass )
+]
+
+{ #category : 'as yet unclassified' }
 JadeitePreferences >> application [
 	"Spec2 needs this to open a browser via preferences"
 	^JadeiteConsoleApplication new
+]
+
+{ #category : 'as yet unclassified' }
+JadeitePreferences >> applyAutocommitEnabled: aBoolean [
+
+	| autoCommitService |
+	GciSession current isValidSession ifFalse: [ ^ self ].
+	autoCommitService := RowanAutoCommitService new
+		                     command: #autoCommit:;
+		                     commandArgs: (Array with: autocommitEnabled).
+	RowanServiceUpdater current
+		issueCommand: autoCommitService
+		session: session
+		onCompletion: [
+		GciSession current autoCommit value: autoCommitService autoCommit ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeitePreferences >> applyOpenBrowserOnClass: className [
+
+	| projectBrowser |
+	projectBrowser := self openBrowser.
+	projectBrowser findClassNamed: className.
+	self todo: [ lastWindowPosition := projectBrowser view position ].
+	^ projectBrowser
 ]
 
 { #category : 'as yet unclassified' }
@@ -270,12 +320,24 @@ JadeitePreferences >> openBrowser [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferences >> openBrowserOnClass: className [
-	| projectBrowser |
+JadeitePreferences >> openBrowserOnClass [
+
+	^ openBrowserOnClass
+	"| projectBrowser |
 	projectBrowser := self openBrowser.
 	projectBrowser findClassNamed: className.
 	self todo:[lastWindowPosition := projectBrowser view position].
-	^projectBrowser
+	^projectBrowser"
+]
+
+{ #category : 'as yet unclassified' }
+JadeitePreferences >> openBrowserOnClass: className [
+	openBrowserOnClass := className
+	"| projectBrowser |
+	projectBrowser := self openBrowser.
+	projectBrowser findClassNamed: className.
+	self todo:[lastWindowPosition := projectBrowser view position].
+	^projectBrowser"
 ]
 
 { #category : 'as yet unclassified' }

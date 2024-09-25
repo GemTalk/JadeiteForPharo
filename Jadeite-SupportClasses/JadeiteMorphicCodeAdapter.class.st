@@ -100,6 +100,7 @@ JadeiteMorphicCodeAdapter >> buildWidget [
 
 { #category : 'private' }
 JadeiteMorphicCodeAdapter >> newCompletionEngine: anInteractionModel [
+	"the completion engine was put in for autocomplete, but was not completed. "
 	true ifTrue:[^super newCompletionEngine: anInteractionModel]. 
 	^ completionEngine ifNil: [
 		  completionEngine := JadeiteCompletionEngine new
@@ -115,12 +116,14 @@ JadeiteMorphicCodeAdapter >> newCompletionEngine: anInteractionModel [
 
 { #category : 'private' }
 JadeiteMorphicCodeAdapter >> setSyntaxHighlightThemeFor: textArea [
+	"the code styler was put in for autocomplete, but was not completed. "
+
 	| theme |
-	true ifTrue:[^super setSyntaxHighlightThemeFor: textArea]. 
+	true ifTrue: [ ^ super setSyntaxHighlightThemeFor: textArea ].
 	theme := self presenter syntaxHighlightTheme.
 	theme ifNil: [ ^ self ].
 
-	textArea shoutStyler 
+	textArea shoutStyler
 		styler: (JadeiteCodeTextStyler newWithAttributeTableNamed: theme);
 		refreshStyling
 ]

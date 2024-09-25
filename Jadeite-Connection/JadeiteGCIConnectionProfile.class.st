@@ -45,20 +45,13 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> applyPreferences [
 
-	| preferencesPath stream nextLine prefs |
-	preferencesPath := JadeitePreferences preferencesPath.
-	prefs := JadeitePreferences onSession: self.
-	prefs autocommitEnabled:
-		(JadeitePreferences current ifNotNil: [ :existingPrefs |
-			 existingPrefs autocommitEnabled ]). "temporary - experimenting with integrating with Pharo settings"
-	JadeitePreferences current: prefs.
-	(File exists: preferencesPath) ifFalse: [ ^ self ].
-	stream := (FileSystem disk open: preferencesPath writable: false)
-		          reference readStream.
-	[
-	[ stream atEnd ] whileFalse: [
-		nextLine := stream nextLine.
-		prefs applyPreference: nextLine ] ] ensure: [ ^ stream close ]
+	| prefs |
+	prefs := JadeitePreferences current session: self.
+	prefs applicablePreferences do: [ :pref |
+		| applySelector getSelector |
+		applySelector := ('apply' , pref capitalized , ':') asSymbol.
+		getSelector := (pref , ':') asSymbol.
+		prefs perform: applySelector with: (prefs perform: getSelector) ]
 ]
 
 { #category : 'actions' }

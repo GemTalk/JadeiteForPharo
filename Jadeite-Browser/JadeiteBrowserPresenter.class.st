@@ -1456,10 +1456,9 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 		wantsDrop: [ :transfer |
 			transfer passenger allSatisfy: #isMethodService ];
 		acceptDrop: [ :transfer |
-			transfer index = 0 ifFalse: [
-					self
-						dropMethods: transfer passenger
-						onSelectedClass: transfer target ] ].
+			self
+				dropMethods: transfer passenger
+				onSelectedClass: transfer target ].
 	classHierarchyPage := JadeiteNotebookPage
 		                      title: 'Hierarchy'
 		                      icon: nil
