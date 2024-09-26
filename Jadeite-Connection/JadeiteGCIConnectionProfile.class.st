@@ -48,10 +48,7 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 	| prefs |
 	prefs := JadeitePreferences current session: self.
 	prefs applicablePreferences do: [ :pref |
-		| applySelector getSelector |
-		applySelector := ('apply' , pref capitalized , ':') asSymbol.
-		getSelector := (pref , ':') asSymbol.
-		prefs perform: applySelector with: (prefs perform: getSelector) ]
+		(self class preferenceActions at: pref) value: (prefs perform: pref) ]
 ]
 
 { #category : 'actions' }

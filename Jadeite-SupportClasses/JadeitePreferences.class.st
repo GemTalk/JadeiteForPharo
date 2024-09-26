@@ -17,8 +17,7 @@ Class {
 		'lastWindowPosition',
 		'font',
 		'textFont',
-		'autocommitEnabled',
-		'openBrowserOnClass'
+		'preferences'
 	],
 	#classVars : [
 		'Current',
@@ -32,7 +31,8 @@ Class {
 { #category : 'settings' }
 JadeitePreferences class >> autocommitEnabled [
 
-	^ self current autocommitEnabled
+	^ self current autocommitEnabled ifNil: [
+		  JadeitePreference for: #autocommitEnabled ]
 ]
 
 { #category : 'settings' }
@@ -233,22 +233,9 @@ JadeitePreferences >> autocommitEnabled [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferences >> autocommitEnabled: booleanString [
+JadeitePreferences >> autocommitEnabled: aBoolean [
 
-	| autoCommitService |
-	booleanString ifNil: [ ^ self ].
-	autocommitEnabled := booleanString isString
-		                     ifTrue: [ booleanString = 'true' ]
-		                     ifFalse: [ booleanString ].
-	GciSession current isValidSession ifFalse: [ ^ self ].
-	autoCommitService := RowanAutoCommitService new
-		                     command: #autoCommit:;
-		                     commandArgs: (Array with: autocommitEnabled).
-	RowanServiceUpdater current
-		issueCommand: autoCommitService
-		session: session
-		onCompletion: [
-		GciSession current autoCommit value: autoCommitService autoCommit ]
+	autocommitEnabled := aBoolean
 ]
 
 { #category : 'as yet unclassified' }
@@ -332,12 +319,8 @@ JadeitePreferences >> openBrowserOnClass [
 
 { #category : 'as yet unclassified' }
 JadeitePreferences >> openBrowserOnClass: className [
+
 	openBrowserOnClass := className
-	"| projectBrowser |
-	projectBrowser := self openBrowser.
-	projectBrowser findClassNamed: className.
-	self todo:[lastWindowPosition := projectBrowser view position].
-	^projectBrowser"
 ]
 
 { #category : 'as yet unclassified' }
@@ -437,6 +420,20 @@ JadeitePreferences >> performCommand: message allowSpacesInArgs: preferencesStri
 	readStream upTo: Character space.
 	argument := readStream upToEnd.
 	^self perform: message with: argument
+]
+
+{ #category : 'settings' }
+JadeitePreferences >> preferenceActions [
+
+	| actionDictionary |
+	actionDictionary := Dictionary new.
+	actionDictionary
+		at: #autocommitEnabled
+		put: [ :aBoolean | self applyAutocommitEnabled: aBoolean ].
+	actionDictionary
+		at: #openBrowserOnClass
+		put: [ :className | self applyOpenBrowserOnClass: className ].
+	^ actionDictionary
 ]
 
 { #category : 'as yet unclassified' }
