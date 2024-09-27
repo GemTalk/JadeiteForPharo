@@ -47,8 +47,7 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 
 	| prefs |
 	prefs := JadeitePreferences current session: self.
-	prefs applicablePreferences do: [ :pref |
-		(self class preferenceActions at: pref) value: (prefs perform: pref) ]
+	prefs applyPreferences
 ]
 
 { #category : 'actions' }

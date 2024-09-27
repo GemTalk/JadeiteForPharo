@@ -11,12 +11,14 @@ Class {
 }
 
 { #category : 'instance creation' }
-JadeitePreference class >> for: aSymbol [
+JadeitePreference class >> for: aSymbol action: actionBlock [
 
 	| inst |
-	inst := self new. 
-	inst preference: aSymbol. 
-	^inst
+	inst := self new.
+	inst
+		preference: aSymbol;
+		action: actionBlock.
+	^ inst
 ]
 
 { #category : 'accessing' }

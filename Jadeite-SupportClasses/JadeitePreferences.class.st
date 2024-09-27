@@ -31,8 +31,7 @@ Class {
 { #category : 'settings' }
 JadeitePreferences class >> autocommitEnabled [
 
-	^ self current autocommitEnabled ifNil: [
-		  JadeitePreference for: #autocommitEnabled ]
+	^ self current autocommitEnabled
 ]
 
 { #category : 'settings' }
@@ -184,31 +183,6 @@ JadeitePreferences >> application [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferences >> applyAutocommitEnabled: aBoolean [
-
-	| autoCommitService |
-	GciSession current isValidSession ifFalse: [ ^ self ].
-	autoCommitService := RowanAutoCommitService new
-		                     command: #autoCommit:;
-		                     commandArgs: (Array with: autocommitEnabled).
-	RowanServiceUpdater current
-		issueCommand: autoCommitService
-		session: session
-		onCompletion: [
-		GciSession current autoCommit value: autoCommitService autoCommit ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeitePreferences >> applyOpenBrowserOnClass: className [
-
-	| projectBrowser |
-	projectBrowser := self openBrowser.
-	projectBrowser findClassNamed: className.
-	self todo: [ lastWindowPosition := projectBrowser view position ].
-	^ projectBrowser
-]
-
-{ #category : 'as yet unclassified' }
 JadeitePreferences >> applyPreference: preferencesString [
 	"only perform messages which are defined by this class"
 
@@ -227,15 +201,29 @@ JadeitePreferences >> applyPreference: preferencesString [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferences >> autocommitEnabled [
+JadeitePreferences >> applyPreferences [
 
-	^autocommitEnabled
+	preferences do: [ :ea | ea apply ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
+JadeitePreferences >> autocommitEnabled [
+
+	| pref |
+	pref := preferences at: #autocommitEnabled ifAbsentPut: [
+		        JadeitePreference
+			        for: #autocommitEnabled
+			        action: [ :preferenceValue |
+				        RowanAnsweringService new
+					        setAutoCommit: preferenceValue
+					        for: GciSession current ] ].
+	^ pref value
+]
+
+{ #category : 'accessing' }
 JadeitePreferences >> autocommitEnabled: aBoolean [
 
-	autocommitEnabled := aBoolean
+	(preferences at: #autocommitEnabled) value: aBoolean
 ]
 
 { #category : 'as yet unclassified' }
@@ -286,6 +274,13 @@ JadeitePreferences >> font: stringWithFontNameSize [
 	self class displayFontFrom: font
 ]
 
+{ #category : 'initialization' }
+JadeitePreferences >> initialize [
+
+	super initialize.
+	preferences := Dictionary new
+]
+
 { #category : 'as yet unclassified' }
 JadeitePreferences >> loggingEnabled: booleanString [
 	| boolean |
@@ -306,21 +301,24 @@ JadeitePreferences >> openBrowser [
 	^inst
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeitePreferences >> openBrowserOnClass [
 
-	^ openBrowserOnClass
-	"| projectBrowser |
-	projectBrowser := self openBrowser.
-	projectBrowser findClassNamed: className.
-	self todo:[lastWindowPosition := projectBrowser view position].
-	^projectBrowser"
+	| pref |
+	pref := preferences at: #openBrowserOnClass ifAbsentPut: [
+		        JadeitePreference
+			        for: #openBrowserOnClass
+			        action: [ :preferenceValue |
+				        preferenceValue ifNotNil: [
+					        preferenceValue isEmpty ifFalse: [
+						        self openBrowser findClassNamed: preferenceValue ] ] ] ].
+	^ pref value
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeitePreferences >> openBrowserOnClass: className [
 
-	openBrowserOnClass := className
+	(preferences at: #openBrowserOnClass) value: className
 ]
 
 { #category : 'as yet unclassified' }
