@@ -76,6 +76,31 @@ JadeiteFilterTrait >> browseInstVarReaders: instVarName in: className session: s
 ]
 
 { #category : 'actions' }
+JadeiteFilterTrait >> browseInstVarReferences [
+
+	^ self
+		  browseInstVarReferences: self variableListPresenter selectedItem
+		  in: self selectedClassName
+		  session: self gciSession
+]
+
+{ #category : 'actions' }
+JadeiteFilterTrait >> browseInstVarReferences: instVarName in: className session: session [
+
+	| shell refs |
+	instVarName ifNil: [ ^ nil ].
+	refs := self instVarReferences: instVarName.
+	(shell := JadeiteMethodListApplication showOnSession:
+		          self gciSession library)
+		methods: refs
+		selectingAnyMatch: instVarName.
+	shell updateCaptionFromSearchString:
+		'Instance Variable References For '
+		, instVarName asString printString.
+	^ shell
+]
+
+{ #category : 'actions' }
 JadeiteFilterTrait >> browseInstVarWriters [
 
 	^ self
@@ -187,6 +212,30 @@ JadeiteFilterTrait >> initializeVariableListMenu [
 	self variableListPresenter contextMenu: self newVariableMenu
 ]
 
+{ #category : 'accessing' }
+JadeiteFilterTrait >> instVarReferences: instVar [
+
+	| service refs |
+	refs := OrderedCollection new.
+	RowanServiceUpdater current critical: [
+		service := RowanQueryService
+			           command: #instVarReaders:in:
+			           withArgs:
+			           (Array with: instVar with: self selectedClass name).
+		RowanServiceUpdater current
+			issueCommand: service
+			session: self gciSession
+			onCompletion: [ refs addAll: service queryResults ].
+		service
+			command: #instVarWriters:in:;
+			commandArgs: (Array with: instVar with: self selectedClass name).
+		RowanServiceUpdater current
+			issueCommand: service
+			session: self gciSession
+			onCompletion: [ refs addAll: service queryResults ] ].
+	^ refs
+]
+
 { #category : 'testing' }
 JadeiteFilterTrait >> isVariableSelected [
 
@@ -245,6 +294,11 @@ JadeiteFilterTrait >> newVariableMenu [
 			  group
 				  addItem: [ :item |
 					  item
+						  name: 'Browse Inst Var References';
+						  action: [ self browseInstVarReferences ];
+						  enabled: [ self isVariableSelected ] ];
+				  addItem: [ :item |
+					  item
 						  name: 'Browse Inst Var Readers';
 						  action: [ self browseInstVarReaders ];
 						  enabled: [ self isVariableSelected ] ];
@@ -253,6 +307,12 @@ JadeiteFilterTrait >> newVariableMenu [
 						  name: 'Browse Inst Var Writers';
 						  action: [ self browseInstVarWriters ];
 						  enabled: [ self isVariableSelected ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'Remove Inst Var';
+					  action: [ self removeInstVar ];
+					  enabled: [ self isVariableSelected ] ] ];
 		  yourself
 ]
 
@@ -262,6 +322,41 @@ JadeiteFilterTrait >> openMethodListOn: service selectingAnyMatch: string sessio
 		openOn: service
 		selectingAnyMatch: string
 		session: session
+]
+
+{ #category : 'actions' }
+JadeiteFilterTrait >> removeInstVar [
+
+	| instVar refs |
+	instVar := self variableListPresenter selectedItem.
+	refs := self instVarReferences: instVar.
+	refs notEmpty
+		ifTrue: [
+			| shell |
+			(shell := JadeiteMethodListApplication showOnSession:
+				          self gciSession library)
+				methods: refs
+				selectingAnyMatch: instVar.
+			shell updateCaptionFromSearchString:
+				'Instance Variable References for ' , '''' , instVar , ''''.
+			UIManager default confirm:
+				'Selected instance var has references. Instance variable not removed.' ]
+		ifFalse: [
+			self selectedClass
+				command: #removeInstVar:;
+				commandArgs: (Array with: self variableListPresenter selectedItem).
+			RowanServiceUpdater current
+				issueCommand: self selectedClass
+				session: self gciSession
+				onCompletion: [ "pretty up display"
+					RowanServiceUpdater current critical: [
+						| index |
+						index := self classListPresenter selection selectedIndex.
+						self packageListPresenter selectItem:
+							self packageListPresenter selectedItem.
+						self classListPresenter selection selectIndex: index.
+						self selectClassDefinitionTab.
+						self selectVariableTab ] ] ]
 ]
 
 { #category : 'actions' }

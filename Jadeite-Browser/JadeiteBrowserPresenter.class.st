@@ -2521,11 +2521,12 @@ JadeiteBrowserPresenter >> recompileMethods [
 		command: #recompileMethodsAfterClassCompilation;
 		commandArgs: #(  );
 		compileErrorHandler: [ :ex |
+			self resetClassTemplate.
+			classDefinitionPresenter isModified: false.
 			UIManager default alert:
-					'Compile error possibly in method #'
-					, (ex gsArguments first at: 5) , ' '
-					, (ex gsArguments first at: 3)
-					, '. Recommend aborting as system may be in a bad state' ].
+					'Compile error in method - ''' , (ex gsArguments first at: 5)
+					, ''' ' , (ex gsArguments first at: 3)
+					, '. Class compilation not completed.' ].
 
 	self issueCommand: browserService onCompletion: [
 		[
@@ -2539,26 +2540,6 @@ JadeiteBrowserPresenter >> recompileMethods [
 					ifTrue: [
 					^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
 				ex pass ] ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> recompileMethods: browserService [
-
-	browserService
-		command: #recompileMethodsAfterClassCompilation;
-		commandArgs: #(  ).
-	[
-	self issueCommand: browserService onCompletion: [
-		self resetClassDefinitionPane.
-		self
-			updateAfterFindClass: browserService selectedClass
-			onCompletion: [  ] ] ]
-		on: GsApplicationError , GsCompileError
-		do: [ :ex |
-			('*poolDictionaries not supported yet*' match: ex description)
-				ifTrue: [
-				^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
-			^ self showMethodRecompilationError: ex ]
 ]
 
 { #category : 'as yet unclassified' }
