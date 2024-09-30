@@ -16,6 +16,40 @@ JadeiteFilterTrait >> addMethodCategory [
 ]
 
 { #category : 'actions' }
+JadeiteFilterTrait >> basicRemoveInstVarNamed: instVar [
+
+	| refs |
+	refs := self instVarReferences: instVar.
+	refs notEmpty
+		ifTrue: [
+			| shell |
+			(shell := JadeiteMethodListApplication showOnSession:
+				          self gciSession library)
+				methods: refs
+				selectingAnyMatch: instVar.
+			shell updateCaptionFromSearchString:
+				'Instance Variable References for ' , '''' , instVar , ''''.
+			UIManager default confirm:
+				'Selected instance var has references. Instance variable not removed.' ]
+		ifFalse: [
+			self selectedClass
+				command: #removeInstVar:;
+				commandArgs: (Array with: self variableListPresenter selectedItem).
+			RowanServiceUpdater current
+				issueCommand: self selectedClass
+				session: self gciSession
+				onCompletion: [ "pretty up display"
+					RowanServiceUpdater current critical: [
+						| index |
+						index := self classListPresenter selection selectedIndex.
+						self packageListPresenter selectItem:
+							self packageListPresenter selectedItem.
+						self classListPresenter selection selectIndex: index.
+						self selectClassDefinitionTab.
+						self selectVariableTab ] ] ]
+]
+
+{ #category : 'actions' }
 JadeiteFilterTrait >> basicRemoveMethodCategories [
 
 	| minusExtensions service |
@@ -327,36 +361,14 @@ JadeiteFilterTrait >> openMethodListOn: service selectingAnyMatch: string sessio
 { #category : 'actions' }
 JadeiteFilterTrait >> removeInstVar [
 
-	| instVar refs |
+	| instVar shouldRemove |
+	"pretty up display"
 	instVar := self variableListPresenter selectedItem.
-	refs := self instVarReferences: instVar.
-	refs notEmpty
-		ifTrue: [
-			| shell |
-			(shell := JadeiteMethodListApplication showOnSession:
-				          self gciSession library)
-				methods: refs
-				selectingAnyMatch: instVar.
-			shell updateCaptionFromSearchString:
-				'Instance Variable References for ' , '''' , instVar , ''''.
-			UIManager default confirm:
-				'Selected instance var has references. Instance variable not removed.' ]
-		ifFalse: [
-			self selectedClass
-				command: #removeInstVar:;
-				commandArgs: (Array with: self variableListPresenter selectedItem).
-			RowanServiceUpdater current
-				issueCommand: self selectedClass
-				session: self gciSession
-				onCompletion: [ "pretty up display"
-					RowanServiceUpdater current critical: [
-						| index |
-						index := self classListPresenter selection selectedIndex.
-						self packageListPresenter selectItem:
-							self packageListPresenter selectedItem.
-						self classListPresenter selection selectIndex: index.
-						self selectClassDefinitionTab.
-						self selectVariableTab ] ] ]
+	shouldRemove := UIManager default confirm:
+		                'Really remove instance variable '
+		                , self variableListPresenter selectedItem , '?'.
+	shouldRemove ifFalse: [ ^ self ].
+	self basicRemoveInstVarNamed: instVar
 ]
 
 { #category : 'actions' }
