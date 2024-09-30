@@ -3598,17 +3598,22 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: comp
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |
-			RowanServiceUpdater current critical: [
-				projectService := array first.
-				packageService := array last.
-				self setAppropriateMeta: classService. 
-				self selectClassListTab.
-				self selectPackageListTab.
-				self
-					selectClassNamed: classService
-					package: packageService
-					project: projectService.
-				completionBlock value ] ]
+			array
+				ifNil: [
+					UIManager default inform:
+						'Attempt to display class failed. Invalid class name?' ]
+				ifNotNil: [
+					RowanServiceUpdater current critical: [
+						projectService := array first.
+						packageService := array last.
+						self setAppropriateMeta: classService.
+						self selectClassListTab.
+						self selectPackageListTab.
+						self
+							selectClassNamed: classService
+							package: packageService
+							project: projectService.
+						completionBlock value ] ] ]
 ]
 
 { #category : 'as yet unclassified' }

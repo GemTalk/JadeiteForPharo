@@ -1,0 +1,93 @@
+Class {
+	#name : 'JadeiteForPharoSettingsTestCase',
+	#superclass : 'JadeiteForPharoGUITestCase',
+	#instVars : [
+		'savedSettings'
+	],
+	#category : 'Jadeite-Tests',
+	#package : 'Jadeite-Tests'
+}
+
+{ #category : 'support' }
+JadeiteForPharoSettingsTestCase >> setUp [
+
+	super setUp.
+	JadeiteConnectionProfile connectionProfile disconnect.
+	savedSettings := JadeitePreferences current copy
+]
+
+{ #category : 'support' }
+JadeiteForPharoSettingsTestCase >> tearDown [
+
+	JadeiteConnectionProfile connectionProfile disconnect.
+	self deny: JadeiteConnectionProfile connectionProfile isConnected.
+	JadeitePreferences current: savedSettings.
+	super tearDown
+]
+
+{ #category : 'tests' }
+JadeiteForPharoSettingsTestCase >> test_autoCommitSetting [
+
+	| prefs |
+	prefs := JadeitePreferences current.
+	prefs autocommitEnabled: true.
+	JadeiteConnectionProfile connectionProfile connect.
+	self assert: JadeiteConnectionProfile connectionProfile isConnected.
+	[ GciSession current autoCommit contents ] whileFalse: [
+		(Delay forMilliseconds: 1) wait ].
+	self assert: GciSession current autoCommit contents.
+	JadeiteConnectionProfile connectionProfile disconnect.
+	self deny: JadeiteConnectionProfile connectionProfile isConnected.
+	prefs autocommitEnabled: false.
+	JadeiteConnectionProfile connectionProfile connect.
+	[ GciSession current autoCommit contents ] whileTrue: [
+		(Delay forMilliseconds: 1) wait ].
+	self deny: GciSession current autoCommit contents
+]
+
+{ #category : 'tests' }
+JadeiteForPharoSettingsTestCase >> test_openBrowserOnClassSetting [
+
+	| prefs |
+	prefs := JadeitePreferences current.
+	prefs openBrowserOnClass: 'RowanService'.
+	self waitForBrowserWhile: [
+		JadeiteConnectionProfile connectionProfile connect.
+		self assert: JadeiteConnectionProfile connectionProfile isConnected ].
+	[
+	self projectsPresenter
+		ifNil: [ false ]
+		ifNotNil: [ :pres | pres selectedClass notNil ] ] whileFalse: [
+		(Delay forMilliseconds: 1) wait ].
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanService'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoSettingsTestCase >> test_openBrowserOnInvalidClassSetting [
+	"not a great test, but at least don't give an error"
+
+	| prefs |
+	prefs := JadeitePreferences current.
+	prefs openBrowserOnClass: 'GrumbleFlumps'. "should not exist"
+	self waitForBrowserWhile: [
+		JadeiteConnectionProfile connectionProfile connect ].
+	(Delay forSeconds: 1) wait. 
+	self assertIsNil: self projectsPresenter selectedClass
+]
+
+{ #category : 'support' }
+JadeiteForPharoSettingsTestCase >> waitForBrowserWhile: aBlock [
+
+	| existingBrowsers newBrowsers |
+	RsrGarbageCollector maximumReclamation.
+	existingBrowsers := JadeiteBrowser allInstances.
+	aBlock fork.
+	[
+	(newBrowsers := JadeiteBrowser allInstances asOrderedCollection) size
+	> existingBrowsers size ] whileFalse: [
+		(Delay forMilliseconds: 1) wait ].
+	newBrowsers removeAll: existingBrowsers.
+	projectsBrowser := newBrowsers first
+]

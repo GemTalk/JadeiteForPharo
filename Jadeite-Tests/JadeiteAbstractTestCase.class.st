@@ -1137,7 +1137,8 @@ JadeiteAbstractTestCase >> tearDown [
 		self projectsPresenter ifNotNil: [ :presenter |
 			presenter methodSourcePresenter adapter ifNotNil: [ :a |
 				a widget hasUnacceptedEdits: false ] ] ].
-	self destroy: projectsBrowser
+	self destroy: projectsBrowser.
+	projectsBrowser := nil
 ]
 
 { #category : 'as yet unclassified' }

@@ -152,15 +152,15 @@ JadeitePreferences class >> settingsOn: aBuilder [
 		description:
 			'Settings applied when Jadeite For Pharo is initially connected to a stone';
 		with: [
-			(aBuilder setting: #autocommitEnabled) 
+			(aBuilder setting: #autocommitEnabled)
 				label: 'Auto Commit';
 				default: false;
 				description: 'Do a GemStone commit after every server interaction'.
-		(aBuilder setting: #openBrowserOnClass) 
+			(aBuilder setting: #openBrowserOnClass)
 				label: 'Open Browser On Class';
 				default: String new;
-				description: 'After connection, open a browser on a class' ].
-		
+				description:
+					'After connection, open a browser on a class. To disable preference, leave class name blank.' ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -241,6 +241,15 @@ JadeitePreferences >> breakpointsEnabled: booleanString [
 				command: #setBreakPointsAreEnabled:;
 				commandArgs: (Array with: boolean).
 	RowanServiceUpdater current issueCommands: (Array with: answeringService) session: session onCompletion: [  ]
+]
+
+{ #category : 'copying' }
+JadeitePreferences >> copy [
+
+	| copy |
+	copy := super copy.
+	copy preferences: (copy preferences collect: [ :pref | pref copy ]).
+	^ copy
 ]
 
 { #category : 'as yet unclassified' }
@@ -432,6 +441,18 @@ JadeitePreferences >> preferenceActions [
 		at: #openBrowserOnClass
 		put: [ :className | self applyOpenBrowserOnClass: className ].
 	^ actionDictionary
+]
+
+{ #category : 'accessing' }
+JadeitePreferences >> preferences [
+
+	^ preferences
+]
+
+{ #category : 'accessing' }
+JadeitePreferences >> preferences: anObject [
+
+	preferences := anObject
 ]
 
 { #category : 'as yet unclassified' }
