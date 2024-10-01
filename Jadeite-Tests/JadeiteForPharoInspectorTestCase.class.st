@@ -88,7 +88,7 @@ JadeiteForPharoInspectorTestCase >> test_adHocExecution [
 	self assert: inspector codePane text equals: 'self size "2"'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_adHocInspect [
 
 	| methodListBrowser |
@@ -234,6 +234,31 @@ JadeiteForPharoInspectorTestCase >> test_captionChange [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_closeWithUnsavedChanges [
+
+	self
+		testsIssue: #issue722
+		withTitle:
+		'Unsaved inspector code pane changes get lost on inspector window close'.
+	self openWorkspaceAndInspect: 'Bag new add: ''abc''; yourself'.
+	inspector codePane value: 'nil'.
+	inspector codePane hasUnacceptedEdits: true.
+	[ inspector window close ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: false ].
+	[
+	self assert: inspector window isOpen.
+	inspector codePane hasUnacceptedEdits: false.
+	self destroy: inspector.
+	self deny: inspector window isOpen.
+	self destroy: workspace.
+	self openWorkspaceAndInspect: 'Bag new add: ''abc''; yourself'.
+	self destroy: inspector.
+	self deny: inspector window isOpen ] ensure: [
+		inspector codePane hasUnacceptedEdits: false ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_deselectClearsPane [
 	self openWorkspaceAndInspect: '97'.
 	inspector instVarListPresenter selectIndex: 1.
@@ -248,7 +273,7 @@ JadeiteForPharoInspectorTestCase >> test_deselectClearsPane [
 	
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_dynamicInstVars [
 
 	self openWorkspaceAndInspect:
@@ -262,7 +287,7 @@ JadeiteForPharoInspectorTestCase >> test_dynamicInstVars [
 		equals: '''bar'''
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_forwardBack [
 	| ocIndex |
 	self testsIssue: #issue153 withTitle: 'Inspector Back goes too far'.

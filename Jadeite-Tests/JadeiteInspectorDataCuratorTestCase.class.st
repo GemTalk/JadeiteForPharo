@@ -391,39 +391,6 @@ JadeiteInspectorDataCuratorTestCase >> test_basicInspectorDisplayedSizeLimit [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_closeWithUnsavedChanges [
-	| remoteObject |
-	self testsIssue: #issue722
-		withTitle: 'Unsaved inspector code pane changes get lost on inspector window close'.
-	remoteObject := session
-				executeString: 'Bag new add: ''abc''; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	inspector documentPresenter value: 'nil'.
-	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[TestMessageBox plannedResult: #yes.
-	self closeBrowser: inspector.
-	self assert: inspector view isOpen.
-	TestMessageBox plannedResult: #no.
-	self closeBrowser: inspector.
-	self deny: inspector view isOpen.
-	remoteObject := session
-				executeString: 'Bag new add: ''abc''; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	TestMessageBox plannedResult: #no.
-	self closeBrowser: inspector.
-	self assert: inspector view isOpen]
-			ensure: 
-				[inspector codePane view isModified: false.
-				self closeBrowser: inspector.	"in case test fails before inspector is closed"
-				TestMessageBox disableJadeiteTestMessageBox]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInBasicInspector [
 	| remoteObject jadeiteMenu commitItem abortItem |
 	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
@@ -809,29 +776,21 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectBytes [
 			ensure: [self destroy: bytesInspector]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteInspectorDataCuratorTestCase >> test_inspectDoubleByteString [
 
-	| service |
-	inspector := JadeiteInspector new gciSession: session.
-	inspector createView: inspector class defaultView.
-	service := RowanInspectorService new
-		           executeThenInspect:
-		           '''aa'', (String with: (Character withValue: 353)), ''b'''
-		           context: session oopNil value
-		           session: session
-		           windowHandle: inspector view handle value
-		           onCompletion: nil.
-	inspector showOn: service.
-	self assert: inspector documentPresenter value equals: '''aaÅ¡b'''.
+	self todo: 'RSR does not support unicode replication.'.
+	self openWorkspaceAndInspect:
+		'''aa'', (String with: (Character withValue: 353)), ''b'''.
+	self assert: inspector documentPresenter text equals: '''aaÅ¡b'''.
 	self selectInstVarAtIndex: #( 3 ).
-	self assert: inspector documentPresenter value equals: '$a'.
+	self assert: inspector documentPresenter text equals: '$a'.
 	self selectInstVarAtIndex: #( 4 ).
-	self assert: inspector documentPresenter value equals: '$a'.
+	self assert: inspector documentPresenter text equals: '$a'.
 	self selectInstVarAtIndex: #( 5 ).
-	self assert: inspector documentPresenter value equals: '$Å¡'.
+	self assert: inspector documentPresenter text equals: '$Å¡'.
 	self selectInstVarAtIndex: #( 6 ).
-	self assert: inspector documentPresenter value equals: '$b'
+	self assert: inspector documentPresenter text equals: '$b'
 ]
 
 { #category : 'as yet unclassified' }

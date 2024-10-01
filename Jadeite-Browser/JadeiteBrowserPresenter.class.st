@@ -1401,8 +1401,7 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 					  jadeiteCategory isComputed
 						  ifTrue: [ self extensionColor ]
 						  ifFalse: [ Color black ] ] ];
-		  wantsDrop: [ :transfer |
-			  transfer passenger allSatisfy: #isMethodService ];
+		  wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
 		  acceptDrop: [ :transfer |
 			  self
 				  moveMethods: transfer passenger
@@ -1451,8 +1450,7 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 			                           service subclassServices ].
 	classHierarchyPresenter
 		isActiveOnDoubleClick;
-		wantsDrop: [ :transfer |
-			transfer passenger allSatisfy: #isMethodService ];
+		wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
 		acceptDrop: [ :transfer |
 			self
 				dropMethods: transfer passenger
@@ -1471,8 +1469,7 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 	classListHierarchyTabs := self instantiate: JadeiteNotebookPresenter.
 	classListPresenter := JadeiteListPresenter newNameSortedList
 		                      wantsDrop: [ :transfer |
-			                      transfer passenger allSatisfy:
-					                      #isMethodService ];
+			                      self jadeiteWantsDrop: transfer ];
 		                      displayIcon: [ :classService |
 			                      self testClassResultIconFor: classService ];
 		                      acceptDrop: [ :transfer |
@@ -1534,8 +1531,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 			                              self selectedClass definedPackageName
 			                              = categoryString ];
 		                              wantsDrop: [ :transfer |
-			                              transfer passenger allSatisfy:
-					                              #isMethodService ];
+			                              self jadeiteWantsDrop: transfer ];
 		                              acceptDrop: [ :transfer |
 			                              self
 				                              moveMethodsToPackageFilterUsing:
@@ -1661,8 +1657,7 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
 	packageListPresenter := JadeiteListPresenter newNameSortedList
 		                        wantsDrop: [ :transfer |
-			                        transfer passenger allSatisfy:
-					                        #isMethodService ];
+			                        self jadeiteWantsDrop: transfer ];
 		                        acceptDrop: [ :transfer |
 			                        self
 				                        dropMethods: transfer passenger
@@ -1977,6 +1972,14 @@ JadeiteBrowserPresenter >> jadeInspect [
 	inspector := JadeiteInspector new gciSession: gciSession.
 	^inspector evaluateSelectedTextIn: methodSourcePresenter
 		thenInspectInContext: self inspectorContextObject
+]
+
+{ #category : 'testing' }
+JadeiteBrowserPresenter >> jadeiteWantsDrop: transfer [
+
+	^ (transfer passenger class canUnderstand: #allSatisfy:)
+		  ifTrue: [ transfer passenger allSatisfy: #isMethodService ]
+		  ifFalse: [ false ]
 ]
 
 { #category : 'history' }

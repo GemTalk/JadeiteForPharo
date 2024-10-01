@@ -81,18 +81,6 @@ RowanInspectorService >> executeThenInspect: string context: anOop session: sess
 		onCompletion: nil
 ]
 
-{ #category : 'inspecting' }
-RowanInspectorService >> executeThenInspect: string context: anOop session: session windowHandle: handle onCompletion: completionBlock [
-
-	self
-		command: #executeThenInspect:context:inWindow:;
-		commandArgs: (Array with: string with: anOop with: handle).
-	RowanServiceUpdater current
-		issueCommand: self
-		session: session
-		onCompletion: completionBlock
-]
-
 { #category : 'comparison' }
 RowanInspectorService >> hash [
 	^oop hash

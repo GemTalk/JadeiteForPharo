@@ -459,7 +459,8 @@ JadeiteMethodsTrait >> canDiscardEdits [
 	theAdapter ifNil: [ ^ true ].
 	theAdapter widget hasUnacceptedEdits ifTrue: [
 		^ (MessageBox confirm:
-			   'You have unsaved changes. Discard changes and continue?')
+			   'You have unsaved changes. Discard changes and continue?
+<' , self window title , '>')
 			  ifTrue: [
 				  self methodSourcePresenter hasUnacceptedEdits: false.
 				  true ]
