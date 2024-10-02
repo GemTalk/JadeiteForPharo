@@ -33,6 +33,27 @@ JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
 	^self methodSourcePresenter withAdapterDo: [ :adapter | adapter widgetDo:[:widget | widget hasUnacceptedEdits ] ]
 ]
 
+{ #category : 'not working tests' }
+JadeiteForPharoBrowserTestCase >> moveMethodToCategory [
+	"not sure why the code works but the test just won't pass"
+	self selectRowanSample1Class.
+	self projectsPresenter basicAddMethodCategory: 'foo'.
+	self saveSampleMethod.
+	self selectMethodNamed: 'sampleMethod'.
+	self
+		assert: self methodListPresenter selectedItem category
+		equals: 'foo'.
+	self projectsPresenter
+		moveMethods: (Array with: self methodListPresenter selectedItem)
+		toCategory: (JadeiteCategory named: 'accessing').
+	self
+		assert: self methodListPresenter selectedItem category
+		equals: 'accessing'.
+	self
+		assert: self categoryListPresenter selectedItem categoryName
+		equals: 'accessing'
+]
+
 { #category : 'support' }
 JadeiteForPharoBrowserTestCase >> openSecondBrowser [
 

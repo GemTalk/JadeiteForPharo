@@ -1403,10 +1403,11 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 						  ifFalse: [ Color black ] ] ];
 		  wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
 		  acceptDrop: [ :transfer |
-			  self
-				  moveMethods: transfer passenger
-				  toCategory:
-					  (self categoryListPresenter items at: transfer index) ]
+			  transfer index = 0 ifFalse: [
+					  self
+						  moveMethods: transfer passenger
+						  toCategory:
+							  (self categoryListPresenter items at: transfer index) ] ]
 ]
 
 { #category : 'initialization' }
@@ -2106,12 +2107,17 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 
 	| classService |
 	classService := self selectedClass.
-	self selectCategoriesNamed:
-		(categoryListPresenter selections copyWith: targetCategory).
 	classService
 		command: #moveMethods:to:;
-		commandArgs: (Array with: methodServices with: targetCategory categoryName).
-	self issueCommand: classService onCompletion: [self selectMethodsFrom: classService]
+		commandArgs:
+			(Array with: methodServices with: targetCategory categoryName).
+	self issueCommand: classService onCompletion: [
+		| index |
+		categoryListPresenter unselectAll. 
+		categoryListPresenter selectItem: targetCategory.
+		self methodsUpdate: classService.
+		index := methodListPresenter items indexOf: methodServices first.
+		methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'initialization' }

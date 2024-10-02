@@ -823,7 +823,7 @@ JadeiteAbstractTestCase >> saveSampleMethod [
 		^aaa'.
 	self methodSourcePresenter value: source.
 	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
+		editSaveMethod: self classListPresenter selectedItem 
 		onCompletion: nil
 ]
 
