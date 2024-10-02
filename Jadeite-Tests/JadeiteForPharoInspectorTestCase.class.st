@@ -71,11 +71,16 @@ JadeiteForPharoInspectorTestCase >> selectInstVarAtIndex: index [
 ]
 
 { #category : 'support' }
-JadeiteForPharoInspectorTestCase >> tearDown [ 
+JadeiteForPharoInspectorTestCase >> tearDown [
 
-	super tearDown. 
-	self destroy: inspector.
-	self destroy: secondInspector
+	super tearDown.
+	[ self destroy: inspector ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: true ].
+
+	[ self destroy: secondInspector ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: true ]
 ]
 
 { #category : 'tests' }
@@ -91,7 +96,6 @@ JadeiteForPharoInspectorTestCase >> test_adHocExecution [
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_adHocInspect [
 
-	| methodListBrowser |
 	self
 		testsIssue: #issue427
 		withTitle: '(3.0.60) autocommit not done after successful doits'.

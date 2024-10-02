@@ -209,23 +209,6 @@ JadeiteInspector >> browseClass [
 	^shell
 ]
 
-{ #category : 'testing' }
-JadeiteInspector >> canDiscardEdits [
-
-	| theAdapter |
-	theAdapter := codePane adapter.
-	theAdapter ifNil: [ ^ true ].
-	theAdapter widget hasUnacceptedEdits ifTrue: [
-		^ (MessageBox confirm:
-			   'You have unsaved changes. Discard changes and continue?
-<' , self window title , '>')
-			  ifTrue: [
-				  codePane hasUnacceptedEdits: false.
-				  true ]
-			  ifFalse: [ false ] ].
-	^ true
-]
-
 { #category : 'as yet unclassified' }
 JadeiteInspector >> canSave [
 	^instVarListPresenter selections size = 1
@@ -831,6 +814,23 @@ JadeiteInspector >> objectIsVariable [
 		                    session: gciSession
 		                    onCompletion: nil.
 	^ answeringService answer
+]
+
+{ #category : 'testing' }
+JadeiteInspector >> okToClose [
+
+	| theAdapter |
+	theAdapter := codePane adapter.
+	theAdapter ifNil: [ ^ true ].
+	theAdapter widget hasUnacceptedEdits ifTrue: [
+		^ (MessageBox confirm:
+			   'You have unsaved changes. Discard changes and continue?
+<' , self window title , '>')
+			  ifTrue: [
+				  codePane hasUnacceptedEdits: false.
+				  true ]
+			  ifFalse: [ false ] ].
+	^ true
 ]
 
 { #category : 'as yet unclassified' }
