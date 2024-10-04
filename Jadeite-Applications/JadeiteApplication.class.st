@@ -120,6 +120,7 @@ JadeiteApplication >> abortTransaction [
 	all aborts in Jadeite pass through here"
 
 	| browserService services |
+	gciSession ifNil: [ gciSession := GciSession current ].
 	services := (RowanServiceUpdater current
 		             selectedServicesForConnection: gciSession library)
 		            asSet asArray.
@@ -162,6 +163,7 @@ JadeiteApplication >> commitTransaction [
 	"Even if it takes a windy path, try to make sure
 	all commits in Jadeite pass through here"
 
+	gciSession ifNil: [ gciSession := GciSession current ].
 	self class commitTransactionInSession: gciSession onCompletion: nil
 ]
 
