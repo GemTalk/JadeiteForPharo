@@ -34,6 +34,13 @@ RowanMethodServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'initialization' }
+RowanMethodServiceClient >> initialize [
+
+	super initialize. 
+	catchBlock := [ ]
+]
+
 { #category : 'updates' }
 RowanMethodServiceClient >> methodUpdate: presenter browser: browser [
 

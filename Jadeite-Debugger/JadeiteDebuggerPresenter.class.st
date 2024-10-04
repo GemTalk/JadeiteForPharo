@@ -104,6 +104,12 @@ JadeiteDebuggerPresenter >> browseFrameMethod [
 		  meta: frameListPresenter selectedItem method meta
 ]
 
+{ #category : 'testing' }
+JadeiteDebuggerPresenter >> canDiscardEdits [
+
+	^true
+]
+
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> connectPresenters [
 
@@ -504,6 +510,23 @@ JadeiteDebuggerPresenter >> newVariableListMenu [
 						  action: [ self inspectVariable ];
 						  enabled: [ variableListPresenter selections size = 1 ] ] ];
 		  yourself
+]
+
+{ #category : 'testing' }
+JadeiteDebuggerPresenter >> okToChange [
+
+	| theAdapter |
+	theAdapter := self methodSourcePresenter adapter.
+	theAdapter ifNil: [ ^ true ].
+	theAdapter widget hasUnacceptedEdits ifTrue: [
+		^ (MessageBox confirm:
+			   'You have unsaved changes. Discard changes and continue?
+<' , self window title , '>')
+			  ifTrue: [
+				  self methodSourcePresenter hasUnacceptedEdits: false.
+				  true ]
+			  ifFalse: [ false ] ].
+	^ true
 ]
 
 { #category : 'registration' }

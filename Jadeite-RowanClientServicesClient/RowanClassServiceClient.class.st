@@ -72,3 +72,9 @@ RowanClassServiceClient >> subclassServices: anObject [
 
 	subclassServices := anObject
 ]
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> testMethods [ 
+
+	^self methods select:[:methodService | methodService isTestMethod]
+]

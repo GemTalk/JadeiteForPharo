@@ -11,5 +11,5 @@ UITheme >> jadeiteTextEditorIn: aThemedMorph text: aStringOrText title: aString 
 			title: aString;
 			text: aStringOrText;
 			entryText: defaultEntryText;
-			entryHeight: entryHeight) open entryText
+			entryHeight: entryHeight) openModal entryText
 ]
