@@ -621,8 +621,9 @@ JadeiteDebuggerPresenter >> stepInto [
 JadeiteDebuggerPresenter >> stepOver [
 
 	answer := Array
-		          with: #setStepOverBreaksAtLevel:
-		          with: frameListPresenter selection selectedIndex 
+		          with: #setStepOverBreaksAtLevel:breakpointLevel:
+		          with: frameListPresenter selection selectedIndex
+		          with: 1
 ]
 
 { #category : 'actions' }
