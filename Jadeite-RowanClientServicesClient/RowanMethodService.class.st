@@ -829,10 +829,14 @@ RowanMethodService >> stepPointFromCursorIn: methodSourcePresenter cursorPositio
 
 { #category : 'presenter support' }
 RowanMethodService >> stepPointRangeFrom: stepPointAssoc [
+
 	| start stop |
 	start := stepPointAssoc key.
-	stop := start + (stepPointAssoc value last copyUpThrough: $:) size.
-	^start to: stop
+	stop := start = 1
+		        ifTrue: [ start + (selector copyUpThrough: $:) size ]
+		        ifFalse: [
+		        start + (stepPointAssoc value last copyUpThrough: $:) size ].
+	^ start to: stop
 ]
 
 { #category : 'public' }
