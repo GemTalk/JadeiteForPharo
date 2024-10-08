@@ -601,7 +601,8 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 			widget
 				notify: (argArray at: 3)
 				at: (argArray at: 2) + selectionStart
-				in: self text asString ] ].
+				in: self text asString.
+			widget scrollPane scrollSelectionIntoView ] ].
 	^ nil
 ]
 
