@@ -30,6 +30,7 @@ JadeiteForPharoDebuggerTestCase >> tearDown [
 
 	super tearDown.
 	self destroy: debugger.
+	JadeiteConnectionProfile connectionProfile disconnect. 
 ]
 
 { #category : 'tests' }
@@ -111,6 +112,7 @@ JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 	debuggedProcesses := RowanProcessServiceClient
 		                     debuggedProcessServices.
 	[ debuggedProcesses isEmpty ] whileTrue: [
-		(Delay forMilliseconds: 1) wait ].
+		(Delay forMilliseconds: 1) wait.
+		WorldMorph doOneCycle ].
 	debugger := debuggedProcesses first debugger
 ]
