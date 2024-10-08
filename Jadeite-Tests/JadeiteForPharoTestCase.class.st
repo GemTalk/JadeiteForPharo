@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteForPharoTestCase',
 	#superclass : 'JadeiteAbstractTestCase',
+	#instVars : [
+		'savedSettings'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -55,4 +58,18 @@ JadeiteForPharoTestCase >> runCaseManaged [
 	watchdog loose. The watchdog is started by the test execution process"
 
 	^DefaultExecutionEnvironment beActiveDuring: [ self runCase]
+]
+
+{ #category : 'support' }
+JadeiteForPharoTestCase >> setUp [
+
+	super setUp.
+	savedSettings := JadeitePreferences current copy
+]
+
+{ #category : 'support' }
+JadeiteForPharoTestCase >> tearDown [
+
+	JadeitePreferences current: savedSettings.
+	super tearDown.
 ]

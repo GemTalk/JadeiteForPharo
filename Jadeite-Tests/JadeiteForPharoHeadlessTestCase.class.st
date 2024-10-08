@@ -21,6 +21,12 @@ JadeiteForPharoHeadlessTestCase class >> testResourceClass [
 ]
 
 { #category : 'support' }
+JadeiteForPharoHeadlessTestCase >> disableToolOpeningPreferences [
+
+	JadeitePreferences current openBrowserOnClass: String new
+]
+
+{ #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> performTest [
 
 	RowanServiceUpdater current critical: [ super performTest ]
@@ -28,15 +34,19 @@ JadeiteForPharoHeadlessTestCase >> performTest [
 
 { #category : 'support' }
 JadeiteForPharoHeadlessTestCase >> setUp [
-	self closeConnectionLaunchers. 
-	JadeiteConnectionProfile connectionProfile disconnect. 
-	JadeiteConnectionProfile connectionProfile connect.
+
+	savedSettings := JadeitePreferences current copy.
+	self closeConnectionLaunchers.
+	JadeiteConnectionProfile connectionProfile disconnect.
+	self disableToolOpeningPreferences.
+	JadeiteConnectionProfile connectionProfile connect
 ]
 
 { #category : 'support' }
-JadeiteForPharoHeadlessTestCase >> tearDown [ 
+JadeiteForPharoHeadlessTestCase >> tearDown [
 
 	JadeiteConnectionProfile connectionProfile disconnect.
+	JadeitePreferences current: savedSettings
 ]
 
 { #category : 'tests' }

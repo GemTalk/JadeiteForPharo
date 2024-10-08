@@ -1,9 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoSettingsTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
-	#instVars : [
-		'savedSettings'
-	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -13,7 +10,6 @@ JadeiteForPharoSettingsTestCase >> setUp [
 
 	super setUp.
 	JadeiteConnectionProfile connectionProfile disconnect.
-	savedSettings := JadeitePreferences current copy
 ]
 
 { #category : 'support' }
@@ -21,7 +17,6 @@ JadeiteForPharoSettingsTestCase >> tearDown [
 
 	JadeiteConnectionProfile connectionProfile disconnect.
 	self deny: JadeiteConnectionProfile connectionProfile isConnected.
-	JadeitePreferences current: savedSettings.
 	super tearDown
 ]
 

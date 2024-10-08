@@ -502,5 +502,5 @@ JadeiteTestResource >> updateServices: services [
 	RowanServiceUpdater current
 		updateServices: services asSet asArray
 		session: self gciSession
-		onCompletion: nil
+		onCompletion: [ ]
 ]
