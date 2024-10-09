@@ -46,7 +46,7 @@ JadeiteForPharoHeadlessTestCase >> setUp [
 JadeiteForPharoHeadlessTestCase >> tearDown [
 
 	JadeiteConnectionProfile connectionProfile disconnect.
-	JadeitePreferences current: savedSettings
+	savedSettings ifNotNil: [ JadeitePreferences current: savedSettings ]
 ]
 
 { #category : 'tests' }

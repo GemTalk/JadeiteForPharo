@@ -26,6 +26,13 @@ JadeiteForPharoGUIWithoutLoginTestCase >> setUp [
 	Jadeite tests make about connections being available."
 ]
 
+{ #category : 'support' }
+JadeiteForPharoGUIWithoutLoginTestCase >> tearDown [
+	
+	"don't call super tearDown - we ignore all the assumptions other
+	Jadeite tests make about connections being available."
+]
+
 { #category : 'tests' }
 JadeiteForPharoGUIWithoutLoginTestCase >> test_exportConnection [
 

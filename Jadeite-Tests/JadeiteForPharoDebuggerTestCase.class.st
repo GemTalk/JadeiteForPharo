@@ -28,7 +28,6 @@ JadeiteForPharoDebuggerTestCase >> setUp [
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> tearDown [
 
-	super tearDown.
 	self destroy: debugger.
 	JadeiteConnectionProfile connectionProfile disconnect. 
 ]

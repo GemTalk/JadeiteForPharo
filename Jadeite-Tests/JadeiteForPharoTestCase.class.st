@@ -70,6 +70,6 @@ JadeiteForPharoTestCase >> setUp [
 { #category : 'support' }
 JadeiteForPharoTestCase >> tearDown [
 
-	JadeitePreferences current: savedSettings.
-	super tearDown.
+	savedSettings ifNotNil: [ JadeitePreferences current: savedSettings ].
+	super tearDown
 ]
