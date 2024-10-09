@@ -401,6 +401,119 @@ JadeiteForPharoInspectorTestCase >> test_inspectIdentityBag [
 	self assert: inspector instVarListPresenter list size equals: 8
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_inspectInstVarInNewWindow [
+
+	self testsIssue: #issue720 withTitle: 'Would like inspect button in inspector'.
+	self openWorkspaceAndInspect: '(Array with: 123) dynamicInstVarAt: #foo put: ''abc''; yourself'.
+	self selectInstVarAtIndex: #(4).
+	self assert: inspector codePane text equals: '123'.
+	secondInspector := inspector inspectInstVar.
+	
+	[self assert: secondInspector instVarListPresenter selection selectedIndex  equals: 1.
+	self assert: secondInspector codePane text equals: '123']
+			ensure: [self closeBrowser: secondInspector].
+	self selectInstVarAtIndex: #(3).
+	self assert: inspector codePane text equals: '''abc'''.
+	secondInspector := inspector inspectInstVar.
+	
+	[self assert: secondInspector instVarListPresenter selection selectedIndex  equals: 1.
+	self assert: secondInspector codePane text equals: '''abc''']
+			ensure: [self closeBrowser: secondInspector].
+	self selectInstVarAtIndex: 2.
+	self assert: inspector instVarListPresenter selections first key equals: '-.asOop'.
+	self assert: inspector isInstVarComputed.
+	secondInspector := inspector inspectInstVar.
+	self assertIsNil: secondInspector. 
+
+	self selectInstVarAtIndex: 1.
+	self assert: inspector instVarListPresenter selections first key equals: 'self'.
+	secondInspector := inspector inspectInstVar.
+	
+	[self assert: secondInspector instVarListPresenter selection selectedIndex  equals: 1.
+	self assert: secondInspector codePane text equals: 'anArray( 123)']
+			ensure: [self closeBrowser: secondInspector]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_inspectRcIdentityBag [
+
+	| keys |
+	self openWorkspaceAndInspect:
+		'RcIdentityBag with: 1 with: ''abc'' with: $k'.
+	self assert: (inspector isKindOf: JadeiteInspector).
+	self
+		assert: inspector documentPresenter text
+		equals: 'aRcIdentityBag( 1, $k, ''abc'')'.
+	keys := (inspector instVarListPresenter list collect: [ :ea | ea key ])
+		        asArray.
+	self
+		assert: (keys copyFrom: 1 to: 7)
+		equals:
+			#( 'self' '-.asOop' '-_varyingSize' '-_numEntries' '-_indexedPaths'
+			   '-_levels' '-components' ).
+	"not sure about order in an identity bag. Might need to test differently"
+	self
+		assert: (keys copyFrom: 8 to: 10) asSortedCollection asArray
+		equals:  #('$k' '''abc''' '1')
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_inspectRcQueue [
+
+	self openWorkspaceAndInspect: 'RcQueue new add: 1; yourself'.
+	self assert: inspector codePane text equals: 'aRcQueue( 1)'.
+	self assert: inspector instVarListPresenter list size equals: 23	"self + asOop + 1 inst var + default new size 20"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_inspectSet [
+
+	self openWorkspaceAndInspect: 'Set new add: ''abc''; yourself'.
+	self
+		assert: inspector codePane text
+		equals: 'aSet( ''abc'')'.
+	self selectInstVarAtIndex: #( 2 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '-.asOop'.
+	self selectInstVarAtIndex: #( 3 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '-_varyingSize'.
+	self selectInstVarAtIndex: #( 4 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '-_numEntries'.
+	self selectInstVarAtIndex: #( 5 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '-_indexedPaths'.
+	self selectInstVarAtIndex: #( 6 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '-_levels'.
+	self selectInstVarAtIndex: #( 7 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '-dict'.
+	self selectInstVarAtIndex: #( 8 ).
+	self
+		assert: inspector instVarListPresenter selectedItem first
+		equals: '''abc'''.
+	self assert: inspector instVarListPresenter list size equals: 8
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_inspectString [
+
+	self openWorkspaceAndInspect: '''abc'''.
+	self assert: (inspector isKindOf: JadeInspector).
+	self assert: (session executeString:
+			 'Object _objectForOop: ' , inspector oopsCollection first printString)
+		= 'abc'
+]
+
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_selectAll [
 

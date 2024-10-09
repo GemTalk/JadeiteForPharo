@@ -745,12 +745,9 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectAsOopField [
 
 { #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_inspectBytes [
-	| remoteObject bytesInspector |
-	remoteObject := session
-				executeString: '''abcÅ '' copy'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
+	| bytesInspector |
+	self openWorkspaceAndInspect: '''abcÅ '' copy'.
+				
 	bytesInspector := inspector inspectBytes.
 	
 	[self assert: bytesInspector instVarListPresenter list size equals: 10.
@@ -791,45 +788,6 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectDoubleByteString [
 	self assert: inspector documentPresenter text equals: '$Å¡'.
 	self selectInstVarAtIndex: #( 6 ).
 	self assert: inspector documentPresenter text equals: '$b'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectInstVarInNewWindow [
-	| remoteObject secondInspector |
-	self testsIssue: #issue720 withTitle: 'Would like inspect button in inspector'.
-	remoteObject := session
-				executeString: '(Array with: 123) dynamicInstVarAt: #foo put: ''abc''; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self selectInstVarAtIndex: #(4).
-	self assert: inspector documentPresenter value equals: '123'.
-	secondInspector := inspector inspectInNewWindow.
-	
-	[self assert: secondInspector instVarListPresenter selectionByIndex equals: 1.
-	self assert: secondInspector documentPresenter value equals: '123']
-			ensure: [self closeBrowser: secondInspector].
-	self selectInstVarAtIndex: #(3).
-	self assert: inspector documentPresenter value equals: '''abc'''.
-	secondInspector := inspector inspectInNewWindow.
-	
-	[self assert: secondInspector instVarListPresenter selectionByIndex equals: 1.
-	self assert: secondInspector documentPresenter value equals: '''abc''']
-			ensure: [self closeBrowser: secondInspector].
-	self selectInstVarAtIndex: 2.
-	self assert: inspector instVarListPresenter selections first key equals: '-.asOop'.
-	secondInspector := inspector inspectInNewWindow.
-	
-	[self assert: secondInspector instVarListPresenter selectionByIndex equals: 1.
-	self assert: secondInspector documentPresenter value equals: 'anArray( 123)']
-			ensure: [self closeBrowser: secondInspector].
-	self selectInstVarAtIndex: 1.
-	self assert: inspector instVarListPresenter selections first key equals: 'self'.
-	secondInspector := inspector inspectInNewWindow.
-	
-	[self assert: secondInspector instVarListPresenter selectionByIndex equals: 1.
-	self assert: secondInspector documentPresenter value equals: 'anArray( 123)']
-			ensure: [self closeBrowser: secondInspector]
 ]
 
 { #category : 'as yet unclassified' }
@@ -901,24 +859,6 @@ JadeiteInspectorDataCuratorTestCase >> test_inspectKeyMenuItemEnablementDictiona
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectRcIdentityBag [
-	| remoteObject keys |
-	remoteObject := session
-				executeString: 'RcIdentityBag with: 1 with: ''abc'' with: $k'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: (inspector isKindOf: JadeiteInspector).
-	self assert: inspector documentPresenter value equals: 'aRcIdentityBag( 1, $k, ''abc'')'.
-	keys := (inspector instVarListPresenter list collect: [:ea | ea key]) asArray.
-	self assert: (keys copyFrom: 1 to: 7)
-		equals: #('self' '-.asOop' '-_varyingSize' '-_numEntries' '-_indexedPaths' '-_levels' '-components').
-	"not sure about order in an identity bag. Might need to test differently"
-	self assert: (keys copyFrom: 8 to: 10) asSortedCollection asArray
-		equals: #('$k' '1' '''abc''' ). 
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_inspectRcIdentityBagWithUnicodeKey [
 	| remoteObject |
 	remoteObject := session
@@ -931,57 +871,6 @@ bag'.
 	self assert: inspector documentPresenter value equals: 'aRcIdentityBag( ''aaÅ¡b'')'.
 	self selectInstVarAtIndex: #(8).
 	self assert: inspector documentPresenter value equals: '''aaÅ¡b'''
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectRcQueue [
-	| remoteObject |
-	remoteObject := session
-				executeString: 'RcQueue new add: 1; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: inspector documentPresenter value equals: 'aRcQueue( 1)'.
-	self assert: inspector instVarListPresenter list size equals: 23	"self + asOop + 1 inst var + default new size 20"
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectSet [
-	| remoteObject |
-	remoteObject := session
-				executeString: 'Set new add: ''abc''; yourself'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: inspector documentPresenter value equals: 'aSet( ''abc'')'.
-	self selectInstVarAtIndex: #(2).
-	self assert: inspector instVarListPresenter selection key equals: '-.asOop'.
-	self selectInstVarAtIndex: #(3).
-	self assert: inspector instVarListPresenter selection key equals: '-_varyingSize'.
-	self selectInstVarAtIndex: #(4).
-	self assert: inspector instVarListPresenter selection key equals: '-_numEntries'.
-	self selectInstVarAtIndex: #(5).
-	self assert: inspector instVarListPresenter selection key equals: '-_indexedPaths'.
-	self selectInstVarAtIndex: #(6).
-	self assert: inspector instVarListPresenter selection key equals: '-_levels'.
-	self selectInstVarAtIndex: #(7).
-	self assert: inspector instVarListPresenter selection key equals: '-dict'.
-	self selectInstVarAtIndex: #(8).
-	self assert: inspector instVarListPresenter selection key equals: '''abc'''.
-	self assert: inspector instVarListPresenter list size equals: 8
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_inspectString [
-	| remoteObject |
-	remoteObject := session
-				executeString: '''abc'''
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: (inspector isKindOf: JadeInspector).
-	self
-		assert: (session executeString: 'Object _objectForOop: ' , inspector model oop printString) = 'abc'
 ]
 
 { #category : 'as yet unclassified' }

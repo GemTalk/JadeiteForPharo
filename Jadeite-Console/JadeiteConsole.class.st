@@ -420,11 +420,6 @@ JadeiteConsole >> initializeBrowseMenu [
 				  name: 'Find Class References ...';
 				  shortcut: $r shift ctrl;
 				  action: [ self findClassReferences ] ];
-		  addGroup: [ :group |
-			  group addItem: [ :item |
-				  item
-					  name: 'Browse Preferences File';
-					  action: [ self browseJadeitePrefs ] ] ];
 		  yourself
 ]
 

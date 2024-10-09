@@ -587,12 +587,12 @@ JadeiteInspector >> inspectInNewWindow [
 JadeiteInspector >> inspectInstVar [
 
 	| key oop |
-	self isInstVarComputed ifTrue: [ ^ self ].
 	key := instVarListPresenter selections first key.
 	oop := key = 'self'
 		       ifTrue: [ model oop ]
 		       ifFalse: [
 			       | last |
+			       self isInstVarComputed ifTrue: [ ^ nil ].
 			       last := instVarListPresenter selectedItem last.
 			       last isArray
 				       ifTrue: [ last last ]
