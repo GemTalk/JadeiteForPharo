@@ -15,6 +15,23 @@ JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfImplementorsOf: aStr
 			do: [ :notification | notification resume: aString ] ]
 ]
 
+{ #category : 'support' }
+JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfReferencesTo: className [
+
+	self waitForMethodListBrowserWhile: [
+		[ jadeiteShell browseClassReferences: className ]
+			on: ProvideAnswerNotification
+			do: [ :notification | notification resume: className ] ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoMethodListTestCase >> test_browseClassReferenceCaptionTitle [
+
+	self openMethodListBrowserOfReferencesTo: 'AbstractCharacter'.
+	self assert: ('* Class References to AbstractCharacter*' match:
+			 methodListBrowser window title)
+]
+
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseClassReferences [
 

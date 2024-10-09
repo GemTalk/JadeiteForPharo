@@ -83,6 +83,19 @@ JadeiteForPharoInspectorTestCase >> tearDown [
 		do: [ :notification | notification resume: true ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoInspectorTestCase >> test_abortTransactionInInspector [
+
+	self
+		testsIssue: #issue383
+		withTitle:
+		'(3.0.53) the commit button on the SUnit browser is silent'.
+	self openWorkspaceAndInspect: '123'.
+	self assertProjectInList: 'RowanSample1'.
+	inspector abortTransaction.
+	self denyProjectInList: 'RowanSample1'
+]
+
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_adHocExecution [
 

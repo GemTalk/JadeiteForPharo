@@ -96,7 +96,7 @@ JadeiteAbstractTestCase >> assertMethodInList: selector presenter: methodListPre
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> assertProjectInList: name [
-	self denyIsNil: (transcript projectListPresenter projectListPresenter list
+	self denyIsNil: (transcript projectListPresenter list collection
 				detect: [:projectService | projectService name = name]
 				ifNone: [])
 ]
@@ -244,9 +244,10 @@ JadeiteAbstractTestCase >> denyMethodInList: selector presenter: methodListPrese
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> denyProjectInList: name [
-	self assertIsNil: (transcript projectListPresenter projectListPresenter list
-				detect: [:projectService | projectService name = name]
-				ifNone: [])
+
+	self assertIsNil: (transcript projectListPresenter list collection
+			 detect: [ :projectService | projectService name = name ]
+			 ifNone: [  ])
 ]
 
 { #category : 'as yet unclassified' }

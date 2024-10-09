@@ -45,30 +45,6 @@ JadeiteInspectorDataCuratorTestCase >> tearDown [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInBasicInspector [
-	"foolishly or wisely, Dolphin runs different code paths
-	depending on which view has focus. Test each"
-
-	| remoteObject jadeiteMenu abortItem |
-	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
-	remoteObject := session
-				executeString: '123'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeInspector showOn: remoteObject session: session.
-	transcript projectListPresenter refresh.
-	self assertProjectInList: 'RowanSample1'.
-	jadeiteMenu := self itemNamed: 'Jadeite' in: inspector view menuBar.
-	abortItem := self itemNamed: 'Abort Transaction' in: jadeiteMenu.
-	abortItem commandDescription performAgainst: inspector.
-	
-	[transcript projectListPresenter refresh.
-	self denyProjectInList: 'RowanSample1'] ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInNavigationInspector [
 	| remoteObject jadeiteMenu abortItem |
 	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.

@@ -141,11 +141,6 @@ JadeiteConsole >> browseClass [
 	^JadePresenter browseClassIn: self gciSession
 ]
 
-{ #category : 'queries' }
-JadeiteConsole >> browseClassReferences [
-	^JadePresenter browseClassReferencesInSession: self gciSession
-]
-
 { #category : 'as yet unclassified' }
 JadeiteConsole >> browseJadeiteLogs [
 	^JadeiteLoggerShell showOnSession: self gciSession
