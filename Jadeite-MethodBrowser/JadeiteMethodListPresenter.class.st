@@ -432,12 +432,14 @@ JadeiteMethodListPresenter >> selectComparisonTab [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> selectFirstReference: methodService [
-	methodService ifNil: [ ^self ].
+
+	methodService ifNil: [ ^ self ].
 	methodService firstReference
 		ifNil: [
 			firstReferenceString ifNotNil: [
-				self selecting:
-					(methodService source indexOfSubCollection: firstReferenceString) ] ]
+				methodService source ifNotNil: [
+					self selecting:
+						(methodService source indexOfSubCollection: firstReferenceString) ] ] ]
 		ifNotNil: [ :index | self selecting: index ]
 ]
 
@@ -462,13 +464,13 @@ JadeiteMethodListPresenter >> selectedClassName [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> selecting: stringOrIndex [
+JadeiteMethodListPresenter >> selecting: index [
 
 	| range |
 	firstReferenceString ifNotNil: [
 		range := Interval
-			         from: stringOrIndex
-			         to: firstReferenceString size + stringOrIndex - 1.
+			         from: index
+			         to: firstReferenceString size + index - 1.
 		methodSourcePresenter selectionInterval: range ]
 ]
 
