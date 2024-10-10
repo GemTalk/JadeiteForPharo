@@ -639,6 +639,82 @@ JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 		self ensureRowanSampleProjectsLoaded ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_compileClass [
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_compileClassCompilerError [
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Class.
+	self projectsPresenter classDefinitionPresenter value:
+		'Object rwSubclass: ''TestClass''
+	instVarNames: # abc )
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()'.
+	self projectsPresenter editSaveClass.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames:  invalid pound sign# abc )
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()'.
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_compileErrorDisplay [
+
+	| source |
+	self
+		testsIssue: #issue459
+		withTitle: 'CompileWarnings should be more noticable ... '.
+	self testResourceClass current createRowanSample1Project.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #test1.
+	source := 'test1 self assert: RowanSample1 new foo = ''abc'. "won't compile"
+	self methodSourcePresenter value: source.
+	self projectsPresenter editSaveMethod.
+	self
+		assert: self methodSourcePresenter selectionInterval
+		equals: (47 to: 82)
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 	"The list selection code is what is run if the user clicks on a list item ... at least currently"

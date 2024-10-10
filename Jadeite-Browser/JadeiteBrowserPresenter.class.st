@@ -1810,7 +1810,7 @@ JadeiteBrowserPresenter >> isCategoryTabSelected [
 
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isClassDefinitionTabSelected [
-	^textAreaTabs currentCard name = 'classDefinition'
+	^textAreaTabs currentCard name = 'Class Definition'
 ]
 
 { #category : 'testing' }

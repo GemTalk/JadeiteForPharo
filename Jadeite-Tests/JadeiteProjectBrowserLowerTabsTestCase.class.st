@@ -395,64 +395,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonTabSuperclass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_compileClass [
-
-	self
-		testsIssue: #issue390
-		withTitle:
-		'Rename instance variable with accessor method is... wonky'.
-	self selectRowanSample1Class.
-	self
-		saveClass: 'TestClass'
-		superclass: 'Object'
-		instVars: #( 'abc' )
-		package: 'RowanSample1-Core'.
-	[
-	self assert: self projectsPresenter selectedClass name = 'TestClass' ]
-		ensure: [
-			self projectsPresenter
-				basicRemoveClass: self projectsPresenter selectedClass
-				onCompletion: nil ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassCompilerError [
-	"class definition string has a compile error. 
-	Should get handled by the project browser"
-
-	self
-		testsIssue: #issue390
-		withTitle:
-		'Rename instance variable with accessor method is... wonky'.
-	self selectRowanSample1Class.
-	self projectsPresenter classDefinitionPresenter value:
-		'Object rwSubclass: ''TestClass''
-	instVarNames: # abc )
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()'.
-	self projectsPresenter editSaveClass.
-
-	[
-	self
-		assert: self projectsPresenter classDefinitionPresenter value
-		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames:  invalid pound sign # abc )
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()' ] ensure: [
-		self projectsPresenter classDefinitionPresenter view isModified:
-			false.
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassDirtiesPackageAndProject [
 	self ensureRowanSampleProjectsLoaded.	"reload to control dirty state"
 	self selectRowanSample1Class.
@@ -569,25 +511,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassWithMethodWarnings [
 		self projectsPresenter
 			basicRemoveClass: self projectsPresenter selectedClass
 			onCompletion: nil ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_compileErrorDisplay [
-	| source |
-	self testsIssue: #issue459 withTitle: 'CompileWarnings should be more noticable ... '.
-	self selectRowanSample1Test.
-	self selectMethodNamed: #test1.
-	source := 'test1 self assert: RowanSample1 new foo = ''abc'.	"won't compile"
-	self methodSourcePresenter value: source.
-	self projectsPresenter editSaveMethod.
-	
-	[self assert: self methodSourcePresenter view selectionRange equals: (37 to: 47).
-	self assert: self projectsPresenter statusBarText view forecolor equals: Color black.
-	self assert: self projectsPresenter statusBarText view backcolor equals: Color red faded]
-			ensure: 
-				[self methodSourcePresenter isModified: false.
-				self selectMethodNamed: #test2.
-				self selectMethodNamed: #test1	"reset the display"]
 ]
 
 { #category : 'as yet unclassified' }
