@@ -821,7 +821,7 @@ JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: theMe
 		source: presenter value;
 		command: #reformatSource;
 		commandArgs: Array new.
-	[ self issueCommand: theMethodService onCompletion: nil ]
+	[ self issueCommand: theMethodService onCompletion: [  ] ]
 		on: Error
 		do: [ :ex |
 			self setCompileErrorColor.

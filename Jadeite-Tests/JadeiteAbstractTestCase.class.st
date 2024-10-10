@@ -221,7 +221,7 @@ JadeiteAbstractTestCase >> createNewTestProjectNamed: projectName [
 	testService := RowanTestService
 		               command: #createNewTestProjectNamed:
 		               withArgs: (Array with: projectName).
-	self issueCommand: testService onCompletion: nil
+	self issueCommand: testService onCompletion: [  ]
 ]
 
 { #category : 'asserting' }
@@ -1218,7 +1218,7 @@ JadeiteAbstractTestCase >> unloadSampleProject1 [
 JadeiteAbstractTestCase >> updateService: service [
 
 	service command: #update.
-	^ self issueCommand: service onCompletion: nil
+	^ self issueCommand: service onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -772,7 +772,7 @@ JadeiteConsole >> remoteAutoCommit [
 	answeringService
 		command: #autoCommit;
 		commandArgs: Array new.
-	self issueCommand: answeringService onCompletion: nil.
+	self issueCommand: answeringService onCompletion: [].
 	^ answeringService answer
 ]
 

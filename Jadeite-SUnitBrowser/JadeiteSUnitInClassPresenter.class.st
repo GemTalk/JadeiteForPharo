@@ -26,7 +26,7 @@ JadeiteSUnitInClassPresenter >> basicDelete [
 	testClassService
 		command: #removeMethods:;
 		commandArgs: (Array with: methodListPresenter selections).
-	self issueCommand: testClassService onCompletion: nil
+	self issueCommand: testClassService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }

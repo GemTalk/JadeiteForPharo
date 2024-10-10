@@ -1177,7 +1177,7 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_stepPoint1 [
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: 'abc' with: 'test step points').
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [  ].
 	methodService := (self selectMethodNamed: #abc) first.
 	self assert: methodService stepPoints size equals: 1.
 	self assert: methodService stepPoints first key equals: (1 to: 3)
@@ -1197,7 +1197,7 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_stepPoint2 [
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: sourceString with: 'test step points').
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [  ].
 	methodService := (self selectMethodNamed: #simpleMethod) first.
 	self assert: methodService stepPoints size equals: 7.
 	self assert: (methodService stepPoints at: 2) key equals: (42 to: 44).

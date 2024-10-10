@@ -57,7 +57,7 @@ JadeiteServerFileWorkspace >> saveDocument [
 			           (Array with:
 					            codePane documentPresenter value replaceCrLfWithLf);
 		           path: path.
-	self issueCommand: service onCompletion: nil.
+	self issueCommand: service onCompletion: [  ].
 	codePane documentPresenter view isModified: false
 ]
 
@@ -87,7 +87,7 @@ JadeiteServerFileWorkspace >> writeDocumentTo: newPath [
 			           (Array with:
 					            codePane documentPresenter value replaceCrLfWithLf);
 		           path: newPath.
-	self issueCommand: service onCompletion: nil.
+	self issueCommand: service onCompletion: [  ].
 	codePane documentPresenter view isModified: false.
 	path := newPath.
 	self updateCaption

@@ -256,7 +256,7 @@ JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
 	dictionaryService
 		command: #insertAt:;
 		commandArgs: (Array with: insertionIndex).
-	self issueCommand: dictionaryService onCompletion: nil.
+	self issueCommand: dictionaryService onCompletion: [  ].
 	dictionaryListPresenter selection:
 		(dictionaryListPresenter list detect: [ :newService |
 			 newService name = newDictionaryName ])
@@ -305,7 +305,7 @@ JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 	oldClassService
 		command: #copyClassTo:;
 		commandArgs: (Array with: newClassName).
-	self issueCommand: oldClassService onCompletion: nil.
+	self issueCommand: oldClassService onCompletion: [  ].
 	self
 		updateAfterFindClass: (RowanClassService new name: newClassName)
 		onCompletion: nil
@@ -364,7 +364,7 @@ JadeiteBrowserPresenter >> basicRemoveDictionaries: dictionaryNames [
 	browserService
 		command: #removeDictionariesNamed:;
 		commandArgs: (Array with: dictionaryNames).
-	self issueCommand: browserService onCompletion: nil
+	self issueCommand: browserService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -379,7 +379,7 @@ JadeiteBrowserPresenter >> basicRemoveGlobal: qualifiedString [
 	dictionaryService
 		command: #removeGlobalNamed:;
 		commandArgs: (Array with: symbol).
-	self issueCommand: dictionaryService onCompletion: nil.
+	self issueCommand: dictionaryService onCompletion: [  ].
 	self removeGlobalsTab.
 	self buildGlobalsTab
 ]
@@ -1092,7 +1092,7 @@ JadeiteBrowserPresenter >> editSaveReadMe [
 		           command: #write:;
 		           commandArgs: (Array with: projectReadMeTab value);
 		           path: self projectReadmePath.
-	self issueCommand: service onCompletion: nil
+	self issueCommand: service onCompletion: [  ]
 ]
 
 { #category : 'drag & drop' }
@@ -1169,7 +1169,7 @@ JadeiteBrowserPresenter >> fileOutCategoriesOnPath: path [
 		command: #fileoutCategories:on:;
 		commandArgs:
 			(Array with: categoryListPresenter selections with: path).
-	self issueCommand: service onCompletion: nil
+	self issueCommand: service onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1180,7 +1180,7 @@ JadeiteBrowserPresenter >> fileOutClassOnPath: path [
 	service
 		command: #fileoutClassOn:;
 		commandArgs: (Array with: path).
-	self issueCommand: service onCompletion: nil
+	self issueCommand: service onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2755,7 +2755,10 @@ JadeiteBrowserPresenter >> registerMethodPresentersForUpdates [
 		register: methodListPresenter
 		selector: #methodUpdate:browser:
 		browser: self;
-		register: methodListPresenter selector: #removed:
+		register: methodListPresenter selector: #removed:;
+		register: methodListPresenter
+		selector: #testResultUpdate:browser:
+		browser: self
 ]
 
 { #category : 'registration' }
@@ -2868,7 +2871,7 @@ JadeiteBrowserPresenter >> removePackages [
 	projectService
 		command: #removePackagesNamed:;
 		commandArgs: (Array with: packageListPresenter selections).
-	self issueCommand: projectService onCompletion: nil
+	self issueCommand: projectService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3215,7 +3218,7 @@ JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 	answeringService
 		command: #packageNamed:;
 		commandArgs: (Array with: packageName).
-	self issueCommand: answeringService onCompletion: nil.
+	self issueCommand: answeringService onCompletion: [  ].
 	service := answeringService answer.
 	service selectIn: self
 ]
@@ -3972,7 +3975,7 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 	service := RowanFileService new
 		           command: #readmeContents;
 		           path: self projectReadmePath.
-	self issueCommand: service onCompletion: nil.
+	self issueCommand: service onCompletion: [  ].
 	projectReadMeTab value: service answer
 ]
 

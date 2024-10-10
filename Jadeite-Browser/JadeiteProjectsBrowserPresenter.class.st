@@ -41,7 +41,7 @@ JadeiteProjectsBrowserPresenter >> allClasses [
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #allClasses.
-	self issueCommand: browserService onCompletion: nil.
+	self issueCommand: browserService onCompletion: [].
 	^ browserService allClasses ifNil: [ Array new ]
 ]
 
@@ -462,7 +462,6 @@ JadeiteProjectsBrowserPresenter >> registerPresentersForUpdates [
 		selector: #updatedClassInHierarchy:browser:
 		browser: self.
 	RowanServiceUpdater current register: classHierarchyPresenter selector: #removed:.
-	RowanServiceUpdater current register: methodListPresenter selector: #removed:.
 	RowanServiceUpdater current register: self selector: #autoCommitUpdate:
 ]
 
@@ -555,7 +554,9 @@ JadeiteProjectsBrowserPresenter >> runClassTests [
 		command: #runClassTests:;
 		commandArgs: (Array with: self selectedClass).
 	answeringService := [
-	                    self issueCommand: classService onCompletion: nil ]
+	                    self
+		                    issueCommand: classService
+		                    onCompletion: [  ] ]
 		                    on: Error
 		                    do: [ :ex |
 			                    ex pass.
@@ -837,7 +838,7 @@ JadeiteProjectsBrowserPresenter >> updateMethodMenu: menu [
 JadeiteProjectsBrowserPresenter >> updateMethodReferences: services [
 
 	services do: [ :service | service command: #allReferences ].
-	self issueCommand: services onCompletion: nil.
+	self issueCommand: services onCompletion: [  ].
 	^ services
 ]
 

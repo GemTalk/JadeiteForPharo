@@ -2118,7 +2118,7 @@ JadeiteProjectBrowserTestCase >> test_hierarchyFindsAllSubclassImplementors [
 		| classService |
 		classService := RowanClassService named: methodService className.
 		classService command: #classHierarchy.
-		self issueCommand: classService onCompletion: nil.
+		self issueCommand: classService onCompletion: [  ].
 		self assert:
 			(classService hierarchyClassServiceNames includes: 'RwLoadedThing') ]
 ]
@@ -2228,7 +2228,7 @@ JadeiteProjectBrowserTestCase >> test_hierarchySendersFromMethodList [
 	[
 	classService := RowanClassService named: 'RwModification'.
 	classService command: #classHierarchy.
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [  ].
 	methodList := hierarchyMethodListBrowser primaryPresenter
 		              methodListPresenter methodListPresenter list.
 	hierarchyClassNames := classService hierarchyClassServiceNames.

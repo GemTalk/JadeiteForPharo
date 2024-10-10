@@ -65,7 +65,7 @@ JadeiteMethodListBrowserTestCase >> removeMethods: methodServices in: className 
 		commandArgs:
 			(Array with: (methodServices asArray select: [ :service |
 							  service className asString = className ])).
-	self issueCommand: classService onCompletion: nil
+	self issueCommand: classService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -76,7 +76,7 @@ JadeiteMethodListBrowserTestCase >> removeMethods: methodServices inClassService
 		commandArgs:
 			(Array with: (methodServices select: [ :methodService |
 							  methodService className = classService name ])).
-	self issueCommand: classService onCompletion: nil
+	self issueCommand: classService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -111,7 +111,7 @@ JadeiteMethodListBrowserTestCase >> saveMethod: source in: className category: c
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: source with: category).
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [  ].
 	^ classService
 ]
 

@@ -262,7 +262,7 @@ JadeiteDebuggerDataCuratorTestCase >> removeMethodNamed: aSymbol [
 	classService
 		command: #removeMethods:;
 		commandArgs: (Array with: (Array with: methodService)).
-	^ self issueCommand: classService onCompletion: nil
+	^ self issueCommand: classService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }

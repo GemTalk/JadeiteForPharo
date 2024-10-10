@@ -1909,7 +1909,7 @@ JadeiteDebuggerTestCase >> test_openDebuggerWthBreakpointInDebuggerService [
 		command: #saveMethodSource:category:;
 		commandArgs:
 			(Array with: 'update  ^super update' with: 'for testing').
-	self issueCommand: classService onCompletion: nil.
+	self issueCommand: classService onCompletion: [  ].
 	methodService := RowanMethodService new
 		                 className: 'RowanDebuggerService';
 		                 selector: #update;
@@ -1917,7 +1917,7 @@ JadeiteDebuggerTestCase >> test_openDebuggerWthBreakpointInDebuggerService [
 	methodService
 		command: #setBreakAt:;
 		commandArgs: (Array with: 3).
-	self issueCommand: methodService onCompletion: nil.
+	self issueCommand: methodService onCompletion: [  ].
 	JadePresenter enableAllBreakpointsIn: session.
 	self
 		openDebuggerOn: 'nil halt';
@@ -1940,7 +1940,7 @@ JadeiteDebuggerTestCase >> test_openDebuggerWthBreakpointInDebuggerService [
 			methodService
 				command: #clearBreakAt:;
 				commandArgs: (Array with: 3) ].
-		self issueCommand: methodService onCompletion: nil.
+		self issueCommand: methodService onCompletion: [  ].
 		self abortTransaction. "Need to get rid of the new method."
 		answeringService
 			setBreakpointsEnabled: wereBreakpointsEnabled

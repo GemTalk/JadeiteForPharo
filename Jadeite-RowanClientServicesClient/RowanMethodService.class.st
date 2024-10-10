@@ -455,7 +455,7 @@ RowanMethodService >> indexOfStepPointsInstVar [
 
 { #category : 'constants' }
 RowanMethodService >> indexOfTestResultInstVar [
-	^29
+	^31
 ]
 
 { #category : 'initialization' }
@@ -785,14 +785,18 @@ RowanMethodService >> shouldReplicateInstVarAtIndex: index newService: newServic
 	It may be better to (someday) move firstReference to the browser state"
 
 	| isTestResultInstVar |
-	(super shouldReplicateInstVarAtIndex: index newService: newService) ifFalse:[^false]. 
-	index = self indexOfFirstReferenceInstVar ifTrue: [firstReference ifNotNil: [^false]].
+	(super shouldReplicateInstVarAtIndex: index newService: newService)
+		ifFalse: [ ^ false ].
+	index = self indexOfFirstReferenceInstVar ifTrue: [
+		firstReference ifNotNil: [ ^ false ] ].
 	isTestResultInstVar := self indexOfTestResultInstVar = index.
-	self indexOfSourceInstVar = index ifTrue: [^newService source isNil not].	"fastRefresh nils out stepPoints and sources for performance"
-	self indexOfStepPointsInstVar = index ifTrue: [^newService stepPoints isNil not].
-	^isTestResultInstVar not or: 
-			[(isTestResultInstVar or: [self indexOfSourceInstVar = index])
-				and: [(newService instVarAt: index) notNil]]
+	isTestResultInstVar ifTrue: [ ^ false ].
+	self indexOfSourceInstVar = index ifTrue: [
+		^ newService source isNil not ]. "fastRefresh nils out stepPoints and sources for performance"
+	self indexOfStepPointsInstVar = index ifTrue: [
+		^ newService stepPoints isNil not ].
+	^ self indexOfSourceInstVar = index and: [
+		  (newService instVarAt: index) notNil ]
 ]
 
 { #category : 'accessing' }
@@ -923,10 +927,14 @@ RowanMethodService >> testResultMap [
 
 { #category : 'public' }
 RowanMethodService >> testResultUpdate: presenter browser: browser [
+
 	| existingService |
-	existingService := presenter list detect: [:methodService | methodService = self] ifNone: [^self].
-	testRunClassName ifNotNil: [browser selectedClass name = testRunClassName ifFalse: [^self]].
-	existingService replicateFrom: self.
+	existingService := presenter list
+		                   detect: [ :methodService | methodService = self ]
+		                   ifNone: [ ^ self ].
+	testRunClassName ifNotNil: [
+		browser selectedClass name = testRunClassName ifFalse: [ ^ self ] ].
+	existingService testResult: self testResult.
 	presenter view invalidate
 ]
 

@@ -114,5 +114,5 @@ JadeitePackageTrait >> removePackage [
 		command: #removePackagesNamed:;
 		commandArgs:
 			(Array with: (Array with: self packageListPresenter selectedItem)).
-	self issueCommand: projectService onCompletion: nil
+	self issueCommand: projectService onCompletion: [  ]
 ]

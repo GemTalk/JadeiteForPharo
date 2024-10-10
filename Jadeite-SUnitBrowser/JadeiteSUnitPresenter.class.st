@@ -90,7 +90,7 @@ JadeiteSUnitPresenter >> basicDelete [
 	classListPresenter selection
 		command: #removeMethods:;
 		commandArgs: (Array with: methodListPresenter selections).
-	self issueCommand: classListPresenter selection onCompletion: nil
+	self issueCommand: classListPresenter selection onCompletion: [  ]
 ]
 
 { #category : 'actions' }

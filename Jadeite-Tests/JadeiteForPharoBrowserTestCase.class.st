@@ -1071,15 +1071,29 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_selectVariable [
+
 	self selectRowanServicesPackage.
-	self selectServiceNamed: 'RowanClassService' in: self classListPresenter.
+	self
+		selectServiceNamed: 'RowanClassService'
+		in: self classListPresenter.
 	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection: 'instVarNames'.
-	self methodListPresenter list
-		do: [:methodService | self assert: (methodService source substrings includes: 'instVarNames')].
+	self projectsPresenter variableListPresenter selection:
+		'instVarNames'.
+	self methodListPresenter list do: [ :methodService |
+		RowanServiceUpdater current
+			updateService: methodService
+			session: session
+			onCompletion: [  ].
+		self assert:
+			(methodService source substrings includes: 'instVarNames') ].
 	self projectsPresenter variableListPresenter selection: 'isNewClass'.
-	self methodListPresenter list
-		do: [:methodService | self assert: (methodService source substrings includes: 'isNewClass')]
+	self methodListPresenter list do: [ :methodService |
+		RowanServiceUpdater current
+			updateService: methodService
+			session: session
+			onCompletion: [  ].
+		self assert:
+			(methodService source substrings includes: 'isNewClass') ]
 ]
 
 { #category : 'tests' }

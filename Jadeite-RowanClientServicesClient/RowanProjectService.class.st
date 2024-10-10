@@ -114,7 +114,7 @@ RowanProjectService >> basicCheckout: branchName using: presenter [
 	self
 		command: #checkout:;
 		commandArgs: (Array with: (branchName copyWithout: $*)).
-	presenter issueCommand: self onCompletion: nil.
+	presenter issueCommand: self onCompletion: [  ].
 	presenter refresh
 ]
 
@@ -133,7 +133,7 @@ RowanProjectService >> basicCheckoutUsing: presenter [
 	query := RowanQueryService new
 		         command: #projectBranches:;
 		         commandArgs: (Array with: self name).
-	branchString := (presenter issueCommand: query onCompletion: nil)
+	branchString := (presenter issueCommand: query onCompletion: [  ])
 		                first answer.
 	branches := (branchString subStrings: Character lf)
 		            asOrderedCollection.
@@ -288,7 +288,7 @@ RowanProjectService >> gitProjectLogUsing: parentPresenter session: session [
 	queryService := RowanQueryService
 		                command: #projectLog:
 		                withArgs: (Array with: projectName).
-	parentPresenter issueCommand: queryService onCompletion: nil.
+	parentPresenter issueCommand: queryService onCompletion: [  ].
 	gitLog codePane documentPresenter value: queryService queryResults
 ]
 

@@ -321,7 +321,7 @@ JadeiteMiscellaneousTestCase >> test_releaseOops [
 	self assert: (session executeString: 'System hiddenSetSize: 39') = 1.
 	service := RowanAnsweringService new.
 	service command: #isTranscriptInstalled.
-	self issueCommand: service onCompletion: nil.
+	self issueCommand: service onCompletion: [  ].
 	self
 		assert: (session executeString: 'System hiddenSetSize: 39')
 		equals: 0.

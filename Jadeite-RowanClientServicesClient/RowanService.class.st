@@ -103,7 +103,7 @@ RowanService >> basicReplicateFrom: newService [
 		do: 
 			[:index |
 			(self shouldReplicateInstVarAtIndex: index newService: newService)
-				ifTrue: [self instVarAt: index put: (newService instVarAt: index)]]
+				ifTrue: [self instVarAt: index put: (newService instVarAt: index)]].
 ]
 
 { #category : 'accessing' }

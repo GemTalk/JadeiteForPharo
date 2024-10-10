@@ -165,7 +165,7 @@ JadeiteTranscriptTestCase >> test_autoCommitOff [
 	answeringService
 		command: #exec:;
 		commandArgs: (Array with: '3+4').
-	self issueCommand: answeringService onCompletion: nil.
+	self issueCommand: answeringService onCompletion: [  ].
 	self assert: answeringService answer equals: '7'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').
@@ -205,7 +205,7 @@ JadeiteTranscriptTestCase >> test_autoCommitOn [
 	answeringService
 		command: #exec:;
 		commandArgs: (Array with: '3+4').
-	self issueCommand: answeringService onCompletion: nil.
+	self issueCommand: answeringService onCompletion: [  ].
 	self assert: answeringService answer equals: '7'.
 	self assert:
 		(session executeString: 'UserGlobals at: #TestCommit ifAbsent:[]').

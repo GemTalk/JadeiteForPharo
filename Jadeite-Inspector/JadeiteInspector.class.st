@@ -84,7 +84,7 @@ JadeiteInspector >> basicAddKey: string [
 	model
 		command: #addKey:;
 		commandArgs: (Array with: string).
-	self issueCommand: model onCompletion: nil.
+	self issueCommand: model onCompletion: [].
 	addedObject := model objects
 		               detect: [ :assoc |
 			               (assoc value isKindOf: Array) and: [
@@ -978,7 +978,7 @@ JadeiteInspector >> saveDictionaryElement [
 	model
 		command: #saveKey:value:;
 		commandArgs: (Array with: keyOop with: documentPresenter value).
-	self issueCommand: model onCompletion: nil.
+	self issueCommand: model onCompletion: [].
 	self displayObjectSelecting: instVarListPresenter selectionByIndex
 ]
 
@@ -1004,7 +1004,7 @@ JadeiteInspector >> saveDynamicInstVar [
 	model
 		command: #save:dynamicInstVar:;
 		commandArgs: (Array with: documentPresenter value with: instVarName).
-	self issueCommand: model onCompletion: nil.
+	self issueCommand: model onCompletion: [].
 	self displayObjectSelecting: instVarListPresenter selectionByIndex
 ]
 
@@ -1018,7 +1018,7 @@ JadeiteInspector >> saveIndexedElement [
 		command: #save:indexedVarAt:;
 		commandArgs:
 			(Array with: documentPresenter value with: indices first).
-	self issueCommand: model onCompletion: nil.
+	self issueCommand: model onCompletion: [].
 	self displayObjectSelecting:
 		(self instVarListIndexFromIndexedOffset: indices first)
 ]
@@ -1046,7 +1046,7 @@ JadeiteInspector >> saveUnorderedElement [
 	model
 		command: #replaceElement:with:;
 		commandArgs: (Array with: oop with: documentPresenter value).
-	self issueCommand: model onCompletion: nil.
+	self issueCommand: model onCompletion: [].
 	addedObject := model objects
 		               detect: [ :assoc | assoc value = model selectionOop ]
 		               ifNone: [  ].
