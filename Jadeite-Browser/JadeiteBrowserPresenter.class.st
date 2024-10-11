@@ -595,35 +595,6 @@ JadeiteBrowserPresenter >> classSelected: classService [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> classesMenuStrings [
-	| definedLabel containedDictionaryLabel menuStrings |
-	false
-		ifTrue: 
-			[self
-				browseClassReferences;
-				fileOutClass;
-				addSubclass;
-				copyClass;
-				renameClass;
-				removeClass;
-				removePriorVersions;
-				showSUnitBrowserOnClass].
-	definedLabel := self definedClassMenuItemLabel.
-	containedDictionaryLabel := self containedDictionaryLabel.
-	menuStrings := #('&Classes' '&Browse Class References//browseClassReferences' 'Browse SUnit//showSUnitBrowserOnClass' 'Add &Subclass//addSubclass' '&Rename ... //renameClass' 'Copy ...//copyClass' '&Remove//removeClass' '-')
-				asOrderedCollection.
-	menuStrings add: '&Expand Full Hierarchy//expandFullHierarchy'.
-	menuStrings add: '-'.
-	menuStrings addLast: 'Move To Package ...//moveClassToPackage'.
-	menuStrings add: '-'.
-	menuStrings addLast: definedLabel , '//gotoClassDefinedPackage'.
-	menuStrings addLast: containedDictionaryLabel , '//gotoDictionary'.
-	menuStrings addLast: '&File Out Class ...//fileOutClass'.
-
-	^menuStrings
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> cleanupProjectInfoTab [
 	self projectListPresenter selectionIfNone: 
 			[projectInfoTab
@@ -803,6 +774,24 @@ JadeiteBrowserPresenter >> connectPresenters [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> contextObject [
 	^self selectedClass ifNil: [^gciSession oopNil value] ifNotNil: [:classService | classService oop]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> copyClass [
+
+	| oldClassService newClassName validClassName |
+	oldClassService := self selectedClass ifNil: [
+		                   ^ MessageBox notify: 'Class must be selected' ].
+	validClassName := false.
+	[ validClassName ] whileFalse: [
+		newClassName := (UIManager default
+			                 textEntry: 'Copy ' , oldClassService name , ' to:'
+			                 title: 'Copy class') ifNil: [ ^ self ].
+		self symbolExists: newClassName onCompletion: [ :service |
+			validClassName := service answer not.
+			validClassName ifFalse: [
+				UIManager default alert: 'Symbol exists. Please retry.' ] ] ].
+	self basicCopyClass: oldClassService to: newClassName
 ]
 
 { #category : 'as yet unclassified' }
@@ -3447,8 +3436,12 @@ JadeiteBrowserPresenter >> statusBarText: string [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> symbolExists: newClassName [
-	^(RowanAnsweringService new symbolExists: newClassName asSymbol session: self gciSession) not
+JadeiteBrowserPresenter >> symbolExists: newClassName onCompletion: completionBlock [
+
+	^ RowanAnsweringService new
+		  symbolExists: newClassName asSymbol
+		  session: self gciSession
+		  onCompletion: completionBlock
 ]
 
 { #category : 'sunit support' }

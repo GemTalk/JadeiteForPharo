@@ -95,7 +95,7 @@ JadeiteMethodsTrait >> addDialogImplementorsDialogItemTo: group [
 
 	group addItem: [ :item |
 		item
-			name: 'Browse Implementors of ...';
+			name: 'Browse Implementors Of ...';
 			action: [ self browseImplementorsOf ] ]
 ]
 
@@ -462,7 +462,9 @@ JadeiteMethodsTrait >> canDiscardEdits [
 			   'You have unsaved changes. Discard changes and continue?
 <' , self window title , '>')
 			  ifTrue: [
-				  self methodSourcePresenter hasUnacceptedEdits: false.
+				  self methodSourcePresenter
+					  triggerResetAction;
+					  hasUnacceptedEdits: false.
 				  true ]
 			  ifFalse: [ false ] ].
 	^ true

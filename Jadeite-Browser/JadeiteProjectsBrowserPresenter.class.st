@@ -161,22 +161,6 @@ JadeiteProjectsBrowserPresenter >> containedPackageDictionaryLabel [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> copyClass [
-	| oldClassService newClassName validClassNameSelected |
-	oldClassService := self selectedClass ifNil: [^MessageBox notify: 'Class must be selected'].
-	validClassNameSelected := false.
-	[validClassNameSelected] whileFalse: 
-			[(newClassName := Prompter
-						on: oldClassService name
-						prompt: 'Copy ' , oldClassService name , ' to:'
-						caption: 'Copy class') isNil
-				ifTrue: [^self].
-			validClassNameSelected := self symbolExists: newClassName.
-			validClassNameSelected ifFalse: [MessageBox notify: 'Symbol exists. Please retry.']].
-	self basicCopyClass: oldClassService to: newClassName
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> definedClassMenuItemLabel [
 	| definedLabel |
 	definedLabel := 'Go To Defining Package'.

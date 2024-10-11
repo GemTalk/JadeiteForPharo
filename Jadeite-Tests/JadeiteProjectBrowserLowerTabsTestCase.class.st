@@ -123,60 +123,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_breakpointDisabledHighlighting [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_browseHierarchyImplementorsEnablement [
-	| commandQuery |
-	self testsIssue: #issue399
-		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
-	self selectRowanSample1Test.
-	self selectCategoryNamed: 'tests'.
-	self selectMethodNamed: #test1.
-	commandQuery := self
-				queryCommand: #browseHierarchyImplementors
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self assert: commandQuery isEnabled.
-	self selectMethodsNamed: #(#test1 #test2).
-	commandQuery := self
-				queryCommand: #browseHierarchyImplementors
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled.
-	self selectMethodsNamed: #().
-	commandQuery := self
-				queryCommand: #browseHierarchyImplementors
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_browseHierarchySendersEnablement [
-	| commandQuery |
-	self testsIssue: #issue399
-		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
-	self selectRowanSample1Test.
-	self selectCategoryNamed: 'tests'.
-	self selectMethodNamed: #test1.
-	commandQuery := self
-				queryCommand: #browseHierarchySenders
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self assert: commandQuery isEnabled.
-	self selectMethodsNamed: #(#test1 #test2).
-	commandQuery := self
-				queryCommand: #browseHierarchySenders
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled.
-	self selectMethodsNamed: #().
-	commandQuery := self
-				queryCommand: #browseHierarchySenders
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_browseImplementorsDisplaysOneTime [
 	"make sure to properly remove menu item before adding a new one based on caret position"
 
@@ -199,33 +145,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_browseImplementorsDisplaysOneTime
 			browseImplementorsMenuOptions
 				do: [:messageSend | self assert: messageSend command selector equals: #browseImplementorsOf:].
 			self assert: browseImplementorsMenuOptions size equals: 1]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_browseImplementorsEnablement [
-	| commandQuery |
-	self testsIssue: #issue399
-		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
-	self selectRowanSample1Test.
-	self selectCategoryNamed: 'tests'.
-	self selectMethodNamed: #test1.
-	commandQuery := self
-				queryCommand: #browseImplementors
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self assert: commandQuery isEnabled.
-	self selectMethodsNamed: #(#test1 #test2).
-	commandQuery := self
-				queryCommand: #browseImplementors
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled.
-	self selectMethodsNamed: #().
-	commandQuery := self
-				queryCommand: #browseImplementors
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled
 ]
 
 { #category : 'as yet unclassified' }
@@ -254,33 +173,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_browseSendersDisplaysOneTime [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_browseSendersEnablement [
-	| commandQuery |
-	self testsIssue: #issue399
-		withTitle: 'The "exactly one object" warning may also provide an unrelated debugger stack'.
-	self selectRowanSample1Test.
-	self selectCategoryNamed: 'tests'.
-	self selectMethodNamed: #test1.
-	commandQuery := self
-				queryCommand: #browseSenders
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self assert: commandQuery isEnabled.
-	self selectMethodsNamed: #(#test1 #test2).
-	commandQuery := self
-				queryCommand: #browseSenders
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled.
-	self selectMethodsNamed: #().
-	commandQuery := self
-				queryCommand: #browseSenders
-				inPresenter: self projectsPresenter
-				view: self methodListPresenter view.
-	self deny: commandQuery isEnabled
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_browseTestSelectorsInSUnitTab [
 	self testsIssue: #issue565
 		withTitle: 'Would like "browse selected" in the SUnit tab of the Project Browser (3.0.79)'.
@@ -291,39 +183,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_browseTestSelectorsInSUnitTab [
 	methodListBrowser := self projectsPresenter sunitPresenter browseSelectedMethods.
 	self assert: self projectsPresenter sunitPresenter methodListPresenter list asArray
 		equals: methodListBrowser primaryPresenter methodListPresenter methodListPresenter list asArray
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_canOpenSystemBrowserWithAddPackageShowing [
-	"discovered that pressing addSystemBrowser might get routed to the add package presenter
-	in the project tab. Test that addPackagePresenter reroutes message to browser" 
-
-	| previousSize newSize |
-	previousSize := projectsBrowser cardsPresenter view tabs size.
-	self selectServiceNamed: 'RowanSample9' in: self projectListPresenter.
-	self projectsPresenter selectProjectTab.  
-	self projectsPresenter addPackagePresenter addSystemBrowser. 
-	newSize := projectsBrowser cardsPresenter view tabs size.
-	self assert: newSize = (previousSize + 1)
-
-	
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_classCopy [
-	self testsIssue: #issue506 withTitle: 'Usefful to be able to copy a class ...'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
-	self projectsPresenter isHierarchyTabSelected
-		ifTrue: [self selectTreeServicesNamed: (Array with: 'RowanSample1') in: self classHierarchyPresenter]
-		ifFalse: [self selectServiceNamed: 'RowanSample1' in: self classListPresenter].
-	self projectsPresenter basicCopyClass: self projectsPresenter selectedClass to: 'Fnoodle'.
-	self assert: self projectsPresenter selectedClass name equals: 'Fnoodle'.
-	self assert: self categoryListPresenter list first equals: 'accessing'.
-	self assert: self methodListPresenter list first selector equals: #foo.
-	self selectClassTab.
-	self assert: self categoryListPresenter list first equals: '*rowansample1-extensions'.
-	self assert: self methodListPresenter list first selector equals: #bar
 ]
 
 { #category : 'as yet unclassified' }
@@ -1022,25 +881,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sUnitTabRefresh [
 	refreshItem commandDescription performAgainst: self projectsPresenter. "<<< walkback occurred here"
 	self assert: self projectsPresenter selectedClass name equals: 'RowanServicesTest'.
 	self assert: self projectsPresenter sunitPresenter methodListPresenter list isEmpty "no tests in the abstract class" 
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_saveMethodKeepsAlphabetizedList [
-	| methodSelectorsList newMethodSelectorsList originalSource |
-	self testsIssue: #issue770 withTitle: 'Ensure new method is alphabetized after compile'.
-	self selectRowanSample1Test.
-	methodSelectorsList := (self methodListPresenter list
-				collect: [:methodService | methodService selector]) asArray.
-	self assert: methodSelectorsList equals: #(#test1 #test2 #testError #testFailure).
-	originalSource := 'fooble  | array | array := Array new. ^''foo'''.
-	self projectsPresenter selectMethodSourceTab.
-	self selectCategoryNamed: 'tests'.
-	self methodSourcePresenter value: originalSource.
-	self methodSourcePresenter view isModified: true.
-	self projectsPresenter editSaveMethod.
-	newMethodSelectorsList := (self methodListPresenter list
-				collect: [:methodService | methodService selector]) asArray.
-	self assert: newMethodSelectorsList equals: #(#fooble #test1 #test2 #testError #testFailure)
 ]
 
 { #category : 'as yet unclassified' }

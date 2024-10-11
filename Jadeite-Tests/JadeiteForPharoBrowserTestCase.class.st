@@ -28,6 +28,15 @@ JadeiteForPharoBrowserTestCase >> hierarchyVisibleItems [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> methodMenuItemNamed: aString [
+
+	self methodListPresenter contextMenu menuGroups do: [ :group |
+		group menuItems do: [ :item |
+			item name = aString ifTrue: [ ^ item ] ] ].
+	^ nil
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
 
 	^self methodSourcePresenter withAdapterDo: [ :adapter | adapter widgetDo:[:widget | widget hasUnacceptedEdits ] ]
@@ -485,6 +494,66 @@ JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 		ensure: [ self destroy: methodListPresenter ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_browseMenuItemEnablement [
+	"several items should not be enabled when multiple methods selected or none selected"
+
+	self
+		testsIssue: #issue399
+		withTitle:
+		'The "exactly one object" warning may also provide an unrelated debugger stack'.
+	self selectRowanSample1Test.
+	self selectCategoryNamed: 'tests'.
+	self selectMethodNamed: #test1.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Senders') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Senders Of ...') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Implementors') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Implementors Of ...') isEnabled
+			value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Hierarchy Senders') isEnabled
+			value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Hierarchy Implementors')
+			isEnabled value.
+	self selectMethodsNamed: #( #test1 #test2 ).
+	self deny:
+		(self methodMenuItemNamed: 'Browse Senders') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Senders Of ...') isEnabled value.
+	self deny:
+		(self methodMenuItemNamed: 'Browse Implementors') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Implementors Of ...') isEnabled
+			value.
+	self deny:
+		(self methodMenuItemNamed: 'Browse Hierarchy Senders') isEnabled
+			value.
+	self deny:
+		(self methodMenuItemNamed: 'Browse Hierarchy Implementors')
+			isEnabled value.
+	self selectMethodsNamed: #(  ).
+	self deny:
+		(self methodMenuItemNamed: 'Browse Senders') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Senders Of ...') isEnabled value.
+	self deny:
+		(self methodMenuItemNamed: 'Browse Implementors') isEnabled value.
+	self assert:
+		(self methodMenuItemNamed: 'Browse Implementors Of ...') isEnabled
+			value.
+	self deny:
+		(self methodMenuItemNamed: 'Browse Hierarchy Senders') isEnabled
+			value.
+	self deny:
+		(self methodMenuItemNamed: 'Browse Hierarchy Implementors')
+			isEnabled value
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_categorySelection [
 
@@ -640,6 +709,54 @@ JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classCopy [
+
+	| oldInstanceSelectors newInstanceSelectors oldClassClassSelectors newClassClassSelectors oldInstVarNames newInstVarNames oldClassVarNames newClassVarNames |
+	self
+		testsJadeiteForPharoIssue: #issue133
+		title:
+		'Copy... and Rename... menu items for Class is missing in JfP'.
+	self selectRowanAnsweringService.
+	oldInstVarNames := self projectsPresenter selectedClass instVarNames.
+	oldClassVarNames := self projectsPresenter selectedClass
+		                    classVarNames.
+	oldInstanceSelectors := self projectsPresenter selectedClass methods
+		                        collect: [ :methodService |
+		                        methodService selector ].
+	self projectsPresenter
+		basicCopyClass: self projectsPresenter selectedClass
+		to: 'Fnoodle'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'Fnoodle'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'Fnoodle'.
+	newInstVarNames := self projectsPresenter selectedClass instVarNames.
+	newClassVarNames := self projectsPresenter selectedClass
+		                    classVarNames.
+	newInstanceSelectors := self projectsPresenter selectedClass methods
+		                        collect: [ :methodService |
+		                        methodService selector ].
+	self assert: oldInstVarNames equals: newInstVarNames.
+	self assert: oldClassVarNames equals: newClassVarNames.
+	self assert: oldInstanceSelectors equals: newInstanceSelectors.
+	self selectClassSide.
+	newClassClassSelectors := self projectsPresenter selectedClass
+		                          methods collect: [ :methodService |
+		                          methodService selector ].
+	self selectRowanAnsweringService.
+	self selectClassSide.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanAnsweringService'.
+	oldClassClassSelectors := self projectsPresenter selectedClass
+		                          methods collect: [ :methodService |
+		                          methodService selector ].
+	self assert: oldClassClassSelectors equals: newClassClassSelectors
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_compileClass [
 
 	self
@@ -704,7 +821,6 @@ JadeiteForPharoBrowserTestCase >> test_compileErrorDisplay [
 	self
 		testsIssue: #issue459
 		withTitle: 'CompileWarnings should be more noticable ... '.
-	self testResourceClass current createRowanSample1Project.
 	self selectRowanSample1Test.
 	self selectMethodNamed: #test1.
 	source := 'test1 self assert: RowanSample1 new foo = ''abc'. "won't compile"
@@ -763,6 +879,41 @@ JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 	self assert: self projectBrowserTabs first title equals: '1 Rowan'.
 	self deselectProjects.
 	self assert: self projectBrowserTabs first title equals: '1 Projects'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_discardMethodChangesRevertsSource [
+	"If you reselect the same method that has changes and discard text was not being updated."
+	| methodSelectorsList newSource originalSource |
+	self selectRowanSample1Test.
+	methodSelectorsList := (self methodListPresenter list collect: [
+		                        :methodService | methodService selector ])
+		                       asArray.
+	self
+		assert: methodSelectorsList
+		equals: #( #test1 #test2 #testError #testFailure ).
+	self projectsPresenter methodListPresenter
+		selectIndex: 1
+		scrollToSelection: true.
+	originalSource := self methodSourcePresenter text. 
+	newSource := 'test1  | array | array := Array new. ^''foo'''.
+	self projectsPresenter selectMethodSourceTab.
+	self selectCategoryNamed: 'tests'.
+	self selectMethodNamed: #test1.
+	self methodSourcePresenter text: newSource.
+	self assert: self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	["reselect same method" 
+	self projectsPresenter methodListPresenter
+		selectIndex: 1
+		scrollToSelection: true ]
+		on: ProvideAnswerNotification
+		do: [ :notification | 
+		notification resume: true "Yes to discard changes" ].
+	self
+		assert:
+		self projectsPresenter methodListPresenter selection selectedIndex
+		equals: 1.
+	self assert: self methodSourcePresenter text equals: originalSource
 ]
 
 { #category : 'tests' }
@@ -1143,6 +1294,25 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 	self assert: self methodListPresenter list isEmpty ] ensure: [
 		self cloneRowanSample1.
 		self ensureRowanSampleProjectsLoaded ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
+	| methodSelectorsList newMethodSelectorsList originalSource |
+	self testsIssue: #issue770 withTitle: 'Ensure new method is alphabetized after compile'.
+	self selectRowanSample1Test.
+	methodSelectorsList := (self methodListPresenter list
+				collect: [:methodService | methodService selector]) asArray.
+	self assert: methodSelectorsList equals: #(#test1 #test2 #testError #testFailure).
+	originalSource := 'fooble  | array | array := Array new. ^''foo'''.
+	self projectsPresenter selectMethodSourceTab.
+	self selectCategoryNamed: 'tests'.
+	self methodSourcePresenter value: originalSource.
+	self methodSourcePresenter view isModified: true.
+	self projectsPresenter editSaveMethod.
+	newMethodSelectorsList := (self methodListPresenter list
+				collect: [:methodService | methodService selector]) asArray.
+	self assert: newMethodSelectorsList equals: #(#fooble #test1 #test2 #testError #testFailure)
 ]
 
 { #category : 'tests' }

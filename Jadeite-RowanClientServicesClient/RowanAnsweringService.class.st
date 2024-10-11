@@ -224,14 +224,15 @@ RowanAnsweringService >> symbolDictionaryNames: session onCompletion: completion
 ]
 
 { #category : 'commands' }
-RowanAnsweringService >> symbolExists: aSymbol session: session [
+RowanAnsweringService >> symbolExists: aSymbol session: session onCompletion: completionBlock [
 
-	command := #symbolExists:.
-	commandArgs := Array with: aSymbol.
-	RowanServiceUpdater current
-		issueCommand: self
-		session: session
-		onCompletion: nil.
+	RowanServiceUpdater current critical: [
+		command := #symbolExists:.
+		commandArgs := Array with: aSymbol.
+		RowanServiceUpdater current
+			issueCommand: self
+			session: session
+			onCompletion: completionBlock ].
 	^ answer
 ]
 

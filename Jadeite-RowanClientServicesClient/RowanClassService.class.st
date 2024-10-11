@@ -279,6 +279,12 @@ RowanClassService >> classOrHierarchyPresenter: browser [
 ]
 
 { #category : 'accessing' }
+RowanClassService >> classVarNames [
+
+	^ classVarNames
+]
+
+{ #category : 'accessing' }
 RowanClassService >> comment [
 	^comment
 ]

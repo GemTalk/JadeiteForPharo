@@ -65,12 +65,6 @@ JadeiteMethodListBrowser >> onViewClosed [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowser >> onViewDestroyed [
-	super onViewDestroyed.
-	subPresenters := nil
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowser >> onViewOpened [
 	super onViewOpened.
 	RowanServiceUpdater current
@@ -81,12 +75,6 @@ JadeiteMethodListBrowser >> onViewOpened [
 JadeiteMethodListBrowser >> presenterClass [
 
 	^JadeiteMethodListPresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowser >> reformatSource [
-
-	^myPresenter reformatSource
 ]
 
 { #category : 'as yet unclassified' }

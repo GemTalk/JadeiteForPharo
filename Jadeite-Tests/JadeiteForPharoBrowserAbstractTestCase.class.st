@@ -33,7 +33,7 @@ JadeiteForPharoBrowserAbstractTestCase >> setUp [
 JadeiteForPharoBrowserAbstractTestCase >> tearDown [
 
 	super tearDown.
-	session isValidSession ifTrue: [
+	(session isNotNil and: [session isValidSession]) ifTrue: [
 		transcriptWritesWereEnabled == true ifTrue: [
 			transcript flipTranscript ] ].
 	methodListBrowser ifNotNil: [

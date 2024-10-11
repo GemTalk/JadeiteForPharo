@@ -427,7 +427,7 @@ JadeiteTextDocument >> getDocumentData [
 
 ]
 
-{ #category : 'TODO' }
+{ #category : 'accessing' }
 JadeiteTextDocument >> hasUnacceptedEdits: aBoolean [
 	self adapter ifNotNil: [ :a | a widget hasUnacceptedEdits: aBoolean ]
 ]
