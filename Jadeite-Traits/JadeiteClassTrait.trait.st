@@ -27,6 +27,11 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 					item
 						name: 'Copy ...';
 						action: [ self copyClass ];
+						enabled: [ self isClassSelected ] ];
+				addItem: [ :item |
+					item
+						name: 'Rename ...';
+						action: [ self renameClass ];
 						enabled: [ self isClassSelected ] ] ];
 		addGroup: [ :group |
 			group addItem: [ :item |
@@ -131,6 +136,8 @@ JadeiteClassTrait >> findClass [
 JadeiteClassTrait >> findClassNamed: selection [
 
 	| classService |
+	self todo:
+		'used by the changes browser (and other tools?). Convert to using #findClass?'.
 	classService := RowanClassService new
 		                name: selection;
 		                meta: false.

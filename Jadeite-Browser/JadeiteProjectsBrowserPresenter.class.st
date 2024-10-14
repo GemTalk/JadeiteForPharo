@@ -481,21 +481,6 @@ JadeiteProjectsBrowserPresenter >> removeMethods: classServices [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> renameClass [
-	| oldClassService newClassName |
-	oldClassService := self selectedClass ifNil: [^MessageBox notify: 'Class must be selected'].
-	(MessageBox
-		confirm: 'Rename class does NOT create a new version of the renamed class and instances are not migrated. Continue?')
-			ifFalse: [^self].
-	(newClassName := Prompter
-				on: oldClassService name
-				prompt: 'Rename ' , oldClassService name , ' to:'
-				caption: 'Rename class') isNil
-		ifTrue: [^self].
-	self basicRenameClass: oldClassService to: newClassName
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> resetClassDefinitionPane [
 
 	classDefinitionPresenter isModified: false

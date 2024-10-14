@@ -384,6 +384,37 @@ JadeiteBrowserPresenter >> basicRemoveGlobal: qualifiedString [
 	self buildGlobalsTab
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> basicRenameClass: classService to: newName [
+
+	| oldName browser |
+	oldName := classService name.
+	classService
+		command: #renameClass:to:;
+		commandArgs: (Array with: classService name with: newName);
+		selectedPackageServices: self packageListPresenter selectedItems.
+	[
+	self issueCommand: classService onCompletion: [
+		| answeringService |
+		answeringService := RowanServiceUpdater current updates detect: [
+			                    :service | service isAnsweringService ].
+		answeringService answer isEmpty ifFalse: [
+			classListPresenter unselectAll.
+			self selectClassNamed: newName.
+			browser := JadeiteRenameClassMethodListBrowser
+				           openOn: answeringService
+				           selecting: newName
+				           session: self gciSession.
+			browser window title:
+				'Methods updated after renaming ' , oldName , ' to ' , newName ] ] ]
+		on: GsCompileError
+		do: [ :ex |
+			^ MessageBox notify:
+				  'Compilation error during rename class. Class may be referenced in its hierarchy"
+ 
+' , ex descriptiveText ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
 
@@ -2872,6 +2903,21 @@ JadeiteBrowserPresenter >> removeProjectTabs [
 	projectReadMeView := self view viewNamed: 'projectReadMeTab' ifNone: [nil].
 	projectReadMeView ifNotNil: [self textAreaTabs removeSubView: projectReadMeView].
 	projectReadMeTab := nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> renameClass [
+	| oldClassService newClassName |
+	oldClassService := self selectedClass ifNil: [^MessageBox notify: 'Class must be selected'].
+	(MessageBox
+		confirm: 'Rename class does NOT create a new version of the renamed class and instances are not migrated. Continue?')
+			ifFalse: [^self].
+	(newClassName := Prompter
+				on: oldClassService name
+				prompt: 'Rename ' , oldClassService name , ' to:'
+				caption: 'Rename class') isNil
+		ifTrue: [^self].
+	self basicRenameClass: oldClassService to: newClassName
 ]
 
 { #category : 'as yet unclassified' }
