@@ -65,10 +65,12 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
+	                      [
 	                      service replicateFrom: aService.
 	                      self possibleSignalCompileError: service.
 	                      self applyUpdates: service.
-	                      service handleServiceCompletion.
+	                      service handleServiceCompletion ] ifCurtailed: [
+		                      aService inCommand signal ].
 	                      aService inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
