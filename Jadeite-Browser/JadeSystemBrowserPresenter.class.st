@@ -367,25 +367,6 @@ JadeSystemBrowserPresenter >> dictionaryListPresenter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> dictsMenuStrings [
-
-	false ifTrue: [
-		self browseDictionaryReferences; fileOutDictionary; findClass; insertDictionary; removeDictionary; setHomeDictionary; fileInCode.
-	].
-	^#(
-		'&Dictionaries'
-		'&Browse References//browseDictionaryReferences'
-		'&File Out Dictionary//fileOutDictionary'
-		'File In Code//fileInCode'
-		'&Find Class/Ctrl+Shift+F/findClass'
-		'&Insert Dictionary//insertDictionary'
-		'&Remove Dictionary//removeDictionary'
-		'&Set Home Dictionary//setHomeDictionary'
-	).
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> editCopy [
 
 	View focus copySelection.
@@ -1163,28 +1144,6 @@ JadeSystemBrowserPresenter >> removeClass [
 	stream lf; nextPutAll: self requestString.
 	self updateCommand: stream contents.
 
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> removeDictionary [
-
-	| list stream result |
-	list := dictionaryListPresenter selections collect: [:each | each key].
-	stream := WriteStream on: String new.
-	list do: [:each | stream nextPutAll: each; cr].
-	result := MessageBox 
-		confirm: stream contents 
-		caption: 'Remove the following dictionary(s)?'.
-	result ifFalse: [^self].
-	stream := (WriteStream on: String new)
-		nextPutAll: 'removeDictionaries'; tab;
-		yourself.
-	list do: [:each | 
-		stream nextPutAll: each; tab.
-	].
-	stream lf; nextPutAll: self requestString.
-	self updateCommand: stream contents.
 
 ]
 

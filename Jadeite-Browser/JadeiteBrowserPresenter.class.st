@@ -149,14 +149,23 @@ JadeiteBrowserPresenter >> addComputedCategories [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> addDictionary [
+
 	| newDictionaryName |
-	(newDictionaryName := Prompter prompt: 'Enter new dictionary name:') isNil ifTrue: [^self].
-	newDictionaryName isEmpty ifTrue: [^MessageBox notify: 'Blank dictionary names not allowed'].
-	(dictionaryListPresenter list detect: [:service | service name = newDictionaryName] ifNone: [])
-		ifNotNil: [^MessageBox notify: 'Dictionary ' , newDictionaryName , ' already exists'].
-	(MessageBox
-		confirm: 'Really add dictionary ' , newDictionaryName , '? This will commit the transaction')
-			ifTrue: [^self basicAddDictionaryNamed: newDictionaryName]
+	(newDictionaryName := UIManager default
+		                      request: 'Enter new dictionary name:'
+		                      initialAnswer: 'NewDictionary') isNil ifTrue: [
+		^ self ].
+	newDictionaryName isEmpty ifTrue: [
+		^ UIManager default alert: 'Blank dictionary names not allowed' ].
+	(dictionaryListPresenter list
+		 detect: [ :service | service name = newDictionaryName ]
+		 ifNone: [  ]) ifNotNil: [
+		^ UIManager default alert:
+			  'Dictionary ' , newDictionaryName , ' already exists' ].
+	(UIManager default confirm:
+		 'Really add dictionary ' , newDictionaryName
+		 , '? This will commit the transaction') ifTrue: [
+		^ self basicAddDictionaryNamed: newDictionaryName ]
 ]
 
 { #category : 'menus' }
@@ -247,10 +256,10 @@ JadeiteBrowserPresenter >> arrangement: anObject [
 JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
 
 	| insertionIndex dictionaryService |
-	insertionIndex := dictionaryListPresenter selectionByIndex = 0
+	insertionIndex := dictionaryListPresenter selection selectedIndex = 0
 		                  ifTrue: [ dictionaryListPresenter list size + 1 ]
 		                  ifFalse: [
-		                  dictionaryListPresenter selectionByIndex + 1 ].
+		                  dictionaryListPresenter selection selectedIndex + 1 ].
 	dictionaryService := RowanDictionaryService new name:
 		                     newDictionaryName.
 	dictionaryService
@@ -356,14 +365,14 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 		completionBlock value ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> basicRemoveDictionaries: dictionaryNames [
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> basicRemoveDictionary: dictionaryName [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #removeDictionariesNamed:;
-		commandArgs: (Array with: dictionaryNames).
+		commandArgs: (Array with: (Array with: dictionaryName)).
 	self issueCommand: browserService onCompletion: [  ]
 ]
 
@@ -1221,6 +1230,20 @@ JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 	service fileOutMethods: methodListPresenter selections
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> fileoutDictionary [
+
+	| dictionaryService fileService filePath |
+	dictionaryService := dictionaryListPresenter selectedItem.
+
+	filePath := self fileoutFileSelection: dictionaryService name , '.gs'.
+	filePath ifNotNil: [
+		fileService := RowanFileService new
+			               path: filePath;
+			               session: gciSession.
+		fileService fileOutDictionaries: { dictionaryService name } ]
+]
+
 { #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 
@@ -1689,7 +1712,8 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 		                   provider: [ packageListPresenter ].
 	packageDictionaryTabs addPage: packageListPage.
 	self initializePackageMenu.
-	dictionaryListPresenter := JadeiteListPresenter newNameSortedList.
+	dictionaryListPresenter := JadeiteListPresenter newNameSortedList
+		                           contextMenu: self newDictionaryMenu.
 	dictionaryListPage := JadeiteNotebookPage
 		                      title: 'Dictionary'
 		                      icon: nil
@@ -2152,6 +2176,38 @@ JadeiteBrowserPresenter >> moveMethodsToPackageFilterUsing: transfer [
 		toPackageNamed: packageName.
 	self packageMethodListPresenter selectIndex: transfer index.
 	^ self methodListPresenter selectItem: transfer passenger first
+]
+
+{ #category : 'menus' }
+JadeiteBrowserPresenter >> newDictionaryMenu [
+
+	^ JadeiteMenuPresenter new
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'Add Dictionary ...';
+						  action: [ self addDictionary]
+						   ];
+				  addItem: [ :item |
+					  item
+						  name: 'Remove Dictionary ...';
+						  action: [ self removeDictionary ];
+						  enabled: [
+							  [ self dictionaryListPresenter selectedItem notNil ]
+								  on: Error
+								  do: [ :ex |
+									  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'File Out Dictionary ...';
+						  action: [ self fileoutDictionary ];
+						  enabled: [
+							  [ self dictionaryListPresenter selectedItem notNil ]
+								  on: Error
+								  do: [ :ex |
+									  false "Spec2 lists are broken and can have the wrong selection" ] ] ] ];
+		  yourself
 ]
 
 { #category : 'menus' }
@@ -2849,20 +2905,19 @@ JadeiteBrowserPresenter >> removeClass [
 							' was removed. You will need to remove references to the class or your code may not load in the future.' ] ] ] ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> removeDictionaries [
-	| dictionaryNames |
-	dictionaryListPresenter selections isEmpty ifTrue: [^self].
-	dictionaryNames := dictionaryListPresenter selections
-				collect: [:dictionaryService | dictionaryService name].
-	(dictionaryNames includesAnyOf: self protectedDictionaries)
-		ifTrue: 
-			[^MessageBox notify: 'Cannot remove protected dictionaries ' , self protectedDictionaries printString].
-	(MessageBox
-		confirm: 'Really remove dictionary(s) ' , (dictionaryNames fold: [:a :b | a , ' ' , b]) , ' ?
-This will commit the transaction.')
-			ifFalse: [^self].
-	self basicRemoveDictionaries: dictionaryNames
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> removeDictionary [
+
+	| dictionaryName |
+	dictionaryListPresenter selectedItem ifNil: [ ^ self ].
+	dictionaryName := dictionaryListPresenter selectedItem name.
+	(self protectedDictionaries includes: dictionaryName) ifTrue: [
+		^ MessageBox notify: 'Cannot remove protected dictionaries '
+			  , self protectedDictionaries printString ].
+	(MessageBox confirm:
+		 'Really remove dictionary ' , dictionaryName , ' ?
+This will commit the transaction.') ifFalse: [ ^ self ].
+	self basicRemoveDictionary: dictionaryName
 ]
 
 { #category : 'as yet unclassified' }

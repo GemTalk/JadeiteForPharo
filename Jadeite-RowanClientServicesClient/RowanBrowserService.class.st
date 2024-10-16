@@ -77,20 +77,14 @@ RowanBrowserService >> classHierarchyUpdate: presenter browser: browser [
 { #category : 'public' }
 RowanBrowserService >> dictionaryListUpdate: presenter [
 	"no sort. dictionaries maintain their server order"
-	| removals replicate |	
-	presenter list isEmpty ifTrue: [presenter list: ListModel new].
-	dictionaries ifNil: [ ^self ].
-	removals := presenter list reject: [:dictionaryService | dictionaries includes: dictionaryService].
-	presenter model removeAll: removals.
-	presenter list copy do: 
-			[:service |
-			replicate := dictionaries detect: [:update | update = service] ifNone: [nil].
-			replicate notNil ifTrue: [service replicateFrom: replicate]].
-	1 to: dictionaries size
-		do: 
-			[:index |
-			(dictionaries at: index) = (presenter model at: index ifAbsent: [RowanDictionaryService new])
-				ifFalse: [presenter model add: (dictionaries at: index). self todo:[ self afterIndex: index - 1 "not working yet"]]]
+
+	| removals |
+	presenter list isEmpty ifTrue: [ presenter list: ListModel new ].
+	dictionaries ifNil: [ ^ self ].
+	removals := presenter list reject: [ :dictionaryService |
+		            dictionaries includes: dictionaryService ].
+	presenter list: dictionaries. 
+	presenter invalidate
 ]
 
 { #category : 'public' }
