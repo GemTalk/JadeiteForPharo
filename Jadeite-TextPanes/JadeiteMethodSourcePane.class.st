@@ -277,6 +277,10 @@ JadeiteMethodSourcePane >> setBreakPointAt: stepPoint onCompletion: completionBl
 JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 
 	stepPoint isNil ifTrue: [ ^ self ].
+	stepPoint isNumber ifFalse: [
+		UIManager default inform:
+			'Breakpoint can only be set on a step point'.
+		^ self ].
 	self
 		setBreakPointAt: stepPoint
 		onCompletion: [ self outerBrowser updateMethodSource ]

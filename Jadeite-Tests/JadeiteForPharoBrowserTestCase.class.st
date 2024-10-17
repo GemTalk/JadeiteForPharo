@@ -757,6 +757,317 @@ JadeiteForPharoBrowserTestCase >> test_classCopy [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameNoReferences [
+
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+
+	[
+	self projectsPresenter selectClassNamed: 'TestClass'.
+	self projectsPresenter
+		basicRenameClass: self projectsPresenter selectedClass
+		to: 'RenamedClass'.
+	self assertIsNil: (self classListPresenter list
+			 detect: [ :classService |
+			 classService name asString = 'TestClass' ]
+			 ifNone: [  ]).
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RenamedClass' ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self classListPresenter selectedItem
+			onCompletion: nil ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameNoReferencesHierarchy [
+
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+
+	[
+	self projectsPresenter selectClassNamed: 'TestClass'.
+	self selectHierarchyTab.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'TestClass'.
+	self projectsPresenter
+		basicRenameClass: self projectsPresenter selectedClass
+		to: 'RenamedClass'.
+	self assertIsNil: (self classListPresenter list
+			 detect: [ :classService |
+			 classService name asString = 'TestClass' ]
+			 ifNone: [  ]).
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'RenamedClass' ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameResetsClassDefinition [
+
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+
+	[
+	self projectsPresenter selectClassNamed: 'TestClass'.
+	self projectsPresenter
+		basicRenameClass: self projectsPresenter selectedClass
+		to: 'RenamedClass'.
+	self assert: ('*Object rwSubclass: ''RenamedClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text) ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self classListPresenter selectedItem
+			onCompletion: nil ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameShowsMethods [
+	"don't lose the method display on rename"
+
+	| methodList |
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	"essentially by not using the test dialog box we test Jadeite's part of the fix for #513. The rest was in Rowan"
+	self
+		testsIssue: #issue513
+		withTitle: 'Class rename also updates method sends (3.0.76)'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+
+	[
+	self projectsPresenter selectClassNamed: 'TestClass'.
+	methodList := self methodListPresenter list.
+	self projectsPresenter
+		basicRenameClass: self projectsPresenter selectedClass
+		to: 'RenamedClass'.
+	self assertIsNil: (self classListPresenter list
+			 detect: [ :classService |
+			 classService name asString = 'TestClass' ]
+			 ifNone: [  ]).
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RenamedClass'.
+	self
+		assert: self methodListPresenter list asOrderedCollection
+		equals: methodList asOrderedCollection ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self classListPresenter selectedItem
+			onCompletion: nil ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
+
+	| list |
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  ^TestClass'
+		in: 'RefersToTestClass'
+		category: 'foo'.
+
+	self projectsPresenter selectClassNamed: 'TestClass'.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			basicRenameClass: self projectsPresenter selectedClass
+			to: 'RenamedClass' ].
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RenamedClass'.
+	list := methodListBrowser methodListPresenter list collection.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self
+		assert: methodListBrowser methodSourcePresenter codePane selection
+		equals: 'RenamedClass'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesFailingCompile [
+
+	| list |
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'Sub'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'SubString'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  | subString | subString := SubString. ^Sub'
+		in: 'RefersToTestClass'
+		category: 'wontCompile'. "method refers to both. Will fail compilation
+							based on current limitations in recompile method server code"
+	self projectsPresenter selectClassNamed: 'Sub'.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			basicRenameClass: self projectsPresenter selectedClass
+			to: 'RenamedClass' ].
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RenamedClass'.
+	list := methodListBrowser methodListPresenter list collection.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self assert: list first failedCompile. "should show up as red. No way to easily test that"
+	"Not really sure this assertion should be valid anymore. self
+		assert:
+		methodListBrowser methodSourcePresenter codePane selectionInterval
+		equals: (46 to: 48)" "select old class on compile"
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
+
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  ^TestClass'
+		in: 'RefersToTestClass'
+		category: 'foo'.
+
+	[
+	self projectsPresenter selectClassNamed: 'TestClass'.
+	self selectHierarchyTab.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'TestClass'.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			basicRenameClass: self projectsPresenter selectedClass
+			to: 'RenamedClass' ].
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'RenamedClass'.
+	self
+		assert: methodListBrowser methodListPresenter list collection size
+		equals: 1.
+	self
+		assert: methodListBrowser methodListPresenter list collection  first selector
+		equals: #meth.
+	self
+		assert: methodListBrowser methodSourcePresenter codePane selection
+		equals: 'RenamedClass' ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self projectsPresenter selectedClass
+			onCompletion: nil ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNoFailCompile [
+
+	| list |
+	self
+		testsIssue: #issue439
+		withTitle: '`rename` class menu item would be useful'.
+	self selectRowanSample1Test.
+	self
+		saveClass: 'Sub'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'SubString'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'RefersToTestClass'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'meth  | subString | subString := SubString. ^Sub'
+		in: 'RefersToTestClass'
+		category: 'foo'.
+
+	[
+	self projectsPresenter selectClassNamed: 'SubString'.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			basicRenameClass: self projectsPresenter selectedClass
+			to: 'RenamedClass' ].
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RenamedClass'.
+	list := methodListBrowser methodListPresenter list collection.
+	self assert: list size equals: 1.
+	self assert: list first selector equals: #meth.
+	self
+		assert: methodListBrowser methodSourcePresenter codePane selection
+		equals: 'RenamedClass' ] ensure: [
+		self projectsPresenter
+			basicRemoveClass: self classListPresenter selectedItem
+			onCompletion: nil ]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteForPharoBrowserTestCase >> test_compileClass [
 
 	self

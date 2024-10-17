@@ -772,33 +772,16 @@ RowanClassService >> renamedClass: presenter browser: browser [
 						ifTrue: 
 							[presenter selection: classService.
 							browser classDefinitionPresenter value: template.
-							browser displayNoMods: browser classDefinitionPresenter]]].
+							"browser displayNoMods: browser classDefinitionPresenter"]]].
 	presenter view invalidate
 ]
 
 { #category : 'public' }
-RowanClassService >> renamedClassInHierarchy: presenter browser: anObject [
-	"because class service equality is name-based, 
-	we have to remove then add the class service
-	to ensure the tree can find it"
-
-	presenter model asBag do: 
-			[:classService |
-			(self equalBeforeRename: classService)
-				ifTrue: 
-					[| parent children wasSelected |
-					wasSelected := (presenter selectionIfNone:[]) = classService.
-					parent := presenter model parentOf: classService.
-					children := presenter model getChildrenOf: classService.
-					children do: [:child | presenter model remove: child ifAbsent: []].
-					presenter model remove: classService ifAbsent: [].
-					classService basicReplicateFrom: self.
-					classService renamedName: nil.
-					presenter model add: classService asChildOf: parent.
-					children do: [:child | presenter model add: child asChildOf: classService].
-					presenter view expand: parent.
-					presenter view ensureItemVisible: classService.
-					wasSelected ifTrue: [presenter selection: classService]]]
+RowanClassService >> renamedClassInHierarchy: presenter browser: browser [
+ 	
+	browser isClassHierarchyTabSelected ifFalse: [ ^self ].
+	presenter refresh. 
+	
 ]
 
 { #category : 'accessing' }

@@ -10,23 +10,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeiteRenameClassMethodListPresenter >> createComponents [
-	methodListPresenter := self add: JadeiteBasicRenameClassMethodListPresenter new name: 'methodList'.
-	methodSourcePresenter := (self add: JadeiteMethodSourcePresenter new name: 'methodSource')
-				menuTitle: '&Method Source'.
-	comparisonPresenter := self add: DifferencesPresenter new name: 'comparisonTab'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteRenameClassMethodListPresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	methodListPresenter methodListPresenter
-		when: #selectionChanged
-		send: #selectionChanged
-		to: self
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteRenameClassMethodListPresenter >> findString: anObject [
 	findString := anObject
 ]

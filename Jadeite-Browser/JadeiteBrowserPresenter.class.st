@@ -2794,7 +2794,11 @@ JadeiteBrowserPresenter >> registerClassHierarchyForUpdates [
 	RowanServiceUpdater current
 		register: classHierarchyPresenter
 		selector: #updatedFullInClassHierarchy:browser:
-		browser: self
+		browser: self.
+	RowanServiceUpdater current
+		register: classHierarchyPresenter
+		selector: #renamedClassInHierarchy:browser:
+		browser: self.
 ]
 
 { #category : 'registration' }
@@ -2803,7 +2807,10 @@ JadeiteBrowserPresenter >> registerClassListForUpdates [
 	RowanServiceUpdater current
 		register: classListPresenter
 		selector: #classesUpdate:browser:
-		browser: self.
+		browser: self;
+		register: classListPresenter
+		selector: #renamedClass:browser:
+		browser: self
 ]
 
 { #category : 'registration' }

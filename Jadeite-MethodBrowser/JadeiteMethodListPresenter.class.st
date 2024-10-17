@@ -467,6 +467,7 @@ JadeiteMethodListPresenter >> selectedClassName [
 JadeiteMethodListPresenter >> selecting: index [
 
 	| range |
+	index = 0 ifTrue: [ ^self ].
 	firstReferenceString ifNotNil: [
 		range := Interval
 			         from: index

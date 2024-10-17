@@ -10,8 +10,9 @@ Class {
 
 { #category : 'testing' }
 JadeiteBreakpointCommand >> canBeExecuted [
-	stepPoint := self selectedStepPoint. 
-	^stepPoint notNil
+
+	stepPoint := self selectedStepPoint.
+	^ stepPoint notNil and: [ stepPoint isNumber ]
 ]
 
 { #category : 'accessing' }

@@ -16,9 +16,10 @@ JadeiteRenameClassMethodListBrowser class >> openOn: answeringService selecting:
 	answeringService answer first firstReference
 		ifNil: [
 			string ifNotNil: [
-				shell selecting:
-					(answeringService answer first source indexOfSubCollection:
-						 string) ] ]
+				| index |
+				index := answeringService answer first source
+					         indexOfSubCollection: string.
+				shell selecting: index ] ]
 		ifNotNil: [ :index | shell selecting: index ].
 	^ shell
 ]
