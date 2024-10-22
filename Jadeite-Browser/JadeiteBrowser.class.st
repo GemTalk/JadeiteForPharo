@@ -13,6 +13,14 @@ Class {
 }
 
 { #category : 'instance creation' }
+JadeiteBrowser class >> new [
+
+	^ RowanAnsweringServiceClient isRowanLoaded
+		  ifTrue: [ super new ]
+		  ifFalse: [ JadeiteBrowserWithoutRowan new ]
+]
+
+{ #category : 'instance creation' }
 JadeiteBrowser class >> openOn: theOwner postOpen: aBlock [
 
 	| browser |
@@ -42,6 +50,14 @@ JadeiteBrowser >> addStyle: aString [
 JadeiteBrowser >> basicAddMethodCategory: aString [
 
 	^self activePresenter basicAddMethodCategory: aString
+]
+
+{ #category : 'accessing' }
+JadeiteBrowser >> browserPresenterClass [
+
+	^ RowanAnsweringServiceClient isRowanLoaded
+		  ifTrue: [ JadeiteBrowserPresenter ]
+		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
 ]
 
 { #category : 'testing' }
@@ -286,7 +302,7 @@ JadeiteBrowser >> openBrowserTab [
 JadeiteBrowser >> openNewBrowserPresenter [
 
 	| browserPresenter |
-	browserPresenter := JadeiteBrowserPresenter new
+	browserPresenter := self browserPresenterClass new
 		                    postOpenBlock: postOpenBlock;
 		                    application: self application;
 		                    gciSession: gciSession.
@@ -294,7 +310,7 @@ JadeiteBrowser >> openNewBrowserPresenter [
 		addStyle: 'jadeWorkspace';
 		owner: self.
 	self application registerBrowserEventsFor: browserPresenter.
-	browserPresenter postOpen. 
+	browserPresenter postOpen.
 	^ browserPresenter
 ]
 

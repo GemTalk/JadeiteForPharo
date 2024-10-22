@@ -17,12 +17,13 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 						action: [ self removeClass ];
 						enabled: [ self isClassSelected ] ] ];
 		addGroup: [ :group |
-			group
-				addItem: [ :item |
+			RowanAnsweringServiceClient isRowanLoaded ifTrue: [
+				group addItem: [ :item |
 					item
 						name: 'Move to Package ...';
 						action: [ self moveClassToPackage ];
-						enabled: [ self isClassSelected ] ];
+						enabled: [ self isClassSelected ] ] ].
+			group
 				addItem: [ :item |
 					item
 						name: 'Copy ...';

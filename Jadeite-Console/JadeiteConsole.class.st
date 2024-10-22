@@ -661,21 +661,6 @@ JadeiteConsole >> onCloseRequested: boolValueHolder [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> onViewClosed [
-	super onViewClosed.
-	RowanServiceUpdater current logComment: 'Closing Transcript {' , self identityHash printString , '}'.
-	RowanServiceUpdater current removeEventsTriggeredFor: self.
-	RowanServiceUpdater current removeEventsTriggeredFor: projectListPresenter projectListPresenter.
-	JadePresenter removeEventsTriggeredFor: self. 
-	GciSession current: nil
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> openDictionaryBrowser [
-	gciSession hasServer ifTrue: [^JadeiteBrowser showOnSession: gciSession]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> openGitHubJadeiteProject [
 	^JadePresenter openGitHubJadeiteProject
 ]

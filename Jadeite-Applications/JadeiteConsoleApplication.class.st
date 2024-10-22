@@ -6,17 +6,25 @@ Class {
 }
 
 { #category : 'accessing' }
+JadeiteConsoleApplication >> jadeiteConsoleClass [
+
+	^ RowanAnsweringServiceClient isRowanLoaded
+		  ifTrue: [ JadeiteConsole ]
+		  ifFalse: [ JadeiteConsoleWithoutRowan ]
+]
+
+{ #category : 'accessing' }
 JadeiteConsoleApplication >> start [
 
 	| inst |
 	RowanServiceUpdater current critical: [
-		inst := self new: JadeiteConsole.
+		inst := self new: self jadeiteConsoleClass.
 		inst
 			addStyle: 'jadeiteTextBackgroundColor';
 			gciSession: gciSession;
 			installTranscript;
 			updateProjects;
 			initializeAutoCommit.
-		JadeiteConsole currentConsole: inst.
+		self jadeiteConsoleClass currentConsole: inst.
 		inst open ]
 ]

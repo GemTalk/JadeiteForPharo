@@ -165,7 +165,9 @@ RowanClassService >> basicPrepareForReplication [
 
 { #category : 'updates' }
 RowanClassService >> basicUpdateFullHierarchy [
-	hierarchyServices ifNil: [ ^self ].
+
+	hierarchyServices ifNil: [ ^ self ].
+	hierarchyServices at: #expand ifAbsent: [ ^ self ].
 	self subclassServices = (hierarchyServices at: #expand) ifTrue: [
 		^ self ].
 	self subclassServices: (hierarchyServices at: #expand).

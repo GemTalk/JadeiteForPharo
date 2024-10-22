@@ -593,23 +593,23 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 	| menu |
 	menu := self newBrowseMethodListMenu.
 
-	menu
-		addGroup: [ :group |
-			group addItem: [ :item |
-					item
-						name: 'Remove Method(s) ...';
-						action: [ self removeMethods ] ] ];
-		addGroup: [ :group |
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Remove Method(s) ...';
+				action: [ self removeMethods ] ] ].
+	RowanAnsweringServiceClient isRowanLoaded ifTrue: [
+		menu addGroup: [ :group |
 			group addItem: [ :item |
 				item
 					name: 'Move to Package ...';
-					action: [ self moveMethodToPackage ] ] ];
-		addGroup: [ :group |
-			group addItem: [ :item |
-				item
-					name: 'File Out Selected Methods ...';
-					action: [ self fileoutMethods ];
-					enabled: [ self methodListPresenter selections notEmpty ] ] ].
+					action: [ self moveMethodToPackage ] ] ] ].
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'File Out Selected Methods ...';
+				action: [ self fileoutMethods ];
+				enabled: [ self methodListPresenter selections notEmpty ] ] ].
 	^ menu
 ]
 

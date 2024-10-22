@@ -6,9 +6,25 @@ Class {
 		'serviceCompletionBlock',
 		'alwaysForked'
 	],
+	#classVars : [
+		'IsRowanLoaded'
+	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'testing' }
+RowanAnsweringServiceClient class >> isRowanLoaded [ 
+
+	^IsRowanLoaded ifNil: [ IsRowanLoaded := false ]
+]
+
+{ #category : 'testing' }
+RowanAnsweringServiceClient class >> isRowanLoaded: aBoolean [
+	"IsRowanLoaded := true.
+	IsRowanLoaded := false"
+	IsRowanLoaded := aBoolean
+]
 
 { #category : 'instance creation' }
 RowanAnsweringServiceClient class >> newForked [

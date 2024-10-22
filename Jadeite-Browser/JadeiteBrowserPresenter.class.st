@@ -798,10 +798,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 
 	self connectClassPresenters.
 	self connectPackageDictionaryPresenters.
-	projectListPresenter
-		whenSelectionChangedDo: [ :selection |
-			self updateProjectOnCompletion: [  ] ];
-		whenNoneSelectedDo: [ self clearMethodLists ].
+	self connectProjectListPresenter.
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
 		self filterTabChanged: selection ].
@@ -809,6 +806,15 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ]
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> connectProjectListPresenter [
+
+	projectListPresenter
+		whenSelectionChangedDo: [ :selection |
+			self updateProjectOnCompletion: [  ] ];
+		whenNoneSelectedDo: [ self clearMethodLists ]
 ]
 
 { #category : 'as yet unclassified' }
