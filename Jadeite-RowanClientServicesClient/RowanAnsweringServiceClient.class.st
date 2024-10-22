@@ -21,8 +21,10 @@ RowanAnsweringServiceClient class >> isRowanLoaded [
 
 { #category : 'testing' }
 RowanAnsweringServiceClient class >> isRowanLoaded: aBoolean [
-	"IsRowanLoaded := true.
-	IsRowanLoaded := false"
+	"
+	IsRowanLoaded := true.
+	IsRowanLoaded := false.
+	"
 	IsRowanLoaded := aBoolean
 ]
 

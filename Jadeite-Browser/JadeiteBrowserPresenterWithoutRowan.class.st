@@ -9,7 +9,53 @@ Class {
 }
 
 { #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
+
+	categoryListPresenter whenSelectionChangedDo: [ :selection |
+		self refreshCategoryListWithSelection: selection ].
+	variableListPresenter whenSelectionChangedDo: [ :selection |
+		selection isEmpty ifFalse: [
+			self refreshMethodsOn: methodListPresenter ] ].
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectProjectListPresenter [
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> initializeDefinedClassPackageText: classColumn [
+
+	definedClassPackageText := SpTextPresenter new
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> initializeDefinedMethodPackageText: methodColumn [
+
+	definedMethodPackageText := SpTextPresenter new.
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> initializeFilterTabs: methodPanedLayout [
+
+	| categoryPage variablePage |
+	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
+	categoryListPresenter := self initializeCategoryListPresenter.
+	self initializeCategoryListMenu.
+	variableListPresenter := JadeiteListPresenter new.
+	self initializeVariableListMenu.
+	categoryPage := JadeiteNotebookPage
+		                title: 'Category'
+		                icon: nil
+		                provider: [ categoryListPresenter ].
+	variablePage := JadeiteNotebookPage
+		                title: 'Variable'
+		                icon: nil
+		                provider: [ variableListPresenter ].
+	methodFilterTabs addPage: categoryPage.
+	methodFilterTabs addPage: variablePage.
+	methodPanedLayout add: methodFilterTabs.
+	packageMethodListPresenter := JadeiteListPresenter new.
+	packageMethodListPage := JadeiteNotebookPage new
 ]
 
 { #category : 'initialization' }
