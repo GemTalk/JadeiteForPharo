@@ -122,6 +122,13 @@ JadeiteBrowserPresenterWithoutRowan >> initializeProjectTab [
 	projectInfoTab := JadeiteNotebookPage new
 ]
 
+{ #category : 'testing' }
+JadeiteBrowserPresenterWithoutRowan >> isDictionaryTabSelected [
+
+	^true
+
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenterWithoutRowan >> refreshProjectInfoTab [
 ]
@@ -136,4 +143,38 @@ JadeiteBrowserPresenterWithoutRowan >> registerPackageDictionaryListsForUpdates 
 
 { #category : 'registration' }
 JadeiteBrowserPresenterWithoutRowan >> registerProjectListForUpdates [
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
+
+	| index dictionaryService |
+	dictionaryService := RowanDictionaryService new name: 
+		                     classService dictionaryName.
+	index := self dictionaryListPresenter list indexOf: dictionaryService.
+	self dictionaryListPresenter selection selectedIndex = index
+		ifFalse: [
+			self dictionaryListPresenter selection unselectAll.
+			self dictionaryListPresenter
+				selectIndex: index
+				scrollToSelection: true ].
+	index := self classListPresenter list indexOf: classService.
+	index = 0 ifTrue: [
+		classService meta ifNil: [ classService meta: true ].
+		index := self classListPresenter list indexOf:
+			         (classService copy meta: classService meta not) ].
+	self classListPresenter selection selectedIndex = index ifFalse: [
+		self classListPresenter selection unselectAll.
+		self classListPresenter selectIndex: index scrollToSelection: true.
+		self updateClassInfo ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onCompletion: completionBlock [
+
+	RowanServiceUpdater current critical: [
+		self setAppropriateMeta: classService.
+		self selectClassListTab.
+		self selectClass: classService.
+		completionBlock value ]
 ]

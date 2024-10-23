@@ -7,7 +7,8 @@ Class {
 		'diffsPresenter',
 		'toolbar'
 	],
-	#category : 'Jadeite-Diffs'
+	#category : 'Jadeite-Diffs',
+	#package : 'Jadeite-Diffs'
 }
 
 { #category : 'instance creation' }
@@ -32,6 +33,12 @@ JadeiteDiffBrowser >> addStyle: aString [
 
 	super addStyle: aString.
 	diffsPresenter addStyle: 'jadeiteTextBackgroundColor'
+]
+
+{ #category : 'testing' }
+JadeiteDiffBrowser >> canDiscardEdits [
+
+	^true
 ]
 
 { #category : 'accessing' }

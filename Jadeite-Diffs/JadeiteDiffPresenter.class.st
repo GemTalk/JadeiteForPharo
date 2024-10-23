@@ -1,7 +1,8 @@
 Class {
 	#name : 'JadeiteDiffPresenter',
 	#superclass : 'SpDiffPresenter',
-	#category : 'Jadeite-Diffs'
+	#category : 'Jadeite-Diffs',
+	#package : 'Jadeite-Diffs'
 }
 
 { #category : 'specs' }
