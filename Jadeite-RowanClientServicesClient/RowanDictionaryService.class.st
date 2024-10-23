@@ -6,7 +6,8 @@ Class {
 		'classes',
 		'hierarchyServices',
 		'globals',
-		'defaultTemplate'
+		'defaultTemplate',
+		'testClasses'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -233,4 +234,23 @@ RowanDictionaryService >> selectPackageOrDictionaryService: service in: presente
 RowanDictionaryService >> sortAspect [
 
 	^name
+]
+
+{ #category : 'updates' }
+RowanDictionaryService >> testClasses: presenter browser: browser [
+	| additions sortedTests |
+	additions := OrderedCollection new.
+	testClasses ifNil: [^self].
+	sortedTests := testClasses asSortedCollection: [ :x :y | x displayString <= y displayString ].
+	presenter model list: sortedTests. 
+	sortedTests do: 
+			[:newClassService |
+			| updatedClass |
+			updatedClass := presenter model detect: [:classService | classService = newClassService]
+						ifNone: 
+							[additions add: newClassService.
+							nil].
+			updatedClass ifNotNil: [updatedClass replicateFrom: newClassService]].
+	browser addUpdatedTestClasses: additions.
+	presenter invalidate
 ]

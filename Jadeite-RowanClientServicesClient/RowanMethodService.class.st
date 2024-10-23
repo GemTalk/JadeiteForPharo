@@ -339,12 +339,6 @@ RowanMethodService >> displayStringFor: displayThing [
 			inSelectedPackage ifFalse: [displayThing font beUnderlined ]]
 ]
 
-{ #category : 'displaying' }
-RowanMethodService >> displayStringFor: displayThing browser: browser [ 
-	browser displayStringFor: self in:  displayThing
-	
-]
-
 { #category : 'comparing' }
 RowanMethodService >> equalBeforeRename: aMethodService [
 	^renamedName = aMethodService className

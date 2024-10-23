@@ -177,7 +177,7 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 
 	| inst |
 	RowanServiceUpdater current critical: [
-		inst := JadeiteSUnitPresenter basicNew.
+		inst := self sunitBrowserPresenterClass basicNew.
 		inst
 			application: self application;
 			gciSession: self gciSession;
@@ -213,6 +213,14 @@ JadeiteToolbarTrait >> serverCommitIdDescription: ws onCompletion: completionBlo
 					nextPutAll: project sha;
 					cr ].
 			completionBlock value ]
+]
+
+{ #category : 'accessing' }
+JadeiteToolbarTrait >> sunitBrowserPresenterClass [
+
+	^ RowanAnsweringServiceClient isRowanLoaded
+		  ifTrue: [ JadeiteSUnitPresenter ]
+		  ifFalse: [ JadeiteSUnitPresenterWithoutRowan ]
 ]
 
 { #category : 'initialization' }

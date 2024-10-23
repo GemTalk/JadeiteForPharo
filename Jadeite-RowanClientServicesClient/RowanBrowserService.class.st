@@ -270,6 +270,12 @@ RowanBrowserService >> testCount: anObject [
 ]
 
 { #category : 'public' }
+RowanBrowserService >> testDictionaries: presenter [
+	dictionaries ifNil: [ ^self ].
+	presenter list: dictionaries
+]
+
+{ #category : 'public' }
 RowanBrowserService >> testPackages [
 
 	^testPackages ifNil: [ testPackages := OrderedCollection new ]

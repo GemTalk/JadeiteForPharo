@@ -221,16 +221,6 @@ JadeiteSUnitPresenter >> delete [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitPresenter >> displayStringFor: methodService in: displayThing [
-	| packageNames |
-	packageNames := packageListPresenter selections collect: [:packageService | packageService name].
-	(packageNames includes: methodService definedPackage)
-		ifFalse: 
-			[displayThing forecolor: Color darkMagenta.
-			methodService inSelectedPackage ifFalse: [displayThing font beUnderlined]]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> editSelectAll [
 	^classListPresenter view hasFocus
 		ifTrue: [classListPresenter selections: classListPresenter list]
