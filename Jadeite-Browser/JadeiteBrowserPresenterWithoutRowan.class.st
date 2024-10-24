@@ -129,6 +129,12 @@ JadeiteBrowserPresenterWithoutRowan >> isDictionaryTabSelected [
 
 ]
 
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> postOpen [
+	self updateDictionaries "this will run the postOpen block afterwards"
+	
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenterWithoutRowan >> refreshProjectInfoTab [
 ]

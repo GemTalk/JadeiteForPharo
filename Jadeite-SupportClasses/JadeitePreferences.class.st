@@ -22,7 +22,8 @@ Class {
 	#classVars : [
 		'Current',
 		'DefaultFont',
-		'DefaultTextFont'
+		'DefaultTextFont',
+		'IsRowanLoaded'
 	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
@@ -79,6 +80,21 @@ JadeitePreferences class >> displayFontFrom: newFont [
 JadeitePreferences class >> initializeDefaultFonts [
 	DefaultFont := SmalltalkSystem current defaultFont.
 	^Font name: 'Verdana' pointSize: 10
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> isRowanLoaded [ 
+
+	^IsRowanLoaded ifNil: [ IsRowanLoaded := false ]
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> isRowanLoaded: aBoolean [
+	"
+	IsRowanLoaded := true.
+	IsRowanLoaded := false.
+	"
+	IsRowanLoaded := aBoolean
 ]
 
 { #category : 'as yet unclassified' }
@@ -160,7 +176,12 @@ JadeitePreferences class >> settingsOn: aBuilder [
 				label: 'Open Browser On Class';
 				default: String new;
 				description:
-					'After connection, open a browser on a class. To disable preference, leave class name blank.' ]
+					'After connection, open a browser on a class. To disable preference, leave class name blank.'.
+			(aBuilder setting: #isRowanLoaded)
+				label: 'Rowan Available';
+				default: String new;
+				description:
+					'For GemTalk internal development. Simulate Rowan availability.'  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -287,7 +308,7 @@ JadeitePreferences >> font: stringWithFontNameSize [
 JadeitePreferences >> initialize [
 
 	super initialize.
-	preferences := Dictionary new
+	preferences := Dictionary new 
 ]
 
 { #category : 'as yet unclassified' }

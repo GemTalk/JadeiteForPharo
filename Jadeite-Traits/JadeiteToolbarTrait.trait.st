@@ -218,7 +218,7 @@ JadeiteToolbarTrait >> serverCommitIdDescription: ws onCompletion: completionBlo
 { #category : 'accessing' }
 JadeiteToolbarTrait >> sunitBrowserPresenterClass [
 
-	^ RowanAnsweringServiceClient isRowanLoaded
+	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ JadeiteSUnitPresenter ]
 		  ifFalse: [ JadeiteSUnitPresenterWithoutRowan ]
 ]

@@ -15,7 +15,7 @@ Class {
 { #category : 'instance creation' }
 JadeiteBrowser class >> new [
 
-	^ RowanAnsweringServiceClient isRowanLoaded
+	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ super new ]
 		  ifFalse: [ JadeiteBrowserWithoutRowan new ]
 ]
@@ -55,7 +55,7 @@ JadeiteBrowser >> basicAddMethodCategory: aString [
 { #category : 'accessing' }
 JadeiteBrowser >> browserPresenterClass [
 
-	^ RowanAnsweringServiceClient isRowanLoaded
+	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ JadeiteBrowserPresenter ]
 		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
 ]

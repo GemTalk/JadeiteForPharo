@@ -8,7 +8,7 @@ Class {
 { #category : 'accessing' }
 JadeiteConsoleApplication >> jadeiteConsoleClass [
 
-	^ RowanAnsweringServiceClient isRowanLoaded
+	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ JadeiteConsole ]
 		  ifFalse: [ JadeiteConsoleWithoutRowan ]
 ]

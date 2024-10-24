@@ -598,7 +598,7 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 			item
 				name: 'Remove Method(s) ...';
 				action: [ self removeMethods ] ] ].
-	RowanAnsweringServiceClient isRowanLoaded ifTrue: [
+	JadeitePreferences isRowanLoaded ifTrue: [
 		menu addGroup: [ :group |
 			group addItem: [ :item |
 				item

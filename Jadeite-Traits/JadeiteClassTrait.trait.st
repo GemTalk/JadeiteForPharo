@@ -17,7 +17,7 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 						action: [ self removeClass ];
 						enabled: [ self isClassSelected ] ] ];
 		addGroup: [ :group |
-			RowanAnsweringServiceClient isRowanLoaded ifTrue: [
+			JadeitePreferences isRowanLoaded ifTrue: [
 				group addItem: [ :item |
 					item
 						name: 'Move to Package ...';
