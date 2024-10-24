@@ -44,7 +44,7 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
-
+	JadeitePreferences isRowanLoaded: true. 
 	self ensureLauncherOpened.
 	super setUp
 ]

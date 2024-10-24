@@ -207,14 +207,21 @@ JadeiteMethodsTrait >> browseBreakpoints [
 
 { #category : 'actions' }
 JadeiteMethodsTrait >> browseDifferences [
-	| diffBrowser | 
+
+	| diffBrowser methodService1 methodService2 |
 	self methodListPresenter selectedItems size = 2 ifFalse: [ ^ self ].
-	diffBrowser := JadeiteDiffBrowser
-		compare: self methodListPresenter selectedItems first
-		to: self methodListPresenter selectedItems last
-		application: self application.
-	diffBrowser owner application: self application. 
-	^diffBrowser
+	methodService1 := self methodListPresenter selectedItems first.
+	methodService2 := self methodListPresenter selectedItems last.
+	self
+		updateServices: {
+				methodService1.
+				methodService2 }
+		onCompletion: [
+			diffBrowser := JadeiteDiffBrowser
+				               compare: methodService1
+				               to: methodService2
+				               application: self application.
+			diffBrowser owner application: self application ]
 ]
 
 { #category : 'queries' }
