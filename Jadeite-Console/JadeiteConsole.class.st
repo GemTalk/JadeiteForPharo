@@ -302,7 +302,7 @@ JadeiteConsole >> findClassService: classService [
 		browser ifNotNil: [
 			browser activePresenter
 				updateAfterFindClass: classService
-				onCompletion: nil ] ].
+				onCompletion: [  ] ] ].
 	browserPresenter := self basicOpenBrowser: browser
 ]
 

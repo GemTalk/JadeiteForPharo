@@ -131,8 +131,13 @@ JadeiteBrowserPresenterWithoutRowan >> isDictionaryTabSelected [
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> postOpen [
-	self updateDictionaries "this will run the postOpen block afterwards"
-	
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService command: #updateDictionaries.
+	self
+		issueCommand: browserService
+		onCompletion: [ self basicPostOpen ]
 ]
 
 { #category : 'as yet unclassified' }
