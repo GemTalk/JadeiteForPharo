@@ -13,7 +13,7 @@ Class {
 { #category : 'accessing' }
 RowanMethodServiceClient >> catchBlock [
 
-	^ catchBlock
+	^ catchBlock ifNil: [ super catchBlock ]
 ]
 
 { #category : 'accessing' }
