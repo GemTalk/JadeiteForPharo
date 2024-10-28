@@ -112,10 +112,11 @@ JadeiteMethodSourcePane >> ensureVisible [
 JadeiteMethodSourcePane >> findClassService: classService [
 
 	classService ifNil: [ ^ self ].
-
-	self owner owner "ick"
-		updateAfterFindClass: classService
-		onCompletion: nil
+	(self owner owner class canUnderstand:
+		 #updateAfterFindClass:onCompletion:) ifTrue: [
+		self owner owner
+			updateAfterFindClass: classService
+			onCompletion: [  ] "ick" ]
 ]
 
 { #category : 'actions' }
