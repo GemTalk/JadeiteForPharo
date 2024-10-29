@@ -364,6 +364,34 @@ JadeiteTextDocument >> executeSelectionOrLine [
 { #category : 'ad hoc execution' }
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
+	| sem |
+	sem := Semaphore new.
+	shouldDebug
+		ifTrue: [
+			RowanBrowserService new
+				turnOffNativeCode: self gciSession
+				onCompletion: [
+					self
+						executeSelectionOrLine: aString
+						shouldDebug: shouldDebug
+						onCompileError: compileErrorBlock
+						showResult: showResult
+						onCompletion: [
+							RowanBrowserService new
+								unsetSecretBreakpoint: self gciSession
+								onCompletion: [  ] ] ] ]
+		ifFalse: [
+			self
+				executeSelectionOrLine: aString
+				shouldDebug: shouldDebug
+				onCompileError: compileErrorBlock
+				showResult: showResult
+				onCompletion: [  ] ]
+]
+
+{ #category : 'ad hoc execution' }
+JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult onCompletion: completionBlock [
+
 	| answeringService oop |
 	oop := context ifNil: [ 20 ].
 	answeringService := RowanAnsweringServiceClient new.
@@ -373,8 +401,12 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: GciSession current
-		onCompletion: [answeringService ifNotNil: [
-	self displayResult: showResult orShowCompileError: answeringService ]]
+		onCompletion: [ :service |
+			completionBlock cull: service.
+			answeringService ifNotNil: [
+				self
+					displayResult: showResult
+					orShowCompileError: answeringService ] ]
 ]
 
 { #category : 'as yet unclassified' }
