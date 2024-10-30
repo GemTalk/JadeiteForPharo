@@ -7,7 +7,8 @@ Class {
 		'hierarchyServices',
 		'globals',
 		'defaultTemplate',
-		'testClasses'
+		'testClasses',
+		'classCategories'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -47,6 +48,18 @@ RowanDictionaryService >> basicPrepareForReplication [
 	super basicPrepareForReplication.
 	classes := nil. 
 	hierarchyServices := nil.
+]
+
+{ #category : 'accessing' }
+RowanDictionaryService >> classCategories [
+
+	^ classCategories
+]
+
+{ #category : 'accessing' }
+RowanDictionaryService >> classCategories: anObject [
+
+	classCategories := anObject
 ]
 
 { #category : 'updates' }

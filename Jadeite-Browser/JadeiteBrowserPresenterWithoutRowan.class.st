@@ -5,11 +5,26 @@ Class {
 	#name : 'JadeiteBrowserPresenterWithoutRowan',
 	#superclass : 'JadeiteBrowserPresenter',
 	#instVars : [
-		'classCategoryTabs'
+		'classCategoryTabs',
+		'classCategoryServices'
 	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchString [
+
+	| matches |
+	matches := classCategoryServices
+		           select: [ :classCategoryService |
+			           classCategoryService data notNil and: [
+				           matchString match: classCategoryService data ] ]
+		           thenCollect: [ :classCategoryService |
+			           classCategoryService copy substringIndex: index ].
+	matches := matches reject: [ :svc | svc data isNil ].
+	^ matches asSet asSortedCollection: [ :x :y | x data < y data ]
+]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
@@ -22,6 +37,14 @@ JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
+
+	super connectPresenters.
+	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
+		self updateClassCategoriesFor: selection ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectProjectListPresenter [
 ]
 
@@ -30,7 +53,11 @@ JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresen
 
 	| classCategoryPage |
 	classCategoryTabs := self instantiate: JadeiteNotebookPresenter.
-	classCategoryPresenter := JadeiteListPresenter new.
+	classCategoryPresenter := (SpTreePresenter new children: [ :service |
+		                           self
+			                           classCategoriesAt: service substringIndex + 1
+			                           matching: service data , '*' ])
+		                          display: [ :m | m displayString ].
 	classCategoryPage := JadeiteNotebookPage
 		                     title: 'Class Category'
 		                     icon: nil
@@ -213,4 +240,21 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 		self selectClassListTab.
 		self selectClass: classService.
 		completionBlock value ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
+
+	| dictionaryService |
+	dictionaryService := selection selectedItem.
+	dictionaryService ifNil: [
+		^ classCategoryPresenter roots: OrderedCollection new ].
+	dictionaryService classCategories ifNil: [
+		^ classCategoryPresenter roots: OrderedCollection new ].
+	classCategoryServices := dictionaryService classCategories collect: [
+		                         :category |
+		                         RowanClassCategoryService new name:
+			                         category ].
+	classCategoryPresenter roots:
+		(self classCategoriesAt: 1 matching: '*')
 ]
