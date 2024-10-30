@@ -364,8 +364,6 @@ JadeiteTextDocument >> executeSelectionOrLine [
 { #category : 'ad hoc execution' }
 JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug onCompileError: compileErrorBlock showResult: showResult [
 
-	| sem |
-	sem := Semaphore new.
 	shouldDebug
 		ifTrue: [
 			RowanBrowserService new
