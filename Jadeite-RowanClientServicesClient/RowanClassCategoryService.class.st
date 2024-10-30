@@ -32,6 +32,12 @@ RowanClassCategoryService >> displayString [
 	^ self data
 ]
 
+{ #category : 'accessing' }
+RowanClassCategoryService >> firstSubstringsToIndex [ 
+	substringIndex ifNil: [ ^name ]. 
+	^((name substrings: '-') first: substringIndex) fold: [:a :b | a, '-', b]
+]
+
 { #category : 'testing' }
 RowanClassCategoryService >> hasChildren [ 
 	^name >= self data

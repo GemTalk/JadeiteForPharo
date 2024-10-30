@@ -56,7 +56,7 @@ JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresen
 	classCategoryPresenter := (SpTreePresenter new children: [ :service |
 		                           self
 			                           classCategoriesAt: service substringIndex + 1
-			                           matching: service data , '*' ])
+			                           matching: service firstSubstringsToIndex , '*' ])
 		                          display: [ :m | m displayString ].
 	classCategoryPage := JadeiteNotebookPage
 		                     title: 'Class Category'
