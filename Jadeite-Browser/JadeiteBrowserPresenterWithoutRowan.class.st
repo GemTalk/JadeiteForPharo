@@ -41,7 +41,9 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		self updateClassCategoriesFor: selection ]
+		self updateClassCategoriesFor: selection ].
+	classCategoryPresenter whenSelectionChangedDo: [ :selection | 
+		self updateClassesForClassCategory: selection ]
 ]
 
 { #category : 'initialization' }
@@ -257,4 +259,24 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 			                         category ].
 	classCategoryPresenter roots:
 		(self classCategoriesAt: 1 matching: '*')
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection [
+
+	| classCategoryService classes |
+	classCategoryService := selection selectedItem.
+	classCategoryService ifNil: [ ^ self ].
+	self selectClassListTab.
+	classes := self dictionaryListPresenter selectedItem classes select: [
+		           :classService |
+		           classService classCategory
+			           ifNil: [ false ]
+			           ifNotNil: [ :cat |
+				           cat trace.
+				           ' ' trace.
+				           classCategoryService firstSubstringsToIndex traceCr.
+				          (classCategoryService firstSubstringsToIndex, '*') match: cat] ].
+	self classListPresenter list:
+		(classes asSortedCollection: [ :x :y | x name < y name ])
 ]

@@ -45,7 +45,8 @@ Class {
 		'dictionaryName',
 		'wasRemoved',
 		'renamedName',
-		'hasSubclasses'
+		'hasSubclasses',
+		'classCategory'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -202,6 +203,18 @@ RowanClassService >> categories [
 RowanClassService >> categories: aCollection [
 	" for testing"
 	categories := aCollection
+]
+
+{ #category : 'accessing' }
+RowanClassService >> classCategory [
+
+	^ classCategory
+]
+
+{ #category : 'accessing' }
+RowanClassService >> classCategory: anObject [
+
+	classCategory := anObject
 ]
 
 { #category : 'public' }
