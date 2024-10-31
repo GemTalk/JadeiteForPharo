@@ -13,11 +13,12 @@ Class {
 }
 
 { #category : 'comparison' }
-RowanClassCategoryService >> = aClassCategoryService [
+RowanClassCategoryService >> = catService [
 
-	(aClassCategoryService isKindOf: RowanClassCategoryService) ifFalse: [
-		^ false ].
-	^ self data = aClassCategoryService data
+	(catService isKindOf: RowanClassCategoryService) ifFalse: [ ^ false ].
+	^ self data = catService data and: [
+		  self firstSubstringsToIndex = catService firstSubstringsToIndex
+			  and: [ self substringIndex = catService substringIndex ] ]
 ]
 
 { #category : 'accessing' }
@@ -45,8 +46,9 @@ RowanClassCategoryService >> hasChildren [
 
 { #category : 'comparison' }
 RowanClassCategoryService >> hash [
-
-	^ self data hash
+	"is this right?"
+	^ (self data hash bitXor: self firstSubstringsToIndex hash)
+		  bitXor: self substringIndex hash
 ]
 
 { #category : 'accessing' }

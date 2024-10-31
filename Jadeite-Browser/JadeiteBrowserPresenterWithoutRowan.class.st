@@ -223,6 +223,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 			self dictionaryListPresenter
 				selectIndex: index
 				scrollToSelection: true ].
+	self selectClassCategoryFor: classService. 
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [
 		classService meta ifNil: [ classService meta: true ].
@@ -232,6 +233,18 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 		self classListPresenter selection unselectAll.
 		self classListPresenter selectIndex: index scrollToSelection: true.
 		self updateClassInfo ]
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
+
+	| classCategoryService index |
+	index := classService classCategory substrings size.
+	classCategoryService := RowanClassCategoryService new
+		                        name: classService classCategory;
+		                        substringIndex: index;
+		                        yourself.
+	self classCategoryPresenter selectItem: classCategoryService
 ]
 
 { #category : 'as yet unclassified' }
