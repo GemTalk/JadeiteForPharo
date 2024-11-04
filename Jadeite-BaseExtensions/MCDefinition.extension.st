@@ -8,7 +8,7 @@ MCDefinition class >> fromStream: aStream [
 	aStream next.
 	class := 
 		char = $M ifTrue: [MCRowanMethodDefinition] ifFalse: [
-		char = $O ifTrue: [MCOrganizationDefinition] ifFalse: [
+		char = $O ifTrue: [MCRowanOrganizationDefinition] ifFalse: [
 		char = $C ifTrue: [MCRowanClassDefinition] ifFalse: [
 		self error: 'Invalid MCDefinition']]].
 	^class new
