@@ -41,5 +41,5 @@ JadeiteBrowserWithoutRowan >> initializeMenubar [
 JadeiteBrowserWithoutRowan >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 1400 @ 800
+	aWindowPresenter initialExtent: 1500 @ 800
 ]
