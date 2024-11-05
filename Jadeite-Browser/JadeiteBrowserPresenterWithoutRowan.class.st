@@ -239,7 +239,9 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 
 	| classCategoryService index |
-	index := classService classCategory substrings size.
+	index := classService classCategory
+		         ifNil: [ 1 ]
+		         ifNotNil: [ :cat | cat substrings size ].
 	classCategoryService := RowanClassCategoryService new
 		                        name: classService classCategory;
 		                        substringIndex: index;
