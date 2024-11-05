@@ -298,3 +298,23 @@ RowanBrowserService >> testPackages: presenter [
 	presenter list copy do:[:oldPackageService |
 		(testPackages includes: oldPackageService) ifFalse:[oldPackageService ifNotNil: [presenter list remove: oldPackageService]]]. 
 ]
+
+{ #category : 'commands' }
+RowanBrowserService >> turnOffNativeCode: session onCompletion: completionBlock [
+
+	command := #turnOffNativeCode.
+	RowanServiceUpdater current
+		issueCommand: self
+		session: session
+		onCompletion: completionBlock
+]
+
+{ #category : 'commands' }
+RowanBrowserService >> unsetSecretBreakpoint: session onCompletion: completionBlock [
+
+	command := #unsetSecretBreakpoint.
+	RowanServiceUpdater current
+		issueCommand: self
+		session: session
+		onCompletion: completionBlock
+]

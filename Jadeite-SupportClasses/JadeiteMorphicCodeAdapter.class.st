@@ -133,5 +133,5 @@ JadeiteMorphicCodeAdapter >> setText: text to: aWidget [
 
 	[ super setText: text to: aWidget ]
 		on: Error
-		do: [ :ex | ex traceCr , 'in SpMorphicTextAdapter>>#setText:to:' ]
+		do: [ :ex |  (ex printString, ' in SpMorphicTextAdapter>>#setText:to:') traceCr ]
 ]

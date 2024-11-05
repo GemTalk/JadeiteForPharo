@@ -4,9 +4,27 @@ Rowan is not available in the server. Rowan-specific concepts like projects and 
 Class {
 	#name : 'JadeiteBrowserPresenterWithoutRowan',
 	#superclass : 'JadeiteBrowserPresenter',
+	#instVars : [
+		'classCategoryTabs',
+		'classCategoryServices'
+	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchString [
+
+	| matches |
+	matches := classCategoryServices
+		           select: [ :classCategoryService |
+			           classCategoryService data notNil and: [
+				           matchString match: classCategoryService data ] ]
+		           thenCollect: [ :classCategoryService |
+			           classCategoryService copy substringIndex: index ].
+	matches := matches reject: [ :svc | svc data isNil ].
+	^ matches asSet asSortedCollection: [ :x :y | x data < y data ]
+]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
@@ -19,7 +37,35 @@ JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
+
+	super connectPresenters.
+	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
+		self updateClassCategoriesFor: selection ].
+	classCategoryPresenter whenSelectionChangedDo: [ :selection | 
+		self updateClassesForClassCategory: selection ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectProjectListPresenter [
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresenter [
+
+	| classCategoryPage |
+	classCategoryTabs := self instantiate: JadeiteNotebookPresenter.
+	classCategoryPresenter := (SpTreePresenter new children: [ :service |
+		                           self
+			                           classCategoriesAt: service substringIndex + 1
+			                           matching: service firstSubstringsToIndex , '*' ])
+		                          display: [ :m | m displayString ].
+	classCategoryPage := JadeiteNotebookPage
+		                     title: 'Class Category'
+		                     icon: nil
+		                     provider: [ classCategoryPresenter ].
+	classCategoryTabs addPage: classCategoryPage.
+	panedPresenter add: classCategoryTabs
 ]
 
 { #category : 'initialization' }
@@ -32,6 +78,22 @@ JadeiteBrowserPresenterWithoutRowan >> initializeDefinedClassPackageText: classC
 JadeiteBrowserPresenterWithoutRowan >> initializeDefinedMethodPackageText: methodColumn [
 
 	definedMethodPackageText := SpTextPresenter new.
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> initializeDictionaryTabIn: panedPresenter [
+
+	| dictionaryListPage |
+	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
+	packageListPresenter := JadeiteListPresenter new.
+	dictionaryListPresenter := JadeiteListPresenter newNameSortedList
+		                           contextMenu: self newDictionaryMenu.
+	dictionaryListPage := JadeiteNotebookPage
+		                      title: 'Dictionary'
+		                      icon: nil
+		                      provider: [ dictionaryListPresenter ].
+	packageDictionaryTabs addPage: dictionaryListPage.
+	panedPresenter add: packageDictionaryTabs
 ]
 
 { #category : 'initialization' }
@@ -59,22 +121,6 @@ JadeiteBrowserPresenterWithoutRowan >> initializeFilterTabs: methodPanedLayout [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenterWithoutRowan >> initializePackageDictionaryTabsIn: panedPresenter [
-
-	| dictionaryListPage |
-	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
-	packageListPresenter := JadeiteListPresenter new.
-	dictionaryListPresenter := JadeiteListPresenter newNameSortedList
-		                           contextMenu: self newDictionaryMenu.
-	dictionaryListPage := JadeiteNotebookPage
-		                      title: 'Dictionary'
-		                      icon: nil
-		                      provider: [ dictionaryListPresenter ].
-	packageDictionaryTabs addPage: dictionaryListPage.
-	panedPresenter add: packageDictionaryTabs
-]
-
-{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> initializePresenters [
 	"in order to get scroll bars to (kind of) work, create a paned layout with 
 	project & package list. Then create a nother paned layout with the first
@@ -82,36 +128,44 @@ JadeiteBrowserPresenterWithoutRowan >> initializePresenters [
 	upper box layout. ... Seems unnecessarily complicated. Would be better if 
 	I could just add a resizer between two arbitrary widgets."
 
-	| listPresenters classColumn filterLayout panedLayout1 panedLayout2 panedLayout3 methodLayout |
+	| listPresenters classColumn filterLayout panedLayout1 panedLayout2 panedLayout3 panedLayout4 methodLayout |
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
 	panedLayout1 := SpPanedLayout newHorizontal.
-	self initializeProjectListPresenterIn: panedLayout1.
-	self initializePackageDictionaryTabsIn: panedLayout1.
+	self initializeDictionaryTabIn: panedLayout1.
+	self initializeClassCategoryTabIn: panedLayout1.
+
 	classColumn := SpBoxLayout newVertical.
-	panedLayout1 add: classColumn.
 	self initializeClassTabs: classColumn.
 	self initializeDefinedClassPackageText: classColumn.
 	panedLayout2 := SpPanedLayout newHorizontal positionOfSlider: 0.66.
-	panedLayout2 add: panedLayout1.
+	panedLayout2 add: panedLayout1. 
+	panedLayout2 add: classColumn.
+	
 	filterLayout := SpBoxLayout newHorizontal.
 	self initializeFilterTabs: filterLayout.
-	panedLayout2 add: filterLayout.
-	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.66.
+	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
 	panedLayout3 add: panedLayout2.
+	panedLayout3 add: filterLayout.
+
+	panedLayout4 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
 	methodLayout := SpBoxLayout newHorizontal.
 	self initializeMethodList: methodLayout.
-	panedLayout3 add: methodLayout.
-	listPresenters add: panedLayout3.
+	panedLayout4 add: panedLayout3. 
+	panedLayout4 add: methodLayout.
+
+	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
 	packageGroupPresenter := JadeiteListPresenter new.
-	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ]
+	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ].
+	projectListPresenter := JadeiteListPresenter new. "may be able to remove"
 ]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> initializeProjectListPresenterIn: panedLayout [
-
+	"doesn't really do anything without rowan present.
+	Might be able to remove"
 	projectListPresenter := JadeiteListPresenter new. 
 ]
 
@@ -169,6 +223,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 			self dictionaryListPresenter
 				selectIndex: index
 				scrollToSelection: true ].
+	self selectClassCategoryFor: classService. 
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [
 		classService meta ifNil: [ classService meta: true ].
@@ -180,6 +235,18 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 		self updateClassInfo ]
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
+
+	| classCategoryService index |
+	index := classService classCategory substrings size.
+	classCategoryService := RowanClassCategoryService new
+		                        name: classService classCategory;
+		                        substringIndex: index;
+		                        yourself.
+	self classCategoryPresenter selectItem: classCategoryService
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onCompletion: completionBlock [
 
@@ -188,4 +255,41 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 		self selectClassListTab.
 		self selectClass: classService.
 		completionBlock value ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
+
+	| dictionaryService |
+	dictionaryService := selection selectedItem.
+	dictionaryService ifNil: [
+		^ classCategoryPresenter roots: OrderedCollection new ].
+	dictionaryService classCategories ifNil: [
+		^ classCategoryPresenter roots: OrderedCollection new ].
+	classCategoryServices := dictionaryService classCategories collect: [
+		                         :category |
+		                         RowanClassCategoryService new name:
+			                         category ].
+	classCategoryPresenter roots:
+		(self classCategoriesAt: 1 matching: '*')
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection [
+
+	| classCategoryService classes |
+	classCategoryService := selection selectedItem.
+	classCategoryService ifNil: [ ^ self ].
+	self selectClassListTab.
+	classes := self dictionaryListPresenter selectedItem classes select: [
+		           :classService |
+		           classService classCategory
+			           ifNil: [ false ]
+			           ifNotNil: [ :cat |
+				           cat trace.
+				           ' ' trace.
+				           classCategoryService firstSubstringsToIndex traceCr.
+				          (classCategoryService firstSubstringsToIndex, '*') match: cat] ].
+	self classListPresenter list:
+		(classes asSortedCollection: [ :x :y | x name < y name ])
 ]
