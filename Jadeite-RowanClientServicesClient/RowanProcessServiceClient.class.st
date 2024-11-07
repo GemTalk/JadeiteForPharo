@@ -64,6 +64,9 @@ RowanProcessServiceClient >> updateClient [
 	| activeProcess |
 	activeProcess := Processor activeProcess.
 	debugger suspendedProcess: activeProcess.
+	1 to: frames size do: [ :index | 
+		(frames at: index) index: index
+		].
 	debugger frameListPresenter items: frames.
 	debugger selectInitialFrame.
 	activeProcess suspend.
