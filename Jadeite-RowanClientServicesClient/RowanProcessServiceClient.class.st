@@ -48,6 +48,9 @@ RowanProcessServiceClient >> openDebugger [
 		suspendedProcess: activeProcess;
 		gsProcess: self.
 	debugger errorMessagePresenter text: errorMessage.
+	1 to: frames size do: [ :index | 
+		(frames at: index) index: index
+		].
 	debugger frameListPresenter items: frames.
 	debugger selectInitialFrame.
 	self class debuggedProcessServices add: self.
