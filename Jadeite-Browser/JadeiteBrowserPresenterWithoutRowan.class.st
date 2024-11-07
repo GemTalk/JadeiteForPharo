@@ -332,10 +332,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection 
 		           classService classCategory
 			           ifNil: [ false ]
 			           ifNotNil: [ :cat |
-				           cat trace.
-				           ' ' trace.
-				           classCategoryService firstSubstringsToIndex traceCr.
-				          (classCategoryService firstSubstringsToIndex, '*') match: cat] ].
+			           classCategoryService firstSubstringsToIndex , '*'
+				           match: cat ] ].
 	self classListPresenter list:
 		(classes asSortedCollection: [ :x :y | x name < y name ])
 ]

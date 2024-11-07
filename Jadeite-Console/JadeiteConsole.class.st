@@ -678,11 +678,14 @@ JadeiteConsole >> openJadeiteHelpFile [
 
 { #category : 'actions' }
 JadeiteConsole >> openServerFile [
+
 	| filePath |
-	filePath := JadeiteServerFileSelectorDialog showOnSession: gciSession
-				defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
-	filePath ifNil: [^self].
-	^self basicOpenServerFile: filePath
+	RowanServiceUpdater current critical: [
+		filePath := JadeiteServerFileSelectorDialog 
+			            showOnSession: gciSession
+			            defaultPath:
+			            JadePresenter rowanProjectsHomeEnvVarString.
+		filePath ifNotNil: [ self basicOpenServerFile: filePath ] ]
 ]
 
 { #category : 'as yet unclassified' }
