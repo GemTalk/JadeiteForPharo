@@ -551,7 +551,7 @@ JadeiteMethodListPresenter >> updateMethodSource [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateMethodSourceFor: aMethodService [
-	self updateSingleMethodSource
+	self updateSingleMethodSourceFor: aMethodService 
 ]
 
 { #category : 'as yet unclassified' }
@@ -572,6 +572,18 @@ JadeiteMethodListPresenter >> updateSingleMethodSource [
 	methodSourcePresenter isModified ifTrue: [ ^ self ].
 	methodSourcePresenter value: selection source.
 	selection firstReference ifNotNil: [ :index |
+		methodSourcePresenter value ifNotNil: [ self selecting: index ] ].
+	methodSourcePresenter ensureVisible.
+	self updateMethodSourceGlyphs
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteMethodListPresenter >> updateSingleMethodSourceFor: methodService [
+
+	methodSourcePresenter isModified ifTrue: [ ^ self ].
+	methodSourcePresenter methodService: methodService. 
+	methodSourcePresenter value: methodService source.
+	methodService firstReference ifNotNil: [ :index |
 		methodSourcePresenter value ifNotNil: [ self selecting: index ] ].
 	methodSourcePresenter ensureVisible.
 	self updateMethodSourceGlyphs

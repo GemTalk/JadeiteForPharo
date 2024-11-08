@@ -1064,7 +1064,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNo
 		equals: 'RenamedClass' ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self classListPresenter selectedItem
-			onCompletion: nil ]
+			onCompletion: [  ] ]
 ]
 
 { #category : 'as yet unclassified' }

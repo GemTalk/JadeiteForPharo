@@ -129,9 +129,6 @@ RowanPackageService >> condenseExtensions: presenter [
 	rejections := dictionary keys select: [:svc | svc isExtension and: [defined includes: svc name]].
 	dictionary keysAndValuesRemove: [ :key :value |
 			rejections includes: key ].
-	rejections := dictionary keys select: [:svc | svc wasRenamed].
-	dictionary keysAndValuesRemove: [ :key :value |
-			rejections includes: key ].
 	^dictionary
 ]
 
