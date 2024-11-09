@@ -125,11 +125,12 @@ JadeiteMethodListPresenter >> connectPresenters [
 	methodSourcePresenter whenResetDo: [
 		methodSourcePresenter text:
 			methodSourcePresenter methodService source.
-		methodSourcePresenter isModified: false ].
+		methodSourcePresenter isModified: false.
+		self updateMethodSourceGlyphs ].
 	self application
 		when: #abortedTransaction
 		send: #abortedTransaction
-		to: self.
+		to: self
 ]
 
 { #category : 'as yet unclassified' }
@@ -542,16 +543,16 @@ JadeiteMethodListPresenter >> updateMethodSource [
 	methodListPresenter selections isEmpty ifTrue: [
 		self cleanupComparisonBrowser.
 		^ methodSourcePresenter value: String new ].
-	self methodSourcePresenter methodService:
-		self methodListPresenter selectedItem.
 	methodListPresenter selections size = 1 ifTrue: [
-		^ self updateSingleMethodSource ].
-	self updateMultiMethodComparison.
+		^ self updateSingleMethodSourceFor:
+			  self methodListPresenter selectedItem ].
+	self updateMultiMethodComparison
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateMethodSourceFor: aMethodService [
-	self updateSingleMethodSourceFor: aMethodService 
+
+	self updateSingleMethodSourceFor: aMethodService
 ]
 
 { #category : 'as yet unclassified' }
@@ -565,39 +566,12 @@ JadeiteMethodListPresenter >> updateMultiMethodComparison [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> updateSingleMethodSource [
-
-	| selection |
-	selection := methodListPresenter selectedItem.
-	methodSourcePresenter isModified ifTrue: [ ^ self ].
-	methodSourcePresenter value: selection source.
-	selection firstReference ifNotNil: [ :index |
-		methodSourcePresenter value ifNotNil: [ self selecting: index ] ].
-	methodSourcePresenter ensureVisible.
-	self updateMethodSourceGlyphs
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateSingleMethodSourceFor: methodService [
 
-	methodSourcePresenter isModified ifTrue: [ ^ self ].
-	methodSourcePresenter methodService: methodService. 
+	methodSourcePresenter methodService: methodService.
 	methodSourcePresenter value: methodService source.
-	methodService firstReference ifNotNil: [ :index |
-		methodSourcePresenter value ifNotNil: [ self selecting: index ] ].
 	methodSourcePresenter ensureVisible.
-	self updateMethodSourceGlyphs
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> updateSource [
-	| selection |
-	selection := methodListPresenter selectionOrNil.
-	selection ifNil: [^self]. 
-	methodSourcePresenter methodService: selection.
-	methodSourcePresenter update.
-	self doSearch. 
-	methodSourcePresenter documentPresenter value ifNil:[^self]. 
-	('*METHOD SOURCE CANNOT BE DISPLAYED*' match: methodSourcePresenter documentPresenter value)
-		ifTrue: [methodSourcePresenter documentPresenter view backcolor: Color red faded faded].
+	self updateMethodSourceGlyphs.
+	methodService firstReference ifNotNil: [ :index |
+		methodSourcePresenter value ifNotNil: [ self selecting: index ] ]
 ]

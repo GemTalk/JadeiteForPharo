@@ -544,8 +544,8 @@ JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 	self methodSourcePresenter methodService stepPoints do: [
 		:stepPointAssoc |
 		| range |
-		range := self methodListPresenter selectedItem stepPointRangeFrom:
-			         stepPointAssoc.
+		range := self methodSourcePresenter methodService
+			         stepPointRangeFrom: stepPointAssoc.
 
 		self methodSourcePresenter addTextSegmentDecoration:
 			((SpTextPresenterDecorator new underlineColor: Color veryLightGray)

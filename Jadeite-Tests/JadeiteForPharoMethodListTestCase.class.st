@@ -24,7 +24,21 @@ JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfReferencesTo: classN
 			do: [ :notification | notification resume: className ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'support' }
+JadeiteForPharoMethodListTestCase >> saveSourcesFor_test_sourcesSync: oldSource [
+
+	self
+		saveClass: 'TestingMethodSource'
+		superclass: 'Object'
+		instVars: #( 'inst1' )
+		package: 'Rowan-Services-Tests'.
+	self
+		saveMethod: oldSource
+		in: 'TestingMethodSource'
+		category: 'test_created'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseClassReferenceCaptionTitle [
 
 	self openMethodListBrowserOfReferencesTo: 'AbstractCharacter'.
@@ -152,7 +166,7 @@ JadeiteForPharoMethodListTestCase >> test_browseImplementorsOf [
 			 methodListBrowser owner title)
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseInstVarReaders [
 
 	self setupProjectBrowser.
@@ -172,10 +186,10 @@ JadeiteForPharoMethodListTestCase >> test_browseInstVarReaders [
 			session: session ].
 	self assert: self methodListPresenter list size equals: 1.
 	self assert: self methodListPresenter list first selector
-		= #testbrowseInstVarReaders
+		equals: #testbrowseInstVarReaders
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseInstVarWriters [
 
 	self setupProjectBrowser.
@@ -203,4 +217,85 @@ JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 				 methodListBrowser methodSourcePresenter documentPresenter
 					 selection) "use match because we might pickup a '.'" ].
 	self assert: ('* Senders of ''foo'' for *' match: methodListBrowser owner title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_methodListSourceDoesNotDisappear [
+
+	self
+		testsIssue: #issue863
+		withTitle:
+		'(Oscar 3.1.0 and 3.1.1) Under certain conditions selected methods browser loses method source and errors out'.
+	self waitForMethodListBrowserWhile: [
+		jadeiteShell browseImplementorsOf: #compileClass: ].
+	self
+		assert: methodListBrowser methodListPresenter list size
+		equals: 1. "right now, implementors size = 1. If that changes, revisit test"
+	self
+		assert:
+		methodListBrowser methodSourcePresenter documentPresenter text
+		equals: methodListBrowser methodListPresenter selectedItem source.
+	self openProjectBrowser.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Core'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanBrowserService'
+		in: self classListPresenter. "this would have cleared the method source"
+	self assert: methodListBrowser methodSourcePresenter documentPresenter text 
+		= methodListBrowser methodListPresenter selectedItem source.
+	self assert:
+		methodListBrowser methodListPresenter selectedItem selector
+		= #compileClass:
+]
+
+{ #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_sourcesSync [
+
+	| oldSource newSource |
+	self setupProjectBrowser.
+	oldSource := 'didSourceUpdate  | tempVar | "test created method" self doSomething'.
+	self saveSourcesFor_test_sourcesSync: oldSource.
+	self waitForMethodListBrowserWhile: [
+		jadeiteShell browseImplementorsOf: #didSourceUpdate ].
+	self
+		assert:
+		methodListBrowser methodSourcePresenter documentPresenter text
+		equals: oldSource.
+	self
+		assert: methodListBrowser methodListPresenter list size
+		equals: 1.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'TestingMethodSource'
+		in: self classListPresenter.
+	self selectMethodNamed: #didSourceUpdate.
+	self
+		assert:
+		methodListBrowser methodSourcePresenter documentPresenter text
+		equals: methodListBrowser methodListPresenter selectedItem source.
+	newSource := 'didSourceUpdate  | tempVar | "test created method" self doSomethingNew '.
+	self
+		saveMethod: newSource
+		in: 'TestingMethodSource'
+		category: 'test_created'.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem selector
+		equals: #didSourceUpdate.
+	self
+		assert:
+		methodListBrowser methodSourcePresenter documentPresenter text
+		equals: newSource.
+	self
+		assert:
+		self projectsPresenter methodSourcePresenter documentPresenter text
+		equals: newSource
 ]
