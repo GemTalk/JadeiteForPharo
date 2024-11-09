@@ -180,7 +180,7 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 
 	| windowCaption |
 	windowCaption := 'Jadeite Git Commit Ids'.
-	(self connection isNil or: [ JadeitePreferences isRowanLoaded not ])
+	^(self connection isNil or: [ JadeitePreferences isRowanLoaded not ])
 		ifTrue: [ self gitShaWorkspaceClientOnly ]
 		ifFalse: [ self gitShaWorkspaceClientAndServer ]
 ]

@@ -407,9 +407,12 @@ JadeiteBrowserPresenter >> basicRenameClass: classService to: newName [
 		answeringService answer isEmpty ifFalse: [
 			classListPresenter unselectAll.
 			self isClassListTabSelected
-				ifTrue: [ self updateAfterFindClass: classSvc ]
-				ifFalse: [
-				self selectClassInClassHierarchyNamed: classSvc name ].
+				ifTrue: [
+					| newService |
+					newService := self classListPresenter items detect: [ :ea |
+						              ea name = newName ].
+					[ self classListPresenter selectItem: newService ] fork "fork is weird, but allows a gui test running this in a background thread to continue" ]
+				ifFalse: [ self selectClassInClassHierarchyNamed: classSvc name ].
 			browser := JadeiteRenameClassMethodListBrowser
 				           openOn: answeringService
 				           selecting: newName
@@ -1869,6 +1872,7 @@ JadeiteBrowserPresenter >> isClassDefinitionTabSelected [
 
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isClassHierarchyTabSelected [
+	classListHierarchyTabs currentCard ifNil: [ ^false ]. 
 	^classListHierarchyTabs currentCard name = 'Hierarchy'
 ]
 
