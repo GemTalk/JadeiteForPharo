@@ -257,7 +257,7 @@ JadeiteProjectsTrait >> gitCommit [
 	| projectName message |
 	self canCommit ifFalse: [ ^ self ].
 	projectName := self projectListPresenter selectedItem name.
-	message := UIManager default
+	[message := UIManager default
 		           jadeiteMultiLineRequest:
 		           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
 		           initialAnswer: '<enter commit comment here>'
@@ -267,7 +267,7 @@ JadeiteProjectsTrait >> gitCommit [
 			ifTrue: [
 				MessageBox notify:
 					'Commit message must not be empty. Commit to local repository NOT done.' ]
-			ifFalse: [ self gitCommit: projectName message: message ] ]
+			ifFalse: [ self gitCommit: projectName message: message ] ]] fork
 ]
 
 { #category : 'actions' }
