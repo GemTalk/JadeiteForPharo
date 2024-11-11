@@ -12,6 +12,24 @@ Class {
 	#package : 'Jadeite-Browser'
 }
 
+{ #category : 'events' }
+JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
+
+	| selectedDictionaryService selectedClassService index |
+	selectedDictionaryService := self dictionaryListPresenter
+		                             selectedItem ifNil: [ ^ self ].
+	selectedClassService := self selectedClass.
+	self updateDictionaries.
+	index := self dictionaryListPresenter list indexOf:
+		         selectedDictionaryService.
+	self dictionaryListPresenter
+		selectIndex: index
+		scrollToSelection: true.
+	selectedClassService ifNotNil: [
+		self selectClassCategoryFor: selectedClassService.
+		self selectClass: self selectedClass ]
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchString [
 
@@ -210,12 +228,23 @@ JadeiteBrowserPresenterWithoutRowan >> registerPackageDictionaryListsForUpdates 
 JadeiteBrowserPresenterWithoutRowan >> registerProjectListForUpdates [
 ]
 
+{ #category : 'private' }
+JadeiteBrowserPresenterWithoutRowan >> renameCommandFor: classService to: newName [
+
+	classService
+		command: #renameClass:to:;
+		commandArgs: (Array with: classService name with: newName);
+		selectedPackageServices: Array new
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 
 	| index dictionaryService |
-	dictionaryService := RowanDictionaryService new name: 
-		                     classService dictionaryName.
+	dictionaryService := self dictionaryListPresenter list
+		                     detect: [ :d |
+		                     d name = classService dictionaryName ]
+		                     ifNone: [ ^ self ].
 	index := self dictionaryListPresenter list indexOf: dictionaryService.
 	self dictionaryListPresenter selection selectedIndex = index
 		ifFalse: [
@@ -223,7 +252,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 			self dictionaryListPresenter
 				selectIndex: index
 				scrollToSelection: true ].
-	self selectClassCategoryFor: classService. 
+	self selectClassCategoryFor: classService.
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [
 		classService meta ifNil: [ classService meta: true ].
@@ -239,12 +268,16 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 
 	| classCategoryService index |
-	index := classService classCategory substrings size.
+	index := classService classCategory
+		         ifNil: [ 1 ]
+		         ifNotNil: [ :cat | cat substrings size ].
 	classCategoryService := RowanClassCategoryService new
 		                        name: classService classCategory;
 		                        substringIndex: index;
 		                        yourself.
-	self classCategoryPresenter selectItem: classCategoryService
+	self classCategoryPresenter selectedItem = classCategoryService
+		ifFalse: [
+		self classCategoryPresenter selectItem: classCategoryService ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -258,18 +291,31 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
+	" a class service was updated, refresh our display"
+
+	| update |
+	self selectClassCategoryFor: classService.
+	update := classListPresenter model asBag
+				detect: [:listClassService | listClassService name = classService name]
+				ifNone: [^self].
+	update replicateFrom: classService.
+	classListPresenter view invalidate.
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 
-	| dictionaryService |
+	| dictionaryService newServices |
 	dictionaryService := selection selectedItem.
 	dictionaryService ifNil: [
 		^ classCategoryPresenter roots: OrderedCollection new ].
 	dictionaryService classCategories ifNil: [
 		^ classCategoryPresenter roots: OrderedCollection new ].
-	classCategoryServices := dictionaryService classCategories collect: [
-		                         :category |
-		                         RowanClassCategoryService new name:
-			                         category ].
+	newServices := dictionaryService classCategories collect: [ :category |
+		               RowanClassCategoryService new name: category ].
+	newServices = classCategoryServices ifTrue: [ ^ self ].
+	classCategoryServices := newServices.
 	classCategoryPresenter roots:
 		(self classCategoriesAt: 1 matching: '*')
 ]
@@ -286,10 +332,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection 
 		           classService classCategory
 			           ifNil: [ false ]
 			           ifNotNil: [ :cat |
-				           cat trace.
-				           ' ' trace.
-				           classCategoryService firstSubstringsToIndex traceCr.
-				          (classCategoryService firstSubstringsToIndex, '*') match: cat] ].
+			           classCategoryService firstSubstringsToIndex , '*'
+				           match: cat ] ].
 	self classListPresenter list:
 		(classes asSortedCollection: [ :x :y | x name < y name ])
 ]

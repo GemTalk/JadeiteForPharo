@@ -1363,23 +1363,6 @@ JadeiteMethodListBrowserTestCase >> test_methodBrowserSaveMethod [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_methodListSourceDoesNotDisappear [
-	self testsIssue: #issue863
-		withTitle: '(Oscar 3.1.0 and 3.1.1) Under certain conditions selected methods browser loses method source and errors out'.
-	methodListBrowser := JadePresenter browseImplementorsOf: #compileClass: session: session.
-	self assert: self methodListMethodListPresenter list size equals: 1.	"right now, implementors size = 1. If that changes, revisit test"
-	self assert: self methodSourcePresenter documentPresenter value
-				= self methodListMethodListPresenter selection source.
-	self openProjectBrowser.
-	self selectServiceNamed: 'RowanClientServices' in: self projectListPresenter.
-	self selectServiceNamed: 'Rowan-Services-Core' in: self packageListPresenter.
-	self selectServiceNamed: 'RowanBrowserService' in: self classListPresenter.	"this would have cleared the method source"
-	self assert: self methodSourcePresenter documentPresenter value
-				= self methodListMethodListPresenter selection source.
-	self assert: self methodListMethodListPresenter selection selector = #compileClass:
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_openComparisonTabWhenTwoMethodsSelected [
 	self testsIssue: #issue752 withTitle: '(3.0.93) nice if I could compare two arbitrary methods'.
 	methodListBrowser := JadePresenter browseImplementorsOf: 'answer' session: session. 

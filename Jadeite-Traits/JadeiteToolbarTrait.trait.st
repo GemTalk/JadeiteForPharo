@@ -91,6 +91,30 @@ JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace onCompletion: 
 		completionBlock value ]
 ]
 
+{ #category : 'actions' }
+JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
+
+	| workspace |
+	workspace := JadeiteWorkspaceApplication showOnSession:
+		             self connection.
+	self displayClientandServerCommitIds: workspace onCompletion: [
+		workspace setCaption: 'Jadeite Git Commit Ids'.
+		workspace hasUnacceptedEdits: false ].
+	^ workspace
+]
+
+{ #category : 'actions' }
+JadeiteToolbarTrait >> gitShaWorkspaceClientOnly [
+
+	| workspace windowCaption |
+	windowCaption := 'Jadeite Git Commit Ids'.
+	workspace := JadeiteNonSessionApplication new start.
+	self displayClientCommitId: workspace.
+	workspace setCaption: windowCaption.
+	workspace hasUnacceptedEdits: false.
+	^ workspace
+]
+
 { #category : 'initialization' }
 JadeiteToolbarTrait >> initializeToolbar [
 
@@ -154,22 +178,11 @@ JadeiteToolbarTrait >> openBrowser [
 { #category : 'actions' }
 JadeiteToolbarTrait >> openCommitIdWindow [
 
-	| workspace windowCaption |
+	| windowCaption |
 	windowCaption := 'Jadeite Git Commit Ids'.
-	self connection
-		ifNil: [
-			workspace := JadeiteNonSessionApplication new start.
-			self displayClientCommitId: workspace.
-			workspace setCaption: windowCaption.
-			workspace hasUnacceptedEdits: false ]
-		ifNotNil: [
-			workspace := JadeiteWorkspaceApplication showOnSession:
-				             self connection.
-			self displayClientandServerCommitIds: workspace onCompletion: [
-				workspace setCaption: windowCaption.
-				workspace hasUnacceptedEdits: false ] ].
-
-	^ workspace
+	^(self connection isNil or: [ JadeitePreferences isRowanLoaded not ])
+		ifTrue: [ self gitShaWorkspaceClientOnly ]
+		ifFalse: [ self gitShaWorkspaceClientAndServer ]
 ]
 
 { #category : 'actions' }

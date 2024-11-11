@@ -390,8 +390,14 @@ JadeiteDebuggerPresenter >> initializePresenters [
 		withConstraints: [ :constraints | constraints height: 30 ].
 	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.50.
 	topPanes := SpPanedLayout newHorizontal positionOfSlider: 0.50.
-	frameListPresenter := JadeiteListPresenter new display: [
-		                      :frameService | frameService printString ].
+	frameListPresenter := JadeiteTablePresenter new.
+	frameListPresenter addColumn:
+		(((SpStringTableColumn evaluated: [ :frameService |
+			   frameService index printString ]) width: 25) displayAlignment: [
+			 :each | SpColumnAlignment center ]).
+	frameListPresenter addColumn:
+		((SpStringTableColumn evaluated: [ :frameService |
+			  frameService printString ]) title: 'Frame').
 	frameListPresenter contextMenu: self initializeStackMenu.
 	topPanes add: frameListPresenter.
 	self initializeVariablePanesIn: topPanes.
@@ -471,7 +477,7 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 1000 @ 1200.
+	aWindowPresenter initialExtent: 1050 @ 1200.
 	self updateCaption.
 	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [

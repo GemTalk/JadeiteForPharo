@@ -84,11 +84,10 @@ JadeiteServerFileWorkspace >> writeDocumentTo: newPath [
 	service := RowanFileService new
 		           command: #write:;
 		           commandArgs:
-			           (Array with:
-					            codePane documentPresenter value replaceCrLfWithLf);
+			           (Array with: codePane text replaceCrLfWithLf);
 		           path: newPath.
-	self issueCommand: service onCompletion: [  ].
-	codePane documentPresenter view isModified: false.
-	path := newPath.
-	self updateCaption
+	self issueCommand: service onCompletion: [
+		codePane documentPresenter view isModified: false.
+		path := newPath.
+		self updateCaption ]
 ]

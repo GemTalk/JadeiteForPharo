@@ -845,7 +845,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameResetsClassDefinition [
 			onCompletion: nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classRenameShowsMethods [
 	"don't lose the method display on rename"
 
@@ -885,7 +885,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameShowsMethods [
 			onCompletion: nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
 
 	| list |
@@ -924,7 +924,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
 		equals: 'RenamedClass'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesFailingCompile [
 
 	| list |
@@ -970,7 +970,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesFailingCompile [
 		equals: (46 to: 48)" "select old class on compile"
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
 
 	self
@@ -1019,7 +1019,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
 			onCompletion: nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNoFailCompile [
 
 	| list |
@@ -1064,10 +1064,10 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNo
 		equals: 'RenamedClass' ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self classListPresenter selectedItem
-			onCompletion: nil ]
+			onCompletion: [  ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_compileClass [
 
 	self
@@ -1097,7 +1097,7 @@ JadeiteForPharoBrowserTestCase >> test_compileClass [
 ' replaceCrWithLf
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_compileClassCompilerError [
 
 	self
@@ -1125,7 +1125,7 @@ JadeiteForPharoBrowserTestCase >> test_compileClassCompilerError [
 	options: #()'.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_compileErrorDisplay [
 
 	| source |
@@ -1192,7 +1192,7 @@ JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 	self assert: self projectBrowserTabs first title equals: '1 Projects'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_discardMethodChangesRevertsSource [
 	"If you reselect the same method that has changes and discard text was not being updated."
 	| methodSelectorsList newSource originalSource |
@@ -1262,7 +1262,7 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 		self selectClassListTab ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_hierarchyExpansion [
 	"When no classes are selected and the hierarchy tab is chosen, we should
 	see a hierarchy showing all superclasses of the packaged classes. 
@@ -1543,7 +1543,7 @@ JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
 			"reset the world after abort. Need to improve this. "setUp ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectRemoved [
 	"Gracefully remove a project from the project list if it was 
 	removed behind the tool's back"
@@ -1607,7 +1607,7 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 		self ensureRowanSampleProjectsLoaded ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
 	| methodSelectorsList newMethodSelectorsList originalSource |
 	self testsIssue: #issue770 withTitle: 'Ensure new method is alphabetized after compile'.

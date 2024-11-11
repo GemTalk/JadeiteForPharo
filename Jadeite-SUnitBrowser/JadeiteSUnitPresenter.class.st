@@ -371,15 +371,19 @@ JadeiteSUnitPresenter >> newJadeiteSUnitToolbar [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> onClassesChanged [
-	Cursor wait showWhile: 
-			[self todo:[classListPresenter selections size > 1
-				ifTrue: [methodListPresenter view columnsList: methodColumns]
-				ifFalse: [methodListPresenter view columnsList: (Array with: methodColumns second)]].
-			self updateMethods.
-			methodListPresenter view resortOnLastColumnClicked.
-			self todo:[status value: nil.
-			status value: self].
-			self reset]
+
+	self todo: [
+		classListPresenter selections size > 1
+			ifTrue: [ methodListPresenter view columnsList: methodColumns ]
+			ifFalse: [
+				methodListPresenter view columnsList:
+					(Array with: methodColumns second) ] ].
+	self updateMethods.
+	methodListPresenter view resortOnLastColumnClicked.
+	self todo: [
+		status value: nil.
+		status value: self ].
+	self reset
 ]
 
 { #category : 'as yet unclassified' }
@@ -657,17 +661,18 @@ JadeiteSUnitPresenter >> updateMethods [
 
 	| classServices |
 	classServices := classListPresenter selections.
-	classServices do: [ :service |
-		service
-			updateAfterCommand: false;
-			command: #fastRefresh;
-			commandArgs: Array new ].
-	RowanServiceUpdater current
-		issueCommands: classServices
-		session: self gciSession
-		onCompletion: [
-			classServices do: [ :service | service updateAfterCommand: true ].
-			self updateMethodsFrom: classServices ]
+	RowanServiceUpdater current critical: [
+		classServices do: [ :service |
+			service
+				updateAfterCommand: false;
+				command: #fastRefresh;
+				commandArgs: Array new ].
+		RowanServiceUpdater current
+			issueCommands: classServices
+			session: self gciSession
+			onCompletion: [
+				classServices do: [ :service | service updateAfterCommand: true ].
+				self updateMethodsFrom: classServices ] ]
 ]
 
 { #category : 'updates' }

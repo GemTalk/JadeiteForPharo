@@ -541,11 +541,11 @@ JadeiteMethodsTrait >> displayBreakpoints [
 JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 
 	self methodListPresenter selectedItem ifNil: [ ^ self ].
-	self methodListPresenter selectedItem stepPoints do: [
+	self methodSourcePresenter methodService stepPoints do: [
 		:stepPointAssoc |
 		| range |
-		range := self methodListPresenter selectedItem stepPointRangeFrom:
-			         stepPointAssoc.
+		range := self methodSourcePresenter methodService
+			         stepPointRangeFrom: stepPointAssoc.
 
 		self methodSourcePresenter addTextSegmentDecoration:
 			((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
@@ -937,7 +937,7 @@ JadeiteMethodsTrait >> updateMethodSourceGlyphs [
 { #category : 'updates' }
 JadeiteMethodsTrait >> updateService: service [
 
-	self updateService: service onCompletion: nil
+	self updateService: service onCompletion: [ ]
 ]
 
 { #category : 'updates' }

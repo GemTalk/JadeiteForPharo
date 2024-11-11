@@ -78,12 +78,10 @@ RowanBrowserService >> classHierarchyUpdate: presenter browser: browser [
 RowanBrowserService >> dictionaryListUpdate: presenter [
 	"no sort. dictionaries maintain their server order"
 
-	| removals |
 	presenter list isEmpty ifTrue: [ presenter list: ListModel new ].
 	dictionaries ifNil: [ ^ self ].
-	removals := presenter list reject: [ :dictionaryService |
-		            dictionaries includes: dictionaryService ].
-	presenter list: dictionaries. 
+	dictionaries = presenter list ifFalse: [
+		presenter list: dictionaries ].
 	presenter invalidate
 ]
 

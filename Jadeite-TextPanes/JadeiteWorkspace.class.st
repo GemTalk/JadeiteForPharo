@@ -51,7 +51,10 @@ JadeiteWorkspace >> defaultSaveFileAsDirectory [
 	substrings := filePathString subStrings: { $/ }.
 	^ (substrings first: substrings size - 1)
 		  inject: String new
-		  into: [ :path :x | path , '/' , x ]
+		  into: [ :path :x |
+			  x first = $$
+				  ifTrue: [ x ]
+				  ifFalse: [ path , '/' , x ] ]
 ]
 
 { #category : 'menu handlers' }

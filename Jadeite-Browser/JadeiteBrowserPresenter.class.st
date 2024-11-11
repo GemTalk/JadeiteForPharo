@@ -398,18 +398,21 @@ JadeiteBrowserPresenter >> basicRenameClass: classService to: newName [
 
 	| oldName browser |
 	oldName := classService name.
-	classService
-		command: #renameClass:to:;
-		commandArgs: (Array with: classService name with: newName);
-		selectedPackageServices: self packageListPresenter selectedItems.
+	self renameCommandFor: classService to: newName.
 	[
-	self issueCommand: classService onCompletion: [
+	self issueCommand: classService onCompletion: [ :classSvc |
 		| answeringService |
 		answeringService := RowanServiceUpdater current updates detect: [
 			                    :service | service isAnsweringService ].
 		answeringService answer isEmpty ifFalse: [
 			classListPresenter unselectAll.
-			self selectClassNamed: newName.
+			self isClassListTabSelected
+				ifTrue: [
+					| newService |
+					newService := self classListPresenter items detect: [ :ea |
+						              ea name = newName ].
+					[ self classListPresenter selectItem: newService ] fork "fork is weird, but allows a gui test running this in a background thread to continue" ]
+				ifFalse: [ self selectClassInClassHierarchyNamed: classSvc name ].
 			browser := JadeiteRenameClassMethodListBrowser
 				           openOn: answeringService
 				           selecting: newName
@@ -805,7 +808,11 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectMethodPresenters.
 	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
-		self textTabChanged ]
+		self textTabChanged ].
+	self application
+		when: #abortedTransaction
+		send: #abortedTransaction
+		to: self.
 ]
 
 { #category : 'initialization' }
@@ -1865,6 +1872,7 @@ JadeiteBrowserPresenter >> isClassDefinitionTabSelected [
 
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isClassHierarchyTabSelected [
+	classListHierarchyTabs currentCard ifNil: [ ^false ]. 
 	^classListHierarchyTabs currentCard name = 'Hierarchy'
 ]
 
@@ -2988,6 +2996,15 @@ JadeiteBrowserPresenter >> renameClass [
 	self basicRenameClass: oldClassService to: newClassName
 ]
 
+{ #category : 'private' }
+JadeiteBrowserPresenter >> renameCommandFor: classService to: newName [
+
+	classService
+		command: #renameClass:to:;
+		commandArgs: (Array with: classService name with: newName);
+		selectedPackageServices: self packageListPresenter selectedItems
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> resetCategoryText [
 
@@ -3859,7 +3876,6 @@ JadeiteBrowserPresenter >> updateDictionary [
 	dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
 	self isPackageListTabSelected ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
-	self todo: [ classHierarchyPresenter model: JadeiteTreeModel new ].
 	self
 		updateServices: dictionaryListPresenter selections
 		onCompletion: [

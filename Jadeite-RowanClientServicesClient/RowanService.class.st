@@ -251,7 +251,7 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 	promise
 		when: [ :arg | theCompletionBlock value: arg ]
 		catch: [ :value |
-			[
+			[value traceCr. "show RSR errors somehow"
 			value tag = 'rsrProcessTerminated' ifTrue: [
 				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
 			self terminate: process error: value.
@@ -262,7 +262,7 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 { #category : 'rsr' }
 RowanService >> executeInSession: session onCompletion: completionBlock [
 	[ self registerWith: session library ]
-		on: RsrAlreadyRegistered
+		on: RsrAlreadyRegisteredWithAnotherConnection
 		do: [ :ex |  ].
 	^ self executeCommandOnCompletion: completionBlock
 ]
@@ -861,7 +861,7 @@ RowanService >> updateList: presenter whilePreservingSelections: theUpdates brow
 	bag do: [ :service |
 		(theUpdates includes: service) ifFalse: [
 			service = RowanProjectService noneProject ifFalse: [
-				presenter model remove: service ] ] ].
+				presenter model remove: service ifAbsent: [  ] ] ] ].
 	presenter model beSorted
 ]
 
