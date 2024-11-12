@@ -434,17 +434,17 @@ RowanMethodService >> inSelectedPackage: anObject [
 { #category : 'constants' }
 RowanMethodService >> indexOfFirstReferenceInstVar [
 
-	^35
+	^37
 ]
 
 { #category : 'constants' }
 RowanMethodService >> indexOfSourceInstVar [
-	^8
+	^12
 ]
 
 { #category : 'constants' }
 RowanMethodService >> indexOfStepPointsInstVar [
-	^22
+	^26
 ]
 
 { #category : 'constants' }
