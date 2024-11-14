@@ -34,12 +34,11 @@ JadeiteCodePrintItCommand class >> defaultShortcutKey [
 { #category : 'executing' }
 JadeiteCodePrintItCommand >> evaluate: aString andDo: aBlock [
 
-	[
 	self context
 		executeSelectionOrLine: aString
 		shouldDebug: false
 		onCompileError: [ ^ self ]
-		showResult: true ] fork
+		showResult: true
 ]
 
 { #category : 'executing' }

@@ -177,13 +177,28 @@ JadeiteWorkspace >> saveServerFileAs [
 			            showOnSession: GciSession current
 			            defaultPath: self defaultSaveFileAsDirectory
 			            defaultFileName: self defaultSaveAsFileName.
-		filePath ifNotNil: [ self writeDocumentTo: filePath ] ]
+		filePath ifNotNil: [
+			filePathString := filePath.
+			self writeDocumentTo: filePathString ] ]
 ]
 
 { #category : 'command support' }
 JadeiteWorkspace >> selectedSelector [
 
 	^super selectedSelector ifNotNil: [:obj | obj asString]
+]
+
+{ #category : 'api - selection' }
+JadeiteWorkspace >> selectedText [ 
+
+	| selectionInterval |
+	
+	selectionInterval := self selectionInterval.
+	selectionInterval ifEmpty: [ ^ '' ].
+	
+	^adapter widget text asString  "<<<<< Jadeite change here, sending `self text` may update the sp inst var and unselect text"
+		copyFrom: selectionInterval first 
+		to: selectionInterval last
 ]
 
 { #category : 'private' }

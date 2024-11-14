@@ -5,6 +5,119 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'support' }
+JadeiteForPharoWorkspaceTestCase >> fileContents: thePath [
+
+	| service |
+	service := RowanFileService new
+		           command: #fileContents;
+		           path: thePath.
+	RowanServiceUpdater current issueCommand: service session: session.
+	^service answer
+]
+
+{ #category : 'support' }
+JadeiteForPharoWorkspaceTestCase >> removeTestFile: thePath [
+
+	| service |
+	service := RowanFileService new
+		           command: #remove;
+		           commandArgs: Array new;
+		           path: thePath.
+	RowanServiceUpdater current issueCommand: service session: session
+]
+
+{ #category : 'support' }
+JadeiteForPharoWorkspaceTestCase >> saveTestFileTo: thePath [
+
+	| service |
+	service := RowanFileService new
+		           command: #write:;
+		           commandArgs:
+			           (Array with:
+					            'testFile'
+						            replaceCrWithLf);
+		           path: thePath. 
+	RowanServiceUpdater current issueCommand: service session: session. 
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_reset [
+
+	| filePath fileContents |
+	filePath := '$HOME/test_reset.txt'.
+
+	self saveTestFileTo: filePath.
+	[
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - test_reset'.
+	[ workspace openServerFile ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: filePath ].
+	self assert: workspace codePane text equals: 'testFile'.
+	fileContents := self fileContents: filePath.
+	self assert: fileContents equals: 'testFile'.
+	workspace codePane text: 'some new content'.
+	self assert: workspace codePane text equals: 'some new content'.
+	workspace resetFileText.
+	self assert: workspace codePane text equals: 'testFile' ] ensure: [
+		self removeTestFile: filePath ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_serverFileDialogSave [
+
+	| filePath fileContents |
+	filePath := '$HOME/test_serverFileDialogSaveTestFile.txt'.
+
+	self saveTestFileTo: filePath.
+	[
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - test_serverFileDialogSave'.
+	[ workspace openServerFile ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: filePath ].
+	self assert: workspace codePane text equals: 'testFile'.
+	fileContents := self fileContents: filePath.
+	self assert: fileContents equals: 'testFile'.
+	workspace codePane text: 'some new content'.
+	self assert: workspace codePane text equals: 'some new content'.
+	workspace saveServerFile. "should not open a dialog"
+	self assert: workspace codePane text equals: 'some new content'.
+	fileContents := self fileContents: filePath.
+	self assert: fileContents equals: 'some new content' ] ensure: [
+		self removeTestFile: filePath ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_serverFileDialogSaveAs [
+
+	| filePath fileContents newPath |
+	filePath := '$HOME/test_serverFileDialogSaveAsTestFile.txt'.
+
+	self saveTestFileTo: filePath.
+	[
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - test_serverFileDialogSave'.
+	[ workspace openServerFile ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: filePath ].
+	self assert: workspace codePane text equals: 'testFile'.
+	fileContents := self fileContents: filePath.
+	self assert: fileContents equals: 'testFile'.
+	workspace codePane text: 'some new content'.
+	self assert: workspace codePane text equals: 'some new content'.
+	newPath := '$HOME/test_serverFileDialogSaveTestFile_newPath.txt'.
+	[ workspace saveServerFileAs ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: newPath ].
+	self assert: workspace codePane text equals: 'some new content'.
+	fileContents := self fileContents: newPath.
+	self assert: fileContents equals: 'some new content' ] ensure: [
+		self removeTestFile: filePath.
+		self removeTestFile: newPath ]
+]
+
 { #category : 'tests' }
 JadeiteForPharoWorkspaceTestCase >> test_workspaceAdHocDisplayUnicodeCharacters [
 	self testsIssue: #issue678
@@ -18,4 +131,36 @@ JadeiteForPharoWorkspaceTestCase >> test_workspaceAdHocDisplayUnicodeCharacters 
 	self assert: workspace codePane documentPresenter selection equals: ' "''aašbb''"'.
 	self assert: workspace codePane text
 		equals: '''aa'', (String with: (Character withValue: 353)), ''bb''   "''aašbb''"'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_workspaceDisplay [
+
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - Test Display'.
+	workspace codePane documentPresenter value: '''aa'''.
+	workspace codePane selectAll.
+	self displayAndPrint.
+	self
+		assert: workspace codePane documentPresenter selection
+		equals: ' "''aa''"'.
+	self assert: workspace codePane text equals: '''aa''' , ' "''aa''"'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_workspaceDoIt [
+
+	session executeString: 'UserGlobals at: #test_workspaceDoIt put: nil'.
+	self assertIsNil: (session executeString:
+			 'UserGlobals at: #test_workspaceDoIt ifAbsent: []').
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - Test DoIt'.
+	workspace codePane text:
+		'UserGlobals at: #test_workspaceDoIt put: 123'.
+	workspace codePane selectAll.
+	workspace codePane jadeDisplay.
+	self
+		assert:
+		(session executeString: 'UserGlobals at: #test_workspaceDoIt')
+		equals: 123
 ]

@@ -27,6 +27,7 @@ JadeiteServerFileWorkspace class >> showOnSession: aGciSession path: path [
 			        path: path;
 			        open;
 			        yourself.
+		inst filePathString: path. 
 		inst codePane documentPresenter value: service answer ]
 ]
 

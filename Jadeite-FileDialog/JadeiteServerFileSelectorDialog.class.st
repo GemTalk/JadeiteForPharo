@@ -46,6 +46,8 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath:
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: path shellName: shellName [
 
 	| inst modal answer |
+	(ProvideAnswerNotification signal: path) ifNotNil: [ :answer |
+		^ answer ].
 	inst := self createDialogOn: aGciSession path: path.
 	inst shellName: shellName.
 	modal := inst asModalWindow.
