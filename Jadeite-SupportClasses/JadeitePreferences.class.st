@@ -85,7 +85,7 @@ JadeitePreferences class >> initializeDefaultFonts [
 { #category : 'settings' }
 JadeitePreferences class >> isRowanLoaded [ 
 
-	^IsRowanLoaded ifNil: [ IsRowanLoaded := false ]
+	^IsRowanLoaded ifNil: [ IsRowanLoaded := true ]
 ]
 
 { #category : 'settings' }

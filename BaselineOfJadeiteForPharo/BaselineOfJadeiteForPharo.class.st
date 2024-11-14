@@ -1,7 +1,8 @@
 Class {
 	#name : 'BaselineOfJadeiteForPharo',
 	#superclass : 'BaselineOf',
-	#category : 'BaselineOfJadeiteForPharo'
+	#category : 'BaselineOfJadeiteForPharo',
+	#package : 'BaselineOfJadeiteForPharo'
 }
 
 { #category : 'baselines' }
@@ -60,9 +61,18 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 ]
 
 { #category : 'baselines' }
+BaselineOfJadeiteForPharo >> defaultBranchNameFor: projectName [
+
+	^ projectName = 'RemoteServiceReplication'
+		  ifTrue: [ 'main-v2' ]
+		  ifFalse: [ 'main' ]
+]
+
+{ #category : 'baselines' }
 BaselineOfJadeiteForPharo >> githubUrlForGemTalkProject: projectName [
 
-	^ 'github://GemTalk/' , projectName , ':main'
+	^ 'github://GemTalk/' , projectName , ':'
+	  , (self defaultBranchNameFor: projectName)
 ]
 
 { #category : 'baselines' }
