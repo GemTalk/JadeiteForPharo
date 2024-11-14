@@ -237,11 +237,9 @@ JadeiteBrowser >> initializePresenters [
 JadeiteBrowser >> initializeWindow: aWindowPresenter [
 	"keep font & row computations for investigation but comment out for now."
 
-	| fontWidth rowHeight initialExtent |
-	"fontWidth := StandardFonts defaultFont widthOfString: 'M'.
-	rowHeight := self class inputTextHeight.
-"
-	initialExtent := 1600 @ 1000. "* (fontWidth @ rowHeight)"
+	| initialExtent |
+	
+	initialExtent := (160 @ 100) * StandardFonts defaultFont pointSize. .
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		initialExtent: initialExtent;

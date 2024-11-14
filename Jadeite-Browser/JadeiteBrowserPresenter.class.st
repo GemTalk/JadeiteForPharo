@@ -1674,19 +1674,17 @@ JadeiteBrowserPresenter >> initializeMethodListHeader: methodColumn [
 	methodTopBox := SpBoxLayout newHorizontal.
 	methodCategoryText := SpTextPresenter new beNotEditable.
 	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
-	methodTopBox
-		add: methodCategoryText
-		withConstraints: [ :c | c width: 300 ].
+	methodTopBox add: methodCategoryText.
 	backButton := self newButton
 		              icon: (self iconNamed: #glamorousLeft);
 		              help: 'Method Navigation Back';
 		              action: [ self historyBack ].
-	methodTopBox add: backButton.
+	methodTopBox add: backButton withConstraints: [ :c | c width: 30 ].
 	forwardButton := self newButton
 		                 icon: (self iconNamed: #glamorousRight);
 		                 help: 'Method Navigation Forward';
 		                 action: [ self historyForward ].
-	methodTopBox add: forwardButton.
+	methodTopBox add: forwardButton withConstraints: [ :c | c width: 30 ].
 	methodColumn add: methodTopBox withConstraints: [ :c | c height: 30 ]
 ]
 
