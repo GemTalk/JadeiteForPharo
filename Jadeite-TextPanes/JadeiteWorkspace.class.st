@@ -189,16 +189,17 @@ JadeiteWorkspace >> selectedSelector [
 ]
 
 { #category : 'api - selection' }
-JadeiteWorkspace >> selectedText [ 
+JadeiteWorkspace >> selectedText [
 
-	| selectionInterval |
-	
+	| selectionInterval theText |
 	selectionInterval := self selectionInterval.
 	selectionInterval ifEmpty: [ ^ '' ].
-	
-	^adapter widget text asString  "<<<<< Jadeite change here, sending `self text` may update the sp inst var and unselect text"
-		copyFrom: selectionInterval first 
-		to: selectionInterval last
+	theText := adapter
+		           ifNil: [ self text ]
+		           ifNotNil: [ adapter widget text asString ].
+	^ theText
+		  copyFrom: selectionInterval first
+		  to: selectionInterval last
 ]
 
 { #category : 'private' }
