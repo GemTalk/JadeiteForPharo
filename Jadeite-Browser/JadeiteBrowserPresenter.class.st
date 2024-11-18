@@ -2104,7 +2104,6 @@ JadeiteBrowserPresenter >> methodMenu: aMenu [
 JadeiteBrowserPresenter >> methodSelectionChanged [
 
 	self resetStatusBar.
-	self updateMethodSource.
 	self methodSourcePresenter methodService:
 		self methodListPresenter selectedItem.
 	methodListPresenter selections isEmpty
@@ -2117,7 +2116,8 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 			methodListPresenter selectedItem ifNil: [
 				definedMethodPackageText text: String new.
 				self resetCategoryText ].
-			self updateHistory ]
+			self updateHistory ].
+	self updateMethodSource
 ]
 
 { #category : 'as yet unclassified' }

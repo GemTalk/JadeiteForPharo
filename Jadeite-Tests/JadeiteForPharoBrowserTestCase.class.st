@@ -1476,6 +1476,34 @@ JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodSourceNotChanged [
+
+	| maxMs |
+	self destroy: projectsBrowser. 
+	maxMs := 1000.
+	1 to: 25 do: [ :index |
+		| presenter ms |
+		presenter := JadeiteConsole currentConsole openBrowser
+			             activePresenter.
+		presenter
+			updateAfterFindClassName: 'RowanAnsweringService'
+			methodSelector: #allTestsIn:
+			meta: false.
+		ms := Time millisecondClockValue.
+		[
+		presenter methodListPresenter selectedItem isNil and: [
+			Time millisecondClockValue - ms < maxMs ] ] whileTrue: [
+			(Delay forMilliseconds: 5) wait ].
+		presenter methodListPresenter selectedItem ifNil: [
+			presenter parentPresenter window close.
+			^ self error:
+				  'methd source not selected in under ' , maxMs printString
+				  , ' milliseconds' ].
+		self deny: presenter methodSourcePresenter hasUnacceptedEdits.
+		presenter parentPresenter window close ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_methodSourcechangeIndicator [
 	"It's hard to test that a glyph is displayed but we can test 
 	the state that changes when the indicator is turned on and off"

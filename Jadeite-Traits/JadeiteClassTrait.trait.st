@@ -61,11 +61,10 @@ JadeiteClassTrait >> browseClass [
 
 	| browser |
 	browser := self openBrowser.
-	Cursor wait showWhile: [
-		  browser activePresenter
-			  updateAfterFindClass: self selectedClass
-			  onCompletion: nil ].
-	^browser
+	browser activePresenter
+		updateAfterFindClass: self selectedClass
+		onCompletion: nil.
+	^ browser
 ]
 
 { #category : 'queries' }
