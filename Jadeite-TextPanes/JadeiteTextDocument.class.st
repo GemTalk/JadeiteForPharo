@@ -156,6 +156,12 @@ JadeiteTextDocument >> additionalAccelerators [
 	^#(#(#raiseConsole 'Ctrl+F7') )
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> autoCommit: aBoolean [
+
+	"do nothing"
+]
+
 { #category : 'testing' }
 JadeiteTextDocument >> canDiscardEdits [
 
@@ -599,6 +605,12 @@ JadeiteTextDocument >> openOn: openFilename [
 JadeiteTextDocument >> print [
 ]
 
+{ #category : 'registration' }
+JadeiteTextDocument >> registerPresentersForUpdates [ 
+
+	RowanServiceUpdater current register: self selector: #autoCommitUpdate:
+]
+
 { #category : 'menu handlers' }
 JadeiteTextDocument >> removeQuotesFromSelection [
 
@@ -741,6 +753,14 @@ JadeiteTextDocument >> updateCodeFont [
 
 	codePane updateCodeFont.
 
+]
+
+{ #category : 'registration' }
+JadeiteTextDocument >> updatePresenter [ 
+	super updatePresenter. 
+	self  registerPresentersForUpdates 
+
+	
 ]
 
 { #category : 'private' }
