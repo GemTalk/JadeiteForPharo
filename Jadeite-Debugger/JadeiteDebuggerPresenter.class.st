@@ -242,8 +242,10 @@ JadeiteDebuggerPresenter >> dumpStackToFile [
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> editSave [
-
-	^self methodSourcePresenter saveAction ifNotNil: [:action | action value]
+	"until saved methods are put on the top of the stack correctly, disable this feature"
+	
+	self todo: [^self methodSourcePresenter saveAction ifNotNil: [:action | action value]].
+	UIManager default alert: 'Saving methods in a debugger is not implemented'
 ]
 
 { #category : 'actions' }
