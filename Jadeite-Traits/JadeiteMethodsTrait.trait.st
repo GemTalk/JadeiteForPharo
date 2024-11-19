@@ -419,12 +419,12 @@ shell updateCaptionFromSearchString:
 JadeiteMethodsTrait >> browseSelectedMethods [
 	"convenience menu item to display randomly grouped methods in a browser"
 
-	| shell |
-	shell := (JadeiteMethodListApplication showOnSession:
-		          self gciSession library) methods:
-		         self methodListPresenter selectedItems.
-	shell updateCaptionFromSearchString: 'Selected Methods'.
-	^ shell
+	| shell methodServices |
+	methodServices := self methodListPresenter selectedItems.
+	self updateServices: methodServices onCompletion: [
+		shell := (JadeiteMethodListApplication showOnSession:
+			          self gciSession library) methods: methodServices.
+		shell updateCaptionFromSearchString: 'Selected Methods' ]
 ]
 
 { #category : 'queries' }
