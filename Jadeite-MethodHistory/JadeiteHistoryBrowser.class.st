@@ -136,7 +136,7 @@ JadeiteHistoryBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1000 @ 750;
+		initialExtent: 100 @ 75 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption
 ]

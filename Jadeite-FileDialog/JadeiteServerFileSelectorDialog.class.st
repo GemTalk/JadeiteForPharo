@@ -106,7 +106,8 @@ JadeiteServerFileSelectorDialog >> initializePresenters [
 { #category : 'initialization' }
 JadeiteServerFileSelectorDialog >> initializeWindow: aWindowPresenter [
 
-	aWindowPresenter initialExtent: 800 @ 600
+	aWindowPresenter initialExtent:
+		80 @ 60 * StandardFonts defaultFont pointSize
 ]
 
 { #category : 'initialization' }

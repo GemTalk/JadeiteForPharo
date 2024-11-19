@@ -31,8 +31,8 @@ JadeitePresenterWithAutoCommitButton >> initializeAutoCommitPresenter [
 		add: autoCommitButton
 		withConstraints: [ :constraints | 
 			constraints
-				height: 25;
-				width: 150 ].
+				height: 3 * StandardFonts defaultFont pointSize;
+				width: 20 * StandardFonts defaultFont pointSize ].
 	self layout add: autoCommitBox expand: false
 ]
 

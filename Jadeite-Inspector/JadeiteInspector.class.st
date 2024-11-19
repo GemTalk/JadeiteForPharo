@@ -534,7 +534,7 @@ JadeiteInspector >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 800 @ 500;
+		initialExtent: 80 @ 50 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
 	self updateCaption

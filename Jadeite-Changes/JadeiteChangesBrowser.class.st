@@ -245,7 +245,7 @@ JadeiteChangesBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1000 @ 1000;
+		initialExtent: 100 @ 100 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption
 ]

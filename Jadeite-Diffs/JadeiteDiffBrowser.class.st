@@ -67,7 +67,7 @@ JadeiteDiffBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1000 @ 500.
+		initialExtent: 100 @ 50 * StandardFonts defaultFont pointSize.
 	self updateCaption
 ]
 

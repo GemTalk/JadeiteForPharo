@@ -41,5 +41,6 @@ JadeiteBrowserWithoutRowan >> initializeMenubar [
 JadeiteBrowserWithoutRowan >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 1500 @ 800
+	aWindowPresenter initialExtent:
+		150 @ 80 * StandardFonts defaultFont pointSize
 ]

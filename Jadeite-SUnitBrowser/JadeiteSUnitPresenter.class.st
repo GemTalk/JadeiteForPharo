@@ -269,7 +269,8 @@ JadeiteSUnitPresenter >> initializePresenters [
 		                       withoutLineNumbers.
 	self layout
 		add: textResultPresenter
-		withConstraints: [ :constraints | constraints height: 30 ].
+		withConstraints: [ :constraints |
+			constraints height: 3 * StandardFonts defaultFont pointSize ].
 	listPresenters := SpBoxLayout newHorizontal.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
@@ -296,9 +297,10 @@ JadeiteSUnitPresenter >> initializePresenters [
 JadeiteSUnitPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 1000 @ 600.
+	aWindowPresenter initialExtent:
+		100 @ 60 * StandardFonts defaultFont pointSize.
 	self updateCaption.
-	aWindowPresenter menu: self initializeMenuBar. 
+	aWindowPresenter menu: self initializeMenuBar
 ]
 
 { #category : 'testing' }

@@ -547,7 +547,7 @@ JadeiteConsole >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1200 @ 500;
+		initialExtent: 120 @ 50 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
 	self updateCaption.

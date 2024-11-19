@@ -505,7 +505,7 @@ JadeiteTextDocument >> initializeWindow: aWindowPresenter [
 	super initializeWindow: aWindowPresenter.
 	self updateCaption.
 	aWindowPresenter
-		initialExtent: 800 @ 500;
+		initialExtent: 80 @ 50 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar
 ]
 

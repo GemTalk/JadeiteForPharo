@@ -325,7 +325,7 @@ JadeiteMethodListPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 1000 @ 800;
+		initialExtent: 100 @ 80 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption
 ]

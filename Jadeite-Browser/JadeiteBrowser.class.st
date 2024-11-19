@@ -239,7 +239,7 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 
 	| initialExtent |
 	
-	initialExtent := (160 @ 100) * StandardFonts defaultFont pointSize. .
+	initialExtent := (160 @ 100) * StandardFonts defaultFont pointSize.
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		initialExtent: initialExtent;

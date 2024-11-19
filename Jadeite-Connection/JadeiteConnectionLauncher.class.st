@@ -303,9 +303,7 @@ JadeiteConnectionLauncher >> initializeAboutMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 
-	self layout
-		add: (self newLabel label: 'Imported Connections:')
-		withConstraints: [ :constraints | constraints height: 20 ].
+	self layout add: (self newLabel label: 'Imported Connections:').
 	availableConnectionPresenter := JadeiteListPresenter new
 		                                display: [ :filePath |
 			                                displayFullPath
@@ -314,7 +312,7 @@ JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 					                                self shortPathFor: filePath ] ];
 		                                contextMenu:
 			                                self initializeConnectionsMenu.
-	self layout add: availableConnectionPresenter.
+	self layout add: availableConnectionPresenter height: 60.
 	self class importedConnections: availableConnectionPresenter model
 ]
 
@@ -327,20 +325,12 @@ JadeiteConnectionLauncher >> initializeButtons [
 	disconnectButton := self newButton
 		                    label: 'Disconnect';
 		                    action: [ self disconnect ].
-	self layout
-		add: (SpBoxLayout newHorizontal
-				 hAlign: SpLayoutWidgetAlignment center;
-				 add: connectButton withConstraints: [ :constraints |
-					 constraints
-						 height: 30;
-						 padding: 10 "put a little extra space around button beyond 'spacing'" ];
-				 add: disconnectButton withConstraints: [ :constraints |
-				 constraints
-					 height: 30;
-					 padding: 10 ])
-		withConstraints: [ :constraints |
-			constraints
-				height: 30 ].
+	self layout add: (SpBoxLayout newHorizontal
+			 hAlign: SpLayoutWidgetAlignment center;
+			 add: connectButton withConstraints: [ :constraints |
+				 constraints padding: 10 "put a little extra space around button beyond 'spacing'" ];
+			 add: disconnectButton
+			 withConstraints: [ :constraints | constraints padding: 10 ]).
 	self enableButtons
 ]
 
@@ -349,24 +339,18 @@ JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 
 	| pathBox |
 	pathBox := SpBoxLayout newHorizontal.
-	pathBox
-		add: (self newLabel label: 'Client Libraries Path:')
-		withConstraints: [ :constraints | constraints height: 20 ].
+	pathBox add: (self newLabel label: 'Client Libraries Path:').
 	setPathButton := self newButton
 		                 label: 'Set Path';
 		                 icon: (self iconNamed: #smallHome);
 		                 action: [ self setPath ].
-	pathBox add: setPathButton withConstraints: [ :constraints1 |
-		constraints1
-			height: 20;
-			padding: 5 ].
-	self layout
-		add: pathBox
-		withConstraints: [ :constraints | constraints height: 30 ].
+	pathBox
+		add: setPathButton
+		withConstraints: [ :constraints1 | constraints1 padding: 5 ].
+	self layout add: pathBox.
+
 	pathText := self newTextInput beNotEditable.
-	self layout
-		add: pathText
-		withConstraints: [ :constraints | constraints height: 30 ]
+	self layout add: pathText
 ]
 
 { #category : 'initialization' }
@@ -412,13 +396,9 @@ JadeiteConnectionLauncher >> initializeFileMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeHostPresenter [
 
-	self layout
-		add: (self newLabel label: 'Host:')
-		withConstraints: [ :constraints | constraints height: 20 ].
-	hostText := self newTextInput.  
-	self layout
-		add: hostText
-		withConstraints: [ :constraints | constraints height: 30 ]
+	self layout add: (self newLabel label: 'Host:').
+	hostText := self newTextInput.
+	self layout add: hostText
 ]
 
 { #category : 'initialization' }
@@ -441,25 +421,17 @@ JadeiteConnectionLauncher >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeNetldiPresenter [
 
-	self layout
-		add: (self newLabel label: 'Netldi:')
-		withConstraints: [ :constraints | constraints height: 20 ].
+	self layout add: (self newLabel label: 'Netldi:').
 	netldiText := self newTextInput.
-	self layout
-		add: netldiText
-		withConstraints: [ :constraints | constraints height: 30 ]
+	self layout add: netldiText
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePasswordPresenter [
 
-	self layout
-		add: (self newLabel label: 'Password:')
-		withConstraints: [ :constraints | constraints height: 20 ].
+	self layout add: (self newLabel label: 'Password:').
 	passwordText := self newTextInput bePassword.
-	self layout
-		add: passwordText 
-		withConstraints: [ :constraints | constraints height: 30 ]
+	self layout add: passwordText
 ]
 
 { #category : 'initialization' }
@@ -488,37 +460,26 @@ JadeiteConnectionLauncher >> initializePresenters [
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeStonePresenter [
-	self layout
-		add: (self newLabel label: 'Stone:')
-		withConstraints: [ :constraints | constraints height: 20 ].
-	stoneText  := self newTextInput.
-	self layout
-		add: stoneText
-		withConstraints: [ :constraints | constraints height: 30 ]
+
+	self layout add: (self newLabel label: 'Stone:').
+	stoneText := self newTextInput.
+	self layout add: stoneText
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeUserPresenter [
 
-	self layout
-		add: (self newLabel label: 'User:')
-		withConstraints: [ :constraints | constraints height: 20 ].
+	self layout add: (self newLabel label: 'User:').
 	userText := self newTextInput.
-	self layout
-		add: userText
-		withConstraints: [ :constraints | constraints height: 30 ]
+	self layout add: userText
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeVersionPresenter [
 
-	self layout
-		add: (self newLabel label: 'Version:')
-		withConstraints: [ :constraints | constraints height: 20 ].
+	self layout add: (self newLabel label: 'Version:').
 	versionText := self newTextInput.
-	self layout
-		add: versionText
-		withConstraints: [ :constraints | constraints height: 30 ]
+	self layout add: versionText
 ]
 
 { #category : 'initialization' }
@@ -526,7 +487,7 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 400 @ 650;
+		initialExtent: (40 @ 65) * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption.
 	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]

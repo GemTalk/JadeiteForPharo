@@ -1554,25 +1554,27 @@ JadeiteBrowserPresenter >> initializeDefinedClassPackageText: classColumn [
 
 	definedClassPackageText := SpTextPresenter new
 		                           beNotEditable;
-		                           beWrapWord;
+		                           beNotWrapWord;
 		                           withoutScrollBars.
 	definedClassPackageText addStyle: 'jadeiteTextBackgroundColor'.
 	classColumn
 		add: definedClassPackageText
-		withConstraints: [ :c | c height: 30 ]
+		withConstraints: [ :c |
+		c height: 5 * StandardFonts defaultFont pointSize ]
 ]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeDefinedMethodPackageText: methodColumn [
 
 	definedMethodPackageText := SpTextPresenter new
-		                           beNotEditable;
-		                           beWrapWord;
-		                           withoutScrollBars.
+		                            beNotEditable;
+		                            beWrapWord;
+		                            withoutScrollBars.
 	definedMethodPackageText addStyle: 'jadeiteTextBackgroundColor'.
 	methodColumn
 		add: definedMethodPackageText
-		withConstraints: [ :c | c height: 30 ]
+		withConstraints: [ :c |
+		c height: 4 * StandardFonts defaultFont pointSize ]
 ]
 
 { #category : 'initialization' }
@@ -1661,7 +1663,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 				 help: 'Copy Selector String')
 		withConstraints: [ :constraints | constraints width: 30 ].
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
-		constraints height: 30 * self currentWorld displayScaleFactor ].
+		constraints height: 3 * StandardFonts defaultFont pointSize ].
 	self initializeDefinedMethodPackageText: methodsBox.
 	methodPanedPresenter add: methodsBox.
 	self initializeFullMethodListMenu
@@ -1679,13 +1681,19 @@ JadeiteBrowserPresenter >> initializeMethodListHeader: methodColumn [
 		              icon: (self iconNamed: #glamorousLeft);
 		              help: 'Method Navigation Back';
 		              action: [ self historyBack ].
-	methodTopBox add: backButton withConstraints: [ :c | c width: 30 ].
+	methodTopBox
+		add: backButton
+		withConstraints: [ :c |
+		c width: 3 * StandardFonts defaultFont pointSize ].
 	forwardButton := self newButton
 		                 icon: (self iconNamed: #glamorousRight);
 		                 help: 'Method Navigation Forward';
 		                 action: [ self historyForward ].
 	methodTopBox add: forwardButton withConstraints: [ :c | c width: 30 ].
-	methodColumn add: methodTopBox withConstraints: [ :c | c height: 30 ]
+	methodColumn
+		add: methodTopBox
+		withConstraints: [ :c |
+		c height: 4 * StandardFonts defaultFont pointSize ]
 ]
 
 { #category : 'initialization' }
