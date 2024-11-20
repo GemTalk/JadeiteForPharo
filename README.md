@@ -5,6 +5,7 @@ IDE for GemStone Smalltalk application development in Pharo using Rowan code man
 
 * Install Pharo 12 Smalltalk. (Currently, only Pharo 12 is supported)
 * Create a Rowan server using extent `extent0.rowan3.dbf`
+* If you want to use the latest RowanClientServices code, you'll need to run the .../rowan3/bin/attachRowanDevClones.stone script
 * Clone these git projects to your local disk with a common directory: 
 	* JadeiteForPharo, branch `main`, `git clone git@github.com:GemTalk/JadeiteForPharo.git`
 	* PharoGemStoneFFI, branch `main`, `git clone git@github.com:GemTalk/PharoGemStoneFFI.git`
