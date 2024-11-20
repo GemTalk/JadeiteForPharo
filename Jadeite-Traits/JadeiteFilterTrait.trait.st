@@ -267,6 +267,7 @@ JadeiteFilterTrait >> instVarReferences: instVar [
 			issueCommand: service
 			session: self gciSession
 			onCompletion: [ refs addAll: service queryResults ] ].
+	refs := refs asSet asSortedCollection: [:x :y | x className <= y className].
 	^ refs
 ]
 
