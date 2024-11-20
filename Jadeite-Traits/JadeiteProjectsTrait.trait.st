@@ -391,19 +391,24 @@ JadeiteProjectsTrait >> newProjectMenu [
 	| menu |
 	menu := JadeiteMenuPresenter new.
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Load ...';
-				action: [ self loadProject ] ].
-		group addItem: [ :item |
-			item
-				name: 'Refresh from Disk';
-				action: [ self reloadProject ] ].
-		group addItem: [ :item |
-			item
-				name: 'Unload';
-				action: [ self unloadProject ];
-				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+		group
+			addItem: [ :item |
+				item
+					name: 'Load ...';
+					action: [ self loadProject ] ];
+			addItem: [ :item |
+				item
+					name: 'Reload from Disk';
+					action: [ self reloadProject ] ];
+			addItem: [ :item |
+				item
+					name: 'Unload';
+					action: [ self unloadProject ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+			addItem: [ :item |
+				item
+					name: 'Refresh from Server';
+					action: [ self refreshProjects ] ] ].
 	menu addGroup: [ :group |
 		group
 			addItem: [ :item |
@@ -587,6 +592,16 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 		session: self gciSession
 		onCompletion: [
 		self updateServices: RowanServiceUpdater current selectedServices ]
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> refreshProjects [
+
+	| browserService |
+	browserService := RowanBrowserService new command: #updateProjects.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: self gciSession
 ]
 
 { #category : 'actions' }
