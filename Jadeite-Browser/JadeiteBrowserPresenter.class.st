@@ -3728,10 +3728,11 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodServ
 
 	| index |
 	self updateAfterFindClass: classService onCompletion: [
-		self setAppropriateMeta: classService.
-		self methodListPresenter selection unselectAll.
-		index := self methodListPresenter list indexOf: methodService.
-		self methodListPresenter selectIndex: index scrollToSelection: true ]
+		RowanServiceUpdater current critical: [
+			self setAppropriateMeta: classService.
+			self methodListPresenter selection unselectAll.
+			index := self methodListPresenter list indexOf: methodService.
+			self methodListPresenter selectIndex: index scrollToSelection: true ] ]
 ]
 
 { #category : 'as yet unclassified' }

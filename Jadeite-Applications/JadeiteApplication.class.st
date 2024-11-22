@@ -55,8 +55,8 @@ JadeiteApplication class >> commitTransactionInSession: session onCompletion: co
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: session
-		onCompletion: [
-			commitResult := browserService updates first answer. "should only get one update back"
+		onCompletion: [:service | 
+			commitResult := service updates first answer. "should only get one update back"
 			commitResult
 				ifTrue: [
 					UIManager default inform: 'Commit succeeded'.

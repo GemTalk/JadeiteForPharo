@@ -631,7 +631,7 @@ JadeiteInspector >> inspectInNewWindow [
 JadeiteInspector >> inspectInstVar [
 
 	| oop |
-	self isInstVarComputed ifTrue: [ ^ nil ].
+	self isSelfOrNoncomputed ifFalse: [ ^ nil ].
 	oop := self oopFromSelection.
 	^ JadeiteInspectorApplication show: oop onSession: gciSession
 ]

@@ -176,7 +176,7 @@ RowanBrowserService >> projectsUpdate: presenter browser: browser [
 	(removals includes: selectedProjectService) ifTrue:[presenter unselectAll]. 
 	presenter removeAll: removals.
 	presenter selections isEmpty ifTrue: [
-		browser updateProjectPackagesOnCompletion: nil ].
+		browser updateProjectPackagesOnCompletion: [] ].
 	self
 		updateList: presenter
 		whilePreservingSelections: (self sortedProjectsFrom: projects)

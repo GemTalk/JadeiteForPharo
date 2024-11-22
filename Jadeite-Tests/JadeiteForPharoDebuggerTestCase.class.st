@@ -24,7 +24,6 @@ JadeiteForPharoDebuggerTestCase >> setUp [
 	JadeiteConnectionProfile connectionProfile connect.
 	RowanProcessServiceClient debuggedProcessServices:
 		OrderedCollection new.
-	RowanTestServiceUpdater installTestUpdater
 ]
 
 { #category : 'support' }
@@ -32,7 +31,6 @@ JadeiteForPharoDebuggerTestCase >> tearDown [
 
 	self destroy: debugger.
 	JadeiteConnectionProfile connectionProfile disconnect. 
-	RowanTestServiceUpdater uninstallTestUpdater
 ]
 
 { #category : 'tests' }

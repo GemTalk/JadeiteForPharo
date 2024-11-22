@@ -143,7 +143,9 @@ JadeiteConnectionLauncher >> connectConnection [
 	self connectionProfile whenConnectionChangedDo: [ :theConnection |
 		theConnection
 			ifNil: [ self closeWindowsForConnection: lastConnection ]
-			ifNotNil: [ JadeiteConsoleApplication showOnSession: theConnection ].
+			ifNotNil: [
+				theConnection isOpen ifTrue: [
+					JadeiteConsoleApplication showOnSession: theConnection ] ].
 		self enableButtons.
 		lastConnection := theConnection ]
 ]
