@@ -18,11 +18,13 @@ JadeiteForPharoDebuggerTestCase class >> testResourceClass [
 JadeiteForPharoDebuggerTestCase >> setUp [
 	"Debuggers should be closed before debugger test is run.
 	Don't call super setUp as we don't want to use the JadeiteTestResource for this test class"
+
 	self ensureLauncherOpened.
 	JadeiteConnectionProfile connectionProfile disconnect.
 	JadeiteConnectionProfile connectionProfile connect.
 	RowanProcessServiceClient debuggedProcessServices:
-		OrderedCollection new
+		OrderedCollection new.
+	RowanTestServiceUpdater installTestUpdater
 ]
 
 { #category : 'support' }
@@ -30,6 +32,7 @@ JadeiteForPharoDebuggerTestCase >> tearDown [
 
 	self destroy: debugger.
 	JadeiteConnectionProfile connectionProfile disconnect. 
+	RowanTestServiceUpdater uninstallTestUpdater
 ]
 
 { #category : 'tests' }

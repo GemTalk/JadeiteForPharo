@@ -5,11 +5,24 @@ Class {
 		'subclassServices',
 		'inCommand',
 		'compileErrorHandler',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'alwaysForked'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> alwaysForked [
+
+	^ alwaysForked
+]
+
+{ #category : 'accessing' }
+RowanClassServiceClient >> alwaysForked: anObject [
+
+	alwaysForked := anObject
+]
 
 { #category : 'accessing' }
 RowanClassServiceClient >> compileErrorHandler [
@@ -47,6 +60,12 @@ RowanClassServiceClient >> initialize [
 	
 	super initialize. 
 	subclassServices := OrderedCollection new.
+]
+
+{ #category : 'testing' }
+RowanClassServiceClient >> notAlwaysForked [
+
+	^ self alwaysForked not
 ]
 
 { #category : 'accessing' }

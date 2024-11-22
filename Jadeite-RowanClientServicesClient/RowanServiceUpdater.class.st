@@ -32,7 +32,6 @@ RowanServiceUpdater class >> clearCurrent [
 	RowanServiceUpdater clearCurrent.
 "
 
-	Current ifNotNil: [ :updater | updater stopServiceQueue ].
 	Current := nil
 ]
 
@@ -65,13 +64,14 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
-	                      [
-	                      service replicateFrom: aService.
-	                      self possibleSignalCompileError: service.
-	                      self applyUpdates: service.
-	                      service handleServiceCompletion ] ifCurtailed: [
-		                      aService inCommand signal ].
-	                      aService inCommand signal ]
+	                      Cursor wait showWhile: [
+		                      [
+		                      service replicateFrom: aService.
+		                      self possibleSignalCompileError: service.
+		                      self applyUpdates: service.
+		                      service handleServiceCompletion ]
+			                      ifCurtailed: [ aService inCommand signal ].
+		                      aService inCommand signal ] ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
@@ -79,7 +79,7 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.
-	service inCommand wait
+	Cursor wait showWhile: [ service inCommand wait ]
 ]
 
 { #category : 'accessing' }
@@ -239,9 +239,6 @@ RowanServiceUpdater >> initialize [
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self.
-	"Keep this code around - might need it again if we reimplement service queue.
-	serviceQueue := OrderedCollection new.
-	self startServiceQueueProcess."
 	serviceQueueSemaphore := Semaphore forMutualExclusion.
 	singleThreaded := false. 
 ]
@@ -520,33 +517,9 @@ RowanServiceUpdater >> startLogging [
 	logger startLogging
 ]
 
-{ #category : 'service queue' }
-RowanServiceUpdater >> startServiceQueueProcess [
-
-	serviceQueueProcess := [
-	                       [
-	                       | block |
-	                       serviceQueue isEmpty
-		                       ifTrue: [ (Delay forMilliseconds: 1) wait ]
-		                       ifFalse: [
-			                       block := serviceQueue remove:
-				                                serviceQueue first.
-			                       serviceQueueSemaphore critical: block ] ]
-		                       repeat ] forkNamed: 'Jadeite Service Queue'
-]
-
 { #category : 'logging' }
 RowanServiceUpdater >> stopLogging [
 	logger stopLogging
-]
-
-{ #category : 'service queue' }
-RowanServiceUpdater >> stopServiceQueue [
-
-	serviceQueueProcess ifNotNil: [
-		serviceQueueProcess terminate.
-		serviceQueueProcess := nil.
-		serviceQueueSemaphore := nil ]
 ]
 
 { #category : 'updating' }

@@ -253,6 +253,55 @@ JadeiteForPharoMethodListTestCase >> test_methodListSourceDoesNotDisappear [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_methodReadsWritesSameInstvar [
+	"doing inst var references to an inst var that both reads and writes
+	in the same method showed the method twice in method list"
+
+	self setupProjectBrowser.
+	self projectsPresenter
+		updateAfterFindClassName: 'RowanService'
+		methodSelector: #shouldUpdate
+		meta: false.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			browseInstVarReaders: 'shouldUpdate'
+			in: 'RowanService'
+			session: session ].
+	self denyIsNil: (methodListBrowser methodListPresenter items
+			 detect: [ :ea |
+			 ea selector = #servicePerform:withArguments:shouldUpdate: ]
+			 ifNone: [  ]).
+	self destroy: methodListBrowser.
+	methodListBrowser := nil.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			browseInstVarWriters: 'shouldUpdate'
+			in: 'RowanService'
+			session: session ].
+	self denyIsNil: (methodListBrowser methodListPresenter items
+			 detect: [ :ea |
+			 ea selector = #servicePerform:withArguments:shouldUpdate: ]
+			 ifNone: [  ]).
+	self destroy: methodListBrowser.
+	methodListBrowser := nil.
+	self waitForMethodListBrowserWhile: [
+		self projectsPresenter
+			browseInstVarReferences: 'shouldUpdate'
+			in: 'RowanService'
+			session: session ].
+	self methodListPresenter items do: [ :methodService |
+		| methodServices |
+		[
+		methodServices := methodListBrowser methodListPresenter items
+			                  select: [ :ea |
+			                  ea selector
+			                  = #servicePerform:withArguments:shouldUpdate: ].
+		methodServices isEmpty ] whileTrue: [
+			(Delay forMilliseconds: 10) wait ].
+		self assert: methodServices size equals: 1 ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 
 	| oldSource newSource |

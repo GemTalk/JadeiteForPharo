@@ -169,7 +169,7 @@ JadeiteClassTrait >> findClassService: classService [
 
 	self activePresenter
 		updateAfterFindClass: classService
-		onCompletion: nil
+		onCompletion: [  ]
 ]
 
 { #category : 'private' }

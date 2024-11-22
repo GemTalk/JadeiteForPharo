@@ -1072,6 +1072,7 @@ JadeiteAbstractTestCase >> setUp [
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
 	self logoutThenLoginAs: user forceClose: true.
+	RowanTestServiceUpdater installTestUpdater.
 	session := self testResourceClass current session.
 	transcript := self testResourceClass current transcript.
 	self setRemoteAutoCommit: false onCompletion: [
@@ -1139,7 +1140,8 @@ JadeiteAbstractTestCase >> tearDown [
 			presenter methodSourcePresenter adapter ifNotNil: [ :a |
 				a widget hasUnacceptedEdits: false ] ] ].
 	self destroy: projectsBrowser.
-	projectsBrowser := nil
+	projectsBrowser := nil.
+	RowanTestServiceUpdater uninstallTestUpdater
 ]
 
 { #category : 'as yet unclassified' }

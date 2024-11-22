@@ -11,6 +11,12 @@ RowanTestServiceUpdater class >> installTestUpdater [
 	self current: self new
 ]
 
+{ #category : 'instance creation' }
+RowanTestServiceUpdater class >> uninstallTestUpdater [ 
+
+	self clearCurrent 
+]
+
 { #category : 'commands' }
 RowanTestServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.

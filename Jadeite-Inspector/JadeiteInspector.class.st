@@ -209,6 +209,32 @@ JadeiteInspector >> browseClass [
 	^shell
 ]
 
+{ #category : 'browsing' }
+JadeiteInspector >> browseClassOfSelection [
+
+	| shell classService oop answeringService |
+	oop := self oopFromSelection.
+	RowanServiceUpdater current critical: [
+		answeringService := RowanAnsweringService new.
+		answeringService
+			exec:
+			'(Object _objectForOop: ' , oop printString
+			, ') class name asString subStrings first'
+			in: self gciSession
+			onCompletion: [  ].
+		className := answeringService answer.
+		classService := RowanClassService new
+			                name:
+				                (className copyFrom: 2 to: className size - 1);  "strip quotes"
+			               meta: false.
+		RowanServiceUpdater current
+			updateService: classService
+			session: gciSession
+			onCompletion: [ :svc |
+				shell := self openBrowser.
+				shell currentCard updateAfterFindClass: svc onCompletion: nil ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector >> canSave [
 	^instVarListPresenter selections size = 1
@@ -425,7 +451,7 @@ JadeiteInspector >> initialize [
 	objectIndex := 0
 ]
 
-{ #category : 'initialization' }
+{ #category : 'menus' }
 JadeiteInspector >> initializeBrowseMenu [
 
 	^ self newMenu
@@ -436,33 +462,51 @@ JadeiteInspector >> initializeBrowseMenu [
 		  yourself
 ]
 
+{ #category : 'menus' }
+JadeiteInspector >> initializeInstVarContextMenu [
+
+	instVarListPresenter contextMenu: [
+		SpMenuPresenter new
+			addGroup: [ :group |
+				group
+					addItem: [ :item |
+						item
+							name: 'Back';
+							action: [ self getPreviousObject ] ];
+					addItem: [ :item |
+						item
+							name: 'Dive';
+							action: [ self dive ];
+							enabled: self isInstVarComputed not ] ];
+			addGroup: [ :group |
+				group
+					addItem: [ :item |
+						item
+							name: 'Browse Selection';
+							shortcut: $b meta;
+							action: [ self browseClassOfSelection ];
+							enabled: (self isSelfOrNoncomputed and: [
+										 instVarListPresenter selectedItems size = 1 ]) ];
+					addItem: [ :item |
+						item
+							name: 'Inspect';
+							shortcut: $i meta;
+							action: [ self inspectInstVar ];
+							enabled: (self isSelfOrNoncomputed and: [
+										 instVarListPresenter selectedItems size = 1 ]) ];
+					addItem: [ :item |
+						item
+							name: 'Select All';
+							shortcut: $a meta;
+							action: [ instVarListPresenter selectAll ] ] ] ]
+]
+
 { #category : 'initialization' }
 JadeiteInspector >> initializeInstVarList: box [
 
 	instVarListPresenter := (JadeiteListPresenter new display: #first)
 		                        beMultipleSelection.
-	instVarListPresenter contextMenu: [
-		SpMenuPresenter new
-			addItem: [ :item |
-				item
-					name: 'Back';
-					action: [ self getPreviousObject ] ];
-			addItem: [ :item |
-				item
-					name: 'Dive';
-					action: [ self dive ];
-					enabled: self isInstVarComputed not ];
-			addItem: [ :item |
-				item
-					name: 'Inspect';
-					shortcut: $i meta;
-					action: [ self inspectInstVar ];
-					enabled: self isSelfOrNoncomputed ];
-			addItem: [ :item |
-				item
-					name: 'Select All';
-					shortcut: $a meta;
-					action: [ instVarListPresenter selectAll ] ] ].
+	self initializeInstVarContextMenu.
 	box add: instVarListPresenter
 ]
 
@@ -586,17 +630,9 @@ JadeiteInspector >> inspectInNewWindow [
 { #category : 'inspecting' }
 JadeiteInspector >> inspectInstVar [
 
-	| key oop |
-	key := instVarListPresenter selections first key.
-	oop := key = 'self'
-		       ifTrue: [ model oop ]
-		       ifFalse: [
-			       | last |
-			       self isInstVarComputed ifTrue: [ ^ nil ].
-			       last := instVarListPresenter selectedItem last.
-			       last isArray
-				       ifTrue: [ last last ]
-				       ifFalse: [ last ] ].
+	| oop |
+	self isInstVarComputed ifTrue: [ ^ nil ].
+	oop := self oopFromSelection.
 	^ JadeiteInspectorApplication show: oop onSession: gciSession
 ]
 
@@ -612,7 +648,7 @@ JadeiteInspector >> inspectKeyInNewWindow [
 	^inspector inspect: (OopType64 fromInteger: oop) inContext: gciSession oopNil value
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspecting' }
 JadeiteInspector >> inspectOop: oop [
 
 	RowanInspectorService new
@@ -724,17 +760,6 @@ JadeiteInspector >> menuCommandGroup [
 	^group
 ]
 
-{ #category : 'menus' }
-JadeiteInspector >> menuCommands [
-
-	^self menuCommandClasses
-		collect:
-			[:each |
-			(each forSpecContext: self)
-				iconProvider: SpkIconLibrary current;
-				yourself]
-]
-
 { #category : 'as yet unclassified' }
 JadeiteInspector >> multipleInstVarsSelected [
 
@@ -836,6 +861,19 @@ JadeiteInspector >> okToClose [
 { #category : 'as yet unclassified' }
 JadeiteInspector >> onCloseRequested: boolValueHolder [
 	self isOkayToChange ifFalse:[boolValueHolder value: false]. 
+]
+
+{ #category : 'inspecting' }
+JadeiteInspector >> oopFromSelection [
+
+	^ instVarListPresenter selections first key = 'self'
+		  ifTrue: [ model oop ]
+		  ifFalse: [
+			  | last |
+			  last := instVarListPresenter selectedItem last.
+			  last isArray
+				  ifTrue: [ last last ]
+				  ifFalse: [ last ] ]
 ]
 
 { #category : 'accessing' }

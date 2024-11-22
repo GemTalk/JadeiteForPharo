@@ -2705,7 +2705,8 @@ JadeiteBrowserPresenter >> refreshClass: selectedMethod [
 	selection
 		updateAfterCommand: false;
 		command: #fastRefresh;
-		commandArgs: Array new.
+		commandArgs: Array new;
+		alwaysForked: true.
 	self issueCommand: selection onCompletion: [
 		selection updateAfterCommand: true.
 		self updateClassInfo.
