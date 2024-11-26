@@ -7,7 +7,7 @@ Class {
 
 { #category : 'instance creation' }
 RowanTestServiceUpdater class >> installTestUpdater [
-
+	"RowanTestServiceUpdater installTestUpdater"
 	self adoptInstance: self current
 ]
 
