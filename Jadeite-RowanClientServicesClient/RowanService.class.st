@@ -251,7 +251,8 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 	promise
 		when: [ :arg | theCompletionBlock value: arg ]
 		catch: [ :value |
-			[value traceCr. "show RSR errors somehow"
+			[
+			RowanServiceUpdater current isLogging ifTrue: [ value traceCr ].
 			value tag = 'rsrProcessTerminated' ifTrue: [
 				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
 			self terminate: process error: value.

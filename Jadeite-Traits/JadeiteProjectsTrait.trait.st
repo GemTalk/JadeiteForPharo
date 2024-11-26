@@ -114,6 +114,18 @@ JadeiteProjectsTrait >> basicUnloadProjects: projectNames onCompletion: completi
 		onCompletion: [ self refreshGlobalSelections. completionBlock value ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> browseProject [
+
+	| browser |
+	self projectListPresenter selectedItem ifNil: [ ^ self ].
+	browser := JadeiteBrowser new owner: self.
+	browser postOpenBlock: [
+		browser activePresenter selectProjectNamed:
+			self projectListPresenter selectedItem name ].
+	self browserOpener basicOpenBrowser: browser
+]
+
 { #category : 'testing' }
 JadeiteProjectsTrait >> canCommit [
 	| projectService |
@@ -390,6 +402,12 @@ JadeiteProjectsTrait >> newProjectMenu [
 
 	| menu |
 	menu := JadeiteMenuPresenter new.
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Browse';
+				action: [ self browseProject ];
+				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group
 			addItem: [ :item |

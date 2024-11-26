@@ -446,6 +446,13 @@ JadeiteBrowserPresenter >> browseMethodClass [
 			method: self methodListPresenter selectedItem ]
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> browserOpener [
+	"dumb name but tool that opens the browser"
+
+	^ self parentPresenter
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildGlobalsTab [
 	| globalsTabView cardLabel |
@@ -3377,8 +3384,9 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 JadeiteBrowserPresenter >> selectProjectNamed: projectName [
 
 	| projectService index |
-	self projectListPresenter selectedItem name = projectName ifTrue: [
-		^ self ].
+	self projectListPresenter selectedItem ifNotNil: [
+		self projectListPresenter selectedItem name = projectName ifTrue: [
+			^ self ] ].
 	projectService := self projectListPresenter list
 		                  detect: [ :service | service name = projectName ]
 		                  ifNone: [ ^ self ].

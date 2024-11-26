@@ -157,6 +157,13 @@ JadeiteConsole >> browseUsers [
 
 ]
 
+{ #category : 'accessing' }
+JadeiteConsole >> browserOpener [
+	"dumb name but tool that opens the browser"
+
+	^ self
+]
+
 { #category : 'testing' }
 JadeiteConsole >> canDiscardEdits [
 
