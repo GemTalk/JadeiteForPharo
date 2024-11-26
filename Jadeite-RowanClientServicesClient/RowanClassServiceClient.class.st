@@ -60,6 +60,7 @@ RowanClassServiceClient >> initialize [
 	
 	super initialize. 
 	subclassServices := OrderedCollection new.
+	alwaysForked := false. 
 ]
 
 { #category : 'testing' }

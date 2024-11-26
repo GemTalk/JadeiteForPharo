@@ -1141,7 +1141,7 @@ JadeiteAbstractTestCase >> tearDown [
 				a widget hasUnacceptedEdits: false ] ] ].
 	self destroy: projectsBrowser.
 	projectsBrowser := nil.
-	RowanTestServiceUpdater uninstallTestUpdater
+	RowanServiceUpdater uninstallTestUpdater
 ]
 
 { #category : 'as yet unclassified' }

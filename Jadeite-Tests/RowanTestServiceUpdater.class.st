@@ -6,15 +6,9 @@ Class {
 }
 
 { #category : 'instance creation' }
-RowanTestServiceUpdater class >> installTestUpdater [ 
+RowanTestServiceUpdater class >> installTestUpdater [
 
-	self current: self new
-]
-
-{ #category : 'instance creation' }
-RowanTestServiceUpdater class >> uninstallTestUpdater [ 
-
-	self clearCurrent 
+	self adoptInstance: self current
 ]
 
 { #category : 'commands' }

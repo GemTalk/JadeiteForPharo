@@ -14,8 +14,6 @@ Class {
 		'breakpointsEnabled',
 		'returnedServices',
 		'postCompletionBlock',
-		'serviceQueue',
-		'serviceQueueProcess',
 		'serviceQueueSemaphore',
 		'singleThreaded'
 	],
@@ -54,6 +52,12 @@ RowanServiceUpdater class >> startLogging [
 { #category : 'logging' }
 RowanServiceUpdater class >> stopLogging [
 	Current stopLogging
+]
+
+{ #category : 'instance creation' }
+RowanServiceUpdater class >> uninstallTestUpdater [ 
+
+	self adoptInstance: self current
 ]
 
 { #category : 'commands' }
@@ -359,18 +363,6 @@ RowanServiceUpdater >> possibleSignalCompileError: service [
 	service returnedServices do: [ :svc | svc signalCompileError ]
 ]
 
-{ #category : 'accessing' }
-RowanServiceUpdater >> queueProcess [
-
-	^ serviceQueueProcess
-]
-
-{ #category : 'accessing' }
-RowanServiceUpdater >> queueProcess: anObject [
-
-	^ serviceQueueProcess := anObject
-]
-
 { #category : 'public' }
 RowanServiceUpdater >> register: presenter selector: selector [
 	"send the update to the presenter so that when the presenter gets
@@ -483,18 +475,6 @@ RowanServiceUpdater >> selectedServicesForConnection: theConnection [
 						 selection connection == theConnection ] ]) ] ]].
 	services do: [ :service | service command: #update ].
 	^ services asSet asArray
-]
-
-{ #category : 'service queue' }
-RowanServiceUpdater >> serviceQueuePut: aBlock [
-
-	serviceQueue add: aBlock
-]
-
-{ #category : 'service queue' }
-RowanServiceUpdater >> serviceQueuePutFirst: aBlock [
-
-	serviceQueue addFirst: aBlock
 ]
 
 { #category : 'private' }
