@@ -3737,6 +3737,7 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodServ
 	| index |
 	self updateAfterFindClass: classService onCompletion: [
 		methodListPresenter items: classService methods.
+		categoryListPresenter items: classService categories. 
 		self setAppropriateMeta: classService.
 		self methodListPresenter selection unselectAll.
 		index := self methodListPresenter list indexOf: methodService.

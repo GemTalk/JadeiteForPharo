@@ -270,7 +270,7 @@ JadeiteSUnitPresenter >> initializePresenters [
 	self layout
 		add: textResultPresenter
 		withConstraints: [ :constraints |
-			constraints height: 3 * StandardFonts defaultFont pointSize ].
+			constraints height: 4 * StandardFonts defaultFont pointSize ].
 	listPresenters := SpBoxLayout newHorizontal.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.

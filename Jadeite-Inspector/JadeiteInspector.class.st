@@ -280,12 +280,12 @@ JadeiteInspector >> defaultLayout [
 	^SpBoxLayout newVertical
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'displaying' }
 JadeiteInspector >> displayAll [
 	^self displayMore: model indexedSize
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'displaying' }
 JadeiteInspector >> displayMore [
 	^self displayMore: model maxIndexedVars + model visibleIndices
 ]
@@ -357,7 +357,7 @@ JadeiteInspector >> documentPresenter [
 	^ codePane
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteInspector >> dynamicInstVars [
 	^instVarListPresenter list select: [:instVar | '--*' match: instVar key]
 ]
@@ -596,7 +596,7 @@ JadeiteInspector >> inspect: oop inContext: context [
 		onCompletion: [ :service | self show: window on: service ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspecting' }
 JadeiteInspector >> inspectBytes [
 	| inspector |
 	inspector := JadeiteInspector new gciSession: gciSession.
@@ -604,7 +604,7 @@ JadeiteInspector >> inspectBytes [
 		inContext: gciSession oopNil value
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspecting' }
 JadeiteInspector >> inspectBytes: oop inContext: context [
 	| service |
 	self createView: self class defaultView.
@@ -615,7 +615,7 @@ JadeiteInspector >> inspectBytes: oop inContext: context [
 	^self showOn: service
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspecting' }
 JadeiteInspector >> inspectInNewWindow [
 	| inspector key oop |
 	inspector := JadeiteInspector new gciSession: gciSession.
@@ -636,7 +636,7 @@ JadeiteInspector >> inspectInstVar [
 	^ JadeiteInspectorApplication show: oop onSession: gciSession
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspecting' }
 JadeiteInspector >> inspectKeyInNewWindow [
 	| inspector key oop |
 	inspector := JadeiteInspector new gciSession: gciSession.

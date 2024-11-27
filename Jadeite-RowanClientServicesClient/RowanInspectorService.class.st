@@ -61,7 +61,12 @@ RowanInspectorService >> compileErrorArray: anObject [
 
 { #category : 'constants' }
 RowanInspectorService >> defaultIndexedSize [
-	^1000
+	"eventually, need to add support for limiting 
+	the number of index variables shown in the inspector
+	with an option to get the next n objects. But for now
+	show the whole array no matter how long it takes. "
+
+	^ SmallInteger maxVal
 ]
 
 { #category : 'inspecting' }
