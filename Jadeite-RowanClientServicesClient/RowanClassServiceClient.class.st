@@ -15,7 +15,7 @@ Class {
 { #category : 'accessing' }
 RowanClassServiceClient >> alwaysForked [
 
-	^ alwaysForked
+	^ alwaysForked ifNil: [ alwaysForked := false ]
 ]
 
 { #category : 'accessing' }
