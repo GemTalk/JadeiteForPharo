@@ -555,6 +555,24 @@ JadeiteForPharoBrowserTestCase >> test_browseMenuItemEnablement [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_browseProject [
+
+	| projectListPresenter service |
+	RowanServiceUpdater uninstallTestUpdater.
+	projectListPresenter := self projectsPresenter projectListPresenter.
+	service := projectListPresenter items detect: [ :projectService |
+		           projectService name = 'Rowan' ].
+	projectListPresenter selectItem: service.
+	secondBrowser := self projectsPresenter browseProject.
+	[
+	secondBrowser activePresenter projectListPresenter selectedItem isNil ]
+		whileTrue: [ (Delay forMilliseconds: 10) wait ].
+	self assert: [
+		secondBrowser activePresenter projectListPresenter selectedItem name
+		= 'Rowan' ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_categorySelection [
 
 	self

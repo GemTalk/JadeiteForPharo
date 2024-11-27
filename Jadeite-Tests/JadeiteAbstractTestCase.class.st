@@ -1072,7 +1072,6 @@ JadeiteAbstractTestCase >> setUp [
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
 	self logoutThenLoginAs: user forceClose: true.
-	RowanTestServiceUpdater installTestUpdater.
 	session := self testResourceClass current session.
 	transcript := self testResourceClass current transcript.
 	self setRemoteAutoCommit: false onCompletion: [

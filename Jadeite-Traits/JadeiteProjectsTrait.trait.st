@@ -123,7 +123,7 @@ JadeiteProjectsTrait >> browseProject [
 	browser postOpenBlock: [
 		browser activePresenter selectProjectNamed:
 			self projectListPresenter selectedItem name ].
-	self browserOpener basicOpenBrowser: browser
+	^self browserOpener basicOpenBrowser: browser
 ]
 
 { #category : 'testing' }

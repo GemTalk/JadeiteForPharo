@@ -16,3 +16,20 @@ Just select everything and assert the selection index changed."
 		projectsPresenter selectIndex: index.
 		self assert: projectsPresenter selection selectedIndex equals: index ]
 ]
+
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_browseProject [
+
+	| projectsPresenter service |
+	RowanServiceUpdater uninstallTestUpdater.
+	projectsPresenter := jadeiteShell projectListPresenter.
+	service := projectsPresenter items detect: [ :projectService |
+		           projectService name = 'Rowan' ].
+	projectsPresenter selectItem: service.
+	projectsBrowser := jadeiteShell browseProject.
+	[ self projectsPresenter projectListPresenter selectedItem isNil ]
+		whileTrue: [ (Delay forMilliseconds: 10) wait ].
+	self assert: [
+		self projectsPresenter projectListPresenter selectedItem name
+		= 'Rowan' ]
+]
