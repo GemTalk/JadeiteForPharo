@@ -49,17 +49,21 @@ JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
 
 { #category : 'commands' }
 JadeiteTextDocument class >> codeSelectionActionCommandsGroupWith: presenter [
+
 	| group |
-	
-	group := (CmCommandGroup named: 'Jaded action commands') asSpecGroup.
+	group := (CmCommandGroup named: 'Jadeite for Pharo action commands')
+		         asSpecGroup.
 	group
-		description: 'Jaded actions on code selection.';
+		description: 'Jadeite for Pharo actions on code selection.';
 		beDisplayedAsGroup.
-	
-	group register: (JadeiteCodeDebugItCommand forSpecContext: presenter). 
-	group register: (JadeiteCodeDoItCommand forSpecContext: presenter). 
-	group register: (JadeiteCodeInspectItCommand forSpecContext: presenter).  
+
+	group register: (JadeiteCodeDebugItCommand forSpecContext: presenter).
+	group register: (JadeiteCodeDoItCommand forSpecContext: presenter).
+	group register:
+		(JadeiteCodeInspectItCommand forSpecContext: presenter).
 	group register: (JadeiteCodePrintItCommand forSpecContext: presenter).
+	group register:
+		(JadeiteCodeProfileItCommand forSpecContext: presenter).
 	^ group
 ]
 
