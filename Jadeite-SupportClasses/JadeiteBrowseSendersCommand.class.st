@@ -8,5 +8,5 @@ Class {
 { #category : 'accessing' }
 JadeiteBrowseSendersCommand >> name [
 
-	^ 'Senders of ' , self browseMenuItemName
+	^ 'Senders of ' , self jadeiteMenuNameFromSelector
 ]

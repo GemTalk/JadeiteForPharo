@@ -8,5 +8,5 @@ Class {
 { #category : 'accessing' }
 JadeiteBrowseImplementorsCommand >> name [
 
-	^ 'Implementors of ' , self browseMenuItemName
+	^ 'Implementors of ' , self jadeiteMenuNameFromSelector
 ]

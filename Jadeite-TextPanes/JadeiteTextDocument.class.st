@@ -288,7 +288,7 @@ JadeiteTextDocument >> doBrowseClassReferences [
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseImplementors [
 
-	^ self browseImplementorsOf: self selection 
+	^ self browseImplementorsOf: self selectedSelector 
 ]
 
 { #category : 'commands' }
@@ -312,7 +312,7 @@ JadeiteTextDocument >> doBrowseMethodsMatchingStringSensitive [
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseSenders [
 
-	^ self browseSendersOf: self selection 
+	^ self browseSendersOf: self selectedSelector 
 ]
 
 { #category : 'accessing' }
