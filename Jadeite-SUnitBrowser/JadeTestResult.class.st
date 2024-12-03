@@ -5,7 +5,8 @@ Class {
 		'failures',
 		'errors',
 		'passed',
-		'summary'
+		'summary',
+		'milliseconds'
 	],
 	#category : 'Jadeite-SUnitBrowser',
 	#package : 'Jadeite-SUnitBrowser'
@@ -27,6 +28,12 @@ JadeTestResult >> addError: selector [
 JadeTestResult >> addFailure: selector [
 
 	failures add: selector
+]
+
+{ #category : 'as yet unclassified' }
+JadeTestResult >> addMs: ms [
+
+	milliseconds := milliseconds + ms
 ]
 
 { #category : 'as yet unclassified' }
@@ -111,6 +118,7 @@ JadeTestResult >> initialize [
 	errors := OrderedCollection new.
 	failures := OrderedCollection new.
 	passed := OrderedCollection new.
+	milliseconds := 0. 
 ]
 
 { #category : 'as yet unclassified' }
@@ -132,7 +140,12 @@ JadeTestResult >> passed: anObject [
 { #category : 'as yet unclassified' }
 JadeTestResult >> setSummary [
 
-	summary := 	self numberOfTests printString, ' run, ', passed size printString, ' passed, ', failures size printString, ' failures, ', errors size printString, ' errors'
+	summary := self numberOfTests printString , ' run, '
+	           , passed size printString , ' passed, '
+	           , failures size printString , ' failures, '
+	           , errors size printString , ' errors, '
+	           , (milliseconds / 1000) asFloat printString
+	           , ' seconds'
 ]
 
 { #category : 'as yet unclassified' }

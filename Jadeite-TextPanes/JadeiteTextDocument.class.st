@@ -26,26 +26,24 @@ JadeiteTextDocument class >> adapterName [
 
 { #category : 'commands' }
 JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
+
 	| group |
 	"copied from super class implementation"
 	group := (CmCommandGroup named: 'Code search') asSpecGroup
-		description: 'Search the system from code selection.';
-		beDisplayedAsSubMenu;
-		yourself.
-		
-	self flag: #TODO. "This looks like a very bad way to do this :P"	
-	{ 
-		SpBrowseClassCommand.		
+		         description: 'Search the system from code selection.';
+		         beDisplayedAsSubMenu;
+		         yourself.
+
+	self flag: #TODO. "This looks like a very bad way to do this :P"
+	{
+		JadeiteBrowseClassCommand.
 		JadeiteBrowseImplementorsCommand.
 		JadeiteBrowseSendersCommand.
-		SpBrowseMethodReferencesCommand.	
-		SpBrowseMethodsMatchingStringInsensitiveCommand.
-		SpBrowseMethodsMatchingStringSensitiveCommand.
-		SpBrowseMethodsContainingStringCommand.
-	 } 
-	do:[ :commandClass | 
+		JadeiteBrowseClassReferencesCommand.
+		JadeiteBrowseMethodReferencesCommand.
+		JadeiteBrowseMethodsContainingStringCommand } do: [ :commandClass |
 		group register: (commandClass forSpecContext: aPresenter) ].
-	
+
 	^ group
 ]
 
@@ -162,6 +160,29 @@ JadeiteTextDocument >> autoCommit: aBoolean [
 	"do nothing"
 ]
 
+{ #category : 'commands' }
+JadeiteTextDocument >> basicBrowseClassReferences: className session: session completionBlock: completionBlock [
+
+	| service |
+	service := RowanQueryService
+		           command: #browseClassReferences:
+		           withArgs: (Array with: className).
+	RowanServiceUpdater current
+		issueCommand: service
+		session: session
+		onCompletion: completionBlock.
+	^ service
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> browseMenuItemName [
+
+	| sel |
+	sel := self selection.
+	(sel includes: Character space) ifTrue: [ sel := 'it' ].
+	^ sel
+]
+
 { #category : 'testing' }
 JadeiteTextDocument >> canDiscardEdits [
 
@@ -237,26 +258,45 @@ JadeiteTextDocument >> displayResult: showResult orShowCompileError: theService 
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseClass [
 
-	MessageBox notify: 'Should implement this'.
-	self todo: 'to do'
+	| browser |
+	browser := self openBrowser.
+	browser activePresenter
+		updateAfterFindClassName: self selection
+		methodSelector: nil
+		meta: false
+]
+
+{ #category : 'commands' }
+JadeiteTextDocument >> doBrowseClassReferences [
+
+	| shell className |
+	className := self selection.
+	self
+		basicBrowseClassReferences: className
+		session: self gciSession
+		completionBlock: [ :service |
+			shell := self openMethodListOn: service selecting: className.
+			shell updateCaptionFromSearchString:
+				service queryResults size printString , ' Class References to '
+				, className asString ]
 ]
 
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseImplementors [
 
-	^ self browseImplementorsOf: self selectedSelector 
+	^ self browseImplementorsOf: self selection 
 ]
 
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseMethodReferences [
 
-	^ self browseClassReferences: self selectedSelector 
+	^ self browseLiteralReferences: self selection 
 ]
 
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseMethodsContainingString [
-	
-	self browseLiteralReferences: self selectedTextOrLine 
+
+	self browseMethodsContaining: self selection
 ]
 
 { #category : 'commands' }
@@ -268,7 +308,7 @@ JadeiteTextDocument >> doBrowseMethodsMatchingStringSensitive [
 { #category : 'commands' }
 JadeiteTextDocument >> doBrowseSenders [
 
-	^ self browseSendersOf: self selectedSelector 
+	^ self browseSendersOf: self selection 
 ]
 
 { #category : 'accessing' }

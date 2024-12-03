@@ -100,7 +100,7 @@ JadeiteSUnitAbstractPresenter >> reset [
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices className: className [
 
-	| jadeResult index methodService continueTest |
+	| jadeResult index methodService continueTest ms |
 	shouldStopTestRun := false.
 	jadeResult := JadeTestResult new.
 	index := 1.
@@ -114,14 +114,21 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 					 with: (className ifNil: [ methodService className ]));
 			testResult: nil;
 			catchBlock: [
+				| testRunTime |
+				testRunTime := Time millisecondClockValue - ms.
+				jadeResult addMs: testRunTime.
 				shouldStopTestRun := true.
 				self addError: methodService to: jadeResult.
 				self updateResult: jadeResult.
 				continueTest signal ].
+		ms := Time millisecondClockValue.
 		RowanServiceUpdater current
 			issueCommand: methodService
 			session: self gciSession
 			onCompletion: [
+				| testRunTime |
+				testRunTime := Time millisecondClockValue - ms.
+				jadeResult addMs: testRunTime.
 				self addError: methodService to: jadeResult.
 				continueTest signal ].
 		continueTest wait.
@@ -196,4 +203,10 @@ JadeiteSUnitAbstractPresenter >> textResultPresenter [
 { #category : 'as yet unclassified' }
 JadeiteSUnitAbstractPresenter >> textResultPresenter: anObject [
 	textResultPresenter := anObject
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteSUnitAbstractPresenter >> updateResult: jadeResult [
+	jadeResult setSummary.
+	self setColorFor: jadeResult
 ]

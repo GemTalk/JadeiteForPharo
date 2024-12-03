@@ -720,9 +720,3 @@ JadeiteSUnitPresenter >> updateProjectPackagesOnCompletion: completionBlock [
 		testCounter at: 1 put: browserService testCount.
 		completionBlock value ]
 ]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitPresenter >> updateResult: jadeResult [
-	jadeResult setSummary.
-	self setColorFor: jadeResult
-]

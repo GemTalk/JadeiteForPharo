@@ -244,9 +244,3 @@ JadeiteSUnitInClassPresenter >> runTests: methodServices [
 JadeiteSUnitInClassPresenter >> selectedClass [
 	^self parentPresenter selectedClass
 ]
-
-{ #category : 'as yet unclassified' }
-JadeiteSUnitInClassPresenter >> updateResult: jadeResult [
-	jadeResult setSummary.
-	self setColorFor: jadeResult
-]

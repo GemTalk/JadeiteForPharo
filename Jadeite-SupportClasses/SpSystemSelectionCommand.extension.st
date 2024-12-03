@@ -1,6 +1,15 @@
 Extension { #name : 'SpSystemSelectionCommand' }
 
 { #category : '*Jadeite-SupportClasses' }
+SpSystemSelectionCommand >> browseMenuItemName [
+
+	| sel |
+	sel := self context selection.
+	(sel includes: Character space) ifTrue: [ sel := 'it' ].
+	^ sel
+]
+
+{ #category : '*Jadeite-SupportClasses' }
 SpSystemSelectionCommand >> jadeiteMenuNameFromSelector [
 
 	| dynamicName abbreviatedName |
