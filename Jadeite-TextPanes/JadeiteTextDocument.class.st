@@ -680,16 +680,16 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 		                  ifFalse: [ self selectionInterval first ].
 	argArray := gsArguments first isArray
 		            ifTrue: [ gsArguments first ]
-		            ifFalse: [ (gsArguments at: 2) first ].
+		            ifFalse: [ (gsArguments at: 2) first].
 	self withAdapterDo: [ :theAdapter |
 		theAdapter widgetDo: [ :widget |
 			widget textArea unselect.
 			widget
 				notify: (argArray at: 3)
-				at: (argArray at: 2) + selectionStart
+				at: (argArray at: 2) + selectionStart - 1
 				in: self text asString.
 			widget scrollPane scrollSelectionIntoView.
-			widget textArea flashColor: Color red] ].
+			widget textArea flashColor: Color red ] ].
 	^ nil
 ]
 

@@ -40,25 +40,32 @@ JadeiteCodeProfileItCommand >> evaluate: aString andDo: aBlock [
 		self context
 			executeSelectionOrLine: (self profileCodeFor: aString)
 			shouldDebug: false
-			onCompileError: [ ^ self ]
+			onCompileError: [  ]
 			showResult: false
 			onCompletion: [ :answeringService |
 				| workspace outputStream |
-				Cursor wait showWhile: [
-					outputStream := WriteStream on: String new.
-					outputStream
-						nextPutAll: 'Profile code: ';
-						cr;
-						nextPutAll: (self profileCodeFor: aString);
-						cr;
-						cr;
-						nextPutAll: (answeringService answer at: 3).
-					workspace := JadeiteWorkspace showOnSession:
-						             self context gciSession.
-					workspace value: outputStream contents.
-					workspace
-						isModified: false;
-						caption: 'Profile Results' ] ] ] ] fork
+				answeringService answer first
+					ifTrue: [
+						Cursor wait showWhile: [
+							outputStream := WriteStream on: String new.
+							outputStream
+								nextPutAll: 'Profile code: ';
+								cr;
+								nextPutAll: (self profileCodeFor: aString);
+								cr;
+								cr;
+								nextPutAll: (answeringService answer at: 3).
+							workspace := JadeiteWorkspace showOnSession:
+								             self context gciSession.
+							workspace value: outputStream contents.
+							workspace
+								isModified: false;
+								caption: 'Profile Results' ] ]
+					ifFalse: [
+						| offset |
+						offset := (answeringService answer at: 2) first at: 2.
+						(answeringService answer at: 2) first at: 2 put: offset - 28 "overhead of profile code up to error" ] ] ] ]
+		fork
 ]
 
 { #category : 'enumerating' }
