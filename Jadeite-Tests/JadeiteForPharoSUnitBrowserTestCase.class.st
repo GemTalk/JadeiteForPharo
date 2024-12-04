@@ -384,9 +384,9 @@ JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 	sunitBrowser testSemaphore: Semaphore new.
 	sunitBrowser basicRunSelected.
 	sunitBrowser testSemaphore waitTimeoutMilliseconds: 500.
-	self
-		assert: sunitBrowser textResultPresenter text
-		equals: '1 run, 1 passed, 0 failures, 0 errors'.
+	self assert:
+		('1 run, 1 passed, 0 failures, 0 errors, *seconds' match:
+			 sunitBrowser textResultPresenter text).
 	self
 		assert:
 		sunitBrowser textResultPresenter adapter widget scrollPane color

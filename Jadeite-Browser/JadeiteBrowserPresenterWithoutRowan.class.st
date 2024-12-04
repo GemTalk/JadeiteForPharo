@@ -68,6 +68,15 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 JadeiteBrowserPresenterWithoutRowan >> connectProjectListPresenter [
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> filterClassesBySelectedClassCategory: theClasses [
+
+	classCategoryPresenter selectedItem ifNil: [ ^ theClasses ].
+	^ theClasses select: [ :classService |
+		  classService classCategory
+		  = classCategoryPresenter selectedItem data ]
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresenter [
 
@@ -270,7 +279,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 	| classCategoryService index |
 	index := classService classCategory
 		         ifNil: [ 1 ]
-		         ifNotNil: [ :cat | cat substrings size ].
+		         ifNotNil: [ :cat | (cat substrings: #($-)) size ].
 	classCategoryService := RowanClassCategoryService new
 		                        name: classService classCategory;
 		                        substringIndex: index;

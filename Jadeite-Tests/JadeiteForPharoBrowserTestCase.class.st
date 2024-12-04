@@ -1135,7 +1135,7 @@ JadeiteForPharoBrowserTestCase >> test_compileClassCompilerError [
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames:  invalid pound sign# abc )
+	instVarNames: invalid pound sign # abc )
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
@@ -1157,7 +1157,7 @@ JadeiteForPharoBrowserTestCase >> test_compileErrorDisplay [
 	self projectsPresenter editSaveMethod.
 	self
 		assert: self methodSourcePresenter selectionInterval
-		equals: (47 to: 82)
+		equals: (46 to: 81)
 ]
 
 { #category : 'tests' }

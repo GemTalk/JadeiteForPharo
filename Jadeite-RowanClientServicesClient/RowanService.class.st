@@ -226,14 +226,6 @@ RowanService >> editInSession: aSession window: handle [
 	self issueCommand: self session: aSession
 ]
 
-{ #category : 'Init / Release' }
-RowanService >> emptyFilterListsIn: browser [
-	self todo:[browser hasMethods
-		ifTrue: 
-			[browser categoryListPresenter sortBlock: [:x :y | x < y].
-			browser variableListPresenter sortBlock: [:x :y | x < y]]]
-]
-
 { #category : 'public' }
 RowanService >> excludedInstVars [
 
@@ -571,21 +563,29 @@ RowanService >> packageServices [
 
 { #category : 'public' }
 RowanService >> packagesUpdate: presenter browser: browser parentPresenter: parentPresenter [
+
 	| packageServices selectedComponentPackages |
-	(presenter class canUnderstand: #list) ifFalse: [^self].
-	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
-	parentPresenter selectedItems detect: [:service | service name = self name] ifNone: [^self].
-	self todo:[selectedComponentPackages := (browser packageGroupPresenter selectionIfNone: [])
-				ifNil: [self packageServices]
-				ifNotNil: [:componentService | componentService packageServices]].
+	(presenter class canUnderstand: #list) ifFalse: [ ^ self ].
+	presenter list isEmpty ifTrue: [
+		self initializePresenterList: presenter ].
+	parentPresenter selectedItems
+		detect: [ :service | service name = self name ]
+		ifNone: [ ^ self ].
+	self todo: [
+		selectedComponentPackages := (browser packageGroupPresenter
+			                              selectionIfNone: [  ])
+			                             ifNil: [ self packageServices ]
+			                             ifNotNil: [ :componentService |
+			                             componentService packageServices ] ].
 	packageServices := selectedComponentPackages
-				ifNil: [self packageServices]
-				ifNotNil: [self packageServices intersection: selectedComponentPackages].
+		                   ifNil: [ self packageServices ]
+		                   ifNotNil: [
+		                   self packageServices intersection:
+			                   selectedComponentPackages ].
 	self
 		updateList: presenter
 		whilePreservingSelections: packageServices
-		browser: browser.
-	browser isClassSelected ifFalse: [self emptyFilterListsIn: browser]
+		browser: browser
 ]
 
 { #category : 'private' }

@@ -57,6 +57,17 @@ RowanClassCategoryService >> name: aString [
 	name := aString 
 ]
 
+{ #category : 'printing' }
+RowanClassCategoryService >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream
+		space;
+		nextPut: $(;
+		nextPutAll: self data asString;
+		nextPut: $)
+]
+
 { #category : 'accessing' }
 RowanClassCategoryService >> substringIndex [
 

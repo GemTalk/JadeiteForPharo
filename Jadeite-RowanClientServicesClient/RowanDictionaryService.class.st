@@ -92,16 +92,16 @@ RowanDictionaryService >> classesUpdate: presenter browser: browser [
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
-	classes ifNil: [ ^presenter list: ListModel new ].
+	classes ifNil: [ ^ presenter list: ListModel new ].
 	self removeDeletedClassesIn: presenter browser: browser.
+	classes := browser filterClassesBySelectedClassCategory: classes.
 	presenter selectionOrNil
 		ifNil: [
 			updatedClasses := classes asSet reject: [ :classService |
 				                  classService wasRenamed ].
 			updatedClasses addAll: presenter list.
-			presenter list: (ListModel
-					 withAll: (updatedClasses asSortedCollection: 
-					  [ :x :y | x name < y name ])) ]
+			presenter list: (ListModel withAll:
+					 (updatedClasses asSortedCollection: [ :x :y | x name < y name ])) ]
 		ifNotNil: [
 			self
 				updateList: presenter
@@ -112,7 +112,6 @@ RowanDictionaryService >> classesUpdate: presenter browser: browser [
 			selectedPackageServices: browser packageListPresenter selections
 			browser: browser ].
 	presenter view invalidate.
-	browser isClassSelected ifFalse: [ self emptyFilterListsIn: browser ]
 ]
 
 { #category : 'accessing' }
@@ -158,9 +157,12 @@ RowanDictionaryService >> displayStringFor: displayThing [
 	displayThing forecolor: Color black
 ]
 
-{ #category : 'private' }
+{ #category : 'testing' }
 RowanDictionaryService >> doesUpdateApply: browser [
-	^browser isDictionaryTabSelected 
+
+	^ browser isDictionaryTabSelected and: [
+		  browser dictionaryListPresenter selectedItem isNil or: [
+			  browser dictionaryListPresenter selectedItem name = self name ] ]
 ]
 
 { #category : 'accessing' }

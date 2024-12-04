@@ -1264,6 +1264,13 @@ JadeiteBrowserPresenter >> fileoutDictionary [
 		fileService fileOutDictionaries: { dictionaryService name } ]
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> filterClassesBySelectedClassCategory: theClasses [
+	"no filtering by class category when rowan present"
+
+	^ theClasses
+]
+
 { #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 

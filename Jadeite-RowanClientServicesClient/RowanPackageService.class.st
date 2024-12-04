@@ -91,7 +91,7 @@ RowanPackageService >> classesUpdate: presenter browser: browser [
 		self initializePresenterList: presenter ].
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
 	self removeDeletedClassesIn: presenter browser: browser.
-	classes ifNil: [ ^self ].
+	classes ifNil: [ ^ self ].
 	condensedList := self condenseExtensions: presenter.
 	validatedList := Dictionary new.
 	condensedList keysAndValuesDo: [ :classService :dontcare |
@@ -113,9 +113,7 @@ RowanPackageService >> classesUpdate: presenter browser: browser [
 		                           ifTrue: [ selections ]
 		                           ifFalse: [ Array new ].
 	presenter list do: [ :classService |
-		classService selectedPackageServices: selectedPackageServices ].
-	self todo: [ presenter view invalidate ].
-	browser isClassSelected ifFalse: [ self emptyFilterListsIn: browser ]
+		classService selectedPackageServices: selectedPackageServices ]
 ]
 
 { #category : 'private' }

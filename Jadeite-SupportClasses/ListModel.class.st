@@ -162,6 +162,13 @@ ListModel >> select: aBlock [
 ]
 
 { #category : 'accessing' }
+ListModel >> size [
+
+	collection ifNil: [ ^ 0 ].
+	^ super size
+]
+
+{ #category : 'accessing' }
 ListModel >> sortingBlock: aBlock [
 	sorting := aBlock.
 	self refreshList
