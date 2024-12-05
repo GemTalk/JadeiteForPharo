@@ -495,7 +495,7 @@ RowanClassService >> hasSubclasses: anObject [
 
 { #category : 'comparing' }
 RowanClassService >> hash [
-	^self name hash
+	^self name hash bitXor: self meta hash
 ]
 
 { #category : 'public' }
