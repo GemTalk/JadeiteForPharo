@@ -342,7 +342,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInClassHierarchy: classService
 	update replicateFrom: classService.
 	selection ifNil: [ ^ self ].
 	self selectClassInClassHierarchyNamed: selection name.
-	classHierarchyPresenter view invalidate
+	classHierarchyPresenter refresh
 ]
 
 { #category : 'updates' }
