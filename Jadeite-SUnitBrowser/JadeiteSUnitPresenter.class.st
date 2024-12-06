@@ -277,6 +277,7 @@ JadeiteSUnitPresenter >> initializePresenters [
 
 	packageListPresenter := JadeiteListPresenter newNameSortedList
 		                        headerTitle: 'Packages'.
+	packageListPresenter beMultipleSelection.
 	listPresenters add: packageListPresenter.
 	classListPresenter := JadeiteListPresenter newNameSortedList
 		                      headerTitle: 'Classes'.
@@ -371,7 +372,7 @@ JadeiteSUnitPresenter >> newJadeiteSUnitToolbar [
 	^ theToolbar
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'events' }
 JadeiteSUnitPresenter >> onClassesChanged [
 
 	self todo: [
@@ -388,13 +389,15 @@ JadeiteSUnitPresenter >> onClassesChanged [
 	self reset
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'events' }
 JadeiteSUnitPresenter >> onPackageChanged [
 
-	self updateClassesOnCompletion: [
-		self todo: [
-			status value: nil.
-			status value: self ].
+	| testClasses |
+	testClasses := OrderedCollection new.
+	self updateClassesOnCompletion: [ :packageService |
+		testClasses addAll: packageService testClasses.
+		classListPresenter list:
+			(testClasses asSortedCollection: [ :x :y | x name < y name ]).
 		self reset.
 		classListPresenter unselectAll.
 		methodListPresenter list: Array new ]

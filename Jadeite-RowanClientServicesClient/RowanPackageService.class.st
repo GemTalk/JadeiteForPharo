@@ -307,6 +307,18 @@ RowanPackageService >> sortAspect [
 	^name
 ]
 
+{ #category : 'accessing' }
+RowanPackageService >> testClasses [
+
+	^ testClasses
+]
+
+{ #category : 'accessing' }
+RowanPackageService >> testClasses: anObject [
+
+	testClasses := anObject
+]
+
 { #category : 'public' }
 RowanPackageService >> testClasses: presenter browser: browser [
 	| additions sortedTests |
