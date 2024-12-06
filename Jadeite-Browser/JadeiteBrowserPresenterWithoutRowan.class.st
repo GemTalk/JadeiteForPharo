@@ -250,6 +250,7 @@ JadeiteBrowserPresenterWithoutRowan >> renameCommandFor: classService to: newNam
 JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 
 	| index dictionaryService |
+	classService ifNil: [ ^self ]. 
 	dictionaryService := self dictionaryListPresenter list
 		                     detect: [ :d |
 		                     d name = classService dictionaryName ]
@@ -303,13 +304,13 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
 	" a class service was updated, refresh our display"
 
-	| update |
+	| selection |
+	selection := self selectedClass.
 	self selectClassCategoryFor: classService.
-	update := classListPresenter model asBag
-				detect: [:listClassService | listClassService name = classService name]
-				ifNone: [^self].
-	update replicateFrom: classService.
-	classListPresenter view invalidate.
+	self isClassHierarchyTabSelected
+		ifTrue: [
+		self updateClassInClassHierarchy: classService selection: selection ]
+		ifFalse: [ self updateClassInClassList: classService selection: nil ]
 ]
 
 { #category : 'updates' }
@@ -330,12 +331,51 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassInClassHierarchy: classService selection: selection [
+	" a class service was updated, refresh our display"
+
+	| update |
+	update := classHierarchyPresenter model asBag
+		          detect: [ :listClassService |
+		          listClassService name = classService name ]
+		          ifNone: [ ^ self ].
+	update replicateFrom: classService.
+	selection ifNil: [ ^ self ].
+	self selectClassInClassHierarchyNamed: selection name.
+	classHierarchyPresenter view invalidate
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassInClassList: classService selection: selection [
+	" a class service was updated, refresh our display"
+
+	| update |
+	update := classListPresenter model asBag
+		          detect: [ :listClassService |
+		          listClassService name = classService name ]
+		          ifNone: [ ^ self ].
+	update replicateFrom: classService.
+	classService ifNil: [ ^ self ].
+	self selectClass: selection.
+	classListPresenter view invalidate
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassInfo [
+
+	self selectedClass ifNil: [
+		self resetDefinedClassPackage.
+		^ self ].
+	self basicUpdateClassInfo.
+	self sundryCleanup
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection [
 
 	| classCategoryService classes |
 	classCategoryService := selection selectedItem.
 	classCategoryService ifNil: [ ^ self ].
-	self selectClassListTab.
 	classes := self dictionaryListPresenter selectedItem classes select: [
 		           :classService |
 		           classService classCategory

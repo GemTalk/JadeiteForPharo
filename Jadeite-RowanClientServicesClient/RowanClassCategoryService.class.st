@@ -22,9 +22,11 @@ RowanClassCategoryService >> = catService [
 ]
 
 { #category : 'accessing' }
-RowanClassCategoryService >> data [ 
-	substringIndex ifNil: [ ^name ]. 
-	^(name substrings: '-') at: substringIndex ifAbsent: [ ]
+RowanClassCategoryService >> data [
+
+	name ifNil: [ ^ String new ].
+	substringIndex ifNil: [ ^ name ].
+	^ (name substrings: '-') at: substringIndex ifAbsent: [  ]
 ]
 
 { #category : 'displaying' }

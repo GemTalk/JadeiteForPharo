@@ -364,6 +364,33 @@ JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> test_multiSelect [
+
+	| rcsClasses rsrClasses combined |
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self sunitPresenter packageListPresenter.
+	rcsClasses := self sunitPresenter classListPresenter items.
+	self
+		selectServiceNamed: 'RemoteServiceReplication-Platform-Test'
+		in: self sunitPresenter packageListPresenter.
+	rsrClasses := self sunitPresenter classListPresenter items.
+
+	self
+		selectServicesNamed: (Array
+				 with: 'RemoteServiceReplication-Platform-Test'
+				 with: 'Rowan-Services-Tests')
+		in: self sunitPresenter packageListPresenter.
+	combined := rsrClasses asArray , rcsClasses asSortedCollection: [ :x :y |
+		            x name < y name ].
+	self
+		assert: (combined collect: [ :service | service name ])
+		equals:
+			(self sunitPresenter classListPresenter items collect: [ :service |
+				 service name ])
+]
+
+{ #category : 'tests' }
 JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 
 	self

@@ -428,6 +428,30 @@ JadeiteBrowserPresenter >> basicRenameClass: classService to: newName [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> basicUpdateClassInfo [
+
+	| service |
+	self resetCategoryText.
+	service := self selectedClass.
+	classCommentPresenter value: service comment.
+	classDefinitionPresenter view isModified ifTrue: [
+		service template = classDefinition ifTrue: [ ^ self ].
+		classDefinition ifNotNil: [
+			(MessageBox
+				 confirm: 'Copy changes to clipboard?'
+				 caption: 'Class has unsaved changes!') ifTrue: [
+				classDefinitionPresenter text copyToClipboard ] ] ].
+	classDefinitionPresenter value: service template.
+	self resetClassDefinitionPane.
+	self todo: [
+		self setTestClass: service.
+		self isSunitTabSelected ifFalse: [
+			classDefinitionPresenter ensureVisible ].
+		self updateClassMenu: nil.
+		self updateSUnitTab ]
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
 
 	self updateProjectPackagesOnCompletion: [
@@ -3824,27 +3848,7 @@ JadeiteBrowserPresenter >> updateClass: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClassInfo [
 
-	| service |
-	self resetCategoryText.
-	service := self selectedClass ifNil: [
-		           self resetDefinedClassPackage.
-		           ^ self ].
-	classCommentPresenter value: service comment.
-	classDefinitionPresenter view isModified ifTrue: [
-		service template = classDefinition ifTrue: [ ^ self ].
-		classDefinition ifNotNil: [
-			(MessageBox
-				 confirm: 'Copy changes to clipboard?'
-				 caption: 'Class has unsaved changes!') ifTrue: [
-				classDefinitionPresenter text copyToClipboard ] ] ].
-	classDefinitionPresenter value: service template.
-	self resetClassDefinitionPane.
-	self todo: [
-		self setTestClass: service.
-		self isSunitTabSelected ifFalse: [
-			classDefinitionPresenter ensureVisible ].
-		self updateClassMenu: nil.
-		self updateSUnitTab ].
+	self basicUpdateClassInfo. 
 	definedClassPackageText view text:
 		'Defined Package: ' , self selectedClass definedPackageName.
 	self sundryCleanup
