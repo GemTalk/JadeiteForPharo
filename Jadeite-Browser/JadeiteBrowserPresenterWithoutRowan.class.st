@@ -310,7 +310,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
 	self isClassHierarchyTabSelected
 		ifTrue: [
 		self updateClassInClassHierarchy: classService selection: selection ]
-		ifFalse: [ self updateClassInClassList: classService selection: nil ]
+		ifFalse: [ self updateClassInClassList: classService selection: selection ]
 ]
 
 { #category : 'updates' }
@@ -355,7 +355,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInClassList: classService sele
 		          listClassService name = classService name ]
 		          ifNone: [ ^ self ].
 	update replicateFrom: classService.
-	classService ifNil: [ ^ self ].
+	selection ifNil: [ ^ self ].
 	self selectClass: selection.
 	classListPresenter view invalidate
 ]
