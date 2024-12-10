@@ -3900,20 +3900,18 @@ JadeiteBrowserPresenter >> updateDictionaries [
 JadeiteBrowserPresenter >> updateDictionary [
 
 	self selectClassListTab.
-	self setInstanceSide. 
+	self setInstanceSide.
 	dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
 	self isPackageListTabSelected ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
-	self
-		updateServices: dictionaryListPresenter selections
-		onCompletion: [
-			self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-			self updateTabLabel.
-			self todo: [ self updateGlobalsTab ].
-			dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
-			classDefinitionPresenter value:
-				dictionaryListPresenter selectedItem defaultTemplate.
-			self resetClassDefinitionPane ]
+	self updateClassesOnCompletion: [
+		self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+		self updateTabLabel.
+		self todo: [ self updateGlobalsTab ].
+		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
+		classDefinitionPresenter value:
+			dictionaryListPresenter selectedItem defaultTemplate.
+		self resetClassDefinitionPane ]
 ]
 
 { #category : 'as yet unclassified' }

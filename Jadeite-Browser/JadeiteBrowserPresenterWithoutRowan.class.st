@@ -55,6 +55,13 @@ JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> connectPackageDictionaryPresenters [
+
+	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
+		self updateDictionary ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
@@ -74,7 +81,7 @@ JadeiteBrowserPresenterWithoutRowan >> filterClassesBySelectedClassCategory: the
 	classCategoryPresenter selectedItem ifNil: [ ^ theClasses ].
 	^ theClasses select: [ :classService |
 		  classService classCategory
-		  = classCategoryPresenter selectedItem data ]
+		  = classCategoryPresenter selectedItem name ]
 ]
 
 { #category : 'initialization' }
@@ -293,11 +300,13 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onCompletion: completionBlock [
 
-	RowanServiceUpdater current critical: [
-		self setAppropriateMeta: classService.
-		self selectClassListTab.
-		self selectClass: classService.
-		completionBlock value ]
+	self updateService: classService onCompletion: [
+		RowanServiceUpdater current critical: [
+			self selectDictionaryNamed: classService dictionaryName.
+			self setAppropriateMeta: classService.
+			self selectClassListTab.
+			self selectClass: classService.
+			completionBlock value ] ]
 ]
 
 { #category : 'updates' }
@@ -385,4 +394,12 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection 
 				           match: cat ] ].
 	self classListPresenter list:
 		(classes asSortedCollection: [ :x :y | x name < y name ])
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassesOnCompletion: completionBlock [
+
+	self
+		updateServices: dictionaryListPresenter selections
+		onCompletion: completionBlock
 ]

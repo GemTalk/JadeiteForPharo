@@ -35,6 +35,26 @@ JadeiteForPharoWithRowanBrowserTestCase >> test_abortRemovesProjectAndPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoWithRowanBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
+	self testsIssue: #issue375
+		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
+	self selectServiceNamed: self sampleClassName in: self classListPresenter.
+	self selectMethodNamed: #foo.	"select a method defined in it's class package while the extension class is selected"
+	self methodSourcePresenter value: 'foo   ^foot'.
+	self assert: self methodSourcePresenter text equals: 'foo   ^foot'.
+	self assert: self methodListPresenter selectedItem selector equals: #foo.
+	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
+	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'.
+	self methodSourcePresenter text: 'foo   ^footy'.
+	self assert: self methodSourcePresenter text equals: 'foo   ^footy'.
+	self assert: self methodListPresenter selectedItem selector equals: #foo.
+	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
+	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoWithRowanBrowserTestCase >> test_addDuplicatePackage [
 	"don't open the add package dialog window as it's hard to test a modal window,
 	just fill in the values so the browser can extract them and do the actual work."

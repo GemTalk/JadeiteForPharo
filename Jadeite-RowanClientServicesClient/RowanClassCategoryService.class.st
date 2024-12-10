@@ -54,6 +54,12 @@ RowanClassCategoryService >> hash [
 ]
 
 { #category : 'accessing' }
+RowanClassCategoryService >> name [
+
+	^ name
+]
+
+{ #category : 'accessing' }
 RowanClassCategoryService >> name: aString [ 
 
 	name := aString 

@@ -5,6 +5,20 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'support' }
+JadeiteForPharoWithoutRowanBrowserTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
+	self projectsPresenter classDefinitionPresenter
+		value: superName, ' rwSubclass: ', className printString, '
+	instVarNames: ' , instVars printString
+				, '
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ', aString printString, '
+	options: #()'.
+	^self projectsPresenter editSaveClass
+]
+
 { #category : 'selection' }
 JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanAnsweringService [
 	" A little weird but select the answering service twice. 
@@ -123,6 +137,49 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> test_hierarchyExpansion [
 	self assertIsNil: (hierarchyModel
 			 detect: [ :svc | svc name = 'RwGsPlatform' ]
 			 ifNone: [  ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWithoutRowanBrowserTestCase >> test_saveClass [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringServiceTest'.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'test_saveClass' )
+		category: 'Rowan-Services-Tests'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'TestClass'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWithoutRowanBrowserTestCase >> test_selectCategory [
+	"basic test to just ensure class category presenter gets correct selection"
+
+	self selectRowanAnsweringService.
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'RowanClientServices'.
+	self
+		assert: self classCategoryPresenter selectedItem data
+		equals: 'Core'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringService'
 ]
 
 { #category : 'tests' }

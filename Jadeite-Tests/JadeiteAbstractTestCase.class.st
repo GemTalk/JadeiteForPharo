@@ -115,6 +115,11 @@ JadeiteAbstractTestCase >> categoryListPresenter [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> classCategoryPresenter [
+	^self projectsPresenter classCategoryPresenter
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> classHierarchyPresenter [
 	^self projectsPresenter classHierarchyPresenter
 ]

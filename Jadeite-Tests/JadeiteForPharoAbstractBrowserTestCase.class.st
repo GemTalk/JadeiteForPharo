@@ -254,26 +254,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_abuseMethodList [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
-	self testsIssue: #issue375
-		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: self classListPresenter.
-	self selectMethodNamed: #foo.	"select a method defined in it's class package while the extension class is selected"
-	self methodSourcePresenter value: 'foo   ^foot'.
-	self assert: self methodSourcePresenter text equals: 'foo   ^foot'.
-	self assert: self methodListPresenter selectedItem selector equals: #foo.
-	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
-	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'.
-	self methodSourcePresenter text: 'foo   ^footy'.
-	self assert: self methodSourcePresenter text equals: 'foo   ^footy'.
-	self assert: self methodListPresenter selectedItem selector equals: #foo.
-	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
-	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'
-]
-
-{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_addAccessors [
 
 	self
@@ -1383,7 +1363,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodListBrowserOverwritesMethod
 JadeiteForPharoAbstractBrowserTestCase >> test_methodSourceNotChanged [
 
 	| maxMs |
-	self destroy: projectsBrowser. 
+	self destroy: projectsBrowser.
 	maxMs := 1000.
 	1 to: 25 do: [ :index |
 		| presenter ms |
@@ -1399,10 +1379,10 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourceNotChanged [
 			Time millisecondClockValue - ms < maxMs ] ] whileTrue: [
 			(Delay forMilliseconds: 5) wait ].
 		presenter methodListPresenter selectedItem ifNil: [
-			presenter parentPresenter window close.
-			^ self error:
-				  'methd source not selected in under ' , maxMs printString
-				  , ' milliseconds' ].
+			self error:
+				'methd source not selected in under ' , maxMs printString
+				, ' milliseconds'.
+			^ presenter parentPresenter window close ].
 		self deny: presenter methodSourcePresenter hasUnacceptedEdits.
 		presenter parentPresenter window close ]
 ]
