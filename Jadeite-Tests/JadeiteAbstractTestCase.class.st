@@ -266,6 +266,11 @@ JadeiteAbstractTestCase >> destroy: visualThing [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> dictionaryListPresenter [
+	^self projectsPresenter dictionaryListPresenter
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> dictionaryPresenter [
 	"dictionary list in projects browser"
 
@@ -548,7 +553,10 @@ JadeiteAbstractTestCase >> primaryTestWindow [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> projectListPresenter [
-	^self projectsPresenter projectListPresenter
+
+	^ JadeitePreferences isRowanLoaded
+		  ifTrue: [ self projectsPresenter projectListPresenter ]
+		  ifFalse: [ self projectsPresenter dictionaryListPresenter ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -949,18 +957,43 @@ JadeiteAbstractTestCase >> selectNoneProject [
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Class [
-	"big assumption - RowanSample1 class will allways be in RowanSample1 project"
+	"big assumption - RowanSample1 class will always be in RowanSample1 project"
 
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Core' in: self packageListPresenter.
-	self selectServiceNamed: self sampleClassName in: self classListPresenter
+	JadeitePreferences isRowanLoaded
+		ifTrue: [
+			self
+				selectServiceNamed: 'RowanSample1'
+				in: self projectListPresenter.
+			self
+				selectServiceNamed: 'RowanSample1-Core'
+				in: self packageListPresenter ]
+		ifFalse: [
+			self
+				selectServiceNamed: 'SampleSymbolDict'
+				in: self dictionaryListPresenter ].
+	self
+		selectServiceNamed: self sampleClassName
+		in: self classListPresenter
 ]
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Test [
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self packageListPresenter.
-	self selectServiceNamed: 'RowanSample1Test' in: self classListPresenter
+
+	JadeitePreferences isRowanLoaded
+		ifTrue: [
+			self
+				selectServiceNamed: 'RowanSample1'
+				in: self projectListPresenter.
+			self
+				selectServiceNamed: 'RowanSample1-Tests'
+				in: self packageListPresenter ]
+		ifFalse: [
+			self
+				selectServiceNamed: 'SampleSymbolDict'
+				in: self dictionaryListPresenter ].
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self classListPresenter
 ]
 
 { #category : 'selection' }

@@ -1,12 +1,23 @@
 Class {
-	#name : 'JadeiteForPharoBrowserTestCase',
-	#superclass : 'JadeiteForPharoBrowserAbstractTestCase',
+	#name : 'JadeiteForPharoAbstractBrowserTestCase',
+	#superclass : 'JadeiteForPharoGUITestCase',
+	#instVars : [
+		'secondBrowser',
+		'secondPresenter',
+		'transcriptWritesWereEnabled'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'testing' }
+JadeiteForPharoAbstractBrowserTestCase class >> isAbstract [
+
+	^ self name = #JadeiteForPharoAbstractBrowserTestCase
+]
+
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> addChildrenOf: item to: items [
+JadeiteForPharoAbstractBrowserTestCase >> addChildrenOf: item to: items [
 	| children |
 	children := self classHierarchyPresenter childrenFor: item.
 	children isEmpty ifTrue:[^self].
@@ -16,7 +27,7 @@ JadeiteForPharoBrowserTestCase >> addChildrenOf: item to: items [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> hierarchyVisibleItems [
+JadeiteForPharoAbstractBrowserTestCase >> hierarchyVisibleItems [
 	"return a collection of all visible items in the tree"
 	| items |
 
@@ -28,7 +39,7 @@ JadeiteForPharoBrowserTestCase >> hierarchyVisibleItems [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> methodMenuItemNamed: aString [
+JadeiteForPharoAbstractBrowserTestCase >> methodMenuItemNamed: aString [
 
 	self methodListPresenter contextMenu menuGroups do: [ :group |
 		group menuItems do: [ :item |
@@ -37,13 +48,13 @@ JadeiteForPharoBrowserTestCase >> methodMenuItemNamed: aString [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
+JadeiteForPharoAbstractBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits [
 
 	^self methodSourcePresenter withAdapterDo: [ :adapter | adapter widgetDo:[:widget | widget hasUnacceptedEdits ] ]
 ]
 
 { #category : 'not working tests' }
-JadeiteForPharoBrowserTestCase >> moveMethodToCategory [
+JadeiteForPharoAbstractBrowserTestCase >> moveMethodToCategory [
 	"not sure why the code works but the test just won't pass"
 	self selectRowanSample1Class.
 	self projectsPresenter basicAddMethodCategory: 'foo'.
@@ -64,7 +75,7 @@ JadeiteForPharoBrowserTestCase >> moveMethodToCategory [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> openSecondBrowser [
+JadeiteForPharoAbstractBrowserTestCase >> openSecondBrowser [
 
 	secondBrowser := self testResourceClass current openWindow: [
 		                 self transcript openBrowser ].
@@ -75,32 +86,45 @@ JadeiteForPharoBrowserTestCase >> openSecondBrowser [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> projectBrowserTabs [
+JadeiteForPharoAbstractBrowserTestCase >> projectBrowserTabs [
 
 	^ projectsBrowser tabs pages
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> projectList [
+JadeiteForPharoAbstractBrowserTestCase >> projectList [
 	^self projectListPresenter list
 ]
 
-{ #category : 'support' }
-JadeiteForPharoBrowserTestCase >> selectRowanAnsweringService [
+{ #category : 'as yet unclassified' }
+JadeiteForPharoAbstractBrowserTestCase >> projectNamed: aString [
+	^self projectsPresenter projectListPresenter list
+		detect: [:projectService | projectService name = aString]
+		ifNone: []
+]
 
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Rowan-Services-Core'
-		in: self packageListPresenter.
+{ #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> selectRowanAnsweringService [
+
+	JadeitePreferences isRowanLoaded
+		ifTrue: [
+			self
+				selectServiceNamed: 'RowanClientServices'
+				in: self projectListPresenter.
+			self
+				selectServiceNamed: 'Rowan-Services-Core'
+				in: self packageListPresenter ]
+		ifFalse: [
+			self
+				selectServiceNamed: 'RowanClientServices'
+				in: self dictionaryListPresenter ].
 	self
 		selectServiceNamed: 'RowanAnsweringService'
 		in: self classListPresenter
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> setupMultipleReferencesToString [
+JadeiteForPharoAbstractBrowserTestCase >> setupMultipleReferencesToString [
 
 	| source |
 	self selectRowanSample1Test.
@@ -142,8 +166,25 @@ array add: ''blerf''.
 		onCompletion: [  ]
 ]
 
+{ #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> tearDown [
+
+	super tearDown.
+	(session isNotNil and: [ session isValidSession ]) ifTrue: [
+		transcriptWritesWereEnabled == true ifTrue: [
+			transcript flipTranscript ] ].
+	methodListBrowser ifNotNil: [
+		self destroy: methodListBrowser.
+		methodListBrowser := nil ].
+	secondBrowser ifNotNil: [ :two |
+		two tabs selectedPage ifNotNil: [
+			two activePresenter methodSourcePresenter adapter ifNotNil: [ :a |
+				a widget hasUnacceptedEdits: false ] ] ].
+	self destroy: secondBrowser
+]
+
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
+JadeiteForPharoAbstractBrowserTestCase >> test_abortOnVariablesTab [
 
 	self unloadSampleProject1.
 	self commitTransaction.
@@ -161,7 +202,7 @@ JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_abortRemovesClassAndMethod [
+JadeiteForPharoAbstractBrowserTestCase >> test_abortRemovesClassAndMethod [
 	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
 	self selectRowanSample1Test.
 	self
@@ -187,28 +228,7 @@ JadeiteForPharoBrowserTestCase >> test_abortRemovesClassAndMethod [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
-	self selectRowanSample1Test.
-	[self denyIsNil: (self projectListPresenter list
-				detect: [:projectService | projectService name = 'RowanSample1']
-				ifNone: []).
-	self denyIsNil: (self packageListPresenter list
-				detect: [:packageService | packageService name = 'RowanSample1-Tests']
-				ifNone: []).
-	self abortTransaction.
-	self assertIsNil: (self projectListPresenter list
-				detect: [:projectService | projectService name = 'RowanSample1']
-				ifNone: []).
-	self assertIsNil: (self packageListPresenter list
-				detect: [:packageService | packageService name = 'RowanSample1-Tests']
-				ifNone: [])]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_abuseMethodList [
+JadeiteForPharoAbstractBrowserTestCase >> test_abuseMethodList [
 	"This test doesn't appear to do much but it does exercise
 	list selection aggressively. There have been occassions when
 	selecting methods was progressively getting slower with no 
@@ -234,7 +254,7 @@ JadeiteForPharoBrowserTestCase >> test_abuseMethodList [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
+JadeiteForPharoAbstractBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self testsIssue: #issue375
 		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
@@ -254,7 +274,7 @@ JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_addAccessors [
+JadeiteForPharoAbstractBrowserTestCase >> test_addAccessors [
 
 	self
 		testsIssue: #issue382
@@ -300,7 +320,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessors [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_addAccessorsClassTab [
+JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsClassTab [
 
 	self
 		testsIssue: #issue382
@@ -331,7 +351,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessorsClassTab [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
+JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsVerifySource [
 
 	self
 		testsIssue: #issue382
@@ -359,49 +379,7 @@ JadeiteForPharoBrowserTestCase >> test_addAccessorsVerifySource [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_addDuplicatePackage [
-	"don't open the add package dialog window as it's hard to test a modal window,
-	just fill in the values so the browser can extract them and do the actual work."
-
-	| projectService packageName modalWindow |
-	self
-		testsIssue: #issue266
-		withTitle:
-		'Add package with existing name results in package in two projects'.
-
-	packageName := 'NewPackage'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	projectService := self projectListPresenter selection.
-	modalWindow := JadeiteAddPackageDialog
-		               newModalWindowOn: session
-		               projectService:
-		               self projectListPresenter selectedItem.
-	modalWindow presenter packageNamePresenter: packageName.
-	self projectsPresenter basicAddPackage: modalWindow.
-	self
-		assert: self packageListPresenter selectedItem name
-		equals: packageName.
-	self
-		assert: (self packageListPresenter list select: [ :service |
-				 service name = packageName ]) size
-		equals: 1.
-	modalWindow := JadeiteAddPackageDialog
-		               newModalWindowOn: session
-		               projectService:
-		               self projectListPresenter selectedItem.
-	modalWindow presenter packageNamePresenter: packageName.
-	self projectsPresenter basicAddPackage: modalWindow. "should just select the project in the list"
-	self
-		assert: self packageListPresenter selectedItem name
-		equals: packageName.
-	self
-		assert: (self packageListPresenter list select: [ :service |
-				 service name = packageName ]) size
-		equals: 1
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
+JadeiteForPharoAbstractBrowserTestCase >> test_addRemoveCategory [
 	self selectRowanSample1Class.
 	self deny: (self categoryListPresenter list includes: 'jadeite test').
 	self projectsPresenter basicAddMethodCategory: 'jadeite test'.
@@ -412,7 +390,7 @@ JadeiteForPharoBrowserTestCase >> test_addRemoveCategory [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
+JadeiteForPharoAbstractBrowserTestCase >> test_addStarredCategory [
 	self testsIssue: #issue956
 		withTitle: '[3.2.12] Use of *category to specify package depends on a repository quality that needs to be visible'.
 	self selectRowanSample1Class.
@@ -428,25 +406,13 @@ JadeiteForPharoBrowserTestCase >> test_addStarredCategory [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_browseClass [
-	"project browser opened in setup"
-
-	projectsBrowser ifNotNil: [
-		self closeBrowser: projectsBrowser.
-		self setupProjectBrowser ].
-	self assert: projectsBrowser class equals: JadeiteBrowser.
-	self denyIsNil: (self projectList
-			 detect: [ :projectService | projectService name = 'Rowan' ]
-			 ifNone: [  ])
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_browseClassMethodSourceNotDirty [
+JadeiteForPharoAbstractBrowserTestCase >> test_browseClassMethodSourceNotDirty [
 	"was seeing method source dirty when method selected.
 	Seemed to happen more when browser first opened."
 
 	self selectRowanSample1Test.
 	secondBrowser := self projectsPresenter browseClass.
+	(Delay forMilliseconds: 500) wait. 
 	self
 		assert: secondBrowser activePresenter selectedClass name
 		equals: 'RowanSample1Test'.
@@ -457,7 +423,7 @@ JadeiteForPharoBrowserTestCase >> test_browseClassMethodSourceNotDirty [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
+JadeiteForPharoAbstractBrowserTestCase >> test_browseLiteralReferences [
 
 	| methodListPresenter source |
 	self
@@ -495,7 +461,7 @@ JadeiteForPharoBrowserTestCase >> test_browseLiteralReferences [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteForPharoBrowserTestCase >> test_browseMenuItemEnablement [
+JadeiteForPharoAbstractBrowserTestCase >> test_browseMenuItemEnablement [
 	"several items should not be enabled when multiple methods selected or none selected"
 
 	self
@@ -555,25 +521,7 @@ JadeiteForPharoBrowserTestCase >> test_browseMenuItemEnablement [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_browseProject [
-
-	| projectListPresenter service |
-	RowanServiceUpdater uninstallTestUpdater.
-	projectListPresenter := self projectsPresenter projectListPresenter.
-	service := projectListPresenter items detect: [ :projectService |
-		           projectService name = 'Rowan' ].
-	projectListPresenter selectItem: service.
-	secondBrowser := self projectsPresenter browseProject.
-	[
-	secondBrowser activePresenter projectListPresenter selectedItem isNil ]
-		whileTrue: [ (Delay forMilliseconds: 10) wait ].
-	self assert: [
-		secondBrowser activePresenter projectListPresenter selectedItem name
-		= 'Rowan' ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_categorySelection [
+JadeiteForPharoAbstractBrowserTestCase >> test_categorySelection [
 
 	self
 		testsJadeiteForPharoIssue: #issue24
@@ -601,7 +549,7 @@ JadeiteForPharoBrowserTestCase >> test_categorySelection [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
+JadeiteForPharoAbstractBrowserTestCase >> test_categorySelectionNotSticky [
 	"method selection was retained incorrectly on category changes.
 	Method selection should only be retained if selected method is 
 	in post category selection method list."
@@ -627,7 +575,7 @@ JadeiteForPharoBrowserTestCase >> test_categorySelectionNotSticky [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_categoryUpdates [
+JadeiteForPharoAbstractBrowserTestCase >> test_categoryUpdates [
 
 	| flub1MethodInMethodList |
 	self
@@ -668,7 +616,7 @@ JadeiteForPharoBrowserTestCase >> test_categoryUpdates [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classCommentReset [
+JadeiteForPharoAbstractBrowserTestCase >> test_classCommentReset [
 	"also tests that abort restores original comment from class service"
 
 	| originalComment |
@@ -692,7 +640,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentReset [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classCommentSave [
+JadeiteForPharoAbstractBrowserTestCase >> test_classCommentSave [
 	"also tests that abort restores original comment from class service"
 
 	| originalComment |
@@ -727,7 +675,7 @@ JadeiteForPharoBrowserTestCase >> test_classCommentSave [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteForPharoBrowserTestCase >> test_classCopy [
+JadeiteForPharoAbstractBrowserTestCase >> test_classCopy [
 
 	| oldInstanceSelectors newInstanceSelectors oldClassClassSelectors newClassClassSelectors oldInstVarNames newInstVarNames oldClassVarNames newClassVarNames |
 	self
@@ -775,7 +723,7 @@ JadeiteForPharoBrowserTestCase >> test_classCopy [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteForPharoBrowserTestCase >> test_classRenameNoReferences [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameNoReferences [
 
 	self
 		testsIssue: #issue439
@@ -805,7 +753,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameNoReferences [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteForPharoBrowserTestCase >> test_classRenameNoReferencesHierarchy [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameNoReferencesHierarchy [
 
 	self
 		testsIssue: #issue439
@@ -839,7 +787,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameNoReferencesHierarchy [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteForPharoBrowserTestCase >> test_classRenameResetsClassDefinition [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameResetsClassDefinition [
 
 	self
 		testsIssue: #issue439
@@ -864,7 +812,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameResetsClassDefinition [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classRenameShowsMethods [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameShowsMethods [
 	"don't lose the method display on rename"
 
 	| methodList |
@@ -904,7 +852,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameShowsMethods [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferences [
 
 	| list |
 	self
@@ -943,7 +891,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesFailingCompile [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferencesFailingCompile [
 
 	| list |
 	self
@@ -989,7 +937,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesFailingCompile [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferencesHierarchy [
 
 	self
 		testsIssue: #issue439
@@ -1038,7 +986,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNoFailCompile [
+JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNoFailCompile [
 
 	| list |
 	self
@@ -1086,7 +1034,7 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNo
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_compileClass [
+JadeiteForPharoAbstractBrowserTestCase >> test_compileClass [
 
 	self
 		testsIssue: #issue390
@@ -1116,7 +1064,7 @@ JadeiteForPharoBrowserTestCase >> test_compileClass [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_compileClassCompilerError [
+JadeiteForPharoAbstractBrowserTestCase >> test_compileClassCompilerError [
 
 	self
 		testsIssue: #issue390
@@ -1144,7 +1092,7 @@ JadeiteForPharoBrowserTestCase >> test_compileClassCompilerError [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_compileErrorDisplay [
+JadeiteForPharoAbstractBrowserTestCase >> test_compileErrorDisplay [
 
 	| source |
 	self
@@ -1161,7 +1109,7 @@ JadeiteForPharoBrowserTestCase >> test_compileErrorDisplay [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
+JadeiteForPharoAbstractBrowserTestCase >> test_confirmDiscardMethodChanges [
 	"The list selection code is what is run if the user clicks on a list item ... at least currently"
 	| changedMethodSource |
 	self
@@ -1199,19 +1147,7 @@ JadeiteForPharoBrowserTestCase >> test_confirmDiscardMethodChanges [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
-	"make sure it updates the tab label"
-
-	self deselectProjects.
-	self assert: self projectBrowserTabs first title equals: '1 Projects'.
-	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
-	self assert: self projectBrowserTabs first title equals: '1 Rowan'.
-	self deselectProjects.
-	self assert: self projectBrowserTabs first title equals: '1 Projects'
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_discardMethodChangesRevertsSource [
+JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource [
 	"If you reselect the same method that has changes and discard text was not being updated."
 	| methodSelectorsList newSource originalSource |
 	self selectRowanSample1Test.
@@ -1246,10 +1182,13 @@ JadeiteForPharoBrowserTestCase >> test_discardMethodChangesRevertsSource [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
+JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
 	self selectRowanServicesPackage.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter.
 	self
 		selectServiceNamed: 'RowanAnsweringService'
 		in: self classListPresenter.
@@ -1281,60 +1220,7 @@ JadeiteForPharoBrowserTestCase >> test_hierarchyDoubleClick [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_hierarchyExpansion [
-	"When no classes are selected and the hierarchy tab is chosen, we should
-	see a hierarchy showing all superclasses of the packaged classes. 
-	Subclasses are available with the > arrow. 
-	"
-
-	| hierarchyModel |
-	self
-		testsIssue: #issue156
-		withTitle: 'Double click on hierarchy class should expand list #156'.
-	self
-		selectServicesNamed: (Array with: 'Rowan')
-		in: self projectListPresenter.
-	self
-		selectServicesNamed: #( 'Rowan-Kernel' )
-		in: self packageListPresenter.
-	self assert: self classListPresenter model collection size equals: 2.
-	self
-		assert: self classListPresenter model collection first name
-		equals: 'Rowan'.
-	self
-		assert: self classListPresenter model collection last name
-		equals: 'RwPlatform'.
-	self selectHierarchyTab.
-	
-	hierarchyModel := self classHierarchyPresenter model.
-	
-	self assert: hierarchyModel first name equals: 'Object'.
-	
-	hierarchyModel := self classHierarchyPresenter childrenFor:
-		                  hierarchyModel first.
-		
-	self assert: hierarchyModel first name equals: 'Rowan'.
-	self assert: (self classHierarchyPresenter itemAtPath: #(1 1)) equals: hierarchyModel first.
-	self assert: (self classHierarchyPresenter isExpanded: #(1 1)). 
-	self assert: (self classHierarchyPresenter childrenFor: hierarchyModel first) isEmpty.
-	
-	self assert: hierarchyModel last name equals: 'RwPlatform'.
-	self assert: (self classHierarchyPresenter itemAtPath: #(1 2)) equals: hierarchyModel last.
-	self assert: (self classHierarchyPresenter isExpanded: #(1 2)). 
-	self assert: (self classHierarchyPresenter childrenFor: hierarchyModel last) notEmpty.
-	
-	hierarchyModel := self classHierarchyPresenter childrenFor:
-		                  hierarchyModel last.
-		
-	self assert: hierarchyModel first name equals: 'RwGsPlatform'.
-	self assert: (self classHierarchyPresenter itemAtPath: #(1 2 1)) equals: hierarchyModel first.
-	self assert: (self classHierarchyPresenter isExpanded: #(1 2 1)). 
-	self assert: (self classHierarchyPresenter childrenFor: hierarchyModel first) isEmpty.
-	
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_instVarReaders [
+JadeiteForPharoAbstractBrowserTestCase >> test_instVarReaders [
 	"should browse the whole hierarchy"
 
 	| list superClassName subclassName |
@@ -1390,7 +1276,7 @@ JadeiteForPharoBrowserTestCase >> test_instVarReaders [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_instVarWriters [
+JadeiteForPharoAbstractBrowserTestCase >> test_instVarWriters [
 	"should browse the whole hierarchy"
 
 	| list superclassName subClassName |
@@ -1446,7 +1332,7 @@ JadeiteForPharoBrowserTestCase >> test_instVarWriters [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
+JadeiteForPharoAbstractBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 	"expect RowanSample1 to have a foo method already"
 
 	| methodList classMethod instanceMethod |
@@ -1494,7 +1380,7 @@ JadeiteForPharoBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_methodSourceNotChanged [
+JadeiteForPharoAbstractBrowserTestCase >> test_methodSourceNotChanged [
 
 	| maxMs |
 	self destroy: projectsBrowser. 
@@ -1522,7 +1408,7 @@ JadeiteForPharoBrowserTestCase >> test_methodSourceNotChanged [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_methodSourcechangeIndicator [
+JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 	"It's hard to test that a glyph is displayed but we can test 
 	the state that changes when the indicator is turned on and off"
 
@@ -1541,120 +1427,7 @@ JadeiteForPharoBrowserTestCase >> test_methodSourcechangeIndicator [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
-
-	| projects |
-	self
-		testsJadeiteForPharoIssue: #issue21
-		title:
-		'loading a new project externally and then aborting ends up with new project at bottom of console'.
-	JadeiteApplication abortTransactionInSession: session.
-	projects := self projectList collect: [ :projectService |
-		            projectService name ].
-	self deny: (projects includes: 'RowanSample1').
-	projectsBrowser
-		installProjectFromPath:
-		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
-		projectsHome: '$ROWAN_PROJECTS_HOME'.
-	projects := self projectList collect: [ :projectService |
-		            projectService name ].
-	self
-		assert: projects
-		equals:
-			(projects asSortedCollection: [ :x :y |
-				 x asLowercase < y asLowercase ]) asOrderedCollection
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
-
-	| projectsBefore projectsAfter |
-	self
-		testsJadeiteForPharoIssue: #issue21
-		title:
-		'loading a new project externally and then aborting ends up with new project at bottom of console'.
-	projectsBefore := self projectList collect: [ :projectService |
-		                  projectService name ].
-	JadeiteApplication abortTransactionInSession: session.
-	[
-	projectsBrowser
-		installProjectFromPath:
-		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
-		projectsHome: '$ROWAN_PROJECTS_HOME'.
-	projectsAfter := self projectList collect: [ :projectService |
-		                 projectService name ].
-	self assert: projectsBefore equals: projectsAfter ] ensure: [
-		self testResourceClass current
-			tearDown;
-			"reset the world after abort. Need to improve this. "setUp ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_projectRemoved [
-	"Gracefully remove a project from the project list if it was 
-	removed behind the tool's back"
-
-	| sampleProject |
-	self
-		selectServicesNamed: (Array with: 'RowanSample1')
-		in: self projectListPresenter.
-	sampleProject := self projectNamed: 'RowanSample1'.
-	self denyIsNil: sampleProject.
-	self
-		selectServicesNamed: (Array with: 'Rowan')
-		in: self projectListPresenter.
-	session executeString:
-		'Rowan projectTools delete deleteProjectNamed: ''RowanSample1''. true'. "delete project behind tool's back"
-	self auditAll.
-	self
-		selectServicesNamed: (Array with: 'RowanSample1')
-		in: self projectListPresenter. "expect project to disappear but not walkback"
-	sampleProject := self projectNamed: 'RowanSample1'.
-	self assertIsNil: sampleProject
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_removeProject [
-
-	| targetProject |
-	self testsIssue: #issue129 withTitle: 'Expose unload project.'.
-	targetProject := self projectListPresenter list
-		                 detect: [ :projectService |
-		                 projectService name = self sampleProject1Name ]
-		                 ifNone: [  ].
-	self denyIsNil: targetProject.
-	self projectListPresenter selection: targetProject.
-	"just select an element in each list to test cleanup after removal"
-	self packageListPresenter selection:
-		self packageListPresenter list first.
-	self classListPresenter selection: self classListPresenter list first.
-	self categoryListPresenter selection:
-		self categoryListPresenter list first.
-	self methodListPresenter selection:
-		self methodListPresenter list first.
-	self projectsPresenter
-		basicUnloadProjects:
-		(Array with: self projectListPresenter selectedItem name)
-		onCompletion: nil.
-	targetProject := self projectListPresenter list
-		                 detect: [ :projectService |
-		                 projectService name = self sampleProject1Name ]
-		                 ifNone: [  ].
-	self assertIsNil: targetProject.
-	"make sure browser cleans itself up"
-
-	[
-	self assert: self projectListPresenter selections isEmpty.
-	self assert: self packageListPresenter list isEmpty.
-	self assert: self classListPresenter list isEmpty.
-	self assert: self categoryListPresenter list isEmpty.
-	self assert: self methodListPresenter list isEmpty ] ensure: [
-		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
+JadeiteForPharoAbstractBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
 	| methodSelectorsList newMethodSelectorsList originalSource |
 	self testsIssue: #issue770 withTitle: 'Ensure new method is alphabetized after compile'.
 	self selectRowanSample1Test.
@@ -1673,7 +1446,7 @@ JadeiteForPharoBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_selectVariable [
+JadeiteForPharoAbstractBrowserTestCase >> test_selectVariable [
 
 	self selectRowanServicesPackage.
 	self
@@ -1700,7 +1473,7 @@ JadeiteForPharoBrowserTestCase >> test_selectVariable [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_sendersOfOptimizedSelector [
+JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 	"senders of optimized selectors were giving walkback"
 
 	| existingMethodListPresenters |
@@ -1715,42 +1488,4 @@ JadeiteForPharoBrowserTestCase >> test_sendersOfOptimizedSelector [
 	self
 		assert: methodListBrowser methodSourcePresenter selection
 		equals: '_isNumber'
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
-
-	self
-		testsIssue: #issue418
-		withTitle:
-			'Navigating and category creation in class hiearchy view can''t keep class side/instance side straight';
-		selectRowanSample1Test;
-		selectHierarchyTab;
-		openSecondBrowser;
-		selectServiceNamed: 'RowanSample1'
-		in: secondPresenter projectListPresenter;
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: secondPresenter packageListPresenter;
-		selectServiceNamed: 'RowanSample1Test'
-		in: secondPresenter classListPresenter;
-		selectHierarchyTabIn: secondPresenter;
-		selectClassSide;
-		deny:
-			(self projectsPresenter categoryListPresenter list includes:
-					 'fnoodle');
-		deny:
-			(secondPresenter categoryListPresenter list includes: 'fnoodle').
-	self assert: self projectsPresenter isClassSideSelected.
-	self projectsPresenter basicAddMethodCategory: 'fnoodle'.
-	self
-		assert: self projectsPresenter categoryListPresenter selectedItem
-		equals: 'fnoodle';
-		deny:
-			(secondPresenter categoryListPresenter list includes: 'fnoodle').
-	self deny: secondPresenter isClassSideSelected.
-	secondPresenter basicAddMethodCategory: 'fnoodle'.
-	self
-		assert: secondPresenter categoryListPresenter selectedItem
-		equals: 'fnoodle';
-		assert: (self categoryListPresenter list includes: 'fnoodle')
 ]

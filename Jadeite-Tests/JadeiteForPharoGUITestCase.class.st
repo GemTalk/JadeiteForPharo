@@ -44,7 +44,7 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
-	JadeitePreferences isRowanLoaded: true. 
+	"JadeitePreferences isRowanLoaded: true. "
 	self ensureLauncherOpened.
 	super setUp
 ]
@@ -63,14 +63,17 @@ JadeiteForPharoGUITestCase >> tearDown [
 JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
 	"would really like a more determinate way of getting the write method list"
 
-	| existingMethodLists newMethodLists |
+	| existingMethodLists newMethodLists count |
 	RsrGarbageCollector maximumReclamation.
 	existingMethodLists := JadeiteMethodListPresenter allInstances.
 	aBlock fork.
+	count := 0.
 	[
-	(newMethodLists := JadeiteMethodListPresenter allInstances
-		                   asOrderedCollection) size
-	> existingMethodLists size ] whileFalse: [
+	count > 100 or: [
+		(newMethodLists := JadeiteMethodListPresenter allInstances
+			                   asOrderedCollection) size
+		> existingMethodLists size ] ] whileFalse: [
+		count := count + 1.
 		(Delay forMilliseconds: 1) wait ].
 	newMethodLists removeAll: existingMethodLists.
 	methodListBrowser := newMethodLists first
