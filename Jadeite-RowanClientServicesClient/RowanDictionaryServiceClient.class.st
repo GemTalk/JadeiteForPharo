@@ -19,3 +19,10 @@ RowanDictionaryServiceClient >> inCommand: anObject [
 
 	inCommand := anObject
 ]
+
+{ #category : 'accessing' }
+RowanDictionaryServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^18
+]

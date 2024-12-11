@@ -40,6 +40,13 @@ RowanQueryServiceClient >> inCommand: anObject [
 ]
 
 { #category : 'accessing' }
+RowanQueryServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^13
+]
+
+{ #category : 'accessing' }
 RowanQueryServiceClient >> name [
 	^name
 ]

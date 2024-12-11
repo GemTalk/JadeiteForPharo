@@ -42,6 +42,13 @@ RowanFileServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'accessing' }
+RowanFileServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^14
+]
+
 { #category : 'initialization' }
 RowanFileServiceClient >> initialize [
 

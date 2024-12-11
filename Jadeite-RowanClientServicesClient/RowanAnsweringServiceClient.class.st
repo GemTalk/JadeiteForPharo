@@ -40,6 +40,13 @@ RowanAnsweringServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'constants' }
+RowanAnsweringServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^12
+]
+
 { #category : 'initialization' }
 RowanAnsweringServiceClient >> initialize [
 

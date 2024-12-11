@@ -20,6 +20,13 @@ RowanFillerClassServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'constants' }
+RowanFillerClassServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^48
+]
+
 { #category : 'Init / Release' }
 RowanFillerClassServiceClient >> initialize [
 	

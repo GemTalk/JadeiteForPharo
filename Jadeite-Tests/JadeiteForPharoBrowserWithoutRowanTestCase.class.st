@@ -1,12 +1,12 @@
 Class {
-	#name : 'JadeiteForPharoWithoutRowanBrowserTestCase',
+	#name : 'JadeiteForPharoBrowserWithoutRowanTestCase',
 	#superclass : 'JadeiteForPharoAbstractBrowserTestCase',
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
 
 { #category : 'support' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
+JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
 	self projectsPresenter classDefinitionPresenter
 		value: superName, ' rwSubclass: ', className printString, '
 	instVarNames: ' , instVars printString
@@ -20,7 +20,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> saveClass: className superclass: s
 ]
 
 { #category : 'selection' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanAnsweringService [
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
 	" A little weird but select the answering service twice. 
 	The first selection may reset the class category which causes
 	a refresh in the class list and the test can't keep up (but manually can)"
@@ -37,7 +37,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanAnsweringService [
 ]
 
 { #category : 'selection' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanSample1Class [
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
 	"big assumption - RowanSample1 class will always be in RowanSample1 project"
 
 	self
@@ -52,7 +52,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanSample1Class [
 ]
 
 { #category : 'selection' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanSample1Test [
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Test [
 
 	self
 		selectServiceNamed: 'SampleSymbolDict'
@@ -66,12 +66,12 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanSample1Test [
 ]
 
 { #category : 'selection' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> selectRowanServicesPackage [
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanServicesPackage [
 	"no package list"
 ]
 
 { #category : 'selection' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> selectServicesNamed: services in: presenter [
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectServicesNamed: services in: presenter [
 	"no selection done for package list. Not used in JfPwoR"
 
 	self packageListPresenter == presenter ifTrue: [ ^ self ].
@@ -85,7 +85,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> selectServicesNamed: services in: 
 ]
 
 { #category : 'support' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> setUp [
+JadeiteForPharoBrowserWithoutRowanTestCase >> setUp [
 
 	super setUp.
 	JadeitePreferences isRowanLoaded: false.
@@ -93,7 +93,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> setUp [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> test_browseClass [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_browseClass [
 	"project browser opened in setup"
 
 	projectsBrowser ifNotNil: [
@@ -106,7 +106,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> test_browseClass [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> test_hierarchyExpansion [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 
 	| hierarchyModel names |
 	self todo: 'Not a great test of expansion in JfPwoR. Fix later.'.
@@ -140,7 +140,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> test_hierarchyExpansion [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> test_saveClass [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
 
 	self
 		selectServiceNamed: 'RowanClientServices'
@@ -163,11 +163,14 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> test_saveClass [
 		category: 'Rowan-Services-Tests'.
 	self
 		assert: self classListPresenter selectedItem name
-		equals: 'TestClass'
+		equals: 'TestClass'.
+	self assert: ('Object rwSubclass: ''TestClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected
 ]
 
 { #category : 'tests' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> test_selectCategory [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectCategory [
 	"basic test to just ensure class category presenter gets correct selection"
 
 	self selectRowanAnsweringService.
@@ -183,7 +186,7 @@ JadeiteForPharoWithoutRowanBrowserTestCase >> test_selectCategory [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoWithoutRowanBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
 
 	self
 		testsIssue: #issue418

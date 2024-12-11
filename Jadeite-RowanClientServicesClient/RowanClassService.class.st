@@ -528,6 +528,13 @@ RowanClassService >> hierarchyServices: anObject [
 ]
 
 { #category : 'constants' }
+RowanClassService >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^49
+]
+
+{ #category : 'constants' }
 RowanClassService >> indexOfMetaInstVar [
 	"performance enhancement"
 	^17

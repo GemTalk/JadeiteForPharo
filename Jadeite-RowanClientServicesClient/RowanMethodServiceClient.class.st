@@ -34,6 +34,13 @@ RowanMethodServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'accessing' }
+RowanMethodServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^44
+]
+
 { #category : 'initialization' }
 RowanMethodServiceClient >> initialize [
 

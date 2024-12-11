@@ -20,3 +20,10 @@ RowanFrameServiceClient >> index: anObject [
 
 	index := anObject
 ]
+
+{ #category : 'accessing' }
+RowanFrameServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^20
+]

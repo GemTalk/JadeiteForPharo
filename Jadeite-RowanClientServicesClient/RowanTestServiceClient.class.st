@@ -21,6 +21,13 @@ RowanTestServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'accessing' }
+RowanTestServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^12
+]
+
 { #category : 'service completion' }
 RowanTestServiceClient >> serviceCompletionBlock [
 

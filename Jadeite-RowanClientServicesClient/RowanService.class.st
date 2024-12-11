@@ -298,11 +298,23 @@ RowanService >> inCommand: semaphore [
 	"do nothing - only some subclasses implement"
 ]
 
+{ #category : 'accessing' }
+RowanService >> indexOfInCommandInstVar [
+	"some services don't have inCommand"
+
+	^-1 
+]
+
 { #category : 'Init / Release' }
 RowanService >> initialize [
 
 	commandArgs := Array new.
-	self inCommand: RowanSemaphore new. 
+	('initialize inCommand: ' , self class name) traceCr.
+	('initialize self identityHash: ' , self identityHash printString)
+		traceCr.
+	('initialize self inCommand semaphore identityHash: '
+	 , self inCommand identityHash printString) traceCr.
+	self inCommand: RowanSemaphore new
 ]
 
 { #category : 'Init / Release' }
@@ -775,6 +787,7 @@ RowanService >> serviceCompletionBlock: anObject [
 RowanService >> shouldReplicateInstVarAtIndex: index newService: anObject [
 
 	((1 to: 5) includes: index) ifTrue: [ ^ false ]. "rsr inst vars + command + commandArgs"
+	self indexOfInCommandInstVar = index ifTrue: [ ^ false ].
 	^ true
 ]
 

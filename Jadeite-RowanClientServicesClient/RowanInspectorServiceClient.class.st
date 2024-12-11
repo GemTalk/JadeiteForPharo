@@ -62,6 +62,13 @@ RowanInspectorServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'accessing' }
+RowanInspectorServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^29
+]
+
 { #category : 'service completion' }
 RowanInspectorServiceClient >> serviceCompletionBlock [
 

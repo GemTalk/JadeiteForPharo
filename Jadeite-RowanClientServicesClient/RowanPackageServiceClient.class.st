@@ -22,6 +22,13 @@ RowanPackageServiceClient >> inCommand: anObject [
 ]
 
 { #category : 'accessing' }
+RowanPackageServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^22
+]
+
+{ #category : 'accessing' }
 RowanPackageServiceClient >> serviceCompletionBlock [
 
 	^ serviceCompletionBlock
