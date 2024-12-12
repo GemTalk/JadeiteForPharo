@@ -47,6 +47,13 @@ RowanQueryServiceClient >> indexOfInCommandInstVar [
 ]
 
 { #category : 'accessing' }
+RowanQueryServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^14
+]
+
+{ #category : 'accessing' }
 RowanQueryServiceClient >> name [
 	^name
 ]

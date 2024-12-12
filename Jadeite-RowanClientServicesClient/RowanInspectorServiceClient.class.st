@@ -69,6 +69,13 @@ RowanInspectorServiceClient >> indexOfInCommandInstVar [
 	^29
 ]
 
+{ #category : 'accessing' }
+RowanInspectorServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^30
+]
+
 { #category : 'service completion' }
 RowanInspectorServiceClient >> serviceCompletionBlock [
 

@@ -49,6 +49,13 @@ RowanFileServiceClient >> indexOfInCommandInstVar [
 	^14
 ]
 
+{ #category : 'accessing' }
+RowanFileServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^15
+]
+
 { #category : 'initialization' }
 RowanFileServiceClient >> initialize [
 

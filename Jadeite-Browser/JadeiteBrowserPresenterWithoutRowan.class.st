@@ -258,17 +258,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 
 	| index dictionaryService |
 	classService ifNil: [ ^self ]. 
-	dictionaryService := self dictionaryListPresenter list
-		                     detect: [ :d |
-		                     d name = classService dictionaryName ]
-		                     ifNone: [ ^ self ].
-	index := self dictionaryListPresenter list indexOf: dictionaryService.
-	self dictionaryListPresenter selection selectedIndex = index
-		ifFalse: [
-			self dictionaryListPresenter selection unselectAll.
-			self dictionaryListPresenter
-				selectIndex: index
-				scrollToSelection: true ].
+	self selectDictionaryNamed: classService dictionaryName. 
 	self selectClassCategoryFor: classService.
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [

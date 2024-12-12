@@ -41,6 +41,13 @@ RowanMethodServiceClient >> indexOfInCommandInstVar [
 	^44
 ]
 
+{ #category : 'accessing' }
+RowanMethodServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^45
+]
+
 { #category : 'initialization' }
 RowanMethodServiceClient >> initialize [
 

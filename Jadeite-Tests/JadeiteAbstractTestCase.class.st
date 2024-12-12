@@ -984,18 +984,10 @@ JadeiteAbstractTestCase >> selectRowanSample1Class [
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Test [
 
-	JadeitePreferences isRowanLoaded
-		ifTrue: [
-			self
-				selectServiceNamed: 'RowanSample1'
-				in: self projectListPresenter.
-			self
-				selectServiceNamed: 'RowanSample1-Tests'
-				in: self packageListPresenter ]
-		ifFalse: [
-			self
-				selectServiceNamed: 'SampleSymbolDict'
-				in: self dictionaryListPresenter ].
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
 	self
 		selectServiceNamed: 'RowanSample1Test'
 		in: self classListPresenter

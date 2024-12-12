@@ -50,6 +50,13 @@ RowanAutoCommitServiceClient >> indexOfInCommandInstVar [
 ]
 
 { #category : 'accessing' }
+RowanAutoCommitServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^14
+]
+
+{ #category : 'accessing' }
 RowanAutoCommitServiceClient >> postUpdateBlock [
 
 	^postUpdateBlock

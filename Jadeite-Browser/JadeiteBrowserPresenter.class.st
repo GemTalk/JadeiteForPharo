@@ -314,10 +314,13 @@ JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 	oldClassService
 		command: #copyClassTo:;
 		commandArgs: (Array with: newClassName).
-	self issueCommand: oldClassService onCompletion: [  ].
-	self
-		updateAfterFindClass: (RowanClassService new name: newClassName)
-		onCompletion: nil
+	self issueCommand: oldClassService onCompletion: [
+		| service |
+		service := RowanClassService new name: newClassName.
+		self
+			updateService: service
+			onCompletion: [
+			self updateAfterFindClass: service onCompletion: [  ] ] ]
 ]
 
 { #category : 'tab labels' }
@@ -3242,9 +3245,16 @@ JadeiteBrowserPresenter >> selectClassService: classService [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
-	| dictionaryService |
-	dictionaryService := dictionaryListPresenter list detect: [:service | service name = dictionaryName]
-				ifNone: [^self].
+
+	| dictionaryService selectedNames |
+	dictionaryListPresenter selectedItems ifNotEmpty: [
+		selectedNames := dictionaryListPresenter selectedItems collect: [
+			                 :service | service name ].
+		(selectedNames includes: dictionaryName) ifTrue: [ ^ self ] ].
+	dictionaryService := dictionaryListPresenter list
+		                     detect: [ :service |
+		                     service name = dictionaryName ]
+		                     ifNone: [ ^ self ].
 	dictionaryListPresenter selections: (Array with: dictionaryService)
 ]
 

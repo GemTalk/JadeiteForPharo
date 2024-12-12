@@ -29,6 +29,13 @@ RowanProjectServiceClient >> indexOfInCommandInstVar [
 ]
 
 { #category : 'accessing' }
+RowanProjectServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^32
+]
+
+{ #category : 'accessing' }
 RowanProjectServiceClient >> serviceCompletionBlock [
 
 	^ serviceCompletionBlock

@@ -47,6 +47,13 @@ RowanAnsweringServiceClient >> indexOfInCommandInstVar [
 	^12
 ]
 
+{ #category : 'constants' }
+RowanAnsweringServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^13
+]
+
 { #category : 'initialization' }
 RowanAnsweringServiceClient >> initialize [
 

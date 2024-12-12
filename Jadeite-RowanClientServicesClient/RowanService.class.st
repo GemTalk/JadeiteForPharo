@@ -305,6 +305,13 @@ RowanService >> indexOfInCommandInstVar [
 	^-1 
 ]
 
+{ #category : 'accessing' }
+RowanService >> indexOfServiceCompletionBlock [
+	"some services don't have serviceCompletionBlock"
+
+	^-1 
+]
+
 { #category : 'Init / Release' }
 RowanService >> initialize [
 
@@ -783,11 +790,12 @@ RowanService >> serviceCompletionBlock: anObject [
 	
 ]
 
-{ #category : 'public' }
+{ #category : 'replication' }
 RowanService >> shouldReplicateInstVarAtIndex: index newService: anObject [
 
 	((1 to: 5) includes: index) ifTrue: [ ^ false ]. "rsr inst vars + command + commandArgs"
 	self indexOfInCommandInstVar = index ifTrue: [ ^ false ].
+	self indexOfServiceCompletionBlock = index ifTrue: [ ^ false ].
 	^ true
 ]
 

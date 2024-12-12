@@ -28,6 +28,13 @@ RowanTestServiceClient >> indexOfInCommandInstVar [
 	^12
 ]
 
+{ #category : 'accessing' }
+RowanTestServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^13
+]
+
 { #category : 'service completion' }
 RowanTestServiceClient >> serviceCompletionBlock [
 

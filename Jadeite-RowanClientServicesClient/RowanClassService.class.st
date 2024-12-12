@@ -547,6 +547,13 @@ RowanClassService >> indexOfMethodsInstVar [
 	^25
 ]
 
+{ #category : 'constants' }
+RowanClassService >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^51
+]
+
 { #category : 'initialize' }
 RowanClassService >> initialize [  
 

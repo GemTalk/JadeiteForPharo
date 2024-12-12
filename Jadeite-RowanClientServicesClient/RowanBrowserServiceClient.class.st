@@ -49,6 +49,13 @@ RowanBrowserServiceClient >> indexOfInCommandInstVar [
 ]
 
 { #category : 'accessing' }
+RowanBrowserServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^22
+]
+
+{ #category : 'accessing' }
 RowanBrowserServiceClient >> serviceCompletionBlock [
 
 	^ serviceCompletionBlock

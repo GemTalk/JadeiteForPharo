@@ -678,6 +678,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classCopy [
 	self
 		assert: self projectsPresenter selectedClass name
 		equals: 'Fnoodle'.
+	self updateService: self projectsPresenter selectedClass. "shouldn't have to do this ... but"
 	newInstVarNames := self projectsPresenter selectedClass instVarNames.
 	newClassVarNames := self projectsPresenter selectedClass
 		                    classVarNames.
