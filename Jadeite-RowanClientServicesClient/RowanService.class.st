@@ -316,11 +316,6 @@ RowanService >> indexOfServiceCompletionBlock [
 RowanService >> initialize [
 
 	commandArgs := Array new.
-	('initialize inCommand: ' , self class name) traceCr.
-	('initialize self identityHash: ' , self identityHash printString)
-		traceCr.
-	('initialize self inCommand semaphore identityHash: '
-	 , self inCommand identityHash printString) traceCr.
 	self inCommand: RowanSemaphore new
 ]
 
