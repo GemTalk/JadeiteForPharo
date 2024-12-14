@@ -64,7 +64,8 @@ JadeiteForPharoTestCase >> runCaseManaged [
 JadeiteForPharoTestCase >> setUp [
 
 	super setUp.
-	savedSettings := JadeitePreferences current copy
+	savedSettings := JadeitePreferences current copy.
+	JadeitePreferences isRowanLoaded: true. "Not all test classes will run with rowan being available"
 ]
 
 { #category : 'support' }

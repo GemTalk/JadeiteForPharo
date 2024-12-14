@@ -554,6 +554,10 @@ RowanService >> name [
 ]
 
 { #category : 'public' }
+RowanService >> newClass: presenter [
+]
+
+{ #category : 'public' }
 RowanService >> newProject: presenter [
 ]
 

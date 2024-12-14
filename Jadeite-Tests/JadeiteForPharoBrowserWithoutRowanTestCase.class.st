@@ -170,6 +170,42 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchy [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringServiceTest'.
+	self selectHierarchyTab.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'test_saveClass' )
+		category: 'Rowan-Services-Tests'.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'TestClass'.
+	self assert: self classCategoryPresenter selectedItem equals:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self assert: ('Object rwSubclass: ''TestClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectCategory [
 	"basic test to just ensure class category presenter gets correct selection"
 

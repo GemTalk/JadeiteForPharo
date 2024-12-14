@@ -724,6 +724,12 @@ RowanClassService >> name: aString [
 	name := aString asString
 ]
 
+{ #category : 'updates' }
+RowanClassService >> newClass: presenter [
+	updateType = #newClass: ifFalse: [ ^self ].
+	presenter items add: self. 
+]
+
 { #category : 'accessing' }
 RowanClassService >> oop [
 	^oop

@@ -369,6 +369,24 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInfo [
 	self sundryCleanup
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassThenFind: classService onCompletion: completionBlock [
+
+	self isClassHierarchyTabSelected
+		ifTrue: [
+			classHierarchyPresenter items: Array new.
+			classService
+				updateAfterCommand: true;
+				command: #classHierarchy.
+			self
+				issueCommand: classService
+				onCompletion: [ self updateClassInfo ] ]
+		ifFalse: [
+			self
+				updateAfterFindClass: classService
+				onCompletion: completionBlock ]
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection [
 

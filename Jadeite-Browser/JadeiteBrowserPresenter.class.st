@@ -2678,7 +2678,7 @@ JadeiteBrowserPresenter >> recompileMethods [
 		[
 		self resetClassDefinitionPane.
 		self
-			updateAfterFindClass: browserService selectedClass
+			updateClassThenFind: browserService selectedClass
 			onCompletion: [  ] ]
 			on: GsApplicationError
 			do: [ :ex |
@@ -3881,6 +3881,12 @@ JadeiteBrowserPresenter >> updateClassMenu: menu [
 	menu removeItem: gotoDictionaryItem.
 	gotoDictionaryItem description: self containedDictionaryLabel.
 	menu addItem: gotoDictionaryItem
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateClassThenFind: classService onCompletion: completionBlock [
+
+	self updateAfterFindClass: classService onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }
