@@ -493,7 +493,7 @@ JadeiteTestResource >> unloadSampleProject: sampleProject [
 	sampleProject ifNil: [ ^ self ].
 	self
 		basicUnloadProjects: (Array with: sampleProject name)
-		onCompletion: nil
+		onCompletion: [  ]
 ]
 
 { #category : 'updates' }

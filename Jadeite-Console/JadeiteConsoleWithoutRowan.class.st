@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-Console'
 }
 
+{ #category : 'actions' }
+JadeiteConsoleWithoutRowan >> basicUnloadProjects: projectNames onCompletion: completionBlock [
+
+	"nothing to do when rowan not available"
+]
+
 { #category : 'initialization' }
 JadeiteConsoleWithoutRowan >> initializeProjectListPresenter: tabs [
 

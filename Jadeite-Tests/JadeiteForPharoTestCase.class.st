@@ -42,15 +42,6 @@ JadeiteForPharoTestCase >> closeConnectionLaunchers [
 	self testResourceClass current closeConnectionLaunchers
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteForPharoTestCase >> issueCommand: service onCompletion: completionBlock [
-
-	RowanServiceUpdater current
-		issueCommands: (Array with: service)
-		session: session
-		onCompletion: completionBlock
-]
-
 { #category : 'running' }
 JadeiteForPharoTestCase >> runCaseManaged [
 	"In order to preserve RSR connections across test boundaries

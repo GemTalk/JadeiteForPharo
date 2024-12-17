@@ -2872,6 +2872,9 @@ JadeiteBrowserPresenter >> registerClassListForUpdates [
 		browser: self;
 		register: classListPresenter
 		selector: #renamedClass:browser:
+		browser: self;
+		register: classListPresenter
+		selector: #newClass:browser:
 		browser: self
 ]
 
@@ -3205,7 +3208,7 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 		                name: className;
 		                meta: false.
 	self isClassListTabSelected
-		ifTrue: [ self updateAfterFindClass: classService ]
+		ifTrue: [ self selectClassService: classService ]
 		ifFalse: [ self selectClassInClassHierarchyNamed: className ]
 ]
 

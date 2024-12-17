@@ -725,8 +725,8 @@ RowanClassService >> name: aString [
 ]
 
 { #category : 'updates' }
-RowanClassService >> newClass: presenter [
-	updateType = #newClass: ifFalse: [ ^self ].
+RowanClassService >> newClass: presenter browser: browser [
+	updateType = #newClass:browser: ifFalse: [ ^self ].
 	presenter items add: self. 
 ]
 

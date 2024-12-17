@@ -393,6 +393,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection 
 	| classCategoryService classes |
 	classCategoryService := selection selectedItem.
 	classCategoryService ifNil: [ ^ self ].
+	self dictionaryListPresenter selectedItem ifNil:[^self]. 
+	self dictionaryListPresenter selectedItem classes ifNil:[^self]. 
 	classes := self dictionaryListPresenter selectedItem classes select: [
 		           :classService |
 		           classService classCategory
