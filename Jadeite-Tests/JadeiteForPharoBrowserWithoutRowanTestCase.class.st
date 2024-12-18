@@ -170,6 +170,58 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassChangedCategory [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringServiceTest'.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'test_saveClass' )
+		category: 'Rowan-Services-Tests'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'TestClass'.
+	self assert: ('Object rwSubclass: ''TestClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self classCategoryPresenter selectedItem
+		equals: (RowanClassCategoryService new
+				 name: 'Rowan-Services-Tests';
+				 substringIndex: 3).
+	"----------------Change the category and see if the category selection changes ------------------"
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'test_saveClass' )
+		category: 'Rowan-Services-Core'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'TestClass'.
+	self assert: ('Object rwSubclass: ''TestClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self classCategoryPresenter selectedItem
+		equals: (RowanClassCategoryService new
+				 name: 'Rowan-Services-Core';
+				 substringIndex: 3)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchy [
 
 	self
@@ -203,6 +255,59 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchy [
 	self assert: ('Object rwSubclass: ''TestClass''*' match:
 			 self projectsPresenter classDefinitionPresenter text).
 	self assert: self projectsPresenter isClassDefinitionTabSelected
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchyChangedCategory [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringServiceTest'.
+	self selectHierarchyTab.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'test_saveClass' )
+		category: 'Rowan-Services-Tests'.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'TestClass'.
+	self assert: self classCategoryPresenter selectedItem equals:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self assert: ('Object rwSubclass: ''TestClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	"----------------Change the category and see if the category selection changes ------------------"
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'test_saveClass' )
+		category: 'Rowan-Services-Core'.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'TestClass'.
+	self assert: ('Object rwSubclass: ''TestClass''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self classCategoryPresenter selectedItem
+		equals: (RowanClassCategoryService new
+				 name: 'Rowan-Services-Core';
+				 substringIndex: 3)
 ]
 
 { #category : 'tests' }
