@@ -22,6 +22,7 @@ ListModel class >> withAll: aCollection [
 { #category : 'adding' }
 ListModel >> addAll: aCollection [
 
+	aCollection ifNil: [ ^ self ].
 	self collection addAll: aCollection
 ]
 

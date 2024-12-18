@@ -665,7 +665,8 @@ JadeiteBrowserPresenter >> classSelected: classService [
 	classService ifNotNil: [
 		self clearMethodLists.
 		self clearFilterLists.
-		self refreshClass: methodListPresenter selectedItem.
+		RowanServiceUpdater current isApplyingUpdates ifFalse: [
+			self refreshClass: methodListPresenter selectedItem ].
 		self updateTabLabel.
 		self selectCategoryTab.
 		self methodListPresenter selectIndex: 0 scrollToSelection: true ]
@@ -3150,7 +3151,10 @@ JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoriesNamed: selections [
 
-	categoryListPresenter selectItems: selections
+	| categories |
+	categories := self categoryListPresenter items select: [ :ea |
+		              selections includes: ea ].
+	self categoryListPresenter selectItems: categories
 ]
 
 { #category : 'selections' }
@@ -3240,9 +3244,10 @@ JadeiteBrowserPresenter >> selectClassNamed: classService package: packageServic
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassService: classService [
 
-	| index |
+	| index theService |
 	self classListPresenter selectedItem = classService ifTrue: [ ^ self ].
-	index := self classListPresenter list indexOf: classService.
+	theService := self classListPresenter items detect: [ :svc | svc = classService ] ifNone: [ ^self ].
+	index := self classListPresenter list indexOf: theService.
 	self classListPresenter selectIndex: index scrollToSelection: true
 ]
 

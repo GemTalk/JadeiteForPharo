@@ -268,7 +268,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessors [
 
 	[
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #( 'var1' ).
+	self selectVariableNamed: 'var1'.
 	self projectsPresenter basicAddVariableAccessors.
 	self selectMethodNamed: #var1.
 	self
@@ -278,7 +278,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessors [
 	self
 		assert: self methodListPresenter selections first selector
 		equals: #var1:.
-	self variableListPresenter selections: #( 'var3' ).
+	self selectVariableNamed: 'var3'.
 	self projectsPresenter addVariableAccessors.
 	self selectMethodNamed: #var3.
 	self
@@ -313,9 +313,10 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsClassTab [
 		package: 'RowanSample1-Core'.
 
 	[
+	"can't just select string because SpCollectionListModel uses identity equality"
 	self projectsPresenter selectClassListTab.
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #( 'format' ).
+	self selectVariableNamed: 'format'.
 	self projectsPresenter addVariableAccessors.
 	self selectMethodNamed: #format.
 	self
@@ -345,7 +346,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsVerifySource [
 
 	[
 	self projectsPresenter selectVariableTab.
-	self variableListPresenter selections: #( 'var1' ).
+	self selectVariableNamed: 'var1'.
 	self projectsPresenter addVariableAccessors.
 	self selectMethodNamed: #var1.
 	self assert: self methodSourcePresenter text equals: 'var1
@@ -1238,7 +1239,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_instVarReaders [
 		in: subclassName
 		category: 'other'.
 	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection: 'fooInstVar'.
+	self selectVariableNamed: 'fooInstVar'.
 	methodListBrowser := self projectsPresenter browseInstVarReaders.
 	list := methodListBrowser methodListPresenter list collection.
 	self assert: list size equals: 3.
@@ -1294,7 +1295,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_instVarWriters [
 		in: subClassName
 		category: 'other'.
 	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection: 'fooInstVar'.
+	self selectVariableNamed: 'fooInstVar'.
 	methodListBrowser := self projectsPresenter browseInstVarWriters.
 	list := methodListBrowser methodListPresenter list collection.
 	self assert: list size equals: 3.
@@ -1424,33 +1425,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
 	newMethodSelectorsList := (self methodListPresenter list
 				collect: [:methodService | methodService selector]) asArray.
 	self assert: newMethodSelectorsList equals: #(#fooble #test1 #test2 #testError #testFailure)
-]
-
-{ #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_selectVariable [
-
-	self selectRowanServicesPackage.
-	self
-		selectServiceNamed: 'RowanClassService'
-		in: self classListPresenter.
-	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selection:
-		'instVarNames'.
-	self methodListPresenter list do: [ :methodService |
-		RowanServiceUpdater current
-			updateService: methodService
-			session: session
-			onCompletion: [  ].
-		self assert:
-			(methodService source substrings includes: 'instVarNames') ].
-	self projectsPresenter variableListPresenter selection: 'isNewClass'.
-	self methodListPresenter list do: [ :methodService |
-		RowanServiceUpdater current
-			updateService: methodService
-			session: session
-			onCompletion: [  ].
-		self assert:
-			(methodService source substrings includes: 'isNewClass') ]
 ]
 
 { #category : 'tests' }

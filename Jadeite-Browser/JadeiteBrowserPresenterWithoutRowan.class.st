@@ -292,10 +292,11 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 
 	self updateService: classService onCompletion: [
 		RowanServiceUpdater current critical: [
-			self selectDictionaryNamed: classService dictionaryName.
-			self setAppropriateMeta: classService.
-			self selectClassListTab.
-			self selectClass: classService.
+			RowanServiceUpdater current applyUpdateWhile: [
+				self selectDictionaryNamed: classService dictionaryName.
+				self setAppropriateMeta: classService.
+				self selectClassListTab.
+				self selectClass: classService ].
 			completionBlock value ] ]
 ]
 

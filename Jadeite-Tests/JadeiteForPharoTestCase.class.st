@@ -51,6 +51,17 @@ JadeiteForPharoTestCase >> runCaseManaged [
 	^DefaultExecutionEnvironment beActiveDuring: [ self runCase]
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoTestCase >> selectVariableNamed: varName [
+	"can't just select string in list because SpCollectionListModel uses identity equality.
+	Must get the actual item and select that"
+
+	| var |
+	var := self variableListPresenter items detect: [ :ea |
+		       ea asString = varName ].
+	self variableListPresenter selections: (Array with: var)
+]
+
 { #category : 'support' }
 JadeiteForPharoTestCase >> setUp [
 
