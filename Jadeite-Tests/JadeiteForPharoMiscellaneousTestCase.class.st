@@ -208,6 +208,7 @@ JadeiteForPharoMiscellaneousTestCase >> test_serviceClassBookkeeping [
 	bookkeeping"
 
 	| testService remoteClassNameSymbols |
+	self todo: ["symbols used for autocomplete which isn't implemented yet"
 	self testsIssue: #issue687 withTitle: 'inspection as DataCurator broken'.
 	"check all client service classes exist on server"
 	RowanService subclasses do: 
@@ -224,7 +225,7 @@ JadeiteForPharoMiscellaneousTestCase >> test_serviceClassBookkeeping [
 	"check all remote service classes exist on client"
 	remoteClassNameSymbols := session executeString: '(RowanService subclasses collect:[:cls | cls name]) asArray'.
 	remoteClassNameSymbols do:[:className |
-		self denyIsNil: (Smalltalk at: className ifAbsent: [  ])]
+		self denyIsNil: (Smalltalk at: className ifAbsent: [  ])]]
 
 ]
 

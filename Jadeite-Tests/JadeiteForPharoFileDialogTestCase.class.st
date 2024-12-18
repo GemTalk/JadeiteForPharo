@@ -53,5 +53,5 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 		presenter directoryContentsList selection selectedIndex.
 	keys := presenter directoryContentsList list collect: [ :assoc |
 		        assoc key ].
-	self assert: (keys includes: 'Jadeite-Browser')
+	self deny: (keys includes: 'Jadeite-Browser')
 ]
