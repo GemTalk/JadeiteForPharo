@@ -340,8 +340,8 @@ JadeiteTestResource >> refreshGlobalSelections [
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
-		onCompletion: [].
-	self updateServices: RowanServiceUpdater current selectedServices
+		onCompletion: [
+		self updateServices: RowanServiceUpdater current selectedServices ]
 ]
 
 { #category : 'support' }

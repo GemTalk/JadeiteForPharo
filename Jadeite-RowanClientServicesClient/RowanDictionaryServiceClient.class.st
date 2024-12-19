@@ -9,6 +9,14 @@ Class {
 }
 
 { #category : 'accessing' }
+RowanDictionaryServiceClient >> defaultTemplateForClassCategory: classCategory [
+
+	^ self defaultTemplate
+		  copyReplaceAll: 'category: nil'
+		  with: 'category: ''' , classCategory , ''''
+]
+
+{ #category : 'accessing' }
 RowanDictionaryServiceClient >> inCommand [
 
 	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]

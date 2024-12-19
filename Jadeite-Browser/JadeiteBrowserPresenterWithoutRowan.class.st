@@ -67,12 +67,21 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 	super connectPresenters.
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		self updateClassCategoriesFor: selection ].
-	classCategoryPresenter whenSelectionChangedDo: [ :selection | 
-		self updateClassesForClassCategory: selection ]
+	classCategoryPresenter whenSelectionChangedDo: [ :selection |
+		self updateClassesForClassCategory: selection.
+		self updateClassDefPresenter ]
 ]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectProjectListPresenter [
+]
+
+{ #category : 'acccessing' }
+JadeiteBrowserPresenterWithoutRowan >> defaultTemplateForClassCategory: classCategory [
+
+	^ self dictionaryListPresenter selectedItem defaultTemplate
+		  copyReplaceAll: 'category: nil'
+		  with: 'category: ''' , classCategory firstSubstringsToIndex , ''''
 ]
 
 { #category : 'actions' }
@@ -328,6 +337,27 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 	classCategoryServices := newServices.
 	classCategoryPresenter roots:
 		(self classCategoriesAt: 1 matching: '*')
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassDefPresenter [
+
+	| defaultTemplate |
+	self selectedClass ifNotNil: [ :classService |
+		classDefinitionPresenter text: classService template.
+		classDefinitionPresenter isModified: false.
+		^ self ].
+	self dictionaryListPresenter selectedItem ifNil: [
+		^ self resetClassDefinitionPane ].
+	defaultTemplate := self classCategoryPresenter selectedItem
+		                   ifNil: [
+		                   self dictionaryListPresenter selectedItem
+			                   defaultTemplate ]
+		                   ifNotNil: [ :classCategory |
+			                   self defaultTemplateForClassCategory:
+				                   classCategory ].
+	classDefinitionPresenter text: defaultTemplate.
+	classDefinitionPresenter isModified: false
 ]
 
 { #category : 'updates' }

@@ -2785,24 +2785,6 @@ JadeiteBrowserPresenter >> refreshFromServer [
 				self updateServices: services ] ]
 ]
 
-{ #category : 'actions' }
-JadeiteBrowserPresenter >> refreshGlobalSelections [
-	"refresh selections in all browsers."
-
-	| browserService |
-	browserService := RowanBrowserService new
-		                  command: #findRemovedServices:;
-		                  commandArgs:
-			                  (Array with:
-					                   RowanServiceUpdater current activeServices
-						                   asSet asArray).
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: self gciSession
-		onCompletion: [
-		self updateServices: RowanServiceUpdater current selectedServices ]
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 

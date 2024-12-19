@@ -728,6 +728,7 @@ RowanClassService >> name: aString [
 RowanClassService >> newClass: presenter browser: browser [
 
 	updateType = #newClass:browser: ifFalse: [ ^ self ].
+	browser classCategoryPresenter ifNil: [ ^ self ].
 	browser classCategoryPresenter selectedItem ifNotNil: [ :item |
 		self classCategory = item name ifFalse: [
 			browser selectClassCategoryFor: self ] ].

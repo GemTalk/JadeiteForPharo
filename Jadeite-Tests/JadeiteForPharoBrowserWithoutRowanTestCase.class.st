@@ -106,6 +106,105 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_browseClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategoryChange [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals: 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Services-Tests''
+	options: #()' trimBlanks replaceCrWithLf.
+
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Core';
+			 substringIndex: 3;
+			 yourself).
+	self
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals: 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Services-Core''
+	options: #()' trimBlanks replaceCrWithLf.
+
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services';
+			 substringIndex: 2;
+			 yourself).
+	self
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals: 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Services''
+	options: #()' trimBlanks replaceCrWithLf.
+
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan';
+			 substringIndex: 1;
+			 yourself).
+	self
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals: 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan''
+	options: #()' trimBlanks replaceCrWithLf.
+
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals: 'Object rwSubclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Services-Tests''
+	options: #()' trimBlanks replaceCrWithLf.
+	self projectsPresenter selectClassNamed: 'RowanAnsweringServiceTest'.
+	self
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals:
+			'RowanServicesTest rwSubclass: ''RowanAnsweringServiceTest''
+	instVarNames: #( service)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''Rowan-Services-Tests''
+	options: #()' trimBlanks replaceCrWithLf
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 
 	| hierarchyModel names |
