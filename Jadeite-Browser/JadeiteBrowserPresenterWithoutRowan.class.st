@@ -248,7 +248,8 @@ JadeiteBrowserPresenterWithoutRowan >> newClass: classService addedTo: presenter
 			self classCategoryPresenter selectedItem ifNil: [ "still not found"
 				self addClassCategory: classService classCategory.
 				self selectClassCategoryFor: classService ] ] ].
-	presenter items add: classService
+	(presenter items includes: classService) ifFalse: [
+		presenter items add: classService ]
 ]
 
 { #category : 'initialization' }
