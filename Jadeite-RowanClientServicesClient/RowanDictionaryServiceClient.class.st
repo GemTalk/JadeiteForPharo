@@ -13,6 +13,7 @@ RowanDictionaryServiceClient >> addClass: classService [
 	"normally classes is maintained by the server but in the 
 	interests of performance, we sometimes need to add a class manually"
 
+	(self classes includes: classService) ifTrue: [ ^ self ].
 	self classes: (self classes asOrderedCollection
 			 add: classService;
 			 yourself)

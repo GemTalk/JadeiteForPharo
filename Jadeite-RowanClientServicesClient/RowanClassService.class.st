@@ -729,7 +729,6 @@ RowanClassService >> newClass: presenter browser: browser [
 
 	updateType = #newClass:browser: ifFalse: [ ^ self ].
 	browser newClass: self addedTo: presenter.
-	browser dictionaryListPresenter selectedItem addClass: self
 ]
 
 { #category : 'accessing' }

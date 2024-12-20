@@ -239,6 +239,8 @@ JadeiteBrowserPresenterWithoutRowan >> isDictionaryTabSelected [
 { #category : 'events' }
 JadeiteBrowserPresenterWithoutRowan >> newClass: classService addedTo: presenter [
 
+	dictionaryListPresenter selectedItem ifNotNil: [ :dictionaryService |
+		dictionaryService addClass: classService ].
 	self classCategoryPresenter ifNil: [ ^ self ].
 	self classCategoryPresenter selectedItem ifNotNil: [ :item |
 		classService classCategory = item name ifFalse: [

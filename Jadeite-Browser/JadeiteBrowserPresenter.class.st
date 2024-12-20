@@ -2240,6 +2240,10 @@ JadeiteBrowserPresenter >> moveMethodsToPackageFilterUsing: transfer [
 	^ self methodListPresenter selectItem: transfer passenger first
 ]
 
+{ #category : 'events' }
+JadeiteBrowserPresenter >> newClass: classService addedTo: presenter [
+]
+
 { #category : 'menus' }
 JadeiteBrowserPresenter >> newDictionaryMenu [
 
