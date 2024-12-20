@@ -240,7 +240,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
-
+	| classService | 
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
@@ -265,12 +265,15 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
 		equals: 'TestClass'.
 	self assert: ('Object rwSubclass: ''TestClass''*' match:
 			 self projectsPresenter classDefinitionPresenter text).
-	self assert: self projectsPresenter isClassDefinitionTabSelected
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	classService := RowanClassService new name: 'TestClass'; meta: false. 
+	self assert: (self dictionaryListPresenter selectedItem classes includes: classService)
 ]
 
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassChangedCategory [
 
+	| classService |
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
@@ -301,6 +304,12 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassChangedCategory [
 		equals: (RowanClassCategoryService new
 				 name: 'Rowan-Services-Tests';
 				 substringIndex: 3).
+	classService := RowanClassService new
+		                name: 'TestClass';
+		                meta: false.
+	self assert:
+		(self dictionaryListPresenter selectedItem classes includes:
+			 classService).
 	"----------------Change the category and see if the category selection changes ------------------"
 	self
 		saveClass: 'TestClass'
@@ -407,6 +416,40 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchyChangedCa
 		equals: (RowanClassCategoryService new
 				 name: 'Rowan-Services-Core';
 				 substringIndex: 3)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassNewCategory [
+	"test won't work until Rowan Stub is available. 
+Even then it may not work as the test has never been successfully run"
+	true ifTrue: [ ^self ].
+	self selectServiceNamed: 'Globals' in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Kernel';
+			 substringIndex: 1;
+			 yourself).
+	self selectServiceNamed: 'Array' in: self classListPresenter.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'Array'.
+	self
+		saveClass: 'TestClassWithNewCategory'
+		superclass: 'Object'
+		instVars: #( 'test_saveClassNewCategory' )
+		category: 'Rowan-Services-Tests-NewCategory'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'TestClassWithNewCategory'.
+	self assert:
+		('Object rwSubclass: ''TestClassWithNewCategory''*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self classCategoryPresenter selectedItem
+		equals: (RowanClassCategoryService new
+				 name: 'Rowan-Services-Tests-NewCategory';
+				 substringIndex: 4)
 ]
 
 { #category : 'tests' }

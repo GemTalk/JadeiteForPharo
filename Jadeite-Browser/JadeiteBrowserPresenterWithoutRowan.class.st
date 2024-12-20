@@ -30,6 +30,16 @@ JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 		self selectClass: self selectedClass ]
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> addClassCategory: classCategory [
+
+	| sorted | 
+	sorted := self dictionaryListPresenter selectedItem classCategories asSortedCollection. 
+	sorted add: classCategory.
+	self dictionaryListPresenter selectedItem classCategories: sorted asArray. 
+	self updateClassCategoriesFor: self dictionaryListPresenter selection. 
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchString [
 
@@ -224,6 +234,19 @@ JadeiteBrowserPresenterWithoutRowan >> isDictionaryTabSelected [
 
 	^true
 
+]
+
+{ #category : 'events' }
+JadeiteBrowserPresenterWithoutRowan >> newClass: classService addedTo: presenter [
+
+	self classCategoryPresenter ifNil: [ ^ self ].
+	self classCategoryPresenter selectedItem ifNotNil: [ :item |
+		classService classCategory = item name ifFalse: [
+			self selectClassCategoryFor: classService.
+			self classCategoryPresenter selectedItem ifNil: [ "still not found"
+				self addClassCategory: classService classCategory.
+				self selectClassCategoryFor: classService ] ] ].
+	presenter items add: classService
 ]
 
 { #category : 'initialization' }

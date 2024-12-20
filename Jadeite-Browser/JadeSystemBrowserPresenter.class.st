@@ -1677,25 +1677,6 @@ JadeSystemBrowserPresenter >> updatePackageDictionaryList [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> updatePresenters [
-	
-	[inUpdate := true.
-	self
-		updatePackageDictionaryList;
-		updateClassCategoryTree;
-		updateClassListOrHierarchy;
-		updateClassInfo;
-		updateSuperclassList;
-		updateMethodFilter;
-		updateMethodList;
-		updateOverrideList;
-		updateSelector;
-		updateTabLabel;
-		yourself]
-			ensure: [inUpdate := false]
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> updateSuperclassList [
 
 	| tabs tabName tab list selected |

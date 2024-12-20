@@ -53,6 +53,13 @@ RowanClassCategoryService >> hash [
 		  bitXor: self substringIndex hash
 ]
 
+{ #category : 'initialization' }
+RowanClassCategoryService >> initializeSubstringIndex [
+	"set the substring index based on the number of dashes in the name"
+
+	substringIndex := (name substrings: '-') size - 1
+]
+
 { #category : 'accessing' }
 RowanClassCategoryService >> name [
 

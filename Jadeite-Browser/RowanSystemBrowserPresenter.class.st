@@ -262,26 +262,6 @@ RowanSystemBrowserPresenter >> updateOverrideListFrom: update [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updatePresenters [
-	
-	[inUpdate := true.
-	self
-		updatePackageDictionaryList;
-		updateClassCategoryTree;
-		updateClassListOrHierarchy;
-		updateClassInfo;
-		updateSuperclassList;
-		updateMethodFilter;
-		updateMethodList;
-		updateOverrideList;
-		updateSelector;
-		updateTabLabel;
-		yourself]
-			ensure: [inUpdate := false].
-	self resetClassDefinitionPresenter
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> updateSelectionsForUpdate: update [
 
 	update updateDictionarySelectionsFor: dictionaryListPresenter.

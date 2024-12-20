@@ -8,12 +8,14 @@ Class {
 	#package : 'Jadeite-RowanClientServicesClient'
 }
 
-{ #category : 'accessing' }
-RowanDictionaryServiceClient >> defaultTemplateForClassCategory: classCategory [
+{ #category : 'actions' }
+RowanDictionaryServiceClient >> addClass: classService [
+	"normally classes is maintained by the server but in the 
+	interests of performance, we sometimes need to add a class manually"
 
-	^ self defaultTemplate
-		  copyReplaceAll: 'category: nil'
-		  with: 'category: ''' , classCategory , ''''
+	self classes: (self classes asOrderedCollection
+			 add: classService;
+			 yourself)
 ]
 
 { #category : 'accessing' }
