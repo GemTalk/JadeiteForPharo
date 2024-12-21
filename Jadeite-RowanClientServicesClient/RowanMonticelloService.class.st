@@ -35,12 +35,11 @@ RowanMonticelloService >> changesUsing: session onCompletion: completionBlock [
 ]
 
 { #category : 'actions' }
-RowanMonticelloService >> packageChanges [
+RowanMonticelloService >> packageChanges: aGciSession application: application [
 
-	| changesBrowser monticelloService |
-	monticelloService := self projectListPresenter selectedItem.
-	monticelloService
-		changesUsing: self gciSession
+	| changesBrowser  |
+	self
+		changesUsing: aGciSession
 		onCompletion: [ :operations |
 			operations isEmpty
 				ifTrue: [ MessageBox notify: 'No changes!' ]
@@ -48,8 +47,8 @@ RowanMonticelloService >> packageChanges [
 					changesBrowser := JadeiteChangesBrowser
 						                  showOn: (RowanPatch new
 								                   operations: operations;
-								                   gciSession: self gciSession)
+								                   gciSession: aGciSession)
 						                  name: 'Monticello package changes'
-						                  application: self application.
-					changesBrowser owner application: self application ] ]
+						                  application: application.
+					changesBrowser owner application: application ] ]
 ]
