@@ -8,6 +8,11 @@ Class {
 	#package : 'Jadeite-RowanClientServicesClient'
 }
 
+{ #category : 'accessing' }
+RowanMonticelloService class >> templateClassName [ 
+	^#RowanMonticelloService
+]
+
 { #category : 'presenter support' }
 RowanMonticelloService >> basicChangesUsing: session onCompletion: completionBlock [
 
