@@ -955,16 +955,18 @@ JadeiteBrowserPresenter >> debug [
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 
+	[
 	self clearMethodListTestResultIn: methodServices.
 	self refreshClassAndMethodPresenters.
-	methodServices do: [ :methodService |
-		methodService
-			command: #debugTest:inClassName:;
-			commandArgs:
-				(Array with: methodService selector with: methodService className).
-		self
-			issueCommand: methodService
-			onCompletion: [ self refreshClassAndMethodPresenters ] ]
+	RowanServiceUpdater current critical: [
+		methodServices do: [ :methodService |
+			methodService
+				command: #debugTest:inClassName:;
+				commandArgs:
+					(Array with: methodService selector with: methodService className).
+			self
+				issueCommand: methodService
+				onCompletion: [ self refreshClassAndMethodPresenters ] ] ] ] fork
 ]
 
 { #category : 'initialization' }
