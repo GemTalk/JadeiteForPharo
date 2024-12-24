@@ -57,3 +57,14 @@ RowanMonticelloService >> packageChanges: aGciSession application: application [
 						                  application: application.
 					changesBrowser owner application: application ] ]
 ]
+
+{ #category : 'presenter support' }
+RowanMonticelloService >> writePackageChanges: commitComment using: session [ 
+
+	command := #write:.
+	self commandArgs: (Array with: commitComment).
+	RowanServiceUpdater current
+		issueCommand: self
+		session: session
+		onCompletion: [MessageBox notify: 'Write complete' ]
+]

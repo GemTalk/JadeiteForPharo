@@ -37,8 +37,13 @@ JadeiteConsoleWithoutRowan >> initializeBrowseMenu [
 		  addItem: [ :item |
 			  item
 				  name: 'Browse Monticello Changes ...';
-				  shortcut: $r shift ctrl;
+				  shortcut: $b shift ctrl;
 				  action: [ self browseMonticelloChanges ] ];
+		  addItem: [ :item |
+			  item
+				  name: 'Write Monticello Changes ...';
+				  shortcut: $w shift ctrl;
+				  action: [ self writeMonticelloChanges ] ];
 			yourself
 ]
 
@@ -50,4 +55,19 @@ JadeiteConsoleWithoutRowan >> initializeProjectListPresenter: tabs [
 
 { #category : 'registration' }
 JadeiteConsoleWithoutRowan >> registerPresentersForUpdates [
+]
+
+{ #category : 'registration' }
+JadeiteConsoleWithoutRowan >> writeMonticelloChanges [
+
+	self writeMonticelloChanges: 'checkpoint'
+]
+
+{ #category : 'registration' }
+JadeiteConsoleWithoutRowan >> writeMonticelloChanges: commitComment [
+
+	| monticelloService |
+	monticelloService := RowanMonticelloService new.
+	monticelloService writePackageChanges:  commitComment using: self gciSession
+
 ]
