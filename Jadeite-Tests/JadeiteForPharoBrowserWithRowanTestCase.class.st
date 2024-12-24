@@ -306,6 +306,37 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_removeProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithRowanTestCase >> test_runTestInBrowser [
+
+	| methodService |
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter.
+	self
+		selectServiceNamed: 'test_disableBreakpointsInterface'
+		in: self methodListPresenter.
+	methodService := self methodListPresenter selectedItem.
+	self
+		assert:
+			(self projectsPresenter methodListPresenter displayIcon value:
+				 methodService) labelGraphic
+		equals: (Smalltalk ui icons iconNamed: #testNotRun).
+	self projectsPresenter debugMethodTests: (Array with: methodService).
+	(Delay forMilliseconds: 500) wait. "arbitrary wait could be improved. "
+	self
+		assert:
+			(self projectsPresenter methodListPresenter displayIcon value:
+				 methodService) labelGraphic
+		equals: (Smalltalk ui icons iconNamed: #testGreen)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithRowanTestCase >> test_selectVariable [
 
 	self selectRowanServicesPackage.

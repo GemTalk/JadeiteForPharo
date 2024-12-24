@@ -2,7 +2,6 @@ Class {
 	#name : 'JadeiteGCIConnectionProfile',
 	#superclass : 'JadeiteConnectionProfile',
 	#instVars : [
-		'session',
 		'threadSafe',
 		'version',
 		'stone',
@@ -61,8 +60,8 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
-
-	session ifNotNil: [ session logout ].
+	| session | 
+	
 	"user = 'SystemUser' ifFalse: [
 		^ MessageBox notify: 'Only SystemUser is currently supported.' ]."
 	GciInterface libraryDirectory: path.
@@ -79,7 +78,9 @@ JadeiteGCIConnectionProfile >> connect [
 			self todo: 'is GciError the right error to signal?'.
 			^ GciError signal: ex message ].
 	GciSession current stoneName: stone.
-	connection := self setupRSRConnection.
+	connection := self setupRSRConnection: session.
+	session logoutNbNoError.
+	session := nil. 
 	GciSession current library: connection.
 	self applyPreferences.
 	"Uncomment following three lines to enable RSR tracing"
@@ -101,8 +102,6 @@ JadeiteGCIConnectionProfile >> disconnect [
 	self confirmAllWindowsCanClose ifFalse: [^self]. 
 	connection close.
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
-	session ifNotNil: [ session logout ].
-	session := nil.
 	GciSession clearCurrent. 
 	connection := nil.
 	self notifyPropertyChanged: #connection.
@@ -163,20 +162,8 @@ JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 	self isConnected ifFalse: [ self connect ]
 ]
 
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> session [
-
-	^ session
-]
-
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> session: anObject [
-
-	session := anObject
-]
-
 { #category : 'actions' }
-JadeiteGCIConnectionProfile >> setupRSRConnection [
+JadeiteGCIConnectionProfile >> setupRSRConnection: session [ 
 	"Make and answer an RSR connection"
 
 	| detailBytes initiator thePort token |
@@ -191,13 +178,13 @@ JadeiteGCIConnectionProfile >> setupRSRConnection [
 		port := acceptor listeningPort.
 		detailBytes := ByteArray new: 18.
 		detailBytes unsigned16At: 1 put: port.
-		detailBytes
+		detailBytes 
 			replaceFrom: 3
 			to: 18
 			with: acceptor token bytes.
 		detailBytes'
 		               maxResultSize: 1024.
-	session executeStringNb: '| connection resolverClass |
+	session executeStringAndDetachNb: '| connection resolverClass |
 		connection := (SessionTemps current at: #PendingConnectionAcceptor) waitForConnection.
 		resolverClass := ((AllUsers userWithId: ''SystemUser'') objectNamed: ''RowanClientServiceTemplateResolver'').
 		GsFile gciLogServer: ''resolverClass: '', resolverClass printString. 
