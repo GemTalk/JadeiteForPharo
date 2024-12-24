@@ -1,5 +1,6 @@
 "
-these windows will disconnect the connection if closed
+These windows will disconnect the connection if closed. 
+No other checking of the windows is done. 
 "
 Class {
 	#name : 'JadeiteGlobalWindowPresenter',
@@ -7,12 +8,6 @@ Class {
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
-
-{ #category : 'edits' }
-JadeiteGlobalWindowPresenter >> canDiscardEdits [ 
-
-	^self confirmDisconnect
-]
 
 { #category : 'edits' }
 JadeiteGlobalWindowPresenter >> confirmDisconnect [
@@ -25,4 +20,10 @@ JadeiteGlobalWindowPresenter >> confirmDisconnect [
 	shouldClose ifFalse: [ ^ false ].
 	JadeiteConnectionProfile connectionProfile disconnect.
 	^ true
+]
+
+{ #category : 'edits' }
+JadeiteGlobalWindowPresenter >> okToChange [ 
+
+	^self confirmDisconnect
 ]
