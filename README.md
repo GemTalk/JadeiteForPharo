@@ -3,10 +3,12 @@ IDE for GemStone Smalltalk application development in Pharo.
 Jadeite for Pharo (and these instructions) should be considered alpha quality at the current time. 
 These instructions are written assuming the user is using a GemStone server with Rowan installed. 
 
+Jadeite For Pharo is only tested for use with GemStone 3.7.2. 
+
 ## To load JadeiteForPharo into a Pharo image:
 
 - Install Pharo 12 Smalltalk.
-  - Currently, only Pharo 12 is supported
+  - Jadeite for Pharo only works with Pharo 12
   - Recommended build -
     - Pharo-12.0.0+SNAPSHOT.build.1546.sha.30427d35e51ff0351e1dc860306faf36d9d8931c (64 Bit)
 - Create a Rowan server using extent `extent0.rowan3.dbf`
