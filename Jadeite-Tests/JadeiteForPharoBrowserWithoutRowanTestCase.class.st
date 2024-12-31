@@ -205,6 +205,42 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
+
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
+		onCompletion: nil.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RwGsPlatform'.
+	self
+		assert: self classListPresenter selectedItem definedPackageName
+		equals: 'Rowan-GemStone-Core'.
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'RowanKernel'.
+	self
+		assert: self classCategoryPresenter selectedItem name
+		equals: 'Rowan-GemStone-Core'.
+	self projectsPresenter
+		updateAfterFindClass:
+		(RowanClassService new name: 'CypressClassDefinition')
+		onCompletion: nil.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'CypressClassDefinition'.
+	self
+		assert: self classListPresenter selectedItem definedPackageName
+		equals: 'Cypress-Definitions'.
+	self
+		assert: self dictionaryListPresenter selectedItem name 
+		equals: 'Globals'.
+	self
+		assert: self classCategoryPresenter selectedItem name 
+		equals: 'Cypress-Definitions'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 
 	| hierarchyModel names |

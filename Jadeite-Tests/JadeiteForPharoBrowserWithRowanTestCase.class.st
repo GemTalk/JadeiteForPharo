@@ -140,6 +140,40 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_deselectProjectOnly [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithRowanTestCase >> test_findClass [
+
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
+		onCompletion: nil.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RwGsPlatform'.
+	self
+		assert: self classListPresenter selectedItem definedPackageName
+		equals: 'Rowan-GemStone-Core'.
+	self
+		assert: self packageListPresenter selectedItem name
+		equals: 'Rowan-GemStone-Core'.
+	self assert: self projectListPresenter selectedItem name equals: 'Rowan'.
+	self projectsPresenter
+		updateAfterFindClass:
+		(RowanClassService new name: 'CypressClassDefinition')
+		onCompletion: nil.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'CypressClassDefinition'.
+	self
+		assert: self classListPresenter selectedItem definedPackageName
+		equals: 'Cypress-Definitions'.
+	self
+		assert: self packageListPresenter selectedItem name
+		equals: 'Cypress-Definitions'.
+	self
+		assert: self projectListPresenter selectedItem name
+		equals: 'Cypress'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithRowanTestCase >> test_hierarchyExpansion [
 	"When no classes are selected and the hierarchy tab is chosen, we should
 	see a hierarchy showing all superclasses of the packaged classes. 

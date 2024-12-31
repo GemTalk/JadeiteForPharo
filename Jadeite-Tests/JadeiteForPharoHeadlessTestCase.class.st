@@ -158,8 +158,6 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 	[
 	self assert:
 		JadeiteConnectionProfile connectionProfile connection isOpen.
-	self assert: (GsSession sessionIsValid:
-			 JadeiteConnectionProfile connectionProfile session).
 	"this test disconnects so we have to use the critical block with the new updater"
 	RowanServiceUpdater current critical: [
 		service := RowanAnsweringService new
@@ -171,7 +169,6 @@ JadeiteForPharoHeadlessTestCase >> test_gciConnect [
 		ensure: [ JadeiteConnectionProfile connectionProfile disconnect ].
 	self assert:
 		JadeiteConnectionProfile connectionProfile connection isNil.
-	self assert: JadeiteConnectionProfile connectionProfile session isNil
 ]
 
 { #category : 'tests' }

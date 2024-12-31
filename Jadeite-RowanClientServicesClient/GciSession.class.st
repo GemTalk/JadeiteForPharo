@@ -82,6 +82,12 @@ GciSession >> commit [
 	JadeiteApplication commitTransactionInSession: self onCompletion: nil
 ]
 
+{ #category : 'accessing' }
+GciSession >> connection [
+	"intention-revealing name " 
+	^library
+]
+
 { #category : 'actions' }
 GciSession >> executeString: aString [
 	"only tests should rely on the result of the execution. 
