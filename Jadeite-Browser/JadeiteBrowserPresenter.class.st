@@ -3551,26 +3551,6 @@ JadeiteBrowserPresenter >> shouldShowNoneTabLabel [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> showDictionaryList [
-	| newCard |
-	packageDictionaryCards ifNil:[^self].
-	(packageDictionaryCards view cards includes: packageListPresenter view)
-		ifTrue: 
-			[packageDictionaryCards view removeSubView: packageListPresenter view.
-			packageListPresenter list: ListModel new].
-	packageDictionaryCards view cards isEmpty
-		ifTrue: 
-			[newCard := packageDictionaryCards add: dictionaryListPresenter.
-			self createListViewFor: newCard.
-			packageDictionaryCards view cards first arrangement: 'Dictionaries'.
-			dictionaryListPresenter view contextMenu: self dictionaryMenu.
-			classListPresenter list: ListModel new.
-			classHierarchyPresenter model: JadeiteTreeModel new].
-	self updateDictionaries.
-	self clearComponentList
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> showPackageGroups [
 	componentPackageContainer view arrangement: 1/4.
 	packageDictionaryContainer view arrangement: 0.5. 

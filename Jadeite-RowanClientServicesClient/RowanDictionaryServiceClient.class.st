@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanDictionaryServiceClient',
 	#superclass : 'RowanDictionaryService',
 	#instVars : [
-		'inCommand'
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -41,4 +42,16 @@ RowanDictionaryServiceClient >> indexOfInCommandInstVar [
 	"performance enhancement"
 
 	^18
+]
+
+{ #category : 'accessing' }
+RowanDictionaryServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanDictionaryServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]

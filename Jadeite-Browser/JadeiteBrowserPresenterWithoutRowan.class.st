@@ -355,14 +355,17 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 	dictionaryService := selection selectedItem.
 	dictionaryService ifNil: [
 		^ classCategoryPresenter roots: OrderedCollection new ].
-	dictionaryService classCategories ifNil: [
-		^ classCategoryPresenter roots: OrderedCollection new ].
-	newServices := dictionaryService classCategories collect: [ :category |
-		               RowanClassCategoryService new name: category ].
-	newServices = classCategoryServices ifTrue: [ ^ self ].
-	classCategoryServices := newServices.
-	classCategoryPresenter roots:
-		(self classCategoriesAt: 1 matching: '*')
+	dictionaryService traceCr. 
+	self updateService: dictionaryService onCompletion: [
+		dictionaryService classCategories ifNil: [
+			^ classCategoryPresenter roots: OrderedCollection new ].
+		newServices := dictionaryService classCategories collect: [
+			               :category |
+			               RowanClassCategoryService new name: category ].
+		newServices = classCategoryServices ifTrue: [ ^ self ].
+		classCategoryServices := newServices.
+		classCategoryPresenter roots:
+			(self classCategoriesAt: 1 matching: '*') ]
 ]
 
 { #category : 'initialization' }
