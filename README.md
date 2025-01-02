@@ -17,7 +17,7 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 	* JadeiteForPharo, branch `main`, `git clone git@github.com:GemTalk/JadeiteForPharo.git`
 	* PharoGemStoneFFI, branch `main`, `git clone git@github.com:GemTalk/PharoGemStoneFFI.git`
 	* RemoteServiceReplication, branch `main-v2`, `git clone git@github.com:GemTalk/RemoteServiceReplication.git`
- 	* RowanClientServices, branch `mainV3.0`, `git clone git@github.com:GemTalk/RowanClientServices.git`
+ 	* RowanClientServices, branch `mainV3.0`, `RowanClientServices, branch mainV3.0, git clone git@github.com:GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
 - Connect to the latest RowanClientServices code by running this script in a directory with a .topazini file setup with your stone's information:
 	* \<Gemstone install directory\>/rowan3/bin/attachRowanDevClones.stone script 	   
 
