@@ -1,20 +1,30 @@
 # JadeiteForPharo
-IDE for GemStone Smalltalk application development in Pharo using Rowan code management. Note that Jadeite for Pharo requires Rowan 3. 
+IDE for GemStone Smalltalk application development in Pharo.
+Jadeite for Pharo (and these instructions) should be considered alpha quality at the current time. 
+These instructions are written assuming the user is using a GemStone server with Rowan installed. 
+
+Jadeite For Pharo is only tested for use with GemStone 3.7.2. 
 
 ## To load JadeiteForPharo into a Pharo image:
 
 - Install Pharo 12 Smalltalk.
-  - Currently, only Pharo 12 is supported
+  - Jadeite for Pharo only works with Pharo 12
   - Recommended build -
     - Pharo-12.0.0+SNAPSHOT.build.1546.sha.30427d35e51ff0351e1dc860306faf36d9d8931c (64 Bit)
 - Create a Rowan server using extent `extent0.rowan3.dbf`
-- If you want to use the latest RowanClientServices code, you'll need to run the .../rowan3/bin/attachRowanDevClones.stone script
-- Clone these git projects to your local disk with a common directory: 
+- Set the env variable $ROWAN_CLIENT_SERVICES to the directory containing the checkouts of all github clones on local disk
+- Clone these git projects to $ROWAN_CLIENT_SERVICES on your local disk: 
 	* JadeiteForPharo, branch `main`, `git clone git@github.com:GemTalk/JadeiteForPharo.git`
 	* PharoGemStoneFFI, branch `main`, `git clone git@github.com:GemTalk/PharoGemStoneFFI.git`
 	* RemoteServiceReplication, branch `main-v2`, `git clone git@github.com:GemTalk/RemoteServiceReplication.git`
+ 	* RowanClientServices, branch `mainV3.0`, `RowanClientServices, branch mainV3.0, git clone git@github.com:GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
+- Connect to the latest RowanClientServices code by running this script in a directory with a .topazini file setup with your stone's information:
+	* \<Gemstone install directory\>/rowan3/bin/attachRowanDevClones.stone script 	   
 
 - Run the script below in a Pharo 12 image playground
+- If you wish to use Jadeite for Pharo without Rowan, 
+	* Open a Settings Browser in Pharo.
+ 	* Uncheck Jadeite for Pharo>Rowan Available  
 - Go to Library>Jadeite Launcher to open a connection browser
 ```
 
