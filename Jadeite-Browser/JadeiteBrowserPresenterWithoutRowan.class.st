@@ -306,13 +306,39 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 		self updateClassInfo ]
 ]
 
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: classCategoryService keepSelectedClass: selectedClass [
+
+	| classes toBeSelected |
+	classes := self dictionaryListPresenter selectedItem classes select: [
+		           :classService |
+		           classService classCategory
+			           ifNil: [ false ]
+			           ifNotNil: [ :cat |
+			           classCategoryService firstSubstringsToIndex , '*'
+				           match: cat ] ].
+	self classListPresenter list:
+		(classes asSortedCollection: [ :x :y | x name < y name ]).
+	toBeSelected := self classListPresenter items
+		                detect: [ :classService |
+		                classService = selectedClass ]
+		                ifNone: [ nil ].
+	^ selectedClass ifNotNil: [
+		  self isClassListTabSelected ifTrue: [
+			  self classListPresenter selectItem: toBeSelected ] ]
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
+	"I'm not sure this is the right thing to do. In some ways it makes sense -
+	show the exact category the selected class is in. But in other ways you want
+	to not change the category selection the user chose. Disabling for now."
 
 	| classCategoryService index |
+	true ifTrue: [ ^ self ].
 	index := classService classCategory
 		         ifNil: [ 1 ]
-		         ifNotNil: [ :cat | (cat substrings: #($-)) size ].
+		         ifNotNil: [ :cat | (cat substrings: #( $- )) size ].
 	classCategoryService := RowanClassCategoryService new
 		                        name: classService classCategory;
 		                        substringIndex: index;
@@ -450,20 +476,28 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassThenFind: classService onCompl
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection [
 
-	| classCategoryService classes |
+	| classCategoryService dictionaryService selectedClass |
 	classCategoryService := selection selectedItem.
 	classCategoryService ifNil: [ ^ self ].
-	self dictionaryListPresenter selectedItem ifNil:[^self]. 
-	self dictionaryListPresenter selectedItem classes ifNil:[^self]. 
-	classes := self dictionaryListPresenter selectedItem classes select: [
-		           :classService |
-		           classService classCategory
-			           ifNil: [ false ]
-			           ifNotNil: [ :cat |
-			           classCategoryService firstSubstringsToIndex , '*'
-				           match: cat ] ].
-	self classListPresenter list:
-		(classes asSortedCollection: [ :x :y | x name < y name ])
+	self classCategoryPresenter selectedItem = classCategoryService
+		ifTrue: [ selectedClass := self selectedClass ]
+		ifFalse: [
+			classListPresenter unselectAll.
+			selectedClass := nil ].
+	dictionaryService := self dictionaryListPresenter selectedItem.
+	self dictionaryListPresenter selectedItem ifNil: [ ^ self ].
+	self dictionaryListPresenter selectedItem classes ifNil: [ ^ self ].
+	dictionaryService
+		command: #updateForClassCategory:;
+		commandArgs:
+			(Array with: classCategoryService firstSubstringsToIndex).
+	RowanServiceUpdater current
+		issueCommand: dictionaryService
+		session: self gciSession
+		onCompletion: [
+			self
+				selectClassCategory: classCategoryService
+				keepSelectedClass: selectedClass ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -88,16 +88,16 @@ RowanDictionaryService >> classes: anArray [
 { #category : 'updates' }
 RowanDictionaryService >> classesUpdate: presenter browser: browser [
 
-	| updatedClasses |
+	| updatedClasses theClasses |
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
 	classes ifNil: [ ^ presenter list: ListModel new ].
 	self removeDeletedClassesIn: presenter browser: browser.
-	classes := browser filterClassesBySelectedClassCategory: classes.
+	theClasses := browser filterClassesBySelectedClassCategory: classes.
 	presenter selectionOrNil
 		ifNil: [
-			updatedClasses := classes asSet reject: [ :classService |
+			updatedClasses := theClasses asSet reject: [ :classService |
 				                  classService wasRenamed ].
 			updatedClasses addAll: presenter list.
 			presenter list: (ListModel withAll:
@@ -105,7 +105,7 @@ RowanDictionaryService >> classesUpdate: presenter browser: browser [
 		ifNotNil: [
 			self
 				updateList: presenter
-				whilePreservingSelections: classes
+				whilePreservingSelections: theClasses
 				browser: browser ].
 	presenter list do: [ :classService |
 		classService
