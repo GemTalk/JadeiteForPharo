@@ -1127,27 +1127,6 @@ JadeSystemBrowserPresenter >> promptForSelector [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> removeClass [
-
-	| list stream result |
-	list := self selectedClasses.
-	stream := WriteStream on: String new.
-	list do: [:each | stream nextPutAll: each; cr].
-	result := MessageBox 
-		confirm: stream contents 
-		caption: 'Remove the following class(s)?'.
-	result ifFalse: [^self].
-	stream := WriteStream on: String new.
-	stream nextPutAll: 'removeClasses'; lf.
-	self addPackageDictionaryInfoTo: stream.
-	list do: [:each | stream nextPutAll: each; tab].
-	stream lf; nextPutAll: self requestString.
-	self updateCommand: stream contents.
-
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> removeGlobals [
 
 	| stream |

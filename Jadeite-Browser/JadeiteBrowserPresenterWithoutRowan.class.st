@@ -67,8 +67,8 @@ JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectPackageDictionaryPresenters [
 
-	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		self updateDictionary ]
+"	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
+		self updateDictionary ]"
 ]
 
 { #category : 'initialization' }
@@ -294,7 +294,6 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 	| index dictionaryService |
 	classService ifNil: [ ^self ]. 
 	self selectDictionaryNamed: classService dictionaryName. 
-	self selectClassCategoryFor: classService.
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [
 		classService meta ifNil: [ classService meta: true ].
@@ -335,7 +334,6 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 	to not change the category selection the user chose. Disabling for now."
 
 	| classCategoryService index |
-	true ifTrue: [ ^ self ].
 	index := classService classCategory
 		         ifNil: [ 1 ]
 		         ifNotNil: [ :cat | (cat substrings: #( $- )) size ].
@@ -357,6 +355,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 				self selectDictionaryNamed: classService dictionaryName.
 				self setAppropriateMeta: classService.
 				self selectClassListTab.
+				self selectClassCategoryFor: classService.
 				self selectClass: classService ].
 			completionBlock value ] ]
 ]
@@ -367,7 +366,6 @@ JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
 
 	| selection |
 	selection := self selectedClass.
-	self selectClassCategoryFor: classService.
 	self isClassHierarchyTabSelected
 		ifTrue: [
 		self updateClassInClassHierarchy: classService selection: selection ]
@@ -381,17 +379,23 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 	dictionaryService := selection selectedItem.
 	dictionaryService ifNil: [
 		^ classCategoryPresenter roots: OrderedCollection new ].
-	dictionaryService traceCr. 
-	self updateService: dictionaryService onCompletion: [
-		dictionaryService classCategories ifNil: [
-			^ classCategoryPresenter roots: OrderedCollection new ].
-		newServices := dictionaryService classCategories collect: [
-			               :category |
-			               RowanClassCategoryService new name: category ].
-		newServices = classCategoryServices ifTrue: [ ^ self ].
-		classCategoryServices := newServices.
-		classCategoryPresenter roots:
-			(self classCategoriesAt: 1 matching: '*') ]
+	dictionaryService
+		command: #updateClassCategories;
+		commandArgs: Array new;
+		shouldUpdate: false.
+	classListPresenter items: Array new. 
+	classHierarchyPresenter roots: Array new. 
+	self issueCommand: dictionaryService onCompletion: [
+		dictionaryService classCategories
+			ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
+			ifNotNil: [
+				newServices := dictionaryService classCategories collect: [
+					               :category |
+					               RowanClassCategoryService new name: category ].
+				newServices = classCategoryServices ifFalse: [
+					classCategoryServices := newServices.
+					classCategoryPresenter roots:
+						(self classCategoriesAt: 1 matching: '*') ] ] ]
 ]
 
 { #category : 'initialization' }
@@ -486,11 +490,11 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection 
 			selectedClass := nil ].
 	dictionaryService := self dictionaryListPresenter selectedItem.
 	self dictionaryListPresenter selectedItem ifNil: [ ^ self ].
-	self dictionaryListPresenter selectedItem classes ifNil: [ ^ self ].
 	dictionaryService
 		command: #updateForClassCategory:;
 		commandArgs:
-			(Array with: classCategoryService firstSubstringsToIndex).
+			(Array with: classCategoryService firstSubstringsToIndex);
+		shouldUpdate: false.
 	RowanServiceUpdater current
 		issueCommand: dictionaryService
 		session: self gciSession

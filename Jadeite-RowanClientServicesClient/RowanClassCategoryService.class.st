@@ -24,6 +24,7 @@ RowanClassCategoryService >> = catService [
 { #category : 'accessing' }
 RowanClassCategoryService >> data [
 
+	name = String new ifTrue: [ ^ self nilCategoryDisplayName ].
 	name ifNil: [ ^ String new ].
 	substringIndex ifNil: [ ^ name ].
 	^ (name substrings: '-') at: substringIndex ifAbsent: [  ]
@@ -36,9 +37,12 @@ RowanClassCategoryService >> displayString [
 ]
 
 { #category : 'accessing' }
-RowanClassCategoryService >> firstSubstringsToIndex [ 
-	substringIndex ifNil: [ ^name ]. 
-	^((name substrings: '-') first: substringIndex) fold: [:a :b | a, '-', b]
+RowanClassCategoryService >> firstSubstringsToIndex [
+
+	self name = self nilCategoryDisplayName ifTrue: [ ^ String new ].
+	substringIndex ifNil: [ ^ name ].
+	^ ((name substrings: '-') first: substringIndex) fold: [ :a :b |
+		  a , '-' , b ]
 ]
 
 { #category : 'testing' }
@@ -67,9 +71,17 @@ RowanClassCategoryService >> name [
 ]
 
 { #category : 'accessing' }
-RowanClassCategoryService >> name: aString [ 
+RowanClassCategoryService >> name: aString [
 
-	name := aString 
+	aString = String new
+		ifTrue: [ name := self nilCategoryDisplayName ]
+		ifFalse: [ name := aString ]
+]
+
+{ #category : 'constants' }
+RowanClassCategoryService >> nilCategoryDisplayName [
+
+	^ 'no class category'
 ]
 
 { #category : 'printing' }

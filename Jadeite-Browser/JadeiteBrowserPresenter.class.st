@@ -357,7 +357,8 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 	service := self selectedDictionaryOrPackage.
 	service
 		command: #removeClass:;
-		commandArgs: (Array with: theClassService).
+		commandArgs: (Array with: theClassService);
+		shouldUpdate: true.
 	self issueCommand: service onCompletion: [
 		self selectedClass
 			ifNil: [
@@ -365,7 +366,8 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 			ifNotNil: [
 				classDefinitionPresenter value: self selectedClass template.
 				self resetClassDefinitionPane ].
-		completionBlock value ]
+		completionBlock value.
+		self updateTabLabel ]
 ]
 
 { #category : 'actions' }

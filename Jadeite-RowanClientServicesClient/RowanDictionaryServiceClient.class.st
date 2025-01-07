@@ -16,6 +16,18 @@ RowanDictionaryServiceClient >> addClass: classService [
 	
 	In case we find the class, we remove then add it back in case the class category changed "
 
+	self classes
+		ifNil: [
+			RowanServiceUpdater current
+				updateService: self
+				session: GciSession current 
+				onCompletion: [ self basicAddClass: classService ] ]
+		ifNotNil: [ self basicAddClass: classService ]
+]
+
+{ #category : 'actions' }
+RowanDictionaryServiceClient >> basicAddClass: classService [
+
 	| oc |
 	oc := self classes asOrderedCollection.
 	(self classes includes: classService) ifTrue: [

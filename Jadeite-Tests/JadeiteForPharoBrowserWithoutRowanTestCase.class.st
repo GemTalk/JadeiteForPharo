@@ -28,12 +28,14 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan';
+			 substringIndex: 1;
+			 yourself).
 	self
 		selectServiceNamed: 'RowanAnsweringService'
 		in: self classListPresenter.
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter
 ]
 
 { #category : 'selection' }
@@ -43,9 +45,11 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: self dictionaryListPresenter.
-	self
-		selectServiceNamed: self sampleClassName
-		in: self classListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: RowanClassCategoryService new nilCategoryDisplayName;
+			 substringIndex: 1;
+			 yourself).
 	self
 		selectServiceNamed: self sampleClassName
 		in: self classListPresenter
@@ -57,9 +61,11 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Test [
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: self dictionaryListPresenter.
-	self
-		selectServiceNamed: 'RowanSample1Test'
-		in: self classListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: RowanClassCategoryService new nilCategoryDisplayName;
+			 substringIndex: 1;
+			 yourself).
 	self
 		selectServiceNamed: 'RowanSample1Test'
 		in: self classListPresenter
