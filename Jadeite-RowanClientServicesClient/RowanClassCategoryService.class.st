@@ -12,6 +12,16 @@ Class {
 	#package : 'Jadeite-RowanClientServicesClient'
 }
 
+{ #category : 'instance creation' }
+RowanClassCategoryService class >> nilClassCategory [
+
+	| inst |
+	inst := self new
+		        name: String new;
+		        substringIndex: 1.
+	^ inst
+]
+
 { #category : 'comparison' }
 RowanClassCategoryService >> = catService [
 

@@ -394,7 +394,8 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseClassMethodSourceNotDirty [
 	self
 		assert: secondBrowser activePresenter selectedClass name
 		equals: 'RowanSample1Test'.
-	self selectMethodNamed: 'test1'.
+	secondPresenter := secondBrowser currentCard.
+	secondPresenter selectMethodNamed: 'test1'.
 	self deny:
 		secondBrowser activePresenter methodSourcePresenter
 			hasUnacceptedEdits
