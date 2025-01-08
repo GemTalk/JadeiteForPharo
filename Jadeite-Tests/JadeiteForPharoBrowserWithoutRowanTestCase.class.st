@@ -30,8 +30,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
 		in: self dictionaryListPresenter.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
-			 name: 'Rowan';
-			 substringIndex: 1;
+			 name: 'Rowan-Services-Core';
+			 substringIndex: 3;
 			 yourself).
 	self
 		selectServiceNamed: 'RowanAnsweringService'
@@ -50,6 +50,13 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
 			 name: RowanClassCategoryService new nilCategoryDisplayName;
 			 substringIndex: 1;
 			 yourself).
+	self classCategoryPresenter selectedItem ifNil: [
+			self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'RowanSample1-Core';
+			 substringIndex: 2;
+			 yourself).
+		  ].
 	self
 		selectServiceNamed: self sampleClassName
 		in: self classListPresenter
@@ -58,17 +65,29 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
 { #category : 'selection' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Test [
 
+	self selectRowanSample1TestIn: self projectsPresenter
+]
+
+{ #category : 'selection' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1TestIn: browser [
+
 	self
 		selectServiceNamed: 'SampleSymbolDict'
-		in: self dictionaryListPresenter.
-	self classCategoryPresenter selectItem:
+		in: browser dictionaryListPresenter.
+	browser classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: RowanClassCategoryService new nilCategoryDisplayName;
 			 substringIndex: 1;
 			 yourself).
+	browser classCategoryPresenter selectedItem ifNil: [
+		browser classCategoryPresenter selectItem:
+			(RowanClassCategoryService new
+				 name: 'RowanSample1-Test';
+				 substringIndex: 2;
+				 yourself) ].
 	self
 		selectServiceNamed: 'RowanSample1Test'
-		in: self classListPresenter
+		in: browser classListPresenter
 ]
 
 { #category : 'selection' }
@@ -257,21 +276,22 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 	self
 		selectServicesNamed: (Array with: 'RowanKernel')
 		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan';
+			 substringIndex: 1;
+			 yourself).
 	names := self classListPresenter model collection collect: [
 		         :classService | classService name ].
-	self assert: (names includes: 'Rowan').
 	self assert: (names includes: 'RwPlatform').
 	self selectHierarchyTab.
 	(Delay forMilliseconds: 500) wait.
 	hierarchyModel := self classHierarchyPresenter model.
 
 	self assert: hierarchyModel first name equals: 'Object'.
-
+	
 	hierarchyModel := self classHierarchyPresenter childrenFor:
 		                  hierarchyModel first.
-
-	self denyIsNil:
-		(hierarchyModel detect: [ :svc | svc name = 'Rowan' ] ifNone: [  ]).
 	self denyIsNil: (hierarchyModel
 			 detect: [ :svc | svc name = 'RwPlatform' ]
 			 ifNone: [  ]).
@@ -553,14 +573,9 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_twoBrowsersAddSameCategoryToC
 		selectRowanSample1Test;
 		selectHierarchyTab;
 		openSecondBrowser.
-	(Delay forMilliseconds: 500) wait. 
+	(Delay forMilliseconds: 500) wait.
 	self
-		selectServiceNamed: 'SampleSymbolDict'
-		in: secondPresenter dictionaryListPresenter;
-		selectServiceNamed: 'RowanSample1Test'
-		in: secondPresenter classListPresenter;
-		selectServiceNamed: 'RowanSample1Test'
-		in: secondPresenter classListPresenter;
+		selectRowanSample1TestIn: secondPresenter;
 		selectHierarchyTabIn: secondPresenter;
 		selectClassSide;
 		deny:

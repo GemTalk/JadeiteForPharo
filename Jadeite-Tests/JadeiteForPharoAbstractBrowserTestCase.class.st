@@ -238,10 +238,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_abuseMethodList [
 		testsJadeiteForPharoIssue: #issue44
 		title:
 		'While editing a method, can click on other methods, but method text pane not updated'.
-	self selectRowanServicesPackage.
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter.
+	self selectRowanAnsweringService. 
 	1 to: self projectsPresenter methodListPresenter list size do: [
 		:index |
 		self projectsPresenter methodListPresenter resetSelection.
@@ -1167,13 +1164,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource
 JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
-	self selectRowanServicesPackage.
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter.
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter.
+	self selectRowanAnsweringService.
 	self selectHierarchyTab.
 	[
 	answeringService := self projectsPresenter selectedClass.

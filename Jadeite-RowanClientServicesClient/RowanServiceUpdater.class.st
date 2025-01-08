@@ -160,7 +160,9 @@ RowanServiceUpdater >> basicIssueCommand: service [
 RowanServiceUpdater >> basicUpdateServices: services session: session onCompletion: completionBlock [
 
 	services do: [ :service |
-		service command: #update.
+		service
+			command: #update;
+			commandArgs: Array new.
 		self
 			issueCommand: service
 			session: session

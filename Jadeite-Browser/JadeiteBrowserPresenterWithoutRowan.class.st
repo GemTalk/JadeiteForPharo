@@ -383,8 +383,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 		command: #updateClassCategories;
 		commandArgs: Array new;
 		shouldUpdate: false.
-	classListPresenter items: Array new. 
-	classHierarchyPresenter roots: Array new. 
+	classListPresenter items: Array new.
+	classHierarchyPresenter roots: Array new.
 	self issueCommand: dictionaryService onCompletion: [
 		dictionaryService classCategories
 			ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
@@ -392,10 +392,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
 				newServices := dictionaryService classCategories collect: [
 					               :category |
 					               RowanClassCategoryService new name: category ].
-				newServices = classCategoryServices ifFalse: [
-					classCategoryServices := newServices.
-					classCategoryPresenter roots:
-						(self classCategoriesAt: 1 matching: '*') ] ] ]
+				classCategoryServices := newServices.
+				classCategoryPresenter roots:
+					(self classCategoriesAt: 1 matching: '*') ] ]
 ]
 
 { #category : 'initialization' }
