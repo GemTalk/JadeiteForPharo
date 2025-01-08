@@ -12,8 +12,8 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
   - Recommended build -
     - Pharo-12.0.0+SNAPSHOT.build.1546.sha.30427d35e51ff0351e1dc860306faf36d9d8931c (64 Bit)
 - Create a Rowan server using extent `extent0.rowan3.dbf`
-- Set the env variable $ROWAN_CLIENT_SERVICES to the directory containing the checkouts of all github clones on local disk
-- Clone these git projects to $ROWAN_CLIENT_SERVICES on your local disk: 
+- Set the env variable $ROWAN_PROJECTS_HOME to the directory containing the checkouts of all github clones on local disk
+- Clone these git projects to $ROWAN_PROJECTS_HOME on your local disk: 
 	* JadeiteForPharo, branch `main`, `git clone git@github.com:GemTalk/JadeiteForPharo.git`
 	* PharoGemStoneFFI, branch `main`, `git clone git@github.com:GemTalk/PharoGemStoneFFI.git`
 	* RemoteServiceReplication, branch `main-v2`, `git clone git@github.com:GemTalk/RemoteServiceReplication.git`
