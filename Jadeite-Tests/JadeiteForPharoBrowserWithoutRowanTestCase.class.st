@@ -266,6 +266,30 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassWithNilClassCategory [
+	"When selecting a class, don't reset the class category
+	selection to the full class category path."
+
+	self testResourceClass current createRowanSample1Project.
+	self projectsPresenter findClassNamed: 'RowanSample1'.
+	self assert:
+		self classCategoryPresenter roots first name = 'no class category'.
+	self
+		assert: self classCategoryPresenter selectedItem name
+		equals: RowanClassCategoryService new nilCategoryDisplayName.
+	self assert: self classListPresenter items size equals: 2.
+	self
+		assert: self classListPresenter items first name
+		equals: 'RowanSample1'.
+	self
+		assert: self classListPresenter items second name
+		equals: 'RowanSample1Test'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanSample1'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 
 	| hierarchyModel names |
@@ -298,6 +322,35 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 	self assertIsNil: (hierarchyModel
 			 detect: [ :svc | svc name = 'RwGsPlatform' ]
 			 ifNone: [  ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
+	"When selecting a class, don't reset the class category
+	selection to the full class category path."
+
+	self testResourceClass current createRowanSample1Project.
+	self
+		selectServiceNamed: 'SampleSymbolDict'
+		in: self dictionaryListPresenter.
+	self assert:
+		self classCategoryPresenter roots first name = 'no class category'.
+	self assert: self classListPresenter items size equals: 0.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: String new;
+			 substringIndex: 1;
+			 yourself).
+	self
+		assert: self classCategoryPresenter selectedItem name
+		equals: RowanClassCategoryService new nilCategoryDisplayName.
+	self assert: self classListPresenter items size equals: 2.
+	self
+		assert: self classListPresenter items first name
+		equals: 'RowanSample1'.
+	self
+		assert: self classListPresenter items second name
+		equals: 'RowanSample1Test'
 ]
 
 { #category : 'tests' }

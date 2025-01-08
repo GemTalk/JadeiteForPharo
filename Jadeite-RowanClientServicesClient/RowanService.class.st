@@ -88,6 +88,8 @@ RowanService class >> templateClassName [
 { #category : 'service completion' }
 RowanService >> _handleServiceCompletionBlock [
 
+	self serviceCompletionBlock ifNil: [
+		^ self "sometimes bad timing can happen during automated tests" ].
 	[ self serviceCompletionBlock cull: self ] ensure: [
 		self serviceCompletionBlock: nil ]
 ]
