@@ -272,8 +272,9 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassWithNilClassCategory
 
 	self testResourceClass current createRowanSample1Project.
 	self projectsPresenter findClassNamed: 'RowanSample1'.
-	self assert:
-		self classCategoryPresenter roots first name = 'no class category'.
+	self
+		assert: self classCategoryPresenter roots first name
+		equals: 'no class category'.
 	self
 		assert: self classCategoryPresenter selectedItem name
 		equals: RowanClassCategoryService new nilCategoryDisplayName.

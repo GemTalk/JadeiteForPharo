@@ -668,7 +668,7 @@ JadeiteBrowserPresenter >> classSelected: classService [
 		self clearMethodLists.
 		self clearFilterLists.
 		RowanServiceUpdater current isApplyingUpdates ifFalse: [
-			self refreshClass: methodListPresenter selectedItem ].
+			self refreshClassUsing: methodListPresenter selectedItem ].
 		self updateTabLabel.
 		self selectCategoryTab.
 		self methodListPresenter selectIndex: 0 scrollToSelection: true ]
@@ -2733,8 +2733,16 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 	self resetCategoryText
 ]
 
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> refreshClassAndMethodPresenters [
+
+	classListPresenter refresh.
+	classHierarchyPresenter refresh.
+	^ methodListPresenter refresh
+]
+
 { #category : 'updates' }
-JadeiteBrowserPresenter >> refreshClass: selectedMethod [
+JadeiteBrowserPresenter >> refreshClassUsing: selectedMethod [
 
 	| selection presenter |
 	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
@@ -2762,14 +2770,6 @@ JadeiteBrowserPresenter >> refreshClass: selectedMethod [
 		self updateClassInfo.
 		self selectMethodWithSameSelectorAs: selectedMethod.
 		self updateTabLabel ]
-]
-
-{ #category : 'sunit support' }
-JadeiteBrowserPresenter >> refreshClassAndMethodPresenters [
-
-	classListPresenter refresh.
-	classHierarchyPresenter refresh.
-	^ methodListPresenter refresh
 ]
 
 { #category : 'as yet unclassified' }
@@ -3836,7 +3836,8 @@ JadeiteBrowserPresenter >> updateClass: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClassInfo [
 
-	self basicUpdateClassInfo. 
+	self selectedClass ifNil: [ ^ self ].
+	self basicUpdateClassInfo.
 	definedClassPackageText view text:
 		'Defined Package: ' , self selectedClass definedPackageName.
 	self sundryCleanup
@@ -4002,22 +4003,21 @@ JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
-
 	self selectClassListTab.
+	classHierarchyPresenter clear. 
 	self setInstanceSide. 
 	self resetClassComment.
 	self resetClassTemplate.
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
-	self selectClassListTab.
 	self updateClassesOnCompletion: [
 		self updatePackageInfo.
 		self resetSunitTestList.
 		self todo: [
 			packageListPresenter selectionIfNone: [ self selectProjectTab ].
 			self updateTabLabel ].
-		definedClassPackageText text: String new ]
+		definedClassPackageText text: String new ].
 ]
 
 { #category : 'as yet unclassified' }

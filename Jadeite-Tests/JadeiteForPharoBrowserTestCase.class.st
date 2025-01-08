@@ -1,12 +1,15 @@
+"
+browser tests that depend on Rowan available = true should go here
+"
 Class {
-	#name : 'JadeiteForPharoBrowserWithRowanTestCase',
+	#name : 'JadeiteForPharoBrowserTestCase',
 	#superclass : 'JadeiteForPharoAbstractBrowserTestCase',
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
 
 { #category : 'support' }
-JadeiteForPharoBrowserWithRowanTestCase >> setUp [
+JadeiteForPharoBrowserTestCase >> setUp [
 
 	super setUp.
 	JadeitePreferences isRowanLoaded: true.
@@ -14,7 +17,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> setUp [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_abortRemovesProjectAndPackage [
+JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 	self selectRowanSample1Test.
 	[self denyIsNil: (self projectListPresenter list
 				detect: [:projectService | projectService name = 'RowanSample1']
@@ -35,7 +38,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_abortRemovesProjectAndPackage [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_acceptDefinedMethodInExtensionClass [
+JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self testsIssue: #issue375
 		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
@@ -55,7 +58,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_acceptDefinedMethodInExtensionCl
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_addDuplicatePackage [
+JadeiteForPharoBrowserTestCase >> test_addDuplicatePackage [
 	"don't open the add package dialog window as it's hard to test a modal window,
 	just fill in the values so the browser can extract them and do the actual work."
 
@@ -97,7 +100,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_addDuplicatePackage [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_browseClass [
+JadeiteForPharoBrowserTestCase >> test_browseClass [
 	"project browser opened in setup"
 
 	projectsBrowser ifNotNil: [
@@ -110,7 +113,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_browseClass [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_browseProject [
+JadeiteForPharoBrowserTestCase >> test_browseProject [
 
 	| projectListPresenter service |
 	RowanServiceUpdater uninstallTestUpdater.
@@ -128,7 +131,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_browseProject [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_deselectProjectOnly [
+JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 	"make sure it updates the tab label"
 
 	self deselectProjects.
@@ -140,7 +143,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_deselectProjectOnly [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_findClass [
+JadeiteForPharoBrowserTestCase >> test_findClass [
 
 	self projectsPresenter
 		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
@@ -174,7 +177,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_findClass [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_hierarchyExpansion [
+JadeiteForPharoBrowserTestCase >> test_hierarchyExpansion [
 	"When no classes are selected and the hierarchy tab is chosen, we should
 	see a hierarchy showing all superclasses of the packaged classes. 
 	Subclasses are available with the > arrow. 
@@ -227,7 +230,29 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_hierarchyExpansion [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_projectLoadAddedInAlphabeticalOrder [
+JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
+
+	self
+		testsIssue: #issue175
+		withTitle:
+		'[jpf] change packages from hierarchy view gives walkback'. "https://github.com/GemTalk/JadeiteForPharo/issues/175"
+	self selectRowanAnsweringService.
+	self selectHierarchyTab.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanAnsweringService'.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self
+		assert: self packageListPresenter selectedItem name
+		equals: 'Rowan-Services-Tests'.
+	self assert: self projectsPresenter isClassListTabSelected.
+	self assertIsNil: self projectsPresenter selectedClass
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 
 	| projects |
 	self
@@ -252,7 +277,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_projectLoadAddedInAlphabeticalOr
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_projectOrderDoesNotChange [
+JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
 
 	| projectsBefore projectsAfter |
 	self
@@ -276,7 +301,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_projectOrderDoesNotChange [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_projectRemoved [
+JadeiteForPharoBrowserTestCase >> test_projectRemoved [
 	"Gracefully remove a project from the project list if it was 
 	removed behind the tool's back"
 
@@ -300,7 +325,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_projectRemoved [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_removeProject [
+JadeiteForPharoBrowserTestCase >> test_removeProject [
 
 	| targetProject |
 	self testsIssue: #issue129 withTitle: 'Expose unload project.'.
@@ -340,7 +365,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_removeProject [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_runTestInBrowser [
+JadeiteForPharoBrowserTestCase >> test_runTestInBrowser [
 
 	| methodService |
 	self
@@ -371,7 +396,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_runTestInBrowser [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_selectVariable [
+JadeiteForPharoBrowserTestCase >> test_selectVariable [
 
 	self selectRowanServicesPackage.
 	self
@@ -397,7 +422,7 @@ JadeiteForPharoBrowserWithRowanTestCase >> test_selectVariable [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithRowanTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
+JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
 
 	self
 		testsIssue: #issue418
