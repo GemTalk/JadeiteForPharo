@@ -548,7 +548,43 @@ Even then it may not work as the test has never been successfully run"
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectCategory [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassButCategoryIsUnchanged [
+	"When selecting a class, don't reset the class category
+	selection to the full class category path."
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Core';
+			 substringIndex: 2;
+			 yourself).
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'RowanClientServices'.
+	self
+		assert: self classCategoryPresenter selectedItem firstSubstringsToIndex
+		equals: 'Rowan-Services'.
+	self
+		assertIsNil: self classListPresenter selectedItem. 
+		
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter.
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'RowanClientServices'.
+	self
+		assert: self classCategoryPresenter selectedItem firstSubstringsToIndex
+		equals: 'Rowan-Services'. "not changed to Rowan-Services-Core"
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringService'.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategory [
 	"basic test to just ensure class category presenter gets correct selection"
 
 	self selectRowanAnsweringService.
@@ -561,6 +597,49 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectCategory [
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanAnsweringService'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath [
+	"should be able to select a new class category higher in the path
+	without losing the selection"
+
+	self selectRowanAnsweringService.
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'RowanClientServices'.
+	self
+		assert: self classCategoryPresenter selectedItem data
+		equals: 'Core'.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringService'.
+
+	"in hierarchy don't lose selection"
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Core';
+			 substringIndex: 2; "Rowan-Services"
+			 yourself).
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringService'.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Core';
+			 substringIndex: 1; "Rowan"
+			 yourself).
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringService'.
+
+	"not in hierarchy, selection cleared"
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self assertIsNil: self classListPresenter selectedItem
 ]
 
 { #category : 'tests' }
