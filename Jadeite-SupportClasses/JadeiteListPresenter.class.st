@@ -28,6 +28,12 @@ JadeiteListPresenter >> acceptDrop [
 	^super acceptDrop
 ]
 
+{ #category : 'sorting' }
+JadeiteListPresenter >> beSorted [
+
+	model beSorted
+]
+
 { #category : 'testing' }
 JadeiteListPresenter >> canDiscardEdits [
 

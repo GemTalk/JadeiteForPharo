@@ -675,17 +675,16 @@ RowanClassService >> methodPackages [
 
 { #category : 'public' }
 RowanClassService >> methodUpdate: presenter browser: anObject [
-	presenter list ifNil:[^self]. 
-	presenter list do: 
-			[:methodService |
-			| updatedMethodService |
-			updatedMethodService := methods detect: [:newMethodService | newMethodService = methodService]
-						ifNone: [].
-			updatedMethodService
-				ifNotNil: 
-					[:service |
-					methodService replicateFrom: updatedMethodService	"#replicateFrom: will ensure we only replicate the proper methods"]].
-	self todo:[presenter view invalidate]
+
+	presenter list ifNil: [ ^ self ].
+	presenter list do: [ :methodService |
+		| updatedMethodService |
+		updatedMethodService := methods
+			                        detect: [ :newMethodService |
+			                        newMethodService = methodService ]
+			                        ifNone: [  ].
+		updatedMethodService ifNotNil: [ :service |
+			methodService replicateFrom: updatedMethodService "#replicateFrom: will ensure we only replicate the proper methods" ] ]
 ]
 
 { #category : 'accessing' }

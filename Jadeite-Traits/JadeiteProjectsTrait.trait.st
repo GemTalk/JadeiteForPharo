@@ -17,7 +17,7 @@ JadeiteProjectsTrait >> allSelectedProjectsDirty [
 { #category : 'actions' }
 JadeiteProjectsTrait >> areProjectsInSync: projects [
 
-	^ (self sortedProjectsFrom: projects) asArray
+	^ (self sortedFrom: projects) asArray
 	  = self projectListPresenter items asArray
 ]
 
@@ -680,7 +680,7 @@ JadeiteProjectsTrait >> updateProjects [
 		onCompletion: [
 			(self areProjectsInSync: browserService projects) ifFalse: [
 				self projectListPresenter items:
-					(self sortedProjectsFrom: browserService projects).
+					(self sortedFrom: browserService projects).
 				self projectListUpdated ].
 			self basicPostOpen ]
 ]

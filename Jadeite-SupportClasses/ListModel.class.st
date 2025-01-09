@@ -53,7 +53,7 @@ ListModel >> at: anIndex [
 { #category : 'converting' }
 ListModel >> beSorted [
 
-	self collection: (self sortedProjectsFrom: collection)
+	self collection: (self sortedFrom: collection)
 ]
 
 { #category : 'enumerating' }

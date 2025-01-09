@@ -58,7 +58,7 @@ JadeiteUtilityTrait >> selectPackageOnCompletion: completionBlock [
 ]
 
 { #category : 'updates' }
-JadeiteUtilityTrait >> sortedProjectsFrom: theProjects [
+JadeiteUtilityTrait >> sortedFrom: theProjects [
 
 	^ theProjects asSortedCollection: [ :x :y |
 		  x name asLowercase < y name asLowercase ]

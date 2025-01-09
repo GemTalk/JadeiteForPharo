@@ -159,7 +159,7 @@ RowanBrowserService >> projectsUpdate: presenter [
 	presenter model removeAll: removals.
 	self
 		updateList: presenter
-		whilePreservingSelections: (self sortedProjectsFrom: projects)
+		whilePreservingSelections: (self sortedFrom: projects)
 		browser: nil
 ]
 
@@ -179,7 +179,7 @@ RowanBrowserService >> projectsUpdate: presenter browser: browser [
 		browser updateProjectPackagesOnCompletion: [] ].
 	self
 		updateList: presenter
-		whilePreservingSelections: (self sortedProjectsFrom: projects)
+		whilePreservingSelections: (self sortedFrom: projects)
 		browser: browser.
 	browser refreshProjectInfoTab
 ]
