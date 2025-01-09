@@ -21,52 +21,13 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 - Connect to the latest RowanClientServices code by running this script in a directory with a .topazini file setup with your stone's information:
 	* \<Gemstone install directory\>/rowan3/bin/attachRowanDevClones.stone script 	   
 
-- Run the script below in a Pharo 12 image playground
-- If you wish to use Jadeite for Pharo without Rowan, 
+- Copy `startup.st` from this repository into the directory where your Pharo image resides.
+- Start your Pharo image normally.
+	* If $ROWAN_PROJECTS_HOME is set, `startup.st` will attempt to install Jadeite for Pharo from the local git repository clones in that directory.
+ 	* If $ROWAN_PROJECTS_HOME is not set, `startup.st` will open a file dialog allowing the user to choose the directory
+  	* Upon successful completion of `startup.st`, a Jadeite Connection Launcher window will open. 
+
+- Optional - If you wish to use Jadeite for Pharo without Rowan, 
 	* Open a Settings Browser in Pharo.
- 	* Uncheck Jadeite for Pharo>Rowan Available  
-- Go to Library>Jadeite Launcher to open a connection browser
-```
-
-| directory jfpRepo icePackage sourceDirectory packageDir |
-directory := UIManager default
-	             chooseDirectory: 'Choose Jadeite Repositories directory'
-	             from: nil.
-directory ifNil: [ ^ self ].
-{  'PharoGemStoneFFI'. 'RemoteServiceReplication' . 'JadeiteForPharo'}
-	do: [ :projectName |
-		| projectDir iceRepository |
-		projectDir := (directory childrenMatching: projectName) first.
-		projectDir isDirectory ifFalse: [
-			^ self notify: projectName , ' git checkout not found' ].
-		[
-		(iceRepository := IceRepositoryCreator new
-			 location: projectDir;
-			 subdirectory: String new;
-			 createRepository) register ]
-			on: IceDuplicatedRepository
-			do: [ "nothing" ].
-			 ].
-jfpRepo := IceRepository repositoryNamed:  'JadeiteForPharo'.
-icePackage := jfpRepo packageNamed: 'BaselineOfJadeiteForPharo'.
-	sourceDirectory := icePackage repository project sourceDirectory.
-	sourceDirectory ifEmpty: [ sourceDirectory := '.' ].
-
-	packageDir := (icePackage repository location / sourceDirectory)
-		              fullName.
-
-	Metacello new
-		repository: 'gitlocal://' , packageDir;
-		baseline: icePackage metacelloBaselineName;
-		onUpgrade: [ :e |
-			| policy |
-			policy := self chooseUpgradePolicyFor: e.
-			policy ifNotNil: [ e perform: policy ] ];
-		onConflict: [ :e |
-			| policy |
-			policy := self chooseConflictPolicyFor: e.
-			policy ifNotNil: [ e perform: policy ] ];
-		load: #().
-		
-
-```
+ 	* Uncheck Jadeite for Pharo>Rowan Available
+  	* Running Jadeite for Pharo without Rowan is still in development
