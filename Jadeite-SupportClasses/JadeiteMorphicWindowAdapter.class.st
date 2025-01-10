@@ -14,3 +14,11 @@ JadeiteMorphicWindowAdapter >> buildWidget [
 		in: [ :this | self subscribeToAnnouncements: this ];
 		yourself
 ]
+
+{ #category : 'testing' }
+JadeiteMorphicWindowAdapter >> canDiscardEdits [
+	"the presenter is asked first. If it says 'no' then I shouldn't override that. 
+	See SpWindowPresenter>>okToChange"
+	
+	^false 
+]

@@ -40,6 +40,12 @@ JadeiteListPresenter >> canDiscardEdits [
 	^self owner canDiscardEdits
 ]
 
+{ #category : 'testing' }
+JadeiteListPresenter >> canDiscardSelectionEdits [
+
+	^self owner canDiscardSelectionEdits
+]
+
 { #category : 'selection' }
 JadeiteListPresenter >> clear [
 	

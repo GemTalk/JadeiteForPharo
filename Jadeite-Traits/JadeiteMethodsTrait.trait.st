@@ -477,6 +477,25 @@ JadeiteMethodsTrait >> canDiscardEdits [
 	^ true
 ]
 
+{ #category : 'testing' }
+JadeiteMethodsTrait >> canDiscardSelectionEdits [
+	"selection changes have a different message"
+
+	| theAdapter |
+	theAdapter := self methodSourcePresenter adapter.
+	theAdapter ifNil: [ ^ true ].
+	theAdapter widget hasUnacceptedEdits ifTrue: [
+		^ (MessageBox confirm:
+			   'You have unsaved method changes. Discard changes and continue?')
+			  ifTrue: [
+				  self methodSourcePresenter
+					  triggerResetAction;
+					  hasUnacceptedEdits: false.
+				  true ]
+			  ifFalse: [ false ] ].
+	^ true
+]
+
 { #category : 'actions' }
 JadeiteMethodsTrait >> compilationWarningFrom: methodServices [
 	methodServices do: 

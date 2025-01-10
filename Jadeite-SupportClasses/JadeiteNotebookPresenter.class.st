@@ -11,6 +11,12 @@ JadeiteNotebookPresenter >> canDiscardEdits [
 	^self owner canDiscardEdits
 ]
 
+{ #category : 'testing' }
+JadeiteNotebookPresenter >> canDiscardSelectionEdits [
+
+	^self owner canDiscardSelectionEdits
+]
+
 { #category : 'accessing' }
 JadeiteNotebookPresenter >> currentCard [
 	^self selectedPage

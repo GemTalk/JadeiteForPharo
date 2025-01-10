@@ -13,7 +13,7 @@ JadeiteListAdapter >> buildWidget [
 	datasource model: self model.
 	widget := JadeiteTableMorph new
 		          selectionConfirmationBlock: [
-			          self presenter canDiscardEdits ];
+			          self presenter canDiscardSelectionEdits ];
 		          "<<<Jadeite change here"dataSource: datasource;
 		          hideColumnHeaders;
 		          enableSearch;
