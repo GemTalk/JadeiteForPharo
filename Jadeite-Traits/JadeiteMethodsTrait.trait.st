@@ -548,12 +548,14 @@ JadeiteMethodsTrait >> displayBreakpoints [
 	self methodListPresenter selectedItem breakPoints do: [ :breakPoint |
 		| range stepPointAssoc |
 		stepPointAssoc := self methodListPresenter selectedItem stepPoints
-			                  at: breakPoint.
-		range := self methodListPresenter selectedItem stepPointRangeFrom:
-			         stepPointAssoc.
-		self methodSourcePresenter addTextSegmentDecoration:
-			((SpTextPresenterDecorator new highlightColor: Color lightCyan)
-				 interval: range) ]
+			                  at: breakPoint
+			                  ifAbsent: [  ].
+		stepPointAssoc ifNotNil: [
+			range := self methodListPresenter selectedItem stepPointRangeFrom:
+				         stepPointAssoc.
+			self methodSourcePresenter addTextSegmentDecoration:
+				((SpTextPresenterDecorator new highlightColor: Color lightCyan)
+					 interval: range) ] ]
 ]
 
 { #category : 'as yet unclassified' }

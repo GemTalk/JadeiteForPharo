@@ -153,6 +153,12 @@ JadeiteSUnitPresenter >> canDiscardEdits [
 	^true
 ]
 
+{ #category : 'testing' }
+JadeiteSUnitPresenter >> canDiscardSelectionEdits [
+
+	^ true
+]
+
 { #category : 'accessing' }
 JadeiteSUnitPresenter >> classHierarchyPresenter [
 

@@ -949,26 +949,25 @@ JadeiteBrowserPresenter >> currentMethodSourceFrom: sourceString [
 
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> debug [
-	self jadeDebug
-]
-
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 
+	| sem |
 	[
 	self clearMethodListTestResultIn: methodServices.
 	self refreshClassAndMethodPresenters.
-	RowanServiceUpdater current critical: [
-		methodServices do: [ :methodService |
-			methodService
-				command: #debugTest:inClassName:;
-				commandArgs:
-					(Array with: methodService selector with: methodService className).
-			self
-				issueCommand: methodService
-				onCompletion: [ self refreshClassAndMethodPresenters ] ] ] ] fork
+	sem := Semaphore new.
+
+	methodServices do: [ :methodService |
+		methodService
+			command: #debugTest:inClassName:;
+			commandArgs:
+				(Array with: methodService selector with: methodService className).
+		self
+			issueCommand: methodService
+			onCompletion: [
+			[ self refreshClassAndMethodPresenters ] ensure: [ sem signal ] ].
+		sem wait ] ] fork
 ]
 
 { #category : 'initialization' }
@@ -3111,17 +3110,6 @@ JadeiteBrowserPresenter >> resetMethodSource [
 	self statusBarText pushMessage: String new.
 	methodSourcePresenter isModified: false.
 	self updateMethodSourceGlyphs
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> runAll [
-	self selectSUnitTab.
-	self sunitPresenter runAll
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> runSelected [
-	^self runMethodTests. 
 ]
 
 { #category : 'updates' }
