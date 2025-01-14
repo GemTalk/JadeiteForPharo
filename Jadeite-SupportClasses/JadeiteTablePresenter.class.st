@@ -22,6 +22,12 @@ JadeiteTablePresenter >> canDiscardEdits [
 	^self owner canDiscardEdits
 ]
 
+{ #category : 'testing' }
+JadeiteTablePresenter >> canDiscardSelectionEdits [
+
+	^self owner canDiscardSelectionEdits
+]
+
 { #category : 'displaying' }
 JadeiteTablePresenter >> invalidate [
 	self refresh.	

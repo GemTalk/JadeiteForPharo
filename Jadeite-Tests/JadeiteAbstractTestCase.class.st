@@ -1023,6 +1023,12 @@ JadeiteAbstractTestCase >> selectServiceNamed: aString in: presenter [
 JadeiteAbstractTestCase >> selectServicesNamed: anArray in: presenter [
 
 	presenter resetSelection.
+	self selectServicesNamedWithoutReset: anArray in: presenter
+]
+
+{ #category : 'selection' }
+JadeiteAbstractTestCase >> selectServicesNamedWithoutReset: anArray in: presenter [
+
 	anArray isEmpty ifTrue: [ ^ self ].
 	anArray do: [ :name |
 		| service |
@@ -1032,7 +1038,7 @@ JadeiteAbstractTestCase >> selectServicesNamed: anArray in: presenter [
 			           self error: 'List element ' , name , ' not found' ].
 		presenter selectItems: (presenter selections asOrderedCollection
 				 add: service;
-				 yourself)]
+				 yourself) ]
 ]
 
 { #category : 'selection' }

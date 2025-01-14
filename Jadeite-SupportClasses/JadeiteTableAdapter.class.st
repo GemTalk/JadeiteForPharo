@@ -9,7 +9,7 @@ Class {
 JadeiteTableAdapter >> buildWidget [
 
 	widget := JadeiteTableMorph new  "<<<Jadeite change here"
-		selectionConfirmationBlock: [ self presenter canDiscardEdits ]; "<<<Jadeite change here"
+		selectionConfirmationBlock: [ self presenter canDiscardSelectionEdits ]; "<<<Jadeite change here"
 		hResizing: #spaceFill;
 		vResizing: #spaceFill;
 		intercellSpacing: self class intercellSpacing;

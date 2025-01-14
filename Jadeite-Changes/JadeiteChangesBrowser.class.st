@@ -84,6 +84,12 @@ JadeiteChangesBrowser >> canDiscardEdits [
 	^ true
 ]
 
+{ #category : 'testing' }
+JadeiteChangesBrowser >> canDiscardSelectionEdits [
+
+	^ true
+]
+
 { #category : 'initialization' }
 JadeiteChangesBrowser >> connectPresenters [
 

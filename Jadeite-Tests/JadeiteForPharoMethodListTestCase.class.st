@@ -6,6 +6,18 @@ Class {
 }
 
 { #category : 'support' }
+JadeiteForPharoMethodListTestCase >> methodListPresenter [
+
+	^ methodListBrowser methodListPresenter
+]
+
+{ #category : 'support' }
+JadeiteForPharoMethodListTestCase >> methodSourcePresenter [
+
+	^ methodListBrowser methodSourcePresenter
+]
+
+{ #category : 'support' }
 JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfImplementorsOf: aString [
 	"just calling this method #browserImplementorsOf: would confuse it with production methods"
 
@@ -81,7 +93,7 @@ JadeiteForPharoMethodListTestCase >> test_browseHierarchyImplementors [
 	self
 		selectServiceNamed: 'ReadStreamPortable'
 		in: self classListPresenter.
-	self selectServiceNamed: 'size' in: self methodListPresenter.
+	self selectServiceNamed: 'size' in: self projectsPresenter methodListPresenter.
 	self waitForMethodListBrowserWhile: [
 		self projectsPresenter browseHierarchyImplementors ].
 	self assert:
@@ -126,7 +138,7 @@ JadeiteForPharoMethodListTestCase >> test_browseHierarchySenders [
 	self
 		selectServiceNamed: 'ReadStreamPortable'
 		in: self classListPresenter.
-	self selectServiceNamed: 'size' in: self methodListPresenter.
+	self selectServiceNamed: 'size' in: self projectsPresenter methodListPresenter.
 	self waitForMethodListBrowserWhile: [
 		self projectsPresenter browseHierarchySenders ].
 	self assert:
@@ -184,8 +196,12 @@ JadeiteForPharoMethodListTestCase >> test_browseInstVarReaders [
 			browseInstVarReaders: 'testbrowseInstVarReaders'
 			in: 'TestInstVarReaders'
 			session: session ].
-	self assert: self methodListPresenter list size equals: 1.
-	self assert: self methodListPresenter list first selector
+	self
+		assert: self projectsPresenter methodListPresenter list size
+		equals: 1.
+	self
+		assert:
+		self projectsPresenter methodListPresenter list first selector
 		equals: #testbrowseInstVarReaders
 ]
 
@@ -217,6 +233,33 @@ JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 				 methodListBrowser methodSourcePresenter documentPresenter
 					 selection) "use match because we might pickup a '.'" ].
 	self assert: ('* Senders of ''foo'' for *' match: methodListBrowser owner title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_canDiscardSelectionEdits [
+
+	| hitException |
+	self
+		testsIssue: #issue162
+		withTitle: 'Unsaved changes warning rather alarming'. "https://github.com/GemTalk/JadeiteForPharo/issues/162"
+
+	self waitForMethodListBrowserWhile: [
+		jadeiteShell browseSendersOf: #foo ].
+	self methodListPresenter adapter selectIndex: 1.
+	self methodSourcePresenter text: 'foo  ^''I am changed'''.
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	hitException := false.
+	[ self methodListPresenter adapter selectIndex: 2 ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+			hitException := true.
+			self assert: ex messageText equals: 'canDiscardSelectionEdits'.
+			ex resume: true ].
+	self assert: hitException.
+	self
+		assert: self methodListPresenter selection selectedIndex
+		equals: 2
 ]
 
 { #category : 'tests' }
@@ -326,7 +369,9 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 	self
 		selectServiceNamed: 'TestingMethodSource'
 		in: self classListPresenter.
-	self selectMethodNamed: #didSourceUpdate.
+	self
+		selectServiceNamed: 'didSourceUpdate'
+		in: self projectsPresenter methodListPresenter.
 	self
 		assert:
 		methodListBrowser methodSourcePresenter documentPresenter text

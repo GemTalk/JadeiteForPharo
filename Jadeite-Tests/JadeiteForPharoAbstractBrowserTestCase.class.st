@@ -500,6 +500,31 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseMenuItemEnablement [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_canDiscardSelectionEdits [
+
+	| hitException |
+	self
+		testsIssue: #issue162
+		withTitle: 'Unsaved changes warning rather alarming'. "https://github.com/GemTalk/JadeiteForPharo/issues/162"
+	self selectRowanSample1Test.
+	self selectServiceNamed: #test1 in: self methodListPresenter.
+	self methodSourcePresenter text: 'test1  ^''I am changed'''.
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	hitException := false.
+	[ self methodListPresenter adapter selectIndex: 2 ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+			hitException := true.
+			self assert: ex messageText equals: 'canDiscardSelectionEdits'.
+			ex resume: true ].
+	self assert: hitException.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #test2
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_categorySelection [
 
 	self

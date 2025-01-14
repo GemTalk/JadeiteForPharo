@@ -170,6 +170,12 @@ JadeiteConsole >> canDiscardEdits [
 	^true
 ]
 
+{ #category : 'testing' }
+JadeiteConsole >> canDiscardSelectionEdits [
+
+	^ true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> cardContainer [
 	^cardContainer

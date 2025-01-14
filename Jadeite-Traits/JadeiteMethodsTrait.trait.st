@@ -485,6 +485,7 @@ JadeiteMethodsTrait >> canDiscardSelectionEdits [
 	theAdapter := self methodSourcePresenter adapter.
 	theAdapter ifNil: [ ^ true ].
 	theAdapter widget hasUnacceptedEdits ifTrue: [
+		(ProvideAnswerNotification signal: 'canDiscardSelectionEdits') ifNotNil: [:answer | ^answer]. "for tests"
 		^ (MessageBox confirm:
 			   'You have unsaved method changes. Discard changes and continue?')
 			  ifTrue: [
