@@ -24,8 +24,8 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 	* RemoteServiceReplication, branch `main-v2`, `git clone git@github.com:GemTalk/RemoteServiceReplication.git`
  	* RowanClientServices, branch `mainV3.0`, `RowanClientServices, branch mainV3.0, git clone git@github.com:GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
 - Connect to the latest RowanClientServices code by running these scripts in a directory with a .topazini file setup with your stone's information:
-	* `<Gemstone install directory>/rowan3/bin/installProject.ston file:$ROWAN_PROJECTS_HOME/RemoteServiceReplication/rowan/specs/RemoteServiceReplication.ston --projectsHome=$ROWAN_PROJECTS_HOME`
-	* `<Gemstone install directory>/rowan3/bin/installProject.ston file:$ROWAN_PROJECTS_HOME/RowanClientServices/rowan/specs/RowanClientServices.ston --projectsHome=$ROWAN_PROJECTS_HOME`
+	* `<Gemstone install directory>/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RemoteServiceReplication/rowan/specs/RemoteServiceReplication.ston --projectsHome=$ROWAN_PROJECTS_HOME`
+	* `<Gemstone install directory>/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RowanClientServices/rowan/specs/RowanClientServices.ston --projectsHome=$ROWAN_PROJECTS_HOME`
 
 - Copy `startup.st` from this repository into the directory where your Pharo image resides.
 - Start your Pharo image normally.
