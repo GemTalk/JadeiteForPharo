@@ -363,6 +363,13 @@ JadeiteAbstractTestCase >> fail: aString [
 	
 ]
 
+{ #category : 'support' }
+JadeiteAbstractTestCase >> forceReconnect [
+
+	self testResourceClass current forceReconnect.
+	jadeiteShell := JadeiteConsole currentConsole 
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> haltTestForHardToCatchErrors: reason [
 	| proc |
@@ -484,15 +491,6 @@ JadeiteAbstractTestCase >> loginWithRetry: loginShell [
 JadeiteAbstractTestCase >> logoutOtherSession [
 	^session executeString: '
 				(UserGlobals at: #otherSession) ifNotNil: [:sess | sess logout]'
-]
-
-{ #category : 'support' }
-JadeiteAbstractTestCase >> logoutThenLoginAs: theUser forceClose: aBoolean [
-
-	self testResourceClass current
-		logoutThenLoginAs: theUser
-		forceClose: aBoolean.
-	jadeiteShell := JadeiteConsole currentConsole "needed?"
 ]
 
 { #category : 'as yet unclassified' }
@@ -1116,7 +1114,7 @@ JadeiteAbstractTestCase >> setUp [
 
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
-	self logoutThenLoginAs: user forceClose: true.
+	self forceReconnect. 
 	session := self testResourceClass current session.
 	transcript := self testResourceClass current transcript.
 	self setRemoteAutoCommit: false onCompletion: [

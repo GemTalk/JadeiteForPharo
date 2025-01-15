@@ -20,9 +20,9 @@ JadeiteDataCuratorTestCase >> setUp [
 
 { #category : 'as yet unclassified' }
 JadeiteDataCuratorTestCase >> tearDown [
-	super tearDown. 
-	GciSession current userID: nil.	"ensure we logout and back in"
-	self logoutThenLoginAs: 'SystemUser' forceClose: false.
+
+	super tearDown.
+	GciSession current userID: nil. "ensure we logout and back in"
 	self assert: jadeiteShell userIDPresenter value equals: 'SystemUser'.
 	self assert: GciSession current userID equals: 'SystemUser'.
 	self assert: (GciSession current executeString: '3+4') equals: 7

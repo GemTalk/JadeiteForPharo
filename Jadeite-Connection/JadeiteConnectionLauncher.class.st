@@ -91,6 +91,12 @@ JadeiteConnectionLauncher >> canDiscardEdits [
 	^true
 ]
 
+{ #category : 'testing' }
+JadeiteConnectionLauncher >> canDiscardSelectionEdits [
+
+	^ true
+]
+
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 

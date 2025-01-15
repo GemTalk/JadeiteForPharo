@@ -213,6 +213,29 @@ JadeiteForPharoInspectorTestCase >> test_browseProjects [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_canDiscardSelectionEdits [
+
+	| hitException |
+	self
+		testsIssue: #issue162
+		withTitle: 'Unsaved changes warning rather alarming'. "https://github.com/GemTalk/JadeiteForPharo/issues/162"
+	self openWorkspaceAndInspect:
+		'Array with: (Dictionary new at: #oc put: (OrderedCollection with: #leaf); yourself)'.
+	self assert: inspector instVarListPresenter selectedItem first equals: 'self'.
+	inspector codePane text: 'change the text pane'.
+	self assert: inspector codePane adapter widget hasUnacceptedEdits.
+	hitException := false.
+	[ inspector instVarListPresenter adapter selectIndex: 2 ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+			hitException := true.
+			self assert: ex messageText equals: 'canDiscardSelectionEdits'.
+			ex resume: true ].
+	self assert: hitException.
+	self assert: inspector instVarListPresenter selectedItem first equals: '-.asOop'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_caption [
 
 	self openWorkspaceAndInspect: '123'.

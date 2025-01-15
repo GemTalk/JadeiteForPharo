@@ -235,6 +235,27 @@ JadeiteInspector >> browseClassOfSelection [
 				shell currentCard updateAfterFindClass: svc onCompletion: nil ] ]
 ]
 
+{ #category : 'testing' }
+JadeiteInspector >> canDiscardSelectionEdits [
+	"selection changes have a different message"
+
+	| theAdapter |
+	theAdapter := codePane adapter.
+	theAdapter ifNil: [ ^ true ].
+	theAdapter widget hasUnacceptedEdits ifTrue: [
+		(ProvideAnswerNotification signal: 'canDiscardSelectionEdits')
+			ifNotNil: [ :answer | ^ answer ]. "for tests"
+		^ (MessageBox confirm:
+			   'You have unsaved changes. Discard changes and continue?')
+			  ifTrue: [
+				  self codePane
+					  triggerResetAction;
+					  hasUnacceptedEdits: false.
+				  true ]
+			  ifFalse: [ false ] ].
+	^ true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector >> canSave [
 	^instVarListPresenter selections size = 1

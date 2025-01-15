@@ -11,6 +11,15 @@ JadeitePresenter >> abortTransaction [
 	^self application abortTransaction
 ]
 
+{ #category : 'testing' }
+JadeitePresenter >> canDiscardSelectionEdits [
+	"Let subclasses handle. If we get here, because of
+	an unhandled selection change, just assume it's ok
+	to disregard selection edits"
+
+	^ true
+]
+
 { #category : 'initialization' }
 JadeitePresenter >> caption: aString [
 

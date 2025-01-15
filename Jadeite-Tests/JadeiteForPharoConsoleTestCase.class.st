@@ -68,7 +68,7 @@ JadeiteForPharoConsoleTestCase >> waitForCloseDialog [
 	[
 	(dialogs := self currentWorld windowsSatisfying: [ :each |
 		            each isKindOf: QuestionWithoutCancelDialogWindow ])
-		isEmpty or: [ count < 10 ] ] whileTrue: [
+		isEmpty and: [ count < 10 ] ] whileTrue: [
 		count := count + 1.
 		(Delay forMilliseconds: 10) wait ].
 	self assert: dialogs size equals: 1.

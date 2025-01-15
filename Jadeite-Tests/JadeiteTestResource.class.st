@@ -203,6 +203,16 @@ JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath 
 			componentNames: #( 'Core' 'Tests' ) ]
 ]
 
+{ #category : 'support' }
+JadeiteTestResource >> forceReconnect [
+
+	| sem |
+	sem := Semaphore new.
+	[ self connectSignaling: sem ] fork.
+	(sem waitTimeoutMilliseconds: 5000) ifTrue: [
+		Error signal: 'connection failed to complete' ]
+]
+
 { #category : 'accessing' }
 JadeiteTestResource >> gciSession [
 
@@ -281,16 +291,6 @@ JadeiteTestResource >> logout [
 			[:shell |
 			shell view close.
 			(Delay forMilliseconds: 100) wait	"should save to the remote 'C:\Users\ewinger\AppData\Roaming\JadeDefaultConnection.gss' file"]
-]
-
-{ #category : 'support' }
-JadeiteTestResource >> logoutThenLoginAs: userName forceClose: forceClose [
-
-	forceClose ifTrue: [
-		| sem |
-		sem := Semaphore new.
-		[ self connectSignaling: sem ] fork.
-		sem wait ]
 ]
 
 { #category : 'support' }
@@ -426,7 +426,6 @@ JadeiteTestResource >> session [
 { #category : 'support' }
 JadeiteTestResource >> setUp [
 	super setUp.
-	self logoutThenLoginAs: 'SystemUser' forceClose: false.
 	GciSession current
 		ifNil: 
 			[MessageBox notify: 'GciSession current is nil. Login again.'.
