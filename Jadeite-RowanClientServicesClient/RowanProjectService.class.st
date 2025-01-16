@@ -233,7 +233,7 @@ RowanProjectService >> displayName [
 	| displayName |
 	name ifNil: [^String new].
 	displayName := name.
-	existsOnDisk == false ifTrue: [displayName := '(' , displayName , ')'].
+	isDiskDirty == true ifTrue: [displayName := '(' , displayName , ')'].
 	^displayName
 ]
 
@@ -336,6 +336,13 @@ RowanProjectService >> isDirty: anObject [
 { #category : 'accessing' }
 RowanProjectService >> isDiskDirty [
 	^isDiskDirty
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> isDiskDirty: aBoolean [
+	"for testing"
+
+	isDiskDirty := aBoolean
 ]
 
 { #category : 'public' }

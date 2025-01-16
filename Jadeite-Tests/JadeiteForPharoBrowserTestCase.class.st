@@ -143,6 +143,28 @@ JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_existsOnDiskDisplay [
+	"only test the display which was broken"
+
+	| projectService |
+	self
+		testsIssue: #issue176
+		withTitle:
+		'Project Dirty-on-disk to italic font decoration not being applied'.
+	"https://github.com/GemTalk/JadeiteForPharo/issues/176"
+
+
+	projectService := self projectListPresenter items detect: [ :svc |
+		                  svc name = 'RowanClientServices' ].
+	[
+	projectService isDiskDirty: false.
+	self assert: projectService displayName = 'RowanClientServices'.
+	projectService isDiskDirty: true.
+	self assert: projectService displayName = '(RowanClientServices)' ]
+		ensure: [ projectService isDiskDirty: false ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_findClass [
 
 	self projectsPresenter
