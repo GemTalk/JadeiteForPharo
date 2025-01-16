@@ -177,6 +177,27 @@ JadeiteForPharoBrowserTestCase >> test_findClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_gitBranchSelection [
+	"It's a little hard to test loading a branch because it 
+	might disturb development code so just test that the branches get
+	listed."
+
+	| listDialog loadedProject |
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	listDialog := self waitForListDialogWindowWhile: [
+		              self projectsPresenter gitCheckoutBranch ].
+	[
+	self denyIsNil: listDialog list.
+	loadedProject := listDialog list
+		                 detect: [ :string | string first = $* ]
+		                 ifNone: [  ].
+	self denyIsNil: loadedProject "* in the name means loaded project. A good sign we've got a valid list" ]
+		ensure: [ listDialog cancel ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_hierarchyExpansion [
 	"When no classes are selected and the hierarchy tab is chosen, we should
 	see a hierarchy showing all superclasses of the packaged classes. 
@@ -457,4 +478,23 @@ JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInsta
 		assert: secondPresenter categoryListPresenter selectedItem
 		equals: 'fnoodle';
 		assert: (self categoryListPresenter list includes: 'fnoodle')
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserTestCase >> waitForListDialogWindowWhile: aBlock [
+
+	| existingListDialogs newMethodLists count |
+	RsrGarbageCollector maximumReclamation.
+	existingListDialogs := ListDialogWindow allInstances.
+	aBlock fork.
+	count := 0.
+	[
+	count > 100 or: [
+		(newMethodLists := ListDialogWindow allInstances
+			                   asOrderedCollection) size
+		> existingListDialogs size ] ] whileFalse: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ].
+	newMethodLists removeAll: existingListDialogs.
+	^newMethodLists first
 ]

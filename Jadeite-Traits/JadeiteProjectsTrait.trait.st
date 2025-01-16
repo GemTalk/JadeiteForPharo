@@ -237,10 +237,11 @@ JadeiteProjectsTrait >> gitCheckoutBranch [
 { #category : 'menus' }
 JadeiteProjectsTrait >> gitCheckoutBranch: projectService [
 
-	| choice |
-	choice := self openGitBranchesDialogFor: projectService.
-	choice ifNil: [ ^ self ].
-	self basicCheckoutBranch: choice for: projectService
+	self
+		openGitBranchesDialogFor: projectService
+		onCompletion: [ :choice |
+			choice ifNotNil: [
+				self basicCheckoutBranch: choice for: projectService ] ]
 ]
 
 { #category : 'menus' }
@@ -254,13 +255,13 @@ JadeiteProjectsTrait >> gitCheckoutTag [
 { #category : 'menus' }
 JadeiteProjectsTrait >> gitCheckoutTag: projectService [
 
-	| choice tags |
-	tags := projectService gitTags: self gciSession.
-	choice := self
-		          selectStringFromList: tags
-		          title: 'Jadeite Checkout Git Tag'.
-	choice ifNil: [ ^ self ].
-	self basicCheckoutTag: choice for: projectService
+	| choice |
+	projectService gitTags: self gciSession onCompletion: [ :tags |
+		choice := self
+			          selectStringFromList: tags
+			          title: 'Jadeite Checkout Git Tag'.
+		choice ifNotNil: [
+			self basicCheckoutTag: choice for: projectService ] ]
 ]
 
 { #category : 'actions' }
@@ -498,13 +499,16 @@ JadeiteProjectsTrait >> openAuditResultsInWorkspaceUsing: answeringService proje
 ]
 
 { #category : 'menus' }
-JadeiteProjectsTrait >> openGitBranchesDialogFor: projectService [
+JadeiteProjectsTrait >> openGitBranchesDialogFor: projectService onCompletion: completionBlock [
 
-	| branches |
-	branches := projectService gitBranches: self gciSession.
-	^ self
-		  selectStringFromList: branches
-		  title: 'Jadeite Checkout Git Branch'
+	projectService
+		gitBranches: self gciSession
+		onCompletion: [ :branches |
+			| choice |
+			choice := self
+				          selectStringFromList: branches
+				          title: 'Jadeite Checkout Git Branch'.
+			completionBlock value: choice ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -523,9 +527,8 @@ JadeiteProjectsTrait >> openGitLogInWorkspaceUsing: queryService [
 { #category : 'menus' }
 JadeiteProjectsTrait >> openGitTagSelectionDialogFor: projectService [
 
-	| tags |
-	tags := projectService gitTags: self gciSession.
-	^ self selectStringFromList: tags title: 'Jadeite Checkout Git Tag'
+	projectService gitTags: self gciSession onCompletion: [ :tags |
+		^ self selectStringFromList: tags title: 'Jadeite Checkout Git Tag' ]
 ]
 
 { #category : 'actions' }
@@ -568,7 +571,10 @@ JadeiteProjectsTrait >> pullFromGit [
 		 'It is recommended that you commit changes before doing a pulling projects - '
 		 , ws contents , ' -  from git. Really proceed?') ifFalse: [ ^ self ].
 	projectServices do: [ :service | service command: #pullFromGit ].
-	RowanServiceUpdater current issueCommands: projectServices session: self gciSession onCompletion: nil
+	RowanServiceUpdater current
+		issueCommands: projectServices
+		session: self gciSession
+		onCompletion: [  ]
 ]
 
 { #category : 'actions' }

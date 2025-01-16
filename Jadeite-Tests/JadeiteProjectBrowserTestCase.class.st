@@ -1280,14 +1280,18 @@ JadeiteProjectBrowserTestCase >> test_checkoutTagRefresh [
 	tags that is independent of the Rowan project ... someday"
 
 	| projectService tags |
-	self testsIssue: #issue425
-		withTitle: 'Jadeite should be able to check out a git tag not just branch'.
-	projectService := self projectsPresenter selectProjectNamed: 'Rowan'.
-	tags := projectService gitTags: session.
-	self assert: (tags includes: 'Oscar-3.0.93').	"An internal working release tag that should not go away"
 	self
-		assert: (self projectsPresenter class projectMenuStrings includes: 'Checkout Git Tag ...//checkoutTag').
-	self assert: (self projectsPresenter class canUnderstand: #checkoutTag)
+		testsIssue: #issue425
+		withTitle:
+		'Jadeite should be able to check out a git tag not just branch'.
+	projectService := self projectsPresenter selectProjectNamed: 'Rowan'.
+	tags := projectService gitTags: session onCompletion: nil.
+	self assert: (tags includes: 'Oscar-3.0.93'). "An internal working release tag that should not go away"
+	self assert:
+		(self projectsPresenter class projectMenuStrings includes:
+			 'Checkout Git Tag ...//checkoutTag').
+	self assert:
+		(self projectsPresenter class canUnderstand: #checkoutTag)
 ]
 
 { #category : 'as yet unclassified' }

@@ -260,20 +260,23 @@ RowanProjectService >> existsOnDisk [
 ]
 
 { #category : 'presenter support' }
-RowanProjectService >> gitBranches: session [
+RowanProjectService >> gitBranches: session onCompletion: completionBlock [
 
 	| query branchString branches |
 	query := RowanQueryService new
 		         command: #projectBranches:;
 		         commandArgs: (Array with: self name).
-	RowanServiceUpdater current issueCommand: query session: session.
-	branchString := query answer.
-	branches := (branchString subStrings: {Character lf}).
-	branches := branches
-		            reject: [ :string | '*HEAD*' match: string ]
-		            thenCollect: [ :string |
-		            string copyWithout: Character space ].
-	^ branches
+	RowanServiceUpdater current
+		issueCommand: query
+		session: session
+		onCompletion: [
+			branchString := query answer.
+			branches := branchString subStrings: { Character lf }.
+			branches := branches
+				            reject: [ :string | '*HEAD*' match: string ]
+				            thenCollect: [ :string |
+				            string copyWithout: Character space ].
+			completionBlock value: branches ]
 ]
 
 { #category : 'presenter support' }
@@ -293,14 +296,16 @@ RowanProjectService >> gitProjectLogUsing: parentPresenter session: session [
 ]
 
 { #category : 'presenter support' }
-RowanProjectService >> gitTags: session [
+RowanProjectService >> gitTags: session onCompletion: completionBlock [
+
 	| query |
 	query := RowanQueryService new
-				command: #gitTagListUsing:;
-				commandArgs: (Array with: self).
-	(RowanServiceUpdater current issueCommand: query session: session).
-	^query answer
-	
+		         command: #gitTagListUsing:;
+		         commandArgs: (Array with: self).
+	RowanServiceUpdater current
+		issueCommand: query
+		session: session
+		onCompletion: [ completionBlock value: query answer ]
 ]
 
 { #category : 'comparing' }
