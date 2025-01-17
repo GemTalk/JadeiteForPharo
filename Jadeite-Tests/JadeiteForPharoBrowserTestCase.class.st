@@ -8,14 +8,6 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> removeProject: projectName [
-
-	^ self projectsPresenter
-		  basicUnloadProjects: (Array with: projectName)
-		  onCompletion: [  ]
-]
-
 { #category : 'support' }
 JadeiteForPharoBrowserTestCase >> setUp [
 
@@ -157,7 +149,7 @@ JadeiteForPharoBrowserTestCase >> test_createProject [
 		assert: self projectListPresenter selectedItem name
 		equals: projectName.
 	self assert: self packageListPresenter items isEmpty ] ensure: [
-		self removeProject: self projectListPresenter selectedItem name.
+		self unloadProjectAndDeleteOnDisk: self projectListPresenter selectedItem name.
 		self assertIsNil: (self projectNamed: projectName) ]
 ]
 
@@ -328,18 +320,23 @@ JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 
-	| projects |
+	| projects projectName |
 	self
 		testsJadeiteForPharoIssue: #issue21
 		title:
 		'loading a new project externally and then aborting ends up with new project at bottom of console'.
 	JadeiteApplication abortTransactionInSession: session.
-	projects := self projectList collect: [ :projectService |
-		            projectService name ].
-	self deny: (projects includes: 'RowanSample1').
+	projectName := 'TestAlphabatizingProject'.
+	self assertIsNil: (self projectNamed: projectName).
+	self projectsPresenter basicCreateProject: projectName.
+	self denyIsNil: (self projectNamed: projectName).
+	[
+	self unloadProject: projectName.
+	self assertIsNil: (self projectNamed: projectName).
 	projectsBrowser
 		installProjectFromPath:
-		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
+			'$ROWAN_PROJECTS_HOME/' , projectName , '/rowan/specs/'
+			, projectName , '.ston'
 		projectsHome: '$ROWAN_PROJECTS_HOME'.
 	projects := self projectList collect: [ :projectService |
 		            projectService name ].
@@ -347,31 +344,36 @@ JadeiteForPharoBrowserTestCase >> test_projectLoadAddedInAlphabeticalOrder [
 		assert: projects
 		equals:
 			(projects asSortedCollection: [ :x :y |
-				 x asLowercase < y asLowercase ]) asOrderedCollection
+				 x asLowercase < y asLowercase ]) asOrderedCollection ] ensure: [
+		self unloadProjectAndDeleteOnDisk: projectName ]
 ]
 
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectOrderDoesNotChange [
 
-	| projectsBefore projectsAfter |
+	| projectsBefore projectsAfter projectName |
 	self
 		testsJadeiteForPharoIssue: #issue21
 		title:
 		'loading a new project externally and then aborting ends up with new project at bottom of console'.
+
+	projectName := 'TestAlphabatizingProject'.
+	self assertIsNil: (self projectNamed: projectName).
+	self projectsPresenter basicCreateProject: projectName.
+	self denyIsNil: (self projectNamed: projectName).
 	projectsBefore := self projectList collect: [ :projectService |
 		                  projectService name ].
-	JadeiteApplication abortTransactionInSession: session.
+	self unloadProject: projectName.
 	[
 	projectsBrowser
 		installProjectFromPath:
-		'/uffda1/users/ewinger/rowanStones/checkouts/gemstone37rowanv3_externals_st/RowanSample1/rowan/specs/RowanSample1.ston'
+			'$ROWAN_PROJECTS_HOME/' , projectName , '/rowan/specs/'
+			, projectName , '.ston'
 		projectsHome: '$ROWAN_PROJECTS_HOME'.
 	projectsAfter := self projectList collect: [ :projectService |
 		                 projectService name ].
 	self assert: projectsBefore equals: projectsAfter ] ensure: [
-		self testResourceClass current
-			tearDown;
-			"reset the world after abort. Need to improve this. "setUp ]
+		self unloadProjectAndDeleteOnDisk: projectName ]
 ]
 
 { #category : 'tests' }
@@ -414,7 +416,7 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 		self categoryListPresenter list first.
 	self methodListPresenter selection:
 		self methodListPresenter list first.
-	self removeSelectedProject.
+	self unloadProject: self sampleProject1Name.
 	targetProject := self projectNamed: self sampleProject1Name.
 	self assertIsNil: targetProject.
 	"make sure browser cleans itself up"
@@ -522,6 +524,27 @@ JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInsta
 		assert: secondPresenter categoryListPresenter selectedItem
 		equals: 'fnoodle';
 		assert: (self categoryListPresenter list includes: 'fnoodle')
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> unloadProject: projectName [
+
+	self projectsPresenter
+		basicUnloadProjects: (Array with: projectName)
+		onCompletion: [  ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> unloadProjectAndDeleteOnDisk: projectName [
+	"WARNING! This will remove the project's local disk directory"
+
+	| testService |
+	self unloadProject: projectName.
+	testService := RowanTestService new.
+	testService
+		command: #deleteProjectNamedOnDisk:;
+		commandArgs: (Array with: projectName).
+	self issueCommand: testService onCompletion: [  ]
 ]
 
 { #category : 'support' }
