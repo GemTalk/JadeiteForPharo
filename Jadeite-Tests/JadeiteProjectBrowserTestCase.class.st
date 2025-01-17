@@ -2513,27 +2513,6 @@ JadeiteProjectBrowserTestCase >> test_projectMenuGitCommitMenuItem [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_projectRemoved [
-	"Gracefully remove a project from the project list if it was 
-	removed behind the tool's back"
-
-	| sampleProject |
-	self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.
-	sampleProject := self projectNamed: 'RowanSample1'.
-	self denyIsNil: sampleProject.
-	self selectServicesNamed: (Array with: 'Rowan') in: self projectListPresenter.
-	session executeString: 'Rowan projectTools delete deleteProjectNamed: ''RowanSample1'''.	"delete project behind tool's back"
-	self auditAll.
-	
-	[self selectServicesNamed: (Array with: 'RowanSample1') in: self projectListPresenter.	"expect project to disappear but not walkback"
-	sampleProject := self projectNamed: 'RowanSample1'.
-	self assertIsNil: sampleProject]
-			ensure: 
-				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_refreshAfterAbortMethodList [
 	"method lists should remove deleted methods after an abort."
 

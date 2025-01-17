@@ -91,6 +91,13 @@ JadeiteForPharoAbstractBrowserTestCase >> projectBrowserTabs [
 	^ projectsBrowser tabs pages
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoAbstractBrowserTestCase >> projectInConsoleNamed: aString [
+	^jadeiteShell projectListPresenter list
+		detect: [:projectService | projectService name = aString]
+		ifNone: []
+]
+
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> projectList [
 	^self projectListPresenter list
@@ -98,7 +105,7 @@ JadeiteForPharoAbstractBrowserTestCase >> projectList [
 
 { #category : 'as yet unclassified' }
 JadeiteForPharoAbstractBrowserTestCase >> projectNamed: aString [
-	^self projectsPresenter projectListPresenter list
+	^self projectListPresenter list
 		detect: [:projectService | projectService name = aString]
 		ifNone: []
 ]

@@ -8,6 +8,14 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> removeProject: projectName [
+
+	^ self projectsPresenter
+		  basicUnloadProjects: (Array with: projectName)
+		  onCompletion: [  ]
+]
+
 { #category : 'support' }
 JadeiteForPharoBrowserTestCase >> setUp [
 
@@ -128,6 +136,29 @@ JadeiteForPharoBrowserTestCase >> test_browseProject [
 	self assert: [
 		secondBrowser activePresenter projectListPresenter selectedItem name
 		= 'Rowan' ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_createProject [
+
+	| projectName |
+	self
+		testsJadeiteForPharoIssue: #issue172
+		title: 'Ability to create a new project'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/172'.
+	projectName := 'TestProject'.
+	self assertIsNil: (self projectNamed: projectName).
+	self assertIsNil: (self projectInConsoleNamed: projectName).
+	self projectsPresenter basicCreateProject: projectName.
+	[
+	self denyIsNil: (self projectNamed: projectName).
+	self denyIsNil: (self projectInConsoleNamed: projectName).
+	self
+		assert: self projectListPresenter selectedItem name
+		equals: projectName.
+	self assert: self packageListPresenter items isEmpty ] ensure: [
+		self removeProject: self projectListPresenter selectedItem name.
+		self assertIsNil: (self projectNamed: projectName) ]
 ]
 
 { #category : 'tests' }
@@ -372,10 +403,7 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 
 	| targetProject |
 	self testsIssue: #issue129 withTitle: 'Expose unload project.'.
-	targetProject := self projectListPresenter list
-		                 detect: [ :projectService |
-		                 projectService name = self sampleProject1Name ]
-		                 ifNone: [  ].
+	targetProject := self projectNamed: self sampleProject1Name.
 	self denyIsNil: targetProject.
 	self projectListPresenter selection: targetProject.
 	"just select an element in each list to test cleanup after removal"
@@ -386,14 +414,8 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 		self categoryListPresenter list first.
 	self methodListPresenter selection:
 		self methodListPresenter list first.
-	self projectsPresenter
-		basicUnloadProjects:
-		(Array with: self projectListPresenter selectedItem name)
-		onCompletion: nil.
-	targetProject := self projectListPresenter list
-		                 detect: [ :projectService |
-		                 projectService name = self sampleProject1Name ]
-		                 ifNone: [  ].
+	self removeSelectedProject.
+	targetProject := self projectNamed: self sampleProject1Name.
 	self assertIsNil: targetProject.
 	"make sure browser cleans itself up"
 

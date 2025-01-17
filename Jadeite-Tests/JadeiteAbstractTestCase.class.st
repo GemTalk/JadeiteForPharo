@@ -1216,6 +1216,18 @@ JadeiteAbstractTestCase >> testsJadeiteForPharoIssue: aSymbol title: anObject [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> testsJadeiteForPharoIssue: aSymbol title: anObject url: url [
+	"send this to help identify which tests test which issues"
+
+	" a helpful parameter format is #issue<issueNumber>"
+
+	"Issues currently reside in: 
+		https://github.com/GemTalk/JadeiteForPharo/issues"
+
+	
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> testsRowanIssue: aSymbol withTitle: anObject [
 	"send this to help identify which tests test which Rowan project issues"
 

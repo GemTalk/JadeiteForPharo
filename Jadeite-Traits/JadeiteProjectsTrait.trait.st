@@ -73,6 +73,22 @@ JadeiteProjectsTrait >> basicCheckoutTag: choice for: projectService [
 ]
 
 { #category : 'actions' }
+JadeiteProjectsTrait >> basicCreateProject: projectName [
+
+	| browserService |
+	browserService := RowanBrowserService new
+		                  command: #newProjectNamed:;
+		                  commandArgs: { projectName }.
+	self issueCommand: browserService onCompletion: [
+		| projectService |
+		projectService := self projectListPresenter items
+			                  detect: [ :service | service name = projectName ]
+			                  ifNone: [  ].
+		projectService ifNotNil: [
+			self projectListPresenter selectItem: projectService ] ]
+]
+
+{ #category : 'actions' }
 JadeiteProjectsTrait >> basicPostOpen [
 
 	^ self postOpenBlock ifNotNil: [
@@ -172,19 +188,10 @@ JadeiteProjectsTrait >> copyProjectUrl [
 { #category : 'actions' }
 JadeiteProjectsTrait >> createProject [
 
-	| projectName browserService |
+	| projectName |
 	projectName := Prompter prompt: 'Enter new project name:'.
 	projectName ifNil: [ ^ self ].
-	browserService := RowanBrowserService new
-		                  command: #newProjectNamed:;
-		                  commandArgs: { projectName }.
-	self issueCommand: browserService onCompletion: [
-		| projectService |
-		projectService := self projectListPresenter items
-			                  detect: [ :service | service name = projectName ]
-			                  ifNone: [  ].
-		projectService ifNotNil: [
-			self projectListPresenter selectItem: projectService ] ]
+	self basicCreateProject: projectName
 ]
 
 { #category : 'as yet unclassified' }
