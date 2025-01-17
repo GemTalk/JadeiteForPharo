@@ -169,6 +169,24 @@ JadeiteProjectsTrait >> copyProjectUrl [
 		informing: 'Text copied to clipboard'
 ]
 
+{ #category : 'actions' }
+JadeiteProjectsTrait >> createProject [
+
+	| projectName browserService |
+	projectName := Prompter prompt: 'Enter new project name:'.
+	projectName ifNil: [ ^ self ].
+	browserService := RowanBrowserService new
+		                  command: #newProjectNamed:;
+		                  commandArgs: { projectName }.
+	self issueCommand: browserService onCompletion: [
+		| projectService |
+		projectService := self projectListPresenter items
+			                  detect: [ :service | service name = projectName ]
+			                  ifNone: [  ].
+		projectService ifNotNil: [
+			self projectListPresenter selectItem: projectService ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> defaultSaveProjectName [
 
@@ -411,6 +429,10 @@ JadeiteProjectsTrait >> newProjectMenu [
 				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group
+			addItem: [ :item |
+				item
+					name: 'New ...';
+					action: [ self createProject ] ];
 			addItem: [ :item |
 				item
 					name: 'Load ...';
