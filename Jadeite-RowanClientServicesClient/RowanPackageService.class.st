@@ -12,7 +12,8 @@ Class {
 		'testClasses',
 		'hierarchyServices',
 		'selectedClass',
-		'dictionaryName'
+		'dictionaryName',
+		'isCurrent'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -152,9 +153,11 @@ RowanPackageService >> dictionaryName [
 
 { #category : 'displaying' }
 RowanPackageService >> displayName [
-	"for logging. for now"
 
-	^name
+	| displayName |
+	displayName := name. 
+	self isCurrent ifTrue: [ displayName := '*' , name ].
+	^ displayName
 ]
 
 { #category : 'displaying' }
@@ -187,6 +190,18 @@ RowanPackageService >> hash [
 RowanPackageService >> hierarchyServices: collection [
 
 	hierarchyServices := collection
+]
+
+{ #category : 'accessing' }
+RowanPackageService >> isCurrent [
+
+	^ isCurrent ifNil: [ isCurrent := false ]
+]
+
+{ #category : 'accessing' }
+RowanPackageService >> isCurrent: aBoolean [
+
+	isCurrent := aBoolean
 ]
 
 { #category : 'accessing' }
@@ -299,6 +314,16 @@ RowanPackageService >> selectedClass [
 { #category : 'accessing' }
 RowanPackageService >> selectedClass: anObject [
 	selectedClass := anObject
+]
+
+{ #category : 'actions' }
+RowanPackageService >> setCurrent [
+
+	command := #setCurrent.
+	self
+		issueCommands: (Array with: self)
+		session: GciSession current
+		onCompletion: [  ]
 ]
 
 { #category : 'accessing' }

@@ -168,7 +168,7 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_browseInExistingBrowse
 		withTitle:
 		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'.
 	projectsBrowser := nil.
-	self testResourceClass current projectsBrowser: nil.
+	self jadeiteTestResourceClass current projectsBrowser: nil.
 	JadeiteBrowser allInstances do: [ :browser | self destroy: browser ].
 	self setupProjectBrowser.
 	self assert: projectsBrowser cardsPresenter subPresenters size = 1.

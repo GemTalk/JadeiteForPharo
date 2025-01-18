@@ -100,6 +100,15 @@ JadeitePackageTrait >> newPackageMenu [
 							  [ self packageListPresenter selectedItem notNil ]
 								  on: Error
 								  do: [ :ex |
+									  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Set Current';
+						  action: [ self setPackageCurrent ];
+						  enabled: [
+							  [ self packageListPresenter selectedItem notNil ]
+								  on: Error
+								  do: [ :ex |
 									  false "Spec2 lists are broken and can have the wrong selection" ] ] ] ];
 		  yourself
 ]
@@ -115,4 +124,13 @@ JadeitePackageTrait >> removePackage [
 		commandArgs:
 			(Array with: (Array with: self packageListPresenter selectedItem)).
 	self issueCommand: projectService onCompletion: [  ]
+]
+
+{ #category : 'actions' }
+JadeitePackageTrait >> setPackageCurrent [
+
+	self packageListPresenter items do: [ :packageService |
+		packageService isCurrent: false ].
+	self packageListPresenter selectedItem setCurrent.
+	WorldMorph doOneCycle
 ]

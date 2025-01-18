@@ -517,26 +517,6 @@ JadeiteBrowserPresenter >> buildGlobalsTab [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> buildPackageList [
-	true ifTrue:[^self]. "needed?"
-	classListPresenter list: ListModel new.
-	self todo: [ 
-		| newCard |
-		(packageDictionaryCards view cards includes:
-			 dictionaryListPresenter view) ifTrue: [ 
-			packageDictionaryCards view removeSubView: dictionaryListPresenter view.
-			dictionaryListPresenter list: ListModel new ].
-		packageDictionaryCards view cards isEmpty ifTrue: [ 
-			newCard := packageDictionaryCards add: packageListPresenter. 
-			self createListViewFor: newCard.
-			packageDictionaryCards view cards first arrangement: 'Packages'.
-			self setupPackageMenu.
-			
-			classHierarchyPresenter model: JadeiteTreeModel new ].
-		packageListPresenter view isDropTarget: true ]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildProjectInfoTab: infoTab [
 	| infoTabView |
 	infoTabView := infoTab createView: 'Editable list view'.
@@ -898,26 +878,6 @@ JadeiteBrowserPresenter >> copyProjectInfo [
 	projectInfoList selection last ifNil: [^self].
 	(projectInfoList selection first perform: projectInfoList selection last asSymbol) displayString
 		copyToClipboard
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> createListViewFor: newCard [
-	"Editable because creating the desired ListView gave 
-	mysterious errors when connecting the view."
-
-	| listView |
-	listView := newCard createView: 'Editable list view'.
-	listView
-		isMultiSelect: true;
-		hasColumnHeaders: false;
-		getImageBlock: nil;
-		hasGridLines: false.
-	(listView allColumns at: 1)
-		isEditable: false;
-		getImageBlock: nil;
-		isAutoResize: true;
-		customDrawBlock: [:each | each item displayStringFor: each].
-	^listView
 ]
 
 { #category : 'private' }
@@ -1766,6 +1726,8 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 	packageListPresenter := JadeiteListPresenter newNameSortedList
 		                        wantsDrop: [ :transfer |
 			                        self jadeiteWantsDrop: transfer ];
+		                        display: [ :packageService |
+			                        packageService displayName ];
 		                        acceptDrop: [ :transfer |
 			                        self
 				                        dropMethods: transfer passenger
@@ -2719,7 +2681,7 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 		self resetCategoryText.
 		methodListPresenter unselectAll.
 		^ self methodsUpdate: self selectedClass ].
-	categoryListPresenter selectedItem isComputed ifTrue: [
+	(JadeiteCategory named: categoryListPresenter selectedItem) isComputed ifTrue: [
 		| extensions |
 		categoryListPresenter selections size = 1 ifTrue: [ "extensions are only displayed if that's the only selection"
 			extensions := self selectedClass methods select: [ :methodService |

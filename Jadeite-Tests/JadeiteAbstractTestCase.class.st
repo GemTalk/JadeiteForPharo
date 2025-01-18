@@ -17,15 +17,15 @@ JadeiteAbstractTestCase class >> isAbstract [
 	^self == JadeiteAbstractTestCase
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase class >> resources [
-	^IdentitySet with: self testResourceClass
-]
-
 { #category : 'accessing' }
-JadeiteAbstractTestCase class >> testResourceClass [
+JadeiteAbstractTestCase class >> jadeiteTestResourceClass [
 
 	^JadeiteTestResource
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase class >> resources [
+	^IdentitySet with: self jadeiteTestResourceClass
 ]
 
 { #category : 'as yet unclassified' }
@@ -155,7 +155,7 @@ JadeiteAbstractTestCase >> clearBreakAt: anInteger [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> cloneRowanSample1 [
 
-	self testResourceClass current cloneRowanSample1
+	self jadeiteTestResourceClass current cloneRowanSample1
 ]
 
 { #category : 'as yet unclassified' }
@@ -292,7 +292,7 @@ JadeiteAbstractTestCase >> disableBreakpoints [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> disableInteractionsWhile: block [
 
-	^ self testResourceClass current disableInteractionsWhile: block
+	^ self jadeiteTestResourceClass current disableInteractionsWhile: block
 ]
 
 { #category : 'as yet unclassified' }
@@ -316,22 +316,22 @@ JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoaded [
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: (Array
-				 with: self testResourceClass sampleProject1Name
-				 with: self testResourceClass sampleProject9Name)).
+				 with: self jadeiteTestResourceClass sampleProject1Name
+				 with: self jadeiteTestResourceClass sampleProject9Name)).
 	self issueCommand: browserService onCompletion: [
 		JadeiteApplication
 			commitTransactionInSession: session
 			onCompletion: [
-			self testResourceClass current createRowanSample1Project ] ]
+			self jadeiteTestResourceClass current createRowanSample1Project ] ]
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoadedFromDisk [
 
-	self testResourceClass current unloadSampleProject1.
-	self testResourceClass current unloadSampleProject9.
+	self jadeiteTestResourceClass current unloadSampleProject1.
+	self jadeiteTestResourceClass current unloadSampleProject9.
 	session commit.
-	self testResourceClass current
+	self jadeiteTestResourceClass current
 		ensureRowanSampleProjectsLoadedFromDisk
 ]
 
@@ -366,7 +366,7 @@ JadeiteAbstractTestCase >> fail: aString [
 { #category : 'support' }
 JadeiteAbstractTestCase >> forceReconnect [
 
-	self testResourceClass current forceReconnect.
+	self jadeiteTestResourceClass current forceReconnect.
 	jadeiteShell := JadeiteConsole currentConsole 
 ]
 
@@ -438,6 +438,11 @@ JadeiteAbstractTestCase >> itemNamed: menuName in: menuBar [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> jadeitePrefsFilePath [
 	^SessionManager current imageBase , 'Jadeite.prefs'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> jadeiteTestResourceClass [
+	^ self class jadeiteTestResourceClass
 ]
 
 { #category : 'as yet unclassified' }
@@ -681,7 +686,7 @@ JadeiteAbstractTestCase >> sampleClassName [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> sampleProject1Name [
 
-	^ self testResourceClass sampleProject1Name
+	^ self jadeiteTestResourceClass sampleProject1Name
 ]
 
 { #category : 'as yet unclassified' }
@@ -1115,8 +1120,8 @@ JadeiteAbstractTestCase >> setUp [
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
 	self forceReconnect. 
-	session := self testResourceClass current session.
-	transcript := self testResourceClass current transcript.
+	session := self jadeiteTestResourceClass current session.
+	transcript := self jadeiteTestResourceClass current transcript.
 	self setRemoteAutoCommit: false onCompletion: [
 		self ensureRowanSampleProjectsLoaded.
 		JadeiteLoginShell allInstances size > 1 ifTrue: [
@@ -1126,7 +1131,7 @@ JadeiteAbstractTestCase >> setUp [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> setupProjectBrowser [
 
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self ensureOneTab.
 	self selectClassListTab.
 	self selectInstanceSide.
@@ -1170,7 +1175,7 @@ sessionsToStop do:[:i | System stopSession: i]'
 JadeiteAbstractTestCase >> switchTransactionModeTo: aSymbol [
 
 	self todo: [
-		self testResourceClass current switchTransactionModeTo: aSymbol ]
+		self jadeiteTestResourceClass current switchTransactionModeTo: aSymbol ]
 ]
 
 { #category : 'support' }
@@ -1184,11 +1189,6 @@ JadeiteAbstractTestCase >> tearDown [
 	self destroy: projectsBrowser.
 	projectsBrowser := nil.
 	RowanServiceUpdater uninstallTestUpdater
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> testResourceClass [
-	^ self class testResourceClass
 ]
 
 { #category : 'as yet unclassified' }
@@ -1267,7 +1267,7 @@ JadeiteAbstractTestCase >> transcriptTab [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> unloadSampleProject1 [
 
-	self testResourceClass current unloadSampleProject1
+	self jadeiteTestResourceClass current unloadSampleProject1
 ]
 
 { #category : 'as yet unclassified' }

@@ -9,7 +9,7 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteForPharoDebuggerTestCase class >> testResourceClass [ 
+JadeiteForPharoDebuggerTestCase class >> jadeiteTestResourceClass [ 
 
 	^TestResource
 ]

@@ -456,7 +456,12 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Refresh from Server';
-					action: [ self refreshProjects ] ] ].
+					action: [ self refreshProjects ] ];
+			addItem: [ :item |
+				item
+					name: 'Set Current';
+					action: [ self setProjectCurrent ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group
 			addItem: [ :item |
@@ -687,6 +692,15 @@ JadeiteProjectsTrait >> selectStringFromList: strings title: title [
 { #category : 'selections' }
 JadeiteProjectsTrait >> selectedProjectName [
 	^(self projectListPresenter selectionOrNil ifNil: [^nil]) name 
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> setProjectCurrent [
+
+	self projectListPresenter items do: [ :projectService |
+		projectService isCurrent: false ].
+	self projectListPresenter selectedItem setCurrent.
+	WorldMorph doOneCycle
 ]
 
 { #category : 'actions' }

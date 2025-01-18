@@ -77,7 +77,7 @@ JadeiteForPharoAbstractBrowserTestCase >> moveMethodToCategory [
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> openSecondBrowser [
 
-	secondBrowser := self testResourceClass current openWindow: [
+	secondBrowser := self jadeiteTestResourceClass current openWindow: [
 		                 self transcript openBrowser ].
 	secondBrowser caption: 'second browser'.
 	secondPresenter := secondBrowser currentCard.
@@ -680,7 +680,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classCommentSave [
 	self
 		assert: self projectsPresenter selectedClass comment
 		equals: originalComment ] ensure: [
-		self testResourceClass current unloadSampleProject1.
+		self jadeiteTestResourceClass current unloadSampleProject1.
 		self commitTransaction.
 		self ensureRowanSampleProjectsLoaded ]
 ]

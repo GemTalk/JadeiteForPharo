@@ -392,8 +392,8 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindow [
 	projectsBrowser view close.
 	self verifyWindowClosed: projectsBrowser ] ensure: [
 		TestMessageBox disableJadeiteTestMessageBox.
-		self testResourceClass current projectsBrowser: nil.
-		projectsBrowser := self testResourceClass current
+		self jadeiteTestResourceClass current projectsBrowser: nil.
+		projectsBrowser := self jadeiteTestResourceClass current
 			                   openProjectsBrowser "for next test" ]
 ]
 
@@ -3766,7 +3766,7 @@ JadeiteProjectBrowserTestCase >> test_twoTabsHaveIndependentCompileErrors [
 		projectsBrowser closeCard.
 		self methodSourcePresenter view isModified: false.
 		projectsBrowser view close.
-		projectsBrowser := self testResourceClass current
+		projectsBrowser := self jadeiteTestResourceClass current
 			                   openProjectsBrowser ]
 ]
 

@@ -15,7 +15,7 @@ JadeiteForPharoHeadlessTestCase class >> classForTestResource [
 ]
 
 { #category : 'accessing' }
-JadeiteForPharoHeadlessTestCase class >> testResourceClass [
+JadeiteForPharoHeadlessTestCase class >> jadeiteTestResourceClass [
 
 	^JadeiteHeadlessTestResource 
 ]

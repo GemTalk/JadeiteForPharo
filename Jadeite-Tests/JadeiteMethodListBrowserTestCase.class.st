@@ -1309,7 +1309,7 @@ JadeiteMethodListBrowserTestCase >> test_insertIfTrue [
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_methodBrowserSaveMethod [
 
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 
 	[
 	| source source2 selection |

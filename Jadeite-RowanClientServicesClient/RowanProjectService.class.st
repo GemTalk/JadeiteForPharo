@@ -21,7 +21,8 @@ Class {
 		'packageGroups',
 		'defaultSymbolDictionaryName',
 		'packageConvention',
-		'diskSha'
+		'diskSha',
+		'isCurrent'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -228,29 +229,15 @@ RowanProjectService >> diskSha [
 	^diskSha
 ]
 
-{ #category : 'accessing' }
-RowanProjectService >> displayName [
-	| displayName |
-	name ifNil: [^String new].
-	displayName := name.
-	isDiskDirty == true ifTrue: [displayName := '(' , displayName , ')'].
-	^displayName
-]
-
 { #category : 'displaying' }
-RowanProjectService >> displayStringFor: displayThing [
-	name ifNil: [^self].
-	self isDirty == true
-		ifTrue: 
-			[displayThing font beBold.
-			displayThing forecolor: Color black].
-	self isLoaded
-		ifTrue: 
-			[self isSkew
-				ifTrue: [displayThing forecolor: Color red]
-				ifFalse: [displayThing forecolor: Color black]]
-		ifFalse: [displayThing forecolor: Color black].
-	isDiskDirty ifTrue: [displayThing font beItalic]
+RowanProjectService >> displayName [
+
+	| displayName |
+	name ifNil: [ ^ String new ].
+	displayName := name.
+	self isCurrent ifTrue: [ displayName := '*' , name ].
+	isDiskDirty == true ifTrue: [ displayName := '(' , displayName , ')' ].
+	^ displayName
 ]
 
 { #category : 'accessing' }
@@ -321,6 +308,18 @@ RowanProjectService >> initialize [
 	isSkew := false.
 	sha := 'not a project'.
 	isDiskDirty := false. 
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> isCurrent [
+
+	^ isCurrent ifNil: [ isCurrent := false ]
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> isCurrent: aBoolean [
+
+	isCurrent := aBoolean
 ]
 
 { #category : 'accessing' }
@@ -557,6 +556,16 @@ RowanProjectService >> rowanPostUpdate [
 { #category : 'accessing' }
 RowanProjectService >> rowanProjectsHome [
 	^rowanProjectsHome
+]
+
+{ #category : 'actions' }
+RowanProjectService >> setCurrent [
+
+	command := #setCurrent.
+	self
+		issueCommands: (Array with: self)
+		session: GciSession current
+		onCompletion: [  ]
 ]
 
 { #category : 'accessing' }

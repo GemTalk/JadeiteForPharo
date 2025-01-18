@@ -62,7 +62,7 @@ JadeiteForPharoSUnitBrowserTestCase >> setupAbstractSuperWithTest [
 	"setup abstract super class with single test + 2 subclasses"
 
 	| source |
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'JadeiteTest'
 		superclass: 'TestCase'
@@ -125,7 +125,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_abortNoSelections [
 		onCompletion: [  ].
 	self commitTransaction. "ensure that the sample package wasn't committed"
 	self denyPackageInList: 'RowanSample1-Tests'.
-	self testResourceClass current createRowanSample1Project.
+	self jadeiteTestResourceClass current createRowanSample1Project.
 	self assertPackageInList: 'RowanSample1-Tests'.
 	sunitBrowser abortTransaction.
 	self denyPackageInList: 'RowanSample1-Tests'
@@ -205,7 +205,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewNonTestClassDoesNotGetAdded [
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self denyClassInList: 'NewSubclass'.
 	self
@@ -229,7 +229,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestClass [
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
@@ -249,7 +249,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
 	packageName := 'AddedPackage'.
 	className := 'AddedTestClass'.
 	self denyClassInList: className.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
 	self addPackageNamed: packageName.
@@ -299,7 +299,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addRemoveTestClass [
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.

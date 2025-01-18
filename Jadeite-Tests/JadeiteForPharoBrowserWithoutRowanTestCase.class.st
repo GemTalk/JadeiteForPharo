@@ -270,7 +270,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassWithNilClassCategory
 	"When selecting a class, don't reset the class category
 	selection to the full class category path."
 
-	self testResourceClass current createRowanSample1Project.
+	self jadeiteTestResourceClass current createRowanSample1Project.
 	self projectsPresenter findClassNamed: 'RowanSample1'.
 	self
 		assert: self classCategoryPresenter roots first name
@@ -330,7 +330,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	"When selecting a class, don't reset the class category
 	selection to the full class category path."
 
-	self testResourceClass current createRowanSample1Project.
+	self jadeiteTestResourceClass current createRowanSample1Project.
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: self dictionaryListPresenter.

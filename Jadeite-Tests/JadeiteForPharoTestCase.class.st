@@ -39,7 +39,7 @@ JadeiteForPharoTestCase class >> testCount [
 { #category : 'support' }
 JadeiteForPharoTestCase >> closeConnectionLaunchers [ 
 
-	self testResourceClass current closeConnectionLaunchers
+	self jadeiteTestResourceClass current closeConnectionLaunchers
 ]
 
 { #category : 'running' }

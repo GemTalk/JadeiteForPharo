@@ -1821,7 +1821,7 @@ JadeiteDebuggerTestCase >> test_loginButtonEnablementAfterDebug [
 	TestMessageBox plannedResult: #no. "don't commit"
 
 	[
-	self testResourceClass current closeTranscripts.
+	self jadeiteTestResourceClass current closeTranscripts.
 	TestMessageBox disableJadeiteTestMessageBox.
 	shell := JadeiteLoginShell allInstances first. "should be only one"
 	query := CommandQuery
@@ -1829,7 +1829,7 @@ JadeiteDebuggerTestCase >> test_loginButtonEnablementAfterDebug [
 		         source: shell loginButtonPresenter view.
 	shell queryCommand: query.
 	self assert: query isEnabled. "enabled login button"
-	self testResourceClass current. "will login"
+	self jadeiteTestResourceClass current. "will login"
 	self denyIsNil: GciSession current.
 	session := GciSession current.
 	transcript := JadeiteTranscript allInstances
@@ -1861,7 +1861,7 @@ JadeiteDebuggerTestCase >> test_loginButtonEnablementAfterDebug [
 		debugger := nil.
 		process ifNotNil: [ process terminate ].
 		process := nil.
-		self testResourceClass current
+		self jadeiteTestResourceClass current
 			logoutThenLoginAs: user
 			forceClose: true.
 		session := GciSession current.

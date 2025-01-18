@@ -344,7 +344,7 @@ JadeiteSUnitSupportTestCase >> test_dontAddClassWhenPackageNotSelected [
 		'SUnit browser updated with lists of classes without updating the package selection (3.1pr4)'.
 	self assert:
 		sunitBrowser primaryPresenter classListPresenter selections isEmpty.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		selectServiceNamed: 'test1'
@@ -383,7 +383,7 @@ JadeiteSUnitSupportTestCase >> test_dontChangeTabs [
 	self
 		testsIssue: #issue405
 		withTitle: 'SUnit select class flips sunit pane in PB to the method'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	methodService := self projectsPresenter methodListPresenter list
 		                 detect: [ :svc | svc selector = #test1 ].
@@ -427,7 +427,7 @@ JadeiteSUnitSupportTestCase >> test_dontClearResults [
 		assert:
 		self sunitPresenter methodListPresenter selections first testResult
 		equals: 'passed'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectMethodNamed: #test1.
 	self
@@ -450,7 +450,7 @@ JadeiteSUnitSupportTestCase >> test_extensionOnlyTestClassVisible [
 		testsIssue: #issue376
 		withTitle:
 		'SUnit browser updated with lists of classes without updating the package selection (3.1pr4)'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter methodListPresenter selections:
 		self projectsPresenter methodListPresenter list.
@@ -481,7 +481,7 @@ JadeiteSUnitSupportTestCase >> test_extensionTestShowsUpInSUnitBrowser [
 		testsIssue: #issue378
 		withTitle:
 		'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'TestTestClass'
 		superclass: 'TestCase'
@@ -526,7 +526,7 @@ JadeiteSUnitSupportTestCase >> test_extensionTestsShowUpInExtensionAndDefinedPac
 		testsIssue: #issue378
 		withTitle:
 		'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveMethod: 'test_extension'
@@ -947,7 +947,7 @@ JadeiteSUnitSupportTestCase >> test_packageRemovedOnClassRemoval [
 		withTitle:
 		'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
 	self assertPackageInList: 'RowanSample1-Tests'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter
 		basicRemoveClass: self projectsPresenter selectedClass
@@ -1016,7 +1016,7 @@ JadeiteSUnitSupportTestCase >> test_refresh [
 	self
 		testsIssue: #issue279
 		withTitle: 'Sunit browser refresh, auto or manual'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
@@ -1077,7 +1077,7 @@ JadeiteSUnitSupportTestCase >> test_removeTestClass [
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self sunitPresenter packageListPresenter.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
@@ -1162,7 +1162,7 @@ JadeiteSUnitSupportTestCase >> test_sameSelectorInheritedTests [
 		testsIssue: #issue756
 		withTitle:
 		'SUnit Browser does not handle duplicated test method selectors well'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'RowanSample1TestSubclass'
 		superclass: 'RowanSample1Test'
@@ -1221,7 +1221,7 @@ JadeiteSUnitSupportTestCase >> test_sameSelectorInheritedTestsFailureInSuper [
 		testsIssue: #issue756
 		withTitle:
 		'SUnit Browser does not handle duplicated test method selectors well'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self
 		saveClass: 'RowanSample1TestSubclass'
 		superclass: 'RowanSample1Test'
@@ -1287,7 +1287,7 @@ JadeiteSUnitSupportTestCase >> test_saveMethodInProjectBrowser [
 			 detect: [ :methodService |
 			 methodService selector = #testInProjectBrowser ]
 			 ifNone: [  ]).
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	source := 'testInProjectBrowser  
 		| aaa | 
@@ -1336,7 +1336,7 @@ JadeiteSUnitSupportTestCase >> test_selectCategoryInProjectBrowserDoesNotUpdateS
 	sunitDisplaySelectors := self sunitPresenter methodListPresenter list
 		                         collect: [ :methodService |
 		                         methodService selector ].
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanServicesTestsPackage.
 	self
 		selectServiceNamed: 'RowanTestClassServiceTest'
@@ -1372,7 +1372,7 @@ JadeiteSUnitSupportTestCase >> test_selectClassDoesNotLoseTestResults [
 		testsIssue: #issue432
 		withTitle:
 		'Fix for cross-browser clearing test results is incomplete in 3.0.60'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter selectSUnitTab.
 	secondBrowser := JadeiteBrowser showOnSession: session.
@@ -1433,7 +1433,7 @@ JadeiteSUnitSupportTestCase >> test_selectInProjectBrowserDoesNotUpdateSunitBrow
 	sunitDisplaySelectors := self sunitPresenter methodListPresenter list
 		                         collect: [ :methodService |
 		                         methodService selector ].
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanServicesTestsPackage.
 	self
 		selectServiceNamed: 'RowanTestClassServiceTest'
@@ -1473,7 +1473,7 @@ JadeiteSUnitSupportTestCase >> test_selectMethodFromProjectBrowser [
 		selectServiceNamed: 'RowanSample1Test'
 		in: self sunitPresenter classListPresenter.
 	self selectSUnitBrowserMethodsNamed: (Array with: #test1).
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectProjectBrowserMethodNamed: #test1.
 	self
@@ -1639,7 +1639,7 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserSortOrderAfterAddingMethod [
 	self
 		testsIssue: #issue775
 		withTitle: 'Stubborn sorting in the Sunit browser'.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'LisaTest'
@@ -1708,7 +1708,7 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdateRightClassInHierarchy [
 		assert:
 		self sunitPresenter methodListPresenter list first testResult
 		equals: nil.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1TestSubclass'
@@ -1771,7 +1771,7 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdateRightClassInHierarchy2 [
 		assert:
 		self sunitPresenter methodListPresenter list first testResult
 		equals: nil.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self selectRowanSample1Test.
 	self
 		saveClass: 'RowanSample1TestSubclass'
@@ -1830,7 +1830,7 @@ JadeiteSUnitSupportTestCase >> test_sunitBrowserUpdates [
 	self
 		selectServiceNamed: 'RowanSample1Test'
 		in: self sunitPresenter classListPresenter.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self projectsPresenter sunitPresenter reset.
 	self selectRowanSample1Test.
 	self projectsPresenter selectSUnitTab.
@@ -1918,7 +1918,7 @@ JadeiteSUnitSupportTestCase >> test_sunitTabUpdates [
 	self
 		selectServiceNamed: 'RowanSample1Test'
 		in: self sunitPresenter classListPresenter.
-	projectsBrowser := self testResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
 	self projectsPresenter sunitPresenter reset.
 	self selectRowanSample1Test.
 	self projectsPresenter selectSUnitTab.
