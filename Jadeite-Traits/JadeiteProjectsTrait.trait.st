@@ -460,7 +460,7 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Set Current';
-					action: [ self setProjectCurrent ];
+					action: [ self setCurrentProject ];
 					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group
@@ -695,9 +695,9 @@ JadeiteProjectsTrait >> selectedProjectName [
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> setProjectCurrent [
+JadeiteProjectsTrait >> setCurrentProject [
 
-	self projectListPresenter items do: [ :projectService |
+	RowanProjectServiceClient allInstances do: [ :projectService |
 		projectService isCurrent: false ].
 	self projectListPresenter selectedItem setCurrent.
 	WorldMorph doOneCycle

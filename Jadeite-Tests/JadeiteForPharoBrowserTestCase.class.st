@@ -154,6 +154,69 @@ JadeiteForPharoBrowserTestCase >> test_createProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_currentPackage [
+
+	self selectRowanAnsweringService.
+	self projectsPresenter setCurrentPackage.
+	self assert: self packageListPresenter selectedItem isCurrent.
+	self
+		assert: self packageListPresenter selectedItem displayName
+		equals: '*Rowan-Services-Core'.
+	self packageListPresenter items do: [ :packageService |
+		packageService name = 'Rowan-Services-Core' ifFalse: [
+			self assert: packageService displayName = packageService name ] ].
+	self
+		selectServiceNamed: 'Rowan-Services-Core-37x'
+		in: self packageListPresenter.
+	self projectsPresenter setCurrentPackage.
+	self assert: self packageListPresenter selectedItem isCurrent.
+	self
+		assert: self packageListPresenter selectedItem displayName
+		equals: '*Rowan-Services-Core-37x'.
+	self packageListPresenter items do: [ :packageService |
+		packageService name = 'Rowan-Services-Core-37x' ifFalse: [
+			self assert: packageService displayName = packageService name ] ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_currentProject [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self projectsPresenter setCurrentProject.
+	self assert: self projectListPresenter selectedItem isCurrent.
+	self
+		assert: self projectListPresenter selectedItem displayName
+		equals: '*RowanClientServices'.
+	self projectListPresenter items do: [ :projectService |
+		projectService name = 'RowanClientServices' ifFalse: [
+			self assert: projectService displayName = projectService name ] ].
+
+	jadeiteShell projectListPresenter items do: [ :projectService |
+		projectService name = 'RowanClientServices'
+			ifTrue: [
+			self assert: projectService displayName = '*RowanClientServices' ]
+			ifFalse: [
+			self assert: projectService displayName = projectService name ] ].
+
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self projectsPresenter setCurrentProject.
+	self assert: self projectListPresenter selectedItem isCurrent.
+	self
+		assert: self projectListPresenter selectedItem displayName
+		equals: '*Rowan'.
+	self projectListPresenter items do: [ :projectService |
+		projectService name = 'Rowan' ifFalse: [
+			self assert: projectService displayName = projectService name ] ].
+	jadeiteShell projectListPresenter items do: [ :projectService |
+		projectService name = 'Rowan'
+			ifTrue: [ self assert: projectService displayName = '*Rowan' ]
+			ifFalse: [
+			self assert: projectService displayName = projectService name ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 	"make sure it updates the tab label"
 

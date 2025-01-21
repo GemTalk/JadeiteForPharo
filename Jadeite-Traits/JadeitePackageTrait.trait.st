@@ -104,7 +104,7 @@ JadeitePackageTrait >> newPackageMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Set Current';
-						  action: [ self setPackageCurrent ];
+						  action: [ self setCurrentPackage ];
 						  enabled: [
 							  [ self packageListPresenter selectedItem notNil ]
 								  on: Error
@@ -127,7 +127,7 @@ JadeitePackageTrait >> removePackage [
 ]
 
 { #category : 'actions' }
-JadeitePackageTrait >> setPackageCurrent [
+JadeitePackageTrait >> setCurrentPackage [
 
 	self packageListPresenter items do: [ :packageService |
 		packageService isCurrent: false ].

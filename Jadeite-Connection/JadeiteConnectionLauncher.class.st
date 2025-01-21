@@ -85,6 +85,17 @@ JadeiteConnectionLauncher >> basicImportProfile: fileStream [
 	self connectConnection
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> basicNewConnection [
+
+	hostText text: String new.
+	stoneText text: String new.
+	userText text: String new.
+	passwordText text: String new.
+	versionText text: String new.
+	netldiText text: String new
+]
+
 { #category : 'testing' }
 JadeiteConnectionLauncher >> canDiscardEdits [
 
@@ -527,14 +538,10 @@ JadeiteConnectionLauncher >> netldiText: anObject [
 JadeiteConnectionLauncher >> newConnection [
 	"blank the fields so the user can enter entirely new connction information"
 
-	UIManager default confirm:
-		'Clear all fields to enter new connection information?'.
-	hostText text: String new.
-	stoneText text: String new.
-	userText text: String new.
-	passwordText text: String new.
-	versionText text: String new.
-	netldiText text: String new
+	| shouldClear |
+	shouldClear := UIManager default confirm:
+		               'Clear all fields to enter new connection information?'.
+	shouldClear ifTrue: [ self basicNewConnection ]
 ]
 
 { #category : 'accessing' }

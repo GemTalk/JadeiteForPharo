@@ -25,7 +25,7 @@ RowanProjectServiceClient >> inCommand: anObject [
 RowanProjectServiceClient >> indexOfInCommandInstVar [
 	"performance enhancement"
 
-	^31
+	^32
 ]
 
 { #category : 'accessing' }

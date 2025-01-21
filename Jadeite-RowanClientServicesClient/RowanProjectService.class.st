@@ -543,7 +543,9 @@ RowanProjectService >> removedProject: presenter [
 
 { #category : 'public' }
 RowanProjectService >> replicateFrom: newService [
-	^self isProjectService ifTrue: [name isNil ifFalse: [super replicateFrom: newService]]
+
+	self isProjectService ifTrue: [
+		name ifNotNil: [ super replicateFrom: newService ] ]
 ]
 
 { #category : 'Init / Release' }
