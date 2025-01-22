@@ -55,6 +55,33 @@ RowanClassServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
+{ #category : 'constants' }
+RowanClassServiceClient >> indexOfInCommandInstVar [
+	"performance enhancement"
+
+	^49
+]
+
+{ #category : 'constants' }
+RowanClassServiceClient >> indexOfMetaInstVar [
+	"performance enhancement"
+	^20
+]
+
+{ #category : 'constants' }
+RowanClassServiceClient >> indexOfMethodsInstVar [
+	"performance enhancement"
+
+	^28
+]
+
+{ #category : 'constants' }
+RowanClassServiceClient >> indexOfServiceCompletionBlock [
+	"performance enhancement"
+
+	^51
+]
+
 { #category : 'initialization' }
 RowanClassServiceClient >> initialize [
 	

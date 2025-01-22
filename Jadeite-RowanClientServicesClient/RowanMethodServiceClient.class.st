@@ -34,18 +34,39 @@ RowanMethodServiceClient >> inCommand: anObject [
 	inCommand := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'constants' }
+RowanMethodServiceClient >> indexOfFirstReferenceInstVar [
+
+	^37
+]
+
+{ #category : 'constants' }
 RowanMethodServiceClient >> indexOfInCommandInstVar [
 	"performance enhancement"
 
 	^44
 ]
 
-{ #category : 'accessing' }
+{ #category : 'constants' }
 RowanMethodServiceClient >> indexOfServiceCompletionBlock [
 	"performance enhancement"
 
 	^45
+]
+
+{ #category : 'constants' }
+RowanMethodServiceClient >> indexOfSourceInstVar [
+	^12
+]
+
+{ #category : 'constants' }
+RowanMethodServiceClient >> indexOfStepPointsInstVar [
+	^26
+]
+
+{ #category : 'constants' }
+RowanMethodServiceClient >> indexOfTestResultInstVar [
+	^31
 ]
 
 { #category : 'initialization' }
