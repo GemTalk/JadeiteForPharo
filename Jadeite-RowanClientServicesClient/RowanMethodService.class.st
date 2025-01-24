@@ -431,27 +431,6 @@ RowanMethodService >> inSelectedPackage: anObject [
 	inSelectedPackage := anObject
 ]
 
-{ #category : 'constants' }
-RowanMethodService >> indexOfFirstReferenceInstVar [
-
-	^37
-]
-
-{ #category : 'constants' }
-RowanMethodService >> indexOfSourceInstVar [
-	^12
-]
-
-{ #category : 'constants' }
-RowanMethodService >> indexOfStepPointsInstVar [
-	^26
-]
-
-{ #category : 'constants' }
-RowanMethodService >> indexOfTestResultInstVar [
-	^31
-]
-
 { #category : 'initialization' }
 RowanMethodService >> initialize [
 	super initialize.

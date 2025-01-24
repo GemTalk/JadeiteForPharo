@@ -32,7 +32,7 @@ RowanProjectServiceClient >> indexOfInCommandInstVar [
 RowanProjectServiceClient >> indexOfServiceCompletionBlock [
 	"performance enhancement"
 
-	^32
+	^33
 ]
 
 { #category : 'accessing' }

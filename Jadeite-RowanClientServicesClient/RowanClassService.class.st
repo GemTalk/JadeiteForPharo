@@ -527,33 +527,6 @@ RowanClassService >> hierarchyServices: anObject [
 	hierarchyServices := anObject
 ]
 
-{ #category : 'constants' }
-RowanClassService >> indexOfInCommandInstVar [
-	"performance enhancement"
-
-	^49
-]
-
-{ #category : 'constants' }
-RowanClassService >> indexOfMetaInstVar [
-	"performance enhancement"
-	^17
-]
-
-{ #category : 'constants' }
-RowanClassService >> indexOfMethodsInstVar [
-	"performance enhancement"
-
-	^25
-]
-
-{ #category : 'constants' }
-RowanClassService >> indexOfServiceCompletionBlock [
-	"performance enhancement"
-
-	^51
-]
-
 { #category : 'initialize' }
 RowanClassService >> initialize [  
 
