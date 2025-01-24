@@ -2,7 +2,8 @@ Class {
 	#name : 'JadeiteForPharoFileDialogTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
-		'fileDialog'
+		'fileDialog',
+		'fileDialogPresenter'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -12,6 +13,7 @@ Class {
 JadeiteForPharoFileDialogTestCase >> setUp [
 
 	super setUp.
+	RowanServiceUpdater uninstallTestUpdater. 
 	fileDialog := JadeiteServerFileSelectorDialog
 		              _showOnSession: GciSession current
 		              defaultPath:
@@ -26,32 +28,74 @@ JadeiteForPharoFileDialogTestCase >> tearDown [
 	self destroy: fileDialog
 ]
 
-{ #category : 'support' }
+{ #category : 'tests' }
 JadeiteForPharoFileDialogTestCase >> test_dive [
 	"the default directory is $ROWAN_PROJECTS_HOME
 	so we know that JadeiteForPharo directory will be there."
 
-	| presenter item keys |
-	presenter := fileDialog fileSelectorPresenter.
-	item := presenter directoryContentsList list detect: [ :assoc |
-		        assoc key = 'JadeiteForPharo' ].
-	presenter directoryContentsList selectItem: item.
-	self assert: presenter pathText text equals: '$ROWAN_PROJECTS_HOME'.
-	keys := presenter directoryContentsList list collect: [ :assoc |
-		        assoc key ].
-	self deny: (keys includes: 'Jadeite-Browser').
-	presenter dive.
+	| item keys list |
+	fileDialogPresenter := fileDialog fileSelectorPresenter.
+	list := fileDialogPresenter directoryContentsList.
+	item := list list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
+	fileDialogPresenter directoryContentsList selectItem: item.
 	self
-		assert: presenter pathText text
+		assert: fileDialogPresenter pathText text
+		equals: '$ROWAN_PROJECTS_HOME'.
+	keys := fileDialogPresenter directoryContentsList list collect: [
+		        :assoc | assoc key ].
+	self deny: (keys includes: 'Jadeite-Browser').
+	fileDialogPresenter dive.
+	self
+		assert: fileDialogPresenter pathText text
 		equals: '$ROWAN_PROJECTS_HOME/JadeiteForPharo'.
-	keys := presenter directoryContentsList list collect: [ :assoc |
-		        assoc key ].
+	keys := fileDialogPresenter directoryContentsList list collect: [
+		        :assoc | assoc key ].
 	self assert: (keys includes: 'Jadeite-Browser').
-	presenter pop.
-	presenter directoryContentsList selectItem: item.
-	presenter directoryContentsList doActivateAtIndex:
-		presenter directoryContentsList selection selectedIndex.
-	keys := presenter directoryContentsList list collect: [ :assoc |
-		        assoc key ].
+	fileDialogPresenter pop.
+	fileDialogPresenter directoryContentsList selectItem: item.
+	fileDialogPresenter directoryContentsList doActivateAtIndex:
+		fileDialogPresenter directoryContentsList selection selectedIndex.
+	keys := fileDialogPresenter directoryContentsList list collect: [
+		        :assoc | assoc key ].
 	self deny: (keys includes: 'Jadeite-Browser')
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileDialogTestCase >> test_pop1 [
+
+	| item keys directoryContentsList parentPath |
+	fileDialogPresenter := fileDialog fileSelectorPresenter.
+	directoryContentsList := fileDialogPresenter directoryContentsList.
+	item := directoryContentsList list detect: [ :assoc |
+		        assoc key = '..' ].
+	directoryContentsList selectItem: item.
+	parentPath := fileDialogPresenter fileService parentDirectoryPath.
+	self
+		assert: fileDialogPresenter pathText text
+		equals: '$ROWAN_PROJECTS_HOME'. "no change"
+	keys := directoryContentsList list collect: [ :assoc | assoc key ].
+	self assert: (keys includes: 'JadeiteForPharo').
+	directoryContentsList doActivateAtIndex:
+		directoryContentsList selection selectedIndex. "pop by clicking .."
+	self assert: parentPath equals: fileDialogPresenter pathText text.
+	keys := directoryContentsList list collect: [ :assoc | assoc key ].
+	self deny: (keys includes: 'JadeiteForPharo')
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileDialogTestCase >> test_pop2 [
+
+	| keys directoryContentsList parentPath |
+	fileDialogPresenter := fileDialog fileSelectorPresenter.
+	directoryContentsList := fileDialogPresenter directoryContentsList.
+	parentPath := fileDialogPresenter fileService parentDirectoryPath.
+	self
+		assert: fileDialogPresenter pathText text
+		equals: '$ROWAN_PROJECTS_HOME'. "no change"
+	keys := directoryContentsList list collect: [ :assoc | assoc key ].
+	self assert: (keys includes: 'JadeiteForPharo').
+	fileDialogPresenter pop. 
+	self assert: parentPath equals: fileDialogPresenter pathText text.
+	keys := directoryContentsList list collect: [ :assoc | assoc key ].
+	self deny: (keys includes: 'JadeiteForPharo')
 ]

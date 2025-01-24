@@ -92,18 +92,13 @@ RowanFileService >> isDirectory [
 { #category : 'commands' }
 RowanFileService >> parentDirectoryPath [
 
+	| sem |
+	sem := Semaphore new.
 	command := #parentDirectoryPath.
 	commandArgs := Array new.
-	self issueFileServiceCommand.
-	^answer
-]
-
-{ #category : 'commands' }
-RowanFileService >> pop [
-	command := #pop.
-	commandArgs := Array new.
-	self issueFileServiceCommand.
-	^answer ifNotNil: [self shortNames]
+	self issueFileServiceCommandOnCompletion: [ sem signal ].
+	sem wait.
+	^ answer
 ]
 
 { #category : 'commands' }
@@ -115,7 +110,13 @@ RowanFileService >> remove [
 
 { #category : 'accessing' }
 RowanFileService >> shortNames [
-	^answer collect: 
+
+	^ self shortNamesFrom: answer
+]
+
+{ #category : 'accessing' }
+RowanFileService >> shortNamesFrom: anObject [ 
+	^anObject collect: 
 			[:assoc |
 			| readStream string |
 			readStream := ReadStream on: assoc key.

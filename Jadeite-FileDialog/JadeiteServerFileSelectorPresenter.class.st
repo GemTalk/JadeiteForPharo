@@ -10,6 +10,22 @@ Class {
 	#package : 'Jadeite-FileDialog'
 }
 
+{ #category : 'as yet unclassified' }
+JadeiteServerFileSelectorPresenter >> basicDive: service [
+
+	service answer
+		ifTrue: [
+			| directoryName |
+			directoryName := directoryContentsList selectedItem key.
+			directoryName = '..' ifTrue: [ ^ self pop ].
+			directoryName = '.' ifFalse: [
+				pathText text:
+					pathText text , '/' , directoryContentsList selectedItem key ].
+			fileService path: pathText text.
+			self showDirectoryContents ]
+		ifFalse: [ self window triggerOkAction ]
+]
+
 { #category : 'defaults' }
 JadeiteServerFileSelectorPresenter >> defaultLayout [ 
 
@@ -24,20 +40,13 @@ JadeiteServerFileSelectorPresenter >> directoryContentsList [
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> dive [
 
+	| sem |
+	sem := Semaphore new.
 	fileService
 		isDirectory: directoryContentsList selectedItem key
-		onCompletion: [ :service |
-			service answer
-				ifTrue: [
-					| directoryName |
-					directoryName := directoryContentsList selectedItem key.
-					directoryName = '..' ifTrue: [ ^ self pop ].
-					directoryName = '.' ifFalse: [
-						pathText text:
-							pathText text , '/' , directoryContentsList selectedItem key ].
-					fileService path: pathText text.
-					self showDirectoryContents ]
-				ifFalse: [ self window triggerOkAction ] ]
+		onCompletion: [ :service | sem signal ].
+	sem wait.
+	self basicDive: fileService
 ]
 
 { #category : 'as yet unclassified' }
@@ -172,10 +181,10 @@ JadeiteServerFileSelectorPresenter >> pathText: anObject [
 	pathText := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> pop [
-	directoryContentsList list: fileService pop.
-	pathText text: fileService path
+
+	fileService popWith: directoryContentsList with: pathText
 ]
 
 { #category : 'as yet unclassified' }
@@ -211,15 +220,18 @@ JadeiteServerFileSelectorPresenter >> setPath: path [
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> showDirectoryContents [
 
+	| sem |
 	fileService := RowanFileService new session: self gciSession.
 	fileService
 		command: #directoryContents;
 		commandArgs: Array new;
-		path: pathText text. 
+		path: pathText text.
+	sem := Semaphore new.
 	RowanServiceUpdater current
 		issueCommand: fileService
 		session: self gciSession
-		onCompletion: [
-			fileService answer ifNotNil: [
-				directoryContentsList list: fileService shortNames ] ]
+		onCompletion: [ sem signal ].
+	sem wait.
+	fileService answer ifNotNil: [
+		directoryContentsList list: fileService shortNames ]
 ]

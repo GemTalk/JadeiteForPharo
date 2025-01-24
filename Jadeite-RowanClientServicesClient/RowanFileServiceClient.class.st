@@ -23,6 +23,14 @@ RowanFileServiceClient >> alwaysForked: anObject [
 	alwaysForked := anObject
 ]
 
+{ #category : 'accessing' }
+RowanFileServiceClient >> copy [
+	"get around our limitation of not resending commands in completion blocks"
+	| copy |
+	copy := super copy.
+	inCommand := RowanSemaphore new
+]
+
 { #category : 'commands' }
 RowanFileServiceClient >> fileIn [
 	command := #fileIn:.
@@ -82,16 +90,12 @@ RowanFileServiceClient >> isDirectory: directory onCompletion: completionBlock [
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommand [
 
-	RowanServiceUpdater current
-		issueCommand: self
-		session: self session
-		onCompletion: [  ]
+	self issueFileServiceCommandOnCompletion: [  ]
 ]
 
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
 
-	self alwaysForked: true.
 	RowanServiceUpdater current
 		issueCommand: self
 		session: self session
@@ -112,6 +116,29 @@ RowanFileServiceClient >> path [
 { #category : 'accessing' }
 RowanFileServiceClient >> path: anObject [
 	path := anObject
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> pop [
+
+	command := #pop.
+	commandArgs := Array new.
+	self issueFileServiceCommandOnCompletion: [
+		answer ifNotNil: [ self shortNames ] ]
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> popWith: directoryContentsList with: pathText [
+
+	| sem |
+	command := #pop.
+	commandArgs := Array new.
+	sem := Semaphore new.
+	self issueFileServiceCommandOnCompletion: [ sem signal ].
+	sem wait.
+	answer ifNotNil: [
+		directoryContentsList list: self shortNames.
+		pathText text: path ]
 ]
 
 { #category : 'service completion' }

@@ -494,6 +494,18 @@ RowanServiceUpdater >> shouldGetNewLoggerGroup: boolean [
 	logger shouldGetNewLoggerGroup: boolean
 ]
 
+{ #category : 'accessing' }
+RowanServiceUpdater >> singleThreaded [
+
+	^ singleThreaded
+]
+
+{ #category : 'accessing' }
+RowanServiceUpdater >> singleThreaded: anObject [
+
+	^ singleThreaded := anObject
+]
+
 { #category : 'logging' }
 RowanServiceUpdater >> startLogging [
 	logger startLogging
