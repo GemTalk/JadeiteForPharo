@@ -13,7 +13,6 @@ Class {
 JadeiteForPharoFileDialogTestCase >> setUp [
 
 	super setUp.
-	RowanServiceUpdater uninstallTestUpdater. 
 	fileDialog := JadeiteServerFileSelectorDialog
 		              _showOnSession: GciSession current
 		              defaultPath:

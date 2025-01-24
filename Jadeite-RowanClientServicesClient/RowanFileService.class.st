@@ -82,14 +82,6 @@ RowanFileService >> indexOfSessionInstVar [
 ]
 
 { #category : 'commands' }
-RowanFileService >> isDirectory [
-	command := #isDirectory.
-	commandArgs := Array new. 
-	self issueFileServiceCommand.
-	^answer
-]
-
-{ #category : 'commands' }
 RowanFileService >> parentDirectoryPath [
 
 	| sem |

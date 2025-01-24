@@ -23,14 +23,6 @@ RowanFileServiceClient >> alwaysForked: anObject [
 	alwaysForked := anObject
 ]
 
-{ #category : 'accessing' }
-RowanFileServiceClient >> copy [
-	"get around our limitation of not resending commands in completion blocks"
-	| copy |
-	copy := super copy.
-	inCommand := RowanSemaphore new
-]
-
 { #category : 'commands' }
 RowanFileServiceClient >> fileIn [
 	command := #fileIn:.
@@ -69,6 +61,14 @@ RowanFileServiceClient >> initialize [
 
 	super initialize.
 	alwaysForked := false
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> isDirectory [
+	command := #isDirectory.
+	commandArgs := Array new. 
+	self issueFileServiceCommand.
+	^answer
 ]
 
 { #category : 'commands' }

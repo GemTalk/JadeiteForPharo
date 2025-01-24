@@ -17,7 +17,6 @@ JadeiteServerFileSelectorPresenter >> basicDive: service [
 		ifTrue: [
 			| directoryName |
 			directoryName := directoryContentsList selectedItem key.
-			directoryName = '..' ifTrue: [ ^ self pop ].
 			directoryName = '.' ifFalse: [
 				pathText text:
 					pathText text , '/' , directoryContentsList selectedItem key ].
@@ -40,7 +39,9 @@ JadeiteServerFileSelectorPresenter >> directoryContentsList [
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> dive [
 
-	| sem |
+	| sem directoryName |
+	directoryName := directoryContentsList selectedItem key.
+	directoryName = '..' ifTrue: [ ^ self pop ].
 	sem := Semaphore new.
 	fileService
 		isDirectory: directoryContentsList selectedItem key
