@@ -222,7 +222,7 @@ JadeiteProjectsTrait >> fileoutProject [
 		RowanServiceUpdater current
 			issueCommand: service
 			session: self gciSession
-			onCompletion: nil ]
+			onCompletion: [  ] ]
 ]
 
 { #category : 'actions' }

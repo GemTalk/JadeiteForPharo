@@ -284,9 +284,11 @@ RowanServiceUpdater >> issueCommand: service session: session [
 
 { #category : 'commands' }
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
-	completionBlock ifNil: [ self halt: 'This halt means GemTalk needs to fix something - should not have any nil completionBlocks' ].
+
+	| theCompletionBlock |
+	theCompletionBlock := completionBlock ifNil: [ [  ] ].
 	session ifNil: [ ^ nil ].
-	service serviceCompletionBlock: completionBlock. 
+	service serviceCompletionBlock: theCompletionBlock.
 	self basicIssueCommand: service
 ]
 
