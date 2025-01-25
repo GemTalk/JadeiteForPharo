@@ -106,7 +106,7 @@ JadeiteClassTrait >> fileoutClass [
 		RowanServiceUpdater current
 			issueCommand: service
 			session: self gciSession
-			onCompletion: nil]
+			onCompletion: [  ] ]
 ]
 
 { #category : 'private' }
