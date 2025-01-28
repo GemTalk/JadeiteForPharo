@@ -4,17 +4,37 @@ Class {
 	#instVars : [
 		'name',
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'compileErrorHandler'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanQueryServiceClient >> compileErrorHandler [
+
+	^ compileErrorHandler
+]
+
+{ #category : 'accessing' }
+RowanQueryServiceClient >> compileErrorHandler: anObject [
+
+	compileErrorHandler := anObject
+]
 
 { #category : 'displaying' }
 RowanQueryServiceClient >> displayName [
 	"for logging. for now"
 
 	^name
+]
+
+{ #category : 'actions' }
+RowanQueryServiceClient >> handleCompileError: compileError [
+
+	compileErrorHandler ifNotNil: [
+		compileErrorHandler value: compileError ]
 ]
 
 { #category : 'commands' }

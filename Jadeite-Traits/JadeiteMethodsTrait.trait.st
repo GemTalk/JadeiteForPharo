@@ -325,6 +325,7 @@ JadeiteMethodsTrait >> browseLiteralReferences [
 	^ self
 		  browseLiteralReferences: self gciSession
 		  initialSuggestion: String new
+		  compileError: nil
 ]
 
 { #category : 'queries' }
@@ -336,29 +337,37 @@ JadeiteMethodsTrait >> browseLiteralReferences: string [
 	service := RowanQueryService
 		           command: #literalReferences:
 		           withArgs: (Array with: string).
-	[
+	service compileErrorHandler: [ :ex |
+		self
+			browseLiteralReferences: self gciSession
+			initialSuggestion: string
+			compileError: ex ].
+
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
 		onCompletion: [
 			shell := self openMethodListOn: service selecting: string.
 			shell updateCaptionFromSearchString:
-				'Literal References To ' , string asString printString ] ]
-		on: GsCompileError
-		do: [ :ex |
-			^ MessageBox warning:
-				  'Compile error: ' , (ex gsArguments first at: 3) ].
+				'Literal References To ' , string asString printString ].
 	^ shell
 ]
 
 { #category : 'queries' }
-JadeiteMethodsTrait >> browseLiteralReferences: session initialSuggestion: initialString [
+JadeiteMethodsTrait >> browseLiteralReferences: session initialSuggestion: initialString compileError: compileError [
 
-	| string |
+	| string message |
+	message := compileError
+		           ifNotNil: [
+			           'Error compiling expression: '
+			           , (compileError gsArguments first at: 3) ]
+		           ifNil: [
+			           'Enter code to be compiled.
+Example: To search for literal string add single quotes' ].
 	string := UIManager default
-		          request: 'Enter code to be compiled.
-Example: To search for literal string add single quotes'
-		          initialAnswer: String new.
+		          request: message
+		          initialAnswer: initialString
+		          title: 'Literal References Query'.
 	^ self browseLiteralReferences: string
 ]
 
