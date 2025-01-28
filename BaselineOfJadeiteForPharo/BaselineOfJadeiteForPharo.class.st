@@ -60,6 +60,27 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			with: [ spec repository: self pharoGemStoneFFIUrl ] ]
 ]
 
+{ #category : 'actions' }
+BaselineOfJadeiteForPharo >> copyFile: fileName path: path [
+	"assume JadeiteForPharo is loaded from a local directory"
+
+	| writeStream reference localReference |
+	writeStream := WriteStream on: String new.
+	writeStream
+		nextPutAll: path;
+		nextPut: $/;
+		nextPutAll: fileName.
+	reference := FileReference
+		             fileSystem: FileSystem disk
+		             path: writeStream contents asPath.
+	localReference := FileReference
+		                  fileSystem: FileSystem disk
+		                  path: fileName asPath.
+	localReference ensureDelete.
+	reference copyTo:
+		(FileReference fileSystem: FileSystem disk path: fileName asPath)
+]
+
 { #category : 'baselines' }
 BaselineOfJadeiteForPharo >> defaultBranchNameFor: projectName [
 
@@ -85,41 +106,14 @@ BaselineOfJadeiteForPharo >> pharoGemStoneFFIUrl [
 BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 	"assume JadeiteForPharo is loaded from a local directory"
 
-	| description path writeStream htmlReference cssReference html css localHtmlReference localCssReference |
+	| description path |
 	description := packageSpec repositoriesSpec list first spec
 		               description.
 	path := description withoutPrefix: 'gitlocal://'.
-	writeStream := WriteStream on: String new.
-	html := 'jadeitehelp.html'.
-	css := 'jadeitehelp.css'.
-	writeStream
-		nextPutAll: path;
-		nextPut: $/;
-		nextPutAll: html.
-	htmlReference := FileReference
-		                 fileSystem: FileSystem disk
-		                 path: writeStream contents asPath.
-	localHtmlReference := FileReference
-		                      fileSystem: FileSystem disk
-		                      path: html asPath.
-	localHtmlReference ensureDelete.
-	htmlReference copyTo:
-		(FileReference fileSystem: FileSystem disk path: html asPath).
-	writeStream := WriteStream on: String new.
-	writeStream
-		nextPutAll: path;
-		nextPut: $/;
-		nextPutAll: css.
-	localCssReference := FileReference
-		                     fileSystem: FileSystem disk
-		                     path: css asPath.
-	localCssReference ensureDelete.
-	cssReference := FileReference
-		                fileSystem: FileSystem disk
-		                path: writeStream contents asPath.
 
-	cssReference copyTo:
-		(FileReference fileSystem: FileSystem disk path: css asPath)
+	self copyFile: 'jadeitehelp.html' path: path.
+	self copyFile: 'jadeitehelp.css' path: path.
+	self copyFile: 'jadeitehelp.md' path: path
 ]
 
 { #category : 'baselines' }
