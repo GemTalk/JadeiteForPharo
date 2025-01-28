@@ -673,20 +673,22 @@ JadeiteConsole >> onCloseRequested: boolValueHolder [
 			temp forceLogout]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteConsole >> openGitHubJadeiteProject [
 	^JadePresenter openGitHubJadeiteProject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteConsole >> openGitHubRowanProject [
 	^JadePresenter openGitHubRowanProject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteConsole >> openJadeiteHelpFile [
 
-	WebBrowser openOn: 'jadeitehelp.html'
+	| browser |
+	browser := JadeiteHelpPresenter new gciSession: GciSession current.
+	^ browser open
 ]
 
 { #category : 'actions' }

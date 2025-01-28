@@ -60,6 +60,22 @@ JadeiteForPharoConsoleTestCase >> test_close [
 	self deny: session connection isOpen
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_openHelp [
+	"open the Jadeite Help File and make sure it's contents match the .md file prescribed"
+
+	| helpPresenter helpFileName fileReference |
+	helpPresenter := jadeiteShell openJadeiteHelpFile presenter.
+	helpFileName := helpPresenter defaultHelpMarkdownFile.
+	fileReference := FileSystem workingDirectory resolveString:
+		                 helpFileName.
+	self assert: fileReference exists.
+	self
+		assert: helpPresenter contentsPresenter text asString
+		equals: (helpPresenter contentsPresenter documentFromString: fileReference contents) text asString.
+	self destroy: helpPresenter
+]
+
 { #category : 'support' }
 JadeiteForPharoConsoleTestCase >> waitForCloseDialog [
 
