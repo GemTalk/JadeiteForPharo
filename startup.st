@@ -46,4 +46,6 @@ icePackage := jfpRepo packageNamed: 'BaselineOfJadeiteForPharo'.
 			policy ifNotNil: [ e perform: policy ] ];
 		load: #().
 		
-(Smalltalk at: #JadeiteConnectionApplication ) new start
+(Smalltalk at: #JadeiteConnectionApplication ) new start. 
+
+RealEstateAgent usedStrategy: #cursorPointFor:initialExtent:world:
