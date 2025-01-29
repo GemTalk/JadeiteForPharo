@@ -8,7 +8,8 @@ Class {
 		'netldi',
 		'user',
 		'password',
-		'path'
+		'path',
+		'port'
 	],
 	#classVars : [
 		'DefaultPath'
@@ -60,8 +61,8 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
-	| session | 
-	
+
+	| session |
 	"user = 'SystemUser' ifFalse: [
 		^ MessageBox notify: 'Only SystemUser is currently supported.' ]."
 	GciInterface libraryDirectory: path.
@@ -78,13 +79,13 @@ JadeiteGCIConnectionProfile >> connect [
 			self todo: 'is GciError the right error to signal?'.
 			^ GciError signal: ex message ].
 	GciSession current stoneName: stone.
-	connection := self setupRSRConnection: session.
+	connection := self setupRSRConnection: session. 
 	session logoutNbNoError.
-	session := nil. 
+	session := nil.
 	GciSession current library: connection.
 	self applyPreferences.
 	"Uncomment following three lines to enable RSR tracing"
-"	connection log addSink: (RsrCustomSink action: [ :message |
+	"	connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace."
 	"Uncomment following two lines to enable jadeite tracing"
@@ -156,6 +157,18 @@ JadeiteGCIConnectionProfile >> path: anObject [
 	path := anObject
 ]
 
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> port [
+
+	^ port
+]
+
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> port: anObject [
+
+	port := anObject
+]
+
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 
@@ -163,14 +176,22 @@ JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 ]
 
 { #category : 'actions' }
-JadeiteGCIConnectionProfile >> setupRSRConnection: session [ 
+JadeiteGCIConnectionProfile >> setupRSRConnection: session [
 	"Make and answer an RSR connection"
 
-	| detailBytes initiator thePort token |
+	| detailBytes initiator thePort token portString invalidPort |
+	invalidPort := false.
+	portString := (port isNil or: [
+		               port isEmpty or: [
+			               invalidPort := port asInteger isNil ] ])
+		              ifTrue: [ 'RsrAcceptConnection wildcardPort' ]
+		              ifFalse: [ port asString ].
+	invalidPort ifTrue: [
+		UIManager default inform: 'Invalid fixed port entered. Ignored.' ].
 	detailBytes := session
 		               executeStringAndFetchResultByteArray:
 			               '| acceptor port detailBytes |
-		acceptor := RsrGciAcceptConnection port: RsrAcceptConnection wildcardPort.
+		acceptor := RsrGciAcceptConnection port: ' , portString , '.
 		acceptor ensureListening.
 		SessionTemps current
 			at: #PendingConnectionAcceptor
@@ -202,7 +223,7 @@ JadeiteGCIConnectionProfile >> setupRSRConnection: session [
 		             host: host
 		             port: thePort
 		             token: token.
-	^initiator connect
+	^ initiator connect
 ]
 
 { #category : 'accessing' }

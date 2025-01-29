@@ -17,7 +17,8 @@ Class {
 		'lastConnection',
 		'lastImportedFileName',
 		'availableConnectionPresenter',
-		'displayFullPath'
+		'displayFullPath',
+		'portText'
 	],
 	#classVars : [
 		'ConnectionProfile',
@@ -51,13 +52,14 @@ JadeiteConnectionLauncher class >> importedConnections: aSpCollectionListModel [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> addStyle: style [
 
-	hostText addStyle: style. 
-	stoneText addStyle: style.  
-	userText addStyle: style. 
-	passwordText addStyle: style. 
-	versionText addStyle: style. 
-	netldiText addStyle: style. 
-	pathText addStyle: style. 
+	hostText addStyle: style.
+	stoneText addStyle: style.
+	userText addStyle: style.
+	passwordText addStyle: style.
+	versionText addStyle: style.
+	netldiText addStyle: style.
+	pathText addStyle: style.
+	portText addStyle: style.
 	availableConnectionPresenter addStyle: style
 ]
 
@@ -454,6 +456,15 @@ JadeiteConnectionLauncher >> initializePasswordPresenter [
 ]
 
 { #category : 'initialization' }
+JadeiteConnectionLauncher >> initializePortNumber [
+
+	self layout add: (self newLabel label: 'Fixed Port (leave blank for wildcard port)').
+	portText := self newTextInput.
+	portText enabled: false.
+	self layout add: portText
+]
+
+{ #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePresenter [
 	super initializePresenter. 
 	self populateTextFields.
@@ -471,6 +482,7 @@ JadeiteConnectionLauncher >> initializePresenters [
 	self initializeVersionPresenter.
 	self initializeNetldiPresenter.
 	self initializeClientLibPathPresenter.
+	self initializePortNumber. 
 	self initializeAvailableConnectionPresenter. 
 	self initializeButtons. 
 	self setFocusOrder
@@ -578,7 +590,8 @@ JadeiteConnectionLauncher >> populate: profile [
 		password: passwordText text;
 		version: versionText text;
 		netldi: netldiText text;
-		path: pathText text
+		path: pathText text ;
+		port: portText text
 ]
 
 { #category : 'actions' }

@@ -37,3 +37,29 @@ JadeiteForPharoLauncherTestCase >> test_closeDisconnects [
 	self assert: launcher window isClosed.
 	self deny: JadeiteConnectionProfile connectionProfile isConnected
 ]
+
+{ #category : 'tests' }
+JadeiteForPharoLauncherTestCase >> test_fixedPort [
+	| profile |
+	profile := JadeiteConnectionProfile connectionProfile.
+	profile disconnect.
+	self deny: profile isConnected.
+	profile port: '2000'. "1024 and above should always be valid"
+	profile connect.
+	self assert: profile isConnected.
+	profile disconnect.
+	
+	profile port: '1023'.
+	self should: [ profile connect ] raise: Error. 
+	self deny: profile isConnected.
+	
+	profile port: String new. 
+	profile connect.
+	self assert: profile isConnected.
+	profile disconnect.
+	
+	profile port: nil.
+	profile connect.
+	self assert: profile isConnected.
+	profile disconnect.
+]

@@ -373,8 +373,8 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 	self
 		installProjectFromPath: path
 		projectsHome: projectsHomePath
-		componentNames: #(  )
-		attributes: #(  )
+		componentNames: nil
+		attributes: nil
 		resolveStrict: false
 ]
 
