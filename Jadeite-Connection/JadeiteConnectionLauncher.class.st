@@ -611,7 +611,9 @@ JadeiteConnectionLauncher >> populateTextFields [
 	versionText text: self connectionProfile version.
 	netldiText text: self connectionProfile netldi.
 	pathText text: self connectionProfile path.
-	portText text: self connectionProfile port. 
+	self connectionProfile port
+		ifNil: [ portText text: String new ]
+		ifNotNil: [ portText text: self connectionProfile port ]
 ]
 
 { #category : 'actions' }
