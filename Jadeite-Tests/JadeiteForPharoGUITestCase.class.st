@@ -60,8 +60,19 @@ JadeiteForPharoGUITestCase >> tearDown [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> waitFor: aBlock errorMessage: errorString [
+
+	| sem |
+	sem := Semaphore new.
+	[
+	aBlock whileTrue: [ (Delay forMilliseconds: 1) wait ].
+	sem signal ] fork.
+	(sem waitTimeoutSeconds: 1) ifTrue: [ Error signal: errorString ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
-	"would really like a more determinate way of getting the write method list"
+	"would really like a more determinate way of getting the correct method list"
 
 	| existingMethodLists newMethodLists count |
 	RsrGarbageCollector maximumReclamation.
@@ -77,4 +88,23 @@ JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
 		(Delay forMilliseconds: 1) wait ].
 	newMethodLists removeAll: existingMethodLists.
 	methodListBrowser := newMethodLists first
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
+
+	| existingBrowsers newBrowsers count |
+	RsrGarbageCollector maximumReclamation.
+	existingBrowsers := JadeiteBrowser allInstances.
+	aBlock fork.
+	count := 0.
+	[
+	count > 100 or: [
+		(newBrowsers := JadeiteBrowser allInstances
+			                   asOrderedCollection) size
+		> existingBrowsers size ] ] whileFalse: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ].
+	newBrowsers removeAll: existingBrowsers.
+	projectsBrowser := newBrowsers first
 ]

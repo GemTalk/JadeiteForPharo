@@ -71,6 +71,19 @@ JadeiteForPharoInspectorTestCase >> selectInstVarAtIndex: index [
 ]
 
 { #category : 'support' }
+JadeiteForPharoInspectorTestCase >> selectSlotNamed: slotName [
+	"not sure if this is correct"
+
+	| array index |
+	inspector instVarListPresenter unselectAll.
+	array := inspector instVarListPresenter list detect: [
+		         :twoElementArray |
+		         (twoElementArray first copyWithout: $-) = slotName ].
+	index := inspector instVarListPresenter list indexOf: array.
+	inspector instVarListPresenter selectIndex: index
+]
+
+{ #category : 'support' }
 JadeiteForPharoInspectorTestCase >> tearDown [
 
 	super tearDown.
@@ -210,6 +223,31 @@ JadeiteForPharoInspectorTestCase >> test_browseProjects [
 
 	projectsBrowser := inspector openBrowser.
 	self assert: projectsBrowser isKindOf: JadeiteBrowser
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_browseSelectionClass [
+
+	| sem |
+	sem := Semaphore new.
+	self openWorkspaceAndInspect: 'RowanClassService new'.
+	self selectSlotNamed: 'isNewClass'.
+	self assert: inspector codePane text equals: 'false'.
+	self waitForNewBrowserWhile: [ inspector browseClassOfSelection ].
+	self assert: (projectsBrowser isKindOf: JadeiteBrowser).
+	self
+		waitFor: [ self projectsPresenter isNil ]
+		errorMessage: 'projectBrowser not built in time'.
+	self
+		waitFor: [
+		self projectsPresenter classListPresenter selectedItem isNil ]
+		errorMessage: 'class not found in time'.
+
+	self
+		assert: self projectsPresenter classListPresenter selectedItem name
+		equals: 'Boolean'.
+	self deny: self projectsPresenter isClassSideSelected.
+	self assert: self projectsPresenter isCategoryTabSelected
 ]
 
 { #category : 'tests' }

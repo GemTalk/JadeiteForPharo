@@ -46,7 +46,7 @@ JadeiteForPharoSettingsTestCase >> test_openBrowserOnClassSetting [
 	| prefs |
 	prefs := JadeitePreferences current.
 	prefs openBrowserOnClass: 'RowanService'.
-	self waitForBrowserWhile: [
+	self waitForNewBrowserWhile: [
 		JadeiteConnectionProfile connectionProfile connect.
 		self assert: JadeiteConnectionProfile connectionProfile isConnected ].
 	[
@@ -66,23 +66,8 @@ JadeiteForPharoSettingsTestCase >> test_openBrowserOnInvalidClassSetting [
 	| prefs |
 	prefs := JadeitePreferences current.
 	prefs openBrowserOnClass: 'GrumbleFlumps'. "should not exist"
-	self waitForBrowserWhile: [
+	self waitForNewBrowserWhile: [
 		JadeiteConnectionProfile connectionProfile connect ].
 	(Delay forSeconds: 1) wait. 
 	self assertIsNil: self projectsPresenter selectedClass
-]
-
-{ #category : 'support' }
-JadeiteForPharoSettingsTestCase >> waitForBrowserWhile: aBlock [
-
-	| existingBrowsers newBrowsers |
-	RsrGarbageCollector maximumReclamation.
-	existingBrowsers := JadeiteBrowser allInstances.
-	aBlock fork.
-	[
-	(newBrowsers := JadeiteBrowser allInstances asOrderedCollection) size
-	> existingBrowsers size ] whileFalse: [
-		(Delay forMilliseconds: 1) wait ].
-	newBrowsers removeAll: existingBrowsers.
-	projectsBrowser := newBrowsers first
 ]

@@ -93,7 +93,7 @@ JadeiteProjectsTrait >> basicPostOpen [
 
 	^ self postOpenBlock ifNotNil: [
 		  [ self postOpenBlock cull: self ] ensure: [
-			  self postOpenBlock: nil ] ]
+			  self postOpenBlock: [  ] ] ]
 ]
 
 { #category : 'actions' }

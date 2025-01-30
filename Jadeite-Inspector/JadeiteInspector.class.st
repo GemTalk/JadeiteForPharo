@@ -214,25 +214,24 @@ JadeiteInspector >> browseClassOfSelection [
 
 	| shell classService oop answeringService |
 	oop := self oopFromSelection.
-	RowanServiceUpdater current critical: [
-		answeringService := RowanAnsweringService new.
-		answeringService
-			exec:
-			'(Object _objectForOop: ' , oop printString
+
+	answeringService := RowanAnsweringService new.
+	answeringService
+		exec: '(Object _objectForOop: ' , oop printString
 			, ') class name asString subStrings first'
-			in: self gciSession
-			onCompletion: [  ].
-		className := answeringService answer.
-		classService := RowanClassService new
-			                name:
-				                (className copyFrom: 2 to: className size - 1);  "strip quotes"
-			               meta: false.
-		RowanServiceUpdater current
-			updateService: classService
-			session: gciSession
-			onCompletion: [ :svc |
-				shell := self openBrowser.
-				shell currentCard updateAfterFindClass: svc onCompletion: nil ] ]
+		in: self gciSession
+		onCompletion: [
+			className := answeringService answer.
+			classService := RowanClassService new
+				                name:
+					                (className copyFrom: 2 to: className size - 1);
+				                "strip quotes"meta: false.
+			RowanServiceUpdater current
+				updateService: classService
+				session: gciSession
+				onCompletion: [ :svc |
+					shell := self openBrowser.
+					shell currentCard updateAfterFindClass: svc onCompletion: [  ] ] ].
 ]
 
 { #category : 'testing' }
