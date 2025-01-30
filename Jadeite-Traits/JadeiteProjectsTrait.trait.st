@@ -376,22 +376,24 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 		componentNames: nil
 		attributes: nil
 		resolveStrict: false
+		alias: nil 
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: resolveStrict [
+JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: resolveStrict alias: alias [
 
 	| projectService |
 	projectService := RowanProjectService new.
 	projectService
 		command:
-			#installProjectFromFile:projectsHome:componentNames:attributes:resolveStrict:;
-		commandArgs: (Array
-				 with: 'file:' , path
-				 with: projectsHomePath
-				 with: componentNames
-				 with: attributes
-				 with: resolveStrict).
+			#installProjectFromFile:projectsHome:componentNames:attributes:resolveStrict:alias:;
+		commandArgs: {
+				('file:' , path).
+				projectsHomePath.
+				componentNames.
+				attributes.
+				resolveStrict.
+				alias }.
 	self issueCommand: projectService onCompletion: [  ]
 ]
 
