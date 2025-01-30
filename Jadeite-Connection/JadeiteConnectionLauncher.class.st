@@ -610,7 +610,8 @@ JadeiteConnectionLauncher >> populateTextFields [
 	passwordText text: self connectionProfile password.
 	versionText text: self connectionProfile version.
 	netldiText text: self connectionProfile netldi.
-	pathText text: self connectionProfile path
+	pathText text: self connectionProfile path.
+	portText text: self connectionProfile port. 
 ]
 
 { #category : 'actions' }
