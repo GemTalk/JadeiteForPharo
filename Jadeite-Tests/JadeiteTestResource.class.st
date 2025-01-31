@@ -107,8 +107,13 @@ JadeiteTestResource >> connectSignaling: sem [
 	  profile isConnected ifTrue: [ profile disconnect ].
 	  RowanTestServiceUpdater installTestUpdater.
 	  profile connect ] ensure: [
+		  | waitForConsoleSem |
+		  waitForConsoleSem := Semaphore new.
+		  [
 		  [ JadeiteConsole currentConsole ] whileNil: [
 			  (Delay forMilliseconds: 1) wait ].
+		  waitForConsoleSem signal ] fork.
+		  waitForConsoleSem waitTimeoutSeconds: 5.
 		  sem signal ]
 ]
 
@@ -209,7 +214,7 @@ JadeiteTestResource >> forceReconnect [
 	| sem |
 	sem := Semaphore new.
 	[ self connectSignaling: sem ] fork.
-	(sem waitTimeoutMilliseconds: 5000) ifTrue: [
+	(sem waitTimeoutSeconds: 5) ifTrue: [
 		Error signal: 'connection failed to complete' ]
 ]
 

@@ -36,8 +36,17 @@ JadeiteConnectionLauncher class >> addImportedConnection: filePath [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConnectionLauncher class >> importedConnections [
+JadeiteConnectionLauncher class >> addImportedConnections: directoryRef [
 
+	| fileRefs |
+	fileRefs := directoryRef files.
+	fileRefs do: [ :fileRef | self addImportedConnection: fileRef ].
+	^fileRefs
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteConnectionLauncher class >> importedConnections [
+	"ImportedConnections := nil"
 	^ ImportedConnections 
 ]
 
@@ -76,15 +85,30 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> basicImportProfile: fileStream [
+JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 
 	| connectionProfile |
-	connectionProfile := [ STON fromString: fileStream contents ]
-		                     ensure: [ fileStream close ].
+	connectionProfile := STON fromString: fileRef contents.
 	self clearConnectionSubscriptions.
 	JadeiteConnectionProfile connectionProfile: connectionProfile.
 	self populateTextFields.
 	self connectConnection
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> basicImportProfileDirectory: fileWindow [
+
+	| fileRefs |
+	fileRefs := self class addImportedConnections:
+		            fileWindow selectedDirectory item.
+	fileRefs do: [ :fileRef | self basicImportProfile: fileRef ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
+
+	self class addImportedConnection: fileWindow selectedPathName.
+	self basicImportProfile: FileReference / fileWindow selectedPathName
 ]
 
 { #category : 'actions' }
@@ -176,7 +200,7 @@ JadeiteConnectionLauncher >> connectPresenters [
 	self connectConnection.
 	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
 		self installImportedConnection: selection selectedItem.
-		self populateTextFields ]
+		]
 ]
 
 { #category : 'actions' }
@@ -282,26 +306,41 @@ JadeiteConnectionLauncher >> hostText: anObject [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> importProfile [
+JadeiteConnectionLauncher >> importProfileDirectory [
 
 	| fileStream fileWindow |
-	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
-		(UIManager default confirm:
-			 'Importing a connection will disconnect current connection. Continue?')
-			ifTrue: [ JadeiteConnectionProfile connectionProfile disconnect ]
-			ifFalse: [ ^ self ] ].
+	"confusing not to see files"
+	self possiblyDisconnect ifFalse: [ ^ self ].
+	fileWindow := FileDialogWindow basicNew.
+	fileWindow
+		previewType: nil;
+		initialize;
+		title: 'Select directory containing only connection profiles';
+		answerDirectory.
+	fileStream := fileWindow
+		              fileSelectionBlock:
+			              fileWindow defaultFileSelectionBlock;
+		              openModal;
+		              answer.
+	fileStream ifNil: [ ^ self ].
+	self basicImportProfileDirectory: fileWindow
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> importProfileFile [
+
+	| fileStream fileWindow |
+	self possiblyDisconnect ifFalse: [ ^ self ].
 	fileWindow := FileDialogWindow basicNew.
 	fileStream := fileWindow
 		              previewType: nil;
 		              initialize;
-		              title: 'Select connection profile to import';
+		              title: 'Select connection profile file to import';
 		              answerOpenFile;
 		              openModal;
 		              answer.
 	fileStream ifNil: [ ^ self ].
-	lastImportedFileName := fileWindow selectedFileName. 
-	self class addImportedConnection: fileWindow selectedPathName. 
-	self basicImportProfile: fileStream
+	self basicImportProfileFile: fileWindow
 ]
 
 { #category : 'initialization' }
@@ -410,7 +449,11 @@ JadeiteConnectionLauncher >> initializeFileMenu [
 		  addItem: [ :item |
 			  item
 				  name: 'Import Connection ...';
-				  action: [ self importProfile ] ];
+				  action: [ self importProfileFile ] ];
+		  addItem: [ :item |
+			  item
+				  name: 'Import Connection Directory...';
+				  action: [ self importProfileDirectory ] ];
 		  yourself
 ]
 
@@ -460,7 +503,6 @@ JadeiteConnectionLauncher >> initializePortNumber [
 
 	self layout add: (self newLabel label: 'Fixed Port (leave blank for wildcard port)').
 	portText := self newTextInput.
-	portText enabled: false.
 	self layout add: portText
 ]
 
@@ -527,11 +569,14 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> installImportedConnection: filePath [
 
-	| fileStream |
+	| fileStream fileRef |
+	fileRef := filePath asFileReference.
+	fileRef exists ifFalse: [ ^ self ].
 	fileStream := ZnCharacterReadStream
 		              on: filePath asFileReference binaryReadStream
 		              encoding: 'utf8'.
-	self basicImportProfile: fileStream
+	self basicImportProfile: fileStream.
+	self populateTextFields 
 ]
 
 { #category : 'accessing' }
@@ -614,6 +659,29 @@ JadeiteConnectionLauncher >> populateTextFields [
 	self connectionProfile port
 		ifNil: [ portText text: String new ]
 		ifNotNil: [ portText text: self connectionProfile port ]
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> portText [
+
+	^ portText
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> portText: anObject [
+
+	portText := anObject
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> possiblyDisconnect [
+
+	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
+		(UIManager default confirm:
+			 'Importing a connection will disconnect current connection. Continue?')
+			ifTrue: [ JadeiteConnectionProfile connectionProfile disconnect ]
+			ifFalse: [ ^ false ] ].
+	^ true
 ]
 
 { #category : 'actions' }

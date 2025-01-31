@@ -90,6 +90,7 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 	launcher versionText text: String new.
 	launcher netldiText text: String new.
 	launcher pathText text: String new.
+	launcher portText text: String new.
 
 	launcher basicImportProfile: fileRef readStream.
 
@@ -100,6 +101,7 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 	self assert: launcher versionText text equals: profile version.
 	self assert: launcher netldiText text equals: profile netldi.
 	self assert: launcher pathText text equals: profile path.
+	self assert: launcher portText text equals: profile port.
 	launcher connect.
 	self assert: launcher connectionProfile isConnected
 ]

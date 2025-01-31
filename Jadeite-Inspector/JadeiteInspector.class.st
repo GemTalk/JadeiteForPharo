@@ -502,7 +502,7 @@ JadeiteInspector >> initializeInstVarContextMenu [
 				group
 					addItem: [ :item |
 						item
-							name: 'Browse Selection';
+							name: 'Browse Selection Class';
 							shortcut: $b meta;
 							action: [ self browseClassOfSelection ];
 							enabled: (self isSelfOrNoncomputed and: [
