@@ -38,8 +38,9 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 	launchers
 		ifEmpty: [ JadeiteConnectionApplication new start ]
 		ifNotEmpty: [
-			(launchers noneSatisfy: [ :launcher | launcher window isOpen ])
-				ifTrue: [ JadeiteConnectionApplication new start ] ]
+			(launchers noneSatisfy: [ :launcher |
+				 launcher window isNil or: [ launcher window isOpen ] ]) ifTrue: [
+				JadeiteConnectionApplication new start ] ]
 ]
 
 { #category : 'support' }

@@ -50,6 +50,7 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath:
 		^ answer ].
 	inst := self createDialogOn: aGciSession path: path.
 	inst shellName: shellName.
+	inst application: JadeiteSpApplication new.
 	modal := inst asModalWindow.
 	inst initializeWith: path.
 	answer := modal open.

@@ -22,15 +22,6 @@ JadeiteServerFileSaveDialog class >> instantiateOnSession: aGciSession initialFi
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteServerFileSaveDialog class >> showNonModalOnSession: aGciSession initialFileName: fileName [
-	| inst |
-	"for testing only"
-	inst := self instantiateOnSession: aGciSession initialFileName: fileName.
-	inst show.
-	^inst
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath: path [
 	"assumes path is a full path + file name" 
 	| inst answer  |
@@ -49,7 +40,8 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: pat
 	(ProvideAnswerNotification signal: path) ifNotNil: [ :theAnswer |
 		^ theAnswer ].
 	inst := self createDialogOn: aGciSession path: path.
-	modal := inst asModalWindow.
+	modal := (inst application: JadeiteSpApplication new) asModalWindow.
+	modal centered.
 	inst initializeWith: path fileName: fileName.
 	answer := modal open.
 	answer cancelled ifTrue: [ ^ nil ].
