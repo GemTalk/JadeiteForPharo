@@ -9,7 +9,7 @@ Class {
 	#package : 'Jadeite-FileDialog'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> _showOnSession: aGciSession defaultPath: path shellName: shellName [
 	"private for testing - return the dialog instead of the answer and  do not open modal"
 	| inst theWindow answer |
@@ -22,7 +22,7 @@ JadeiteServerFileSelectorDialog class >> _showOnSession: aGciSession defaultPath
 	^ inst
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path [
 
 	| service inst |
@@ -32,22 +32,22 @@ JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path 
 	^ inst
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession [
 	^self showOnSession: aGciSession defaultPath: JadePresenter rowanProjectsHomeEnvVarString
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: path [
 	^self showOnSession: aGciSession defaultPath: path shellName: nil
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: path shellName: shellName [
 
 	| inst modal answer |
-	(ProvideAnswerNotification signal: path) ifNotNil: [ :answer |
-		^ answer ].
+	(ProvideAnswerNotification signal: path) ifNotNil: [ :theAnswer |
+		^ theAnswer ].
 	inst := self createDialogOn: aGciSession path: path.
 	inst shellName: shellName.
 	inst application: JadeiteSpApplication new.
