@@ -144,8 +144,7 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 
 	| fileRefs |
 	self class lastImportDirectory: directoryRef asAbsolute asText.
-	fileRefs := self class addImportedConnections:
-		            directoryRef asFileReference.
+	fileRefs := self class addImportedConnections: directoryRef.
 	fileRefs do: [ :fileRef | self basicImportProfile: fileRef ].
 	availableConnectionPresenter model collection reSort
 ]
@@ -757,7 +756,7 @@ JadeiteConnectionLauncher >> refreshFromLastImportDirectory [
 
 	self class lastImportDirectory ifNil: [
 		^UIManager default alert: 'Need to import from a directory first' ].
-	self basicImportProfileDirectory: self class lastImportDirectory
+	self basicImportProfileDirectory: self class lastImportDirectory asFileReference
 ]
 
 { #category : 'connections' }

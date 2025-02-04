@@ -177,8 +177,8 @@ JadeiteForPharoLauncherTestCase >> test_importFromDirectory [
 
 	self createConnectionProfileDirectory.
 	launcher basicImportProfileDirectory:
-		self testConnectionDirName asFileReference.
-	self verifyAllTestConnectionsImported 
+		self testConnectionDirName asFileReference asAbsolute.
+	self verifyAllTestConnectionsImported
 ]
 
 { #category : 'tests' }
