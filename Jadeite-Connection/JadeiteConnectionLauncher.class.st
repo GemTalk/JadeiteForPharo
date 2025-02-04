@@ -65,6 +65,13 @@ JadeiteConnectionLauncher class >> importedConnections [
 ]
 
 { #category : 'accessing' }
+JadeiteConnectionLauncher class >> importedConnections: connections [
+	"for testing only"
+
+	ImportedConnections := connections
+]
+
+{ #category : 'accessing' }
 JadeiteConnectionLauncher class >> lastImportDirectory [
 
 	^LastImportDirectory
@@ -102,6 +109,12 @@ JadeiteConnectionLauncher >> addStyle: style [
 	availableConnectionPresenter addStyle: style
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> availableConnectionPresenter [
+
+	^ availableConnectionPresenter
+]
+
 { #category : 'connections' }
 JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 
@@ -130,6 +143,7 @@ JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 
 	| fileRefs |
+	self class lastImportDirectory: directoryRef asAbsolute asText.
 	fileRefs := self class addImportedConnections:
 		            directoryRef asFileReference.
 	fileRefs do: [ :fileRef | self basicImportProfile: fileRef ].
@@ -153,6 +167,12 @@ JadeiteConnectionLauncher >> basicNewConnection [
 	passwordText text: String new.
 	versionText text: String new.
 	netldiText text: String new
+]
+
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> basicRemoveAllConnections [
+
+	availableConnectionPresenter model removeAll
 ]
 
 { #category : 'testing' }
@@ -357,7 +377,6 @@ JadeiteConnectionLauncher >> importProfileDirectory [
 		                openModal;
 		                answer.
 	directoryRef ifNil: [ ^ self ].
-	self class lastImportDirectory: directoryRef asText.
 	self basicImportProfileDirectory: directoryRef
 ]
 
@@ -746,7 +765,7 @@ JadeiteConnectionLauncher >> removeAllConnections [
 
 	(UIManager default confirm: 'Really remove all imported connections?')
 		ifFalse: [ ^ self ].
-	availableConnectionPresenter model removeAll
+	self basicRemoveAllConnections
 ]
 
 { #category : 'connections' }
