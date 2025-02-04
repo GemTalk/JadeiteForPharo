@@ -14,6 +14,14 @@ ListModel class >> new [
 ]
 
 { #category : 'instance creation' }
+ListModel class >> newSorted: anObject [
+
+	^ self basicNew
+		  collection: SortedCollection new;
+		  yourself
+]
+
+{ #category : 'instance creation' }
 ListModel class >> withAll: aCollection [
 
 	^self on: aCollection 
@@ -108,14 +116,6 @@ ListModel >> reject: aBlock [
 { #category : 'removing' }
 ListModel >> remove: anObject [
 
-	(collection isKindOf: Array) ifTrue: [
-		Transcript
-			cr;
-			show: 'ListModel list is an Array again. :(';
-			tab;
-			print: collection;
-			flush.
-		collection := collection asOrderedCollection ]. "yuck - still can't find the source of these Arrays"
 	collection remove: anObject.
 	self announcer announce: (ValueChanged newValue: self)
 ]
@@ -127,12 +127,10 @@ ListModel >> remove: anObject ifAbsent: absentBlock [
 
 { #category : 'removing' }
 ListModel >> removeAll [
-	
-	collection := OrderedCollection new. "Must not be an Array so can be collection can be added to"
-	
+
+	collection removeAll.
 	self refreshList.
 	self announcer announce: (ValueChanged newValue: self)
-		
 ]
 
 { #category : 'removing' }

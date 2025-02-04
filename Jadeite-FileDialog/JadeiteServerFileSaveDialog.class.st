@@ -65,12 +65,6 @@ JadeiteServerFileSaveDialog >> answer [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteServerFileSaveDialog >> createComponents [
-	super createComponents.
-	fileNamePresenter := self add: TextPresenter new name: 'fileName'.
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteServerFileSaveDialog >> fileNamePresenter [
 	^fileNamePresenter
 ]
