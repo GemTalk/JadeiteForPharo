@@ -257,13 +257,14 @@ RowanProjectService >> gitBranches: session onCompletion: completionBlock [
 		issueCommand: query
 		session: session
 		onCompletion: [
-			branchString := query answer.
-			branches := branchString subStrings: { Character lf }.
-			branches := branches
-				            reject: [ :string | '*HEAD*' match: string ]
-				            thenCollect: [ :string |
-				            string copyWithout: Character space ].
-			completionBlock value: branches ]
+			query answer ifNotNil: [
+				branchString := query answer.
+				branches := branchString subStrings: { Character lf }.
+				branches := branches
+					            reject: [ :string | '*HEAD*' match: string ]
+					            thenCollect: [ :string |
+					            string copyWithout: Character space ].
+				completionBlock value: branches ] ]
 ]
 
 { #category : 'presenter support' }

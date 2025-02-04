@@ -282,11 +282,12 @@ JadeiteProjectsTrait >> gitCheckoutTag: projectService [
 
 	| choice |
 	projectService gitTags: self gciSession onCompletion: [ :tags |
-		choice := self
-			          selectStringFromList: tags
-			          title: 'Jadeite Checkout Git Tag'.
-		choice ifNotNil: [
-			self basicCheckoutTag: choice for: projectService ] ]
+		tags ifNotNil: [
+			choice := self
+				          selectStringFromList: tags
+				          title: 'Jadeite Checkout Git Tag'.
+			choice ifNotNil: [
+				self basicCheckoutTag: choice for: projectService ] ] ]
 ]
 
 { #category : 'actions' }
