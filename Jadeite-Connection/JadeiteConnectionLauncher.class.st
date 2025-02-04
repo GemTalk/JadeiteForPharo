@@ -22,7 +22,8 @@ Class {
 	],
 	#classVars : [
 		'ConnectionProfile',
-		'ImportedConnections'
+		'ImportedConnections',
+		'LastImportDirectory'
 	],
 	#category : 'Jadeite-Connection',
 	#package : 'Jadeite-Connection'
@@ -45,13 +46,40 @@ JadeiteConnectionLauncher class >> addImportedConnections: directoryRef [
 	^ fileRefs
 ]
 
-{ #category : 'connections' }
+{ #category : 'defaults' }
+JadeiteConnectionLauncher class >> defaultConnectionSortBlock [
+
+	^ [ :x :y | (self shortPathFor: x) < (self shortPathFor: y) ]
+]
+
+{ #category : 'accessing' }
 JadeiteConnectionLauncher class >> importedConnections [
 
+	(ImportedConnections collection isKindOf: SortedCollection) ifFalse: [
+		| new |
+		new := self newImportedConnections.
+		new addAll: ImportedConnections.
+		ImportedConnections := new ].
 	^ ImportedConnections ifNil: [
-		  ImportedConnections := ListModel newSorted: [ :x :y |
-			                         (self shortPathFor: x)
-			                         < (self shortPathFor: y) ] ]
+		  ImportedConnections := self newImportedConnections ]
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> lastImportDirectory [
+
+	^LastImportDirectory
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> lastImportDirectory: pathString [
+
+	LastImportDirectory := pathString
+]
+
+{ #category : 'connections' }
+JadeiteConnectionLauncher class >> newImportedConnections [
+
+	^ ListModel newSorted: self defaultConnectionSortBlock
 ]
 
 { #category : 'connections' }
@@ -74,7 +102,7 @@ JadeiteConnectionLauncher >> addStyle: style [
 	availableConnectionPresenter addStyle: style
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 
 	| profileCopy ws |
@@ -86,7 +114,7 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 	ws flush ] ensure: [ ws close ]
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 
 	| connectionProfile |
@@ -98,16 +126,17 @@ JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 	availableConnectionPresenter model collection reSort
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 
 	| fileRefs |
-	fileRefs := self class addImportedConnections: directoryRef.
+	fileRefs := self class addImportedConnections:
+		            directoryRef asFileReference.
 	fileRefs do: [ :fileRef | self basicImportProfile: fileRef ].
 	availableConnectionPresenter model collection reSort
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
 
 	self class addImportedConnection:
@@ -280,7 +309,7 @@ JadeiteConnectionLauncher >> enableButtons [
 	disconnectButton enabled: self connectionProfile connection notNil
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> exportProfile [
 
 	| fileRef |
@@ -309,7 +338,7 @@ JadeiteConnectionLauncher >> hostText: anObject [
 	hostText := anObject
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> importProfileDirectory [
 
 	| directoryRef fileWindow |
@@ -321,26 +350,31 @@ JadeiteConnectionLauncher >> importProfileDirectory [
 		initialize;
 		title: 'Select directory containing only connection profiles';
 		answerDirectory.
+	fileWindow fileSelectionBlock: fileWindow defaultFileSelectionBlock.
+	self class lastImportDirectory ifNotNil: [ :dir |
+		fileWindow selectDirectory: dir asFileReference ].
 	directoryRef := fileWindow
-		              fileSelectionBlock:
-			              fileWindow defaultFileSelectionBlock;
-		              openModal;
-		              answer.
+		                openModal;
+		                answer.
 	directoryRef ifNil: [ ^ self ].
+	self class lastImportDirectory: directoryRef asText.
 	self basicImportProfileDirectory: directoryRef
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> importProfileFile [
 
 	| fileStream fileWindow |
 	self possiblyDisconnect ifFalse: [ ^ self ].
 	fileWindow := FileDialogWindow basicNew.
+	fileWindow
+		previewType: nil;
+		initialize;
+		title: 'Select connection profile file to import';
+		answerOpenFile.
+	self class lastImportDirectory ifNotNil: [ :dir |
+		fileWindow selectDirectory: dir asFileReference ].
 	fileStream := fileWindow
-		              previewType: nil;
-		              initialize;
-		              title: 'Select connection profile file to import';
-		              answerOpenFile;
 		              openModal;
 		              answer.
 	fileStream ifNil: [ ^ self ].
@@ -422,19 +456,26 @@ JadeiteConnectionLauncher >> initializeConnectionsMenu [
 
 	| menu |
 	menu := self newMenu.
-	menu
-		addItem: [ :item |
-			item
-				name: 'Toggle Full Path Display';
-				action: [ self toggleFullPathDisplay ] ];
-		addItem: [ :item |
-			item
-				name: 'Remove Connection';
-				action: [ self removeSelectedConnection ] ];
-		addItem: [ :item |
-			item
-				name: 'Remove All Connections';
-				action: [ self removeAllConnections ] ].
+	menu addGroup: [ :group |
+		group
+			addItem: [ :item |
+				item
+					name: 'Toggle Full Path Display';
+					action: [ self toggleFullPathDisplay ] ];
+			addItem: [ :item |
+				item
+					name: 'Refresh from last Import Directory';
+					action: [ self refreshFromLastImportDirectory ] ] ].
+	menu addGroup: [ :group |
+		group
+			addItem: [ :item |
+				item
+					name: 'Remove Connection';
+					action: [ self removeSelectedConnection ] ];
+			addItem: [ :item |
+				item
+					name: 'Remove All Connections';
+					action: [ self removeAllConnections ] ] ].
 	^ menu
 ]
 
@@ -574,7 +615,7 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> installImportedConnection: filePath [
 
 	| fileStream fileRef |
@@ -692,16 +733,23 @@ JadeiteConnectionLauncher >> possiblyDisconnect [
 	^ true
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> refreshFromLastImportDirectory [
+
+	self class lastImportDirectory ifNil: [
+		^UIManager default alert: 'Need to import from a directory first' ].
+	self basicImportProfileDirectory: self class lastImportDirectory
+]
+
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> removeAllConnections [
 
 	(UIManager default confirm: 'Really remove all imported connections?')
 		ifFalse: [ ^ self ].
-		self halt. 
 	availableConnectionPresenter model removeAll
 ]
 
-{ #category : 'actions' }
+{ #category : 'connections' }
 JadeiteConnectionLauncher >> removeSelectedConnection [
 
 	(UIManager default confirm: 'Really remove imported connection?')

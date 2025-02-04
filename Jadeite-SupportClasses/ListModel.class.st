@@ -14,10 +14,10 @@ ListModel class >> new [
 ]
 
 { #category : 'instance creation' }
-ListModel class >> newSorted: anObject [
+ListModel class >> newSorted: sortBlock [
 
 	^ self basicNew
-		  collection: SortedCollection new;
+		  collection: (SortedCollection sortBlock: sortBlock);
 		  yourself
 ]
 
