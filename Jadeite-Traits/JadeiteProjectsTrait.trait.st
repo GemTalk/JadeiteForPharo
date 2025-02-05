@@ -214,7 +214,7 @@ JadeiteProjectsTrait >> fileoutProject [
 
 	| service filePath |
 	service := self projectListPresenter selectedItem.
-	filePath := self fileoutFileSelection: service name.
+	filePath := self fileoutFileSelection: service name , '.gs'.
 	filePath ifNotNil: [
 		service
 			command: #exportTopazFormatTo:;

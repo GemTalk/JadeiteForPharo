@@ -95,6 +95,7 @@ RowanProjectService >> basicChangesUsing: session onCompletion: completionBlock 
 
 	| operations |
 	command := #changes.
+	commandArgs := Array new. 
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session

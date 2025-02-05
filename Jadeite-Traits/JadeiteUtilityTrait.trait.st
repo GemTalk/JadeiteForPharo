@@ -17,6 +17,8 @@ JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
 		            defaultPath: JadePresenter lastSavePath
 		            defaultFileName: defaultFileName.
 	^ filePath ifNotNil: [
+		  filePath asFileReference extension isEmpty ifTrue: [
+			  filePath := filePath , '.gs' ].
 		  JadePresenter lastSavePath:
 			  (FileReference / filePath) parent pathString.
 		  filePath ]

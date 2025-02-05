@@ -78,13 +78,15 @@ JadeiteServerFileSaveDialog >> goto [
 { #category : 'initialization' }
 JadeiteServerFileSaveDialog >> initializeFileNamePresenter [
 
+	| box |
+	box := SpBoxLayout newHorizontal.
+	box add: (self newLabel label: 'File Name:   ') centered expand: false.
 	fileNamePresenter := SpTextPresenter new
 		                     beNotWrapWord;
 		                     withoutScrollBars.
 	fileNamePresenter addStyle: 'jadeiteTextBackgroundColor'.
-	self layout
-		add: fileNamePresenter
-		withConstraints: [ :c | c height: 30 ]
+	box add: fileNamePresenter.
+	self layout add: box withConstraints: [ :c | c height: 30 ]
 ]
 
 { #category : 'initialization' }

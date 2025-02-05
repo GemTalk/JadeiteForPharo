@@ -55,7 +55,7 @@ JadeitePackageTrait >> fileoutPackage [
 
 	| service filePath |
 	service := self packageListPresenter selectedItem.
-	filePath := self fileoutFileSelection: service name.
+	filePath := self fileoutFileSelection: service name, '.gs'.
 	filePath ifNotNil: [
 		service
 			command: #exportTopazFormatTo:;
