@@ -55,13 +55,17 @@ JadeiteConnectionLauncher class >> defaultConnectionSortBlock [
 { #category : 'accessing' }
 JadeiteConnectionLauncher class >> importedConnections [
 
-	(ImportedConnections collection isKindOf: SortedCollection) ifFalse: [
-		| new |
-		new := self newImportedConnections.
-		new addAll: ImportedConnections.
-		ImportedConnections := new ].
-	^ ImportedConnections ifNil: [
-		  ImportedConnections := self newImportedConnections ]
+	ImportedConnections
+		ifNil: [ ImportedConnections := self newImportedConnections ]
+		ifNotNil: [
+			(ImportedConnections collection isKindOf: SortedCollection)
+				ifFalse: [
+					| new |
+					ImportedConnections ifNotNil: [
+						new := self newImportedConnections.
+						new addAll: ImportedConnections.
+						ImportedConnections := new ] ] ].
+	^ ImportedConnections
 ]
 
 { #category : 'accessing' }
