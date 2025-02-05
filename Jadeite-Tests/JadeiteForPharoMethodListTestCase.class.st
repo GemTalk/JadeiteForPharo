@@ -219,6 +219,25 @@ JadeiteForPharoMethodListTestCase >> test_browseInstVarWriters [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseSelectedMethods [
+
+	| methodCount firstMethodListBrowser |
+	self openMethodListBrowserOfImplementorsOf: 'size'.
+	firstMethodListBrowser := methodListBrowser.
+	methodCount := methodListBrowser methodListPresenter items size.
+	methodListBrowser methodListPresenter selectAll.
+	self waitForMethodListBrowserWhile: [
+		methodListBrowser browseSelectedMethods ].
+	[
+	self
+		assert: methodListBrowser methodListPresenter items size
+		equals: methodCount.
+	methodListBrowser methodListPresenter items do: [ :methodService |
+		self assert: methodService selector equals: 'size' ] ] ensure: [
+		self destroy: firstMethodListBrowser ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 
 	self

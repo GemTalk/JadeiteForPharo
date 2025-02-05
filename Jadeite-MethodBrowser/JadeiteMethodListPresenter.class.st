@@ -464,6 +464,12 @@ JadeiteMethodListPresenter >> selectedClassName [
 	^methodListPresenter methodListPresenter list first className
 ]
 
+{ #category : 'selections' }
+JadeiteMethodListPresenter >> selectedPackageServices [
+
+	^ Array new
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> selecting: index [
 
