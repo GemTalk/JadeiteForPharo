@@ -13,13 +13,6 @@ RubAbstractTextArea >> newJadeiteEditor [
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
-RubAbstractTextArea >> recomputeSelection [
-	"Jadeite override - stop the big red box"
-
-	[self markIndex: self markIndex pointIndex: self pointIndex] on: Error do:[^self]
-]
-
-{ #category : '*Jadeite-BaseExtensions' }
 RubAbstractTextArea >> segments: aCollection [ 
 
 	segments := aCollection
