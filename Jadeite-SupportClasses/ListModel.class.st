@@ -116,13 +116,7 @@ ListModel >> reject: aBlock [
 { #category : 'removing' }
 ListModel >> remove: anObject [
 
-	(collection isKindOf: Array) ifTrue: [self halt. 
-		Transcript
-			cr;
-			show: 'ListModel list is an Array again. :(';
-			tab;
-			print: collection;
-			flush.
+	collection isArray ifTrue: [
 		collection := collection asOrderedCollection ]. "yuck - still can't find the source of these Arrays"
 	collection remove: anObject.
 	self announcer announce: (ValueChanged newValue: self)
@@ -136,7 +130,7 @@ ListModel >> remove: anObject ifAbsent: absentBlock [
 { #category : 'removing' }
 ListModel >> removeAll [
 
-	(collection isKindOf: Array) ifTrue: [self halt. 
+	collection isArray ifTrue: [
 		collection := collection asOrderedCollection "yuck - still can't find the source of these Arrays" ].
 	collection removeAll.
 	self refreshList.

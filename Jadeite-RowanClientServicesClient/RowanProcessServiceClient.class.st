@@ -40,20 +40,24 @@ RowanProcessServiceClient >> debugger [
 { #category : 'debugger' }
 RowanProcessServiceClient >> openDebugger [
 
-	| activeProcess |
+	| activeProcess debuggerApplication |
 	activeProcess := Processor activeProcess.
-	debugger := JadeiteDebuggerApplication showOnSession:
-		            GciSession current library.
+	debuggerApplication := JadeiteDebuggerApplication new gciSession:
+		                       GciSession current.
+	debuggerApplication gciSession library: GciSession current library.
+	debugger := debuggerApplication new: JadeiteDebuggerPresenter.
 	debugger
 		suspendedProcess: activeProcess;
 		gsProcess: self.
+	debugger
+		addStyle: 'jadeiteTextBackgroundColor';
+		gciSession: GciSession current.
 	debugger errorMessagePresenter text: errorMessage.
-	1 to: frames size do: [ :index | 
-		(frames at: index) index: index
-		].
+	1 to: frames size do: [ :index | (frames at: index) index: index ].
 	debugger frameListPresenter items: frames.
 	debugger selectInitialFrame.
 	self class debuggedProcessServices add: self.
+	UIManager default defer: [ debugger open ].
 	activeProcess suspend.
 	^ debugger answer
 ]
