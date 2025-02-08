@@ -6,7 +6,8 @@ Class {
 	#instVars : [
 		'tabs',
 		'toolbar',
-		'postOpenBlock'
+		'postOpenBlock',
+		'waitButton'
 	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
@@ -41,6 +42,7 @@ JadeiteBrowser >> activePresenter [
 { #category : 'initialization' }
 JadeiteBrowser >> addStyle: aString [
 	super addStyle: aString. 
+	waitButton addStyle: aString. 
 	self cards do:[:notebookPage |
 		notebookPage activePresenter ifNotNil: [ :presenter |
 		presenter addStyle: aString ]]
@@ -230,7 +232,22 @@ JadeiteBrowser >> initializePresenters [
 	self openNewBrowserTab.
 	self layout add: tabs.
 	self initializeAutoCommitPresenter.
+	self initializeWaitPresenter. 
 	self initializeBindings
+]
+
+{ #category : 'initialization' }
+JadeiteBrowser >> initializeWaitPresenter [
+
+	| box |
+	box := SpBoxLayout newHorizontal.
+	waitButton := self newText text: 'Wait!'. 
+	waitButton beNotEditable. 
+	box add: waitButton withConstraints: [ :constraints |
+		constraints
+			height: 3 * StandardFonts defaultFont pointSize;
+			width: 20 * StandardFonts defaultFont pointSize ].
+	self layout add: box expand: false
 ]
 
 { #category : 'initialization' }
