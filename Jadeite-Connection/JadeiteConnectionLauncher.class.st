@@ -423,7 +423,7 @@ JadeiteConnectionLauncher >> initializeAboutMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 
-	self layout add: (self newLabel label: 'Imported Connections:').
+	self layout add: (self newLabel label: 'Imported Connections List:').
 	availableConnectionPresenter := JadeiteListPresenter new
 		                                display: [ :filePath |
 			                                displayFullPath
