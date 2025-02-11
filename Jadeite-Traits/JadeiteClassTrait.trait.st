@@ -127,7 +127,7 @@ JadeiteClassTrait >> findClass [
 				classService := RowanClassService new
 					                name: selection;
 					                meta: false.
-			self findClassService: classService  ] ]
+				self findClassService: classService ] ]
 ]
 
 { #category : 'private' }

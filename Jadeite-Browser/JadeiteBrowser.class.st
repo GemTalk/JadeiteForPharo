@@ -6,8 +6,7 @@ Class {
 	#instVars : [
 		'tabs',
 		'toolbar',
-		'postOpenBlock',
-		'waitButton'
+		'postOpenBlock'
 	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
@@ -42,7 +41,7 @@ JadeiteBrowser >> activePresenter [
 { #category : 'initialization' }
 JadeiteBrowser >> addStyle: aString [
 	super addStyle: aString. 
-	waitButton addStyle: aString. 
+	waitIndicator addStyle: aString. 
 	self cards do:[:notebookPage |
 		notebookPage activePresenter ifNotNil: [ :presenter |
 		presenter addStyle: aString ]]
@@ -225,29 +224,15 @@ JadeiteBrowser >> initializeMenubar [
 
 { #category : 'initialization' }
 JadeiteBrowser >> initializePresenters [
-
+ 	| waitBox | 
 	super initializePresenters.
-	"self initializeToolbar."
 	tabs := self instantiate: JadeiteNotebookPresenter.
 	self openNewBrowserTab.
+	waitBox := self initializeWaitPresenter.
+	self layout add: waitBox expand: false. 
 	self layout add: tabs.
 	self initializeAutoCommitPresenter.
-	self initializeWaitPresenter. 
 	self initializeBindings
-]
-
-{ #category : 'initialization' }
-JadeiteBrowser >> initializeWaitPresenter [
-
-	| box |
-	box := SpBoxLayout newHorizontal.
-	waitButton := self newText text: 'Wait!'. 
-	waitButton beNotEditable. 
-	box add: waitButton withConstraints: [ :constraints |
-		constraints
-			height: 3 * StandardFonts defaultFont pointSize;
-			width: 20 * StandardFonts defaultFont pointSize ].
-	self layout add: box expand: false
 ]
 
 { #category : 'initialization' }
@@ -366,6 +351,12 @@ JadeiteBrowser >> projectListPresenter [
 	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteBrowser >> redrawWaitButton [
+
+	waitIndicator withAdapterDo: [ :a | a widgetDo: [ :w | w changed ] ]
+]
+
 { #category : 'testing' }
 JadeiteBrowser >> removeClass [
 
@@ -387,6 +378,20 @@ JadeiteBrowser >> selectedClassTab [
 { #category : 'constants' }
 JadeiteBrowser >> shellName [
 	^'Jadeite Browser '
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowser >> showNotWait [
+
+	waitIndicator ifNotNil: [ :indicator | indicator hide ].
+	WorldMorph doOneCycle
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowser >> showWait [
+
+	waitIndicator ifNotNil: [ :indicator | indicator show ].
+	WorldMorph doOneCycle
 ]
 
 { #category : 'accessing' }

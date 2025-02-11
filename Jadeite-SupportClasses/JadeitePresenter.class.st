@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeitePresenter',
 	#superclass : 'SpPresenter',
+	#instVars : [
+		'waitIndicator'
+	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
@@ -32,6 +35,18 @@ JadeitePresenter >> commitTransaction [
 	^self application commitTransaction
 ]
 
+{ #category : 'initialization' }
+JadeitePresenter >> initializeWaitPresenter [
+
+	| box |
+	box := SpBoxLayout newVertical.
+	waitIndicator := self newProgressBar.
+	waitIndicator indeterminate.
+	box add: waitIndicator withConstraints: [ :constraints |
+		constraints height: 3 * StandardFonts defaultFont pointSize ].
+	^ box
+]
+
 { #category : 'actions' }
 JadeitePresenter >> preUpdate: services [
 ]
@@ -45,6 +60,18 @@ JadeitePresenter >> shellName [
 
 	self subclassResponsibility
 
+]
+
+{ #category : 'constants' }
+JadeitePresenter >> showNotWait [
+
+	
+]
+
+{ #category : 'constants' }
+JadeitePresenter >> showWait [
+
+	
 ]
 
 { #category : 'initialization' }

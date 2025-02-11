@@ -85,7 +85,7 @@ RowanService class >> templateClassName [
 	^#RowanService
 ]
 
-{ #category : 'service completion' }
+{ #category : 'completion blocks' }
 RowanService >> _handleServiceCompletionBlock [
 
 	self serviceCompletionBlock ifNil: [
@@ -273,11 +273,14 @@ RowanService >> handleCompileError: compileError [
 	compileError pass
 ]
 
-{ #category : 'service completion' }
+{ #category : 'completion blocks' }
 RowanService >> handleServiceCompletion [
 
 	self serviceCompletionBlock ifNotNil: [
-		self _handleServiceCompletionBlock ]
+		| block |
+		block := self serviceCompletionBlock. "put in temp because it gets nil'd"
+		self _handleServiceCompletionBlock.
+		RowanServiceUpdater current commandCompleted: block ]
 ]
 
 { #category : 'inCommand' }
@@ -778,13 +781,13 @@ RowanService >> rowanPostUpdate [
 	
 ]
 
-{ #category : 'service completion' }
+{ #category : 'completion blocks' }
 RowanService >> serviceCompletionBlock [
 	"only some subclasses have serviceCompletionBlock"
 	^nil
 ]
 
-{ #category : 'service completion' }
+{ #category : 'completion blocks' }
 RowanService >> serviceCompletionBlock: anObject [
 	"only some subclasses have serviceCompletionBlock"
 

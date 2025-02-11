@@ -2091,7 +2091,7 @@ JadeiteBrowserPresenter >> makeSameSelectionsIn: newPresenter as: previousPresen
 				newPresenter gotoDictionaryNamed: dictionaryService name ] ]
 		ifNotNil: [ newPresenter gotoPackageNamed: packageService name ].
 	classService ifNil: [ ^ self ].
-	newPresenter updateAfterFindClass: classService onCompletion: nil.
+	newPresenter updateAfterFindClass: classService onCompletion: [].
 	previousPresenter isHierarchyTabSelected ifTrue: [
 		newPresenter classHierarchyTabs lastCard ].
 	isMeta ifTrue: [ newPresenter setClassSide ].

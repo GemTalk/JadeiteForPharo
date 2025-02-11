@@ -15,7 +15,8 @@ Class {
 		'returnedServices',
 		'postCompletionBlock',
 		'serviceQueueSemaphore',
-		'singleThreaded'
+		'singleThreaded',
+		'commandsStarted'
 	],
 	#classVars : [
 		'Current'
@@ -64,6 +65,7 @@ RowanServiceUpdater class >> uninstallTestUpdater [
 RowanServiceUpdater >> _basicIssueCommand: service [
 
 	| postExecutionBlock |
+	self startCommandProgressBar: service.
 	service commandArgs ifNil: [ service commandArgs: Array new ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
@@ -79,7 +81,9 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
-			                      service inCommand signal ] ].
+			                      service inCommand signal.
+			                      self stopCommandProgressBar: service ].
+	                      self stopCommandProgressBar: service ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.
@@ -177,6 +181,22 @@ RowanServiceUpdater >> breakpointsEnabled [
 { #category : 'accessing' }
 RowanServiceUpdater >> breakpointsEnabled: anObject [
 	breakpointsEnabled := anObject
+]
+
+{ #category : 'progress indication' }
+RowanServiceUpdater >> commandCompleted: aBlock [
+
+	self commandsStarted remove: aBlock ifAbsent: [  ].
+	self commandsStarted ifEmpty: [
+		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+			:window | window presenter showNotWait ] ]
+]
+
+{ #category : 'accessing' }
+RowanServiceUpdater >> commandsStarted [
+
+	^ commandsStarted ifNil: [
+		  commandsStarted := OrderedCollection new ]
 ]
 
 { #category : 'conversion' }
@@ -508,9 +528,25 @@ RowanServiceUpdater >> singleThreaded: anObject [
 	^ singleThreaded := anObject
 ]
 
+{ #category : 'progress indication' }
+RowanServiceUpdater >> startCommandProgressBar: service [
+
+	service serviceCompletionBlock ifNotNil: [ :block |
+		self commandsStarted add: block.
+		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+			:window | window presenter showWait ] ]
+]
+
 { #category : 'logging' }
 RowanServiceUpdater >> startLogging [
 	logger startLogging
+]
+
+{ #category : 'progress indication' }
+RowanServiceUpdater >> stopCommandProgressBar: service [
+	"an application can tell the updater when it starts an operation"
+
+	self commandCompleted: service serviceCompletionBlock
 ]
 
 { #category : 'logging' }

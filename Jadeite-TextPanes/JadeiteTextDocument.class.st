@@ -763,6 +763,10 @@ JadeiteTextDocument >> showError: aList on: aString [
 
 ]
 
+{ #category : 'actions' }
+JadeiteTextDocument >> showNotWait [
+]
+
 { #category : 'menu handlers' }
 JadeiteTextDocument >> showSelection [
 
@@ -773,6 +777,10 @@ JadeiteTextDocument >> showSelection [
 	lineNumber := lineNumber - 4 max: 1.
 	myView lineScroll: lineNumber.
 
+]
+
+{ #category : 'actions' }
+JadeiteTextDocument >> showWait [
 ]
 
 { #category : 'api' }
