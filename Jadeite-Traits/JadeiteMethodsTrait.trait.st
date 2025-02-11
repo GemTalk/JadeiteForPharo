@@ -878,13 +878,6 @@ JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: theMe
 	^ presenter value
 ]
 
-{ #category : 'compiler warning' }
-JadeiteMethodsTrait >> removeCompileWarningColor [
-	self statusBarText withAdapterDo: [ :theAdapter | 
-		theAdapter widgetDo: [ :widget |
-			widget adoptPaneColor: Color transparent  ] ]
-]
-
 { #category : 'actions' }
 JadeiteMethodsTrait >> removeMethodSelectors: selectors [
 
@@ -906,8 +899,15 @@ JadeiteMethodsTrait >> removeMethods [
 { #category : 'actions' }
 JadeiteMethodsTrait >> resetStatusBar [
 
-	self removeCompileWarningColor.
+	self resetStatusBarColor.
 	self statusBarText pushMessage: String new
+]
+
+{ #category : 'compiler warning' }
+JadeiteMethodsTrait >> resetStatusBarColor [
+	self statusBarText withAdapterDo: [ :theAdapter | 
+		theAdapter widgetDo: [ :widget |
+			widget adoptPaneColor: Color transparent  ] ]
 ]
 
 { #category : 'selecting' }
@@ -947,6 +947,14 @@ JadeiteMethodsTrait >> selectedMethodNames [
 JadeiteMethodsTrait >> selectedMethods [
 
 	^self methodListPresenter selectedItems
+]
+
+{ #category : 'compiler warning' }
+JadeiteMethodsTrait >> setCompileErrorColor [
+
+	self statusBarText withAdapterDo: [ :theAdapter | 
+		theAdapter widgetDo: [ :widget |
+			widget adoptPaneColor: Color pink ] ]
 ]
 
 { #category : 'compiler warning' }

@@ -70,14 +70,13 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
 	                      [
-	                      Cursor wait showWhile: [
-		                      [
-		                      service replicateFrom: aService.
-		                      self possibleSignalCompileError: service.
-		                      self applyUpdates: service.
-		                      service handleServiceCompletion ]
-			                      ifCurtailed: [ aService inCommand signal ].
-		                      aService inCommand signal ] ]
+	                      [
+	                      service replicateFrom: aService.
+	                      self possibleSignalCompileError: service.
+	                      self applyUpdates: service.
+	                      service handleServiceCompletion ] ifCurtailed: [
+		                      aService inCommand signal ].
+	                      aService inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
@@ -89,7 +88,7 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.
-	Cursor wait showWhile: [ service inCommand wait ]
+	service inCommand wait
 ]
 
 { #category : 'accessing' }

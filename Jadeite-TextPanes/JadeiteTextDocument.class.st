@@ -211,10 +211,12 @@ JadeiteTextDocument >> commitTransaction [
 ]
 
 { #category : 'initialization' }
-JadeiteTextDocument >> connectPresenters [ 
+JadeiteTextDocument >> connectPresenters [
 
-	super connectPresenters. 
-	self whenResetDo: [ self isModified: false  ]
+	super connectPresenters.
+	self whenResetDo: [
+		self isModified: false.
+		self resetStatusBar ]
 ]
 
 { #category : 'accessing' }
@@ -680,16 +682,20 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 		                  ifFalse: [ self selectionInterval first ].
 	argArray := gsArguments first isArray
 		            ifTrue: [ gsArguments first ]
-		            ifFalse: [ (gsArguments at: 2) first].
+		            ifFalse: [ (gsArguments at: 2) first ].
 	self withAdapterDo: [ :theAdapter |
 		theAdapter widgetDo: [ :widget |
+			| compileErrorText |
 			widget textArea unselect.
+			compileErrorText := argArray at: 3.
 			widget
-				notify: (argArray at: 3)
+				notify: compileErrorText
 				at: (argArray at: 2) + selectionStart - 1
 				in: self text asString.
 			widget scrollPane scrollSelectionIntoView.
-			widget textArea flashColor: Color red ] ].
+			self outerBrowser setCompileErrorColor. 
+			self outerBrowser statusBarText:
+				'CompileError - ' , compileErrorText ] ].
 	^ nil
 ]
 

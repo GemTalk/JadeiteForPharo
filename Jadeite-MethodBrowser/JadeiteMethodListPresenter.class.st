@@ -33,7 +33,7 @@ JadeiteMethodListPresenter >> abortedTransaction [
 
 	self methodListPresenter selectedItem ifNotNil: [ :service |
 		self methodSourcePresenter value: service source ].
-	self removeCompileWarningColor. 
+	self resetStatusBarColor. 
 	self statusBarText pushMessage: String new. 
 ]
 
@@ -123,6 +123,7 @@ JadeiteMethodListPresenter >> connectPresenters [
 		self selectFirstReference: selection selectedItem ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	methodSourcePresenter whenResetDo: [
+		self resetStatusBar.
 		methodSourcePresenter text:
 			methodSourcePresenter methodService source.
 		methodSourcePresenter isModified: false.
@@ -519,7 +520,7 @@ JadeiteMethodListPresenter >> statusBarText [
 { #category : 'accessing' }
 JadeiteMethodListPresenter >> statusBarText: anObject [
 
-	statusBarText := anObject
+	statusBarText pushMessage: anObject
 ]
 
 { #category : 'as yet unclassified' }

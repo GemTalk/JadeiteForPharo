@@ -117,7 +117,7 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self resetClassTemplate.
 	self resetClassComment.
 	self updateMethodSource. 
-	self removeCompileWarningColor.
+	self resetStatusBarColor.
 	self statusBarText pushMessage: String new. 
 
 ]
@@ -3069,7 +3069,7 @@ JadeiteBrowserPresenter >> resetMethodSource [
 	methodSourcePresenter methodService
 		ifNil: [ methodSourcePresenter text: self defaultMethod ]
 		ifNotNil: [ :service | methodSourcePresenter text: service source ].
-	self statusBarText pushMessage: String new.
+	self resetStatusBar. 
 	methodSourcePresenter isModified: false.
 	self updateMethodSourceGlyphs
 ]
@@ -3472,11 +3472,6 @@ JadeiteBrowserPresenter >> setAppropriateMeta: classOrMethodService [
 JadeiteBrowserPresenter >> setClassSide [
 
 	classRadioButton state: true
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> setCompileErrorColor [
-	statusBarText view backcolor: Color red faded
 ]
 
 { #category : 'private' }
