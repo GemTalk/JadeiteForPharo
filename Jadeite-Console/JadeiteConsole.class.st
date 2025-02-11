@@ -70,6 +70,7 @@ JadeiteConsole >> addNoneProject [
 JadeiteConsole >> addStyle: aString [
 	
 	super addStyle: aString. 
+	waitIndicator addStyle: aString. 
 	transcriptPresenter addStyle: aString
 ]
 
