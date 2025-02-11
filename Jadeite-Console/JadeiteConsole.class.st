@@ -503,10 +503,12 @@ JadeiteConsole >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteConsole >> initializePresenters [
 
-	| box |
+	| box waitBox |
 	super initializePresenters.
 	box := SpBoxLayout newVertical.
 	self layout add: box.
+	waitBox := self initializeWaitPresenter.
+	box add: waitBox expand: false.
 	consoleTabs := SpTabLayout new.
 	self initializeProjectListPresenter: consoleTabs.
 	self initializeTranscriptPresenter: consoleTabs.
