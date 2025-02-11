@@ -6,8 +6,8 @@ Class {
 	#instVars : [
 		'workspace'
 	],
-	#category : 'Jadeite-TextPanes',
-	#package : 'Jadeite-TextPanes'
+	#category : 'Jadeite-Workspace',
+	#package : 'Jadeite-Workspace'
 }
 
 { #category : 'api' }

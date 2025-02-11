@@ -20,6 +20,8 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			package: 'Jadeite-SupportClasses'
 			with: [
 				spec requires: #( 'Jadeite-TextPanes' 'RemoteServiceReplication' ) ];
+			package: 'Jadeite-Workspace'
+			with: [ spec requires: 'Jadeite-SupportClasses' ];
 			package: 'Jadeite-BaseExtensions'
 			with: [ spec requires: 'Jadeite-SupportClasses' ];
 			package: 'Jadeite-RowanClientServicesClient'
