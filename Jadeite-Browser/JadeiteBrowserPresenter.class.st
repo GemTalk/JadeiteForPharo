@@ -1795,7 +1795,7 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 		                        displayBold: [ :projectService |
 			                        projectService isDirty ];
 		                        displayItalic: [ :projectService |
-			                        projectService existsOnDisk not ];
+			                        projectService isDiskDirty == true ];
 		                        displayColor: [ :projectService |
 			                        projectService isSkew
 				                        ifTrue: [ Color red ]

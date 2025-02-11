@@ -232,12 +232,12 @@ RowanProjectService >> diskSha [
 
 { #category : 'displaying' }
 RowanProjectService >> displayName [
-
+	"use the == test because existsOnDisk may be nil"
 	| displayName |
 	name ifNil: [ ^ String new ].
 	displayName := name.
 	self isCurrent ifTrue: [ displayName := '*' , name ].
-	isDiskDirty == true ifTrue: [ displayName := '(' , displayName , ')' ].
+	existsOnDisk == false ifTrue: [ displayName := '(' , displayName , ')' ].
 	^ displayName
 ]
 

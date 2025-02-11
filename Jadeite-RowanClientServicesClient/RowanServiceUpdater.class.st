@@ -84,6 +84,8 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 			                      service inCommand signal.
 			                      self stopCommandProgressBar: service ].
 	                      self stopCommandProgressBar: service ].
+	GciSession current isValidSession ifFalse: [
+		^ self "can happen in tests mostly" ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.

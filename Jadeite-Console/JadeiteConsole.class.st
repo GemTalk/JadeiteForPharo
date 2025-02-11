@@ -220,7 +220,7 @@ JadeiteConsole >> columnWithAspect: aspect title: title [
 				          ifNotNil: [ :value | value asString ] ].
 	column
 		displayBold: [ :projectService | projectService isDirty ];
-		displayItalic: [ :projectService | projectService existsOnDisk not ];
+		displayItalic: [ :projectService | projectService isDiskDirty == true ];
 		displayColor: [ :projectService |
 			projectService isSkew
 				ifTrue: [ Color red ]
