@@ -351,12 +351,6 @@ JadeiteBrowser >> projectListPresenter [
 	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowser >> redrawWaitButton [
-
-	waitIndicator withAdapterDo: [ :a | a widgetDo: [ :w | w changed ] ]
-]
-
 { #category : 'testing' }
 JadeiteBrowser >> removeClass [
 

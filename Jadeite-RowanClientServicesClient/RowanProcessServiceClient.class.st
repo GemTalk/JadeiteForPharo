@@ -41,6 +41,7 @@ RowanProcessServiceClient >> debugger [
 RowanProcessServiceClient >> openDebugger [
 
 	| activeProcess debuggerApplication |
+	RowanServiceUpdater current stopProgressBar.
 	activeProcess := Processor activeProcess.
 	debuggerApplication := JadeiteDebuggerApplication new gciSession:
 		                       GciSession current.

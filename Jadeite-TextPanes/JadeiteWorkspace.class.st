@@ -5,7 +5,8 @@ Class {
 	#name : 'JadeiteWorkspace',
 	#superclass : 'JadeiteTextDocument',
 	#instVars : [
-		'filePathString'
+		'filePathString',
+		'waitIndicator'
 	],
 	#category : 'Jadeite-TextPanes',
 	#package : 'Jadeite-TextPanes'
@@ -13,9 +14,11 @@ Class {
 
 { #category : 'instance creation' }
 JadeiteWorkspace class >> showOnSession: aSession [
-	^JadeiteWorkspaceApplication showOnSession: aSession library
-	
-	
+
+	| workspacePresenter |
+	workspacePresenter := JadeiteWorkspaceApplication showOnSession:
+		                      aSession library.
+	^ workspacePresenter workspace
 ]
 
 { #category : 'private' }
@@ -74,37 +77,8 @@ JadeiteWorkspace >> filename [
 ]
 
 { #category : 'initialization' }
-JadeiteWorkspace >> initializeFileMenu [
-
-	self
-		bindKeyCombination: $s meta asKeyCombination
-		toAction: [ self saveServerFile ].
-	self
-		bindKeyCombination: $o shift meta asKeyCombination
-		toAction: [ self openServerFile ].
-	^ self newMenu
-		  addItem: [ :item |
-			  item
-				  name: 'Open Server File';
-				  shortcut: $o shift meta;
-				  action: [ self openServerFile ] ];
-		  addItem: [ :item |
-			  item
-				  name: 'Save On Server';
-				  shortcut: $s meta;
-				  action: [ self saveServerFile ] ];
-		  addItem: [ :item2 |
-			  item2
-				  name: 'Save On Server As ...';
-				  action: [ self saveServerFileAs ] ];
-		  yourself
-]
-
-{ #category : 'initialization' }
 JadeiteWorkspace >> initializeWindow: aWindowPresenter [
-
-	super initializeWindow: aWindowPresenter. 
-	aWindowPresenter menu: self initializeMenubar. 
+	"let JadeiteWorkspecePresenter do this"
 ]
 
 { #category : 'actions' }

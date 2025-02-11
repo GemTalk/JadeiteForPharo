@@ -554,6 +554,15 @@ RowanServiceUpdater >> stopLogging [
 	logger stopLogging
 ]
 
+{ #category : 'progress indication' }
+RowanServiceUpdater >> stopProgressBar [
+	"a debugger was opened, stop all progress indication"
+
+	commandsStarted := OrderedCollection new.
+	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+		:window | window presenter showNotWait ]
+]
+
 { #category : 'updating' }
 RowanServiceUpdater >> trigger: aSymbol [
 
