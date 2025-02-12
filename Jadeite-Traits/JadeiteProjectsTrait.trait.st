@@ -526,9 +526,10 @@ JadeiteProjectsTrait >> newProjectMenu [
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> openAuditResultsInWorkspaceUsing: answeringService projectNamed: projectName [
 
-	| workspace |
-	workspace := JadeiteWorkspaceApplication showOnSession:
+	| workspace workspacePresenter |
+	workspacePresenter := JadeiteWorkspaceApplication showOnSession:
 		             self gciSession library.
+	workspace := workspacePresenter workspace. 
 	workspace setCaption: 'Audit Report for project ' , projectName.
 	workspace text: answeringService answer.
 	workspace hasUnacceptedEdits: false.
@@ -551,9 +552,10 @@ JadeiteProjectsTrait >> openGitBranchesDialogFor: projectService onCompletion: c
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> openGitLogInWorkspaceUsing: queryService [
 
-	| workspace |
-	workspace := JadeiteWorkspaceApplication showOnSession:
-		             self gciSession library.
+	| workspace workspacePresenter |
+	workspacePresenter := JadeiteWorkspaceApplication showOnSession:
+		                      self gciSession library.
+	workspace := workspacePresenter workspace.
 	workspace setCaption:
 		'Jadeite Git Log for ' , self selectedProjectName.
 	workspace text: queryService answer.

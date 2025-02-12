@@ -44,6 +44,7 @@ JadeitePresenter >> initializeWaitPresenter [
 	waitIndicator indeterminate.
 	box add: waitIndicator withConstraints: [ :constraints |
 		constraints height: 3 * StandardFonts defaultFont pointSize ].
+	self showNotWait.
 	^ box
 ]
 

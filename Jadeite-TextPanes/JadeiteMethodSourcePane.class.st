@@ -181,15 +181,6 @@ JadeiteMethodSourcePane >> mouseClickedAt: click [
 	self displayStepPointAt: sourcePosition
 ]
 
-{ #category : 'commands' }
-JadeiteMethodSourcePane >> outerBrowser [
-	"yuck" 
-
-	^ ((self owner isKindOf: SpWindowPresenter) or:[self owner isKindOf: JadeiteNotebookPresenter])
-		  ifTrue: [ self owner owner ]
-		  ifFalse: [ self owner ]
-]
-
 { #category : 'adding' }
 JadeiteMethodSourcePane >> removeAllTextSegmentDecorations [
 

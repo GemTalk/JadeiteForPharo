@@ -94,9 +94,10 @@ JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace onCompletion: 
 { #category : 'actions' }
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
-	| workspace |
-	workspace := JadeiteWorkspaceApplication showOnSession:
-		             self connection.
+	| workspace workspacePresenter |
+	workspacePresenter := JadeiteWorkspaceApplication showOnSession:
+		                      self connection.
+	workspace := workspacePresenter workspace.
 	self displayClientandServerCommitIds: workspace onCompletion: [
 		workspace setCaption: 'Jadeite Git Commit Ids'.
 		workspace hasUnacceptedEdits: false ].
