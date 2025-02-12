@@ -647,15 +647,6 @@ JadeiteTextDocument >> openOn: openFilename [
 	lastSave := self model value
 ]
 
-{ #category : 'commands' }
-JadeiteTextDocument >> outerBrowser [
-	"yuck" 
-
-	^ ((self owner isKindOf: SpWindowPresenter) or:[self owner isKindOf: JadeiteNotebookPresenter])
-		  ifTrue: [ self owner owner ]
-		  ifFalse: [ self owner ]
-]
-
 { #category : 'private' }
 JadeiteTextDocument >> print [
 ]
@@ -702,10 +693,16 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 				at: (argArray at: 2) + selectionStart - 1
 				in: self text asString.
 			widget scrollPane scrollSelectionIntoView.
-			self outerBrowser setCompileErrorColor. 
-			self outerBrowser statusBarText:
-				'CompileError - ' , compileErrorText ] ].
+			self announcer announce:
+				(JadeiteCompileErrorAnnouncement new compileErrorText:
+					 compileErrorText) ] ].
 	^ nil
+]
+
+{ #category : 'actions' }
+JadeiteTextDocument >> resetStatusBar [
+
+	self announcer announce: JadeiteResetStatusBarAnnouncement new
 ]
 
 { #category : 'accessing' }

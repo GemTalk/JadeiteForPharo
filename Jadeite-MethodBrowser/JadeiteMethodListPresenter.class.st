@@ -123,7 +123,7 @@ JadeiteMethodListPresenter >> connectPresenters [
 		self selectFirstReference: selection selectedItem ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	methodSourcePresenter whenResetDo: [
-		self resetStatusBar.
+		self clearStatusBar.
 		methodSourcePresenter text:
 			methodSourcePresenter methodService source.
 		methodSourcePresenter isModified: false.
@@ -131,7 +131,8 @@ JadeiteMethodListPresenter >> connectPresenters [
 	self application
 		when: #abortedTransaction
 		send: #abortedTransaction
-		to: self
+		to: self.
+	self registerForStatusBarAnnouncements
 ]
 
 { #category : 'as yet unclassified' }
@@ -494,6 +495,14 @@ JadeiteMethodListPresenter >> showComparisonTab [
 	comparisonPresenter ensureVisible
 ]
 
+{ #category : 'actions' }
+JadeiteMethodListPresenter >> showCompileError: anAnnouncement [
+
+	self setCompileErrorColor.
+	self statusBarText:
+		'CompileError - ' , anAnnouncement compileErrorText
+]
+
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> showSuperClassComparison [
 	| methodService |
@@ -554,6 +563,12 @@ JadeiteMethodListPresenter >> updateMethodSource [
 		^ self updateSingleMethodSourceFor:
 			  self methodListPresenter selectedItem ].
 	self updateMultiMethodComparison
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteMethodListPresenter >> updateMethodSource: anAnnouncement [
+
+	self updateMethodSource
 ]
 
 { #category : 'as yet unclassified' }

@@ -507,6 +507,13 @@ JadeiteMethodsTrait >> canDiscardSelectionEdits [
 ]
 
 { #category : 'actions' }
+JadeiteMethodsTrait >> clearStatusBar [
+
+	self resetStatusBarColor.
+	self statusBarText pushMessage: String new
+]
+
+{ #category : 'actions' }
 JadeiteMethodsTrait >> compilationWarningFrom: methodServices [
 	methodServices do: 
 			[:methodService |
@@ -598,7 +605,7 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 					selectIndex: index
 					scrollToSelection: true ].
 			(self compilationWarningFrom: classService selectedMethods)
-				ifNil: [ self resetStatusBar ]
+				ifNil: [ self clearStatusBar ]
 				ifNotNil: [ :warning |
 					self setCompileWarningColor.
 					self statusBarText pushMessage: warning ].
@@ -878,6 +885,27 @@ JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: theMe
 	^ presenter value
 ]
 
+{ #category : 'initialization' }
+JadeiteMethodsTrait >> registerForStatusBarAnnouncements [
+
+	self methodSourcePresenter announcer
+		when: JadeiteCompileErrorAnnouncement
+		send: #showCompileError:
+		to: self.
+	self methodSourcePresenter announcer
+		when: JadeiteUpdateMethodSourceAnnouncement
+		send: #updateMethodSource:
+		to: self.
+	self methodSourcePresenter announcer
+		when: JadeiteUpdateStepPointAnnouncement
+		send: #updateStepPointStatus:
+		to: self.
+	self methodSourcePresenter announcer
+		when: JadeiteResetStatusBarAnnouncement
+		send: #clearStatusBar
+		to: self. 
+]
+
 { #category : 'actions' }
 JadeiteMethodsTrait >> removeMethodSelectors: selectors [
 
@@ -894,13 +922,6 @@ JadeiteMethodsTrait >> removeMethods [
 
 	(MessageBox confirm: 'Really delete method(s)?') ifTrue: [ 
 		self removeMethodSelectors: self selectedMethodNames ]
-]
-
-{ #category : 'actions' }
-JadeiteMethodsTrait >> resetStatusBar [
-
-	self resetStatusBarColor.
-	self statusBarText pushMessage: String new
 ]
 
 { #category : 'compiler warning' }
@@ -1010,4 +1031,10 @@ JadeiteMethodsTrait >> updateServices: services onCompletion: completionBlock [
 		issueCommand: answeringService
 		session: self gciSession
 		onCompletion: completionBlock
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> updateStepPointStatus: anAnnouncement [
+
+	self statusBarText pushMessage: anAnnouncement message
 ]

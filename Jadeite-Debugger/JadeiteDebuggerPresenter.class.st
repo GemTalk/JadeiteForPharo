@@ -138,7 +138,8 @@ JadeiteDebuggerPresenter >> connectPresenters [
 	self methodSourcePresenter whenResetDo: [
 		self methodSourcePresenter text:
 			self methodSourcePresenter methodService source.
-		self methodSourcePresenter isModified: false ]
+		self methodSourcePresenter isModified: false ].
+	self registerForStatusBarAnnouncements
 ]
 
 { #category : 'actions' }
@@ -270,7 +271,7 @@ JadeiteDebuggerPresenter >> editSaveMethod: classService in: thePresenter catego
 		completionBlock: [
 			(self compilationWarningFrom: classService selectedMethods)
 				ifNil: [
-					self resetStatusBar.
+					self clearStatusBar.
 					completionBlock value ]
 				ifNotNil: [ :warning |
 					self setCompileWarningColor.
@@ -560,6 +561,14 @@ JadeiteDebuggerPresenter >> selectInitialFrame [
 JadeiteDebuggerPresenter >> shellName [
 
 	^'Debugger'
+]
+
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> showCompileError: anAnnouncement [
+
+	self setCompileErrorColor.
+	self statusBarText:
+		'CompileError - ' , anAnnouncement compileErrorText
 ]
 
 { #category : 'selection' }

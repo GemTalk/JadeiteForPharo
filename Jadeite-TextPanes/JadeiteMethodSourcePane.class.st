@@ -36,7 +36,9 @@ JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 	service := RowanAnsweringService
 		           command: #clearMethodBreaks:
 		           withArgs: (Array with: (Array with: self methodService)).
-	self issueCommand: service onCompletion: [self outerBrowser updateMethodSource]
+	self
+		issueCommand: service
+		onCompletion: [ self announce: JadeiteUpdateMethodSourceAnnouncement ]
 ]
 
 { #category : 'breakpoints' }
@@ -54,7 +56,7 @@ JadeiteMethodSourcePane >> clearBreakpoint: stepPoint [
 	stepPoint isNil ifTrue: [ ^ self ].
 	self
 		clearBreakPointAt: stepPoint
-		onCompletion: [ self outerBrowser updateMethodSource ]
+		onCompletion: [ self announce: JadeiteUpdateMethodSourceAnnouncement ]
 ]
 
 { #category : 'actions - saving methods' }
@@ -90,7 +92,7 @@ JadeiteMethodSourcePane >> currentMethodSourceFrom: sourceString [
 JadeiteMethodSourcePane >> displayStepPointAt: sourcePosition [
 
 	| stepPoint range ranges |
-	methodService ifNil: [ ^self ].
+	methodService ifNil: [ ^ self ].
 	ranges := methodService stepPoints collect: [ :array |
 		          methodService stepPointRangeFrom: array ].
 	range := ranges
@@ -98,8 +100,9 @@ JadeiteMethodSourcePane >> displayStepPointAt: sourcePosition [
 		         ifNone: [  ].
 	stepPoint := ranges indexOf: range.
 	stepPoint = 0 ifTrue: [ stepPoint := '*' ].
-	self outerBrowser statusBarText pushMessage:
-		'Step Point: ' , stepPoint asString
+	self announcer announce:
+		(JadeiteUpdateStepPointAnnouncement new message:
+			 'Step Point: ' , stepPoint asString)
 ]
 
 { #category : 'actions' }
@@ -143,8 +146,9 @@ JadeiteMethodSourcePane >> keystrokeAt: click [
 
 	| sourcePosition |
 	click morph textArea scrollPane owner hasUnacceptedEdits ifTrue: [
-		^ self outerBrowser statusBarText pushMessage:
-			  'Step Point: <method changed>' ].
+		^ self announcer announce:
+			  (JadeiteUpdateStepPointAnnouncement new message:
+				   'Step Point: <method changed>') ].
 	sourcePosition := click morph textArea startIndex.
 	self displayStepPointAt: sourcePosition
 ]
@@ -169,8 +173,9 @@ JadeiteMethodSourcePane >> mouseClickedAt: click [
 	handler := click event handler.
 	handler ifNil: [ ^ self ].
 	handler hasUnacceptedEdits ifTrue: [
-		^ self outerBrowser statusBarText pushMessage:
-			  'Step Point: <method changed>' ].
+		^ self announcer announce:
+			  (JadeiteUpdateStepPointAnnouncement new message:
+				   'Step Point: <method changed>') ].
 
 	sourcePosition := click event handler scrollPane textArea startIndex ]
 		on: Error
@@ -275,7 +280,7 @@ JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 		^ self ].
 	self
 		setBreakPointAt: stepPoint
-		onCompletion: [ self outerBrowser updateMethodSource ]
+		onCompletion: [ self announce: JadeiteUpdateMethodSourceAnnouncement ]
 ]
 
 { #category : 'actions' }

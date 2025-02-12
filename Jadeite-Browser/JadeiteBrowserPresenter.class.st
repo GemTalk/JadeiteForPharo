@@ -793,7 +793,8 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 		self methodSelectionChanged ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
-		self classSelected: self selectedClass ]
+		self classSelected: self selectedClass ].
+	self registerForStatusBarAnnouncements
 ]
 
 { #category : 'initialization' }
@@ -2118,7 +2119,7 @@ JadeiteBrowserPresenter >> methodMenu: aMenu [
 { #category : 'events' }
 JadeiteBrowserPresenter >> methodSelectionChanged [
 
-	self resetStatusBar.
+	self clearStatusBar.
 	self methodSourcePresenter methodService:
 		self methodListPresenter selectedItem.
 	methodListPresenter selections isEmpty
@@ -3069,7 +3070,7 @@ JadeiteBrowserPresenter >> resetMethodSource [
 	methodSourcePresenter methodService
 		ifNil: [ methodSourcePresenter text: self defaultMethod ]
 		ifNotNil: [ :service | methodSourcePresenter text: service source ].
-	self resetStatusBar. 
+	self clearStatusBar. 
 	methodSourcePresenter isModified: false.
 	self updateMethodSourceGlyphs
 ]
@@ -3495,6 +3496,14 @@ JadeiteBrowserPresenter >> setStatusBarDefault [
 JadeiteBrowserPresenter >> shouldShowNoneTabLabel [
 	^dictionaryListPresenter list isEmpty
 		or: [dictionaryListPresenter selections isEmpty or: [dictionaryListPresenter selections size > 1]]
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> showCompileError: anAnnouncement [
+
+	self setCompileErrorColor.
+	self statusBarText:
+		'CompileError - ' , anAnnouncement compileErrorText
 ]
 
 { #category : 'as yet unclassified' }
@@ -3937,6 +3946,12 @@ JadeiteBrowserPresenter >> updateMethodSource [
 	self
 		updateService: methodListPresenter selectedItem
 		onCompletion: [ self postUpdateMethodSource ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> updateMethodSource: anAnnouncement [
+
+	self updateMethodSource
 ]
 
 { #category : 'updates' }
