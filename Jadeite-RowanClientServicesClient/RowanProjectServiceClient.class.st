@@ -10,6 +10,12 @@ Class {
 }
 
 { #category : 'accessing' }
+RowanProjectServiceClient >> existsOnDisk: aBoolean [
+	"for testing"
+	existsOnDisk := aBoolean 
+]
+
+{ #category : 'accessing' }
 RowanProjectServiceClient >> inCommand [
 
 	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]

@@ -101,7 +101,7 @@ JadeiteMethodSourcePane >> displayStepPointAt: sourcePosition [
 	stepPoint := ranges indexOf: range.
 	stepPoint = 0 ifTrue: [ stepPoint := '*' ].
 	self announcer announce:
-		(JadeiteUpdateStepPointAnnouncement new message:
+		(JadeiteUpdateStatusBarAnnouncement new message:
 			 'Step Point: ' , stepPoint asString)
 ]
 
@@ -147,7 +147,7 @@ JadeiteMethodSourcePane >> keystrokeAt: click [
 	| sourcePosition |
 	click morph textArea scrollPane owner hasUnacceptedEdits ifTrue: [
 		^ self announcer announce:
-			  (JadeiteUpdateStepPointAnnouncement new message:
+			  (JadeiteUpdateStatusBarAnnouncement new message:
 				   'Step Point: <method changed>') ].
 	sourcePosition := click morph textArea startIndex.
 	self displayStepPointAt: sourcePosition
@@ -174,7 +174,7 @@ JadeiteMethodSourcePane >> mouseClickedAt: click [
 	handler ifNil: [ ^ self ].
 	handler hasUnacceptedEdits ifTrue: [
 		^ self announcer announce:
-			  (JadeiteUpdateStepPointAnnouncement new message:
+			  (JadeiteUpdateStatusBarAnnouncement new message:
 				   'Step Point: <method changed>') ].
 
 	sourcePosition := click event handler scrollPane textArea startIndex ]

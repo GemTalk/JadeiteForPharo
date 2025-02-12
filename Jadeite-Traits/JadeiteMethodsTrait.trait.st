@@ -897,7 +897,7 @@ JadeiteMethodsTrait >> registerForStatusBarAnnouncements [
 		send: #updateMethodSource:
 		to: self.
 	self methodSourcePresenter announcer
-		when: JadeiteUpdateStepPointAnnouncement
+		when: JadeiteUpdateStatusBarAnnouncement
 		send: #updateStepPointStatus:
 		to: self.
 	self methodSourcePresenter announcer

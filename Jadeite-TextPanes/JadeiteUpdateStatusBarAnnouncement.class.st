@@ -1,5 +1,5 @@
 Class {
-	#name : 'JadeiteUpdateStepPointAnnouncement',
+	#name : 'JadeiteUpdateStatusBarAnnouncement',
 	#superclass : 'Announcement',
 	#instVars : [
 		'message'
@@ -9,13 +9,13 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteUpdateStepPointAnnouncement >> message [
+JadeiteUpdateStatusBarAnnouncement >> message [
 
 	^ message
 ]
 
 { #category : 'accessing' }
-JadeiteUpdateStepPointAnnouncement >> message: anObject [
+JadeiteUpdateStatusBarAnnouncement >> message: anObject [
 
 	message := anObject
 ]

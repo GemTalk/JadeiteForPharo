@@ -14,6 +14,30 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'constants' }
+JadeiteForPharoGUITestCase >> compileErrorMethodText [
+
+	^'hasCompileErrorInText
+	
+	| coll |
+	coll := Array with: 1 with: 2. 
+	coll do: [ :int |
+		"missing right bracket".
+	^coll'
+]
+
+{ #category : 'constants' }
+JadeiteForPharoGUITestCase >> compileErrorMethodTextShowingCompileError [
+
+	^ 'hasCompileErrorInText
+	
+	| coll |
+	coll := Array with: 1 with: 2. 
+	coll do: [ :int |
+		"missing right bracket expected a right bracket (])".
+	^coll'
+]
+
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> dismissPopoverAndPrint [
 

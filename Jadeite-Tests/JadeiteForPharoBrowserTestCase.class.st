@@ -243,11 +243,11 @@ JadeiteForPharoBrowserTestCase >> test_existsOnDiskDisplay [
 	projectService := self projectListPresenter items detect: [ :svc |
 		                  svc name = 'RowanClientServices' ].
 	[
-	projectService isDiskDirty: false.
+	projectService existsOnDisk: true.
 	self assert: projectService displayName = 'RowanClientServices'.
-	projectService isDiskDirty: true.
+	projectService existsOnDisk: false.
 	self assert: projectService displayName = '(RowanClientServices)' ]
-		ensure: [ projectService isDiskDirty: false ]
+		ensure: [ projectService existsOnDisk: true ]
 ]
 
 { #category : 'tests' }
@@ -378,6 +378,30 @@ JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
 		equals: 'Rowan-Services-Tests'.
 	self assert: self projectsPresenter isClassListTabSelected.
 	self assertIsNil: self projectsPresenter selectedClass
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodCompileError [
+
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Extensions'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: self sampleClassName
+		in: self classListPresenter.
+	self selectMethodNamed: #foo. "select a method defined in it's class package while the extension class is selected"
+	self methodSourcePresenter value: self compileErrorMethodText.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: nil.
+	self
+		assert: self methodSourcePresenter text
+		equals: self compileErrorMethodTextShowingCompileError.
+	self
+		assert: self projectsPresenter statusBarText message
+		equals: 'CompileError - expected a right bracket (])'.
+	self methodSourcePresenter hasUnacceptedEdits: false
 ]
 
 { #category : 'tests' }

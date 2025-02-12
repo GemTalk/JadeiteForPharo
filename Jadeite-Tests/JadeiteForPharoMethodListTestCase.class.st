@@ -282,6 +282,22 @@ JadeiteForPharoMethodListTestCase >> test_canDiscardSelectionEdits [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_methodCompileError [
+
+	self openMethodListBrowserOfImplementorsOf: 'answer'.
+	self methodListPresenter selectIndex: 1.
+	self methodSourcePresenter value: self compileErrorMethodText.
+	methodListBrowser editSaveMethod.
+	self
+		assert: self methodSourcePresenter text
+		equals: self compileErrorMethodTextShowingCompileError.
+	self
+		assert: methodListBrowser statusBarText message 
+		equals: 'CompileError - expected a right bracket (])'.
+	self methodSourcePresenter hasUnacceptedEdits: false
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_methodListSourceDoesNotDisappear [
 
 	self
