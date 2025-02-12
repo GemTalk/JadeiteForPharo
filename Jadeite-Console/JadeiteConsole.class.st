@@ -107,7 +107,10 @@ JadeiteConsole >> autoCompleteEnabled: boolean [
 
 { #category : 'accessing' }
 JadeiteConsole >> basicOpenServerFile: filePath [
-	^JadeiteServerFileWorkspace showOnSession: gciSession path: filePath
+
+	^ JadeiteServerFileWorkspaceApplication
+		  showOnSession: gciSession
+		  path: filePath
 ]
 
 { #category : 'accessing' }

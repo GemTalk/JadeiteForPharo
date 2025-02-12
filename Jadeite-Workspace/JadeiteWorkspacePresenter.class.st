@@ -76,8 +76,8 @@ JadeiteWorkspacePresenter >> initializePresenters [
 	super initializePresenters.
 	waitBox := self initializeWaitPresenter.
 	self layout add: waitBox expand: false.
-	self showNotWait. 
-	workspace := JadeiteWorkspace new.
+	self showNotWait.
+	workspace := self workspaceClass new.
 	self layout add: workspace
 ]
 
@@ -89,6 +89,14 @@ JadeiteWorkspacePresenter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		initialExtent: 80 @ 50 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar
+]
+
+{ #category : 'actions' }
+JadeiteWorkspacePresenter >> setCaption: string [
+
+	| theString |
+	theString := gciSession titleBarFor: string.
+	self caption: theString
 ]
 
 { #category : 'initialization' }
@@ -123,4 +131,10 @@ JadeiteWorkspacePresenter >> workspace [
 JadeiteWorkspacePresenter >> workspace: anObject [
 
 	workspace := anObject
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspacePresenter >> workspaceClass [
+
+	^ JadeiteWorkspace
 ]

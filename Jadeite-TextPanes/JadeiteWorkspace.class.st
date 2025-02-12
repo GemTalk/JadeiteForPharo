@@ -22,6 +22,12 @@ JadeiteWorkspace class >> showOnSession: aSession [
 ]
 
 { #category : 'private' }
+JadeiteWorkspace >> caption: string [
+
+	self owner caption: string 
+]
+
+{ #category : 'private' }
 JadeiteWorkspace >> codePane [
 	"Private -  for testing"
 
@@ -78,7 +84,7 @@ JadeiteWorkspace >> filename [
 
 { #category : 'initialization' }
 JadeiteWorkspace >> initializeWindow: aWindowPresenter [
-	"let JadeiteWorkspecePresenter do this"
+	"let JadeiteWorkspacePresenter do this"
 ]
 
 { #category : 'actions' }

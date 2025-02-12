@@ -33,6 +33,12 @@ JadeiteServerFileWorkspace class >> showOnSession: aGciSession path: path [
 		workspace codePane documentPresenter value: service answer ]
 ]
 
+{ #category : 'private' }
+JadeiteServerFileWorkspace >> caption: string [
+
+	self window title: string 
+]
+
 { #category : 'testing' }
 JadeiteServerFileWorkspace >> isOkayToChangeFrame [
 	^codePane isOkayToChange

@@ -6,13 +6,19 @@ Class {
 }
 
 { #category : 'accessing' }
+JadeiteWorkspaceApplication >> presenterClass [
+
+	^ JadeiteWorkspacePresenter
+]
+
+{ #category : 'accessing' }
 JadeiteWorkspaceApplication >> start [
 
 	| inst |
-	inst := self new: JadeiteWorkspacePresenter.
+	inst := self new: self presenterClass.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
 	inst open.
-	^inst
+	^ inst
 ]
