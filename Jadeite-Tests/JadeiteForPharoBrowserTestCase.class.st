@@ -191,14 +191,16 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 		equals: '*RowanClientServices'.
 	self projectListPresenter items do: [ :projectService |
 		projectService name = 'RowanClientServices' ifFalse: [
-			self assert: projectService displayName = projectService name ] ].
+			projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
+				self assert: projectService displayName = projectService name ] ] ].
 
 	jadeiteShell projectListPresenter items do: [ :projectService |
 		projectService name = 'RowanClientServices'
 			ifTrue: [
 			self assert: projectService displayName = '*RowanClientServices' ]
 			ifFalse: [
-			self assert: projectService displayName = projectService name ] ].
+				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
+					self assert: projectService displayName = projectService name ] ] ].
 
 	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
 	self projectsPresenter setCurrentProject.
@@ -208,12 +210,14 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 		equals: '*Rowan'.
 	self projectListPresenter items do: [ :projectService |
 		projectService name = 'Rowan' ifFalse: [
-			self assert: projectService displayName = projectService name ] ].
+			projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
+				self assert: projectService displayName = projectService name ] ] ].
 	jadeiteShell projectListPresenter items do: [ :projectService |
 		projectService name = 'Rowan'
 			ifTrue: [ self assert: projectService displayName = '*Rowan' ]
 			ifFalse: [
-			self assert: projectService displayName = projectService name ] ]
+				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
+					self assert: projectService displayName = projectService name ] ] ]
 ]
 
 { #category : 'tests' }
