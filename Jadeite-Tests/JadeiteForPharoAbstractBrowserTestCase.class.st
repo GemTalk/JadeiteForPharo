@@ -1199,7 +1199,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
 	self selectRowanAnsweringService.
 	self selectHierarchyTab.
-	[
+
 	answeringService := self projectsPresenter selectedClass.
 	self assert: answeringService name equals: 'RowanAnsweringService'.
 	rowanService := self hierarchyVisibleItems detect: [ :service |
@@ -1221,8 +1221,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 				  service name = 'RowanPackageService' ])).
 	self assert: (rowanServiceChildren includes:
 			 (self hierarchyVisibleItems detect: [ :service |
-				  service name = 'RowanProjectService' ])) ] ensure: [
-		self selectClassListTab ]
+				  service name = 'RowanProjectService' ])) 
 ]
 
 { #category : 'tests' }

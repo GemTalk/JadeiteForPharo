@@ -374,20 +374,6 @@ JadeiteBrowser >> shellName [
 	^'Jadeite Browser '
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowser >> showNotWait [
-
-	waitIndicator ifNotNil: [ :indicator | indicator hide ].
-	WorldMorph doOneCycle
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowser >> showWait [
-
-	waitIndicator ifNotNil: [ :indicator | indicator show ].
-	WorldMorph doOneCycle
-]
-
 { #category : 'accessing' }
 JadeiteBrowser >> tabs [
 

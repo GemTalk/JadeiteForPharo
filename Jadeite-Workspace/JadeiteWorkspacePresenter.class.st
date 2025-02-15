@@ -100,20 +100,6 @@ JadeiteWorkspacePresenter >> setCaption: string [
 ]
 
 { #category : 'initialization' }
-JadeiteWorkspacePresenter >> showNotWait [
-
-	waitIndicator ifNotNil: [ :indicator | indicator hide ].
-	WorldMorph doOneCycle
-]
-
-{ #category : 'initialization' }
-JadeiteWorkspacePresenter >> showWait [
-
-	waitIndicator ifNotNil: [ :indicator | indicator show ].
-	WorldMorph doOneCycle
-]
-
-{ #category : 'initialization' }
 JadeiteWorkspacePresenter >> updateCaption [
 
 	| string |

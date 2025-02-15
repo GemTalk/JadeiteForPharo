@@ -97,6 +97,13 @@ JadeiteServerFileSaveDialog >> initializePresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteServerFileSaveDialog >> initializeWindow: aWindowPresenter [
+
+	super initializeWindow: aWindowPresenter.
+	aWindowPresenter okAction: [ UIManager default confirm: 'finish this'  ]
+]
+
+{ #category : 'initialization' }
 JadeiteServerFileSaveDialog >> initializeWith: path fileName: fileName [
 
 	super initializeWith: path. 
@@ -120,7 +127,14 @@ JadeiteServerFileSaveDialog >> save [
 { #category : 'accessing' }
 JadeiteServerFileSaveDialog >> selectedFileOrDirectory [
 
-	^self fileSelectorPresenter selectedFileOrDirectory, '/', fileNamePresenter text
+	| fileService selFileOrDir |
+	selFileOrDir := self fileSelectorPresenter selectedFileOrDirectory.
+	fileService := RowanFileService new
+		               path: selFileOrDir;
+		               session: self gciSession.
+	^ (fileService isDirectory
+		   ifTrue: [ selFileOrDir asFileReference / fileNamePresenter text ]
+		   ifFalse: [ selFileOrDir asFileReference]) pathString
 ]
 
 { #category : 'accessing' }

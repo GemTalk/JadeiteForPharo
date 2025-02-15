@@ -875,13 +875,6 @@ JadeiteConsole >> shouldAskToCommitOnLogout [
 		or: [self transactionMode = #manualBegin and: [self parentPresenter inTransaction]]
 ]
 
-{ #category : 'actions' }
-JadeiteConsole >> showNotWait [
-
-	waitIndicator ifNotNil: [ :indicator | indicator hide ].
-	WorldMorph doOneCycle
-]
-
 { #category : 'as yet unclassified' }
 JadeiteConsole >> showPackageGroups [
 	^JadePresenter showPackageGroups
@@ -890,13 +883,6 @@ JadeiteConsole >> showPackageGroups [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> showPackageList [
 	^JadePresenter showPackageList
-]
-
-{ #category : 'actions' }
-JadeiteConsole >> showWait [
-
-	waitIndicator ifNotNil: [ :indicator | indicator show ].
-	WorldMorph doOneCycle
 ]
 
 { #category : 'as yet unclassified' }
