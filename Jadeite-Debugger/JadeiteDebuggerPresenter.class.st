@@ -480,7 +480,9 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 105 @ 120 * StandardFonts defaultFont pointSize.
+	aWindowPresenter
+		initialPosition: 5 @ 25; "upper left"
+		initialExtent: 105 @ 120 * StandardFonts defaultFont pointSize.
 	self updateCaption.
 	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [

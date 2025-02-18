@@ -631,7 +631,7 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: (40 @ 65) * StandardFonts defaultFont pointSize;
+		initialExtent: (40 @ 70) * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption.
 	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]

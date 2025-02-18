@@ -57,22 +57,31 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession initialFileName:
 	^answer ifNil: [nil] ifNotNil: [inst pathText value]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSaveDialog >> answer [
 	^self isConfirmed
 		ifTrue: [ fileSelectorPresenter pathText value ]
 		ifFalse: [ nil ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSaveDialog >> fileNamePresenter [
-	^fileNamePresenter
+{ #category : 'actions' }
+JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
+
+	| path fileService |
+	path := fileSelectorPresenter selectedFileOrDirectory.
+	fileService := RowanFileService new
+		               path: path;
+		               session: self gciSession.
+	^ fileService exists
+		  ifTrue: [
+			  (UIManager default confirm: path , ' exists. Overwrite?')
+				  ifTrue: [ aWindowPresenter beOk ] ]
+		  ifFalse: [ aWindowPresenter beOk ]
 ]
 
-{ #category : 'actions' }
-JadeiteServerFileSaveDialog >> goto [
-	model value path: fileSelectorPresenter pathText value.
-	self showDirectoryContents
+{ #category : 'accessing' }
+JadeiteServerFileSaveDialog >> fileNamePresenter [
+	^fileNamePresenter
 ]
 
 { #category : 'initialization' }
@@ -100,7 +109,7 @@ JadeiteServerFileSaveDialog >> initializePresenters [
 JadeiteServerFileSaveDialog >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter okAction: [ UIManager default confirm: 'finish this'  ]
+	aWindowPresenter okAction: [ self confirmSave: aWindowPresenter ]
 ]
 
 { #category : 'initialization' }
@@ -110,18 +119,10 @@ JadeiteServerFileSaveDialog >> initializeWith: path fileName: fileName [
 	fileNamePresenter text: fileName 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteServerFileSaveDialog >> pop [
 
 	^fileSelectorPresenter pop
-]
-
-{ #category : 'actions' }
-JadeiteServerFileSaveDialog >> save [
-	model value path = fileSelectorPresenter pathText value ifFalse: [^self goto].
-	fileSelectorPresenter pathText
-		value: fileSelectorPresenter pathText value , '/' , fileNamePresenter value.
-	self ok
 ]
 
 { #category : 'accessing' }

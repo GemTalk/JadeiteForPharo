@@ -24,6 +24,14 @@ RowanFileServiceClient >> alwaysForked: anObject [
 ]
 
 { #category : 'commands' }
+RowanFileServiceClient >> exists [
+	command := #exists.
+	commandArgs := Array new. 
+	self issueFileServiceCommand.
+	^answer
+]
+
+{ #category : 'commands' }
 RowanFileServiceClient >> fileIn [
 	command := #fileIn:.
 	commandArgs := Array with: path.
