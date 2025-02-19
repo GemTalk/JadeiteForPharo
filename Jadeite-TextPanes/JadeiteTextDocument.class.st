@@ -803,7 +803,10 @@ JadeiteTextDocument >> text [
 
 	self adapter ifNotNil: [ :a |
 		adapter widget text asString = text ifFalse: [
-			text := adapter widget text asString ] ].
+			| sel | 
+			sel := adapter widget selectionInterval. 
+			text := adapter widget text asString.
+			adapter widget selectionInterval: sel ] ].
 	^ text
 ]
 
