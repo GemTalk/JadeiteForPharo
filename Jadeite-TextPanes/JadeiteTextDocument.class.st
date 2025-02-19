@@ -178,6 +178,12 @@ JadeiteTextDocument >> basicBrowseClassReferences: className session: session co
 	^ service
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> basicText [ 
+	"for testing"
+	^text
+]
+
 { #category : 'commands' }
 JadeiteTextDocument >> browseMenuItemName [
 

@@ -134,6 +134,39 @@ JadeiteForPharoWorkspaceTestCase >> test_workspaceAdHocDisplayUnicodeCharacters 
 ]
 
 { #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_workspaceDeselectionOnContextMenuOpen [
+	"simulate the problem without actually opening the menu.
+	Opening the menu is (at the moment) not possible in a test because the menu isn't returned
+	and even if I changed the code to return the menu, the gui won't return until the menu is closed.
+	By then the menu is gone and nil is returned "
+
+	| code |
+	self
+		testsJadeiteForPharoIssue: #issue201
+		title: 'Running selected code in Workspace fails for the first time'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/201'.
+	self
+		testsJadeiteForPharoIssue: #issue219
+		title: 'Funky behavior of workspace select on right mouse click'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/219'.
+	code := '| abc | 
+	abc := Array new.
+	abc size'.
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - Test Selection Disappearing'.
+
+	workspace instVarNamed: #text put: '123'.
+	workspace adapter widget setText: code.
+	self
+		deny: workspace basicText
+		equals: workspace adapter widget getText asString. "ensure condition before send #text so problem code is executed"
+	workspace selectAll.
+	self assert: workspace selectedText equals: code.
+	workspace text. "caused the deselection problem"
+	self assert: workspace selectedText equals: code
+]
+
+{ #category : 'tests' }
 JadeiteForPharoWorkspaceTestCase >> test_workspaceDisplay [
 
 	workspace := (JadeiteWorkspace showOnSession: session) caption:
