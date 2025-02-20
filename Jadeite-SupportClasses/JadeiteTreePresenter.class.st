@@ -39,8 +39,8 @@ JadeiteTreePresenter >> doActivateAtPath: aPath [
 	| selBlock |
 	self itemAtPath: aPath ifAbsent: [ ^ self ].
 	selBlock := selectionBlock.
-	self whenSelectionChangedDo: [  ].
 	[
+	self whenSelectionChangedDo: [  ].
 	activationBlock cull: ((SpTreeSingleSelectionMode on: self)
 			 selectPath: aPath;
 			 yourself) ] ensure: [ self whenSelectionChangedDo: selBlock ]

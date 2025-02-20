@@ -647,8 +647,7 @@ JadeiteBrowserPresenter >> classSelected: classService [
 	classService ifNotNil: [
 		self clearMethodLists.
 		self clearFilterLists.
-		RowanServiceUpdater current isApplyingUpdates ifFalse: [
-			self refreshClassUsing: methodListPresenter selectedItem ].
+		self refreshClassUsing: methodListPresenter selectedItem.
 		self updateTabLabel.
 		self selectCategoryTab.
 		self methodListPresenter selectIndex: 0 scrollToSelection: true ]
@@ -1165,7 +1164,7 @@ JadeiteBrowserPresenter >> expandAt: classService [
 	self issueCommand: classService onCompletion: [
 		classHierarchyPresenter childrenFor: classService.
 		path := classHierarchyPresenter selection selectedPath.
-		classHierarchyPresenter recalculateChildrenFor: path.
+		path notEmpty ifTrue: [classHierarchyPresenter recalculateChildrenFor: path].
 		classHierarchyPresenter
 			collapsePath: path;
 			expandPath: path.
