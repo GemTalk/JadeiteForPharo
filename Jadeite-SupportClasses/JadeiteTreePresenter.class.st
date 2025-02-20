@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteTreePresenter',
 	#superclass : 'SpTreePresenter',
+	#instVars : [
+		'selectionBlock'
+	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
@@ -27,6 +30,20 @@ JadeiteTreePresenter >> clear [
 JadeiteTreePresenter >> contains: anObject [
 
 	^ ((self pathIndexOf: (Array with: anObject)) first = 0) not
+]
+
+{ #category : 'private' }
+JadeiteTreePresenter >> doActivateAtPath: aPath [
+	"activate will handle selection activities"
+
+	| selBlock |
+	self itemAtPath: aPath ifAbsent: [ ^ self ].
+	selBlock := selectionBlock.
+	self whenSelectionChangedDo: [  ].
+	[
+	activationBlock cull: ((SpTreeSingleSelectionMode on: self)
+			 selectPath: aPath;
+			 yourself) ] ensure: [ self whenSelectionChangedDo: selBlock ]
 ]
 
 { #category : 'initialization' }
@@ -78,8 +95,27 @@ JadeiteTreePresenter >> selectPath: aPath [
 		self selection selectPath: aPath ]
 ]
 
+{ #category : 'accessing' }
+JadeiteTreePresenter >> selectionBlock [
+
+	^ selectionBlock
+]
+
+{ #category : 'accessing' }
+JadeiteTreePresenter >> selectionBlock: anObject [
+
+	selectionBlock := anObject
+]
+
 { #category : 'selection' }
 JadeiteTreePresenter >> selectionIfNone: aBlock [
 
 	^self selectedItem ifNil: [ aBlock value ]
+]
+
+{ #category : 'api - events' }
+JadeiteTreePresenter >> whenSelectionChangedDo: aBlock [
+
+	selectionBlock := aBlock.
+	^ super whenSelectionChangedDo: aBlock
 ]

@@ -1078,12 +1078,14 @@ RowanClassService >> updatedFullInClassHierarchy: classHierarchyPresenter browse
 ]
 
 { #category : 'updates' }
-RowanClassService >> updatedOneLevelInClassHierarchy: classHierarchyPresenter browser: projectBrowser [
-
+RowanClassService >> updatedOneLevelInClassHierarchy: classHierarchyPresenter browser: browser [
 	"must be specifically requested by server"
+
 	updateType = #updatedOneLevelInClassHierarchy:browser: ifFalse: [
 		^ self ].
-	self basicUpdateFullHierarchy
+	self basicUpdateFullHierarchy.
+	self filterUpdate: browser selectedFilterTab browser: browser.
+	browser methodsUpdate: self
 ]
 
 { #category : 'accessing' }

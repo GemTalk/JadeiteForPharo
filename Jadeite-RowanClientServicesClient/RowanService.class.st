@@ -277,10 +277,8 @@ RowanService >> handleCompileError: compileError [
 RowanService >> handleServiceCompletion [
 
 	self serviceCompletionBlock ifNotNil: [
-		| block |
-		block := self serviceCompletionBlock. "put in temp because it gets nil'd"
 		self _handleServiceCompletionBlock.
-		RowanServiceUpdater current commandCompleted: block ]
+		RowanServiceUpdater current commandCompleted: self ]
 ]
 
 { #category : 'inCommand' }

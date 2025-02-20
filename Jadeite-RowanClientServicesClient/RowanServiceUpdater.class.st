@@ -185,9 +185,9 @@ RowanServiceUpdater >> breakpointsEnabled: anObject [
 ]
 
 { #category : 'progress indication' }
-RowanServiceUpdater >> commandCompleted: aBlock [
+RowanServiceUpdater >> commandCompleted: service [
 
-	self commandsStarted remove: aBlock ifAbsent: [  ].
+	self commandsStarted remove: service ifAbsent: [  ].
 	self commandsStarted ifEmpty: [
 		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
 			:window | window presenter showNotWait ] ]
@@ -532,10 +532,9 @@ RowanServiceUpdater >> singleThreaded: anObject [
 { #category : 'progress indication' }
 RowanServiceUpdater >> startCommandProgressBar: service [
 
-	service serviceCompletionBlock ifNotNil: [ :block |
-		self commandsStarted add: block.
-		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
-			:window | window presenter showWait ] ]
+	self commandsStarted add: service.
+	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+		:window | window presenter showWait ]
 ]
 
 { #category : 'logging' }
@@ -547,7 +546,7 @@ RowanServiceUpdater >> startLogging [
 RowanServiceUpdater >> stopCommandProgressBar: service [
 	"an application can tell the updater when it starts an operation"
 
-	self commandCompleted: service serviceCompletionBlock
+	self commandCompleted: service
 ]
 
 { #category : 'logging' }

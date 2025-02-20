@@ -758,7 +758,8 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenSelectionChangedDo: [ :selection |
 			selection selectedItem ifNotNil: [ :classService |
 					self classSelected: classService ] ];
-		whenActivatedDo: [ :selection | self expandHierarchyAt: selection ].
+		whenActivatedDo: [ :selection |
+			self expandAt: selection selectedItem ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
@@ -1192,22 +1193,6 @@ JadeiteBrowserPresenter >> expandFullHierarchy [
 	self selectClassInClassHierarchyNamed: self selectedClass. 
 	self expandAt: self selectedClass. 
 	classHierarchyPresenter scrollToSelection
-]
-
-{ #category : 'actions' }
-JadeiteBrowserPresenter >> expandHierarchyAt: selection [
-	"sent by double-click. Let class refresh finish first"
-	| sem classService |
-	sem := Semaphore new.
-	classService := selection selectedItem.
-
-	[
-	[ classService isInCommand ] whileTrue: [
-		(Delay forMilliseconds: 1) wait ].
-	sem signal ] fork.
-
-	sem waitTimeoutSeconds: 5.
-	^ self expandAt: classService
 ]
 
 { #category : 'accessing' }
