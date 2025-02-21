@@ -11,12 +11,16 @@ Class {
 
 { #category : 'as yet unclassified' }
 JadeiteTestResource class >> current [
-	current
-		ifNil: 
-			[current := self new.
-			current session ifNil: [^nil	"notified earlier"]].
-	current hasValidSession ifFalse: [current := self new].
-	^current
+
+	current ifNil: [ "opening the settings browser initializes the JadeitePreferences
+		which is needed in JadeiteHeadlessTestResource"
+		| window |
+		window := SettingBrowser open.
+		window close.
+		current := self new.
+		current session ifNil: [ ^ nil "notified earlier" ] ].
+	current hasValidSession ifFalse: [ current := self new ].
+	^ current
 ]
 
 { #category : 'as yet unclassified' }

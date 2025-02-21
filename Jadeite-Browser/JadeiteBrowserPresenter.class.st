@@ -969,14 +969,6 @@ JadeiteBrowserPresenter >> displayMultipleCategories [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> displayStringFor: methodService in: displayThing [
-	methodService isExtension
-		ifTrue: 
-			[displayThing forecolor: Color darkMagenta.
-			methodService inSelectedPackage ifFalse: [displayThing font beUnderlined]]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> displayVariable: displayThing [
 	self selectedClass
 		ifNotNil: 
