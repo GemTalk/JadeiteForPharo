@@ -66,20 +66,14 @@ JadeitePresenter >> shellName [
 { #category : 'waiting' }
 JadeitePresenter >> showNotWait [
 
-	waitIndicator ifNotNil: [ :indicator |
-		indicator hide.
-		indicator adapter ifNotNil: [ :anAdapter |
-			anAdapter refreshRateInMs: 10000 "slow it way down when hidden to ensure gui responsiveness" ] ].
+	waitIndicator ifNotNil: [ :indicator | indicator hide ].
 	WorldMorph doOneCycle
 ]
 
 { #category : 'waiting' }
 JadeitePresenter >> showWait [
 
-	waitIndicator ifNotNil: [ :indicator |
-		indicator adapter ifNotNil: [ :anAdapter |
-			anAdapter refreshRateInMs: 250 ].
-		indicator show ].
+	waitIndicator ifNotNil: [ :indicator | indicator show ].
 	WorldMorph doOneCycle
 ]
 
