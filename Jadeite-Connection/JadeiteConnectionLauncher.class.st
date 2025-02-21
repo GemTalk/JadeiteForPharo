@@ -337,10 +337,10 @@ JadeiteConnectionLauncher >> exportProfile [
 
 	| fileRef |
 	fileRef := UIManager default theme
-		           chooseForSaveFileReferenceIn: Smalltalk ui
+		           jadeiteChooseForSaveFileReferenceIn: Smalltalk ui
 		           title: 'Export Connection File'
 		           extensions: nil
-		           path: '*'
+		           path: 'jadeiteConnection.txt'
 		           preview: nil.
 	fileRef ifNil: [ ^ self ].
 	fileRef exists ifTrue: [
