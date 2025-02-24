@@ -2623,7 +2623,8 @@ JadeiteBrowserPresenter >> protectedDictionaries [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> recompileMethods [
 
-	| browserService |
+	| browserService wasCompileError |
+	wasCompileError := false.
 	browserService := RowanBrowserService new.
 	browserService
 		command: #recompileMethodsAfterClassCompilation;
@@ -2634,20 +2635,22 @@ JadeiteBrowserPresenter >> recompileMethods [
 			UIManager default alert:
 					'Compile error in method - ''' , (ex gsArguments first at: 5)
 					, ''' ' , (ex gsArguments first at: 3)
-					, '. Class compilation not completed.' ].
+					,
+						'. Class compiled but method recompilation not completed. View not updated' ].
 
 	self issueCommand: browserService onCompletion: [
-		[
-		self resetClassDefinitionPane.
-		self
-			updateClassThenFind: browserService selectedClass
-			onCompletion: [  ] ]
-			on: GsApplicationError
-			do: [ :ex |
-				('*poolDictionaries not supported yet*' match: ex description)
-					ifTrue: [
-					^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
-				ex pass ] ]
+		wasCompileError ifFalse: [
+			[
+			self resetClassDefinitionPane.
+			self
+				updateClassThenFind: browserService selectedClass
+				onCompletion: [  ] ]
+				on: GsApplicationError
+				do: [ :ex |
+					('*poolDictionaries not supported yet*' match: ex description)
+						ifTrue: [
+						^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
+					ex pass ] ] ]
 ]
 
 { #category : 'as yet unclassified' }

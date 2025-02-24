@@ -701,6 +701,7 @@ RowanClassService >> newClass: presenter browser: browser [
 
 	updateType = #newClass:browser: ifFalse: [ ^ self ].
 	browser newClass: self addedTo: presenter.
+	browser updateService: self. "make sure we have a current view of the class"
 ]
 
 { #category : 'accessing' }
