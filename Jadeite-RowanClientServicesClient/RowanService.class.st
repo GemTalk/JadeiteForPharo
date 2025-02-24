@@ -453,7 +453,7 @@ RowanService >> issueCommands: services session: session onCompletion: completio
 
 { #category : 'rsr' }
 RowanService >> jadeiteConfirm: aString [
-
+	self todo: [ "make this a non-modal dialog eventually" ].
 	^UIManager default confirm: aString
 ]
 
