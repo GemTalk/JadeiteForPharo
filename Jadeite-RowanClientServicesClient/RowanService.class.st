@@ -467,8 +467,19 @@ RowanService >> jadeiteInspect: anOop [
 
 { #category : 'rsr' }
 RowanService >> jadeiteNotify: aString [
+	"variant of UITheme>>#alertIn:text:title:configure:
+	that does not open the dialog modally. 
+	Opening dialog modally starts a 2nd morphic process which
+	mucks with the display. "
 
-	^UIManager default alert:  aString 
+	| theme dialog |
+	theme := UIManager default theme.
+	SoundTheme useThemeSounds ifTrue: [ theme alertSound play ].
+	dialog := (AlertDialogWindow newWithTheme: UIManager default theme)
+		          textFont: theme textFont;
+		          title: 'Alert' translated;
+		          text: aString.
+	dialog openInWorld
 ]
 
 { #category : 'public' }

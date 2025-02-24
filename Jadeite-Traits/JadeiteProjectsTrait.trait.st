@@ -283,11 +283,14 @@ JadeiteProjectsTrait >> gitCheckoutTag: projectService [
 	| choice |
 	projectService gitTags: self gciSession onCompletion: [ :tags |
 		tags ifNotNil: [
-			choice := self
-				          selectStringFromList: tags
-				          title: 'Jadeite Checkout Git Tag'.
-			choice ifNotNil: [
-				self basicCheckoutTag: choice for: projectService ] ] ]
+			tags
+				ifEmpty: [ UIManager default alert: 'Project does not have tags' ]
+				ifNotEmpty: [
+					choice := self
+						          selectStringFromList: tags
+						          title: 'Jadeite Checkout Git Tag'.
+					choice ifNotNil: [
+						self basicCheckoutTag: choice for: projectService ] ] ] ]
 ]
 
 { #category : 'actions' }
@@ -543,10 +546,14 @@ JadeiteProjectsTrait >> openGitBranchesDialogFor: projectService onCompletion: c
 		gitBranches: self gciSession
 		onCompletion: [ :branches |
 			| choice |
-			choice := self
-				          selectStringFromList: branches
-				          title: 'Jadeite Checkout Git Branch'.
-			completionBlock value: choice ]
+			branches
+				ifEmpty: [
+				UIManager default alert: 'Project does not have branches' ]
+				ifNotEmpty: [
+					choice := self
+						          selectStringFromList: branches
+						          title: 'Jadeite Checkout Git Branch'.
+					completionBlock value: choice ] ]
 ]
 
 { #category : 'as yet unclassified' }
