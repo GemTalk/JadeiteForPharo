@@ -8,7 +8,8 @@ Class {
 	#superclass : 'JadeiteForPharoTestCase',
 	#instVars : [
 		'workspace',
-		'methodListBrowser'
+		'methodListBrowser',
+		'progressBarState'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -69,7 +70,9 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
-	"JadeitePreferences isRowanLoaded: true. "
+
+	progressBarState := JadeitePreferences showProgressBar.
+	JadeitePreferences showProgressBar: false.
 	self ensureLauncherOpened.
 	super setUp
 ]
@@ -81,7 +84,8 @@ JadeiteForPharoGUITestCase >> tearDown [
 	workspace ifNotNil: [
 		workspace isModified: false.
 		self destroy: workspace ].
-	self destroy: methodListBrowser
+	self destroy: methodListBrowser.
+	JadeitePreferences showProgressBar: progressBarState
 ]
 
 { #category : 'support' }

@@ -191,7 +191,8 @@ JadeitePreferences class >> settingsOn: aBuilder [
 				default: String new;
 				description:
 					'For GemTalk internal development. Simulate Rowan availability.'.
-			(aBuilder setting: #showProgressBar)
+			(aBuilder setting: #current)
+				label: 'Show Progress Bar ';
 				dialog: [ self createShowProgressBarRow ] ]
 ]
 
@@ -212,7 +213,7 @@ JadeitePreferences class >> showProgressBarCheckbox [
 
 	^ Smalltalk ui theme
 		  newCheckboxIn: Smalltalk ui theme
-		  for: Morph new
+		  for: self
 		  getSelected: #showProgressBar
 		  setSelected: #showProgressBar:
 		  getEnabled: #showProgressBarEnablement
