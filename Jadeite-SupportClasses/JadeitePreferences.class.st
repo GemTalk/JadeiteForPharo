@@ -23,7 +23,8 @@ Class {
 		'Current',
 		'DefaultFont',
 		'DefaultTextFont',
-		'IsRowanLoaded'
+		'IsRowanLoaded',
+		'ShowProgressBar'
 	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
@@ -39,6 +40,14 @@ JadeitePreferences class >> autocommitEnabled [
 JadeitePreferences class >> autocommitEnabled: aBoolean [
 
 	self current autocommitEnabled: aBoolean
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> createShowProgressBarRow [
+
+	^ Smalltalk ui theme newRowIn: self for: {
+			  self showProgressBarCheckbox.
+			  self stopProgressBarButton }
 ]
 
 { #category : 'as yet unclassified' }
@@ -181,7 +190,59 @@ JadeitePreferences class >> settingsOn: aBuilder [
 				label: 'Rowan Available';
 				default: String new;
 				description:
-					'For GemTalk internal development. Simulate Rowan availability.'  ]
+					'For GemTalk internal development. Simulate Rowan availability.'.
+			(aBuilder setting: #showProgressBar)
+				dialog: [ self createShowProgressBarRow ] ]
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> showProgressBar [
+
+	^ ShowProgressBar ifNil: [ ShowProgressBar := true ]
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> showProgressBar: aBoolean [
+
+	ShowProgressBar := aBoolean
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> showProgressBarCheckbox [
+
+	^ Smalltalk ui theme
+		  newCheckboxIn: Smalltalk ui theme
+		  for: Morph new
+		  getSelected: #showProgressBar
+		  setSelected: #showProgressBar:
+		  getEnabled: #showProgressBarEnablement
+		  label: 'Show Progress Bar'
+		  help: 'Display a progress bar when Jadeite For Pharo is busy'
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> showProgressBarEnablement [
+
+	^true
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> stopProgressBarButton [
+
+	^ (Smalltalk ui theme
+		   newButtonIn: self
+		   for: self
+		   getState: nil
+		   action: nil
+		   arguments: nil
+		   getEnabled: nil
+		   getLabel: nil
+		   help:
+			   'Stop any active progress bars in case they get stuck or annoying'
+				   translated)
+		  label: 'Stop Active Progress Bars';
+		  actionBlock: [ RowanServiceUpdater current stopProgressBar ];
+		  yourself
 ]
 
 { #category : 'as yet unclassified' }

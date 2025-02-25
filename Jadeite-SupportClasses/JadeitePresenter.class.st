@@ -73,7 +73,8 @@ JadeitePresenter >> showNotWait [
 { #category : 'waiting' }
 JadeitePresenter >> showWait [
 
-	waitIndicator ifNotNil: [ :indicator | indicator show ].
+	JadeitePreferences showProgressBar ifTrue: [
+		waitIndicator ifNotNil: [ :indicator | indicator show ] ].
 	WorldMorph doOneCycle
 ]
 
