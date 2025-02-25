@@ -105,6 +105,15 @@ JadeiteApplication class >> setInTransaction: answeringService session: session 
 ]
 
 { #category : 'instance creation' }
+JadeiteApplication class >> show [
+
+	| inst |
+	inst := self new.
+	^inst start.
+	
+]
+
+{ #category : 'instance creation' }
 JadeiteApplication class >> showOnSession: aConnection [
 
 	| inst |

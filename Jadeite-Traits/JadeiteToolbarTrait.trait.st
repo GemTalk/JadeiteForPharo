@@ -58,10 +58,14 @@ JadeiteToolbarTrait >> clientCommitIdDescription [
 { #category : 'actions' }
 JadeiteToolbarTrait >> clientCommitIdDescriptionOn: ws [
 
+	ws
+		nextPutAll: 'Client:';
+		cr;
+		cr.
 	self jadeiteClientGitRepositories doWithIndex: [ :repoName :index |
 		| repo |
 		repo := IceRepository registry detect: [ :ea | ea name = repoName ].
-		index = 1 ifFalse:[ws cr]. 
+		index = 1 ifFalse: [ ws cr ].
 		ws
 			nextPutAll: repoName;
 			space;
@@ -77,30 +81,22 @@ JadeiteToolbarTrait >> displayClientCommitId: workspace [
 ]
 
 { #category : 'actions' }
-JadeiteToolbarTrait >> displayClientandServerCommitIds: workspace onCompletion: completionBlock [
+JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
-	| ws |
+	| workspace workspacePresenter ws |
+	workspacePresenter := JadeiteWorkspaceApplication show.
+	workspace := workspacePresenter workspace.
 	ws := WriteStream on: String new.
 	ws
 		nextPutAll: self clientCommitIdDescription;
 		cr;
 		nextPutAll: '---------------------------------------------';
 		cr.
-	self serverCommitIdDescription: ws onCompletion: [
-		workspace text: ws contents.
-		completionBlock value ]
-]
-
-{ #category : 'actions' }
-JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
-
-	| workspace workspacePresenter |
-	workspacePresenter := JadeiteWorkspaceApplication showOnSession:
-		                      self connection.
-	workspace := workspacePresenter workspace.
-	self displayClientandServerCommitIds: workspace onCompletion: [
-		workspacePresenter setCaption: 'Jadeite Git Commit Ids'.
-		workspace hasUnacceptedEdits: false ].
+	ws nextPutAll:
+		JadeiteConnectionProfile connectionProfile serverCommitIdsUsingGci.
+	workspace text: ws contents.
+	workspace hasUnacceptedEdits: false.
+	workspacePresenter window title: 'Jadeite Git Commit Ids'.
 	^ workspace
 ]
 
@@ -181,9 +177,7 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 
 	| windowCaption |
 	windowCaption := 'Jadeite Git Commit Ids'.
-	^(self connection isNil or: [ JadeitePreferences isRowanLoaded not ])
-		ifTrue: [ self gitShaWorkspaceClientOnly ]
-		ifFalse: [ self gitShaWorkspaceClientAndServer ]
+	^ self gitShaWorkspaceClientAndServer
 ]
 
 { #category : 'actions' }

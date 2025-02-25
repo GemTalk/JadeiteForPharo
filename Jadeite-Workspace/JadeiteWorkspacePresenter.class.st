@@ -102,8 +102,11 @@ JadeiteWorkspacePresenter >> setCaption: string [
 { #category : 'initialization' }
 JadeiteWorkspacePresenter >> updateCaption [
 
-	| string |
-	string := gciSession titleBarFor: 'Jadeite Workspace'.
+	| string title |
+	title := 'Jadeite Workspace'.
+	string := gciSession
+		          ifNil: [ title ]
+		          ifNotNil: [ gciSession titleBarFor: title ].
 	self caption: string
 ]
 

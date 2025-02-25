@@ -63,8 +63,6 @@ JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
 	| session |
-	"user = 'SystemUser' ifFalse: [
-		^ MessageBox notify: 'Only SystemUser is currently supported.' ]."
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -75,11 +73,9 @@ JadeiteGCIConnectionProfile >> connect [
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
-		do: [ :ex |
-			self todo: 'is GciError the right error to signal?'.
-			^ GciError signal: ex message ].
+		do: [ :ex | ^ GciError signal: ex message ].
 	GciSession current stoneName: stone.
-	connection := self setupRSRConnection: session. 
+	connection := self setupRSRConnection: session.
 	session logoutNbNoError.
 	session := nil.
 	GciSession current library: connection.
@@ -107,6 +103,21 @@ JadeiteGCIConnectionProfile >> disconnect [
 	connection := nil.
 	self notifyPropertyChanged: #connection.
 	RowanServiceUpdater clearCurrent
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> getCommitIdsIn: session [
+
+	^ JadeitePreferences isRowanLoaded ifTrue: [
+		  session gciInterface executeStringAndFetchResultString: '| ws |
+ws := WriteStream on: String new. 
+ws nextPutAll: ''Server:''; cr; cr. 
+Rowan image loadedProjects do:[:proj |  
+	ws nextPutAll: proj name; 
+	space; 
+	nextPutAll: proj loadedCommitId;
+	lf] .
+ws contents' ]
 ]
 
 { #category : 'testing' }
@@ -173,6 +184,26 @@ JadeiteGCIConnectionProfile >> port: anObject [
 JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 
 	self isConnected ifFalse: [ self connect ]
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
+
+	| session commitIdString |
+	GciInterface libraryDirectory: path.
+	session := GsSession
+		           newForGsVersion: version
+		           threadSafe: true
+		           stone: stone
+		           host: host
+		           netldi: netldi.
+	[ session loginWithGsUser: user password: password ]
+		on: GciError
+		do: [ :ex |
+			^ 'Uable to login to gci. Cannot get server project commitIds' ].
+	commitIdString := self getCommitIdsIn: session.
+	session logoutNbNoError.
+	^ commitIdString
 ]
 
 { #category : 'actions' }
