@@ -47,32 +47,6 @@ JadeiteToolbarTrait >> basicOpenBrowser: browser [
 ]
 
 { #category : 'actions' }
-JadeiteToolbarTrait >> clientCommitIdDescription [
-
-	| ws | 
-	ws := WriteStream on: String new. 
-	self clientCommitIdDescriptionOn: ws. 
-	^ws contents
-]
-
-{ #category : 'actions' }
-JadeiteToolbarTrait >> clientCommitIdDescriptionOn: ws [
-
-	ws
-		nextPutAll: 'Client:';
-		cr;
-		cr.
-	self jadeiteClientGitRepositories doWithIndex: [ :repoName :index |
-		| repo |
-		repo := IceRepository registry detect: [ :ea | ea name = repoName ].
-		index = 1 ifFalse: [ ws cr ].
-		ws
-			nextPutAll: repoName;
-			space;
-			nextPutAll: repo properties commitish shortId ]
-]
-
-{ #category : 'actions' }
 JadeiteToolbarTrait >> displayClientCommitId: workspace [
 
 	| commitIdDescription |
@@ -83,21 +57,7 @@ JadeiteToolbarTrait >> displayClientCommitId: workspace [
 { #category : 'actions' }
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
-	| workspace workspacePresenter ws |
-	workspacePresenter := JadeiteWorkspaceApplication show.
-	workspace := workspacePresenter workspace.
-	ws := WriteStream on: String new.
-	ws
-		nextPutAll: self clientCommitIdDescription;
-		cr;
-		nextPutAll: '---------------------------------------------';
-		cr.
-	ws nextPutAll:
-		JadeiteConnectionProfile connectionProfile serverCommitIdsUsingGci.
-	workspace text: ws contents.
-	workspace hasUnacceptedEdits: false.
-	workspacePresenter window title: 'Jadeite Git Commit Ids'.
-	^ workspace
+	JadeiteConnectionProfile connectionProfile gitShaWorkspace
 ]
 
 { #category : 'actions' }

@@ -9,7 +9,8 @@ Class {
 		'user',
 		'password',
 		'path',
-		'port'
+		'port',
+		'session'
 	],
 	#classVars : [
 		'DefaultPath'
@@ -50,6 +51,46 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 	prefs applyPreferences
 ]
 
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> clientCommitIdDescription [
+
+	| ws | 
+	ws := WriteStream on: String new. 
+	self clientCommitIdDescriptionOn: ws. 
+	^ws contents
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> clientCommitIdDescriptionOn: ws [
+
+	ws
+		nextPutAll: 'Client:';
+		cr;
+		cr.
+	self jadeiteClientGitRepositories doWithIndex: [ :repoName :index |
+		| repo |
+		repo := IceRepository registry detect: [ :ea | ea name = repoName ].
+		index = 1 ifFalse: [ ws cr ].
+		ws
+			nextPutAll: repoName;
+			space;
+			nextPutAll: repo properties commitish shortId ]
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> commitIdServerCode [
+
+	^ '| ws |
+ws := WriteStream on: String new. 
+ws nextPutAll: ''Server:''; cr; cr. 
+Rowan image loadedProjects do:[:proj |  
+	ws nextPutAll: proj name; 
+	space; 
+	nextPutAll: proj loadedCommitId;
+	lf] .
+ws contents'
+]
+
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 
@@ -62,7 +103,6 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
-	| session |
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -75,9 +115,9 @@ JadeiteGCIConnectionProfile >> connect [
 		on: GciError
 		do: [ :ex | ^ GciError signal: ex message ].
 	GciSession current stoneName: stone.
-	connection := self setupRSRConnection: session.
-	session logoutNbNoError.
-	session := nil.
+	connection := self setupRSRConnection.
+	"session logoutNbNoError. don't logout or nil the session. Need to revert when on 3731 or later"
+	"session := nil"
 	GciSession current library: connection.
 	self applyPreferences.
 	"Uncomment following three lines to enable RSR tracing"
@@ -101,23 +141,50 @@ JadeiteGCIConnectionProfile >> disconnect [
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
 	GciSession clearCurrent. 
 	connection := nil.
+	session logoutNoError. 
+	session := nil. 
 	self notifyPropertyChanged: #connection.
 	RowanServiceUpdater clearCurrent
 ]
 
 { #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> getCommitIdsIn: session [
+JadeiteGCIConnectionProfile >> gciCommitIds [
 
-	^ JadeitePreferences isRowanLoaded ifTrue: [
-		  session gciInterface executeStringAndFetchResultString: '| ws |
-ws := WriteStream on: String new. 
-ws nextPutAll: ''Server:''; cr; cr. 
-Rowan image loadedProjects do:[:proj |  
-	ws nextPutAll: proj name; 
-	space; 
-	nextPutAll: proj loadedCommitId;
-	lf] .
-ws contents' ]
+	^ JadeitePreferences isRowanLoaded
+		  ifTrue: [
+			  session gciInterface executeStringAndFetchResultString:
+				  self commitIdServerCode ]
+		  ifFalse: [ 'Rowan not available' ]
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> gitShaWorkspace [
+
+	^ session
+		  ifNil: [ self serverCommitIdsUsingGci ]
+		  ifNotNil: [ self serverCommitIdsUsingServices ]
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> gitShaWorkspaceUsing: serverCommitIds [
+	"need to be able to open a git commit id workspace
+	with gci and services. Services requires it be done
+	in a completion block so we have that code here. "
+
+	| workspace workspacePresenter ws |
+	workspacePresenter := JadeiteWorkspaceApplication show.
+	workspace := workspacePresenter workspace.
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: self clientCommitIdDescription;
+		cr;
+		nextPutAll: '---------------------------------------------';
+		cr.
+	ws nextPutAll: serverCommitIds.
+	workspace text: ws contents.
+	workspace hasUnacceptedEdits: false.
+	workspacePresenter window title: 'Jadeite Git Commit Ids'.
+	^ workspace
 ]
 
 { #category : 'testing' }
@@ -130,6 +197,12 @@ JadeiteGCIConnectionProfile >> isConnected [
 JadeiteGCIConnectionProfile >> isGciConnection [
 
 	^true
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> jadeiteClientGitRepositories [
+
+	^ #( 'JadeiteForPharo' 'PharoGemStoneFFI' 'RemoteServiceReplication' )
 ]
 
 { #category : 'accessing' }
@@ -188,8 +261,9 @@ JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
+	"must be logged out"
 
-	| session commitIdString |
+	| commitIdString |
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -200,14 +274,26 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 	[ session loginWithGsUser: user password: password ]
 		on: GciError
 		do: [ :ex |
-			^ 'Uable to login to gci. Cannot get server project commitIds' ].
-	commitIdString := self getCommitIdsIn: session.
+			^ 'Unable to login to gci. Cannot get server project commitIds' ].
+
+	commitIdString := self gciCommitIds.
 	session logoutNbNoError.
-	^ commitIdString
+	self gitShaWorkspaceUsing: commitIdString
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
+
+	| answeringService |
+	answeringService := RowanAnsweringServiceClient new.
+	answeringService
+		exec: self commitIdServerCode
+		in: GciSession current
+		onCompletion: [ self gitShaWorkspaceUsing: answeringService answer ]
 ]
 
 { #category : 'actions' }
-JadeiteGCIConnectionProfile >> setupRSRConnection: session [
+JadeiteGCIConnectionProfile >> setupRSRConnection [
 	"Make and answer an RSR connection"
 
 	| detailBytes initiator thePort token portString invalidPort |
@@ -236,7 +322,7 @@ JadeiteGCIConnectionProfile >> setupRSRConnection: session [
 			with: acceptor token bytes.
 		detailBytes'
 		               maxResultSize: 1024.
-	session executeStringAndDetachNb: '| connection resolverClass |
+	session executeStringNb: '| connection resolverClass |
 		connection := (SessionTemps current at: #PendingConnectionAcceptor) waitForConnection.
 		resolverClass := ((AllUsers userWithId: ''SystemUser'') objectNamed: ''RowanClientServiceTemplateResolver'').
 		GsFile gciLogServer: ''resolverClass: '', resolverClass printString. 
