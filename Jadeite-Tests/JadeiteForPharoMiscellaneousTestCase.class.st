@@ -153,13 +153,13 @@ JadeiteForPharoMiscellaneousTestCase >> test_gitVersionDisplay [
 		                      :projectService |
 		                      projectService name = 'RowanClientServices' ])
 		                     sha.
-	desiredWorkspaceText := 'JadeiteForPharo ' , jfpSha asString , '
+	desiredWorkspaceText := 'Client:*
+JadeiteForPharo ' , jfpSha asString , '
 PharoGemStoneFFI ' , gemstoneFFISha asString , '
 RemoteServiceReplication ' , rsrSha asString , '
 ---------------------------------------------
-RowanClientServices ' , clientServicesSha asString , '
-'.
-	self assert: workspace text asString equals: desiredWorkspaceText ]
+Server:*RowanClientServices ' , clientServicesSha asString, '*'.
+	self assert: (desiredWorkspaceText match: workspace text asString ) ]
 		ensure: [ self destroy: workspace ]
 ]
 
