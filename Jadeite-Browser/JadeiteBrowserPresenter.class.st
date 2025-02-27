@@ -1062,7 +1062,7 @@ JadeiteBrowserPresenter >> editSaveClass [
 		result := self recompileMethods.
 		self resetClassDefinitionPane ]
 			on: Error
-			do: [ :ex | self statusBarText: 'ERROR: ' , ex messageText ] ]
+			do: [ :ex | self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2630,13 +2630,14 @@ JadeiteBrowserPresenter >> recompileMethods [
 		command: #recompileMethodsAfterClassCompilation;
 		commandArgs: #(  );
 		compileErrorHandler: [ :ex |
+			wasCompileError := true. 
 			self resetClassTemplate.
 			classDefinitionPresenter isModified: false.
 			UIManager default alert:
 					'Compile error in method - ''' , (ex gsArguments first at: 5)
 					, ''' ' , (ex gsArguments first at: 3)
 					,
-						'. Class compiled but method recompilation not completed. View not updated' ].
+						'. Class compiled but method recompilation not completed. Abort recommended.' ].
 
 	self issueCommand: browserService onCompletion: [
 		wasCompileError ifFalse: [
@@ -3496,7 +3497,7 @@ JadeiteBrowserPresenter >> shouldShowNoneTabLabel [
 JadeiteBrowserPresenter >> showCompileError: anAnnouncement [
 
 	self setCompileErrorColor.
-	self statusBarText:
+	self statusBarText pushMessage: 
 		'CompileError - ' , anAnnouncement compileErrorText
 ]
 

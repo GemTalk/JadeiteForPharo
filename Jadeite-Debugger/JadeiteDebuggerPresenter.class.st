@@ -569,7 +569,7 @@ JadeiteDebuggerPresenter >> shellName [
 JadeiteDebuggerPresenter >> showCompileError: anAnnouncement [
 
 	self setCompileErrorColor.
-	self statusBarText:
+	self statusBarText pushMessage:
 		'CompileError - ' , anAnnouncement compileErrorText
 ]
 
