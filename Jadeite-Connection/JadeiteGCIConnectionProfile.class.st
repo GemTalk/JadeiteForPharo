@@ -166,13 +166,12 @@ JadeiteGCIConnectionProfile >> gitShaWorkspace [
 ]
 
 { #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> gitShaWorkspaceUsing: serverCommitIds [
+JadeiteGCIConnectionProfile >> gitShaWorkspace: workspacePresenter using: serverCommitIds [
 	"need to be able to open a git commit id workspace
 	with gci and services. Services requires it be done
 	in a completion block so we have that code here. "
 
-	| workspace workspacePresenter ws |
-	workspacePresenter := JadeiteWorkspaceApplication show.
+	| workspace ws |
 	workspace := workspacePresenter workspace.
 	ws := WriteStream on: String new.
 	ws
@@ -278,18 +277,25 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 
 	commitIdString := self gciCommitIds.
 	session logoutNbNoError.
-	self gitShaWorkspaceUsing: commitIdString
+	^ self
+		  gitShaWorkspace: JadeiteWorkspaceApplication show
+		  using: commitIdString
 ]
 
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
 
-	| answeringService |
+	| answeringService workspacePresenter |
+	workspacePresenter := JadeiteWorkspaceApplication show.
 	answeringService := RowanAnsweringServiceClient new.
 	answeringService
 		exec: self commitIdServerCode
 		in: GciSession current
-		onCompletion: [ self gitShaWorkspaceUsing: answeringService answer ]
+		onCompletion: [
+			| withoutQuotes |
+			withoutQuotes := answeringService answer copyWithout: $'.
+			self gitShaWorkspace: workspacePresenter using: withoutQuotes ].
+	^ workspacePresenter workspace
 ]
 
 { #category : 'actions' }

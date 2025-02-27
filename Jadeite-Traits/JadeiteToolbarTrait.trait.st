@@ -57,7 +57,7 @@ JadeiteToolbarTrait >> displayClientCommitId: workspace [
 { #category : 'actions' }
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
-	JadeiteConnectionProfile connectionProfile gitShaWorkspace
+	^ JadeiteConnectionProfile connectionProfile gitShaWorkspace
 ]
 
 { #category : 'actions' }
