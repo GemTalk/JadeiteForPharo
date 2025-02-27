@@ -277,6 +277,7 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 
 	commitIdString := self gciCommitIds.
 	session logoutNbNoError.
+	session := nil. 
 	^ self
 		  gitShaWorkspace: JadeiteWorkspaceApplication show
 		  using: commitIdString
