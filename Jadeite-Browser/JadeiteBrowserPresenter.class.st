@@ -2630,14 +2630,12 @@ JadeiteBrowserPresenter >> recompileMethods [
 		command: #recompileMethodsAfterClassCompilation;
 		commandArgs: #(  );
 		compileErrorHandler: [ :ex |
-			wasCompileError := true. 
+			| gsArgs |
+			gsArgs := ex gsArguments first.
+			wasCompileError := true.
 			self resetClassTemplate.
 			classDefinitionPresenter isModified: false.
-			UIManager default alert:
-					'Compile error in method - ''' , (ex gsArguments first at: 5)
-					, ''' ' , (ex gsArguments first at: 3)
-					,
-						'. Class compiled but method recompilation not completed. Abort recommended.' ].
+			self showMethodRecompileCompilationError: gsArgs ].
 
 	self issueCommand: browserService onCompletion: [
 		wasCompileError ifFalse: [
@@ -3499,6 +3497,15 @@ JadeiteBrowserPresenter >> showCompileError: anAnnouncement [
 	self setCompileErrorColor.
 	self statusBarText pushMessage: 
 		'CompileError - ' , anAnnouncement compileErrorText
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> showMethodRecompileCompilationError: gsArgs [
+
+	^ UIManager default alert:
+		  'Error recompiling methods - ' , gsArgs printString
+		  ,
+		  '. Class compiled but method recompilation not completed. Abort recommended.'
 ]
 
 { #category : 'as yet unclassified' }
