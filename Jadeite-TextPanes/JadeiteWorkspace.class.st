@@ -106,7 +106,7 @@ JadeiteWorkspace >> openServerFile [
 			            defaultPath: self defaultSaveFileAsDirectory.
 		filePath ifNil: [ ^ self ].
 		filePathString := filePath.
-		service := RowanFileService new
+		service := RowanFileServiceClient new
 			           session: gciSession;
 			           path: filePathString.
 		service isDirectory ifTrue: [
@@ -133,7 +133,7 @@ JadeiteWorkspace >> resetFileText [
 
 	| service |
 	RowanServiceUpdater current critical: [
-		service := RowanFileService new
+		service := RowanFileServiceClient new
 			           session: gciSession;
 			           path: filePathString.
 		codePane text: service fileContents.
@@ -239,7 +239,7 @@ JadeiteWorkspace >> value [
 JadeiteWorkspace >> writeDocumentTo: newPath [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #write:;
 		           commandArgs:
 			           (Array with:

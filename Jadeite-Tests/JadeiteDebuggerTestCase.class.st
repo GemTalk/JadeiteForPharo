@@ -1873,7 +1873,7 @@ JadeiteDebuggerTestCase >> test_loginButtonEnablementAfterDebug [
 { #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_notifierDoesNotErrorCheckingResumeStatus [
 	| fileService shell |
-	fileService := RowanFileService new session: session.
+	fileService := RowanFileServiceClient new session: session.
 	TestJadeErrorShell enableJadeiteErrorShell.
 	
 	[process := [fileService fileInChunk: self badFileInString] forkAt: Processor activePriority + 1.

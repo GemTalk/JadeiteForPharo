@@ -9,7 +9,7 @@ Class {
 JadeiteForPharoWorkspaceTestCase >> fileContents: thePath [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #fileContents;
 		           path: thePath.
 	RowanServiceUpdater current issueCommand: service session: session.
@@ -20,7 +20,7 @@ JadeiteForPharoWorkspaceTestCase >> fileContents: thePath [
 JadeiteForPharoWorkspaceTestCase >> removeTestFile: thePath [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #remove;
 		           commandArgs: Array new;
 		           path: thePath.
@@ -31,7 +31,7 @@ JadeiteForPharoWorkspaceTestCase >> removeTestFile: thePath [
 JadeiteForPharoWorkspaceTestCase >> saveTestFileTo: thePath [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #write:;
 		           commandArgs:
 			           (Array with:

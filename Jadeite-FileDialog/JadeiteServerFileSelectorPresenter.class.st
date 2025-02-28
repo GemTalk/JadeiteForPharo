@@ -222,7 +222,7 @@ JadeiteServerFileSelectorPresenter >> setPath: path [
 JadeiteServerFileSelectorPresenter >> showDirectoryContents [
 
 	| sem |
-	fileService := RowanFileService new session: self gciSession.
+	fileService := RowanFileServiceClient new session: self gciSession.
 	fileService
 		command: #directoryContents;
 		commandArgs: Array new;

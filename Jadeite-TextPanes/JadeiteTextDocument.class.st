@@ -468,7 +468,7 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 { #category : 'as yet unclassified' }
 JadeiteTextDocument >> fileInChunk [
 	| service |
-	service := RowanFileService new session: gciSession.
+	service := RowanFileServiceClient new session: gciSession.
 	service fileInChunk: codePane selection
 ]
 

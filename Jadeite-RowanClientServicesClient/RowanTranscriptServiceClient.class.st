@@ -16,7 +16,9 @@ RowanTranscriptServiceClient >> nextPutAll [
 	| sem |
 	sem := Semaphore new.
 	UIManager default defer: [
-		transcriptPresenter text: transcriptPresenter text , string.
+		transcriptPresenter
+			text: transcriptPresenter text , string;
+			hasUnacceptedEdits: false.
 		transcriptPresenter scrollValue: 1 @ 1.
 		sem signal ].
 	sem wait

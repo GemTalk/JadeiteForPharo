@@ -150,7 +150,7 @@ JadeiteLoadProjectDialog >> load [
 		ifFalse: [^MessageBox notify: 'Project Spec file must be selected'].
 	fileSelectorPresenter selectionMade.
 	projectHomePresenter selectionMade.
-	fileService := RowanFileService new
+	fileService := RowanFileServiceClient new
 				path: projectHomePresenter pathText value;
 				session: session.
 	self class previousProjectHomePath: fileService directoryPath.
@@ -169,7 +169,7 @@ JadeiteLoadProjectDialog >> loadFromUrl [
 { #category : 'as yet unclassified' }
 JadeiteLoadProjectDialog >> ok [
 	| fileService |
-	fileService := RowanFileService new
+	fileService := RowanFileServiceClient new
 				path: projectHomePresenter pathText value;
 				session: session.
 	self class previousProjectHomePath: fileService directoryPath.
@@ -222,10 +222,10 @@ JadeiteLoadProjectDialog >> session: anObject [
 { #category : 'as yet unclassified' }
 JadeiteLoadProjectDialog >> setPresenterModels: aGciSession [
 	| projectSpecService projectHomeService |
-	projectSpecService := RowanFileService new path: self class previousFilePath.
+	projectSpecService := RowanFileServiceClient new path: self class previousFilePath.
 	projectSpecService session: aGciSession.
 	fileSelectorPresenter model: projectSpecService asValue.
-	projectHomeService := RowanFileService new path: self class previousProjectHomePath.
+	projectHomeService := RowanFileServiceClient new path: self class previousProjectHomePath.
 	projectHomeService session: aGciSession.
 	projectHomePresenter model: projectHomeService asValue.
 	fileSelectorPresenter pathText value: self class previousFilePath.

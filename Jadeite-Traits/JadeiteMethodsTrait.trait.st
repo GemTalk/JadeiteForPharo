@@ -622,7 +622,7 @@ JadeiteMethodsTrait >> fileoutMethods [
 		service := self selectedMethods.
 		filePath := self fileoutFileSelection: 'methods.gs'.
 		filePath ifNotNil: [
-			fileService := RowanFileService new path: filePath.
+			fileService := RowanFileServiceClient new path: filePath.
 			fileService
 				command: #fileoutMethods:;
 				commandArgs: (Array with: self selectedMethods).

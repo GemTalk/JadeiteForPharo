@@ -102,7 +102,7 @@ JadeiteForPharoMiscellaneousTestCase >> test_cancel [
 	self deny: workspace adapter widget hasUnacceptedEdits.
 	self assert: workspace codePane text equals: '#(1 2 3)' ] ensure: [
 		| fileService |
-		fileService := RowanFileService new
+		fileService := RowanFileServiceClient new
 			               path: path;
 			               session: GciSession current;
 			               yourself.
@@ -246,7 +246,7 @@ JadeiteForPharoMiscellaneousTestCase >> writeUnicodeFile [
 	"write out a text file with unicode characters"
 
 	| service |
-	service := RowanFileService new.
+	service := RowanFileServiceClient new.
 	service
 		command: #writeFileWithUnicode;
 		commandArgs: Array new.

@@ -10,7 +10,7 @@ JadeiteServerFileWorkspaceApplication class >> showOnSession: aGciSession path: 
 
 	| workspacePresenter workspace service |
 	RowanServiceUpdater current critical: [
-		service := RowanFileService new
+		service := RowanFileServiceClient new
 			           session: aGciSession;
 			           path: path.
 		service isDirectory ifTrue: [

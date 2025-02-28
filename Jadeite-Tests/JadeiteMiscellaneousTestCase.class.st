@@ -266,7 +266,7 @@ Another extended char - Ã  aaa Å' replaceCrWithLf.
 				path: '/export/uffda2/users/ewinger/logs//testJadeiteUnicodeFile.txt'.
 	self assert: workspace codePane documentPresenter value
 		equals: 'Ã² Ã³ Ã´ Ãµ Ã¶ Ã· Ã¸ Ã¹ Ãº Ã»' replaceCrLfWithLf.
-	service := RowanFileService new.
+	service := RowanFileServiceClient new.
 	service
 		command: #deleteFileWithUnicode;
 		commandArgs: Array new.
@@ -358,7 +358,7 @@ JadeiteMiscellaneousTestCase >> writeUnicodeFile [
 	"write out a text file with unicode characters"
 
 	| service |
-	service := RowanFileService new.
+	service := RowanFileServiceClient new.
 	service
 		command: #writeFileWithUnicode;
 		commandArgs: Array new.

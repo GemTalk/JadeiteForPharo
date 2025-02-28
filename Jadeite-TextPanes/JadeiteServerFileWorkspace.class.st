@@ -13,7 +13,7 @@ JadeiteServerFileWorkspace class >> showOnSession: aGciSession path: path [
 
 	| workspacePresenter workspace service |
 	RowanServiceUpdater current critical: [
-		service := RowanFileService new
+		service := RowanFileServiceClient new
 			           session: aGciSession;
 			           path: path.
 		service isDirectory ifTrue: [
@@ -60,7 +60,7 @@ JadeiteServerFileWorkspace >> path: anObject [
 JadeiteServerFileWorkspace >> saveDocument [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #write:;
 		           commandArgs:
 			           (Array with:
@@ -90,7 +90,7 @@ JadeiteServerFileWorkspace >> updateCaption [
 JadeiteServerFileWorkspace >> writeDocumentTo: newPath [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #write:;
 		           commandArgs:
 			           (Array with: codePane text replaceCrLfWithLf);

@@ -1120,7 +1120,7 @@ JadeiteBrowserPresenter >> editSaveMethod: classService onCompletion: completion
 JadeiteBrowserPresenter >> editSaveReadMe [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #write:;
 		           commandArgs: (Array with: projectReadMeTab value);
 		           path: self projectReadmePath.
@@ -1218,7 +1218,7 @@ JadeiteBrowserPresenter >> fileOutClassOnPath: path [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> fileOutDictionariesOnPath: path [
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 				path: path;
 				session: gciSession.
 	service fileOutDictionaries: self selectedDictionaryNames
@@ -1227,7 +1227,7 @@ JadeiteBrowserPresenter >> fileOutDictionariesOnPath: path [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> fileOutMethodsOnPath: path [
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 				path: path;
 				session: gciSession.
 	service fileOutMethods: methodListPresenter selections
@@ -1241,7 +1241,7 @@ JadeiteBrowserPresenter >> fileoutDictionary [
 
 	filePath := self fileoutFileSelection: dictionaryService name , '.gs'.
 	filePath ifNotNil: [
-		fileService := RowanFileService new
+		fileService := RowanFileServiceClient new
 			               path: filePath;
 			               session: gciSession.
 		fileService fileOutDictionaries: { dictionaryService name } ]
@@ -4078,7 +4078,7 @@ JadeiteBrowserPresenter >> updateProjectPackagesOnCompletion: completionBlock [
 JadeiteBrowserPresenter >> updateProjectReadMe [
 
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 		           command: #readmeContents;
 		           path: self projectReadmePath.
 	self issueCommand: service onCompletion: [  ].

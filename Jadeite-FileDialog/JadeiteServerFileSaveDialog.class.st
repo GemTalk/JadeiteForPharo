@@ -11,7 +11,7 @@ Class {
 { #category : 'as yet unclassified' }
 JadeiteServerFileSaveDialog class >> instantiateOnSession: aGciSession initialFileName: fileName [
 	| service inst |
-	service := RowanFileService new path: JadePresenter rowanProjectsHomeEnvVarString.
+	service := RowanFileServiceClient new path: JadePresenter rowanProjectsHomeEnvVarString.
 	service session: aGciSession.
 	inst := self createOn: service.
 	inst setPresenterModel.
@@ -69,9 +69,13 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 
 	| path fileService |
 	path := fileSelectorPresenter selectedFileOrDirectory.
-	fileService := RowanFileService new
+	fileService := RowanFileServiceClient new
 		               path: path;
 		               session: self gciSession.
+	fileService isDirectory ifTrue: [
+		fileService path:
+			(fileService path asFileReference / fileNamePresenter text)
+				pathString ].
 	^ fileService exists
 		  ifTrue: [
 			  (UIManager default confirm: path , ' exists. Overwrite?')
@@ -130,7 +134,7 @@ JadeiteServerFileSaveDialog >> selectedFileOrDirectory [
 
 	| fileService selFileOrDir |
 	selFileOrDir := self fileSelectorPresenter selectedFileOrDirectory.
-	fileService := RowanFileService new
+	fileService := RowanFileServiceClient new
 		               path: selFileOrDir;
 		               session: self gciSession.
 	^ (fileService isDirectory

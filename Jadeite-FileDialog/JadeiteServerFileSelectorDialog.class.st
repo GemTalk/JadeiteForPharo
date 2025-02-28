@@ -26,7 +26,7 @@ JadeiteServerFileSelectorDialog class >> _showOnSession: aGciSession defaultPath
 JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path [
 
 	| service inst |
-	service := RowanFileService new path: path.
+	service := RowanFileServiceClient new path: path.
 	service session: aGciSession.
 	inst := self new gciSession: aGciSession.
 	^ inst
@@ -134,7 +134,7 @@ JadeiteServerFileSelectorDialog >> pop [
 { #category : 'actions' }
 JadeiteServerFileSelectorDialog >> select [
 	| service |
-	service := RowanFileService new
+	service := RowanFileServiceClient new
 				path: fileSelectorPresenter newPathText;
 				session: model session.
 	service isDirectory ifTrue: [^MessageBox notify: 'Cannot open a directory'].
@@ -163,7 +163,7 @@ JadeiteServerFileSelectorDialog >> setPresenterModel [
 JadeiteServerFileSelectorDialog >> setPresenterModelFor: session path: path [
 
 	| fileService |
-	fileService := RowanFileService new path: path.
+	fileService := RowanFileServiceClient new path: path.
 	fileService session: session.
 	fileSelectorPresenter fileService: fileService
 ]

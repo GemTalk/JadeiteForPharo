@@ -24,8 +24,33 @@ RowanFileServiceClient >> alwaysForked: anObject [
 ]
 
 { #category : 'commands' }
+RowanFileServiceClient >> directoryPath [
+	command := #directoryPath.
+	commandArgs := Array new.
+	self issueFileServiceCommand.
+	^answer
+]
+
+{ #category : 'commands' }
 RowanFileServiceClient >> exists [
+
 	command := #exists.
+	commandArgs := Array new.
+	self issueFileServiceCommand.
+	^ answer
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> expandPath [
+	command := #expandPath.
+	commandArgs := Array new. 
+	self issueFileServiceCommand.
+	^answer
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> fileContents [
+	command := #fileContents.
 	commandArgs := Array new. 
 	self issueFileServiceCommand.
 	^answer
@@ -35,6 +60,38 @@ RowanFileServiceClient >> exists [
 RowanFileServiceClient >> fileIn [
 	command := #fileIn:.
 	commandArgs := Array with: path.
+	self issueFileServiceCommand
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> fileInChunk: aString [
+	command := #fileInChunk:.
+	commandArgs := Array with: aString.
+	self issueFileServiceCommand
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> fileName [
+
+	command := #fileName.
+	commandArgs := Array new.
+	self issueFileServiceCommand.
+	^answer
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> fileOutDictionaries: array [
+	self
+		command: #fileoutDictionaries:;
+		commandArgs: (Array with: array).
+	self issueFileServiceCommand
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> fileOutMethods: array [
+	self
+		command: #fileoutMethods:;
+		commandArgs: (Array with: array).
 	self issueFileServiceCommand
 ]
 
@@ -98,7 +155,8 @@ RowanFileServiceClient >> isDirectory: directory onCompletion: completionBlock [
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommand [
 
-	self issueFileServiceCommandOnCompletion: [  ]
+	RowanServiceUpdater current critical: [
+		self issueFileServiceCommandOnCompletion: [  ] ]
 ]
 
 { #category : 'commands' }
@@ -147,6 +205,13 @@ RowanFileServiceClient >> popWith: directoryContentsList with: pathText [
 	answer ifNotNil: [
 		directoryContentsList list: self shortNames.
 		pathText text: path ]
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> remove [
+	command := #remove.
+	commandArgs := Array new.
+	self issueFileServiceCommand
 ]
 
 { #category : 'service completion' }

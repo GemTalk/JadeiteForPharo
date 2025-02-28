@@ -549,15 +549,17 @@ JadeiteConsole >> initializeTransactionModeSettings [
 JadeiteConsole >> initializeTranscriptPresenter: tabs [
 
 	tabs
-		add: (transcriptPresenter := (JadeiteTextDocument new _gciSession:
-				                         self application gciSession)
-				                        beNotEditable)
+		add: (transcriptPresenter := JadeiteTextDocument new _gciSession:
+				                        self application gciSession)
 		label: 'Transcript'.
 	transcriptPresenter contextMenu: [
 		SpMenuPresenter new addItem: [ :item |
 			item
 				name: 'Clear';
-				action: [ transcriptPresenter clearContent ];
+				action: [
+					transcriptPresenter
+						clearContent;
+						hasUnacceptedEdits: false ];
 				enabled: true ] ]
 ]
 
