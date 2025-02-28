@@ -80,10 +80,11 @@ JadeiteGCIConnectionProfile >> clientCommitIdDescriptionOn: ws [
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> commitIdServerCode [
 
-	^ '| ws |
+	^ '| ws sortedLoadedProjects |
 ws := WriteStream on: String new. 
 ws nextPutAll: ''Server:''; cr; cr. 
-Rowan image loadedProjects do:[:proj |  
+sortedLoadedProjects := Rowan image loadedProjects asSortedCollection: [:x :y | x name < y name].
+sortedLoadedProjects do:[:proj |  
 	ws nextPutAll: proj name; 
 	space; 
 	nextPutAll: proj loadedCommitId;
