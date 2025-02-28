@@ -72,6 +72,13 @@ JadeiteWorkspace >> editRevert [
 ]
 
 { #category : 'accessing' }
+JadeiteWorkspace >> filePathString [
+	"for testing"
+
+	^ filePathString
+]
+
+{ #category : 'accessing' }
 JadeiteWorkspace >> filePathString: anObject [
 
 	filePathString := anObject
