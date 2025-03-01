@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteTestModalWindowPresenter',
 	#superclass : 'JadeiteModalWindowPresenter',
-	#category : 'Jadeite-Tests',
-	#package : 'Jadeite-Tests'
+	#category : 'Jadeite-BaseExtensions',
+	#package : 'Jadeite-BaseExtensions'
 }
 
 { #category : 'specs' }
