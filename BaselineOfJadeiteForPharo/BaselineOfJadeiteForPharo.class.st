@@ -115,8 +115,6 @@ BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 		               description.
 	path := description withoutPrefix: 'gitlocal://'.
 
-	self copyFile: 'jadeitehelp.html' path: path.
-	self copyFile: 'jadeitehelp.css' path: path.
 	self copyFile: 'jadeitehelp.md' path: path
 ]
 
