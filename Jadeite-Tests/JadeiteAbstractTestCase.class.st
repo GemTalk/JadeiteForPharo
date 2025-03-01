@@ -263,11 +263,12 @@ JadeiteAbstractTestCase >> deselectProjects [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> destroy: visualThing [
-	visualThing ifNil:[^self]. 
+
+	visualThing ifNil: [ ^ self ].
 	(Delay forMilliseconds: 200) wait.
-	visualThing window close.
-	(Delay forMilliseconds: 20) wait.
-	
+	visualThing window ifNotNil: [
+		visualThing window close.
+		(Delay forMilliseconds: 20) wait ]
 ]
 
 { #category : 'as yet unclassified' }

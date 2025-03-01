@@ -9,6 +9,24 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'tests' }
+JadeiteForPharoFileDialogTestCase >> fileName [
+
+	^ 'workspace.txt'
+]
+
+{ #category : 'support' }
+JadeiteForPharoFileDialogTestCase >> fullPath: path [
+
+	| fileService | 
+	fileService := RowanFileServiceClient new path: path. 
+	fileService session: session. 
+	fileService expandPath. 
+	^fileService answer
+
+	
+]
+
 { #category : 'support' }
 JadeiteForPharoFileDialogTestCase >> setUp [
 
@@ -97,4 +115,43 @@ JadeiteForPharoFileDialogTestCase >> test_pop2 [
 	self assert: parentPath equals: fileDialogPresenter pathText text.
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self deny: (keys includes: 'JadeiteForPharo')
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileDialogTestCase >> test_saveFileDialogReturnValue [
+	"selectedFileOrDirectory is what is returned from the save file dialog"
+
+	| item list |
+	self destroy: fileDialog.
+	fileDialog := JadeiteServerFileSaveTestDialog
+		              showOnSession: session
+		              defaultPath: '$ROWAN_PROJECTS_HOME'
+		              defaultFileName: self fileName.
+
+	fileDialogPresenter := fileDialog fileSelectorPresenter.
+	self
+		assert: fileDialogPresenter pathText text
+		equals: (self fullPath: '$ROWAN_PROJECTS_HOME').
+	self assert: fileDialog fileNamePresenter text equals: self fileName.
+	"no directory selected"
+	self
+		assert: fileDialog selectedFileOrDirectory
+		equals: ((self fullPath: '$ROWAN_PROJECTS_HOME') asFileReference
+			 / self fileName) pathString.
+
+	"select a directory, file will be saved to that directory"
+	list := fileDialogPresenter directoryContentsList.
+	item := list list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
+	fileDialogPresenter directoryContentsList selectItem: item.
+	self
+		assert: fileDialog selectedFileOrDirectory
+		equals: ((self fullPath: '$ROWAN_PROJECTS_HOME') asFileReference
+			 / 'JadeiteForPharo' / self fileName) pathString.
+
+	"change file name"
+	fileDialog fileNamePresenter text: 'newName.txt'.
+	self
+		assert: fileDialog selectedFileOrDirectory
+		equals: ((self fullPath: '$ROWAN_PROJECTS_HOME') asFileReference
+			 / 'JadeiteForPharo' / 'newName.txt') pathString
 ]

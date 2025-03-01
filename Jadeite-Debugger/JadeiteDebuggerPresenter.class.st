@@ -67,7 +67,7 @@ JadeiteDebuggerPresenter >> addDebuggerActionsTo: group [
 					suspendedProcess resume ] ];
 		addItem: [ :item |
 			item
-				name: 'Stop';
+				name: 'Exit';
 				icon: (self iconNamed: #changeRemove);
 				description: 'stops execution';
 				action: [

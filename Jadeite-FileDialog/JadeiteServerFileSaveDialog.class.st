@@ -8,7 +8,7 @@ Class {
 	#package : 'Jadeite-FileDialog'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> instantiateOnSession: aGciSession initialFileName: fileName [
 	| service inst |
 	service := RowanFileServiceClient new path: JadePresenter rowanProjectsHomeEnvVarString.
@@ -21,7 +21,7 @@ JadeiteServerFileSaveDialog class >> instantiateOnSession: aGciSession initialFi
 	^inst
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath: path [
 	"assumes path is a full path + file name" 
 	| inst answer  |
@@ -33,22 +33,23 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath:
 	^answer ifNil: [nil] ifNotNil: [inst pathText value]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: path defaultFileName: fileName [
 
-	| inst modal answer |
+	| inst modal answer expandedPath |
 	(ProvideAnswerNotification signal: path) ifNotNil: [ :theAnswer |
 		^ theAnswer ].
 	inst := self createDialogOn: aGciSession path: path.
+	expandedPath := inst fileSelectorPresenter pathText text. 
 	modal := (inst application: JadeiteSpApplication new) asModalWindow.
 	modal centered.
-	inst initializeWith: path fileName: fileName.
+	inst initializeWith: expandedPath fileName: fileName.
 	answer := modal open.
 	answer cancelled ifTrue: [ ^ nil ].
 	^ inst selectedFileOrDirectory
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession initialFileName: fileName [
 	"assumes default $ROWAN_PROJECTS_HOME directory"
 	| inst answer |
@@ -78,8 +79,9 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 				pathString ].
 	^ fileService exists
 		  ifTrue: [
-			  (UIManager default confirm: path , ' exists. Overwrite?')
-				  ifTrue: [ aWindowPresenter beOk ] ]
+			  (UIManager default confirm:
+				   fileService path , ' exists. Overwrite?') ifTrue: [
+				  aWindowPresenter beOk ] ]
 		  ifFalse: [ aWindowPresenter beOk ]
 ]
 

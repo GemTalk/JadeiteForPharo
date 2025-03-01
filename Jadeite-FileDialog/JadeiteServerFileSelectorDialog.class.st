@@ -28,7 +28,9 @@ JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path 
 	| service inst |
 	service := RowanFileServiceClient new path: path.
 	service session: aGciSession.
+	service expandPath.
 	inst := self new gciSession: aGciSession.
+	inst fileSelectorPresenter pathText text: service answer.
 	^ inst
 ]
 
