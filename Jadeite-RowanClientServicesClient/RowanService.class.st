@@ -223,6 +223,7 @@ RowanService >> debugPrintString [
 RowanService >> editInSession: aSession window: handle [
 	"api for opening an editor window on a service and putting the oop in the export set for the life of the window"
 
+	self todo: 'not sent, but still needed?'.
 	command := #editInWindow:.
 	commandArgs := Array with: handle.
 	self issueCommand: self session: aSession

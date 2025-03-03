@@ -74,9 +74,7 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 		               path: path;
 		               session: self gciSession.
 	fileService isDirectory ifTrue: [
-		fileService path:
-			(fileService path asFileReference / fileNamePresenter text)
-				pathString ].
+		fileService setPathFor: fileNamePresenter text ].
 	^ fileService exists
 		  ifTrue: [
 			  (UIManager default confirm:
@@ -140,8 +138,8 @@ JadeiteServerFileSaveDialog >> selectedFileOrDirectory [
 		               path: selFileOrDir;
 		               session: self gciSession.
 	^ (fileService isDirectory
-		   ifTrue: [ selFileOrDir asFileReference / fileNamePresenter text ]
-		   ifFalse: [ selFileOrDir asFileReference]) pathString
+		   ifTrue: [ fileService pathStringFor: fileNamePresenter text ]
+		   ifFalse: [ fileService pathStringFor: nil ])
 ]
 
 { #category : 'accessing' }

@@ -680,6 +680,12 @@ JadeiteDebuggerPresenter >> updateMethodSource [
 	self updateMethodSourceGlyphs
 ]
 
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> updateMethodSource: anAnnouncement [
+
+	self updateMethodSource
+]
+
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
 

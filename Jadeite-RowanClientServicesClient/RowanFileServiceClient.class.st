@@ -155,17 +155,17 @@ RowanFileServiceClient >> isDirectory: directory onCompletion: completionBlock [
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommand [
 
-	RowanServiceUpdater current critical: [
-		self issueFileServiceCommandOnCompletion: [  ] ]
+	self issueFileServiceCommandOnCompletion: [  ]
 ]
 
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
 
-	RowanServiceUpdater current
-		issueCommand: self
-		session: self session
-		onCompletion: completionBlock
+	RowanServiceUpdater current critical: [
+		RowanServiceUpdater current
+			issueCommand: self
+			session: self session
+			onCompletion: completionBlock ]
 ]
 
 { #category : 'testing' }
@@ -182,6 +182,15 @@ RowanFileServiceClient >> path [
 { #category : 'accessing' }
 RowanFileServiceClient >> path: anObject [
 	path := anObject
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> pathStringFor: fileName [
+
+	command := #pathStringFor:.
+	commandArgs := Array with: fileName.
+	self issueFileServiceCommandOnCompletion: [  ].
+	^ answer
 ]
 
 { #category : 'commands' }
@@ -234,4 +243,12 @@ RowanFileServiceClient >> session [
 { #category : 'accessing' }
 RowanFileServiceClient >> session: anObject [
 	session := anObject
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> setPathFor: fileName [
+
+	command := #pathStringFor:.
+	commandArgs := Array with: fileName.
+	self issueFileServiceCommandOnCompletion: [ path := answer ]
 ]
