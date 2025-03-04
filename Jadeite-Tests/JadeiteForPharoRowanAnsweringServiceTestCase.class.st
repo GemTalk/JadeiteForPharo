@@ -21,7 +21,7 @@ JadeiteForPharoRowanAnsweringServiceTestCase >> test_answeringServiceAutoCommit 
 	updater issueCommand: answeringService1 session: session. 
 	answeringService2 := RowanAnsweringServiceClient new. 
 	answeringService2 exec: 'RowanService autoCommit' in: session onCompletion: [  ].
-	self assert: answeringService2 answer equals: answeringService1 answer. 
+	self assert: answeringService2 answer equals: answeringService1 answer asString. 
 	
 ]
 
