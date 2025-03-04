@@ -201,7 +201,8 @@ JadeiteServerFileSelectorPresenter >> selectedFileOrDirectory [
 
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> selectedFilePath [
-	^self pathText value , '/' , directoryContentsList selection key
+
+	^ fileService pathStringFor: directoryContentsList selection key
 ]
 
 { #category : 'as yet unclassified' }

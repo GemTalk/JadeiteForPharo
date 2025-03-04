@@ -17,11 +17,14 @@ JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
 		            defaultPath: JadePresenter lastSavePath
 		            defaultFileName: defaultFileName.
 	^ filePath ifNotNil: [
-		  filePath asFileReference extension isEmpty ifTrue: [
-			  filePath := filePath , '.gs' ].
-		  JadePresenter lastSavePath:
-			  (FileReference / filePath) parent pathString.
-		  filePath ]
+		  | service |
+		  service := RowanFileServiceClient new
+			             path: filePath;
+			             session: self gciSession.
+		  service extension isEmpty ifTrue: [
+			  service path: filePath , '.gs' ].
+		  JadePresenter lastSavePath: service directoryPath.
+		  service path ]
 ]
 
 { #category : 'selecting' }

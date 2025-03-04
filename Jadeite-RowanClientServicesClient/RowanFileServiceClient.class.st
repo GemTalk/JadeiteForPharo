@@ -49,6 +49,15 @@ RowanFileServiceClient >> expandPath [
 ]
 
 { #category : 'commands' }
+RowanFileServiceClient >> extension [
+
+	command := #extension.
+	commandArgs := Array new.
+	self issueFileServiceCommand.
+	^ answer
+]
+
+{ #category : 'commands' }
 RowanFileServiceClient >> fileContents [
 	command := #fileContents.
 	commandArgs := Array new. 
