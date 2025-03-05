@@ -243,7 +243,10 @@ JadeiteProjectsTrait >> gitBasicWriteProject: projectServices [
 					nextPutAll: (answeringService answer at: service name);
 					nextPut: $);
 					space ].
-			projectServices do: [ :service | service command: #write ].
+			projectServices do: [ :service |
+				service
+					command: #write;
+					commandArgs: Array new ].
 			RowanServiceUpdater current
 				issueCommands: projectServices
 				session: self gciSession
