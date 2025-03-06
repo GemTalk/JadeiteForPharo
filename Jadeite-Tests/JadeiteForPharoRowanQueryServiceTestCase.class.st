@@ -7,7 +7,6 @@ Class {
 
 { #category : 'tests' }
 JadeiteForPharoRowanQueryServiceTestCase >> test_compileErrorHandled [
-	"create any service, verify that the instantiated class is *Client"
 
 	| service handledCompileError compileError |
 	handledCompileError := false.
@@ -23,4 +22,25 @@ JadeiteForPharoRowanQueryServiceTestCase >> test_compileErrorHandled [
 	self
 		assert: compileError gsArguments first last
 		equals: 'expected a primary expression'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoRowanQueryServiceTestCase >> test_results [
+
+	| service nonExistantSymbol |
+	service := RowanQueryService
+		           command: #literalReferences:
+		           withArgs: (Array with: ''',''').
+	updater issueCommand: service session: session.
+	self assert: service hasResults.
+	service queryResults do: [ :methodService |
+		self assert: ('*'',''*' match: methodService source) ].
+	self assert: service queryResults identicalTo: service answer.
+
+	nonExistantSymbol := '#zwork_betterN0tBeTh3r3'.
+	service commandArgs: (Array with: nonExistantSymbol).
+	updater issueCommand: service session: session.
+	self deny: service hasResults.
+	self assert: service queryResults isEmpty.
+	self assert: service answer isEmpty
 ]

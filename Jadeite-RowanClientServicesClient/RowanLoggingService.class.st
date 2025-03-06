@@ -42,6 +42,12 @@ RowanLoggingService class >> newWithGroupId: integer logger: logger [
 	^self basicNewWithGroupId: integer logger: logger
 ]
 
+{ #category : 'accessing' }
+RowanLoggingService class >> templateClassName [ 
+
+	^#RowanLoggingService
+]
+
 { #category : 'comparing' }
 RowanLoggingService >> = methodService [
 

@@ -320,6 +320,7 @@ RowanPackageService >> selectedClass: anObject [
 RowanPackageService >> setCurrent [
 
 	command := #setCurrent.
+	commandArgs := Array new. 
 	self
 		issueCommands: (Array with: self)
 		session: GciSession current

@@ -83,12 +83,6 @@ RowanQueryServiceClient >> name: aString [
 	name := aString asString
 ]
 
-{ #category : 'as yet unclassified' }
-RowanQueryServiceClient >> perform: browseAction with: possibleSelectors completionBlock: aBlock [
-	serviceCompletionBlock := aBlock.
-	self perform: browseAction with: possibleSelectors
-]
-
 { #category : 'commands' }
 RowanQueryServiceClient >> sendersOfAll: selectors [
 

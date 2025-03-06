@@ -566,6 +566,7 @@ RowanProjectService >> rowanProjectsHome [
 RowanProjectService >> setCurrent [
 
 	command := #setCurrent.
+	commandArgs := Array new.
 	self
 		issueCommands: (Array with: self)
 		session: GciSession current

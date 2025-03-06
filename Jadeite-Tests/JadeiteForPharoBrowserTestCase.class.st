@@ -255,6 +255,42 @@ JadeiteForPharoBrowserTestCase >> test_existsOnDiskDisplay [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_fileoutPackage [
+
+	| fileOutPath fileOutRef |
+	self
+		testsJadeiteForPharoIssue: #issue260
+		title:
+		'fileout package creates two files and an extra extension .gs.gs'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/260'.
+	fileOutRef := FileSystem disk workingDirectory
+	              / 'JfP_test_Rowan-Client-Services.gs'.
+	fileOutRef deleteIfAbsent: [  ].
+	self deny: fileOutRef exists.
+	fileOutPath := fileOutRef pathString.
+	self selectRowanServicesPackage.
+	self projectsPresenter
+		basicPackageFileout: self packageListPresenter selectedItem
+		to: fileOutPath.
+	[
+	self assert: fileOutRef exists.
+	self assert: fileOutRef extension equals: 'gs'.
+	fileOutRef deleteIfAbsent: [  ].
+	self projectsPresenter
+		basicPackageFileout: self packageListPresenter selectedItem
+		to:
+			(FileSystem disk workingDirectory
+			 / 'JfP_test_Rowan-Client-Services') pathString.
+	self assert: fileOutRef exists.
+	self assert: fileOutRef extension equals: 'gs' ] ensure: [
+		FileSystem disk workingDirectory
+		/ 'JfP_test_Rowan-Client-Services.gs' deleteIfAbsent: [  ].
+		FileSystem disk workingDirectory
+		/ 'JfP_test_Rowan-Client-Services' deleteIfAbsent: [  ] "workaround for rowan creating extra file on fileout"
+		 ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_findClass [
 
 	self projectsPresenter
@@ -577,6 +613,25 @@ JadeiteForPharoBrowserTestCase >> test_selectVariable [
 			onCompletion: [  ].
 		self assert:
 			(methodService source substrings includes: 'isNewClass') ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_setCurrentAfterCreatingPackage [
+
+	self
+		testsJadeiteForPharoIssue: #issue262
+		title:
+		'Set current project walkback (wrong number of args) when package is not committed #262'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/262'.
+	self selectServiceNamed: 'UnPackaged' in: self projectListPresenter.
+	self projectsPresenter
+		basicAddPackageNamed: 'JfPTestSetCurrentPackage'
+		symbolDictionary: 'Globals'
+		componentName: 'UnPackaged'.
+	self projectsPresenter setCurrentProject. "error here in bug"
+	self assert: self projectListPresenter selectedItem isCurrent. 
+	self assert: self projectListPresenter selectedItem displayName equals: '*UnPackaged'.
+	self abortTransaction 
 ]
 
 { #category : 'tests' }

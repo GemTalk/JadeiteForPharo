@@ -51,19 +51,24 @@ JadeitePackageTrait >> basicAddPackageNamed: packageName symbolDictionary: symbo
 ]
 
 { #category : 'actions' }
+JadeitePackageTrait >> basicPackageFileout: service to: filePath [
+
+	service
+		command: #exportTopazFormatTo:;
+		commandArgs: (Array with: filePath).
+	^ RowanServiceUpdater current
+		  issueCommand: service
+		  session: self gciSession
+		  onCompletion: [  ]
+]
+
+{ #category : 'actions' }
 JadeitePackageTrait >> fileoutPackage [
 
 	| service filePath |
 	service := self packageListPresenter selectedItem.
-	filePath := self fileoutFileSelection: service name, '.gs'.
-	filePath ifNotNil: [
-		service
-			command: #exportTopazFormatTo:;
-			commandArgs: (Array with: filePath).
-		RowanServiceUpdater current
-			issueCommand: service
-			session: self gciSession
-			onCompletion: [  ] ]
+	filePath := self fileoutFileSelection: service name , '.gs'.
+	filePath ifNotNil: [ self basicPackageFileout: service to: filePath ]
 ]
 
 { #category : 'menus' }
