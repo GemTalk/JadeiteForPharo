@@ -66,20 +66,25 @@ This screenshot example shows the following decorations:
 
 Filing out code into topaz format, and Filein in code in topaz format that was exported using other tools, is possible but not reliable in this alpha version. 
 
+Note that Rowan packages are associated with a specific SymbolDictionary, and any code you filein must define any classes as being in this same SymbolDictionary.  The SymbolDictionaries are specified during Package creation and are not subsquently visible in Jadeite.
+
 #### Fileout
 
-Jadeite implements fileout on Project, Package, Class, Class Category, and one or more selected methods.
+Jadeite implements fileout on Project, Package, Class, one or more class categories, and one or more selected methods.
+
+Note that class comments are not retained by fileout in this alpha version. 
 
 #### Filein
 
 To filein, in the Project Browser:
-*   select the Project and Package, and use the Set Current menu item. 
+*   If necessary, create the symbol dictionary.
+*   if necessary, create your Project and Package, and ensure they are committed.
+*   select the Project and Package, and use the Set Current menu items. 
 *   use the server GsFileIn class to file in.  
-
 For example,
+```
    GsFileIn fromServerPath: '/path/filename.gs'
-
-Note that currently the classes must go into the Globals SymbolDictionary.
+````
 
 ### Viewing the Class Hierarchy
 
