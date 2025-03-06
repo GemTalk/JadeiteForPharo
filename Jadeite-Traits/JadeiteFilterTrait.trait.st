@@ -308,7 +308,7 @@ JadeiteFilterTrait >> newCategoryMenu [
 		  addGroup: [ :group |
 			  group addItem: [ :item |
 				  item
-					  name: 'File out categories ...';
+					  name: 'File out selected categories ...';
 					  action: [ self fileoutCategories ];
 					  enabled: [
 						  self isClassSelected and: [ self isCategorySelected ] ] ] ];

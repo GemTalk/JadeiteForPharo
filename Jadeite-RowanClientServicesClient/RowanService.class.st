@@ -177,7 +177,7 @@ RowanService >> command [
 { #category : 'accessing' }
 RowanService >> command: symbol [
 	command := symbol.
-	commandArgs ifNil: [ commandArgs := Array new ]
+	commandArgs := Array new
 	
 ]
 
