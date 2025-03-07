@@ -66,16 +66,19 @@ JadeitePresenter >> shellName [
 { #category : 'waiting' }
 JadeitePresenter >> showNotWait [
 
-	waitIndicator ifNotNil: [ :indicator | indicator hide ].
-	WorldMorph doOneCycle
+	JadeitePreferences showProgressBar ifTrue: [
+		waitIndicator ifNotNil: [ :indicator |
+			indicator hide.
+			WorldMorph doOneCycle ] ]
 ]
 
 { #category : 'waiting' }
 JadeitePresenter >> showWait [
 
 	JadeitePreferences showProgressBar ifTrue: [
-		waitIndicator ifNotNil: [ :indicator | indicator show ] ].
-	WorldMorph doOneCycle
+		waitIndicator ifNotNil: [ :indicator |
+			indicator show.
+			WorldMorph doOneCycle ] ]
 ]
 
 { #category : 'initialization' }
