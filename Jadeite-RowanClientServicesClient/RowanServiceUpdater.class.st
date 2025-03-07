@@ -190,7 +190,8 @@ RowanServiceUpdater >> commandCompleted: service [
 	self commandsStarted remove: service ifAbsent: [  ].
 	self commandsStarted ifEmpty: [
 		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
-			:window | window presenter showNotWait ] ]
+			:window | window presenter showNotWait ].
+		WorldMorph doOneCycle ]
 ]
 
 { #category : 'accessing' }
@@ -534,7 +535,8 @@ RowanServiceUpdater >> startCommandProgressBar: service [
 
 	self commandsStarted add: service.
 	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
-		:window | window presenter showWait ]
+		:window | window presenter showWait ].
+	WorldMorph doOneCycle
 ]
 
 { #category : 'logging' }

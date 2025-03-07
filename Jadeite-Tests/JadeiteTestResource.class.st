@@ -3,7 +3,8 @@ Class {
 	#superclass : 'TestResource',
 	#instVars : [
 		'projectsBrowser',
-		'jadeiteShell'
+		'jadeiteShell',
+		'progressBarState'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -434,11 +435,13 @@ JadeiteTestResource >> session [
 
 { #category : 'support' }
 JadeiteTestResource >> setUp [
+
 	super setUp.
-	GciSession current
-		ifNil: 
-			[MessageBox notify: 'GciSession current is nil. Login again.'.
-			Processor activeProcess terminate	"There's not a good way to safely return without many subsequent errors. Just kill the test process."].
+	progressBarState := JadeitePreferences showProgressBar.
+	JadeitePreferences showProgressBar: false.
+	GciSession current ifNil: [
+		MessageBox notify: 'GciSession current is nil. Login again.'.
+		Processor activeProcess terminate "There's not a good way to safely return without many subsequent errors. Just kill the test process." ].
 	self unloadSampleProject1.
 	self ensureRowanSampleProjectsLoaded
 ]
@@ -454,7 +457,8 @@ JadeiteTestResource >> switchTransactionModeTo: aSymbol [
 JadeiteTestResource >> tearDown [
 
 	super tearDown.
-	GciSession current isValidSession ifFalse:[^self]. 
+	JadeitePreferences showProgressBar: progressBarState.
+	GciSession current isValidSession ifFalse: [ ^ self ].
 	self transcript ifNotNil: [ :console |
 		console
 			basicUnloadProjects: (Array with: self sampleProject1Name)

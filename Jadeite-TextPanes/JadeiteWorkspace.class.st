@@ -5,8 +5,7 @@ Class {
 	#name : 'JadeiteWorkspace',
 	#superclass : 'JadeiteTextDocument',
 	#instVars : [
-		'filePathString',
-		'waitIndicator'
+		'filePathString'
 	],
 	#category : 'Jadeite-TextPanes',
 	#package : 'Jadeite-TextPanes'

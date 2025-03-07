@@ -71,8 +71,6 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
 
-	progressBarState := JadeitePreferences showProgressBar.
-	JadeitePreferences showProgressBar: false.
 	self ensureLauncherOpened.
 	super setUp
 ]
@@ -85,7 +83,6 @@ JadeiteForPharoGUITestCase >> tearDown [
 		workspace isModified: false.
 		self destroy: workspace ].
 	self destroy: methodListBrowser.
-	JadeitePreferences showProgressBar: progressBarState
 ]
 
 { #category : 'support' }
