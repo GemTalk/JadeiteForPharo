@@ -18,7 +18,7 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local server disk:
 
 	* RemoteServiceReplication, branch `main-v2`, `git clone https://github.com/GemTalk/RemoteServiceReplication`
- 	* RowanClientServices, branch `mainV3.0`, `git clone https://github.com/GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
+ 	* RowanClientServices, branch `JfpAlpha372`, `git clone https://github.com/GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
 	* Announcements, `git clone https://github.com/GemTalk/Announcements`
 
 - Setup a .topazini file for SystemUser with your Stone's login parameters 
@@ -40,10 +40,10 @@ on the same node as the host, you may use the git repositories previously cloned
 
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local disk: 
 
-	* JadeiteForPharo, branch `main`, `git clone https://github.com/GemTalk/JadeiteForPharo`
+	* JadeiteForPharo, branch `JfpAlpha372`, `git clone https://github.com/GemTalk/JadeiteForPharo`
 	* PharoGemStoneFFI, branch `main`, `git clone https://github.com/GemTalk/PharoGemStoneFFI`
 	* RemoteServiceReplication, branch `main-v2`, `git clone https://github.com/GemTalk/RemoteServiceReplication`
- 	* RowanClientServices, branch `mainV3.0`, `git clone https://github.com/GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
+ 	* RowanClientServices, branch `JfpAlpha372`, `git clone https://github.com/GemTalk/RowanClientServices.git -b mainV3.0 RowanClientServicesV3`
 
 - setup a clientlibs directory containing 3.7.2 shared libraries, using https://downloads.gemtalksystems.com/pub/GemStone64/3.7.2/GemStoneClientLibs3.7.2-x86_64.Linux.zip or https://downloads.gemtalksystems.com/pub/GemStone64/3.7.2/GemStoneClientLibs3.7.2-x86.Windows_NT.zip.
 
