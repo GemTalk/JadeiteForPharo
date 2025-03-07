@@ -1,12 +1,13 @@
 # Disclaimer!!! Jadeite for Pharo is still in active development
-* No official support provided
-* Any code imported (such as a user's project) must be "rowanized" first
-* Only SystemUser is supported currently
-* Jadeite for Pharo is not traits aware
+* No official support provided.
+* Any code imported (such as a user's project) must be "rowanized". Filein and Fileout have limited support; see the Jadeite help for details.
+* Only SystemUser is supported currently.
+* Jadeite for Pharo is not traits aware.
 
 # JadeiteForPharo
-IDE for GemStone Smalltalk application development in Pharo.
-Jadeite for Pharo (and these instructions) should be considered pre-alpha quality at the current time. 
+IDE for GemStone Smalltalk application development in Pharo
+
+The current Jadeite for Pharo is a first alpha release with known issues.
 
 ## Setup the GemStone server
 
