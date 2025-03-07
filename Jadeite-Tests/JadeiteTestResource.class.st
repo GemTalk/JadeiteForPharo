@@ -19,6 +19,8 @@ JadeiteTestResource class >> current [
 		window := SettingBrowser open.
 		window close.
 		current := self new.
+		current progressBarState: JadeitePreferences showProgressBar. 
+		JadeitePreferences showProgressBar: false.
 		current session ifNil: [ ^ nil "notified earlier" ] ].
 	current hasValidSession ifFalse: [ current := self new ].
 	^ current
@@ -325,6 +327,18 @@ JadeiteTestResource >> openWindow: aBlock [
 	^presenter
 ]
 
+{ #category : 'accessing' }
+JadeiteTestResource >> progressBarState [
+
+	^ progressBarState
+]
+
+{ #category : 'accessing' }
+JadeiteTestResource >> progressBarState: anObject [
+
+	progressBarState := anObject
+]
+
 { #category : 'support' }
 JadeiteTestResource >> projectsBrowser: anObject [
 	projectsBrowser := anObject
@@ -437,8 +451,6 @@ JadeiteTestResource >> session [
 JadeiteTestResource >> setUp [
 
 	super setUp.
-	progressBarState := JadeitePreferences showProgressBar.
-	JadeitePreferences showProgressBar: false.
 	GciSession current ifNil: [
 		MessageBox notify: 'GciSession current is nil. Login again.'.
 		Processor activeProcess terminate "There's not a good way to safely return without many subsequent errors. Just kill the test process." ].
