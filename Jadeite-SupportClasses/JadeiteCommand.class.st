@@ -9,3 +9,11 @@ Class {
 JadeiteCommand >> execute [ 
 	^self subclassResponsibility
 ]
+
+{ #category : 'testing' }
+JadeiteCommand >> isConnected [
+
+	^ JadeiteGCIConnectionProfile connectionProfile
+		  ifNil: [ false ]
+		  ifNotNil: [ :profile | profile isConnected ]
+]

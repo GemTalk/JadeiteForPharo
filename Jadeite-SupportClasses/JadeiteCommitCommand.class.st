@@ -22,5 +22,7 @@ JadeiteCommitCommand class >> defaultName [
 { #category : 'executing' }
 JadeiteCommitCommand >> execute [
 
-	^context commitTransaction
+	^ self isConnected
+		  ifTrue: [ context commitTransaction ]
+		  ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]

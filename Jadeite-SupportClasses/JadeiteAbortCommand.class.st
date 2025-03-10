@@ -21,5 +21,8 @@ JadeiteAbortCommand class >> defaultName [
 
 { #category : 'executing' }
 JadeiteAbortCommand >> execute [
-	^context abortTransaction
+
+	^ self isConnected
+		  ifTrue: [ context abortTransaction ]
+		  ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]

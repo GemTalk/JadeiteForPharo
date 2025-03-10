@@ -80,9 +80,30 @@ JadeiteGCIConnectionProfile >> clientCommitIdDescriptionOn: ws [
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> commitIdServerCode [
 
-	^ '| ws sortedLoadedProjects |
+	^ '| ws sortedLoadedProjects rsrProj rcsProj |
+rsrProj := Rowan image loadedProjectNamed: ''RemoteServiceReplication'' ifAbsent: []. 
+rcsProj := Rowan image loadedProjectNamed: ''RowanClientServices'' ifAbsent: []. 
 ws := WriteStream on: String new. 
-ws nextPutAll: ''Server:''; cr; cr. 
+ws nextPutAll: ''Server Required Projects:'';
+	cr;
+	cr;
+	nextPutAll: ''RemoteServiceReplication''; 
+	space. 
+ws nextPutAll: (
+	rsrProj ifNil: [''Project not loaded'']
+	ifNotNil: [rsrProj loadedCommitId]); 
+	cr. 
+ws nextPutAll: ''RowanClientServices''; 
+	space.
+ws nextPutAll: (
+	rcsProj ifNil: [''Project not loaded'']
+	ifNotNil: [rcsProj loadedCommitId]); 
+	cr;
+	nextPutAll: ''---------------------------------------------'';
+	cr;
+	nextPutAll: ''All loaded projects:''; 
+	cr; 
+	cr. 
 sortedLoadedProjects := Rowan image loadedProjects asSortedCollection: [:x :y | x name < y name].
 sortedLoadedProjects do:[:proj |  
 	ws nextPutAll: proj name; 

@@ -83,6 +83,14 @@ JadeiteToolbarTrait >> initializeToolbar [
 		padding: 0
 ]
 
+{ #category : 'testing' }
+JadeiteToolbarTrait >> isConnected [
+
+	^ JadeiteGCIConnectionProfile connectionProfile
+		  ifNil: [ false ]
+		  ifNotNil: [ :profile | profile isConnected ]
+]
+
 { #category : 'actions' }
 JadeiteToolbarTrait >> jadeiteClientGitRepositories [
 
@@ -128,8 +136,11 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 JadeiteToolbarTrait >> openBrowser [
 
 	| inst |
-	inst := JadeiteBrowser new owner: self.
-	^ self basicOpenBrowser: inst
+	self isConnected
+		ifTrue: [
+			inst := JadeiteBrowser new owner: self.
+			self basicOpenBrowser: inst ]
+		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
 { #category : 'actions' }
@@ -144,21 +155,27 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 JadeiteToolbarTrait >> openSUnitBrowser [
 
 	| inst |
-	RowanServiceUpdater current critical: [
-		inst := self sunitBrowserPresenterClass basicNew.
-		inst
-			application: self application;
-			gciSession: self gciSession;
-			initialize.
-		inst open.
-		inst addStyle: 'jadeWorkspace'.
-		^inst ]
+	self isConnected
+		ifTrue: [
+			RowanServiceUpdater current critical: [
+				inst := self sunitBrowserPresenterClass basicNew.
+				inst
+					application: self application;
+					gciSession: self gciSession;
+					initialize.
+				inst open.
+				inst addStyle: 'jadeWorkspace'.
+				inst ] ]
+		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
 { #category : 'actions' }
 JadeiteToolbarTrait >> openWorkspace [
 
-	JadeiteWorkspaceApplication showOnSession: self gciSession library
+	self isConnected
+		ifTrue: [
+		JadeiteWorkspaceApplication showOnSession: self gciSession library ]
+		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
 { #category : 'actions' }
