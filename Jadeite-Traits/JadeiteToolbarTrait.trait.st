@@ -165,7 +165,7 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 					initialize.
 				inst open.
 				inst addStyle: 'jadeWorkspace'.
-				inst ] ]
+				^inst ] ]
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
