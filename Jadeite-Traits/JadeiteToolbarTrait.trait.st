@@ -139,7 +139,7 @@ JadeiteToolbarTrait >> openBrowser [
 	self isConnected
 		ifTrue: [
 			inst := JadeiteBrowser new owner: self.
-			self basicOpenBrowser: inst ]
+			^self basicOpenBrowser: inst ]
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
