@@ -604,6 +604,11 @@ JadeiteProjectsBrowserPresenter >> selectPackage: newPackageSelection [
 ]
 
 { #category : 'selections' }
+JadeiteProjectsBrowserPresenter >> selectPackageFilterTab [
+	methodFilterTabs selectPageIndex: 3
+]
+
+{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectSUnitTab [
 	self selectSourceTabNamed: 'sunit'
 ]

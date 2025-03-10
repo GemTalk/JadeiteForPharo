@@ -357,13 +357,6 @@ JadeiteAbstractTestCase >> executeStringInOtherSession: string [
 	^session executeString: executionString
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> fail: aString [
-	TestMessageBox disableJadeiteTestMessageBox.
-	^super fail: aString
-	
-]
-
 { #category : 'support' }
 JadeiteAbstractTestCase >> forceReconnect [
 

@@ -1337,6 +1337,53 @@ JadeiteForPharoAbstractBrowserTestCase >> test_instVarWriters [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_jadeiteCategories [
+	"somewhere, there's a hole in the code where strings get 
+	put into the method category list. They should always be 
+	JadeiteCategory instances."
+
+	projectsBrowser findClassNamed: 'Collection'.
+	self assert: self projectsPresenter isCategoryTabSelected.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self projectsPresenter basicAddMethodCategory: 'deleteThisCategory'.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self categoryListPresenter selectItem:
+		(JadeiteCategory named: 'deleteThisCategory').
+	self projectsPresenter basicRemoveMethodCategories.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self projectsPresenter
+		basicRenameCategoryFrom: 'Adding'
+		to: 'Fladding'.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self selectClassSide.
+	self assert: self projectsPresenter isCategoryTabSelected.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self selectInstanceSide.
+	self assert: self projectsPresenter isCategoryTabSelected.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	self projectsPresenter selectCategoryTab.
+	self projectsPresenter categoryListPresenter items do: [ :item |
+		self assert: item isKindOf: JadeiteCategory ].
+	JadeitePreferences isRowanLoaded ifTrue: [
+		self projectsPresenter selectPackageFilterTab.
+		self projectsPresenter categoryListPresenter items do: [ :item |
+			self assert: item isKindOf: JadeiteCategory ].
+		self projectsPresenter selectCategoryTab.
+		self projectsPresenter categoryListPresenter items do: [ :item |
+			self assert: item isKindOf: JadeiteCategory ] ].
+	self abortTransaction
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_methodListBrowserOverwritesMethods [
 	"expect RowanSample1 to have a foo method already"
 

@@ -345,7 +345,7 @@ RowanClassService >> dictionaryName [
 RowanClassService >> displayMethodsOn: presenter browser: browser [
 	| visibleMethods |
 	visibleMethods := self computeVisibleMethods: presenter browser: browser.
-	self updateListIn: presenter from: visibleMethods.
+	self updateMethodListIn: presenter from: visibleMethods.
 ]
 
 { #category : 'displaying' }
@@ -435,12 +435,14 @@ RowanClassService >> filterPackageUpdate: presenter browser: browser [
 { #category : 'public' }
 RowanClassService >> filterUpdate: presenter browser: browser [
 
+	browser selectedFilterTab == presenter ifFalse: [ ^ self ].
 	browser selectedClass ifNil: [ ^ self ].
 	browser selectedClass name asString = name asString ifFalse: [
 		^ self ].
 	browser isCategoryTabSelected
 		ifTrue: [
-			presenter list = self jadeiteCategoriesWithExtensions ifTrue: [ ^ self ].
+			presenter list = self jadeiteCategoriesWithExtensions ifTrue: [
+				^ self ].
 			self updateCategories: presenter browser: browser ]
 		ifFalse: [
 			browser isVariablesTabSelected
@@ -982,9 +984,7 @@ RowanClassService >> updateCategories: presenter browser: browser [
 
 	meta = browser isClassSideSelected ifFalse: [ ^ self ].
 	browser isCategoryTabSelected ifFalse: [ ^ self ].
-	presenter model collection:
-		(self jadeiteCategories asSortedCollection: [ :x :y |
-			 x categoryName < y categoryName ]) asOrderedCollection.
+	self updateSortedJadeiteCategories: presenter.
 	browser isDictionaryTabSelected ifFalse: [
 		self addComputedCategoriesTo: presenter ].
 	presenter model announcer announce:
@@ -992,7 +992,7 @@ RowanClassService >> updateCategories: presenter browser: browser [
 ]
 
 { #category : 'updates' }
-RowanClassService >> updateListIn: presenter from: visibleMethods [
+RowanClassService >> updateMethodListIn: presenter from: visibleMethods [
 	| updated theModel toRemove toAdd |
 	theModel := presenter hasSelection
 				ifTrue: 
@@ -1022,6 +1022,14 @@ RowanClassService >> updateMethodPackages: presenter [
 
 	presenter list = self methodPackages asSortedCollection asOrderedCollection
 		ifFalse: [ presenter list: self methodPackages ]
+]
+
+{ #category : 'categories' }
+RowanClassService >> updateSortedJadeiteCategories: presenter [
+
+	presenter model collection:
+		(self jadeiteCategories asSortedCollection: [ :x :y |
+			 x categoryName < y categoryName ]) asOrderedCollection
 ]
 
 { #category : 'updates' }

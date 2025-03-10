@@ -45,7 +45,7 @@ RowanAnsweringService >> breakPointsAreEnabled: session [
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil.
+		onCompletion: [].
 	^ answer
 ]
 
