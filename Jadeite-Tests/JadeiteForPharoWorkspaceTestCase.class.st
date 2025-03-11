@@ -42,6 +42,33 @@ JadeiteForPharoWorkspaceTestCase >> saveTestFileTo: thePath [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_ctrlSKeybindings [
+
+	| keymap fileRef filePath |
+	self
+		testsJadeiteForPharoIssue: #issue240
+		title: 'CTL-S does not do a save in a JfP workspace window'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/240'.
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - Test Display'.
+	keymap := workspace contextKeyBindings keymaps detect: [ :ea |
+		          (ea shortcut class canUnderstand: #character) and: [
+			          ea shortcut character name = #S ] ].
+	self
+		assert: keymap action printString
+		equals: '[ workspace saveServerFile ]'.
+	fileRef := FileSystem workingDirectory
+	           / 'test_ctrlSKeybindings_deleteme.txt'.
+	self deny: fileRef exists.
+	filePath := fileRef pathString.
+	[ keymap action value ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: filePath ].
+	[ self assert: fileRef exists ] ensure: [
+		self removeTestFile: filePath ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoWorkspaceTestCase >> test_reset [
 
 	| filePath fileContents |

@@ -32,12 +32,6 @@ JadeiteWorkspacePresenter >> gciSession: aGciSession [
 { #category : 'initialization' }
 JadeiteWorkspacePresenter >> initializeFileMenu [
 
-	self
-		bindKeyCombination: $s meta asKeyCombination
-		toAction: [ workspace saveServerFile ].
-	self
-		bindKeyCombination: $o shift meta asKeyCombination
-		toAction: [ workspace openServerFile ].
 	^ self newMenu
 		  addItem: [ :item |
 			  item
@@ -54,6 +48,17 @@ JadeiteWorkspacePresenter >> initializeFileMenu [
 				  name: 'Save On Server As ...';
 				  action: [ workspace saveServerFileAs ] ];
 		  yourself
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspacePresenter >> initializeKeyBindings [
+
+	self workspace
+		bindKeyCombination: $s meta asKeyCombination
+		toAction: [ workspace saveServerFile ].
+	self workspace
+		bindKeyCombination: $o shift meta asKeyCombination
+		toAction: [ workspace openServerFile ]
 ]
 
 { #category : 'initialization' }
@@ -86,6 +91,7 @@ JadeiteWorkspacePresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	self updateCaption. 
+	self initializeKeyBindings.
 	aWindowPresenter
 		initialExtent: 80 @ 50 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar
