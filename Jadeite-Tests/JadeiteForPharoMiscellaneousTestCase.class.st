@@ -158,8 +158,12 @@ JadeiteForPharo ' , jfpSha asString , '
 PharoGemStoneFFI ' , gemstoneFFISha asString , '
 RemoteServiceReplication ' , rsrSha asString , '
 ---------------------------------------------
-Server:*RowanClientServices ' , clientServicesSha asString, '*'.
-	self assert: (desiredWorkspaceText match: workspace text asString ) ]
+Server Required Projects:*
+RemoteServiceReplication ' , rsrSha asString , '
+RowanClientServices ', clientServicesSha asString , '
+---------------------------------------------
+All loaded projects:*'.
+	self assert: (desiredWorkspaceText match: workspace text asString) ]
 		ensure: [ self destroy: workspace ]
 ]
 

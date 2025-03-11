@@ -97,6 +97,21 @@ JadeiteForPharoGUITestCase >> waitFor: aBlock errorMessage: errorString [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForCloseDialog [
+
+	| dialogs count |
+	count := 0.
+	[
+	(dialogs := self currentWorld windowsSatisfying: [ :each |
+		            each isKindOf: QuestionWithoutCancelDialogWindow ])
+		isEmpty and: [ count < 10 ] ] whileTrue: [
+		count := count + 1.
+		(Delay forMilliseconds: 10) wait ].
+	self assert: dialogs size equals: 1.
+	^ dialogs first
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
 	"would really like a more determinate way of getting the correct method list"
 
