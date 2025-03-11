@@ -48,7 +48,9 @@ JadeiteForPharoTestCase >> runCaseManaged [
 	(to speed up the tests and expose bugs) we can't let the 
 	watchdog loose. The watchdog is started by the test execution process"
 
-	^DefaultExecutionEnvironment beActiveDuring: [ self runCase]
+	| testEnv |
+	testEnv := JadeiteTestExecutionEnvironment new.
+	^ testEnv beActiveDuring: [ testEnv runTestCase: self ]
 ]
 
 { #category : 'tests' }

@@ -15,6 +15,7 @@ JadeiteGlobalWindowPresenter >> confirmDisconnect [
 	| shouldClose |
 	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
 		^ true ].
+	CurrentExecutionEnvironment value isTest ifTrue: [ ^ true ].
 	shouldClose := UIManager default confirm:
 		               'Really close window? This will disconnect and close all Jadeite windows.'.
 	shouldClose ifFalse: [ ^ false ].
