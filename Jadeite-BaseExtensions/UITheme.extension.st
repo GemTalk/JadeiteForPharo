@@ -1,6 +1,12 @@
 Extension { #name : 'UITheme' }
 
 { #category : '*Jadeite-BaseExtensions' }
+UITheme >> jadeiteBackgroundColor [
+
+	^JadeiteApplication jadeiteBackgroundColor
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
 UITheme >> jadeiteChooseForSaveFileReferenceIn: aThemedMorph title: title extensions: exts path: path preview: preview [
 
 	| dialog pathFileReference |

@@ -83,6 +83,12 @@ JadeiteApplication class >> inTransaction: aBoolean [
 	InTransaction := aBoolean
 ]
 
+{ #category : 'constants' }
+JadeiteApplication class >> jadeiteBackgroundColor [  
+
+	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
+]
+
 { #category : 'instance creation' }
 JadeiteApplication class >> openOn: aSymbol [
 
@@ -226,7 +232,7 @@ JadeiteApplication >> initializeStyleSheet [
 		addClass: 'jadeiteTextBackgroundColor'
 		with: [ :theClass |
 			theClass addPropertyDrawWith: [ :draw |
-				draw backgroundColor: self defaultBackgroundColor ] ].
+				draw backgroundColor: Smalltalk ui theme jadeiteBackgroundColor ] ].
 	classStyle addClass: 'jadeiteRedBackgroundColor' with: [ :theClass |
 		theClass addPropertyDrawWith: [ :draw |
 			draw backgroundColor: Color lightRed ] ].
@@ -237,6 +243,12 @@ JadeiteApplication >> initializeStyleSheet [
 				draw backgroundColor: self changedTextBackgroundColor ] ].
 	self addStyleSheet: classStyle.
 	^ classStyle
+]
+
+{ #category : 'constants' }
+JadeiteApplication >> jadeiteBackgroundColor [ 
+
+	^self class jadeiteBackgroundColor
 ]
 
 { #category : 'initialize' }

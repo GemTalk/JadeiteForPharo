@@ -8,9 +8,23 @@ Class {
 		'toolbar',
 		'postOpenBlock'
 	],
+	#classVars : [
+		'LastWindowSize'
+	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }
+
+{ #category : 'accessing' }
+JadeiteBrowser class >> lastWindowSize [
+
+	^LastWindowSize
+]
+
+{ #category : 'accessing' }
+JadeiteBrowser class >> lastWindowSize: anExtent [
+	LastWindowSize := anExtent
+]
 
 { #category : 'instance creation' }
 JadeiteBrowser class >> new [
@@ -240,8 +254,10 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 	"keep font & row computations for investigation but comment out for now."
 
 	| initialExtent |
-	
-	initialExtent := (160 @ 100) * StandardFonts defaultFont pointSize.
+	initialExtent := self class lastWindowSize
+		                 ifNil: [
+		                 140 @ 110 * StandardFonts defaultFont pointSize ]
+		                 ifNotNil: [ LastWindowSize ].
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		initialExtent: initialExtent;
@@ -252,7 +268,9 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 			notebookPage ifNotNil: [ :page | "presenter may be nil if the presenter could not open"
 				page activePresenter ifNotNil: [ :presenter |
 					presenter unsubcribePresenters ] ] ] ].
-	self updateCaption
+	self updateCaption.
+	aWindowPresenter whenResizingDo: [ :ann |
+		self class lastWindowSize: ann newSize ]
 ]
 
 { #category : 'testing' }
