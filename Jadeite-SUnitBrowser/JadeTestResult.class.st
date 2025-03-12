@@ -51,7 +51,7 @@ JadeTestResult >> backgroundColor [
 
 	self hasPassed ifTrue: [ ^ self colorPass ].
 
-	^ JadeiteApplication defaultBackgroundColor
+	^ Smalltalk ui theme jadeiteBackgroundColor
 ]
 
 { #category : 'constants' }

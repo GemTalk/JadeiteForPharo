@@ -94,7 +94,7 @@ JadeiteSUnitAbstractPresenter >> reset [
 	methodListPresenter model do: [ :each | each testResult: nil ].
 	textResultPresenter value: String new.
 	methodListPresenter view invalidate.
-	self setResultsPaneColor: JadeiteApplication defaultBackgroundColor
+	self setResultsPaneColor: Smalltalk ui theme jadeiteBackgroundColor
 ]
 
 { #category : 'as yet unclassified' }

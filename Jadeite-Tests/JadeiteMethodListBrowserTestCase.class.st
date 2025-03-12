@@ -1044,24 +1044,42 @@ JadeiteMethodListBrowserTestCase >> test_comparisonTabSuperclass [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_compileErrorDisplay [
+
 	| source |
-	self testsIssue: #issue459 withTitle: 'CompileWarnings should be more noticable ... '.
-	methodListBrowser := JadePresenter browseImplementorsOf: #test1 session: session.
-	self assert: methodListBrowser primaryPresenter methodListPresenter selection selector
+	self
+		testsIssue: #issue459
+		withTitle: 'CompileWarnings should be more noticable ... '.
+	methodListBrowser := JadePresenter
+		                     browseImplementorsOf: #test1
+		                     session: session.
+	self
+		assert:
+			methodListBrowser primaryPresenter methodListPresenter selection
+				selector
 		equals: #test1.
-	source := 'test1 self assert: RowanSample1 new foo = ''abc'.	"won't compile"
+	source := 'test1 self assert: RowanSample1 new foo = ''abc'. "won't compile"
 	self methodListSourcePresenter documentPresenter value: source.
-	self methodListSourcePresenter documentPresenter isModified: true. "needed for tests" 
-	self assert: self methodListSourcePresenter documentPresenter isModified.
+	self methodListSourcePresenter documentPresenter isModified: true. "needed for tests"
+	self assert:
+		self methodListSourcePresenter documentPresenter isModified.
 	self methodListSourcePresenter editSaveMethod.
-	self assert: (methodListBrowser view viewNamed: 'statusBarField') forecolor equals: Color black.
-	self assert: (methodListBrowser view viewNamed: 'statusBarField') backcolor equals: Color red faded
+	self
+		assert:
+		(methodListBrowser view viewNamed: 'statusBarField') forecolor
+		equals: Smalltalk ui theme textColor.
+	self
+		assert:
+		(methodListBrowser view viewNamed: 'statusBarField') backcolor
+		equals: Color red faded
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_compileErrorDisplayGoesAway [
+
 	| source |
-	self testsIssue: #issue459 withTitle: 'CompileWarnings should be more noticable ... '.
+	self
+		testsIssue: #issue459
+		withTitle: 'CompileWarnings should be more noticable ... '.
 	self
 		saveMethod: 'abc1  self foogle'
 		in: 'RowanSample1'
@@ -1070,25 +1088,49 @@ JadeiteMethodListBrowserTestCase >> test_compileErrorDisplayGoesAway [
 		saveMethod: 'abc2  self foogle'
 		in: 'RowanSample1'
 		category: 'other'.
-	methodListBrowser := JadePresenter browseSendersOf: #foogle session: session.
-	self assert: methodListBrowser primaryPresenter methodListPresenter selection selector equals: #abc1.
-	source := 'abc1  self foo #'.	"won't compile"
+	methodListBrowser := JadePresenter
+		                     browseSendersOf: #foogle
+		                     session: session.
+	self
+		assert:
+			methodListBrowser primaryPresenter methodListPresenter selection
+				selector
+		equals: #abc1.
+	source := 'abc1  self foo #'. "won't compile"
 	self methodListSourcePresenter documentPresenter value: source.
-	self methodListSourcePresenter documentPresenter isModified: true. "needed for tests" 
-	self assert: self methodListSourcePresenter documentPresenter isModified.
+	self methodListSourcePresenter documentPresenter isModified: true. "needed for tests"
+	self assert:
+		self methodListSourcePresenter documentPresenter isModified.
 	self methodListSourcePresenter editSaveMethod.
 	self
-		assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selectionRange
+		assert: methodListBrowser primaryPresenter methodSourcePresenter
+				documentPresenter selectionRange
 		equals: (7 to: 17).
-	self assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter value size
-		equals: 17.	"selection goes up to end"
-	self assert: (methodListBrowser view viewNamed: 'statusBarField') forecolor equals: Color black.
-	self assert: (methodListBrowser view viewNamed: 'statusBarField') backcolor equals: Color red faded.
-	self assert: (methodListBrowser view viewNamed: 'statusBarField') model value
+	self
+		assert: methodListBrowser primaryPresenter methodSourcePresenter
+				documentPresenter value size
+		equals: 17. "selection goes up to end"
+	self
+		assert:
+		(methodListBrowser view viewNamed: 'statusBarField') forecolor
+		equals: Smalltalk ui theme textColor.
+	self
+		assert:
+		(methodListBrowser view viewNamed: 'statusBarField') backcolor
+		equals: Color red faded.
+	self
+		assert:
+		(methodListBrowser view viewNamed: 'statusBarField') model value
 		equals: 'invalid pound sign'.
-	methodListBrowser primaryPresenter methodListPresenter primaryPresenter selectionByIndex: 2.
-	self deny: (methodListBrowser view viewNamed: 'statusBarField') backcolor equals: Color red faded.
-	self assert: (methodListBrowser view viewNamed: 'statusBarField') model value equals: String new
+	methodListBrowser primaryPresenter methodListPresenter
+		primaryPresenter selectionByIndex: 2.
+	self
+		deny: (methodListBrowser view viewNamed: 'statusBarField') backcolor
+		equals: Color red faded.
+	self
+		assert:
+		(methodListBrowser view viewNamed: 'statusBarField') model value
+		equals: String new
 ]
 
 { #category : 'as yet unclassified' }

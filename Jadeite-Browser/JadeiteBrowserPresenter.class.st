@@ -1449,11 +1449,11 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 		  dropEnabled: true;
 		  displayColor: [ :jadeiteCategory |
 			  jadeiteCategory isString
-				  ifTrue: [ Color black ]
+				  ifTrue: [ Smalltalk ui theme textColor ]
 				  ifFalse: [
 					  jadeiteCategory isComputed
 						  ifTrue: [ self extensionColor ]
-						  ifFalse: [ Color black ] ] ];
+						  ifFalse: [ Smalltalk ui theme textColor ] ] ];
 		  wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
 		  acceptDrop: [ :transfer |
 			  transfer index = 0 ifFalse: [
@@ -1639,7 +1639,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                       displayColor: [ :methodService |
 			                       methodService isExtension
 				                       ifTrue: [ self extensionColor ]
-				                       ifFalse: [ Color black ] ];
+				                       ifFalse: [ Smalltalk ui theme textColor ] ];
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];

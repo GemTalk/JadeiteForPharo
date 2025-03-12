@@ -406,7 +406,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 	self
 		assert:
 		sunitBrowser textResultPresenter adapter widget scrollPane color
-		equals: JadeiteApplication defaultBackgroundColor.
+		equals: Smalltalk ui theme jadeiteBackgroundColor.
 	self assertIsNil: sunitBrowser testResults.
 	sunitBrowser testSemaphore: Semaphore new.
 	sunitBrowser basicRunSelected.

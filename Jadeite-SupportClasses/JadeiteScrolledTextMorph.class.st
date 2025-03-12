@@ -21,7 +21,7 @@ JadeiteScrolledTextMorph >> drawOn: aCanvas [
 		ifFalse: [
 			aCanvas
 				fillRectangle: self scrollBounds
-				color: (JadeiteApplication defaultBackgroundColor alpha: 1.0) ].
+				color: (Smalltalk ui theme jadeiteBackgroundColor alpha: 1.0) ].
 	self drawHighlightsOn: aCanvas
 ]
 
