@@ -40,11 +40,12 @@ JadeiteConnectionApplication class >> singleton: anObject [
 { #category : 'actions' }
 JadeiteConnectionApplication >> start [
 
-	| inst |
+	| inst windowPresenter |
 	inst := self new: JadeiteConnectionLauncher.
 	inst addStyle: 'jadeiteTextBackgroundColor'.
-	inst open.
-	^inst
+	windowPresenter := inst open.
+	self addBorderStyleTo: windowPresenter presenter: inst.
+	^ inst
 ]
 
 { #category : 'actions' }

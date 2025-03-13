@@ -41,12 +41,13 @@ JadeiteInspectorApplication >> executeThenInspect: aString inContext: context on
 { #category : 'accessing' }
 JadeiteInspectorApplication >> start [
 
-	| inst |
-	inst := self new: JadeiteInspector. 
+	| inst windowPresenter |
+	inst := self new: JadeiteInspector.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
-	inst open
+	windowPresenter := inst open.
+	self addBorderStyleTo: windowPresenter presenter: inst
 ]
 
 { #category : 'accessing' }

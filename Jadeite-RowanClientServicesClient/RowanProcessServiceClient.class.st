@@ -58,7 +58,12 @@ RowanProcessServiceClient >> openDebugger [
 	debugger frameListPresenter items: frames.
 	debugger selectInitialFrame.
 	self class debuggedProcessServices add: self.
-	UIManager default defer: [ debugger open ].
+	UIManager default defer: [
+		| windowPresenter |
+		windowPresenter := debugger open.
+		debugger application
+			addBorderStyleTo: windowPresenter
+			presenter: debugger ].
 	WorldMorph doOneCycle. "make sure tests get a gui cycle"
 	activeProcess suspend.
 	^ debugger answer

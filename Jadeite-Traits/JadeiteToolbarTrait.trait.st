@@ -37,12 +37,13 @@ JadeiteToolbarTrait >> addToolbarItemsToMenuGroup: group [
 { #category : 'actions' }
 JadeiteToolbarTrait >> basicOpenBrowser: browser [
 
+	| windowPresenter |
 	browser
 		application: self application;
 		gciSession: self gciSession.
-	browser
-		open;
-		addStyle: 'jadeWorkspace'.
+	windowPresenter := browser open.
+	browser addStyle: 'jadeWorkspace'.
+	self application addBorderStyleTo: windowPresenter presenter: browser.
 	^ browser
 ]
 
@@ -158,14 +159,16 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 	self isConnected
 		ifTrue: [
 			RowanServiceUpdater current critical: [
+				| windowPresenter |
 				inst := self sunitBrowserPresenterClass basicNew.
 				inst
 					application: self application;
 					gciSession: self gciSession;
 					initialize.
-				inst open.
+				windowPresenter := inst open.
 				inst addStyle: 'jadeWorkspace'.
-				^inst ] ]
+				self application addBorderStyleTo: windowPresenter presenter: inst.
+				^ inst ] ]
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 

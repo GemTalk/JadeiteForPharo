@@ -8,11 +8,12 @@ Class {
 { #category : 'actions' }
 JadeiteDebuggerApplication >> start [
 
-	| inst |
+	| inst windowPresenter |
 	inst := self new: JadeiteDebuggerPresenter.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
-	inst open.
-	^inst
+	windowPresenter := inst open.
+	self addBorderStyleTo: windowPresenter presenter: inst.
+	^ inst
 ]

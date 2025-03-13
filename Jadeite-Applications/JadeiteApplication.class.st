@@ -37,12 +37,6 @@ JadeiteApplication class >> abortTransactionInSession: session [
 					JadeiteSound informationBeep ] ]
 ]
 
-{ #category : 'constants' }
-JadeiteApplication class >> changedTextBackgroundColor [ 
-
-	^Color r: 0.96 g: 1 b: 0.8
-]
-
 { #category : 'actions' }
 JadeiteApplication class >> commitTransactionInSession: session onCompletion: completionBlock [
 	"Even if it takes a windy path, try to make sure
@@ -87,6 +81,12 @@ JadeiteApplication class >> inTransaction: aBoolean [
 JadeiteApplication class >> jadeiteBackgroundColor [  
 
 	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
+]
+
+{ #category : 'constants' }
+JadeiteApplication class >> jadeiteChangedTextBackgroundColor [ 
+
+	^Color r: 0.96 g: 1 b: 0.8
 ]
 
 { #category : 'instance creation' }
@@ -155,10 +155,11 @@ JadeiteApplication >> abortTransaction [
 					JadeiteSound informationBeep ] ]
 ]
 
-{ #category : 'constants' }
-JadeiteApplication >> changedTextBackgroundColor [ 
+{ #category : 'accessing' }
+JadeiteApplication >> addBorderStyleTo: windowPresenter presenter: inst [
 
-	^self class changedTextBackgroundColor
+	inst addWindowBorderStyle: 'jadeiteWindowBorderStyle'.
+	^ windowPresenter window extent: windowPresenter initialExtent
 ]
 
 { #category : 'accessing' }
@@ -240,7 +241,12 @@ JadeiteApplication >> initializeStyleSheet [
 		addClass: 'jadeiteChangedTextBackgroundColor'
 		with: [ :theClass |
 			theClass addPropertyDrawWith: [ :draw |
-				draw backgroundColor: self changedTextBackgroundColor ] ].
+				draw backgroundColor:
+					Smalltalk ui theme jadeiteChangedTextBackgroundColor ] ].
+	classStyle addClass: 'jadeiteWindowBorderStyle' with: [ :theClass |
+		theClass addPropertyContainerWith: [ :c |
+			c borderColor: Smalltalk ui theme jadeiteBorderColor.
+			c borderWidth: Smalltalk ui theme jadeiteBorderWidth ] ].
 	self addStyleSheet: classStyle.
 	^ classStyle
 ]
@@ -249,6 +255,12 @@ JadeiteApplication >> initializeStyleSheet [
 JadeiteApplication >> jadeiteBackgroundColor [ 
 
 	^self class jadeiteBackgroundColor
+]
+
+{ #category : 'constants' }
+JadeiteApplication >> jadeiteChangedTextBackgroundColor [ 
+
+	^self class jadeiteChangedTextBackgroundColor
 ]
 
 { #category : 'initialize' }

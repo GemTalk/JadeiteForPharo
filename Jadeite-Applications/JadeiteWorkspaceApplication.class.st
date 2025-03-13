@@ -14,11 +14,12 @@ JadeiteWorkspaceApplication >> presenterClass [
 { #category : 'accessing' }
 JadeiteWorkspaceApplication >> start [
 
-	| inst |
+	| inst windowPresenter |
 	inst := self new: self presenterClass.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: gciSession.
-	inst open.
+	windowPresenter := inst open.
+	self addBorderStyleTo: windowPresenter presenter: inst.
 	^ inst
 ]

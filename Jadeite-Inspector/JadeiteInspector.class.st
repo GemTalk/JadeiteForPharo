@@ -422,9 +422,12 @@ JadeiteInspector >> executeThenInspect: aString inContext: context onCompletion:
 		context: context
 		session: gciSession
 		windowHandle: window identityHash
-		onCompletion: [ :service |  
+		onCompletion: [ :service |
 			completionBlock cull: service.
-			service oop ifNotNil: [ self show: window on: service ] ]
+			service oop ifNotNil: [
+				| windowPresenter |
+				windowPresenter := self show: window on: service.
+				self application addBorderStyleTo: windowPresenter presenter: self ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1189,11 +1192,13 @@ JadeiteInspector >> shouldEnableFileSave: query [
 JadeiteInspector >> show: window on: service [
 	"send #open to self to make sure we register window
 	with connection profile."
+	| windowPresenter | 
 	model := service.
-	self open.
+	windowPresenter := self open.
 	self displayObjectSelecting: nil.
 	self updateCaption.
-	self addOop: model oop
+	self addOop: model oop.
+	^windowPresenter
 ]
 
 { #category : 'as yet unclassified' }

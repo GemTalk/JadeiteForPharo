@@ -16,7 +16,7 @@ JadeiteConsoleApplication >> jadeiteConsoleClass [
 { #category : 'accessing' }
 JadeiteConsoleApplication >> start [
 
-	| inst |
+	| inst windowPresenter |
 	RowanServiceUpdater current critical: [
 		inst := self new: self jadeiteConsoleClass.
 		inst
@@ -26,5 +26,6 @@ JadeiteConsoleApplication >> start [
 			updateProjects;
 			initializeAutoCommit.
 		self jadeiteConsoleClass currentConsole: inst.
-		inst open ]
+		windowPresenter := inst open.
+		self addBorderStyleTo: windowPresenter presenter: inst ]
 ]

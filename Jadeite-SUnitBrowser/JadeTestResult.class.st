@@ -45,31 +45,13 @@ JadeTestResult >> addPassed: selector [
 { #category : 'as yet unclassified' }
 JadeTestResult >> backgroundColor [
 
-	self hasErrors ifTrue: [ ^ self colorErrors ].
+	self hasErrors ifTrue: [ ^ self jadeiteColorErrors ].
 
-	self hasWarnings ifTrue: [ ^ self colorFailures ].
+	self hasWarnings ifTrue: [ ^ self jadeiteColorFailures ].
 
-	self hasPassed ifTrue: [ ^ self colorPass ].
+	self hasPassed ifTrue: [ ^ self jadeiteColorPass ].
 
 	^ Smalltalk ui theme jadeiteBackgroundColor
-]
-
-{ #category : 'constants' }
-JadeTestResult >> colorErrors [
-
-	^ Color red muchLighter
-]
-
-{ #category : 'constants' }
-JadeTestResult >> colorFailures [
-
-	^ Color yellow muchLighter
-]
-
-{ #category : 'constants' }
-JadeTestResult >> colorPass [
-
-	^ Color fromHexString: #CEF1D1
 ]
 
 { #category : 'as yet unclassified' }
@@ -119,6 +101,24 @@ JadeTestResult >> initialize [
 	failures := OrderedCollection new.
 	passed := OrderedCollection new.
 	milliseconds := 0. 
+]
+
+{ #category : 'constants' }
+JadeTestResult >> jadeiteColorErrors [
+
+	^ Smalltalk ui theme jadeiteColorErrors
+]
+
+{ #category : 'constants' }
+JadeTestResult >> jadeiteColorFailures [
+
+	^ Smalltalk ui theme jadeiteColorFailures
+]
+
+{ #category : 'constants' }
+JadeTestResult >> jadeiteColorPass [
+
+	^ Smalltalk ui theme jadeiteColorPass
 ]
 
 { #category : 'as yet unclassified' }

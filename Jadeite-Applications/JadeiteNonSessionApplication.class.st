@@ -8,9 +8,10 @@ Class {
 { #category : 'actions' }
 JadeiteNonSessionApplication >> start [
 
-	| inst |
+	| inst windowPresenter |
 	inst := self new: JadeiteNonSessionWorkspace.
 	inst addStyle: 'jadeiteTextBackgroundColor'.
-	inst open.
-	^inst
+	windowPresenter := inst open.
+	self addBorderStyleTo: windowPresenter presenter: inst.
+	^ inst
 ]

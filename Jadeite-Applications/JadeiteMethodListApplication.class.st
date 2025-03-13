@@ -8,11 +8,12 @@ Class {
 { #category : 'accessing' }
 JadeiteMethodListApplication >> start [
 
-	| inst |
+	| inst windowPresenter |
 	inst := self new: JadeiteMethodListPresenter.
 	inst
 		addStyle: 'jadeiteTextBackgroundColor';
-		gciSession: gciSession. 
-	inst open.
-	^inst
+		gciSession: gciSession.
+	windowPresenter := inst open.
+	self addBorderStyleTo: windowPresenter presenter: inst.
+	^ inst
 ]

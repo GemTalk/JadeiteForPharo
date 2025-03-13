@@ -14,6 +14,12 @@ JadeitePresenter >> abortTransaction [
 	^self application abortTransaction
 ]
 
+{ #category : 'initialization' }
+JadeitePresenter >> addWindowBorderStyle: aString [
+
+	self window addStyle: aString
+]
+
 { #category : 'testing' }
 JadeitePresenter >> canDiscardSelectionEdits [
 	"Let subclasses handle. If we get here, because of
