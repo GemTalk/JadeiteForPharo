@@ -536,7 +536,7 @@ RowanServiceUpdater >> startCommandProgressBar: service [
 	self commandsStarted add: service.
 	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
 		:window | window presenter showWait ].
-	WorldMorph doOneCycle
+	JadeitePreferences showProgressBar ifTrue: [ WorldMorph doOneCycle ]
 ]
 
 { #category : 'logging' }
