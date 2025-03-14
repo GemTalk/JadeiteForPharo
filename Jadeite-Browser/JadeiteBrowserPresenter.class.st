@@ -547,16 +547,6 @@ JadeiteBrowserPresenter >> buildProjectInfoTab: infoTab [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> buildProjectListView [
-	| listView |
-	projectInfoList := ListPresenter new.
-	projectInfoList parentPresenter: projectInfoTab.
-	listView := self buildProjectInfoTab: projectInfoList.
-	listView arrangement: 2.
-	projectInfoTab view addSubView: listView
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> buildProjectReadMeTab [
 	| cardLabel |
 	projectReadMeTab := TextPresenter new.
@@ -573,23 +563,6 @@ JadeiteBrowserPresenter >> buildProjectReadMeTab [
 		arrangement: cardLabel;
 		name: 'projectReadMeTab'.
 	projectReadMeTab view contextMenu: classDefinitionPresenter view contextMenu
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> buildProjectTab [
-	| cardLabel |
-	projectInfoTab := Presenter new.
-	projectInfoTab parentPresenter: self textAreaTabs presenter.
-	projectInfoTab createView: 'Container view'.
-	projectInfoTab view layoutManager: ProportionalLayout new.
-	self buildProjectListView.
-	self buildAddPackageView.
-	projectInfoList view contextMenu: self projectInfoMenu.
-	cardLabel := CardLabel text: 'Project'.
-	cardLabel iconBlock: nil.
-	projectInfoTab view
-		arrangement: cardLabel;
-		name: 'projectInfoTab'
 ]
 
 { #category : 'accessing' }
@@ -872,12 +845,19 @@ JadeiteBrowserPresenter >> copyInfo [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> copyProjectInfo [
-	projectInfoList selectionIfNone: 
-			[MessageBox notify: 'No selection to copy'.
-			^self].
-	projectInfoList selection last ifNil: [^self].
-	(projectInfoList selection first perform: projectInfoList selection last asSymbol) displayString
-		copyToClipboard
+
+	| copyString selector |
+	projectInfoList selectionIfNone: [
+		UIManager default alert: 'No selection to copy'.
+		^ self ].
+	projectInfoList selectedItem last ifNil: [ ^ self ].
+	selector := projectInfoList selectedItem last asSymbol.
+	selector isEmpty ifTrue: [
+		^ UIManager default alert: 'No selection to copy' ].
+	copyString := (projectInfoList selectedItem first perform: selector)
+		              displayString.
+	Clipboard clipboardText: copyString.
+	UIManager default inform: selector , ' copied to clipboard'
 ]
 
 { #category : 'private' }
@@ -1806,6 +1786,7 @@ JadeiteBrowserPresenter >> initializeProjectTab [
 		                   addColumn:
 			                   (SpStringTableColumn evaluated: [ :array |
 					                    self projectInfoValueDisplay: array ]).
+	projectInfoList contextMenu: self newProjectInfoMenu.
 	projectInfoTab := JadeiteNotebookPage
 		                  title: 'Project'
 		                  icon: nil
@@ -2244,6 +2225,19 @@ JadeiteBrowserPresenter >> newHierarchyClassMenu [
 	menu := self newBrowseClassMenu.
 	self addModifyClassMenuItemsTo: menu.
 	self addHierarchySpecificMenuItemsTo: menu.
+	^ menu
+]
+
+{ #category : 'menus' }
+JadeiteBrowserPresenter >> newProjectInfoMenu [
+
+	| menu |
+	menu := JadeiteMenuPresenter new.
+	menu addItem: [ :item |
+		item
+			name: 'Copy';
+			action: [ self copyProjectInfo ];
+			enabled: [ self projectListPresenter hasSelection ] ].
 	^ menu
 ]
 
@@ -3360,6 +3354,12 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 			session: self gciSession.
 		service := answeringService answer.
 		service selectIn: self ]
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectProjectInfoTab [
+
+	textAreaTabs selectPage: projectInfoTab 
 ]
 
 { #category : 'selections' }

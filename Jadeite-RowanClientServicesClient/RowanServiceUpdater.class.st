@@ -534,9 +534,10 @@ RowanServiceUpdater >> singleThreaded: anObject [
 RowanServiceUpdater >> startCommandProgressBar: service [
 
 	self commandsStarted add: service.
+	JadeitePreferences showProgressBar ifFalse: [ ^ self ].
 	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
 		:window | window presenter showWait ].
-	JadeitePreferences showProgressBar ifTrue: [ WorldMorph doOneCycle ]
+	WorldMorph doOneCycle
 ]
 
 { #category : 'logging' }
