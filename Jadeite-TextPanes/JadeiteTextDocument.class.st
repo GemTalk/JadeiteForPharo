@@ -250,11 +250,6 @@ JadeiteTextDocument >> continueTransaction [
 
 ]
 
-{ #category : 'accessing' }
-JadeiteTextDocument >> defaultColor [
-	^ Color purple muchDarker
-]
-
 { #category : 'ad hoc execution' }
 JadeiteTextDocument >> displayResult: showResult orShowCompileError: theService [
 

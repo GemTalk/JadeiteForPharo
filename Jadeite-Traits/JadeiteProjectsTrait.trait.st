@@ -604,9 +604,7 @@ JadeiteProjectsTrait >> projectChanges [
 						                  name: projectService name
 						                  application: self application.
 					changesBrowser owner application: self application.
-					self application
-						addBorderStyleTo: changesBrowser window
-						presenter: changesBrowser ] ]
+					 ] ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -637,7 +637,7 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 
 	| color |
 	(classService shouldColorAsExtension: self) ifTrue: [
-		color := self extensionColor ].
+		color := self theme jadeiteExtensionTextColor ].
 	^ color
 ]
 
@@ -779,10 +779,10 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 		self refreshCategoryListWithSelection: selection ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
-			self refreshMethodsOn: methodListPresenter ] ].
+			self refreshMethodsOn: methodListPresenter extensions: Array new ] ].
 	packageMethodListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
-			self refreshMethodsOn: methodListPresenter ] ]
+			self refreshMethodsOn: methodListPresenter extensions: Array new ] ]
 ]
 
 { #category : 'initialization' }
@@ -1186,12 +1186,6 @@ JadeiteBrowserPresenter >> expandFullHierarchy [
 	classHierarchyPresenter scrollToSelection
 ]
 
-{ #category : 'accessing' }
-JadeiteBrowserPresenter >> extensionColor [
-
-	^ Color purple lighter 
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> fileOutCategoriesOnPath: path [
 
@@ -1449,11 +1443,11 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 		  dropEnabled: true;
 		  displayColor: [ :jadeiteCategory |
 			  jadeiteCategory isString
-				  ifTrue: [ Smalltalk ui theme textColor ]
+				  ifTrue: [ self theme textColor ]
 				  ifFalse: [
 					  jadeiteCategory isComputed
-						  ifTrue: [ self extensionColor ]
-						  ifFalse: [ Smalltalk ui theme textColor ] ] ];
+						  ifTrue: [ self theme jadeiteExtensionTextColor ]
+						  ifFalse: [ self theme textColor ] ] ];
 		  wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
 		  acceptDrop: [ :transfer |
 			  transfer index = 0 ifFalse: [
@@ -1638,8 +1632,9 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                       beMultipleSelection;
 		                       displayColor: [ :methodService |
 			                       methodService isExtension
-				                       ifTrue: [ self extensionColor ]
-				                       ifFalse: [ Smalltalk ui theme textColor ] ];
+				                       ifTrue: [
+					                       self theme jadeiteExtensionTextColor ]
+				                       ifFalse: [ self theme textColor ] ];
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];
@@ -2670,19 +2665,20 @@ JadeiteBrowserPresenter >> refresh [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
+	| extensions computedCategory |
 	categoryListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		methodListPresenter unselectAll.
 		^ self methodsUpdate: self selectedClass ].
-	(JadeiteCategory named: categoryListPresenter selectedItem) isComputed ifTrue: [
-		| extensions |
-		categoryListPresenter selections size = 1 ifTrue: [ "extensions are only displayed if that's the only selection"
-			extensions := self selectedClass methods select: [ :methodService |
-				              methodService isExtension ].
-			methodListPresenter list: extensions.
-			^ self ] ].
-	self refreshMethodsOn: methodListPresenter.
+	extensions := Array new.
+	computedCategory := selection selectedItems
+		                    detect: [ :category | category isComputed ]
+		                    ifNone: [  ].
+	computedCategory ifNotNil: [ "extensions are only displayed if that's the only selection"
+		extensions := self selectedClass methods select: [ :methodService |
+			              methodService isExtension ] ].
+	self refreshMethodsOn: methodListPresenter extensions: extensions.
 	methodListPresenter unselectAll.
 	self selectMethodSourceTab.
 	self resetCategoryText
@@ -2749,7 +2745,7 @@ JadeiteBrowserPresenter >> refreshFromServer [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
+JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 
 	| classService |
 	classService := self selectedClass ifNil: [ ^ self ].
@@ -2758,6 +2754,9 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter [
 	self selectedFilterTab selectedItems isEmpty ifTrue: [
 		self clearMethodLists ].
 	self updateService: classService onCompletion: [
+		methodListPresenter list addAll:
+			(extensions reject: [ :svc |
+				 methodListPresenter list includes: svc ]).
 		methodListPresenter selections isEmpty
 			ifTrue: [
 				self resetCategoryText.

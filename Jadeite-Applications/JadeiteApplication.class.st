@@ -77,18 +77,6 @@ JadeiteApplication class >> inTransaction: aBoolean [
 	InTransaction := aBoolean
 ]
 
-{ #category : 'constants' }
-JadeiteApplication class >> jadeiteBackgroundColor [  
-
-	^Color r: 0.9803921568627451 g: 0.9490196078431372 b: 0.8156862745098039
-]
-
-{ #category : 'constants' }
-JadeiteApplication class >> jadeiteChangedTextBackgroundColor [ 
-
-	^Color r: 0.96 g: 1 b: 0.8
-]
-
 { #category : 'instance creation' }
 JadeiteApplication class >> openOn: aSymbol [
 

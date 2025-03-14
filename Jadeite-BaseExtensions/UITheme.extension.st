@@ -3,7 +3,10 @@ Extension { #name : 'UITheme' }
 { #category : '*Jadeite-BaseExtensions' }
 UITheme >> jadeiteBackgroundColor [
 
-	^JadeiteApplication jadeiteBackgroundColor
+	^ Color
+		  r: 0.9803921568627451
+		  g: 0.9490196078431372
+		  b: 0.8156862745098039
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
@@ -58,6 +61,12 @@ UITheme >> jadeiteColorFailures [
 UITheme >> jadeiteColorPass [
 
 	^ Color fromHexString: #CEF1D1
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
+UITheme >> jadeiteExtensionTextColor [
+
+	^ Color purple lighter 
 ]
 
 { #category : '*Jadeite-BaseExtensions' }

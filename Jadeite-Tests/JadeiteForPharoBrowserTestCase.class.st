@@ -131,6 +131,82 @@ JadeiteForPharoBrowserTestCase >> test_browseProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_categoryExtensionMethodsDisplayed [
+
+	| extensionCategory nonExtensionCategory nonExtensionMethod |
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Core-37x'
+		in: self packageListPresenter.
+	self projectsPresenter selectClassNamed: 'RowanMethodService'.
+	extensionCategory := self categoryListPresenter list
+		                     detect: [ :jadeiteCategory |
+		                     jadeiteCategory isComputed ]
+		                     ifNone: [  ].
+	self denyIsNil: extensionCategory.
+	self assert: extensionCategory categoryName equals: 'extensions'.
+	self categoryListPresenter selectItem: extensionCategory.
+	self assert: self methodListPresenter list isNotEmpty.
+	self assert: (self methodListPresenter list allSatisfy: #isExtension).
+	self
+		assert: self categoryListPresenter list size
+		equals: (self categoryListPresenter list indexOf: extensionCategory).
+	"test that a category with a non extension method shows at least one non extension method"
+	nonExtensionMethod := self projectsPresenter selectedClass methods
+		                      detect: [ :methodService |
+		                      methodService isExtension not ]
+		                      ifNone: [  ].
+	nonExtensionCategory := self categoryListPresenter list
+		                        detect: [ :jadeiteCategory |
+			                        jadeiteCategory isComputed not and: [
+				                        jadeiteCategory categoryName
+				                        = nonExtensionMethod category ] ]
+		                        ifNone: [  ].
+	self categoryListPresenter selectItem: nonExtensionCategory.
+	self assert:
+		(self methodListPresenter list anySatisfy: [ :methodService |
+			 methodService isExtension not ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_categoryExtensionMethodsShownWithNonExtensionMethods [
+
+	| extensionCategory nonExtensionCategory nonExtensionMethod allExtensionMethods |
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Core-37x'
+		in: self packageListPresenter.
+	self projectsPresenter selectClassNamed: 'RowanMethodService'.
+	extensionCategory := self categoryListPresenter list
+		                     detect: [ :jadeiteCategory |
+		                     jadeiteCategory isComputed ]
+		                     ifNone: [  ].
+	nonExtensionMethod := self projectsPresenter selectedClass methods
+		                      detect: [ :methodService |
+		                      methodService isExtension not ]
+		                      ifNone: [  ].
+	nonExtensionCategory := self categoryListPresenter list
+		                        detect: [ :jadeiteCategory |
+			                        jadeiteCategory isComputed not and: [
+				                        jadeiteCategory categoryName
+				                        = nonExtensionMethod category ] ]
+		                        ifNone: [  ].
+	self categoryListPresenter selectItems: {
+			extensionCategory.
+			nonExtensionCategory }.
+	allExtensionMethods := self classListPresenter selectedItem  methods select: [
+		                       :methodService | methodService isExtension ].
+	self assert:
+		(self methodListPresenter list includesAll: allExtensionMethods).
+	self assert:
+		(self methodListPresenter list includes: nonExtensionMethod)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_createProject [
 
 	| projectName |

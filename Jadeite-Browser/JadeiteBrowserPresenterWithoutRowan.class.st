@@ -61,7 +61,7 @@ JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 		self refreshCategoryListWithSelection: selection ].
 	variableListPresenter whenSelectionChangedDo: [ :selection |
 		selection isEmpty ifFalse: [
-			self refreshMethodsOn: methodListPresenter ] ].
+			self refreshMethodsOn: methodListPresenter extensions: Array new ] ]
 ]
 
 { #category : 'initialization' }

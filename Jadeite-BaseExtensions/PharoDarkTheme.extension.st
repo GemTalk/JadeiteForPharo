@@ -21,7 +21,7 @@ PharoDarkTheme >> jadeiteBorderWidth [
 { #category : '*Jadeite-BaseExtensions' }
 PharoDarkTheme >> jadeiteChangedTextBackgroundColor [
 
-	^Color veryDarkGray
+	^ Color gray adjustBrightness: -0.30
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
@@ -48,4 +48,11 @@ PharoDarkTheme >> jadeiteColorPass [
 
 	^ super jadeiteColorPass adjustBrightness:
 		  self jadeiteColorAdjustment
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
+PharoDarkTheme >> jadeiteExtensionTextColor [
+
+	^ (Color purple mixed: 0.5 with: Color white) adjustBrightness:
+		  self jadeiteColorAdjustment negated
 ]

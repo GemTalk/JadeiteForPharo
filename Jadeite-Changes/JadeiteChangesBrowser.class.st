@@ -22,14 +22,17 @@ Class {
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowser class >> showOn: aRowanPatch name: aString application: application [
 
-	| changesBrowser |
+	| changesBrowser windowPresenter |
 	changesBrowser := self on: aRowanPatch.
 	changesBrowser
 		name: aString;
 		gciSession: aRowanPatch gciSession.
-	changesBrowser operationsListPresenter items: aRowanPatch operations. 
-	changesBrowser application: application. 
-	changesBrowser open.
+	changesBrowser operationsListPresenter items: aRowanPatch operations.
+	changesBrowser application: application.
+	windowPresenter := changesBrowser open.
+	application
+		addBorderStyleTo: windowPresenter window
+		presenter: changesBrowser.
 	^ changesBrowser
 ]
 
