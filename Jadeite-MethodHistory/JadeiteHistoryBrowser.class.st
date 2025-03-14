@@ -15,12 +15,15 @@ Class {
 { #category : 'instance creation' }
 JadeiteHistoryBrowser class >> showOn: methodService application: application [
 
-	| historyBrowser |
+	| historyBrowser windowPresenter |
 	historyBrowser := self new methodService: methodService.
 	historyBrowser gciSession: application gciSession.
-	historyBrowser open.
+	windowPresenter := historyBrowser open.
 	historyBrowser updateHistory.
-	historyBrowser owner application: application
+	historyBrowser owner application: application.
+	application
+		addBorderStyleTo: windowPresenter
+		presenter: historyBrowser
 ]
 
 { #category : 'actions' }
