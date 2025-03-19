@@ -2,7 +2,8 @@ Class {
 	#name : 'JadeitePresenterWithAutoCommitButton',
 	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
-		'autoCommitButton'
+		'autoCommitButton',
+		'autoCommitBox'
 	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
@@ -23,13 +24,12 @@ JadeitePresenterWithAutoCommitButton >> flipAutoCommit [
 { #category : 'autocommit' }
 JadeitePresenterWithAutoCommitButton >> initializeAutoCommitPresenter [
 
-	| autoCommitBox |
 	autoCommitBox := SpBoxLayout newHorizontal.
 	autoCommitButton := SpButtonPresenter new.
 	autoCommitButton action: [ self flipAutoCommit ].
 	autoCommitBox
 		add: autoCommitButton
-		withConstraints: [ :constraints | 
+		withConstraints: [ :constraints |
 			constraints
 				height: 3 * StandardFonts defaultFont pointSize;
 				width: 20 * StandardFonts defaultFont pointSize ].

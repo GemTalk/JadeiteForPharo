@@ -14,6 +14,6 @@ JadeiteDrawStyle >> applyTo: aMorph [
 		(aMorph respondsTo: #barFillStyle:)
 			ifTrue: [ aMorph barFillStyle: aColor asStyleVariable valueAsColor ]
 			ifFalse: [ aMorph color: aColor asStyleVariable valueAsColor ] ].
-	self backgroundColor ifNotNil: [ :aColor |
+	Smalltalk ui theme jadeiteBackgroundColor ifNotNil: [ :aColor |
 		aMorph fillStyle: aColor asStyleVariable valueAsColor]
 ]

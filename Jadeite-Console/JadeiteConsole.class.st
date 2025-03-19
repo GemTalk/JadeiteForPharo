@@ -15,7 +15,8 @@ Class {
 		'transcriptService',
 		'consoleTabs',
 		'toolbarPresenter',
-		'transcriptPresenter'
+		'transcriptPresenter',
+		'layoutBox'
 	],
 	#classVars : [
 		'CurrentConsole'
@@ -68,10 +69,11 @@ JadeiteConsole >> addNoneProject [
 
 { #category : 'initialization' }
 JadeiteConsole >> addStyle: aString [
-	
-	super addStyle: aString. 
-	waitIndicator addStyle: aString. 
-	transcriptPresenter addStyle: aString
+
+	super addStyle: aString.
+	waitIndicator addStyle: aString.
+	transcriptPresenter addStyle: aString.
+	layoutBox ifNotNil: [ layoutBox adapter addStyle: aString ].
 ]
 
 { #category : 'as yet unclassified' }
@@ -247,6 +249,10 @@ JadeiteConsole >> connectPresenters [
 	self application
 		when: #committedTransaction
 		send: #committedTransaction
+		to: self.
+	SystemAnnouncer uniqueInstance weak 
+		when: UIThemeChanged 
+		send: #themeChanged
 		to: self
 ]
 
@@ -507,16 +513,16 @@ JadeiteConsole >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteConsole >> initializePresenters [
 
-	| box waitBox |
+	| waitBox |
 	super initializePresenters.
-	box := SpBoxLayout newVertical.
-	self layout add: box.
+	layoutBox := SpBoxLayout newVertical.
+	self layout add: layoutBox.
 	waitBox := self initializeWaitPresenter.
-	box add: waitBox expand: false.
+	layoutBox add: waitBox expand: false.
 	consoleTabs := SpTabLayout new.
 	self initializeProjectListPresenter: consoleTabs.
 	self initializeTranscriptPresenter: consoleTabs.
-	box add: consoleTabs.
+	layoutBox add: consoleTabs.
 	self initializeAutoCommitPresenter.
 	lastKnownTransaction := self newStatusBar.
 	self layout addLast: lastKnownTransaction expand: false
@@ -885,6 +891,13 @@ JadeiteConsole >> showPackageGroups [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> showPackageList [
 	^JadePresenter showPackageList
+]
+
+{ #category : 'events' }
+JadeiteConsole >> themeChanged [
+	"do any repair work from lousy pharo theme transitioning"
+
+	self adapter applyStyle
 ]
 
 { #category : 'as yet unclassified' }

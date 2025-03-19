@@ -14,18 +14,26 @@ JadeiteConsoleApplication >> jadeiteConsoleClass [
 ]
 
 { #category : 'accessing' }
+JadeiteConsoleApplication >> resetConfiguration [
+
+	super resetConfiguration.
+	JadeiteConsole allInstances do: [ :console |
+		console addStyle: 'jadeiteTextBackgroundColor' ]
+]
+
+{ #category : 'accessing' }
 JadeiteConsoleApplication >> start [
 
 	| inst windowPresenter |
 	RowanServiceUpdater current critical: [
 		inst := self new: self jadeiteConsoleClass.
 		inst
-			addStyle: 'jadeiteTextBackgroundColor';
 			gciSession: gciSession;
 			installTranscript;
 			updateProjects;
 			initializeAutoCommit.
 		self jadeiteConsoleClass currentConsole: inst.
 		windowPresenter := inst open.
-		self addBorderStyleTo: windowPresenter presenter: inst ]
+		self addBorderStyleTo: windowPresenter presenter: inst.
+		inst addStyle: 'jadeiteTextBackgroundColor' ]
 ]
