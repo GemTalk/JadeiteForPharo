@@ -245,16 +245,16 @@ RowanServiceUpdater >> getEvents [
 RowanServiceUpdater >> inUpdateWhile: block [
 
 	| result |
-	result := "self inUpdate critical: [ "
-		          self todo: [RowanServiceUpdater current logComment:
+	result := self todo: [
+		          RowanServiceUpdater current logComment:
 			          'Process: {'
 			          , Processor activeProcess identityHash printString
 			          , '} gets inUpdate semaphore.  [' , block printString
-			          , ']'].
-		          block ensure: [ 
-			          GciSession current ifNotNil: [ :session | 
-				          session autoCommit == true ifTrue: [ 
-					          JadePresenter trigger: #committedTransaction "autoCommit could be a symbol #failed" ] ] ] "]".
+			          , ']' ].
+	block ensure: [
+		GciSession current ifNotNil: [ :session |
+			session autoCommit == true ifTrue: [
+				JadePresenter trigger: #committedTransaction "autoCommit could be a symbol #failed" ] ] ].
 	^ result
 ]
 

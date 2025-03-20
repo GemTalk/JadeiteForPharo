@@ -270,7 +270,8 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 					presenter unsubcribePresenters ] ] ] ].
 	self updateCaption.
 	aWindowPresenter whenResizingDo: [ :ann |
-		self class lastWindowSize: ann newSize ]
+		ann window isCollapsed ifFalse: [
+			self class lastWindowSize: ann newSize ] ]
 ]
 
 { #category : 'testing' }

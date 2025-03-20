@@ -728,10 +728,15 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
+			'selection event' traceCr. 
 			selection selectedItem ifNotNil: [ :classService |
 					self classSelected: classService ] ];
 		whenActivatedDo: [ :selection |
-			self expandAt: selection selectedItem ].
+			| classService |
+			'expand event' traceCr. 
+			classService := selection selectedItem.
+			self waitForSelectionBeforeExpanding: classService.
+			self expandAt: classService ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
@@ -1136,11 +1141,11 @@ JadeiteBrowserPresenter >> expandAt: classService [
 	self issueCommand: classService onCompletion: [
 		classHierarchyPresenter childrenFor: classService.
 		path := classHierarchyPresenter selection selectedPath.
-		path notEmpty ifTrue: [classHierarchyPresenter recalculateChildrenFor: path].
+		path notEmpty ifTrue: [
+			classHierarchyPresenter recalculateChildrenFor: path ].
 		classHierarchyPresenter
 			collapsePath: path;
-			expandPath: path.
-		classHierarchyPresenter selectItem: classService ]
+			expandPath: path ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4106,6 +4111,19 @@ JadeiteBrowserPresenter >> variablesMenuStrings [
 				browseInstVarReaders;
 				browseInstVarWriters].
 	^#('&Variables' '&Add Accessors//addVariableAccessors' '&Browse Inst Var Readers//browseInstVarReaders' '&Browse Inst Var Writers//browseInstVarWriters')
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> waitForSelectionBeforeExpanding: classService [
+	"if we double click on a non-selected class
+	in the hierarchy, make sure the selection event
+	fully processes first or we won't be able to expand"
+
+	| count |
+	count := 0.
+	[ classService isInCommand and: [ count < 1000 ] ] whileTrue: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ]
 ]
 
 { #category : 'as yet unclassified' }
