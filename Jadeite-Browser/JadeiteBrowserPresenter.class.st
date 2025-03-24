@@ -728,15 +728,12 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
-			'selection event' traceCr. 
-			selection selectedItem ifNotNil: [ :classService |
-					self classSelected: classService ] ];
+			RowanServiceUpdater current critical: [
+					selection selectedItem ifNotNil: [ :classService |
+							self classSelected: classService ] ] ];
 		whenActivatedDo: [ :selection |
-			| classService |
-			'expand event' traceCr. 
-			classService := selection selectedItem.
-			self waitForSelectionBeforeExpanding: classService.
-			self expandAt: classService ].
+			RowanServiceUpdater current critical: [
+					self expandAt: selection selectedItem ] ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
 		self isHierarchyTabSelected
 			ifTrue: [ self updateHierarchy ]
@@ -1145,7 +1142,11 @@ JadeiteBrowserPresenter >> expandAt: classService [
 			classHierarchyPresenter recalculateChildrenFor: path ].
 		classHierarchyPresenter
 			collapsePath: path;
-			expandPath: path ]
+			expandPath: path.
+		"below should not be necessary - why would expanding path clear selection"
+		classHierarchyPresenter selectItem: classService.
+		classService updateCategories: categoryListPresenter browser: self.
+		self methodsUpdate: classService ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4111,19 +4112,6 @@ JadeiteBrowserPresenter >> variablesMenuStrings [
 				browseInstVarReaders;
 				browseInstVarWriters].
 	^#('&Variables' '&Add Accessors//addVariableAccessors' '&Browse Inst Var Readers//browseInstVarReaders' '&Browse Inst Var Writers//browseInstVarWriters')
-]
-
-{ #category : 'initialization' }
-JadeiteBrowserPresenter >> waitForSelectionBeforeExpanding: classService [
-	"if we double click on a non-selected class
-	in the hierarchy, make sure the selection event
-	fully processes first or we won't be able to expand"
-
-	| count |
-	count := 0.
-	[ classService isInCommand and: [ count < 1000 ] ] whileTrue: [
-		count := count + 1.
-		(Delay forMilliseconds: 1) wait ]
 ]
 
 { #category : 'as yet unclassified' }

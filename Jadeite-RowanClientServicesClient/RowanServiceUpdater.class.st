@@ -69,14 +69,17 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service commandArgs ifNil: [ service commandArgs: Array new ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
+	                      | copy |
 	                      [
 	                      [
 	                      service replicateFrom: aService.
 	                      self possibleSignalCompileError: service.
-	                      self applyUpdates: service.
+	                      copy := aService copy. "apply updates on the copy to prevent forked threads from changing the service before we're done. In particular, don't want to reset #updateType inst var"
+	                      self applyUpdates: copy.
+	                      service replicateFrom: copy. "get updated values from copy"
 	                      service handleServiceCompletion ] ifCurtailed: [
-		                      aService inCommand signal ].
-	                      aService inCommand signal ]
+		                      service inCommand signal ].
+	                      service inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
 			                      service handleCompileError: ex.
@@ -150,7 +153,8 @@ RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 RowanServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has use completion blocks"
-	service isInCommand ifTrue: [ ^ self ].
+
+	(service isInCommand and: [ singleThreaded not ]) ifTrue: [ ^ self ].
 	(singleThreaded and: [ service notAlwaysForked ])
 		ifTrue: [
 			serviceQueueSemaphore critical: [
