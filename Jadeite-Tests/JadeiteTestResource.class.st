@@ -106,7 +106,7 @@ JadeiteTestResource >> closeTranscripts [
 ]
 
 { #category : 'support' }
-JadeiteTestResource >> connectSignaling: sem [
+JadeiteTestResource >> connectThenSignal: sem [
 
 	| profile |
 	^ [
@@ -220,7 +220,7 @@ JadeiteTestResource >> forceReconnect [
 
 	| sem |
 	sem := Semaphore new.
-	[ self connectSignaling: sem ] fork.
+	[ self connectThenSignal: sem ] fork.
 	(sem waitTimeoutSeconds: 5) ifTrue: [
 		Error signal: 'connection failed to complete' ]
 ]

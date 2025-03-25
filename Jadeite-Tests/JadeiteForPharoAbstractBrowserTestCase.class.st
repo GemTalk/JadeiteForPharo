@@ -1194,6 +1194,34 @@ JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyAction [
+
+	| selectedPath selectedItem index oc |
+	self
+		testsJadeiteForPharoIssue: #issue233
+		title: 'Double-click in hierarchy needs extra selection'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/233'.
+	self classHierarchyPresenter selection whenChangedDo: [ :selection |
+		selectedPath := selection.
+		selectedItem := self classHierarchyPresenter selectedItem ].
+	self selectRowanAnsweringService.
+	self selectHierarchyTab.
+	self assert: selectedPath equals: #( 1 1 1 1 1 1 ).
+	self classHierarchyPresenter doubleClickAtPath: #( 1 1 1 1 1 ).
+	"subclasses of RowanService should be displayed"
+	index := 0.
+	oc := #( 1 1 1 1 1 1 ) asOrderedCollection.
+	self classHierarchyPresenter selectedItem subclassServices do: [
+		:subclassService |
+		index := index + 1.
+		oc at: 6 put: index.
+		self classHierarchyPresenter selectItem: subclassService.
+		self
+			assert: (self classHierarchyPresenter itemAtPath: oc)
+			equals: subclassService ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |

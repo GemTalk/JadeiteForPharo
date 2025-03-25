@@ -2502,7 +2502,7 @@ JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
 	previousTopViewArrangement := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService completionBlock: completionBlock [
 	"get services in one round trip"
 
@@ -3172,10 +3172,15 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService completionBlock: completionBlock [
 
 	self selectProject: projectService.
-	postUpdatePackageBlock := [
-	                          self selectClass: classService.
-	                          completionBlock value ].
-	self selectPackage: packageService
+	self packageListPresenter selectedItem = packageService
+		ifTrue: [
+			self selectClass: classService.
+			completionBlock value ]
+		ifFalse: [
+			postUpdatePackageBlock := [
+			                          self selectClass: classService.
+			                          completionBlock value ].
+			self selectPackage: packageService ]
 ]
 
 { #category : 'selections' }
