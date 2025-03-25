@@ -29,7 +29,8 @@ Class {
 		'backButton',
 		'forwardButton',
 		'postOpenBlock',
-		'postUpdatePackageBlock'
+		'postUpdatePackageBlock',
+		'postUpdateClassBlock'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -2666,19 +2667,20 @@ JadeiteBrowserPresenter >> refresh [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
+	| extensions computedCategory |
 	categoryListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		methodListPresenter unselectAll.
 		^ self methodsUpdate: self selectedClass ].
-	(JadeiteCategory named: categoryListPresenter selectedItem) isComputed ifTrue: [
-		| extensions |
-		categoryListPresenter selections size = 1 ifTrue: [ "extensions are only displayed if that's the only selection"
-			extensions := self selectedClass methods select: [ :methodService |
-				              methodService isExtension ].
-			methodListPresenter list: extensions.
-			^ self ] ].
-	self refreshMethodsOn: methodListPresenter.
+	extensions := Array new.
+	computedCategory := selection selectedItems
+		                    detect: [ :category | category isComputed ]
+		                    ifNone: [  ].
+	computedCategory ifNotNil: [ "extensions are only displayed if that's the only selection"
+		extensions := self selectedClass methods select: [ :methodService |
+			              methodService isExtension ] ].
+	self refreshMethodsOn: methodListPresenter extensions: extensions.
 	methodListPresenter unselectAll.
 	self selectMethodSourceTab.
 	self resetCategoryText
@@ -2720,7 +2722,9 @@ JadeiteBrowserPresenter >> refreshClassUsing: selectedMethod [
 		selection updateAfterCommand: true.
 		self updateClassInfo.
 		self selectMethodWithSameSelectorAs: selectedMethod.
-		self updateTabLabel ]
+		self updateTabLabel.
+		[ postUpdateClassBlock value ] ensure: [
+			postUpdateClassBlock := nil ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3165,10 +3169,12 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 ]
 
 { #category : 'selections' }
-JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService [
+JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService completionBlock: completionBlock [
 
 	self selectProject: projectService.
-	postUpdatePackageBlock := [ self selectClass: classService ].
+	postUpdatePackageBlock := [
+	                          self selectClass: classService.
+	                          completionBlock value ].
 	self selectPackage: packageService
 ]
 
@@ -3767,8 +3773,8 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: comp
 						self
 							selectClassNamed: classService
 							package: packageService
-							project: projectService.
-						completionBlock value ] ] ]
+							project: projectService
+							completionBlock: completionBlock ] ] ]
 ]
 
 { #category : 'as yet unclassified' }

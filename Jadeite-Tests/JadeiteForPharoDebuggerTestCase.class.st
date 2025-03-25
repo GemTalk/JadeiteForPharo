@@ -37,20 +37,27 @@ JadeiteForPharoDebuggerTestCase >> tearDown [
 { #category : 'tests' }
 JadeiteForPharoDebuggerTestCase >> test_browseFrameMethod [
 
-	| service |
+	| service count |
 	service := RowanAnsweringServiceClient newForked.
 	service exec: '$abc' in: GciSession current onCompletion: [  ].
 	self waitForDebugger.
 	debugger frameListPresenter selectIndex: 1.
 
 	projectsBrowser := debugger browseFrameMethod owner owner.
-	[ self projectsPresenter selectedClass isNil ] whileTrue: [
-		(Delay forMilliseconds: 1) wait ].
+	count := 0.
+	[ self projectsPresenter selectedClass isNil and: [ count < 2000 ] ]
+		whileTrue: [
+			count := count + 1.
+			(Delay forMilliseconds: 1) wait ].
 	self
 		assert: self projectsPresenter selectedClass name
 		equals: 'ProcessorScheduler'.
-	[ self projectsPresenter methodListPresenter selectedItem isNil ]
-		whileTrue: [ (Delay forMilliseconds: 1) wait ].
+	count := 0.
+	[
+	self projectsPresenter methodListPresenter selectedItem isNil and: [
+		count < 2000 ] ] whileTrue: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ].
 	self
 		assert:
 		self projectsPresenter methodListPresenter selectedItem selector
