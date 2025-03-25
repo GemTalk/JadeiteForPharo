@@ -140,12 +140,12 @@ JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
 	aBlock fork.
 	count := 0.
 	[
-	count > 100 or: [
+	count > 10 or: [
 		(newBrowsers := JadeiteBrowser allInstances
 			                   asOrderedCollection) size
 		> existingBrowsers size ] ] whileFalse: [
 		count := count + 1.
-		(Delay forMilliseconds: 1) wait ].
+		(Delay forMilliseconds: 50) wait ].
 	newBrowsers removeAll: existingBrowsers.
 	projectsBrowser := newBrowsers first
 ]

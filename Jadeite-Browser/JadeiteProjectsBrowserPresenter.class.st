@@ -593,17 +593,6 @@ JadeiteProjectsBrowserPresenter >> selectGlobalsTab [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectPackage: newPackageSelection [
-	| methodSelection classSelection |
-	methodSelection := methodListPresenter selectionOrNil.
-	classSelection := classListPresenter selectionOrNil.
-	packageListPresenter selection: newPackageSelection.
-	packageListPresenter verticalAlignment desiredVisibleRow: packageListPresenter selection selectedIndex.
-	classSelection ifNotNil: [self selectClassNamed: classSelection name].
-	methodSelection ifNotNil: [self selectionMethod: methodSelection]
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectPackageFilterTab [
 	methodFilterTabs selectPageIndex: 3
 ]

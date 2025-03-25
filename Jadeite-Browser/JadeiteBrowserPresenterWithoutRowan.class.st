@@ -291,9 +291,9 @@ JadeiteBrowserPresenterWithoutRowan >> renameCommandFor: classService to: newNam
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 
-	| index dictionaryService |
-	classService ifNil: [ ^self ]. 
-	self selectDictionaryNamed: classService dictionaryName. 
+	| index |
+	classService ifNil: [ ^ self ].
+	self selectDictionaryNamed: classService dictionaryName.
 	index := self classListPresenter list indexOf: classService.
 	index = 0 ifTrue: [
 		classService meta ifNil: [ classService meta: true ].

@@ -14,7 +14,7 @@ RowanTestServiceUpdater class >> installTestUpdater [
 { #category : 'commands' }
 RowanTestServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
-	Any sending process has use completion blocks"
+	Any sending process has to use completion blocks"
 
 	| sem processingCommand |
 	sem := Semaphore new.

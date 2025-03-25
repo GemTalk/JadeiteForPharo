@@ -1212,34 +1212,6 @@ JadeSystemBrowserPresenter >> revertNewClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> selectClass: aString selector: methodString [
-"
-	Array with: className with: dictionaryName with: category with: packageName.
-"
-	| string list className isMeta array |
-	updateProcess ifNotNil: [		"https://github.com/jgfoster/Jade/issues/109"
-		updateProcess terminate.
-		updateProcess := nil.
-	].
-	string := self gciSession 
-		serverPerform: #'systemBrowser:' 
-		with: environment printString , ' findClass'.
-	list := (string subStrings: Character lf) collect: [:each | each subStrings: Character tab].
-	list := list copyFrom: 2 to: list size.
-	list := list collect: [:each | each size < 3 ifTrue: [each , #('' '' '')] ifFalse: [each]].
-	className := aString.
-	(isMeta := className endsWith: ' class') ifTrue: [
-		className := className copyFrom: 1 to: className size - 6.
-	].
-	array := list detect: [:each | each first subStrings first = className].
-	self 
-		updateAfterFindClass: array
-		isMeta: isMeta 
-		selector: methodString.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> selectedClassChanged: aBoolean [
 		"We don't want the previous class' method filter to apply to new class"
 

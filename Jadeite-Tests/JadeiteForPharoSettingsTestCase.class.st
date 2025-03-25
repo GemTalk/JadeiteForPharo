@@ -43,16 +43,20 @@ JadeiteForPharoSettingsTestCase >> test_autoCommitSetting [
 { #category : 'tests' }
 JadeiteForPharoSettingsTestCase >> test_openBrowserOnClassSetting [
 
-	| prefs |
+	| prefs count |
 	prefs := JadeitePreferences current.
 	prefs openBrowserOnClass: 'RowanService'.
 	self waitForNewBrowserWhile: [
 		JadeiteConnectionProfile connectionProfile connect.
 		self assert: JadeiteConnectionProfile connectionProfile isConnected ].
+	count := 0.
 	[
-	self projectsPresenter
-		ifNil: [ false ]
-		ifNotNil: [ :pres | pres selectedClass notNil ] ] whileFalse: [
+	| classSelected |
+	classSelected := self projectsPresenter
+		                 ifNil: [ false ]
+		                 ifNotNil: [ :pres | pres selectedClass notNil ].
+	classSelected not and: [ count < 2000 ] ] whileTrue: [
+		count := count + 1.
 		(Delay forMilliseconds: 1) wait ].
 	self
 		assert: self projectsPresenter selectedClass name

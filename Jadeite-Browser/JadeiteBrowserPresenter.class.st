@@ -28,7 +28,8 @@ Class {
 		'packageMethodListPage',
 		'backButton',
 		'forwardButton',
-		'postOpenBlock'
+		'postOpenBlock',
+		'postUpdatePackageBlock'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -1905,7 +1906,7 @@ JadeiteBrowserPresenter >> isMethodSourceTabSelected [
 	^textAreaTabs currentCard name = 'methodSource'
 ]
 
-{ #category : 'selections' }
+{ #category : 'testing' }
 JadeiteBrowserPresenter >> isMethodVisible: methodSelection [
 
 	^ (methodListPresenter list
@@ -2386,7 +2387,7 @@ JadeiteBrowserPresenter >> packageMethodListPresenter [
 	^ packageMethodListPresenter
 ]
 
-{ #category : 'selections' }
+{ #category : 'accessing' }
 JadeiteBrowserPresenter >> packageServiceFor: classService [
 
 	| answeringService |
@@ -2500,7 +2501,7 @@ JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
 	previousTopViewArrangement := anObject
 ]
 
-{ #category : 'selections' }
+{ #category : 'accessing' }
 JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService completionBlock: completionBlock [
 	"get services in one round trip"
 
@@ -2580,7 +2581,7 @@ JadeiteBrowserPresenter >> projectReadmePath [
 	^JadePresenter rowanProjectsHomeEnvVarString , '/' , self selectedProjectName , '/README.md'
 ]
 
-{ #category : 'selections' }
+{ #category : 'accessing' }
 JadeiteBrowserPresenter >> projectServiceFor: classService [
 
 	| answeringService |
@@ -2665,20 +2666,19 @@ JadeiteBrowserPresenter >> refresh [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
-	| extensions computedCategory |
 	categoryListPresenter selectedItem ifNil: [
 		definedMethodPackageText text: String new.
 		self resetCategoryText.
 		methodListPresenter unselectAll.
 		^ self methodsUpdate: self selectedClass ].
-	extensions := Array new.
-	computedCategory := selection selectedItems
-		                    detect: [ :category | category isComputed ]
-		                    ifNone: [  ].
-	computedCategory ifNotNil: [ "extensions are only displayed if that's the only selection"
-		extensions := self selectedClass methods select: [ :methodService |
-			              methodService isExtension ] ].
-	self refreshMethodsOn: methodListPresenter extensions: extensions.
+	(JadeiteCategory named: categoryListPresenter selectedItem) isComputed ifTrue: [
+		| extensions |
+		categoryListPresenter selections size = 1 ifTrue: [ "extensions are only displayed if that's the only selection"
+			extensions := self selectedClass methods select: [ :methodService |
+				              methodService isExtension ].
+			methodListPresenter list: extensions.
+			^ self ] ].
+	self refreshMethodsOn: methodListPresenter.
 	methodListPresenter unselectAll.
 	self selectMethodSourceTab.
 	self resetCategoryText
@@ -3104,6 +3104,21 @@ JadeiteBrowserPresenter >> selectCategoryTab [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectClass: classService [
+
+	| index |
+	index := self classListPresenter list indexOf: classService.
+	index = 0 ifTrue: [
+		classService meta ifNil: [ classService meta: true ].
+		index := self classListPresenter list indexOf:
+			         (classService copy meta: classService meta not) ].
+	self classListPresenter selection selectedIndex = index ifFalse: [
+		self classListPresenter selection unselectAll.
+		classService serviceCompletionBlock: [ self updateClassInfo ].
+		self classListPresenter selectIndex: index scrollToSelection: true ]
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassCommentTab [
 	textAreaTabs selectPage: classCommentTab 
 ]
@@ -3152,26 +3167,9 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService [
 
-	| index |
-	index := self projectListPresenter list indexOf: projectService.
-	self projectListPresenter selection selectedIndex = index ifFalse: [
-		self projectListPresenter selection unselectAll.
-		self projectListPresenter selectIndex: index scrollToSelection: true.
-		self packageListPresenter list: projectService sortedPackages ].
-	index := self packageListPresenter list indexOf: packageService.
-	self packageListPresenter selection selectedIndex = index ifFalse: [
-		self packageListPresenter selection unselectAll.
-		self packageListPresenter selectIndex: index scrollToSelection: true.
-		self classListPresenter list: packageService sortedClasses ].
-	index := self classListPresenter list indexOf: classService.
-	index = 0 ifTrue: [
-		classService meta ifNil: [ classService meta: true ].
-		index := self classListPresenter list indexOf:
-			         (classService copy meta: classService meta not) ].
-	self classListPresenter selection selectedIndex = index ifFalse: [
-		self classListPresenter selection unselectAll.
-		self classListPresenter selectIndex: index scrollToSelection: true.
-		self updateClassInfo ]
+	self selectProject: projectService.
+	postUpdatePackageBlock := [ self selectClass: classService ].
+	self selectPackage: packageService
 ]
 
 { #category : 'selections' }
@@ -3303,6 +3301,17 @@ JadeiteBrowserPresenter >> selectNoneProject [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectPackage: packageService [
+
+	| index |
+	index := self packageListPresenter list indexOf: packageService.
+	self packageListPresenter selection selectedIndex = index ifFalse: [
+		self packageListPresenter selection unselectAll.
+		self packageListPresenter selectIndex: index scrollToSelection: true ].
+	^ index
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageFor: classService [
 
 	| answeringService packageService |
@@ -3360,6 +3369,18 @@ JadeiteBrowserPresenter >> selectPackageOrDictionaryFor: classService [
 			session: self gciSession.
 		service := answeringService answer.
 		service selectIn: self ]
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectProject: projectService [
+
+	| index |
+	index := self projectListPresenter list indexOf: projectService.
+	self projectListPresenter selection selectedIndex = index ifFalse: [
+		self projectListPresenter selection unselectAll.
+		self projectListPresenter selectIndex: index scrollToSelection: true.
+		self packageListPresenter list: projectService sortedPackages ].
+	^ index
 ]
 
 { #category : 'selections' }
@@ -3971,9 +3992,10 @@ JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updatePackage [
+
 	self selectClassListTab.
-	classHierarchyPresenter clear. 
-	self setInstanceSide. 
+	classHierarchyPresenter clear.
+	self setInstanceSide.
 	self resetClassComment.
 	self resetClassTemplate.
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
@@ -3985,7 +4007,9 @@ JadeiteBrowserPresenter >> updatePackage [
 		self todo: [
 			packageListPresenter selectionIfNone: [ self selectProjectTab ].
 			self updateTabLabel ].
-		definedClassPackageText text: String new ].
+		definedClassPackageText text: String new.
+		[ postUpdatePackageBlock value ] ensure: [
+			postUpdatePackageBlock := nil ] ]
 ]
 
 { #category : 'as yet unclassified' }
