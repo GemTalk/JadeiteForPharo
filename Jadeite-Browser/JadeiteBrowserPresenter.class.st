@@ -777,7 +777,8 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 
 	packageListPresenter
-		whenSelectionChangedDo: [ :selection | self updatePackage ];
+		whenSelectionChangedDo: [ :selection |
+			RowanServiceUpdater current critical: [ self updatePackage ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 		self classListPresenter clear.
@@ -1127,6 +1128,12 @@ JadeiteBrowserPresenter >> ensureSelectionAfterDropClass: classService methods: 
 	self methodListPresenter
 		selectIndexes: indexes
 		scrollToSelection: true
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> existingBrowser [
+
+	^ self parentPresenter existingBrowser
 ]
 
 { #category : 'as yet unclassified' }
@@ -3108,7 +3115,7 @@ JadeiteBrowserPresenter >> selectCategoryTab [
 ]
 
 { #category : 'selections' }
-JadeiteBrowserPresenter >> selectClass: classService [
+JadeiteBrowserPresenter >> selectClass: classService completionBlock: completionBlock [
 
 	| index |
 	index := self classListPresenter list indexOf: classService.
@@ -3116,10 +3123,14 @@ JadeiteBrowserPresenter >> selectClass: classService [
 		classService meta ifNil: [ classService meta: true ].
 		index := self classListPresenter list indexOf:
 			         (classService copy meta: classService meta not) ].
+	index traceCr.
 	self classListPresenter selection selectedIndex = index ifFalse: [
 		self classListPresenter selection unselectAll.
-		classService serviceCompletionBlock: [ self updateClassInfo ].
-		self classListPresenter selectIndex: index scrollToSelection: true ]
+		postUpdateClassBlock := [
+		                        self updateClassInfo.
+		                        completionBlock value ].
+		RowanServiceUpdater current critical: [
+			self classListPresenter selectIndex: index scrollToSelection: true ] ]
 ]
 
 { #category : 'selections' }
@@ -3174,12 +3185,15 @@ JadeiteBrowserPresenter >> selectClassNamed: classService package: packageServic
 	self selectProject: projectService.
 	self packageListPresenter selectedItem = packageService
 		ifTrue: [
-			self selectClass: classService.
-			completionBlock value ]
+		self selectClass: classService completionBlock: completionBlock ]
 		ifFalse: [
 			postUpdatePackageBlock := [
-			                          self selectClass: classService.
-			                          completionBlock value ].
+			                          'postUpdatePackageBlock ' trace.
+			                          packageListPresenter selectedItem classes
+				                          traceCr.
+			                          self
+				                          selectClass: classService
+				                          completionBlock: completionBlock ].
 			self selectPackage: packageService ]
 ]
 
@@ -4012,12 +4026,13 @@ JadeiteBrowserPresenter >> updatePackage [
 	packageListPresenter selections isEmpty ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
-	self updateClassesOnCompletion: [
+	self updateClassesOnCompletion: [ :answeringService |
+		self isClassHierarchyTabSelected ifFalse: [
+			packageListPresenter selectedItem classes ifNotNil: [
+				classListPresenter model collection:
+					packageListPresenter selectedItem classes ] ].
 		self updatePackageInfo.
 		self resetSunitTestList.
-		self todo: [
-			packageListPresenter selectionIfNone: [ self selectProjectTab ].
-			self updateTabLabel ].
 		definedClassPackageText text: String new.
 		[ postUpdatePackageBlock value ] ensure: [
 			postUpdatePackageBlock := nil ] ]

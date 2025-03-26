@@ -63,8 +63,19 @@ JadeiteClassTrait >> browseClass [
 	browser := self openBrowser.
 	browser activePresenter
 		updateAfterFindClass: self selectedClass
-		onCompletion: nil.
+		onCompletion: [  ].
 	^ browser
+]
+
+{ #category : 'queries' }
+JadeiteClassTrait >> browseClassInExistingBrowser [
+
+	| browser |
+	browser := self parentPresenter existingBrowser.
+	browser openNewBrowserTab
+		updateAfterFindClass: self selectedClass
+		onCompletion: [  ].
+	^ browser window activate
 ]
 
 { #category : 'queries' }
@@ -256,6 +267,11 @@ JadeiteClassTrait >> newBrowseClassMenu [
 				  item
 					  name: 'Browse Class';
 					  action: [ self browseClass ];
+					  enabled: [ self isClassSelected ] ];
+			 addItem: [ :item |
+				  item
+					  name: 'Browse Class In Existing Browser';
+					  action: [ self browseClassInExistingBrowser ];
 					  enabled: [ self isClassSelected ] ];
 			  addItem: [ :item |
 				  item

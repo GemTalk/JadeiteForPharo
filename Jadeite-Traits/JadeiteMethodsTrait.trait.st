@@ -53,11 +53,17 @@ JadeiteMethodsTrait >> addBrowseBreakpointMethodsTo: group [
 { #category : 'menus' }
 JadeiteMethodsTrait >> addBrowseClassItemTo: group [
 
-	group addItem: [ :item |
-		item
-			name: 'Browse';
-			action: [ self browseMethodClass ];
-			enabled: [ self methodListPresenter selections size = 1 ] ]
+	group
+		addItem: [ :item |
+			item
+				name: 'Browse';
+				action: [ self browseMethodClass ];
+				enabled: [ self methodListPresenter selections size = 1 ] ];
+		addItem: [ :item |
+			item
+				name: 'Browse In Existing Browser';
+				action: [ self browseMethodClassInExistingBrowser ];
+				enabled: [ self methodListPresenter selections size = 1 ] ]
 ]
 
 { #category : 'menus' }
@@ -383,6 +389,22 @@ JadeiteMethodsTrait >> browseMethodClass [
 			browserPresenter
 				updateAfterFindClass: classService
 				method: methodService ] ]
+]
+
+{ #category : 'queries' }
+JadeiteMethodsTrait >> browseMethodClassInExistingBrowser [
+
+	| classService methodService browser browserPresenter |
+	methodService := self methodListPresenter jadeiteSelections first.
+	classService := RowanClassService new name: methodService className.
+	classService meta: methodService meta.
+	browser := self existingBrowser.
+	browser window activate. 
+	browserPresenter  := browser openNewBrowserTab.
+	self updateService: classService onCompletion: [
+		browserPresenter
+			updateAfterFindClass: classService
+			method: methodService ]
 ]
 
 { #category : 'actions' }

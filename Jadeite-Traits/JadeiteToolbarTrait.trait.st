@@ -55,6 +55,16 @@ JadeiteToolbarTrait >> displayClientCommitId: workspace [
 	^ workspace text: commitIdDescription
 ]
 
+{ #category : 'trait protocol conflict' }
+JadeiteToolbarTrait >> existingBrowser [
+
+	| existing |
+	existing := JadeiteBrowser allInstances
+		            detect: [ :browser | browser window isOpen ]
+		            ifNone: [  ].
+	^ existing ifNil: [ self openBrowser ]
+]
+
 { #category : 'actions' }
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 

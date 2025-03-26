@@ -289,7 +289,7 @@ JadeiteBrowserPresenterWithoutRowan >> renameCommandFor: classService to: newNam
 ]
 
 { #category : 'actions' }
-JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
+JadeiteBrowserPresenterWithoutRowan >> selectClass: classService completionBlock: completionBlock [
 
 	| index |
 	classService ifNil: [ ^ self ].
@@ -301,8 +301,10 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService [
 			         (classService copy meta: classService meta not) ].
 	self classListPresenter selection selectedIndex = index ifFalse: [
 		self classListPresenter selection unselectAll.
-		self classListPresenter selectIndex: index scrollToSelection: true.
-		self updateClassInfo ]
+		classService serviceCompletionBlock: [
+			self updateClassInfo.
+			completionBlock value ].
+		self classListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'updates' }

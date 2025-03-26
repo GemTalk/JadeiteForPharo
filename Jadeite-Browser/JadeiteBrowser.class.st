@@ -343,7 +343,8 @@ JadeiteBrowser >> openNewBrowserTab [
 		                provider: [ self openNewBrowserPresenter ].
 	notebookPage beCloseable.
 	tabs addPage: notebookPage.
-	tabs selectPage: notebookPage
+	tabs selectPage: notebookPage.
+	^ notebookPage activePresenter
 ]
 
 { #category : 'accessing' }
