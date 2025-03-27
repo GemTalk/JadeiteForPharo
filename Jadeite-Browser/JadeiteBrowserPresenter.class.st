@@ -1045,6 +1045,7 @@ JadeiteBrowserPresenter >> editSaveClass [
 		[
 		| result |
 		result := self recompileMethods.
+		classDefinitionPresenter value: self selectedClass template.
 		self resetClassDefinitionPane ]
 			on: Error
 			do: [ :ex | self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
@@ -3123,7 +3124,6 @@ JadeiteBrowserPresenter >> selectClass: classService completionBlock: completion
 		classService meta ifNil: [ classService meta: true ].
 		index := self classListPresenter list indexOf:
 			         (classService copy meta: classService meta not) ].
-	index traceCr.
 	self classListPresenter selection selectedIndex = index ifFalse: [
 		self classListPresenter selection unselectAll.
 		postUpdateClassBlock := [

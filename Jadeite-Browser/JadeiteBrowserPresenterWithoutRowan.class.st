@@ -291,20 +291,9 @@ JadeiteBrowserPresenterWithoutRowan >> renameCommandFor: classService to: newNam
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> selectClass: classService completionBlock: completionBlock [
 
-	| index |
 	classService ifNil: [ ^ self ].
 	self selectDictionaryNamed: classService dictionaryName.
-	index := self classListPresenter list indexOf: classService.
-	index = 0 ifTrue: [
-		classService meta ifNil: [ classService meta: true ].
-		index := self classListPresenter list indexOf:
-			         (classService copy meta: classService meta not) ].
-	self classListPresenter selection selectedIndex = index ifFalse: [
-		self classListPresenter selection unselectAll.
-		classService serviceCompletionBlock: [
-			self updateClassInfo.
-			completionBlock value ].
-		self classListPresenter selectIndex: index scrollToSelection: true ]
+	super selectClass: classService completionBlock: completionBlock
 ]
 
 { #category : 'updates' }
@@ -362,8 +351,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 				self setAppropriateMeta: classService.
 				self selectClassListTab.
 				self selectClassCategoryFor: classService.
-				self selectClass: classService completionBlock: [  ] ].
-			completionBlock value ] ]
+				self selectClass: classService completionBlock: completionBlock ] ] ]
 ]
 
 { #category : 'updates' }
@@ -450,8 +438,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInClassList: classService sele
 		          ifNone: [ ^ self ].
 	update replicateFrom: classService.
 	selection ifNil: [ ^ self ].
-	self selectClass: selection completionBlock: [  ].
-	classListPresenter view invalidate
+	self
+		selectClass: selection
+		completionBlock: [ classListPresenter view invalidate ]
 ]
 
 { #category : 'as yet unclassified' }
