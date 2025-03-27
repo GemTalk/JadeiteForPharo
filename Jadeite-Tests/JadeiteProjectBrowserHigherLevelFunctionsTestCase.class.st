@@ -161,53 +161,6 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_addSystemTabNoSelectio
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_browseInExistingBrowser [
-
-	self
-		testsIssue: #issue827
-		withTitle:
-		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'.
-	projectsBrowser := nil.
-	self jadeiteTestResourceClass current projectsBrowser: nil.
-	JadeiteBrowser allInstances do: [ :browser | self destroy: browser ].
-	self setupProjectBrowser.
-	self assert: projectsBrowser cardsPresenter subPresenters size = 1.
-	self selectRowanSample1Test.
-	self selectMethodNamed: #testError.
-	self assert:
-		self projectsPresenter classListPresenter selection name
-		= 'RowanSample1Test'.
-	self assert:
-		self projectsPresenter methodListPresenter selection selector
-		= #testError.
-	methodListBrowser := self projectsPresenter browseImplementors.
-	self assert: methodListBrowser view isForeground.
-	methodListBrowser primaryPresenter methodListPresenter
-		methodListPresenter selectionByIndex: 3.
-	self assert: methodListBrowser primaryPresenter methodListPresenter
-			methodListPresenter selection className = 'SUnitTest'.
-	methodListBrowser primaryPresenter methodListPresenter
-		browseInExistingBrowser.
-	self assert: projectsBrowser cardsPresenter subPresenters size = 2.
-	self assert:
-		self projectsPresenter classListPresenter selection name
-		= 'SUnitTest'.
-	self assert:
-		self projectsPresenter methodListPresenter selection selector
-		= #testError.
-	self assert: projectsBrowser view isForeground.
-	projectsBrowser cardsPresenter view cardLayout firstCard.
-	self assert:
-		self projectsPresenter classListPresenter selection name
-		= 'RowanSample1Test'.
-	self assert:
-		self projectsPresenter methodListPresenter selection selector
-		= #testError.
-	self destroy: projectsBrowser. "Because we've added tabs, we want to start the next test with a fresh project browser"
-	projectsBrowser := nil
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_browserPosition [
 	self testsIssue: #issue735
 		withTitle: 'In multi-monitor setupt, inconsistent locations for opening windows (3.0.93-7)'.

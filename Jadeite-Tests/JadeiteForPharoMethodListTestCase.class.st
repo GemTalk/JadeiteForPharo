@@ -179,6 +179,99 @@ JadeiteForPharoMethodListTestCase >> test_browseImplementorsOf [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseInExistingBrowser [
+	"If no existing browser is found, open a new one"
+
+	self
+		testsIssue: #issue827
+		withTitle:
+		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'. "dolphin issue"
+	self
+		testsJadeiteForPharoIssue: #issue267
+		title:
+		'could use "Browse in existing package browser" from method browsers'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/267'.
+	self setupProjectBrowser.
+	self selectRowanSample1Test.
+	self projectsPresenter selectMethodNamed: #test1.
+	self denyIsNil: projectsBrowser.
+	self openMethodListBrowserOfImplementorsOf: 'testError'.
+
+	self assert: methodListBrowser window isTopWindow.
+	methodListBrowser methodListPresenter unselectAll.
+	methodListBrowser methodListPresenter selectIndex: 2.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem className
+		equals: 'SUnitTest'.
+
+	methodListBrowser browseMethodClassInExistingBrowser.
+
+	self assert: projectsBrowser window isTopWindow.
+	self assert: projectsBrowser tabs pages size equals: 2.
+	self assert: projectsBrowser tabs selectedPageIndex equals: 2.
+	self
+		assert: self projectsPresenter classListPresenter selectedItem name
+		equals: 'SUnitTest'.
+	self
+		assert:
+		self projectsPresenter methodListPresenter selectedItem selector
+		equals: #testError.
+	projectsBrowser tabs selectPageIndex: 1.
+	self
+		assert: self projectsPresenter classListPresenter selectedItem name
+		equals: 'RowanSample1Test'.
+	self
+		assert:
+		self projectsPresenter methodListPresenter selectedItem selector
+		equals: #test1
+]
+
+{ #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_browseInExistingBrowserOpensNewBrowser [
+	"If no existing browser is found, open a new one"
+
+	| openBrowsers |
+	self
+		testsIssue: #issue827
+		withTitle:
+		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'. "dolphin issue"
+	self
+		testsJadeiteForPharoIssue: #issue267
+		title:
+		'could use "Browse in existing package browser" from method browsers'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/267'.
+
+	JadeiteBrowser browserClass allInstances do: [ :browser |
+		self destroy: browser ].
+	projectsBrowser := nil.
+	openBrowsers := JadeiteBrowser browserClass allInstances select: [
+		                :browser | browser window isOpen ].
+	self assert: openBrowsers isEmpty.
+
+	self openMethodListBrowserOfImplementorsOf: 'testError'.
+
+	self assert: methodListBrowser window isTopWindow.
+	methodListBrowser methodListPresenter unselectAll.
+	methodListBrowser methodListPresenter selectIndex: 2.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem className
+		equals: 'SUnitTest'.
+
+	methodListBrowser browseMethodClassInExistingBrowser.
+
+	projectsBrowser := JadeiteBrowser browserClass allInstances detect: [
+		                   :browser | browser window isOpen ].
+	self assert: projectsBrowser window isTopWindow.
+	self assert: projectsBrowser tabs pages size equals: 1.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'SUnitTest'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseInstVarReaders [
 
 	self setupProjectBrowser.

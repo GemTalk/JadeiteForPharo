@@ -139,6 +139,16 @@ JadeiteBrowserPresenter >> activePresenter [
 	^self
 ]
 
+{ #category : 'menus' }
+JadeiteBrowserPresenter >> addBrowseClassItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Browse';
+			action: [ self browseMethodClass ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenter >> addComputedCategories [
 

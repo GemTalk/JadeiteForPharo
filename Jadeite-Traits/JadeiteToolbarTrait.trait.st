@@ -58,11 +58,14 @@ JadeiteToolbarTrait >> displayClientCommitId: workspace [
 { #category : 'trait protocol conflict' }
 JadeiteToolbarTrait >> existingBrowser [
 
-	| existing |
-	existing := JadeiteBrowser allInstances
+	| existing newBrowser |
+	existing := JadeiteBrowser browserClass allInstances
 		            detect: [ :browser | browser window isOpen ]
 		            ifNone: [  ].
-	^ existing ifNil: [ self openBrowser ]
+	^ existing ifNil: [
+		  newBrowser := self openBrowser.
+		  newBrowser tabs removeAll. "sending method should open the tab"
+		  newBrowser ]
 ]
 
 { #category : 'actions' }

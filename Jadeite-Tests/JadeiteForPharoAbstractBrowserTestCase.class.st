@@ -408,6 +408,59 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseClassMethodSourceNotDirty [
 			hasUnacceptedEdits
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserFromMethodList [
+
+	self
+		testsIssue: #issue827
+		withTitle:
+		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'. "dolphin issue"
+	self
+		testsJadeiteForPharoIssue: #issue267
+		title:
+		'could use "Browse in existing package browser" from method browsers'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/267'.
+	JadeiteBrowser browserClass allInstances do: [ :browser |
+		self destroy: browser ].
+	projectsBrowser := nil.
+	self setupProjectBrowser.
+	self assert: projectsBrowser tabs pages size equals: 1.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #testError.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanSample1Test'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError.
+	methodListBrowser := self projectsPresenter browseImplementors.
+	self assert: methodListBrowser window adapter widget isActive.
+	methodListBrowser methodListPresenter unselectAll.
+	methodListBrowser methodListPresenter selectIndex: 2.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem className
+		equals: 'SUnitTest'.
+
+	methodListBrowser browseMethodClassInExistingBrowser.
+
+	self assert: projectsBrowser window isTopWindow.
+	self assert: projectsBrowser tabs pages size equals: 2.
+	self assert: projectsBrowser tabs selectedPageIndex equals: 2.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'SUnitTest'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError.
+	projectsBrowser tabs selectPageIndex: 1.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanSample1Test'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError
+]
+
 { #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_browseLiteralReferences [
 

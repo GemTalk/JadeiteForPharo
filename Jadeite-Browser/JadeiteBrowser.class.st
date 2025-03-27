@@ -15,6 +15,14 @@ Class {
 	#package : 'Jadeite-Browser'
 }
 
+{ #category : 'instance creation' }
+JadeiteBrowser class >> browserClass [
+
+	^ JadeitePreferences isRowanLoaded
+		  ifTrue: [ self ]
+		  ifFalse: [ JadeiteBrowserWithoutRowan ]
+]
+
 { #category : 'accessing' }
 JadeiteBrowser class >> lastWindowSize [
 
