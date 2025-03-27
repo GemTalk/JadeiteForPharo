@@ -27,7 +27,7 @@ JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 		scrollToSelection: true.
 	selectedClassService ifNotNil: [
 		self selectClassCategoryFor: selectedClassService.
-		self selectClass: self selectedClass ]
+		self selectClass: self selectedClass completionBlock: [  ] ]
 ]
 
 { #category : 'actions' }
@@ -362,7 +362,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onComp
 				self setAppropriateMeta: classService.
 				self selectClassListTab.
 				self selectClassCategoryFor: classService.
-				self selectClass: classService ].
+				self selectClass: classService completionBlock: [  ] ].
 			completionBlock value ] ]
 ]
 
@@ -450,7 +450,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInClassList: classService sele
 		          ifNone: [ ^ self ].
 	update replicateFrom: classService.
 	selection ifNil: [ ^ self ].
-	self selectClass: selection.
+	self selectClass: selection completionBlock: [  ].
 	classListPresenter view invalidate
 ]
 
