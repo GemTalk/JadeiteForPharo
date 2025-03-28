@@ -3206,14 +3206,14 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 		ifFalse: [ self selectClassInClassHierarchyNamed: className ]
 ]
 
-{ #category : 'selections' }
+{ #category : 'find' }
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService completionBlock: completionBlock [
 	"jadeite list selection events must be suspended for this to work"
 
 	self selectProject: projectService.
-	packageListPresenter list: projectService packageServices.
+	packageListPresenter list: projectService sortedPackages.
 	self selectPackage: packageService.
-	classListPresenter list: packageService classes.
+	classListPresenter list: packageService sortedClasses.
 	self selectClass: classService completionBlock: completionBlock
 ]
 

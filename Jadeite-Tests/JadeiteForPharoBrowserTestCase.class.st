@@ -400,11 +400,13 @@ JadeiteForPharoBrowserTestCase >> test_findClass [
 	self
 		assert: self packageListPresenter selectedItem name
 		equals: 'Rowan-GemStone-Core'.
-	self assert: self projectListPresenter selectedItem name equals: 'Rowan'.
+	self
+		assert: self projectListPresenter selectedItem name
+		equals: 'Rowan'.
 	self projectsPresenter
 		updateAfterFindClass:
 		(RowanClassService new name: 'CypressClassDefinition')
-		onCompletion: nil.
+		onCompletion: [  ].
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'CypressClassDefinition'.
@@ -416,7 +418,16 @@ JadeiteForPharoBrowserTestCase >> test_findClass [
 		equals: 'Cypress-Definitions'.
 	self
 		assert: self projectListPresenter selectedItem name
-		equals: 'Cypress'
+		equals: 'Cypress'.
+	self
+		assert:
+		(self projectListPresenter selectedItem sortedPackages collect:
+			 #name)
+		equals: (self packageListPresenter list collect: #name).
+	self
+		assert:
+		(self packageListPresenter selectedItem sortedClasses collect: #name)
+		equals: (self classListPresenter list collect: #name)
 ]
 
 { #category : 'tests' }

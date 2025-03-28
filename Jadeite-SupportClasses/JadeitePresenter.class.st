@@ -2,7 +2,8 @@ Class {
 	#name : 'JadeitePresenter',
 	#superclass : 'SpPresenter',
 	#instVars : [
-		'waitIndicator'
+		'waitIndicator',
+		'stopWaitButton'
 	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
@@ -43,15 +44,27 @@ JadeitePresenter >> commitTransaction [
 
 { #category : 'initialization' }
 JadeitePresenter >> initializeWaitPresenter [
+	"for whatever reason, the progress bar won't stretch to full width unless it's in it's own vertical box. Weird."
 
-	| box |
+	| box horizontalBox |
+	horizontalBox := SpBoxLayout newHorizontal.
 	box := SpBoxLayout newVertical.
 	waitIndicator := self newProgressBar.
 	waitIndicator indeterminate.
 	box add: waitIndicator withConstraints: [ :constraints |
 		constraints height: 3 * StandardFonts defaultFont pointSize ].
 	self showNotWait.
-	^ box
+	horizontalBox add: box.
+	stopWaitButton := self newButton
+		                  icon: (self iconNamed: #halt);
+		                  help: 'Stop Progress Bar';
+		                  action: [
+			                  RowanServiceUpdater current stopProgressBar ].
+	horizontalBox add: stopWaitButton withConstraints: [ :constraints |
+		constraints
+			height: 3 * StandardFonts defaultFont pointSize;
+			width: 25 ].
+	^ horizontalBox
 ]
 
 { #category : 'actions' }
@@ -78,14 +91,16 @@ JadeitePresenter >> shellName [
 { #category : 'waiting' }
 JadeitePresenter >> showNotWait [
 
-	waitIndicator ifNotNil: [ :indicator | indicator hide ]
+	waitIndicator ifNotNil: [ :indicator | indicator hide ].
+	stopWaitButton ifNotNil: [ :button | button hide ]
 ]
 
 { #category : 'waiting' }
 JadeitePresenter >> showWait [
 
-	JadeitePreferences showProgressBar ifTrue: [
-		waitIndicator ifNotNil: [ :indicator | indicator show ] ]
+	JadeitePreferences showProgressBar ifFalse: [ ^ self ].
+	waitIndicator ifNotNil: [ :indicator | indicator show ].
+	stopWaitButton ifNotNil: [ :button | button show ].
 ]
 
 { #category : 'find' }
