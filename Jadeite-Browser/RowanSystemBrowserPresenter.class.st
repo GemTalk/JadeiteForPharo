@@ -260,16 +260,3 @@ RowanSystemBrowserPresenter >> updateOverrideListFrom: update [
 	].
 
 ]
-
-{ #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> updateSelectionsForUpdate: update [
-
-	update updateDictionarySelectionsFor: dictionaryListPresenter.
-	update updateClassCategorySelectionsFor: classCategoryPresenter.
-	update updateClassSelectionFor: classListPresenter.
-	update updateClassHierarchySelectionFor: classHierarchyPresenter.
-	update updateSuperclassSelectionFor: superclassListPresenter.
-	update updateMethodFilterSelectionFor: self methodFilterListPresenter.
-	update updateMethodSelectionFor: self methodListPresenter.
-	
-]

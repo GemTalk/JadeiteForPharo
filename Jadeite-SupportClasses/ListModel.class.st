@@ -124,6 +124,8 @@ ListModel >> remove: anObject [
 
 { #category : 'removing' }
 ListModel >> remove: anObject ifAbsent: absentBlock [
+	collection isArray ifTrue: [
+		collection := collection asOrderedCollection "yuck - still can't find the source of these Arrays" ].
 	collection remove: anObject ifAbsent: absentBlock
 ]
 
@@ -140,14 +142,16 @@ ListModel >> removeAll [
 { #category : 'removing' }
 ListModel >> removeAll: objects [
 
+	collection isArray ifTrue: [
+		collection := collection asOrderedCollection "yuck - still can't find the source of these Arrays" ].
 	collection removeAll: objects
 ]
 
 { #category : 'removing' }
-ListModel >> removeWithoutNotification: removal ifAbsent: absentBlock view: theView [
+ListModel >> removeWithoutNotification: removal ifAbsent: absentBlock [
 
-	self todo:
-		'brought over form Dolphin. Get rid of view after making work?'.
+	collection isArray ifTrue: [
+		collection := collection asOrderedCollection "yuck - still can't find the source of these Arrays" ].
 	collection remove: removal.
 	self refreshList
 ]

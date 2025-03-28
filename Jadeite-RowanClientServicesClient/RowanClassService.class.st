@@ -751,15 +751,14 @@ RowanClassService >> remoteServiceName [
 
 { #category : 'public' }
 RowanClassService >> removedClass: presenter [
+
 	| removal |
-	updateType == #removedClass: ifFalse: [^self].
-	removal := presenter model asBag detect: [:classService | classService name = name] ifNone: [].
-	removal
-		ifNotNil: 
-			[presenter model
-				removeWithoutNotification: removal
-				ifAbsent: []
-				view: presenter view]
+	updateType == #removedClass: ifFalse: [ ^ self ].
+	removal := presenter model asBag
+		           detect: [ :classService | classService name = name ]
+		           ifNone: [  ].
+	removal ifNotNil: [
+		presenter model removeWithoutNotification: removal ifAbsent: [  ] ]
 ]
 
 { #category : 'public' }

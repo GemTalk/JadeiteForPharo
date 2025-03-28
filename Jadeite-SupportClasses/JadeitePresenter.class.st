@@ -62,6 +62,12 @@ JadeitePresenter >> preUpdate: services [
 JadeitePresenter >> registerPresentersForUpdates [
 ]
 
+{ #category : 'find' }
+JadeitePresenter >> resumeSelectionEvents [
+
+	
+]
+
 { #category : 'constants' }
 JadeitePresenter >> shellName [
 
@@ -80,6 +86,12 @@ JadeitePresenter >> showWait [
 
 	JadeitePreferences showProgressBar ifTrue: [
 		waitIndicator ifNotNil: [ :indicator | indicator show ] ]
+]
+
+{ #category : 'find' }
+JadeitePresenter >> suspendSelectionEvents [
+
+	
 ]
 
 { #category : 'initialization' }

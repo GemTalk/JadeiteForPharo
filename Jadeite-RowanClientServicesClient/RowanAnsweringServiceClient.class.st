@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'inCommand',
 		'serviceCompletionBlock',
-		'alwaysForked'
+		'alwaysForked',
+		'catchBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -26,6 +27,18 @@ RowanAnsweringServiceClient >> alwaysForked [
 RowanAnsweringServiceClient >> alwaysForked: anObject [
 
 	alwaysForked := anObject
+]
+
+{ #category : 'accessing' }
+RowanAnsweringServiceClient >> catchBlock [
+
+	^ catchBlock ifNil: [ super catchBlock ]
+]
+
+{ #category : 'accessing' }
+RowanAnsweringServiceClient >> catchBlock: aBlock [
+
+	catchBlock := aBlock
 ]
 
 { #category : 'accessing' }

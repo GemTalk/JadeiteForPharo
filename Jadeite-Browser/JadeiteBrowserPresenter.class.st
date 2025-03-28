@@ -30,7 +30,8 @@ Class {
 		'forwardButton',
 		'postOpenBlock',
 		'postUpdatePackageBlock',
-		'postUpdateClassBlock'
+		'postUpdateClassBlock',
+		'selectionEventsSuspended'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -735,8 +736,9 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
 		whenSelectionChangedDo: [ :selection |
-			selection selectedItem ifNotNil: [
-					self classSelected: self selectedClass ] ];
+			selectionEventsSuspended ifFalse: [
+					selection selectedItem ifNotNil: [
+							self classSelected: self selectedClass ] ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
@@ -788,7 +790,8 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 
 	packageListPresenter
 		whenSelectionChangedDo: [ :selection |
-			RowanServiceUpdater current critical: [ self updatePackage ] ];
+			selectionEventsSuspended ifFalse: [
+					RowanServiceUpdater current critical: [ self updatePackage ] ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 		self classListPresenter clear.
@@ -825,7 +828,8 @@ JadeiteBrowserPresenter >> connectProjectListPresenter [
 
 	projectListPresenter
 		whenSelectionChangedDo: [ :selection |
-			self updateProjectOnCompletion: [  ] ];
+			selectionEventsSuspended ifFalse: [
+					self updateProjectOnCompletion: [  ] ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ]
 ]
 
@@ -1438,6 +1442,13 @@ JadeiteBrowserPresenter >> historyBack [
 JadeiteBrowserPresenter >> historyForward [
 
 	self jumpToHistoryIndex: historyIndex + 1
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> initialize [
+
+	super initialize.
+	self resumeSelectionEvents
 ]
 
 { #category : 'initialization' }
@@ -2528,7 +2539,8 @@ JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService completionB
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #projectAndPackageServiceFor:;
-		commandArgs: (Array with: classService).
+		commandArgs: (Array with: classService);
+		catchBlock: [ :error | self resumeSelectionEvents ].
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: self gciSession
@@ -3089,6 +3101,12 @@ JadeiteBrowserPresenter >> resetMethodSource [
 	self updateMethodSourceGlyphs
 ]
 
+{ #category : 'find' }
+JadeiteBrowserPresenter >> resumeSelectionEvents [
+
+	selectionEventsSuspended := false
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenter >> scrollToClassHierarchySelection: thePath [
 
@@ -3136,11 +3154,10 @@ JadeiteBrowserPresenter >> selectClass: classService completionBlock: completion
 			         (classService copy meta: classService meta not) ].
 	self classListPresenter selection selectedIndex = index ifFalse: [
 		self classListPresenter selection unselectAll.
-		postUpdateClassBlock := [
-		                        self updateClassInfo.
-		                        completionBlock value ].
 		RowanServiceUpdater current critical: [
-			self classListPresenter selectIndex: index scrollToSelection: true ] ]
+			self classListPresenter selectIndex: index scrollToSelection: true ].
+		self updateClassInfo.
+		completionBlock value ]
 ]
 
 { #category : 'selections' }
@@ -3191,20 +3208,13 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService completionBlock: completionBlock [
+	"jadeite list selection events must be suspended for this to work"
 
 	self selectProject: projectService.
-	self packageListPresenter selectedItem = packageService
-		ifTrue: [
-		self selectClass: classService completionBlock: completionBlock ]
-		ifFalse: [
-			postUpdatePackageBlock := [
-			                          'postUpdatePackageBlock ' trace.
-			                          packageListPresenter selectedItem classes
-				                          traceCr.
-			                          self
-				                          selectClass: classService
-				                          completionBlock: completionBlock ].
-			self selectPackage: packageService ]
+	packageListPresenter list: projectService packageServices.
+	self selectPackage: packageService.
+	classListPresenter list: packageService classes.
+	self selectClass: classService completionBlock: completionBlock
 ]
 
 { #category : 'selections' }
@@ -3617,6 +3627,12 @@ JadeiteBrowserPresenter >> statusBarText: string [
 	statusBarText pushMessage: string
 ]
 
+{ #category : 'find' }
+JadeiteBrowserPresenter >> suspendSelectionEvents [
+
+	selectionEventsSuspended := true
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> symbolExists: newClassName onCompletion: completionBlock [
 
@@ -3761,13 +3777,13 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 	self owner removeAll "remove the pages from the notebook"
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService [
 
 	self updateAfterFindClass: classService onCompletion: [  ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodService [
 
 	| index |
@@ -3781,32 +3797,34 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodServ
 		self methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
 
 	| packageService projectService |
+	self suspendSelectionEvents.
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |
+			[
 			array
 				ifNil: [
 					UIManager default inform:
 						'Attempt to display class failed. Invalid class name?' ]
 				ifNotNil: [
-					RowanServiceUpdater current critical: [
-						projectService := array first.
-						packageService := array last.
-						self setAppropriateMeta: classService.
-						self selectClassListTab.
-						self selectPackageListTab.
-						self
-							selectClassNamed: classService
-							package: packageService
-							project: projectService
-							completionBlock: completionBlock ] ] ]
+					projectService := array first.
+					packageService := array last.
+					self setAppropriateMeta: classService.
+					self selectClassListTab.
+					self selectPackageListTab.
+					self
+						selectClassNamed: classService
+						package: packageService
+						project: projectService
+						completionBlock: completionBlock ] ] ensure: [
+				self resumeSelectionEvents ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 
 	| dictionaryService |
@@ -3824,7 +3842,7 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 				self updateHierarchy ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: selector meta: meta [
 
 	| classService methodService |
