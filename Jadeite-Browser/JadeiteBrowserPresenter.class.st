@@ -4058,7 +4058,7 @@ JadeiteBrowserPresenter >> updatePackage [
 		self isClassHierarchyTabSelected ifFalse: [
 			packageListPresenter selectedItem classes ifNotNil: [
 				classListPresenter model collection:
-					packageListPresenter selectedItem classes asOrderedCollection ] ].
+					packageListPresenter selectedItem sortedClasses ] ].
 		self updatePackageInfo.
 		self resetSunitTestList.
 		definedClassPackageText text: String new.

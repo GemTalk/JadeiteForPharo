@@ -69,23 +69,19 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service commandArgs ifNil: [ service commandArgs: Array new ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
-	                      | copy |
 	                      [
 	                      [
-	                      service replicateFrom: aService.
-	                      self possibleSignalCompileError: service.
-	                      copy := aService copy. "apply updates on the copy to prevent forked threads from changing the service before we're done. In particular, don't want to reset #updateType inst var"
-	                      self applyUpdates: copy.
-	                      service replicateFrom: copy. "get updated values from copy"
-	                      service handleServiceCompletion ] ifCurtailed: [
-		                      service inCommand signal ].
-	                      service inCommand signal ]
+	                      self possibleSignalCompileError: aService.
+	                      self applyUpdates: aService.
+	                      aService handleServiceCompletion ]
+		                      ifCurtailed: [ aService inCommand signal ].
+	                      aService inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
-			                      service handleCompileError: ex.
-			                      service inCommand signal.
-			                      self stopCommandProgressBar: service ].
-	                      self stopCommandProgressBar: service ].
+			                      aService handleCompileError: ex.
+			                      aService inCommand signal.
+			                      self stopCommandProgressBar: aService ].
+	                      self stopCommandProgressBar: aService ].
 	GciSession current isValidSession ifFalse: [
 		^ self "can happen in tests mostly" ].
 	service
