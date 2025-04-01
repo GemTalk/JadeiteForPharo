@@ -27,7 +27,13 @@ JadeiteTextDocument class >> adapterName [
 { #category : 'commands' }
 JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
 
-	| group |
+	| group lastClickPosition |
+	lastClickPosition := (aPresenter adapter isNil or: [
+		                      aPresenter adapter widget isNil ])
+		                     ifTrue: [ 0 @ 0 ]
+		                     ifFalse: [
+		                     aPresenter adapter widget scrollPane textArea
+			                     lastClickPosition ].
 	"copied from super class implementation"
 	group := (CmCommandGroup named: 'Code search') asSpecGroup
 		         description: 'Search the system from code selection.';
@@ -35,6 +41,7 @@ JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
 		         yourself.
 
 	self flag: #TODO. "This looks like a very bad way to do this :P"
+
 	{
 		JadeiteBrowseClassCommand.
 		JadeiteBrowseImplementorsCommand.
@@ -42,7 +49,9 @@ JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
 		JadeiteBrowseClassReferencesCommand.
 		JadeiteBrowseMethodReferencesCommand.
 		JadeiteBrowseMethodsContainingStringCommand } do: [ :commandClass |
-		group register: (commandClass forSpecContext: aPresenter) ].
+		group register: (commandClass
+				 forSpecContext: aPresenter
+				 lastClickPosition: lastClickPosition) ].
 
 	^ group
 ]
@@ -136,13 +145,6 @@ JadeiteTextDocument >> aboutJadeite [
 	
 	^'This is Jaded'
 	
-]
-
-{ #category : 'private' }
-JadeiteTextDocument >> activeTextEdit [ 
-
-	^View focus.
-
 ]
 
 { #category : 'menu handlers' }
@@ -460,7 +462,7 @@ JadeiteTextDocument >> executeSelectionOrLine: aString shouldDebug: shouldDebug 
 					orShowCompileError: answeringService ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'menu handlers' }
 JadeiteTextDocument >> fileInChunk [
 	| service |
 	service := RowanFileServiceClient new session: gciSession.

@@ -22,13 +22,6 @@ JadeTextPresenter >> onViewOpened [
 	view text: model value
 ]
 
-{ #category : 'public' }
-JadeTextPresenter >> selection [
-
-	^view selection.
-
-]
-
 { #category : 'private' }
 JadeTextPresenter >> showCompileError: anArray [
 

@@ -2,11 +2,20 @@ Class {
 	#name : 'JadeiteBreakpointCommand',
 	#superclass : 'JadeiteCommand',
 	#instVars : [
-		'stepPoint'
+		'stepPoint',
+		'lastClickPosition'
 	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
+
+{ #category : 'instance creation' }
+JadeiteBreakpointCommand class >> forSpecContext: anObject lastClickPosition: aPoint [
+
+	^ (self new lastClickPosition: aPoint)
+		  context: anObject;
+		  asSpecCommand
+]
 
 { #category : 'testing' }
 JadeiteBreakpointCommand >> canBeExecuted [
@@ -16,16 +25,28 @@ JadeiteBreakpointCommand >> canBeExecuted [
 ]
 
 { #category : 'accessing' }
+JadeiteBreakpointCommand >> lastClickPosition [
+
+	^ lastClickPosition
+]
+
+{ #category : 'accessing' }
+JadeiteBreakpointCommand >> lastClickPosition: anObject [
+
+	lastClickPosition := anObject
+]
+
+{ #category : 'accessing' }
 JadeiteBreakpointCommand >> selectedStepPoint [
 
-	| stepPointRanges range |
+	| stepPointRanges range offset |
 	context adapter ifNil: [ ^ self "not built yet" ].
 	context methodService ifNil: [ ^ self "not built yet" ].
+	offset := (context adapter widget paragraph characterBlockAtPoint:
+		           lastClickPosition) stringIndex.
 	stepPointRanges := context methodService stepPointRanges.
 	range := stepPointRanges
-		         detect: [ :theRange |
-			         theRange includes:
-				         context adapter widget scrollPane textArea startIndex ]
+		         detect: [ :theRange | theRange includes: offset ]
 		         ifNone: [  ].
 	^ range ifNil: [ '*' ] ifNotNil: [ stepPointRanges indexOf: range ]
 ]

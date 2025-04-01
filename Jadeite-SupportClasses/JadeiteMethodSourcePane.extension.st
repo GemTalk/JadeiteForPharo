@@ -3,14 +3,21 @@ Extension { #name : 'JadeiteMethodSourcePane' }
 { #category : '*Jadeite-SupportClasses' }
 JadeiteMethodSourcePane class >> registerSourceActionsWithCommandGroup: commandGroup presenter: presenter [
 
-	| group |
+	| lastClickPosition |
+	lastClickPosition := (presenter adapter isNil or: [
+		                      presenter adapter widget isNil ])
+		                     ifTrue: [ 0 @ 0 ]
+		                     ifFalse: [
+		                     presenter adapter widget scrollPane textArea
+			                     lastClickPosition ].
 	commandGroup register: JadeiteFormatSourceCommand forSpec.
-	group := (CmCommandGroup named: 'Breakpoints') asSpecGroup
-		         register:
-			         (JadeiteAddBreakpointCommand forSpecContext: presenter);
-		         register:
-			         (JadeiteClearBreakpointCommand forSpecContext: presenter);
-		         register: JadeiteMethodClearBreakpointsCommand forSpec;
-		         yourself.
-	commandGroup register: group
+	commandGroup
+		register: (JadeiteAddBreakpointCommand
+				 forSpecContext: presenter
+				 lastClickPosition: lastClickPosition);
+		register: (JadeiteClearBreakpointCommand
+				 forSpecContext: presenter
+				 lastClickPosition: lastClickPosition);
+		register: JadeiteMethodClearBreakpointsCommand forSpec;
+		yourself
 ]

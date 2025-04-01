@@ -58,3 +58,8 @@ JadeiteScrolledTextMorph >> setTabIcon [
 					ifTrue: [ page icon: (self iconNamed: #protocolPrivate) ]
 					ifFalse: [ page icon: nil ] ] ] ]
 ]
+
+{ #category : 'initialization' }
+JadeiteScrolledTextMorph >> textAreaClass [
+	^ JadeiteRubEditingArea
+]
