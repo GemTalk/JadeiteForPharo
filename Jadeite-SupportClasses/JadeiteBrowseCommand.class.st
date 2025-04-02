@@ -20,11 +20,10 @@ JadeiteBrowseCommand class >> forSpecContext: anObject lastClickPosition: aPoint
 { #category : 'accessing' }
 JadeiteBrowseCommand >> browseMenuItemName [
 
-	| p verticalScrollBarValue |
+	| p verticalScrollBarValue selectionInterval |
 	(self context adapter isNil or: [ self context adapter widget isNil ])
 		ifTrue: [ ^ String new ].
-	selectedText := self context selectedText.
-	selectedText isEmpty ifFalse: [ ^ selectedText ]. "use selected text otherwise try to find selected word"
+	selectionInterval := self context selectionInterval.
 	p := self context adapter widget paragraph characterBlockAtPoint:
 		     self lastClickPosition.
 	self context adapter widget textArea markBlock: p pointBlock: p.
@@ -33,6 +32,7 @@ JadeiteBrowseCommand >> browseMenuItemName [
 	verticalScrollBarValue := self context adapter widget scrollPane
 		                          vScrollbarValue.
 	self context unselectAll.
+	self context selectionInterval: selectionInterval.
 	self context adapter widget scrollPane vScrollbarValue:
 		verticalScrollBarValue.
 	selectedText isEmpty ifTrue: [ selectedText := 'it' ].
