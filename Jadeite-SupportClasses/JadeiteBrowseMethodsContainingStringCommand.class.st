@@ -1,29 +1,18 @@
 Class {
 	#name : 'JadeiteBrowseMethodsContainingStringCommand',
-	#superclass : 'SpBrowseMethodsContainingStringCommand',
-	#traits : 'JadeiteMenuCommandTrait',
-	#classTraits : 'JadeiteMenuCommandTrait classTrait',
-	#instVars : [
-		'lastClickPosition'
-	],
+	#superclass : 'JadeiteBrowseCommand',
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
 
-{ #category : 'accessing' }
-JadeiteBrowseMethodsContainingStringCommand >> lastClickPosition [
+{ #category : 'execution' }
+JadeiteBrowseMethodsContainingStringCommand >> execute [
 
-	^ lastClickPosition
-]
-
-{ #category : 'accessing' }
-JadeiteBrowseMethodsContainingStringCommand >> lastClickPosition: anObject [
-
-	lastClickPosition := anObject
+	self context doBrowseMethodsContainingString: selectedText
 ]
 
 { #category : 'accessing' }
 JadeiteBrowseMethodsContainingStringCommand >> name [
 
-	^ 'Method Source with ' , self browseMenuItemName
+	^ 'Method source with ' , self browseMenuItemName
 ]

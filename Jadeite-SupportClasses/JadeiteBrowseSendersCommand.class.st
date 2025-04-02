@@ -1,25 +1,14 @@
 Class {
 	#name : 'JadeiteBrowseSendersCommand',
-	#superclass : 'SpBrowseSendersCommand',
-	#traits : 'JadeiteMenuCommandTrait',
-	#classTraits : 'JadeiteMenuCommandTrait classTrait',
-	#instVars : [
-		'lastClickPosition'
-	],
+	#superclass : 'JadeiteBrowseCommand',
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
 
-{ #category : 'accessing' }
-JadeiteBrowseSendersCommand >> lastClickPosition [
+{ #category : 'execution' }
+JadeiteBrowseSendersCommand >> execute [
 
-	^ lastClickPosition
-]
-
-{ #category : 'accessing' }
-JadeiteBrowseSendersCommand >> lastClickPosition: anObject [
-
-	lastClickPosition := anObject
+	self context doBrowseSenders: selectedText
 ]
 
 { #category : 'accessing' }

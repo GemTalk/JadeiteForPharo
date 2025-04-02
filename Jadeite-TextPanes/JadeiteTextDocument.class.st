@@ -265,47 +265,60 @@ JadeiteTextDocument >> displayResult: showResult orShowCompileError: theService 
 ]
 
 { #category : 'commands' }
-JadeiteTextDocument >> doBrowseClass [
+JadeiteTextDocument >> doBrowseClass: className [
 
-	| browser |
-	browser := self openBrowser.
-	browser activePresenter
-		updateAfterFindClassName: self selection
-		methodSelector: nil
-		meta: false
+	| browser service |
+	service := RowanAnsweringService new
+		           command: #isClassName:;
+		           commandArgs: (Array with: className).
+	self issueCommand: service onCompletion: [
+		service answer
+			ifTrue: [
+				browser := self openBrowser.
+				browser activePresenter
+					updateAfterFindClassName: className
+					methodSelector: nil
+					meta: false ]
+			ifFalse: [ UIManager default alert: 'Not a class name' ] ]
 ]
 
 { #category : 'commands' }
-JadeiteTextDocument >> doBrowseClassReferences [
+JadeiteTextDocument >> doBrowseClassReferences: className [
 
-	| shell className |
-	className := self selection.
-	self
-		basicBrowseClassReferences: className
-		session: self gciSession
-		completionBlock: [ :service |
-			shell := self openMethodListOn: service selecting: className.
-			shell updateCaptionFromSearchString:
-				service queryResults size printString , ' Class References to '
-				, className asString ]
+	| shell answeringService |
+	answeringService := RowanAnsweringService new
+		                    command: #isClassName:;
+		                    commandArgs: (Array with: className).
+	self issueCommand: answeringService onCompletion: [
+		answeringService answer
+			ifTrue: [
+				self
+					basicBrowseClassReferences: className
+					session: self gciSession
+					completionBlock: [ :service |
+						shell := self openMethodListOn: service selecting: className.
+						shell updateCaptionFromSearchString:
+							service queryResults size printString , ' Class References to '
+							, className asString ] ]
+			ifFalse: [ UIManager default alert: 'Not a class name' ] ]
 ]
 
 { #category : 'commands' }
-JadeiteTextDocument >> doBrowseImplementors [
+JadeiteTextDocument >> doBrowseImplementors: aString [
 
-	^ self browseImplementorsOf: self selectedSelector 
+	^ self browseImplementorsOf: aString
 ]
 
 { #category : 'commands' }
-JadeiteTextDocument >> doBrowseMethodReferences [
+JadeiteTextDocument >> doBrowseMethodReferences: aString [
 
-	^ self browseLiteralReferences: self selection 
+	^ self browseLiteralReferences: '#' , aString
 ]
 
 { #category : 'commands' }
-JadeiteTextDocument >> doBrowseMethodsContainingString [
+JadeiteTextDocument >> doBrowseMethodsContainingString: aString [
 
-	self browseMethodsContaining: self selection
+	self browseMethodsContaining: aString
 ]
 
 { #category : 'commands' }
@@ -315,9 +328,9 @@ JadeiteTextDocument >> doBrowseMethodsMatchingStringSensitive [
 ]
 
 { #category : 'commands' }
-JadeiteTextDocument >> doBrowseSenders [
+JadeiteTextDocument >> doBrowseSenders: aString [
 
-	^ self browseSendersOf: self selectedSelector 
+	^ self browseSendersOf: aString
 ]
 
 { #category : 'accessing' }

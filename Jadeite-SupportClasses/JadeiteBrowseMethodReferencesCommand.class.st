@@ -1,25 +1,14 @@
 Class {
 	#name : 'JadeiteBrowseMethodReferencesCommand',
-	#superclass : 'SpBrowseMethodReferencesCommand',
-	#traits : 'JadeiteMenuCommandTrait',
-	#classTraits : 'JadeiteMenuCommandTrait classTrait',
-	#instVars : [
-		'lastClickPosition'
-	],
+	#superclass : 'JadeiteBrowseCommand',
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
 
-{ #category : 'accessing' }
-JadeiteBrowseMethodReferencesCommand >> lastClickPosition [
+{ #category : 'execution' }
+JadeiteBrowseMethodReferencesCommand >> execute [
 
-	^ lastClickPosition
-]
-
-{ #category : 'accessing' }
-JadeiteBrowseMethodReferencesCommand >> lastClickPosition: anObject [
-
-	lastClickPosition := anObject
+	self context doBrowseMethodReferences: selectedText
 ]
 
 { #category : 'accessing' }

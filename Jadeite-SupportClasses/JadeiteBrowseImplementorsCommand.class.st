@@ -1,25 +1,14 @@
 Class {
 	#name : 'JadeiteBrowseImplementorsCommand',
-	#superclass : 'SpBrowseImplementorsCommand',
-	#traits : 'JadeiteMenuCommandTrait',
-	#classTraits : 'JadeiteMenuCommandTrait classTrait',
-	#instVars : [
-		'lastClickPosition'
-	],
+	#superclass : 'JadeiteBrowseCommand',
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
 
-{ #category : 'accessing' }
-JadeiteBrowseImplementorsCommand >> lastClickPosition [
+{ #category : 'execution' }
+JadeiteBrowseImplementorsCommand >> execute [
 
-	^ lastClickPosition
-]
-
-{ #category : 'accessing' }
-JadeiteBrowseImplementorsCommand >> lastClickPosition: anObject [
-
-	lastClickPosition := anObject
+	self context doBrowseImplementors: selectedText
 ]
 
 { #category : 'accessing' }
