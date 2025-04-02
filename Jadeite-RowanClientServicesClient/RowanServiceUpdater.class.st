@@ -82,8 +82,9 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 			                      aService inCommand signal.
 			                      self stopCommandProgressBar: aService ].
 	                      self stopCommandProgressBar: aService ].
+
 	GciSession current isValidSession ifFalse: [
-		^ self "can happen in tests mostly" ].
+		^ self invalidSessionAction ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.
@@ -275,6 +276,14 @@ RowanServiceUpdater >> initialize [
 RowanServiceUpdater >> initializeUpdates [
 	updates := OrderedCollection new.
 	
+]
+
+{ #category : 'commands' }
+RowanServiceUpdater >> invalidSessionAction [
+
+	UIManager default alert:
+		'Jadeite no longer connected. Possible lost communication with stone. Disconnecting.'.
+	JadeiteConnectionProfile connectionProfile disconnect
 ]
 
 { #category : 'public' }

@@ -242,22 +242,6 @@ JadeiteMethodSourcePane >> selectedSelector [
 		  atPosition: index
 ]
 
-{ #category : 'accessing' }
-JadeiteMethodSourcePane >> selectedStepPoint [
-
-	| stepPoint localPoint charBlock |
-	localPoint := adapter widget textArea globalPointToLocal:
-		              self currentWorld activeHand position.
-	charBlock := adapter widget paragraph characterBlockAtPoint:
-		             localPoint.
-	self methodService ifNil: [
-		^ 1 "user may not have a method selected" ].
-	stepPoint := self methodService
-		             stepPointFromCursorIn: self
-		             cursorPosition: charBlock stringIndex.
-	^ stepPoint
-]
-
 { #category : 'breakpoints' }
 JadeiteMethodSourcePane >> setBreakPointAt: stepPoint onCompletion: completionBlock [
 

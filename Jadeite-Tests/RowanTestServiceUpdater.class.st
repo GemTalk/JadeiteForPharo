@@ -28,3 +28,10 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 		sem signal ] ] fork.
 	sem wait
 ]
+
+{ #category : 'commands' }
+RowanTestServiceUpdater >> invalidSessionAction [
+	"no action - tests can sometimes get invalid sessions and we don't want to disconnect."
+
+	
+]
