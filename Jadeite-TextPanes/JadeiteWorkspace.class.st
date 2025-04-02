@@ -122,6 +122,12 @@ JadeiteWorkspace >> openServerFile [
 		self hasUnacceptedEdits: false ]
 ]
 
+{ #category : 'accessing' }
+JadeiteWorkspace >> parseText: fullSource [
+
+	^ RBParser parseFaultyExpression: fullSource
+]
+
 { #category : 'public' }
 JadeiteWorkspace >> queryCommand: aCommandQuery [
 

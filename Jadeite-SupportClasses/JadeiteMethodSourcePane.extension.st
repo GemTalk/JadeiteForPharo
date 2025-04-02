@@ -8,8 +8,8 @@ JadeiteMethodSourcePane class >> registerSourceActionsWithCommandGroup: commandG
 		                      presenter adapter widget isNil ])
 		                     ifTrue: [ 0 @ 0 ]
 		                     ifFalse: [
-		                     presenter adapter widget scrollPane textArea
-			                     lastClickPosition ].
+			                     presenter adapter widget scrollPane textArea
+				                     lastClickPosition ifNil: [ 0 @ 0 ] ].
 	commandGroup register: JadeiteFormatSourceCommand forSpec.
 	commandGroup
 		register: (JadeiteAddBreakpointCommand

@@ -32,8 +32,8 @@ JadeiteTextDocument class >> codeNavigationCommandsGroupWith: aPresenter [
 		                      aPresenter adapter widget isNil ])
 		                     ifTrue: [ 0 @ 0 ]
 		                     ifFalse: [
-		                     aPresenter adapter widget scrollPane textArea
-			                     lastClickPosition ].
+			                     aPresenter adapter widget scrollPane textArea
+				                     lastClickPosition ifNil: [ 0 @ 0 ] ].
 	"copied from super class implementation"
 	group := (CmCommandGroup named: 'Code search') asSpecGroup
 		         description: 'Search the system from code selection.';
@@ -663,6 +663,12 @@ JadeiteTextDocument >> openOn: openFilename [
 	lastSave := self model value
 ]
 
+{ #category : 'accessing' }
+JadeiteTextDocument >> parseText: fullSource [
+
+	^ RBParser parseFaultyMethod: fullSource
+]
+
 { #category : 'private' }
 JadeiteTextDocument >> print [
 ]
@@ -758,6 +764,20 @@ JadeiteTextDocument >> selectLfIfEndingOnCr [
 	(text at: selectionRange start + 1) = Character lf 		ifFalse: [^self ].
 	textEdit selectionRange: (selectionRange start to: selectionRange start + 1).
 
+]
+
+{ #category : 'accessing' }
+JadeiteTextDocument >> selectedSelector: sourceOffset [
+	"simplified from superclass - always find the true selector and not the selection"
+
+	| extractor fullSource index |
+	fullSource := self text.
+	fullSource ifNil: [ ^ nil ].
+	extractor := CNSelectorExtractor new.
+	index := sourceOffset ifNil: [ 1 ].
+	^ extractor
+		  extractSelectorFromAST: (self parseText: fullSource)
+		  atPosition: index
 ]
 
 { #category : 'accessing' }

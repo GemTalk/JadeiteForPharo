@@ -243,20 +243,6 @@ JadeiteMethodSourcePane >> selectedSelector [
 ]
 
 { #category : 'accessing' }
-JadeiteMethodSourcePane >> selectedSelector: sourceOffset [
-	"simplified from superclass - always find the true selector and not the selection"
-
-	| extractor fullSource index |
-	fullSource := self text.
-	fullSource ifNil: [ ^ nil ].
-	extractor := CNSelectorExtractor new.
-	index := sourceOffset ifNil: [ 1 ].
-	^ extractor
-		  extractSelectorFromAST: (RBParser parseFaultyMethod: fullSource)
-		  atPosition: index
-]
-
-{ #category : 'accessing' }
 JadeiteMethodSourcePane >> selectedStepPoint [
 
 	| stepPoint localPoint charBlock |
