@@ -328,41 +328,6 @@ JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionChangeSelectionIgnoreC
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionChangeSelectionStayOnMethod [
-
-	self
-		testsIssue: #issue386
-		withTitle:
-		'(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
-	TestMessageBox enableJadeiteTestMessageBox.
-
-	[
-	| source |
-	self selectRowanSample1Class.
-	self selectCategoryNamed: 'accessing'.
-	source := 'sampleMethod  
-		| aaa | 
-		aaa := 123. 
-		^aaa'.
-	self methodSourcePresenter value: source.
-	self projectsPresenter
-		editSaveMethod: self classListPresenter selection
-		onCompletion: nil.
-	self
-		assert: self methodListPresenter selection selector
-		equals: #sampleMethod.
-	self methodSourcePresenter value: 'new text'.
-	self methodSourcePresenter view isModified: true.
-	TestMessageBox plannedResult: #no. "answer that we want to stay on method"
-	self selectWithChangeEventMethodNamed: #foo.
-	self
-		assert: self methodListPresenter selection selector
-		equals: #sampleMethod ] ensure: [
-		TestMessageBox disableJadeiteTestMessageBox.
-		self projectsPresenter basicRemoveMethods ]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_UnsavedChangesActionCloseWindow [
 
 	self
@@ -3837,6 +3802,41 @@ JadeiteProjectBrowserTestCase >> test_unicodeSpecialMethodNotRed [
 				self selectServiceNamed: 'RowanServicesTest' in: self classListPresenter.
 				self selectMethodNamed: #iAmAUnicodeMethod.
 				self projectsPresenter basicRemoveMethods]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectBrowserTestCase >> test_unsavedChangesActionChangeSelectionStayOnMethod [
+
+	self
+		testsIssue: #issue386
+		withTitle:
+		'(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
+	TestMessageBox enableJadeiteTestMessageBox.
+
+	[
+	| source |
+	self selectRowanSample1Class.
+	self selectCategoryNamed: 'accessing'.
+	source := 'sampleMethod  
+		| aaa | 
+		aaa := 123. 
+		^aaa'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selection
+		onCompletion: nil.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod.
+	self methodSourcePresenter value: 'new text'.
+	self methodSourcePresenter view isModified: true.
+	TestMessageBox plannedResult: #no. "answer that we want to stay on method"
+	self selectWithChangeEventMethodNamed: #foo.
+	self
+		assert: self methodListPresenter selection selector
+		equals: #sampleMethod ] ensure: [
+		TestMessageBox disableJadeiteTestMessageBox.
+		self projectsPresenter basicRemoveMethods ]
 ]
 
 { #category : 'as yet unclassified' }

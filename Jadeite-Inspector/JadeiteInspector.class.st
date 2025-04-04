@@ -286,14 +286,6 @@ JadeiteInspector >> contextObject [
 	^model oop
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteInspector >> createComponents [
-
-	super createComponents. 
-	statusTextPresenter := self add: TextPresenter new name: 'statusText'.
-
-]
-
 { #category : 'initialization' }
 JadeiteInspector >> defaultLayout [ 
 

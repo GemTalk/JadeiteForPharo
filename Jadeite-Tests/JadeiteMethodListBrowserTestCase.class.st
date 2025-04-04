@@ -95,14 +95,6 @@ JadeiteMethodListBrowserTestCase >> removeTestMethodAndCloseProjectBrowser [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> sampleMethodSource [
-	^'sampleMethod  
-		| aaa | 
-		aaa := 123. 
-		^aaa'. 
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> saveMethod: source in: className category: category [
 	"Private - add method outside the browsers for performance"
 
@@ -276,37 +268,6 @@ JadeiteMethodListBrowserTestCase >> test_UnsavedChangesActionChangeSelectionIgno
 				[TestMessageBox disableJadeiteTestMessageBox.
 				self removeMethods: methodListPresenter model asBag asArray inClassService: rowanSample1ClassService.
 				self removeMethods: methodListPresenter model asBag asArray inClassService: rowanSample1TestClassService]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_UnsavedChangesActionChangeSelectionStayOnMethod [
-	| methodListPresenter rowanSample1ClassService rowanSample1TestClassService |
-	self testsIssue: #issue386
-		withTitle: '(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
-	TestMessageBox enableJadeiteTestMessageBox.
-	
-	[rowanSample1ClassService := self
-				saveMethod: self sampleMethodSource
-				in: 'RowanSample1'
-				category: 'other'.
-	rowanSample1TestClassService := self
-				saveMethod: self sampleMethodSource
-				in: 'RowanSample1Test'
-				category: 'other'.
-	methodListBrowser := JadePresenter browseImplementorsOf: #sampleMethod session: session.
-	methodListPresenter := methodListBrowser primaryPresenter methodListPresenter methodListPresenter.
-	self assert: methodListPresenter selectionByIndex equals: 1.
-	self assert: methodListPresenter list size equals: 2.
-	methodListBrowser primaryPresenter methodSourcePresenter documentPresenter value: 'new text'.
-	self methodListSourcePresenter documentPresenter isModified: true.	"needed for tests"
-	TestMessageBox plannedResult: #no.	"answer that we want to stay on frame"
-	self selectListAt: 2.
-	self assert: methodListPresenter selectionByIndex equals: 1]
-			ensure: 
-				[TestMessageBox disableJadeiteTestMessageBox.
-				self removeMethods: methodListPresenter model asBag asArray inClassService: rowanSample1ClassService.
-				self removeMethods: methodListPresenter model asBag asArray
-					inClassService: rowanSample1TestClassService]
 ]
 
 { #category : 'as yet unclassified' }

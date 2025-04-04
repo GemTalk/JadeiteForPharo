@@ -70,14 +70,6 @@ JadeTreeMethodListPresenter >> buildHistoryForwardMenu [
 ]
 
 { #category : 'as yet unclassified' }
-JadeTreeMethodListPresenter >> createComponents [
-
-	super createComponents.
-
-	treeMethodsPresenter := self add: TreePresenter new name: 'treeMethods'.
-]
-
-{ #category : 'as yet unclassified' }
 JadeTreeMethodListPresenter >> deleteHistory [
 
 	historyEntries := OrderedCollection new.

@@ -10,16 +10,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeMethodHistoryBrowser >> createComponents [
-
-	super createComponents.
-	versionListPresenter 	:= self add: ListPresenter	new name: 'versionList'.
-	editorPresenter		:= self add: TextPresenter	new name: 'editor'.
-
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodHistoryBrowser >> createSchematicWiring [
 
 	super createSchematicWiring.

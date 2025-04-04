@@ -43,14 +43,6 @@ JadeiteShell >> additionalAccelerators [
 ]
 
 { #category : 'private' }
-JadeiteShell >> createComponents [
-
-	super createComponents.
-	self presenterClass ifNotNil: [:class | myPresenter := self add: class new name: 'myPresenter'].
-
-]
-
-{ #category : 'private' }
 JadeiteShell >> gciSession [
 
 	^gciSession

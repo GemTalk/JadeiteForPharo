@@ -45,14 +45,6 @@ RowanMethodListPresenter >> browseMethodsFromString: aString methodName: methodN
 ]
 
 { #category : 'as yet unclassified' }
-RowanMethodListPresenter >> createComponents [
-	methodListPresenter := self add: PackageMethodListPresenter new name: 'methodList'.
-	methodSourcePresenter := (self add: RowanMethodSourcePresenter new name: 'methodSource')
-				menuTitle: '&Method Source';
-				yourself
-]
-
-{ #category : 'as yet unclassified' }
 RowanMethodListPresenter >> list: aCollection [
 	methodListPresenter list: aCollection
 

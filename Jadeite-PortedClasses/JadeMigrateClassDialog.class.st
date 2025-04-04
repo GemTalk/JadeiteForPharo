@@ -12,17 +12,6 @@ Class {
 }
 
 { #category : 'public' }
-JadeMigrateClassDialog >> createComponents [
-
-	super createComponents.
-	copyMethodsPresenter 				:= self add: BooleanPresenter	new name: 'copyMethods'.
-	recompileSubclassesPresenter 			:= self add: BooleanPresenter	new name: 'recompileSubclasses'.
-	migrateInstancesPresenter 			:= self add: BooleanPresenter	new name: 'migrateInstances'.
-	removeFromClassHistoryPresenter	:= self add: BooleanPresenter	new name: 'removeFromClassHistory'.
-
-]
-
-{ #category : 'public' }
 JadeMigrateClassDialog >> ok [
 
 	self model value: (Dictionary new

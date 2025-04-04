@@ -38,19 +38,6 @@ JadeTranscript >> browseProcesses [
 ]
 
 { #category : 'as yet unclassified' }
-JadeTranscript >> createComponents [
-
-	super createComponents.
-	allSessionsPresenter	:= self add: AllSessionsPresenter		new name: 'All Sessions'.
-	historyPresenter	:= self add: TextPresenter				new name: 'history'.
-	mySessionPresenter	:= self add: MySessionPresenter			new name: 'My Session'.
-	stoneInfoPresenter	:= self add: StoneInfoPresenter			new name: 'Stone'.
-	toolbarPresenter	:= self add: JadeToolsToolBarPresenter	new name: 'Toolbar'.
-	transcriptPresenter	:= self add: TranscriptPresenter			new name: 'Transcript'.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeTranscript >> createSchematicWiring [
 
 	super createSchematicWiring.

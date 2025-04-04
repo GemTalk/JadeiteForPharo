@@ -36,6 +36,14 @@ JadeiteForPharoMethodListTestCase >> openMethodListBrowserOfReferencesTo: classN
 			do: [ :notification | notification resume: className ] ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoMethodListTestCase >> sampleMethodSource [
+	^'sampleMethod  
+		| aaa | 
+		aaa := 123. 
+		^aaa'. 
+]
+
 { #category : 'support' }
 JadeiteForPharoMethodListTestCase >> saveSourcesFor_test_sourcesSync: oldSource [
 
@@ -520,4 +528,69 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 		assert:
 		self projectsPresenter methodSourcePresenter documentPresenter text
 		equals: newSource
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
+
+	| rowanSample1ClassService rowanSample1TestClassService |
+	self
+		testsIssue: #issue386
+		withTitle:
+		'(3.0.53) no warning about unsaved changes in method browser when clicking on different method'.
+	self
+		testsJadeiteForPharoIssue: #issue268
+		title:
+		'clicking on method in package browser while editing the method in a method browser, unconditionally blows away the unfinished method edits'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/268'.
+
+	self setupProjectBrowser.
+	projectsBrowser
+		updateAfterFindClassName: 'RowanSample1'
+		methodSelector: nil
+		meta: false.
+	rowanSample1ClassService := self
+		                            saveMethod: self sampleMethodSource
+		                            in: 'RowanSample1'
+		                            category: 'other'.
+	rowanSample1TestClassService := self
+		                                saveMethod: self sampleMethodSource
+		                                in: 'RowanSample1Test'
+		                                category: 'other'.
+	self updateService:
+		projectsBrowser activePresenter classListPresenter selectedItem.
+	methodListBrowser := self projectsPresenter browseImplementorsOf:
+		                     #sampleMethod.
+	self
+		assert:
+		methodListBrowser methodListPresenter selection selectedIndex
+		equals: 1.
+	self
+		assert: methodListBrowser methodListPresenter list size
+		equals: 2.
+	methodListBrowser methodSourcePresenter text: 'new text'.
+	self assert: methodListBrowser methodSourcePresenter adapter widget
+			hasUnacceptedEdits.
+	projectsBrowser
+		updateAfterFindClassName: 'RowanSample1'
+		methodSelector: #sampleMethod
+		meta: false.
+
+	self
+		assert:
+			projectsBrowser activePresenter methodListPresenter selectedItem
+				selector
+		equals: 'sampleMethod'.
+	self
+		assert:
+		methodListBrowser methodListPresenter selection selectedIndex
+		equals: 1.
+	self assert: methodListBrowser methodSourcePresenter adapter widget
+			hasUnacceptedEdits.
+	self
+		assert: methodListBrowser methodSourcePresenter text
+		equals: 'new text'.
+	methodListBrowser methodSourcePresenter adapter widget
+		hasUnacceptedEdits: false.
+	JadeiteConnectionProfile connectionProfile disconnect "get rid of methods"
 ]

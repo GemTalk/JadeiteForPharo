@@ -224,11 +224,6 @@ JadeiteMethodListPresenter >> gciSession: aGciSession [
 	methodSourcePresenter _gciSession: aGciSession.
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> getViews [ 
-	textAreaTabs := parentPresenter view viewNamed: 'textAreaTabs'.
-]
-
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> initializeMenubar [
 
@@ -542,11 +537,6 @@ JadeiteMethodListPresenter >> textAreaTabs: anObject [
 	textAreaTabs := anObject
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> textTabs [
-	^(textAreaTabs subViews detect: [:each | each class == TabViewXP]) model
-]
-
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> updateCaptionFromSearchString: searchString [
 
@@ -589,7 +579,10 @@ JadeiteMethodListPresenter >> updateMultiMethodComparison [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> updateSingleMethodSourceFor: methodService [
+	"spec bug - methodSourcePresenter>>hasUnacceptedEdits returns incorrect value - use widget"
 
+	methodSourcePresenter adapter widget hasUnacceptedEdits ifTrue: [
+		^ self ].
 	methodSourcePresenter methodService: methodService.
 	methodSourcePresenter value: methodService source.
 	methodSourcePresenter ensureVisible.
