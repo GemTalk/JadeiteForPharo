@@ -33,11 +33,14 @@ JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> addClassCategory: classCategory [
 
-	| sorted | 
-	sorted := self dictionaryListPresenter selectedItem classCategories asSortedCollection. 
+	| sorted |
+	sorted := self dictionaryListPresenter selectedItem classCategories
+		          asSortedCollection.
 	sorted add: classCategory.
-	self dictionaryListPresenter selectedItem classCategories: sorted asArray. 
-	self updateClassCategoriesFor: self dictionaryListPresenter selection. 
+	self dictionaryListPresenter selectedItem classCategories:
+		sorted asArray.
+	self updateClassCategoriesFor:
+		self dictionaryListPresenter selectedItem
 ]
 
 { #category : 'updates' }
@@ -76,10 +79,12 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		self updateClassCategoriesFor: selection ].
+		selectionEventsSuspended ifFalse: [
+			self updateClassCategoriesFor: selection selectedItem ] ].
 	classCategoryPresenter whenSelectionChangedDo: [ :selection |
-		self updateClassesForClassCategory: selection.
-		self updateClassDefPresenter ]
+		selectionEventsSuspended ifFalse: [
+			self updateClassesForClassCategory: selection selectedItem.
+			self updateClassDefPresenter ] ]
 ]
 
 { #category : 'initialization' }
@@ -367,10 +372,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: selection [
+JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryService [
 
-	| dictionaryService newServices |
-	dictionaryService := selection selectedItem.
+	| newServices |
 	dictionaryService ifNil: [
 		^ classCategoryPresenter roots: OrderedCollection new ].
 	dictionaryService
@@ -472,10 +476,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassThenFind: classService onCompl
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: selection [
+JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: classCategoryService [
 
-	| classCategoryService dictionaryService selectedClass |
-	classCategoryService := selection selectedItem.
+	| dictionaryService selectedClass |
 	classCategoryService ifNil: [ ^ self ].
 	self classCategoryPresenter selectedItem = classCategoryService
 		ifTrue: [ selectedClass := self selectedClass ]

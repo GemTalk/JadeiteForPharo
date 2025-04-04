@@ -794,14 +794,15 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 					RowanServiceUpdater current critical: [ self updatePackage ] ] ];
 		whenNoneSelectedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
-		self classListPresenter clear.
-		self classHierarchyPresenter roots: OrderedCollection new.
-		self isDictionaryTabSelected
-			ifTrue: [ self updateDictionaries ]
-			ifFalse: [ self updateProjectOnCompletion: [ self updatePackage ] ].
-		self updateClassesOnCompletion: [  ] ].
+		selectionEventsSuspended ifFalse: [
+			self classListPresenter clear.
+			self classHierarchyPresenter roots: OrderedCollection new.
+			self isDictionaryTabSelected
+				ifTrue: [ self updateDictionaries ]
+				ifFalse: [ self updateProjectOnCompletion: [ self updatePackage ] ].
+			self updateClassesOnCompletion: [  ] ] ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		self updateDictionary ]
+		selectionEventsSuspended ifFalse: [ self updateDictionary ] ]
 ]
 
 { #category : 'initialization' }

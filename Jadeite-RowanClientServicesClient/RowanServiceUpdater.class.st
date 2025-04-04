@@ -280,9 +280,14 @@ RowanServiceUpdater >> initializeUpdates [
 
 { #category : 'commands' }
 RowanServiceUpdater >> invalidSessionAction [
+	"Tests wanting to use the ProvideAnswerNotification signal should resume: true"
 
-	UIManager default alert:
-		'Jadeite no longer connected. Possible lost communication with stone. Disconnecting.'.
+	| receivedNotification |
+	receivedNotification := JadeiteInvalidSessionNotification signal
+		                        ifNil: [ false ].
+	receivedNotification ifFalse: [
+		UIManager default alert:
+			'Jadeite no longer connected. Possible lost communication with stone. Disconnecting.' ].
 	JadeiteConnectionProfile connectionProfile disconnect
 ]
 

@@ -113,6 +113,22 @@ JadeiteForPharoAbstractBrowserTestCase >> projectNamed: aString [
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> selectRowanAnsweringService [
 
+	self selectRowanDictionaryOrPackage.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter
+]
+
+{ #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> selectRowanClassServiceNamed: className [
+
+	self selectRowanDictionaryOrPackage.
+	self selectServiceNamed: className in: self classListPresenter
+]
+
+{ #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> selectRowanDictionaryOrPackage [
+
 	JadeitePreferences isRowanLoaded
 		ifTrue: [
 			self
@@ -124,10 +140,12 @@ JadeiteForPharoAbstractBrowserTestCase >> selectRowanAnsweringService [
 		ifFalse: [
 			self
 				selectServiceNamed: 'RowanClientServices'
-				in: self dictionaryListPresenter ].
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter
+				in: self dictionaryListPresenter.
+			self classCategoryPresenter selectItem:
+				(RowanClassCategoryService new
+					 name: 'Rowan';
+					 substringIndex: 1;
+					 yourself) ]
 ]
 
 { #category : 'support' }
@@ -1415,6 +1433,25 @@ JadeiteForPharoAbstractBrowserTestCase >> test_instVarWriters [
 		assert:
 		(list collect: [ :methodService | methodService selector ]) asArray
 		equals: #( #fooInstVar: #fooInstVarSize #fooInstVarSubSize )
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_invalidSession [
+
+	| gotNotification |
+	self selectRowanClassServiceNamed: 'RowanPackageService'.
+	self selectMethodNamed: 'initialize'.
+	self assert: ('initialize*' match: self methodSourcePresenter text).
+	gotNotification := false.
+	session library channel close.
+	RowanServiceUpdater uninstallTestUpdater.
+	[ self selectMethodNamed: 'name' ]
+		on: JadeiteInvalidSessionNotification
+		do: [ :notification |
+			gotNotification := true.
+			notification resume: true ].
+	self assert: gotNotification.
+	self deny: JadeiteConnectionProfile connectionProfile isConnected
 ]
 
 { #category : 'tests' }

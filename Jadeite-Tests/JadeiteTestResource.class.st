@@ -117,7 +117,9 @@ JadeiteTestResource >> connectThenSignal: sem [
 		  | waitForConsoleSem |
 		  waitForConsoleSem := Semaphore new.
 		  [
-		  [ JadeiteConsole currentConsole ] whileNil: [
+		  [
+		  WorldMorph doOneCycle.
+		  JadeiteConsole currentConsole ] whileNil: [
 			  (Delay forMilliseconds: 1) wait ].
 		  waitForConsoleSem signal ] fork.
 		  waitForConsoleSem waitTimeoutSeconds: 5.
