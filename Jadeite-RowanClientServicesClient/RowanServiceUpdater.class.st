@@ -83,8 +83,6 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 			                      self stopCommandProgressBar: aService ].
 	                      self stopCommandProgressBar: aService ].
 
-	GciSession current isValidSession ifFalse: [
-		^ self invalidSessionAction ].
 	service
 		executeInSession: GciSession current
 		onCompletion: postExecutionBlock.
@@ -151,6 +149,8 @@ RowanServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has use completion blocks"
 
+	GciSession current isValidSession ifFalse: [
+		^ self invalidSessionAction ].
 	(service isInCommand and: [ singleThreaded not ]) ifTrue: [ ^ self ].
 	(singleThreaded and: [ service notAlwaysForked ])
 		ifTrue: [
