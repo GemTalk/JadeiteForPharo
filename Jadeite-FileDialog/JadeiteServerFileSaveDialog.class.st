@@ -89,6 +89,16 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 			  true ]
 ]
 
+{ #category : 'initialization' }
+JadeiteServerFileSaveDialog >> connectPresenters [
+
+	super connectPresenters.
+	fileNamePresenter bindKeyCombination: KeyboardKey enter toAction: [
+		self window
+			beOk;
+			triggerOkAction ]
+]
+
 { #category : 'accessing' }
 JadeiteServerFileSaveDialog >> fileNamePresenter [
 	^fileNamePresenter
