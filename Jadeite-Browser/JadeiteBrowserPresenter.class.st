@@ -3779,12 +3779,6 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 ]
 
 { #category : 'find' }
-JadeiteBrowserPresenter >> updateAfterFindClass: classService [
-
-	self updateAfterFindClass: classService onCompletion: [  ]
-]
-
-{ #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodService [
 
 	| index |

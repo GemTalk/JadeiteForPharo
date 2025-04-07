@@ -255,7 +255,9 @@ JadeiteClassTrait >> moveClassToPackageNamed: packageName [
 		commandArgs: (Array with: packageName).
 	RowanServiceUpdater current
 		issueCommand: self selectedClass
-		session: self gciSession onCompletion: [self updateAfterFindClass: self selectedClass]
+		session: self gciSession
+		onCompletion: [
+		self updateAfterFindClass: self selectedClass onCompletion: [  ] ]
 ]
 
 { #category : 'menus' }

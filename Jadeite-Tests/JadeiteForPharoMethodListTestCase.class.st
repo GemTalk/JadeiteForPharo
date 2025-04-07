@@ -533,7 +533,7 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 { #category : 'as yet unclassified' }
 JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
 
-	| rowanSample1ClassService rowanSample1TestClassService |
+	| rowanSample1ClassService rowanSample1TestClassService widget |
 	self
 		testsIssue: #issue386
 		withTitle:
@@ -569,8 +569,8 @@ JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
 		assert: methodListBrowser methodListPresenter list size
 		equals: 2.
 	methodListBrowser methodSourcePresenter text: 'new text'.
-	self assert: methodListBrowser methodSourcePresenter adapter widget
-			hasUnacceptedEdits.
+	widget := methodListBrowser methodSourcePresenter adapter widget.
+	self assert: widget hasUnacceptedEdits.
 	projectsBrowser
 		updateAfterFindClassName: 'RowanSample1'
 		methodSelector: #sampleMethod
@@ -585,12 +585,10 @@ JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
 		assert:
 		methodListBrowser methodListPresenter selection selectedIndex
 		equals: 1.
-	self assert: methodListBrowser methodSourcePresenter adapter widget
-			hasUnacceptedEdits.
+	self assert: widget hasUnacceptedEdits.
 	self
 		assert: methodListBrowser methodSourcePresenter text
 		equals: 'new text'.
-	methodListBrowser methodSourcePresenter adapter widget
-		hasUnacceptedEdits: false.
+	widget hasUnacceptedEdits: false.
 	JadeiteConnectionProfile connectionProfile disconnect "get rid of methods"
 ]

@@ -69,6 +69,7 @@ JadeiteServerFileSaveDialog >> answer [
 JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 
 	| path fileService |
+	ProvideAnswerNotification signal ifNotNil: [ :answer | ^ answer].
 	path := fileSelectorPresenter selectedFileOrDirectory.
 	fileService := RowanFileServiceClient new
 		               path: path;
@@ -78,14 +79,30 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 	^ fileService exists
 		  ifTrue: [
 			  (UIManager default confirm:
-				   fileService path , ' exists. Overwrite?') ifTrue: [
-				  aWindowPresenter beOk ] ]
+				   fileService path , ' exists. Overwrite?')
+				  ifTrue: [ aWindowPresenter beOk ]
+				  ifFalse: [ false ] ]
 		  ifFalse: [ aWindowPresenter beOk ]
 ]
 
 { #category : 'accessing' }
 JadeiteServerFileSaveDialog >> fileNamePresenter [
 	^fileNamePresenter
+]
+
+{ #category : 'initialization' }
+JadeiteServerFileSaveDialog >> initializeDialogWindow: aDialogWindowPresenter [
+	"Used to initialize the model in the case of the use into a dialog window.
+	 Override this to set buttons other than the default (Ok, Cancel)."
+
+	aDialogWindowPresenter
+		addButton: 'Cancel' do: [ :presenter |
+			presenter triggerCancelAction.
+			presenter close ];
+		addDefaultButton: 'Ok' do: [ :presenter |
+			| okToClose |
+			okToClose := presenter triggerOkAction.
+			okToClose ifTrue: [ presenter close ] ]
 ]
 
 { #category : 'initialization' }
@@ -113,7 +130,10 @@ JadeiteServerFileSaveDialog >> initializePresenters [
 JadeiteServerFileSaveDialog >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter okAction: [ self confirmSave: aWindowPresenter ]
+	aWindowPresenter okAction: [
+		| okToClose |
+		okToClose := self confirmSave: aWindowPresenter.
+		okToClose ifTrue: [ aWindowPresenter close ] ]
 ]
 
 { #category : 'initialization' }

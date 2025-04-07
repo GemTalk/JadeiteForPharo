@@ -149,3 +149,22 @@ JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
 	newBrowsers removeAll: existingBrowsers.
 	projectsBrowser := newBrowsers first
 ]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForSaveDialog [
+
+	| dialogs count |
+	count := 0.
+	[
+	(dialogs := self currentWorld windowsSatisfying: [ :each |
+		            (each model class canUnderstand: #presenter)
+			            ifTrue: [
+			            each model presenter isKindOf:
+				            JadeiteServerFileSaveDialog ]
+			            ifFalse: [ false ] ]) isEmpty and: [ count < 10 ] ]
+		whileTrue: [
+			count := count + 1.
+			(Delay forMilliseconds: 10) wait ].
+	self assert: dialogs size equals: 1.
+	^ dialogs first model
+]

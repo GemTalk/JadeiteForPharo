@@ -118,6 +118,43 @@ JadeiteForPharoFileDialogTestCase >> test_pop2 [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose [
+	"not sure this is a great test as it's unclear if the dialog actually would have closed during the test"
+
+	| filename ref path dirRef |
+	self todo:
+		'need better test that confirmation doesn''t close dialog if No is chosen'.
+	fileDialog window close. "not using the dialog from setUp"
+	filename := 'test_saveFileDialogReturnValue_deleteme'.
+	path := FileSystem workingDirectory fullPath pathString.
+	dirRef := path asFileReference.
+	ref := dirRef / filename.
+	ref exists ifTrue: [ ref delete ].
+	[
+	JadeiteServerFileSaveDialog
+		showOnSession: session
+		defaultPath: path
+		defaultFileName: self fileName ] fork.
+	fileDialog := self waitForSaveDialog.
+	self assert: fileDialog window isActive.
+	fileDialogPresenter := fileDialog presenter fileSelectorPresenter.
+
+	ref writeStreamDo: [ :stream | stream nextPutAll: 'some content' ].
+	self assert: ref exists.
+	[ fileDialogPresenter window triggerOkAction ]
+		on: ProvideAnswerNotification
+		do: [ :notification |
+			notification resume: false.
+			WorldMorph doOneCycle ].
+
+	self assert: fileDialog window isActive.
+	self assert: ref exists.
+	self assert: ref contents equals: 'some content'.
+
+	ref delete
+]
+
+{ #category : 'tests' }
 JadeiteForPharoFileDialogTestCase >> test_saveFileDialogReturnValue [
 	"selectedFileOrDirectory is what is returned from the save file dialog"
 
