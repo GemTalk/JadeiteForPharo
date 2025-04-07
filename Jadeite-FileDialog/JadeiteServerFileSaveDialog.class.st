@@ -69,7 +69,7 @@ JadeiteServerFileSaveDialog >> answer [
 JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 
 	| path fileService |
-	ProvideAnswerNotification signal ifNotNil: [ :answer | ^ answer].
+	ProvideAnswerNotification signal ifNotNil: [ :answer | ^ answer ].
 	path := fileSelectorPresenter selectedFileOrDirectory.
 	fileService := RowanFileServiceClient new
 		               path: path;
@@ -80,9 +80,13 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 		  ifTrue: [
 			  (UIManager default confirm:
 				   fileService path , ' exists. Overwrite?')
-				  ifTrue: [ aWindowPresenter beOk ]
+				  ifTrue: [
+					  aWindowPresenter beOk.
+					  true ]
 				  ifFalse: [ false ] ]
-		  ifFalse: [ aWindowPresenter beOk ]
+		  ifFalse: [
+			  aWindowPresenter beOk.
+			  true ]
 ]
 
 { #category : 'accessing' }
@@ -133,7 +137,8 @@ JadeiteServerFileSaveDialog >> initializeWindow: aWindowPresenter [
 	aWindowPresenter okAction: [
 		| okToClose |
 		okToClose := self confirmSave: aWindowPresenter.
-		okToClose ifTrue: [ aWindowPresenter close ] ]
+		okToClose ifTrue: [ aWindowPresenter close ].
+		okToClose ]
 ]
 
 { #category : 'initialization' }
