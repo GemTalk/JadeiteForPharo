@@ -3815,7 +3815,8 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: comp
 						selectClassNamed: classService
 						package: packageService
 						project: projectService
-						completionBlock: completionBlock ] ] ensure: [
+						completionBlock: completionBlock.
+					self classSelected: self selectedClass ] ] ensure: [
 				self resumeSelectionEvents ] ]
 ]
 

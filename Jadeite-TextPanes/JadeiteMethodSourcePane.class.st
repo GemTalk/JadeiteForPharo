@@ -125,12 +125,16 @@ JadeiteMethodSourcePane >> findClassService: classService [
 { #category : 'actions' }
 JadeiteMethodSourcePane >> formatSource [
 
-	| answeringService |
+	| answeringService originalString |
+	originalString := self text asString.
 	answeringService := RowanAnsweringServiceClient new
 		                    command: #formatSource:;
 		                    commandArgs:
 			                    (Array with: self text asString replaceCrWithLf).
-	self issueCommand: answeringService onCompletion: [self text: answeringService answer]
+	self issueCommand: answeringService onCompletion: [
+		answeringService answer
+			ifNil: [ self text: originalString ]
+			ifNotNil: [ self text: answeringService answer ] ]
 ]
 
 { #category : 'initialization' }
