@@ -147,14 +147,13 @@ JadeiteClassTrait >> findClass [
 JadeiteClassTrait >> findClassNamed: selection [
 
 	| classService |
-	self todo:
-		'used by the changes browser (and other tools?). Convert to using #findClass?'.
 	classService := RowanClassService new
 		                name: selection;
 		                meta: false.
-	self
-		updateService: classService
-		onCompletion: [ self findClassService: classService ]
+	self activePresenter
+		updateAfterFindClass: classService
+		methodService: nil
+		onCompletion: [  ]
 ]
 
 { #category : 'private' }

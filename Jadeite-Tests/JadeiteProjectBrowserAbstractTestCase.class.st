@@ -43,18 +43,6 @@ JadeiteProjectBrowserAbstractTestCase >> disableTranscriptWrites [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserAbstractTestCase >> findClassNamed: selection [
-
-	| classService browser |
-	browser := self openBrowser.
-	classService := RowanClassService new name: selection.
-	browser activePresenter
-		updateAfterFindClass: classService
-		methodService: nil
-		onCompletion: [  ]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserAbstractTestCase >> isAbstract [
 
 	^self == JadeiteProjectBrowserAbstractTestCase
