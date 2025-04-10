@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteBrowseSendersCommand',
-	#superclass : 'JadeiteBrowseCommand',
+	#superclass : 'JadeiteBrowseSelectorCommand',
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
@@ -8,7 +8,7 @@ Class {
 { #category : 'execution' }
 JadeiteBrowseSendersCommand >> execute [
 
-	self context doBrowseSenders: selectedText
+	self context doBrowseSenders: fullSelector
 ]
 
 { #category : 'accessing' }

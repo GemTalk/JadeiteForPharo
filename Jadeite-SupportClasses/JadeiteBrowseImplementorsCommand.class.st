@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteBrowseImplementorsCommand',
-	#superclass : 'JadeiteBrowseCommand',
+	#superclass : 'JadeiteBrowseSelectorCommand',
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
@@ -8,7 +8,7 @@ Class {
 { #category : 'execution' }
 JadeiteBrowseImplementorsCommand >> execute [
 
-	self context doBrowseImplementors: selectedText
+	self context doBrowseImplementors: fullSelector
 ]
 
 { #category : 'accessing' }
