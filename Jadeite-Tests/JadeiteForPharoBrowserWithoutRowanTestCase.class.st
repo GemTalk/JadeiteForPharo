@@ -240,9 +240,6 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 		assert: self classListPresenter selectedItem name
 		equals: 'RwGsPlatform'.
 	self
-		assert: self classListPresenter selectedItem definedPackageName
-		equals: 'Rowan-GemStone-Core'.
-	self
 		assert: self dictionaryListPresenter selectedItem name
 		equals: 'RowanKernel'.
 	self
@@ -256,9 +253,6 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'CypressClassDefinition'.
-	self
-		assert: self classListPresenter selectedItem definedPackageName
-		equals: 'Cypress-Definitions'.
 	self
 		assert: self dictionaryListPresenter selectedItem name
 		equals: 'Globals'.

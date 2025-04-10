@@ -1060,12 +1060,14 @@ JadeiteBrowserPresenter >> editSaveClass [
 
 	self issueCommand: browserService onCompletion: [
 		[
-		| result |
-		result := self recompileMethods.
-		classDefinitionPresenter value: self selectedClass template.
-		self resetClassDefinitionPane ]
+		self recompileMethods.
+		self
+			updateAfterFindClass: self selectedClass
+			methodService: nil
+			onCompletion: [  ] ]
 			on: Error
-			do: [ :ex | self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
+			do: [ :ex |
+			self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
 ]
 
 { #category : 'as yet unclassified' }
