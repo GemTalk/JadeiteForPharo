@@ -1324,6 +1324,87 @@ JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_historyNavigation [
+
+	self selectRowanClassServiceNamed: 'RowanClassService'.
+	self selectMethodNamed: 'classCategory'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'classCategory'.
+	self selectMethodNamed: 'meta'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'meta'.
+	self projectsPresenter historyBack.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'classCategory'.
+	self projectsPresenter historyForward.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'meta'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_historyNavigationClassChange [
+
+	self selectRowanClassServiceNamed: 'RowanClassService'.
+	self selectClassSide.
+	self selectMethodNamed: 'forClassNamed:'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'forClassNamed:'.
+	self selectRowanClassServiceNamed: 'RowanAnsweringService'.
+	self selectInstanceSide.
+	self selectMethodNamed: 'answer'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'answer'.
+	self projectsPresenter historyBack.
+	self
+		assert: self classListPresenter selectedItem className
+		equals: 'RowanClassService'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'forClassNamed:'.
+	self assert: self projectsPresenter isClassSideSelected.
+	self projectsPresenter historyForward.
+	self
+		assert: self classListPresenter selectedItem className
+		equals: 'RowanAnsweringService'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'answer'.
+	self deny: self projectsPresenter isClassSideSelected
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_historyNavigationMetaChange [
+
+	self selectRowanClassServiceNamed: 'RowanClassService'.
+	self selectClassSide.
+	self selectMethodNamed: 'forClassNamed:'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'forClassNamed:'.
+	self selectInstanceSide.
+	self selectMethodNamed: 'meta'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'meta'.
+	self projectsPresenter historyBack.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'forClassNamed:'.
+	self assert: self projectsPresenter isClassSideSelected.
+	self projectsPresenter historyForward.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: 'meta'.
+	self deny: self projectsPresenter isClassSideSelected
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_instVarReaders [
 	"should browse the whole hierarchy"
 

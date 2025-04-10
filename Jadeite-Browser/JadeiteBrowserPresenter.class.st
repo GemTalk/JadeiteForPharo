@@ -330,10 +330,11 @@ JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 	self issueCommand: oldClassService onCompletion: [
 		| service |
 		service := RowanClassService new name: newClassName.
-		self
-			updateService: service
-			onCompletion: [
-			self updateAfterFindClass: service onCompletion: [  ] ] ]
+		self updateService: service onCompletion: [
+			self
+				updateAfterFindClass: service
+				methodService: nil
+				onCompletion: [  ] ] ]
 ]
 
 { #category : 'tab labels' }
@@ -485,7 +486,8 @@ JadeiteBrowserPresenter >> browseMethodClass [
 	self openBrowserOn: self postOpen: [ :browserPresenter |
 		browserPresenter
 			updateAfterFindClass: self selectedClass
-			method: self methodListPresenter selectedItem ]
+			methodService: self methodListPresenter selectedItem
+			onCompletion: [  ] ]
 ]
 
 { #category : 'accessing' }
@@ -1344,7 +1346,10 @@ JadeiteBrowserPresenter >> gotoClassDefinedPackage [
 	| selectedCategory selectedMethod |
 	selectedCategory := categoryListPresenter selectionIfNone: [  ].
 	selectedMethod := methodListPresenter selectionIfNone: [  ].
-	self updateAfterFindClass: self selectedClass onCompletion: nil.
+	self
+		updateAfterFindClass: self selectedClass
+		methodService: nil
+		onCompletion: [  ].
 	selectedCategory ifNotNil: [ :category |
 		categoryListPresenter selection: category ].
 	selectedMethod ifNotNil: [
@@ -2069,7 +2074,10 @@ JadeiteBrowserPresenter >> jumpToHistoryIndex: anInteger [
 	classService := RowanClassService new
 		                name: historyEntry className;
 		                meta: historyEntry meta.
-	self updateAfterFindClass: classService method: historyEntry
+	self
+		updateAfterFindClass: classService
+		methodService: historyEntry
+		onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2097,7 +2105,10 @@ JadeiteBrowserPresenter >> makeSameSelectionsIn: newPresenter as: previousPresen
 				newPresenter gotoDictionaryNamed: dictionaryService name ] ]
 		ifNotNil: [ newPresenter gotoPackageNamed: packageService name ].
 	classService ifNil: [ ^ self ].
-	newPresenter updateAfterFindClass: classService onCompletion: [].
+	newPresenter
+		updateAfterFindClass: classService
+		methodService: nil
+		onCompletion: [  ].
 	previousPresenter isHierarchyTabSelected ifTrue: [
 		newPresenter classHierarchyTabs lastCard ].
 	isMeta ifTrue: [ newPresenter setClassSide ].
@@ -3779,21 +3790,7 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 ]
 
 { #category : 'find' }
-JadeiteBrowserPresenter >> updateAfterFindClass: classService method: methodService [
-
-	| index |
-	self updateAfterFindClass: classService onCompletion: [
-		methodListPresenter items: classService methods.
-		methodListPresenter beSorted. 
-		classService updateSortedJadeiteCategories: categoryListPresenter. 
-		self setAppropriateMeta: classService.
-		self methodListPresenter selection unselectAll.
-		index := self methodListPresenter items indexOf: methodService.
-		self methodListPresenter selectIndex: index scrollToSelection: true ]
-]
-
-{ #category : 'find' }
-JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: completionBlock [
+JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
 
 	| packageService projectService |
 	self suspendSelectionEvents.
@@ -3816,7 +3813,17 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService onCompletion: comp
 						package: packageService
 						project: projectService
 						completionBlock: completionBlock.
-					self classSelected: self selectedClass ] ] ensure: [
+					methodListPresenter items: classService methods.
+					methodListPresenter beSorted.
+					classService updateSortedJadeiteCategories: categoryListPresenter.
+					self setAppropriateMeta: classService.
+					methodService ifNotNil: [
+						| index |
+						self methodListPresenter selection unselectAll.
+						index := self methodListPresenter items indexOf: methodService.
+						self methodListPresenter
+							selectIndex: index
+							scrollToSelection: true ] ] ] ensure: [
 				self resumeSelectionEvents ] ]
 ]
 
@@ -3849,7 +3856,10 @@ JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: s
 		                 selector: selector;
 		                 className: className;
 		                 meta: meta.
-	^ self updateAfterFindClass: classService method: methodService
+	^ self
+		  updateAfterFindClass: classService
+		  methodService: methodService
+		  onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3897,7 +3907,10 @@ JadeiteBrowserPresenter >> updateClassMenu: menu [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClassThenFind: classService onCompletion: completionBlock [
 
-	self updateAfterFindClass: classService onCompletion: completionBlock
+	self
+		updateAfterFindClass: classService
+		methodService: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }

@@ -347,16 +347,28 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService onCompletion: completionBlock [
+JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
 
+	self suspendSelectionEvents.
 	self updateService: classService onCompletion: [
-		RowanServiceUpdater current critical: [
-			RowanServiceUpdater current applyUpdateWhile: [
-				self selectDictionaryNamed: classService dictionaryName.
-				self setAppropriateMeta: classService.
-				self selectClassListTab.
-				self selectClassCategoryFor: classService.
-				self selectClass: classService completionBlock: completionBlock ] ] ]
+		[
+		RowanServiceUpdater current applyUpdateWhile: [
+			self selectDictionaryNamed: classService dictionaryName.
+			self setAppropriateMeta: classService.
+			self selectClassListTab.
+			self selectClassCategoryFor: classService.
+			self selectClass: classService completionBlock: completionBlock.
+			methodListPresenter items: classService methods.
+			methodListPresenter beSorted.
+			classService updateSortedJadeiteCategories: categoryListPresenter.
+			methodService ifNotNil: [
+				| index |
+				self methodListPresenter selection unselectAll.
+				index := self methodListPresenter items indexOf: methodService.
+				self methodListPresenter
+					selectIndex: index
+					scrollToSelection: true ] ] ] ensure: [
+			self resumeSelectionEvents ] ]
 ]
 
 { #category : 'updates' }
@@ -472,6 +484,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassThenFind: classService onCompl
 		ifFalse: [
 			self
 				updateAfterFindClass: classService
+				methodService: nil
 				onCompletion: completionBlock ]
 ]
 

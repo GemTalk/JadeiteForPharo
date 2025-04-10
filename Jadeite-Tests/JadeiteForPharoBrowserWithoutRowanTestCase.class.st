@@ -234,7 +234,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 
 	self projectsPresenter
 		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
-		onCompletion: nil.
+		methodService: nil
+		onCompletion: [  ].
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RwGsPlatform'.
@@ -250,7 +251,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 	self projectsPresenter
 		updateAfterFindClass:
 		(RowanClassService new name: 'CypressClassDefinition')
-		onCompletion: nil.
+		methodService: nil
+		onCompletion: [  ].
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'CypressClassDefinition'.
@@ -258,10 +260,10 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 		assert: self classListPresenter selectedItem definedPackageName
 		equals: 'Cypress-Definitions'.
 	self
-		assert: self dictionaryListPresenter selectedItem name 
+		assert: self dictionaryListPresenter selectedItem name
 		equals: 'Globals'.
 	self
-		assert: self classCategoryPresenter selectedItem name 
+		assert: self classCategoryPresenter selectedItem name
 		equals: 'Cypress-Definitions'
 ]
 

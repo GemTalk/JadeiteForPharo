@@ -120,7 +120,8 @@ JadeiteSmalltalkEditor >> browseClassOfExpression [
 		browser := self openBrowser.
 		browser activePresenter
 			updateAfterFindClass: classService
-			onCompletion: nil ].
+			methodService: nil
+			onCompletion: [  ] ].
 	^ true
 ]
 

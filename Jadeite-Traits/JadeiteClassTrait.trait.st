@@ -63,6 +63,7 @@ JadeiteClassTrait >> browseClass [
 	browser := self openBrowser.
 	browser activePresenter
 		updateAfterFindClass: self selectedClass
+		methodService: nil
 		onCompletion: [  ].
 	^ browser
 ]
@@ -74,6 +75,7 @@ JadeiteClassTrait >> browseClassInExistingBrowser [
 	browser := self parentPresenter existingBrowser.
 	browser openNewBrowserTab
 		updateAfterFindClass: self selectedClass
+		methodService: nil
 		onCompletion: [  ].
 	^ browser window activate
 ]
@@ -178,6 +180,7 @@ JadeiteClassTrait >> findClassService: classService [
 
 	self activePresenter
 		updateAfterFindClass: classService
+		methodService: nil
 		onCompletion: [  ]
 ]
 
@@ -257,7 +260,10 @@ JadeiteClassTrait >> moveClassToPackageNamed: packageName [
 		issueCommand: self selectedClass
 		session: self gciSession
 		onCompletion: [
-		self updateAfterFindClass: self selectedClass onCompletion: [  ] ]
+			self
+				updateAfterFindClass: self selectedClass
+				methodService: nil
+				onCompletion: [  ] ]
 ]
 
 { #category : 'menus' }

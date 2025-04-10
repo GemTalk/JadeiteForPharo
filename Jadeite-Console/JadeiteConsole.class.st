@@ -311,6 +311,7 @@ JadeiteConsole >> findClassNamed: selection [
 		self updateService: classService onCompletion: [
 			browser activePresenter
 				updateAfterFindClass: classService
+				methodService: nil
 				onCompletion: [  ] ] ].
 	self basicOpenBrowser: browser
 ]
@@ -325,6 +326,7 @@ JadeiteConsole >> findClassService: classService [
 		browser ifNotNil: [
 			browser activePresenter
 				updateAfterFindClass: classService
+				methodService: nil
 				onCompletion: [  ] ] ].
 	browserPresenter := self basicOpenBrowser: browser
 ]

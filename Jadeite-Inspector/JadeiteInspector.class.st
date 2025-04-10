@@ -205,8 +205,9 @@ JadeiteInspector >> browseClass [
 			shell := self openBrowser.
 			shell currentCard
 				updateAfterFindClass: classService
-				onCompletion: nil ].
-	^shell
+				methodService: nil
+				onCompletion: [  ] ].
+	^ shell
 ]
 
 { #category : 'browsing' }
@@ -231,7 +232,10 @@ JadeiteInspector >> browseClassOfSelection [
 				session: gciSession
 				onCompletion: [ :svc |
 					shell := self openBrowser.
-					shell currentCard updateAfterFindClass: svc onCompletion: [  ] ] ].
+					shell currentCard
+						updateAfterFindClass: svc
+						methodService: nil
+						onCompletion: [  ] ] ]
 ]
 
 { #category : 'testing' }

@@ -3881,7 +3881,8 @@ JadeiteProjectBrowserTestCase >> test_variableTabSortOrder2 [
 		withTitle: 'variables tab sort order inconsistency'.
 	self projectsPresenter
 		updateAfterFindClass: (RowanClassService new name: 'Object')
-		onCompletion: nil.
+		methodService: nil
+		onCompletion: [  ].
 	self projectsPresenter selectVariableTab.
 	projectsBrowser ifNotNil: [ self assertVariableTabSorted ].
 	self projectsPresenter selectCategoryTab.

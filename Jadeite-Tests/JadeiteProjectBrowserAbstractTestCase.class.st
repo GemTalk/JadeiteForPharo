@@ -50,7 +50,8 @@ JadeiteProjectBrowserAbstractTestCase >> findClassNamed: selection [
 	classService := RowanClassService new name: selection.
 	browser activePresenter
 		updateAfterFindClass: classService
-		onCompletion: nil
+		methodService: nil
+		onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -390,6 +390,7 @@ JadeiteForPharoBrowserTestCase >> test_findClass [
 
 	self projectsPresenter
 		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
+		methodService: nil
 		onCompletion: nil.
 	self
 		assert: self classListPresenter selectedItem name
@@ -406,6 +407,7 @@ JadeiteForPharoBrowserTestCase >> test_findClass [
 	self projectsPresenter
 		updateAfterFindClass:
 		(RowanClassService new name: 'CypressClassDefinition')
+		methodService: nil
 		onCompletion: [  ].
 	self
 		assert: self classListPresenter selectedItem name

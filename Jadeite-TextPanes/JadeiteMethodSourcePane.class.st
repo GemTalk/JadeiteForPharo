@@ -116,10 +116,11 @@ JadeiteMethodSourcePane >> findClassService: classService [
 
 	classService ifNil: [ ^ self ].
 	(self owner owner class canUnderstand:
-		 #updateAfterFindClass:onCompletion:) ifTrue: [
-		self owner owner
+		 #updateAfterFindClass:methodService:onCompletion:) ifTrue: [
+		self owner owner "ick"
 			updateAfterFindClass: classService
-			onCompletion: [  ] "ick" ]
+			methodService: nil
+			onCompletion: [  ] ]
 ]
 
 { #category : 'actions' }
