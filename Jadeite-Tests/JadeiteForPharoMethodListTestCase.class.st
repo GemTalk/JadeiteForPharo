@@ -379,7 +379,8 @@ JadeiteForPharoMethodListTestCase >> test_canDiscardSelectionEdits [
 	self assert: hitException.
 	self
 		assert: self methodListPresenter selection selectedIndex
-		equals: 2
+		equals: 2.
+	self methodSourcePresenter hasUnacceptedEdits: false
 ]
 
 { #category : 'tests' }
