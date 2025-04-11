@@ -3818,7 +3818,6 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 				ifNotNil: [
 					projectService := array first.
 					packageService := array last.
-					self setAppropriateMeta: classService.
 					self selectClassListTab.
 					self selectPackageListTab.
 					self

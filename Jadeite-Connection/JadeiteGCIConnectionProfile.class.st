@@ -282,9 +282,12 @@ JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
-	"must be logged out"
+	"must be logged out.
+	Try to handle the gci hanging or getting an error during login
+	and give the user a reasonable error message. "
 
-	| commitIdString |
+	| commitIdString sem proc errorMessage loggedIn |
+	sem := Semaphore new.
 	GciInterface libraryDirectory: path.
 	session := GsSession
 		           newForGsVersion: version
@@ -292,14 +295,26 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 		           stone: stone
 		           host: host
 		           netldi: netldi.
-	[ session loginWithGsUser: user password: password ]
-		on: GciError
-		do: [ :ex |
-			^ 'Unable to login to gci. Cannot get server project commitIds' ].
-
+	errorMessage := 'Unable to login to gci for stone ' , stone
+	                , '. Cannot get server project commitIds'.
+	loggedIn := false.
+	proc := [
+	        [
+	        session loginWithGsUser: user password: password.
+	        loggedIn := true.
+	        sem signal ]
+		        on: GciError
+		        do: [ :ex |
+			        sem signal.
+			        UIManager default defer: [
+				        UIManager default alert: errorMessage ] ] ] fork.
+	(sem waitTimeoutSeconds: 5) ifTrue: [
+		proc terminate.
+		^ UIManager default alert: errorMessage ].
+	loggedIn ifFalse: [ ^ self ].
 	commitIdString := self gciCommitIds.
 	session logoutNbNoError.
-	session := nil. 
+	session := nil.
 	^ self
 		  gitShaWorkspace: JadeiteWorkspaceApplication show
 		  using: commitIdString
