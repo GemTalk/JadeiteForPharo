@@ -1048,7 +1048,8 @@ JadeiteBrowserPresenter >> editSaveClass [
 	a debugger is raised as not much information is available 
 	without a stack."
 
-	| browserService |
+	| browserService classHierarchyTabSelected |
+	classHierarchyTabSelected := self isClassHierarchyTabSelected.
 	browserService := RowanBrowserService new.
 	browserService
 		command: #compileClass:;
@@ -1064,7 +1065,8 @@ JadeiteBrowserPresenter >> editSaveClass [
 		self
 			updateAfterFindClass: self selectedClass
 			methodService: nil
-			onCompletion: [  ] ]
+			onCompletion: [
+			classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ] ] ]
 			on: Error
 			do: [ :ex |
 			self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
@@ -1450,6 +1452,14 @@ JadeiteBrowserPresenter >> historyBack [
 JadeiteBrowserPresenter >> historyForward [
 
 	self jumpToHistoryIndex: historyIndex + 1
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> indexOfServiceNamed: name in: listPresenter [
+
+	^ (1 to: self classListPresenter list size)
+		  detect: [ :index | (listPresenter list at: index) name = name ]
+		  ifNone: [ 0 ]
 ]
 
 { #category : 'initialization' }
@@ -3161,17 +3171,16 @@ JadeiteBrowserPresenter >> selectCategoryTab [
 JadeiteBrowserPresenter >> selectClass: classService completionBlock: completionBlock [
 
 	| index |
-	index := self classListPresenter list indexOf: classService.
-	index = 0 ifTrue: [
-		classService meta ifNil: [ classService meta: true ].
-		index := self classListPresenter list indexOf:
-			         (classService copy meta: classService meta not) ].
-	self classListPresenter selection selectedIndex = index ifFalse: [
-		self classListPresenter selection unselectAll.
-		RowanServiceUpdater current critical: [
-			self classListPresenter selectIndex: index scrollToSelection: true ].
-		self updateClassInfo.
-		completionBlock value ]
+	index := self
+		         indexOfServiceNamed: classService name
+		         in: self classListPresenter.
+	self classListPresenter selection selectedIndex = index ifTrue: [
+		^ self ].
+	self classListPresenter selection unselectAll.
+	RowanServiceUpdater current critical: [
+		self classListPresenter selectIndex: index scrollToSelection: true ].
+	self updateClassInfo.
+	completionBlock value
 ]
 
 { #category : 'selections' }
@@ -3541,10 +3550,12 @@ JadeiteBrowserPresenter >> selectedPackageServices [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> setAppropriateMeta: classOrMethodService [
 
-	classOrMethodService meta ifNil: [ ^ self ] ifNotNil: [ :meta |
-		meta
-			ifTrue: [ self setClassSide ]
-			ifFalse: [ self setInstanceSide ] ]
+	classOrMethodService meta
+		ifNil: [ ^ self setInstanceSide ]
+		ifNotNil: [ :meta |
+			meta
+				ifTrue: [ self setClassSide ]
+				ifFalse: [ self setInstanceSide ] ]
 ]
 
 { #category : 'initialization' }
