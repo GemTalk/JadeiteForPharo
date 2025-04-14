@@ -135,7 +135,9 @@ JadeiteGCIConnectionProfile >> connect [
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
-		do: [ :ex | ^ GciError signal: ex message ].
+		do: [ :ex |
+			session := nil.
+			^ GciError signal: ex message ].
 	GciSession current stoneName: stone.
 	connection := self setupRSRConnection.
 	"session logoutNbNoError. don't logout or nil the session. Need to revert when on 3731 or later"
