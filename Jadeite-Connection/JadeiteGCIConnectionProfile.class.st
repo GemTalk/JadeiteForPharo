@@ -226,6 +226,13 @@ JadeiteGCIConnectionProfile >> jadeiteClientGitRepositories [
 	^ #( 'JadeiteForPharo' 'PharoGemStoneFFI' 'RemoteServiceReplication' )
 ]
 
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> loginErrorMessage [
+
+	^ '<Unable to login to stone ' , stone
+	  , '. Cannot get server project commitIds>'
+]
+
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile >> netldi [
 
@@ -286,7 +293,7 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 	Try to handle the gci hanging or getting an error during login
 	and give the user a reasonable error message. "
 
-	| commitIdString sem proc errorMessage loggedIn |
+	| commitIdString sem proc loggedIn |
 	sem := Semaphore new.
 	GciInterface libraryDirectory: path.
 	session := GsSession
@@ -295,8 +302,6 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 		           stone: stone
 		           host: host
 		           netldi: netldi.
-	errorMessage := 'Unable to login to gci for stone ' , stone
-	                , '. Cannot get server project commitIds'.
 	loggedIn := false.
 	proc := [
 	        [
@@ -304,15 +309,11 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 	        loggedIn := true.
 	        sem signal ]
 		        on: GciError
-		        do: [ :ex |
-			        sem signal.
-			        UIManager default defer: [
-				        UIManager default alert: errorMessage ] ] ] fork.
-	(sem waitTimeoutSeconds: 5) ifTrue: [
-		proc terminate.
-		^ UIManager default alert: errorMessage ].
-	loggedIn ifFalse: [ ^ self ].
-	commitIdString := self gciCommitIds.
+		        do: [ :ex | sem signal ] ] fork.
+	(sem waitTimeoutSeconds: 5) ifTrue: [ proc terminate ].
+	loggedIn
+		ifTrue: [ commitIdString := self gciCommitIds ]
+		ifFalse: [ commitIdString := self loginErrorMessage ].
 	session logoutNbNoError.
 	session := nil.
 	^ self
@@ -325,6 +326,11 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
 
 	| answeringService workspacePresenter |
 	workspacePresenter := JadeiteWorkspaceApplication show.
+	self class connectionProfile isConnected ifFalse: [
+		self
+			gitShaWorkspace: workspacePresenter
+			using: self loginErrorMessage.
+		^ workspacePresenter workspace ].
 	answeringService := RowanAnsweringServiceClient new.
 	answeringService
 		exec: self commitIdServerCode
