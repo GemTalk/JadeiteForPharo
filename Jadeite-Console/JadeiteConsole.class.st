@@ -16,14 +16,29 @@ Class {
 		'consoleTabs',
 		'toolbarPresenter',
 		'transcriptPresenter',
-		'layoutBox'
+		'layoutBox',
+		'projectColumns'
 	],
 	#classVars : [
+		'ColumnWidths',
 		'CurrentConsole'
 	],
 	#category : 'Jadeite-Console',
 	#package : 'Jadeite-Console'
 }
+
+{ #category : 'accessing' }
+JadeiteConsole class >> columnWidths [
+	"make the column widths sticky for convenience"
+
+	^ ColumnWidths ifNil: [ ColumnWidths := self defaultColumnWidths ]
+]
+
+{ #category : 'accessing' }
+JadeiteConsole class >> columnWidths: anArray [
+
+	ColumnWidths := anArray
+]
 
 { #category : 'accessing' }
 JadeiteConsole class >> currentConsole [
@@ -37,11 +52,25 @@ JadeiteConsole class >> currentConsole: anObject [
 	CurrentConsole := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'defaults' }
 JadeiteConsole class >> defaultAdditionalAccelerators [
 	"Private - Even though this is specified in the context menu in JadeiteTranscript, the accelerator key is not recognized"
 
 	^super defaultAdditionalAccelerators , #(#(#jadeExecute 'Ctrl+E'))
+]
+
+{ #category : 'defaults' }
+JadeiteConsole class >> defaultColumnWidths [
+
+	^ { 200. 100. 100. nil }
+]
+
+{ #category : 'actions' }
+JadeiteConsole class >> setColumnWidths [
+
+	self currentConsole ifNotNil: [ :console |
+		self columnWidths:
+			(console projectColumns collect: [ :column | column width ]) ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -217,7 +246,7 @@ JadeiteConsole >> colorForUnsavedEdits [
 JadeiteConsole >> columnWithAspect: aspect title: title [
 
 	| column |
-	column := SpStringTableColumn
+	column := JadeiteConsoleTableColumn
 		          title: title
 		          evaluated: [ :projectService |
 			          (projectService perform: aspect)
@@ -285,15 +314,6 @@ JadeiteConsole >> displayLastKnownCommitOrAbort [
 	writeStream := WriteStream on: String new.
 	TimeStamp current printOn: writeStream format: 'M/d/yyyy h:mm:ss tt'.
 	lastKnownTransaction value: 'Last Known Commit or Abort: ' , writeStream contents
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> editComponents [
-	| projectName |
-	projectName := projectListPresenter projectListPresenter selectionOrNil
-				ifNil: [^self]
-				ifNotNil: [:projectService | projectService name].
-	^JadeiteComponentEditor showOn: projectName session: self gciSession
 ]
 
 { #category : 'as yet unclassified' }
@@ -533,13 +553,13 @@ JadeiteConsole >> initializePresenters [
 { #category : 'initialization' }
 JadeiteConsole >> initializeProjectListPresenter: tabs [
 
-	| initialWidths columns |
-	initialWidths := { 200. 100. 100. nil }.
+	| initialWidths |
+	initialWidths := self class columnWidths.
 	projectListPresenter := JadeiteTablePresenter new.
-	columns := self initialProjectDisplayColumns.
-	1 to: columns size do: [ :index |
+	projectColumns := self initialProjectDisplayColumns.
+	1 to: projectColumns size do: [ :index |
 		| column |
-		column := columns at: index.
+		column := projectColumns at: index.
 		column width: (initialWidths at: index).
 		projectListPresenter addColumn: column ].
 	tabs add: projectListPresenter label: 'Projects'.
@@ -729,6 +749,12 @@ JadeiteConsole >> postOpenBlock [
 
 	"no postOpenBlock yet"
 	^nil
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> projectColumns [
+
+	^ projectColumns
 ]
 
 { #category : 'accessing' }
