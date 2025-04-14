@@ -227,10 +227,19 @@ JadeiteGCIConnectionProfile >> jadeiteClientGitRepositories [
 ]
 
 { #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> loginErrorMessage [
+JadeiteGCIConnectionProfile >> loginErrorMessage: errorMessage [
 
-	^ '<Unable to login to stone ' , stone
-	  , '. Cannot get server project commitIds>'
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: '<Unable to login to stone ';
+		nextPutAll: stone;
+		nextPutAll: '. Cannot get server project commitIds>';
+		cr;
+		nextPutAll: 'Error Message: <';
+		nextPutAll: errorMessage;
+		nextPut: $>.
+	^ ws contents
 ]
 
 { #category : 'accessing' }
@@ -293,7 +302,7 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 	Try to handle the gci hanging or getting an error during login
 	and give the user a reasonable error message. "
 
-	| commitIdString sem proc loggedIn |
+	| commitIdString sem proc loggedIn errorMessage |
 	sem := Semaphore new.
 	GciInterface libraryDirectory: path.
 	session := GsSession
@@ -309,11 +318,13 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 	        loggedIn := true.
 	        sem signal ]
 		        on: GciError
-		        do: [ :ex | sem signal ] ] fork.
+		        do: [ :ex |
+			        errorMessage := ex messageText.
+			        sem signal ] ] fork.
 	(sem waitTimeoutSeconds: 5) ifTrue: [ proc terminate ].
 	loggedIn
 		ifTrue: [ commitIdString := self gciCommitIds ]
-		ifFalse: [ commitIdString := self loginErrorMessage ].
+		ifFalse: [ commitIdString := self loginErrorMessage: errorMessage ].
 	session logoutNbNoError.
 	session := nil.
 	^ self
@@ -329,7 +340,7 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
 	self class connectionProfile isConnected ifFalse: [
 		self
 			gitShaWorkspace: workspacePresenter
-			using: self loginErrorMessage.
+			using: (self loginErrorMessage: 'No Error Message Available').
 		^ workspacePresenter workspace ].
 	answeringService := RowanAnsweringServiceClient new.
 	answeringService
