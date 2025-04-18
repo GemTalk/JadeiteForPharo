@@ -18,7 +18,9 @@ JadeiteConsoleApplication >> resetConfiguration [
 
 	super resetConfiguration.
 	JadeiteConsole allInstances do: [ :console |
-		console addStyle: 'jadeiteTextBackgroundColor' ]
+		console window ifNotNil: [ :window |
+			window isOpen ifTrue: [
+				console addStyle: 'jadeiteTextBackgroundColor' ] ] ]
 ]
 
 { #category : 'accessing' }
