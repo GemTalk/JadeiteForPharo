@@ -1,10 +1,16 @@
-Extension { #name : 'FTColumnResizerMorph' }
+Class {
+	#name : 'JadeiteColumnResizerMorph',
+	#superclass : 'FTColumnResizerMorph',
+	#category : 'Jadeite-SupportClasses',
+	#package : 'Jadeite-SupportClasses'
+}
 
-{ #category : '*Jadeite-BaseExtensions' }
-FTColumnResizerMorph >> doubleClick: evt [
+{ #category : 'event handling' }
+JadeiteColumnResizerMorph >> doubleClick: evt [
 
 	| maxWidth projectServices console aspectIndex aspect header |
 	console := container table dataSource model owner. "yuck"
+	(console isKindOf: JadeiteConsole) ifFalse: [ ^ self ].
 	projectServices := console projectListPresenter items.
 	aspectIndex := console projectColumns indexOf:
 		               leftColumn column model.
@@ -20,13 +26,13 @@ FTColumnResizerMorph >> doubleClick: evt [
 	leftColumn column model width: maxWidth + 5
 ]
 
-{ #category : '*Jadeite-BaseExtensions' }
-FTColumnResizerMorph >> mouseDown: anEvent [
+{ #category : 'event handling' }
+JadeiteColumnResizerMorph >> mouseDown: anEvent [
 	"A mouse button has been pressed.
 	Update the color for feedback and store the mouse
 	position and relative offset to the receiver.
 	
-	Jadeite exention - setup the doubleClickSelector."
+	Jadeite - setup the doubleClickSelector."
 
 	| cp |
 	self canResizeColumn ifFalse: [ ^ self ].

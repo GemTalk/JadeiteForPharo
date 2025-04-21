@@ -13,6 +13,12 @@ JadeiteTableMorph class >> defaultSecondarySelectionColor [
 	^ self defaultSelectionColor
 ]
 
+{ #category : 'accessing' }
+JadeiteTableMorph >> defaultContainer [
+
+	^ JadeiteTableContainerMorph new
+]
+
 { #category : 'selection' }
 JadeiteTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
 
