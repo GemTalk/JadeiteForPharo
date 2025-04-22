@@ -1527,7 +1527,6 @@ JadeiteBrowserPresenter >> initializeClassExtraText: classColumn [
 
 	classExtraText := SpTextPresenter new
 		                           beNotEditable;
-		                           beNotWrapWord;
 		                           withoutScrollBars.
 	classExtraText addStyle: 'jadeiteTextBackgroundColor'.
 	classColumn
@@ -3255,6 +3254,12 @@ JadeiteBrowserPresenter >> selectClassService: classService [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectDictionaryListTab [
+
+	packageDictionaryTabs selectPageIndex: 2
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectDictionaryNamed: dictionaryName [
 
 	| dictionaryService selectedNames |
@@ -3908,8 +3913,6 @@ JadeiteBrowserPresenter >> updateClassInfo [
 		nextPutAll: self selectedClass dictionaryName.
 
 	classExtraText view text: ws contents.
-	ws contents size trace.
-	ws contents traceCr.
 	self sundryCleanup
 ]
 

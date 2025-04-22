@@ -207,6 +207,39 @@ JadeiteForPharoBrowserTestCase >> test_categoryExtensionMethodsShownWithNonExten
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_classExtras [
+
+	| classExtras |
+	self
+		testsJadeiteForPharoIssue: #issue229
+		title: 'Error while browsing a Package'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/229'.
+	self selectRowanAnsweringService.
+	classExtras := self projectsPresenter classExtrasText.
+	self
+		assert: classExtras text
+		equals: 'Defined Package: Rowan-Services-Core
+Dictionary: RowanClientServices'.
+
+	self
+		selectServiceNamed: 'Rowan-Services-Extensions'
+		in: self packageListPresenter.
+	self assert: classExtras text equals: String new.
+	self selectServiceNamed: 'RwGsPlatform' in: self classListPresenter.
+	self
+		assert: classExtras text
+		equals: 'Defined Package: Rowan-GemStone-Core
+Dictionary: RowanKernel'.
+	self projectsPresenter selectClassHierarchyTab.
+	self
+		assert: classExtras text
+		equals: 'Defined Package: Rowan-GemStone-Core
+Dictionary: RowanKernel'.
+	self projectsPresenter selectDictionaryListTab.
+	self assert: classExtras text equals: String new
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_copyProjectAspect [
 
 	self
