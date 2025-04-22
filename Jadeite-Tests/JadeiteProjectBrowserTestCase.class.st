@@ -1987,7 +1987,7 @@ JadeiteProjectBrowserTestCase >> test_goToDefinedClassFromClassListViaButton [
 	self selectServicesNamed: #('Rowan-Services-Extensions') in: self packageListPresenter.
 	self selectServicesNamed: (Array with: 'RwGsPlatform') in: self classListPresenter.
 	self assert: self projectsPresenter isClassListTabSelected.
-	self assert: self projectsPresenter definedClassPackageText view command
+	self assert: self projectsPresenter classExtrasText view command
 		equals: #gotoClassDefinedPackageViaButton.
 	self projectsPresenter gotoClassDefinedPackageViaButton.
 	self assert: self classListPresenter selection name = 'RwGsPlatform'.

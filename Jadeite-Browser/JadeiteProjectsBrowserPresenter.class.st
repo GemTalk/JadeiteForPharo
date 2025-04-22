@@ -14,10 +14,10 @@ Class {
 		'projectDictionaryTabs',
 		'comparisonPresenter',
 		'comparisonTab',
-		'definedClassPackageText',
 		'definedMethodPackageText',
 		'methodCategoryText',
-		'statusBarText'
+		'statusBarText',
+		'classExtraText'
 	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
@@ -377,7 +377,7 @@ JadeiteProjectsBrowserPresenter >> refreshClassListOrHierarchy [
 			listSelection := classListPresenter selectionOrNil.
 			hierarchySelection := classHierarchyPresenter selectionOrNil.
 			listSelection = hierarchySelection ifTrue: [
-				self resetDefinedClassPackage.
+				self resetClassExtras.
 				^ self ].
 			hierarchySelection isNil ifTrue: [
 				^ self updateClassesOnCompletion: nil ].
@@ -386,7 +386,7 @@ JadeiteProjectsBrowserPresenter >> refreshClassListOrHierarchy [
 				                detect: [ :service |
 				                hierarchySelection name = service name ]
 				                ifNone: [
-					                self resetDefinedClassPackage.
+					                self resetClassExtras.
 					                ^ classListPresenter resetSelection ].
 			classListPresenter selection: newSelection ]
 		ifFalse: [
@@ -487,9 +487,9 @@ JadeiteProjectsBrowserPresenter >> resetClassDefinitionPane [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> resetDefinedClassPackage [
-definedClassPackageText ifNotNil:[
-	definedClassPackageText text: String new].
+JadeiteProjectsBrowserPresenter >> resetClassExtras [
+
+	classExtraText ifNotNil: [ classExtraText text: String new ]
 ]
 
 { #category : 'as yet unclassified' }

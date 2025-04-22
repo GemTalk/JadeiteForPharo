@@ -1343,7 +1343,7 @@ JadeiteProjectBrowserClassesTestCase >> test_goToDefinedClassFromHierarchyViaBut
 	self selectHierarchyTab.
 	self deny: self projectsPresenter isClassListTabSelected.
 	self selectClassInHierarchyNamed: 'RowanLoggingService'.
-	self assert: self projectsPresenter definedClassPackageText view command
+	self assert: self projectsPresenter classExtrasText view command
 		equals: #gotoClassDefinedPackageViaButton.
 	self projectsPresenter gotoClassDefinedPackageViaButton.
 	self assert: self packageListPresenter selection name = 'Rowan-Services-Core'

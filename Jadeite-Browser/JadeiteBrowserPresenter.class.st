@@ -798,11 +798,12 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [
 			self classListPresenter clear.
+			self resetClassExtras.
 			self classHierarchyPresenter roots: OrderedCollection new.
 			self isDictionaryTabSelected
 				ifTrue: [ self updateDictionaries ]
 				ifFalse: [ self updateProjectOnCompletion: [ self updatePackage ] ].
-			self updateClassesOnCompletion: [  ] ] ].
+			self updateClassesOnCompletion: [ self resetClassExtras ] ] ].
 	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [ self updateDictionary ] ]
 ]
@@ -1522,6 +1523,20 @@ JadeiteBrowserPresenter >> initializeClassDefinitionTab [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenter >> initializeClassExtraText: classColumn [
+
+	classExtraText := SpTextPresenter new
+		                           beNotEditable;
+		                           beNotWrapWord;
+		                           withoutScrollBars.
+	classExtraText addStyle: 'jadeiteTextBackgroundColor'.
+	classColumn
+		add: classExtraText
+		withConstraints: [ :c |
+		c height: 5 * StandardFonts defaultFont pointSize ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeClassHierarchy [
 
 	| classHierarchyPage |
@@ -1576,20 +1591,6 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> initializeDefinedClassPackageText: classColumn [
-
-	definedClassPackageText := SpTextPresenter new
-		                           beNotEditable;
-		                           beNotWrapWord;
-		                           withoutScrollBars.
-	definedClassPackageText addStyle: 'jadeiteTextBackgroundColor'.
-	classColumn
-		add: definedClassPackageText
-		withConstraints: [ :c |
-		c height: 5 * StandardFonts defaultFont pointSize ]
-]
-
-{ #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeDefinedMethodPackageText: methodColumn [
 
 	definedMethodPackageText := SpTextPresenter new
@@ -1613,8 +1614,11 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	variableListPresenter := JadeiteListPresenter new.
 	packageMethodListPresenter := JadeiteListPresenter new
 		                              displayBold: [ :categoryString |
-			                              self selectedClass definedPackageName
-			                              = categoryString ];
+			                              self selectedClass
+				                              ifNil: [ false ]
+				                              ifNotNil: [ :classService |
+					                              classService definedPackageName
+					                              = categoryString ] ];
 		                              wantsDrop: [ :transfer |
 			                              self jadeiteWantsDrop: transfer ];
 		                              acceptDrop: [ :transfer |
@@ -1791,7 +1795,7 @@ JadeiteBrowserPresenter >> initializePresenters [
 	classColumn := SpBoxLayout newVertical.
 	panedLayout2 add: classColumn.
 	self initializeClassTabs: classColumn.
-	self initializeDefinedClassPackageText: classColumn.
+	self initializeClassExtraText: classColumn.
 	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
 	panedLayout3 add: panedLayout2.
 	filterLayout := SpBoxLayout newHorizontal.
@@ -2755,7 +2759,7 @@ JadeiteBrowserPresenter >> refreshClassUsing: selectedMethod [
 	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
 	self noClassSelectedInEitherPresenter ifTrue: [
 		self resetClassTemplate.
-		self resetDefinedClassPackage.
+		self resetClassExtras.
 		^ self ].
 	selectedMethod ifNil: [ textAreaTabs selectPage: classDefinitionPage ].
 	presenter := self isClassListTabSelected
@@ -3890,10 +3894,22 @@ JadeiteBrowserPresenter >> updateClass: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClassInfo [
 
+	| ws |
 	self selectedClass ifNil: [ ^ self ].
 	self basicUpdateClassInfo.
-	definedClassPackageText view text:
-		'Defined Package: ' , self selectedClass definedPackageName.
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'Defined Package:';
+		space;
+		nextPutAll: self selectedClass definedPackageName;
+		cr;
+		nextPutAll: 'Dictionary:';
+		space;
+		nextPutAll: self selectedClass dictionaryName.
+
+	classExtraText view text: ws contents.
+	ws contents size trace.
+	ws contents traceCr.
 	self sundryCleanup
 ]
 
@@ -4082,7 +4098,7 @@ JadeiteBrowserPresenter >> updatePackage [
 					packageListPresenter selectedItem sortedClasses ] ].
 		self updatePackageInfo.
 		self resetSunitTestList.
-		definedClassPackageText text: String new.
+		classExtraText text: String new.
 		[ postUpdatePackageBlock value ] ensure: [
 			postUpdatePackageBlock := nil ] ]
 ]
@@ -4166,7 +4182,7 @@ JadeiteBrowserPresenter >> updateProjectOnCompletion: completionBlock [
 	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
 	self updateTabLabel.
 	self basicUpdateProjectOnCompletion: completionBlock.
-	definedClassPackageText text: String new
+	classExtraText text: String new
 ]
 
 { #category : 'as yet unclassified' }

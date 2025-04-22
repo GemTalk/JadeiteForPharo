@@ -1,9 +1,9 @@
 Extension { #name : 'JadeiteProjectsBrowserPresenter' }
 
 { #category : '*Jadeite-Tests' }
-JadeiteProjectsBrowserPresenter >> definedClassPackageText [
+JadeiteProjectsBrowserPresenter >> classExtrasText [
 	"for tests" 
-	^definedClassPackageText
+	^classExtraText
 ]
 
 { #category : '*Jadeite-Tests' }

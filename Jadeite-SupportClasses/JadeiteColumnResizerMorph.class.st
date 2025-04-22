@@ -10,7 +10,7 @@ JadeiteColumnResizerMorph >> doubleClick: evt [
 
 	| maxWidth projectServices console aspectIndex aspect header |
 	console := container table dataSource model owner. "yuck"
-	(console isKindOf: JadeiteConsole) ifFalse: [ ^ self ].
+	(console isKindOf: JadeiteConsole) ifFalse: [ ^ self ]. "for now - keep it in the console"
 	projectServices := console projectListPresenter items.
 	aspectIndex := console projectColumns indexOf:
 		               leftColumn column model.

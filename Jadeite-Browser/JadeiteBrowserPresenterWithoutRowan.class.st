@@ -127,9 +127,9 @@ JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresen
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenterWithoutRowan >> initializeDefinedClassPackageText: classColumn [
+JadeiteBrowserPresenterWithoutRowan >> initializeClassExtraText: classColumn [
 
-	definedClassPackageText := SpTextPresenter new
+	classExtraText := SpTextPresenter new
 ]
 
 { #category : 'initialization' }
@@ -196,7 +196,7 @@ JadeiteBrowserPresenterWithoutRowan >> initializePresenters [
 
 	classColumn := SpBoxLayout newVertical.
 	self initializeClassTabs: classColumn.
-	self initializeDefinedClassPackageText: classColumn.
+	self initializeClassExtraText: classColumn.
 	panedLayout2 := SpPanedLayout newHorizontal positionOfSlider: 0.66.
 	panedLayout2 add: panedLayout1. 
 	panedLayout2 add: classColumn.
@@ -466,7 +466,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInClassList: classService sele
 JadeiteBrowserPresenterWithoutRowan >> updateClassInfo [
 
 	self selectedClass ifNil: [
-		self resetDefinedClassPackage.
+		self resetClassExtras.
 		^ self ].
 	self basicUpdateClassInfo.
 	self sundryCleanup
