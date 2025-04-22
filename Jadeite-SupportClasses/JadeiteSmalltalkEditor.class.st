@@ -125,6 +125,13 @@ JadeiteSmalltalkEditor >> browseClassOfExpression [
 	^ true
 ]
 
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> browseIt: aKeyboardEvent [
+	"do nothing for now. Might want to integrate JadeiteBrowseClassCommand someday"
+
+	
+]
+
 { #category : 'menu messages' }
 JadeiteSmalltalkEditor >> classCommentsContainingIt [
 

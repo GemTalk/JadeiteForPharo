@@ -286,7 +286,7 @@ JadeiteMethodsTrait >> browseImplementorsOf [
 	selector := self
 		            selectSymbolFrom: wildcardString
 		            titled: listWindowTitle
-		            browseAction: #implementorsOfAll:
+		            browseAction: nil
 		            guiAction: #browseImplementorsOf:
 ]
 

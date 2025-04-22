@@ -37,16 +37,6 @@ RowanQueryServiceClient >> handleCompileError: compileError [
 		compileErrorHandler value: compileError ]
 ]
 
-{ #category : 'commands' }
-RowanQueryServiceClient >> implementorsOfAll: selectors [
-	command := #implementorsOfAll:.
-	commandArgs := Array with: selectors.
-	RowanServiceUpdater current
-		issueCommand: self
-		session: GciSession current
-		onCompletion: serviceCompletionBlock
-]
-
 { #category : 'accessing' }
 RowanQueryServiceClient >> inCommand [
 
