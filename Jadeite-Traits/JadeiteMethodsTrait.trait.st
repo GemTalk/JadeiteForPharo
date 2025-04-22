@@ -15,7 +15,7 @@ JadeiteMethodsTrait >> _selectSymbolFrom: wildcardString list: possibleSelectors
 	possibleSelectors size = 1
 		ifTrue: [ selector := possibleSelectors first ]
 		ifFalse: [
-			dialogWindow := ListDialogWindow new
+			dialogWindow := JadeiteSearchDialogWindow new
 				                getList: [ :rxMatcher |
 					                possibleSelectors select: [ :substring |
 							                rxMatcher isString
@@ -23,22 +23,11 @@ JadeiteMethodsTrait >> _selectSymbolFrom: wildcardString list: possibleSelectors
 								                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
 									                rxMatcher matchesPrefix: substring ] ] ];
 				                displayBlock: [ :e | e ];
-				                browseBlock: [ :arg |
-					                | queryService |
-					                queryService := RowanQueryService new.
-					                queryService serviceCompletionBlock: [
-							                JadeiteMethodListBrowser
-								                openOn: queryService
-								                selecting: wildcardString
-								                session: self gciSession ].
-					                queryService
-						                perform: browseAction
-						                with: possibleSelectors ];
 				                doubleClickOk;
 				                title: listWindowTitle;
 				                yourself.
 			selector := dialogWindow chooseFromOwner: self currentWorld ].
-	self perform: guiActionSymbol with: selector
+	selector ifNotNil: [ self perform: guiActionSymbol with: selector ]
 ]
 
 { #category : 'menus' }
