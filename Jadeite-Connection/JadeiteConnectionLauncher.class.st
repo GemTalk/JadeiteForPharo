@@ -149,7 +149,23 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 	| fileRefs |
 	self class lastImportDirectory: directoryRef asAbsolute asText.
 	fileRefs := self class addImportedConnections: directoryRef.
-	fileRefs do: [ :fileRef | self basicImportProfile: fileRef ].
+	fileRefs do: [ :fileRef |
+		[ self basicImportProfile: fileRef ]
+			on: Error
+			do: [ :ex |
+				| ws |
+				ws := WriteStream on: String new.
+				ws
+					nextPutAll: 'Error importing file:';
+					space;
+					nextPutAll: fileRef fullName;
+					cr;
+					nextPutAll: 'Directory import cancelled';
+					cr;
+					nextPutAll: 'Error message:';
+					space;
+					nextPutAll: ex messageText.
+				^ UIManager default alert: ws contents ] ].
 	availableConnectionPresenter model collection reSort
 ]
 
@@ -158,7 +174,21 @@ JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
 
 	self class addImportedConnection:
 		fileWindow selectedPathName asFileReference.
-	self basicImportProfile: FileReference / fileWindow selectedPathName
+	[
+	self basicImportProfile: FileReference / fileWindow selectedPathName ]
+		on: Error
+		do: [ :ex |
+			| ws |
+			ws := WriteStream on: String new.
+			ws
+				nextPutAll: 'Error importing file:';
+				space;
+				nextPutAll: fileWindow selectedPathName;
+				cr;
+				nextPutAll: 'Error message:';
+				space;
+				nextPutAll: ex messageText.
+			UIManager default alert: ws contents ]
 ]
 
 { #category : 'actions' }
