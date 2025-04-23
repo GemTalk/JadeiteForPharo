@@ -3816,6 +3816,7 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 
 	| packageService projectService |
 	self suspendSelectionEvents.
+	classService ifNil: [ ^ self ].
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |

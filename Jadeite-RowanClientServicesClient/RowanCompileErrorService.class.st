@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanCompileErrorService',
 	#superclass : 'RowanService',
 	#instVars : [
-		'gsArguments'
+		'gsArguments',
+		'messageText'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -32,7 +33,24 @@ RowanCompileErrorService >> isCompileError [
 	^true
 ]
 
+{ #category : 'accessing' }
+RowanCompileErrorService >> messageText [
+
+	^ messageText
+]
+
+{ #category : 'accessing' }
+RowanCompileErrorService >> messageText: anObject [
+
+	messageText := anObject
+]
+
 { #category : 'rsr' }
 RowanCompileErrorService >> signalCompileError [
-	GsCompileError signal: self gsArguments
+
+	| error |
+	error := GsCompileError new
+		         messageText: self messageText;
+		         gsArguments: self gsArguments.
+	error signal "for older code signal the arguments"
 ]

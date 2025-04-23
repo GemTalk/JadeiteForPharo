@@ -390,7 +390,7 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: resolveStrict alias: alias [
 
 	| projectService |
-	projectService := RowanProjectService new.
+	projectService := RowanProjectServiceClient new.
 	projectService
 		command:
 			#installProjectFromFile:projectsHome:componentNames:attributes:resolveStrict:alias:;
@@ -401,6 +401,14 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 				attributes.
 				resolveStrict.
 				alias }.
+	projectService compileErrorHandler: [ :ex |
+		| ws |
+		ws := WriteStream on: String new.
+		ws
+			nextPutAll: 'Compile Error during project load. Load cancelled.';
+			cr;
+			nextPutAll: ex messageText.
+		UIManager default alert: ws contents ].
 	self issueCommand: projectService onCompletion: [  ]
 ]
 

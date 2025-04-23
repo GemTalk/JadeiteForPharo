@@ -3,16 +3,30 @@ Class {
 	#superclass : 'RowanProjectService',
 	#instVars : [
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'compileErrorHandler'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
 
 { #category : 'accessing' }
+RowanProjectServiceClient >> compileErrorHandler: anObject [
+
+	compileErrorHandler := anObject
+]
+
+{ #category : 'accessing' }
 RowanProjectServiceClient >> existsOnDisk: aBoolean [
 	"for testing"
 	existsOnDisk := aBoolean 
+]
+
+{ #category : 'actions' }
+RowanProjectServiceClient >> handleCompileError: compileError [
+
+	compileErrorHandler ifNotNil: [
+		compileErrorHandler value: compileError ]
 ]
 
 { #category : 'accessing' }
