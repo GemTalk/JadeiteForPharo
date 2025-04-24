@@ -556,9 +556,13 @@ JadeiteTextDocument >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteTextDocument >> initializePresenters [
 
-	super initializePresenters. 
+	super initializePresenters.
 	codePane := documentPresenter := self.
-	
+	self bindKeyCombination: $f shift ctrl toAction: [
+		| presenter |
+		presenter := owner owner.
+		(presenter class canUnderstand: #findClass) ifTrue: [
+			presenter findClass ] ]
 ]
 
 { #category : 'initialization' }

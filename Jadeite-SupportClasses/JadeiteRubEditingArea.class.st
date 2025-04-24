@@ -11,13 +11,9 @@ Class {
 { #category : 'formatting' }
 JadeiteRubEditingArea >> formatMethodCode [
 	"Ctrl-Shift-F is always find class in JfP
-	 Alt-F is format source.
-	This is awful code. Let's hope we can find a way to override this shortcut! "
+	Do nothing. Shortcut (and format) should be handled appropriately elsewhere"
 
-	| presenter |
-	presenter := model model owner owner.
-	(presenter class canUnderstand: #findClass) ifTrue: [
-		presenter findClass ]
+	
 ]
 
 { #category : 'accessing' }
