@@ -8,6 +8,13 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'formatting' }
+JadeiteRubEditingArea >> formatMethodCode [
+	"don't do formatting via Ctrl-Shift-F - use Alt-F"
+
+	
+]
+
 { #category : 'accessing' }
 JadeiteRubEditingArea >> lastClickPosition [
 

@@ -201,7 +201,7 @@ JadeiteClassTrait >> findPackageAndMoveToPackage [
 				                   into: [ :coll :projectService |
 					                   coll addAll: projectService packages.
 					                   coll ].
-			dialogWindow := ListDialogWindow new
+			dialogWindow := JadeiteSearchDialogWindow new
 				                getList: [ :rxMatcher |
 					                packageServices select: [ :thePackageService |
 							                rxMatcher isString
@@ -295,7 +295,7 @@ JadeiteClassTrait >> newFullClassMenu [
 JadeiteClassTrait >> openClassSelectionDialogOn: classNames [
 
 	| dialogWindow |
-	dialogWindow := ListDialogWindow new
+	dialogWindow := JadeiteSearchDialogWindow new
 		                getList: [ :rxMatcher |
 			                classNames select: [ :substring |
 					                rxMatcher isString

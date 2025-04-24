@@ -839,16 +839,16 @@ JadeiteForPharoBrowserTestCase >> waitForListDialogWindowWhile: aBlock [
 
 	| existingListDialogs newMethodLists count |
 	RsrGarbageCollector maximumReclamation.
-	existingListDialogs := ListDialogWindow allInstances.
+	existingListDialogs := JadeiteSearchDialogWindow allInstances.
 	aBlock fork.
 	count := 0.
 	[
 	count > 100 or: [
-		(newMethodLists := ListDialogWindow allInstances
+		(newMethodLists := JadeiteSearchDialogWindow allInstances
 			                   asOrderedCollection) size
 		> existingListDialogs size ] ] whileFalse: [
 		count := count + 1.
 		(Delay forMilliseconds: 1) wait ].
 	newMethodLists removeAll: existingListDialogs.
-	^newMethodLists first
+	^ newMethodLists first
 ]

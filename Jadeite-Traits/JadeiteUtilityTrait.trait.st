@@ -39,7 +39,7 @@ JadeiteUtilityTrait >> openPackageSelectionDialogFor: searchName onCompletion: c
 		session: self gciSession
 		onCompletion: [
 			| selection |
-			dialogWindow := ListDialogWindow new
+			dialogWindow := JadeiteSearchDialogWindow new
 				                getList: [ :rxMatcher |
 					                answeringService answer select: [ :substring |
 							                rxMatcher isString
