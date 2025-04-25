@@ -560,6 +560,7 @@ JadeiteTextDocument >> initializePresenters [
 	codePane := documentPresenter := self.
 	self bindKeyCombination: $f shift ctrl toAction: [
 		| presenter |
+		"a little hacky but Ctrl-Shift-F find class should work anywhere in a browser"
 		presenter := owner owner.
 		(presenter class canUnderstand: #findClass) ifTrue: [
 			presenter findClass ] ]

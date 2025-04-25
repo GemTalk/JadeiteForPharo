@@ -699,7 +699,7 @@ JadeiteProjectsTrait >> reloadProject [
 JadeiteProjectsTrait >> selectStringFromList: strings title: title [
 
 	| dialogWindow |
-	dialogWindow := ListDialogWindow new
+	dialogWindow := JadeiteSearchDialogWindow new
 		                getList: [ :rxMatcher |
 			                strings select: [ :substring |
 					                rxMatcher isString
