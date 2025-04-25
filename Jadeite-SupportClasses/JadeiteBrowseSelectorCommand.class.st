@@ -19,10 +19,11 @@ JadeiteBrowseSelectorCommand >> jadeiteMenuNameFromSelector [
 		          stringIndex.
 	fullSelector := ((self context selectedSelector: offset) ifNil: [
 		                 'it' ]) asString.
+	selectedText := fullSelector.
 	abbreviatedName := fullSelector
 		                   copyFrom: 1
 		                   to: (fullSelector size min: 40).
 	abbreviatedName = fullSelector ifFalse: [
 		abbreviatedName := abbreviatedName , ' ...' ].
-	^ selectedText := abbreviatedName
+	^ abbreviatedName
 ]
