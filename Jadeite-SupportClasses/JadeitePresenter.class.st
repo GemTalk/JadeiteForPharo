@@ -75,6 +75,14 @@ JadeitePresenter >> preUpdate: services [
 JadeitePresenter >> registerPresentersForUpdates [
 ]
 
+{ #category : 'initialization' }
+JadeitePresenter >> resetCurrentPackageFor: aService [
+]
+
+{ #category : 'initialization' }
+JadeitePresenter >> resetCurrentProjectFor: aService [
+]
+
 { #category : 'find' }
 JadeitePresenter >> resumeSelectionEvents [
 

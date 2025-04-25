@@ -57,7 +57,7 @@ JadeiteBrowser class >> openOn: theOwner postOpen: aBlock [
 { #category : 'accessing' }
 JadeiteBrowser >> activePresenter [
 
-	^ self tabs selectedPage activePresenter
+	^ self tabs selectedPage ifNotNil: [ :page | page activePresenter ]
 ]
 
 { #category : 'initialization' }
@@ -383,6 +383,20 @@ JadeiteBrowser >> projectListPresenter [
 JadeiteBrowser >> removeClass [
 
 	^self activePresenter removeClass
+]
+
+{ #category : 'actions' }
+JadeiteBrowser >> resetCurrentPackageFor: aService [
+
+	self activePresenter ifNotNil: [ :presenter |
+		presenter resetCurrentPackageFor: aService ]
+]
+
+{ #category : 'actions' }
+JadeiteBrowser >> resetCurrentProjectFor: aService [
+
+	self activePresenter ifNotNil: [ :presenter |
+		presenter resetCurrentProjectFor: aService ]
 ]
 
 { #category : 'commands' }

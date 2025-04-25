@@ -2921,7 +2921,9 @@ JadeiteBrowserPresenter >> registerPackageDictionaryListsForUpdates [
 	RowanServiceUpdater current
 		register: packageListPresenter
 		selector: #projectPackagesUpdate:browser:
-		browser: self.
+		browser: self;
+		register: packageListPresenter
+		selector: #resetCurrentProjectPackage.
 	RowanServiceUpdater current
 		register: dictionaryListPresenter
 		selector: #dictionaryListUpdate:
@@ -2947,7 +2949,9 @@ JadeiteBrowserPresenter >> registerProjectListForUpdates [
 		register: projectListPresenter selector: #removedProject:;
 		register: projectListPresenter selector: #newProject:;
 		register: projectListPresenter selector: #removed:;
-		register: projectListPresenter selector: #projectsUpdate:
+		register: projectListPresenter selector: #projectsUpdate:;
+		register: projectListPresenter selector: #resetCurrentProjectPackage
+
 ]
 
 { #category : 'as yet unclassified' }
@@ -3115,6 +3119,30 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 							 ifNotNil: [
 							 self selectedClassTab activePresenter selectedItem template ] ] ]).
 	self resetClassDefinitionPane
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> resetCurrentPackageFor: aPackageService [
+
+	projectListPresenter items do: [ :projectService |
+		(aPackageService isNotNil and: [
+			 projectService name = aPackageService projectName ]) ifFalse: [
+			projectService isCurrent: false ] ].
+	packageListPresenter items do: [ :packageService |
+		packageService = aPackageService ifFalse: [
+			packageService isCurrent: false ] ].
+	WorldMorph doOneCycle
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> resetCurrentProjectFor: aService [
+
+	projectListPresenter items do: [ :projectService |
+		projectService = aService ifFalse: [
+			projectService isCurrent: false ] ].
+	packageListPresenter items do: [ :packageService |
+		packageService isCurrent: false ].
+	WorldMorph doOneCycle
 ]
 
 { #category : 'initialization' }

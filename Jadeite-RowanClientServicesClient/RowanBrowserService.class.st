@@ -240,6 +240,16 @@ RowanBrowserService >> replicateFrom: newService [
 	self isBrowserService ifTrue: [super replicateFrom: newService]
 ]
 
+{ #category : 'updates' }
+RowanBrowserService >> resetCurrentProjectPackage [
+
+	updateType = #resetCurrentProjectPackage ifFalse: [ ^ self ].
+	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+		:window |
+		window presenter resetCurrentPackageFor: nil "this will reset the project list, too" ].
+	updateType := nil
+]
+
 { #category : 'accessing' }
 RowanBrowserService >> selectedClass [
 
@@ -305,6 +315,28 @@ RowanBrowserService >> turnOffNativeCode: session onCompletion: completionBlock 
 		issueCommand: self
 		session: session
 		onCompletion: completionBlock
+]
+
+{ #category : 'as yet unclassified' }
+RowanBrowserService >> unsetCurrentPackage [
+
+	command := #unsetCurrentPackage.
+	commandArgs := Array new. 
+	self
+		issueCommands: (Array with: self)
+		session: GciSession current
+		onCompletion: [  ]
+]
+
+{ #category : 'as yet unclassified' }
+RowanBrowserService >> unsetCurrentProject [
+
+	command := #unsetCurrentProject.
+	commandArgs := Array new. 
+	self
+		issueCommands: (Array with: self)
+		session: GciSession current
+		onCompletion: [  ]
 ]
 
 { #category : 'commands' }

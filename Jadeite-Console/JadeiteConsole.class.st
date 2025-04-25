@@ -806,7 +806,9 @@ JadeiteConsole >> registerPresentersForUpdates [
 		register: projectListPresenter selector: #removedProject:;
 		register: projectListPresenter selector: #newProject:;
 		register: projectListPresenter selector: #removed:;
-		register: projectListPresenter selector: #projectsUpdate:
+		register: projectListPresenter selector: #projectsUpdate:;
+		register: projectListPresenter selector: #resetCurrentProjectPackage
+
 ]
 
 { #category : 'as yet unclassified' }
@@ -824,6 +826,16 @@ JadeiteConsole >> remoteAutoCommit [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> resetColors [
 	JadeiteTextStyles default resetColors
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> resetCurrentProjectFor: aService [
+
+	projectListPresenter items do: [ :projectService |
+		projectService = aService
+			ifTrue: [ projectService isCurrent: aService isCurrent ]
+			ifFalse: [ projectService isCurrent: false ] ].
+	projectListPresenter adapter widget simulateClick "not sure why, but console won't redraw correctly. this seems to work sometimes. "
 ]
 
 { #category : 'as yet unclassified' }

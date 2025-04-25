@@ -478,7 +478,11 @@ JadeiteProjectsTrait >> newProjectMenu [
 				item
 					name: 'Set Current';
 					action: [ self setCurrentProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+			addItem: [ :item |
+				item
+					name: 'Unset Current';
+					action: [ self unsetCurrentProject ] ] ].
 	menu addGroup: [ :group |
 		group
 			addItem: [ :item |
@@ -721,8 +725,6 @@ JadeiteProjectsTrait >> selectedProjectName [
 { #category : 'actions' }
 JadeiteProjectsTrait >> setCurrentProject [
 
-	RowanProjectServiceClient allInstances do: [ :projectService |
-		projectService isCurrent: false ].
 	self projectListPresenter selectedItem setCurrent.
 	WorldMorph doOneCycle
 ]
@@ -737,6 +739,14 @@ JadeiteProjectsTrait >> unloadProject [
 			(self projectListPresenter selections collect: [ :service |
 				 service name ])
 		onCompletion: nil
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> unsetCurrentProject [
+	"unsetting can be done from any project"
+
+	RowanBrowserService new unsetCurrentProject.
+	WorldMorph doOneCycle 
 ]
 
 { #category : 'actions' }

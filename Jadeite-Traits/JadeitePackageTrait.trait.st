@@ -114,7 +114,11 @@ JadeitePackageTrait >> newPackageMenu [
 							  [ self packageListPresenter selectedItem notNil ]
 								  on: Error
 								  do: [ :ex |
-									  false "Spec2 lists are broken and can have the wrong selection" ] ] ] ];
+									  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Unset Current';
+						  action: [ self unsetCurrentPackage ] ] ];
 		  yourself
 ]
 
@@ -134,8 +138,13 @@ JadeitePackageTrait >> removePackage [
 { #category : 'actions' }
 JadeitePackageTrait >> setCurrentPackage [
 
-	self packageListPresenter items do: [ :packageService |
-		packageService isCurrent: false ].
 	self packageListPresenter selectedItem setCurrent.
+	WorldMorph doOneCycle
+]
+
+{ #category : 'actions' }
+JadeitePackageTrait >> unsetCurrentPackage [
+
+	RowanBrowserService new unsetCurrentPackage.
 	WorldMorph doOneCycle
 ]

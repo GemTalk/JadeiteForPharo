@@ -289,6 +289,15 @@ RowanPackageService >> replicateFrom: newService [
 		ifTrue: [super replicateFrom: newService]
 ]
 
+{ #category : 'initialization' }
+RowanPackageService >> resetCurrentProjectPackage [
+
+	updateType = #resetCurrentProjectPackage ifFalse: [ ^ self ].
+	JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
+		:window | window presenter resetCurrentPackageFor: self ].
+	updateType := nil
+]
+
 { #category : 'Init / Release' }
 RowanPackageService >> rowanPostUpdate [
 	super rowanPostUpdate.
