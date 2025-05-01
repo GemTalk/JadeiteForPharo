@@ -278,7 +278,7 @@ JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHom
 	RowanServiceUpdater current
 		issueCommand: projectService
 		session: self session
-		onCompletion: [ jadeiteShell projectListPresenter unselectAll ]
+		onCompletion: [  ]
 ]
 
 { #category : 'support' }
