@@ -115,14 +115,14 @@ JadeiteBrowserPresenter >> abortTransaction [
 
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
-	self updateProjects.
+
+	self updateProjectsOnCompletion: [  ].
 	self projectListPresenter invalidate.
 	self resetClassTemplate.
 	self resetClassComment.
-	self updateMethodSource. 
+	self updateMethodSource.
 	self resetStatusBarColor.
-	self statusBarText pushMessage: String new. 
-
+	self statusBarText pushMessage: String new
 ]
 
 { #category : 'as yet unclassified' }
@@ -2503,8 +2503,8 @@ JadeiteBrowserPresenter >> populateFilterList [
 
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> postOpen [
-	self updateProjects "this will run the postOpen block afterwards"
-	
+
+	self updateProjectsOnCompletion: [  ] "this will run the postOpen block afterwards"
 ]
 
 { #category : 'accessing' }
@@ -2787,6 +2787,8 @@ JadeiteBrowserPresenter >> refreshClassUsing: selectedMethod [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshFromServer [
+	"not a very good refresh as it does not look for
+	additions or removals"
 
 	| services |
 	services := OrderedCollection new.
@@ -2797,13 +2799,11 @@ JadeiteBrowserPresenter >> refreshFromServer [
 	classHierarchyPresenter selectedItem ifNotNil: [ :classService |
 		services add: classService ].
 	services addAll: methodListPresenter selections.
-	services last serviceCompletionBlock: [
-		self updateSUnitTab.
+	self updateServices: services.
+	self updateProjectsOnCompletion: [
 		RowanBrowserService new
 			checkForAddedProjects: projectListPresenter items asArray
-			onCompletion: [
-				self redrawAllViews.
-				self updateServices: services ] ]
+			onCompletion: [ self updateSUnitTab ] ]
 ]
 
 { #category : 'as yet unclassified' }

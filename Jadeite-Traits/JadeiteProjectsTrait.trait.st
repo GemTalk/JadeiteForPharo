@@ -724,8 +724,8 @@ JadeiteProjectsTrait >> selectedProjectName [
 
 { #category : 'actions' }
 JadeiteProjectsTrait >> setCurrentProject [
-
 	self projectListPresenter selectedItem setCurrent.
+	self refreshFromServer.
 	WorldMorph doOneCycle
 ]
 
@@ -743,20 +743,17 @@ JadeiteProjectsTrait >> unloadProject [
 
 { #category : 'actions' }
 JadeiteProjectsTrait >> unsetCurrentProject [
-	"unsetting can be done from any project"
-
 	RowanBrowserService new unsetCurrentProject.
-	WorldMorph doOneCycle 
+	self refreshFromServer.
+	WorldMorph doOneCycle
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> updateProjects [
+JadeiteProjectsTrait >> updateProjectsOnCompletion: completionBlock [
 
 	| browserService |
 	browserService := RowanBrowserService new.
-	browserService
-		command: #updateProjects;
-		commandArgs: Array new.
+	browserService command: #updateProjects.
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
@@ -765,5 +762,6 @@ JadeiteProjectsTrait >> updateProjects [
 				self projectListPresenter items:
 					(self sortedFrom: browserService projects).
 				self projectListUpdated ].
-			self basicPostOpen ]
+			self basicPostOpen.
+			completionBlock value ]
 ]

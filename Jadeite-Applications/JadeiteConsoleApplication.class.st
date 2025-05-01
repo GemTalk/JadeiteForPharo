@@ -32,7 +32,7 @@ JadeiteConsoleApplication >> start [
 		inst
 			gciSession: gciSession;
 			installTranscript;
-			updateProjects;
+			updateProjectsOnCompletion: [  ];
 			initializeAutoCommit.
 		self jadeiteConsoleClass currentConsole: inst.
 		windowPresenter := inst open.

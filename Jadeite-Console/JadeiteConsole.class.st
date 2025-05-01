@@ -84,7 +84,7 @@ JadeiteConsole class >> showOnSession: aGciSession [
 { #category : 'events' }
 JadeiteConsole >> abortedTransaction [
 
-	self updateProjects.
+	self updateProjectsOnCompletion: [  ].
 	self todo: [ self displayLastKnownCommitOrAbort ].
 	self projectListPresenter invalidate
 ]
@@ -784,7 +784,7 @@ JadeiteConsole >> refreshFromServer [
 
 	| selection |
 	selection := self projectListPresenter selectedItem.
-	self updateProjects.
+	self updateProjectsOnCompletion: [  ].
 	selection ifNotNil: [
 		self projectListPresenter selectItem: selection ]
 ]
