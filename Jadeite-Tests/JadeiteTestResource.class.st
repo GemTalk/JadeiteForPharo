@@ -204,17 +204,19 @@ JadeiteTestResource >> ensureRowanSampleProjectsLoadedFromDisk [
 { #category : 'projects loading' }
 JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath [
 
-	self todo:[self switchTransactionModeTo: #autoBegin. "Initializing the resource will do a commit. Make sure we can commit."].
+	self todo: [
+		self switchTransactionModeTo: #autoBegin "Initializing the resource will do a commit. Make sure we can commit." ].
 	self transcript projectListPresenter refresh. "make sure we have the correct server state in the browser"
-	self rowanSample1Project ifNotNil: [ :projectService | 
+	self rowanSample1Project ifNotNil: [ :projectService |
 		projectService isDirty ifFalse: [ ^ self ] ].
-	self disableInteractionsWhile: [ 
+	self disableInteractionsWhile: [
 		unloadBlock value.
 		self
 			loadProjectFromFile: projectPath
 			projectsHome: '$ROWAN_PROJECTS_HOME'
 			customConditionalAttributes: #( 'tests' )
-			componentNames: #( 'Core' 'Tests' ) ]
+			componentNames: #( 'Core' 'Tests' ).
+		jadeiteShell projectListPresenter unselectAll ]
 ]
 
 { #category : 'support' }
@@ -276,7 +278,7 @@ JadeiteTestResource >> loadProjectFromFile: fileString projectsHome: projectsHom
 	RowanServiceUpdater current
 		issueCommand: projectService
 		session: self session
-		onCompletion: [ ]
+		onCompletion: [ jadeiteShell projectListPresenter unselectAll ]
 ]
 
 { #category : 'support' }

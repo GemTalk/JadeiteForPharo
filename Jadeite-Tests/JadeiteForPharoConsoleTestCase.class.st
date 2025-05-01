@@ -5,6 +5,19 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'support' }
+JadeiteForPharoConsoleTestCase >> console [
+	"transcript is from the JfD days"
+
+	^ transcript
+]
+
+{ #category : 'support' }
+JadeiteForPharoConsoleTestCase >> projectListPresenter [
+
+	^ self console projectListPresenter
+]
+
 { #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_basicSelect [
 	"bug found just selecting projects - was trying to disconnect.
@@ -48,4 +61,70 @@ JadeiteForPharoConsoleTestCase >> test_openHelp [
 		assert: helpPresenter contentsPresenter text asString
 		equals: (helpPresenter contentsPresenter documentFromString: fileReference contents) text asString.
 	self destroy: helpPresenter
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
+
+	| servicesProjectService rowanProjectService |
+	self console unsetCurrentProject.
+	self assert: self projectListPresenter list notEmpty.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	servicesProjectService := self projectListPresenter selectedItem.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+	self transcript setCurrentProject.
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	rowanProjectService := self projectListPresenter selectedItem.
+	self assert: rowanProjectService displayName equals: 'Rowan'.
+	self deny: rowanProjectService isCurrent.
+	self console setCurrentProject.
+	self assert: rowanProjectService displayName equals: '*Rowan'.
+	self assert: rowanProjectService isCurrent.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+
+	self console unsetCurrentProject.
+	self assert: rowanProjectService displayName equals: 'Rowan'.
+	self deny: rowanProjectService isCurrent
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
+
+	| servicesProjectService |
+	self console unsetCurrentProject.
+	self projectListPresenter items do: [ :projectService |
+		self deny: (projectService displayName includes: $*).
+		self deny: projectService isCurrent ].
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	servicesProjectService := self projectListPresenter selectedItem.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+
+	self console setCurrentProject.
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+
+	self console unsetCurrentProject.
+	self projectListPresenter items do: [ :projectService |
+		self deny: (projectService displayName includes: $*).
+		self deny: projectService isCurrent ]
 ]

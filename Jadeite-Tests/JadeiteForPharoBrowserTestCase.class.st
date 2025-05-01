@@ -827,6 +827,80 @@ JadeiteForPharoBrowserTestCase >> test_setCurrentAfterCreatingPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_setCurrentPackage [
+	"setting current package sets the current project"
+
+	| servicesProjectService servicesPackageService |
+	self projectsPresenter unsetCurrentProject.
+	self assert: self projectListPresenter list notEmpty.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	servicesProjectService := self projectListPresenter selectedItem.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+	self
+		selectServiceNamed: 'Rowan-Services-Core'
+		in: self packageListPresenter.
+	servicesPackageService := self packageListPresenter selectedItem.
+	self
+		assert: servicesPackageService displayName
+		equals: 'Rowan-Services-Core'.
+	self deny: servicesPackageService isCurrent.
+
+	self projectsPresenter setCurrentPackage.
+
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+	self
+		assert: servicesPackageService displayName
+		equals: '*Rowan-Services-Core'.
+	self assert: servicesPackageService isCurrent.
+	self projectsPresenter unsetCurrentProject
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_setCurrentProject [
+
+	| servicesProjectService rowanProjectService |
+	self projectsPresenter unsetCurrentProject.
+	self assert: self projectListPresenter list notEmpty.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	servicesProjectService := self projectListPresenter selectedItem.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+	self projectsPresenter setCurrentProject.
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	rowanProjectService := self projectListPresenter selectedItem.
+	self assert: rowanProjectService displayName equals: 'Rowan'.
+	self deny: rowanProjectService isCurrent.
+	self projectsPresenter setCurrentProject.
+	self assert: rowanProjectService displayName equals: '*Rowan'.
+	self assert: rowanProjectService isCurrent.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+
+	self projectsPresenter unsetCurrentProject.
+	self assert: rowanProjectService displayName equals: 'Rowan'.
+	self deny: rowanProjectService isCurrent
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInstance [
 
 	self
@@ -862,6 +936,82 @@ JadeiteForPharoBrowserTestCase >> test_twoBrowsersAddSameCategoryToClassAndInsta
 		assert: secondPresenter categoryListPresenter selectedItem
 		equals: 'fnoodle';
 		assert: (self categoryListPresenter list includes: 'fnoodle')
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_unsetCurrentPackage [
+
+	| servicesProjectService servicesPackageService |
+	self projectsPresenter unsetCurrentProject.
+	self assert: self projectListPresenter list notEmpty.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	servicesProjectService := self projectListPresenter selectedItem.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent.
+	self
+		selectServiceNamed: 'Rowan-Services-Core'
+		in: self packageListPresenter.
+	servicesPackageService := self packageListPresenter selectedItem.
+	self
+		assert: servicesPackageService displayName
+		equals: 'Rowan-Services-Core'.
+	self deny: servicesPackageService isCurrent.
+
+	self projectsPresenter setCurrentPackage.
+
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+	self
+		assert: servicesPackageService displayName
+		equals: '*Rowan-Services-Core'.
+	self assert: servicesPackageService isCurrent.
+
+	self projectsPresenter unsetCurrentPackage.
+	self
+		assert: servicesPackageService displayName
+		equals: 'Rowan-Services-Core'.
+	self deny: servicesPackageService isCurrent.
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+
+	self projectsPresenter unsetCurrentProject.
+	self
+		assert: servicesProjectService displayName
+		equals: 'RowanClientServices'.
+	self deny: servicesProjectService isCurrent
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_unsetCurrentProject [
+
+	| servicesProjectService |
+	self projectsPresenter unsetCurrentProject.
+	self projectListPresenter items do: [ :projectService |
+		self deny: (projectService displayName includes: $*).
+		self deny: projectService isCurrent ].
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+
+	self projectsPresenter setCurrentProject.
+	servicesProjectService := self projectListPresenter selectedItem.
+	self
+		assert: servicesProjectService displayName
+		equals: '*RowanClientServices'.
+	self assert: servicesProjectService isCurrent.
+
+	self projectsPresenter unsetCurrentProject.
+	self projectListPresenter items do: [ :projectService |
+		self deny: (projectService displayName includes: $*).
+		self deny: projectService isCurrent ]
 ]
 
 { #category : 'tests' }
