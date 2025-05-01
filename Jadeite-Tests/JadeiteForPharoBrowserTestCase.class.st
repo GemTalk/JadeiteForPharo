@@ -113,6 +113,57 @@ JadeiteForPharoBrowserTestCase >> test_browseClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_browseInExistingBrowserTabLabel [
+
+	self
+		testsJadeiteForPharoIssue: #issue275
+		title:
+		'Used the new menu item Browse in existing browser from a method list ... and the new tab is named Projects and not the name of the selected package'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/275'.
+	JadeiteBrowser browserClass allInstances do: [ :browser |
+		self destroy: browser ].
+	projectsBrowser := nil.
+	self setupProjectBrowser.
+	self assert: projectsBrowser tabs pages size equals: 1.
+	self selectRowanSample1Test.
+	self selectMethodNamed: #testError.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanSample1Test'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError.
+	methodListBrowser := self projectsPresenter browseImplementors.
+	self assert: methodListBrowser window adapter widget isActive.
+	methodListBrowser methodListPresenter unselectAll.
+	methodListBrowser methodListPresenter selectIndex: 2.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem className
+		equals: 'SUnitTest'.
+
+	methodListBrowser browseMethodClassInExistingBrowser.
+
+	self assert: projectsBrowser window isTopWindow.
+	self assert: projectsBrowser tabs pages size equals: 2.
+	self assert: projectsBrowser tabs selectedPageIndex equals: 2.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'SUnitTest'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError.
+	self assert: projectsBrowser tabs selectedPage title equals: '2 SUnitTest'.
+	projectsBrowser tabs selectPageIndex: 1.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanSample1Test'.
+	self
+		assert: self methodListPresenter selectedItem selector
+		equals: #testError.
+	self assert: projectsBrowser tabs selectedPage title equals: '1 RowanSample1Test'.
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_browseProject [
 
 	| projectListPresenter service |

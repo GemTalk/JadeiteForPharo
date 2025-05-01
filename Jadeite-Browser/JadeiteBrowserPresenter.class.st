@@ -1067,7 +1067,8 @@ JadeiteBrowserPresenter >> editSaveClass [
 			updateAfterFindClass: self selectedClass
 			methodService: nil
 			onCompletion: [
-			classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ] ] ]
+				classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ].
+				self updateTabLabel ] ]
 			on: Error
 			do: [ :ex |
 			self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
@@ -2980,6 +2981,7 @@ JadeiteBrowserPresenter >> removeClass [
 				queryService hasResults ifTrue: [
 					classReferenceBrowser := self browseClassReferences:
 						                         classService name ].
+				self updateTabLabel.
 				self basicRemoveClass: classService onCompletion: [
 					queryService hasResults ifTrue: [
 						MessageBox notify: classService name

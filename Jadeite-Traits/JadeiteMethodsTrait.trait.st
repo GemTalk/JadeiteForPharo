@@ -395,7 +395,7 @@ JadeiteMethodsTrait >> browseMethodClassInExistingBrowser [
 		browserPresenter
 			updateAfterFindClass: classService
 			methodService: methodService
-			onCompletion: [  ] ]
+			onCompletion: [ browserPresenter updateTabLabel ] ]
 ]
 
 { #category : 'actions' }

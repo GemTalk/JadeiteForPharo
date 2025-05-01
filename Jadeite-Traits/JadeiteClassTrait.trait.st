@@ -69,18 +69,6 @@ JadeiteClassTrait >> browseClass [
 ]
 
 { #category : 'queries' }
-JadeiteClassTrait >> browseClassInExistingBrowser [
-
-	| browser |
-	browser := self parentPresenter existingBrowser.
-	browser openNewBrowserTab
-		updateAfterFindClass: self selectedClass
-		methodService: nil
-		onCompletion: [  ].
-	^ browser window activate
-]
-
-{ #category : 'queries' }
 JadeiteClassTrait >> browseClassReferences [
 
 	| presenter |
