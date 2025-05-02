@@ -141,6 +141,21 @@ JadeiteTestResource >> createRowanSample1Project [
 		onCompletion: []
 ]
 
+{ #category : 'projects creating' }
+JadeiteTestResource >> createRowanSample1ProjectWithEmpyClassCategory [
+	"Don't get RowanSample1 project from disk.
+	It's good not to rely on an external git project which can be 
+	changed anytime (unless necessary for the test)"
+
+	| testService |
+	testService := RowanTestService new.
+	testService command: #createRowanSample1ProjectWithEmpyClassCategory.
+	testService commandArgs: Array new.
+	self
+		issueCommand: testService
+		onCompletion: []
+]
+
 { #category : 'actions' }
 JadeiteTestResource >> destroy: visualThing [
 	visualThing ifNil:[^self]. 

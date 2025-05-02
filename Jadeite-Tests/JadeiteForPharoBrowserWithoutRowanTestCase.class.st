@@ -40,16 +40,22 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
 
 { #category : 'selection' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
-	"big assumption - RowanSample1 class will always be in RowanSample1 project"
+	"tests put the sample class in a few locations"
 
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: self dictionaryListPresenter.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
-			 name: 'Kernel';
+			 name: RowanClassCategoryService new nilCategoryDisplayName;
 			 substringIndex: 1;
 			 yourself).
+	self classCategoryPresenter selectedItem ifNil: [
+		self classCategoryPresenter selectItem:
+			(RowanClassCategoryService new
+				 name: 'Kernel';
+				 substringIndex: 1;
+				 yourself) ].
 	self classCategoryPresenter selectedItem ifNil: [
 		self classCategoryPresenter selectItem:
 			(RowanClassCategoryService new
@@ -73,11 +79,15 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1TestIn: browser 
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: browser dictionaryListPresenter.
+
+
+
 	browser classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
-			 name: RowanClassCategoryService new nilCategoryDisplayName;
+			 name: 'Kernel';
 			 substringIndex: 1;
 			 yourself).
+
 	browser classCategoryPresenter selectedItem ifNil: [
 		browser classCategoryPresenter selectItem:
 			(RowanClassCategoryService new
@@ -265,21 +275,19 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassWithNilClassCategory
 	"When selecting a class, don't reset the class category
 	selection to the full class category path."
 
-	self jadeiteTestResourceClass current createRowanSample1Project.
+	self jadeiteTestResourceClass current
+		createRowanSample1ProjectWithEmpyClassCategory.
 	self projectsPresenter findClassNamed: 'RowanSample1'.
 	self
-		assert: self classCategoryPresenter roots first name
-		equals: 'no class category'.
+		assert: self classCategoryPresenter roots last name
+		equals: RowanClassCategoryService new nilCategoryDisplayName.
 	self
 		assert: self classCategoryPresenter selectedItem name
 		equals: RowanClassCategoryService new nilCategoryDisplayName.
-	self assert: self classListPresenter items size equals: 2.
+	self assert: self classListPresenter items size equals: 1.
 	self
 		assert: self classListPresenter items first name
 		equals: 'RowanSample1'.
-	self
-		assert: self classListPresenter items second name
-		equals: 'RowanSample1Test'.
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanSample1'
@@ -325,12 +333,13 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	"When selecting a class, don't reset the class category
 	selection to the full class category path."
 
-	self jadeiteTestResourceClass current createRowanSample1Project.
+	self jadeiteTestResourceClass current
+		createRowanSample1ProjectWithEmpyClassCategory.
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: self dictionaryListPresenter.
-	self assert:
-		self classCategoryPresenter roots first name = 'no class category'.
+	self assert: self classCategoryPresenter roots last name
+		= RowanClassCategoryService new nilCategoryDisplayName.
 	self assert: self classListPresenter items size equals: 0.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
@@ -340,13 +349,10 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	self
 		assert: self classCategoryPresenter selectedItem name
 		equals: RowanClassCategoryService new nilCategoryDisplayName.
-	self assert: self classListPresenter items size equals: 2.
+	self assert: self classListPresenter items size equals: 1.
 	self
 		assert: self classListPresenter items first name
-		equals: 'RowanSample1'.
-	self
-		assert: self classListPresenter items second name
-		equals: 'RowanSample1Test'
+		equals: 'RowanSample1'
 ]
 
 { #category : 'tests' }
@@ -697,7 +703,11 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_twoBrowsersAddSameCategoryToC
 	self
 		testsIssue: #issue418
 		withTitle:
-			'Navigating and category creation in class hiearchy view can''t keep class side/instance side straight';
+		'Navigating and category creation in class hiearchy view can''t keep class side/instance side straight'.
+
+	self jadeiteTestResourceClass current
+		createRowanSample1ProjectWithEmpyClassCategory.
+	self
 		selectRowanSample1Test;
 		selectHierarchyTab;
 		openSecondBrowser.
