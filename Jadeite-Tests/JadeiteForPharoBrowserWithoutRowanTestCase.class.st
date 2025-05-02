@@ -47,16 +47,15 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
 		in: self dictionaryListPresenter.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
-			 name: RowanClassCategoryService new nilCategoryDisplayName;
+			 name: 'Kernel';
 			 substringIndex: 1;
 			 yourself).
 	self classCategoryPresenter selectedItem ifNil: [
-			self classCategoryPresenter selectItem:
-		(RowanClassCategoryService new
-			 name: 'RowanSample1-Core';
-			 substringIndex: 2;
-			 yourself).
-		  ].
+		self classCategoryPresenter selectItem:
+			(RowanClassCategoryService new
+				 name: 'RowanSample1-Core';
+				 substringIndex: 2;
+				 yourself) ].
 	self
 		selectServiceNamed: self sampleClassName
 		in: self classListPresenter

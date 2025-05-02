@@ -725,32 +725,33 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classCommentReset [
 JadeiteForPharoAbstractBrowserTestCase >> test_classCommentSave [
 	"also tests that abort restores original comment from class service"
 
-	| originalComment |
+	| comment |
 	self
 		testsJadeiteForPharoIssue: #issue49
 		title: 'Class Comment tab doesn''t work correctly'.
-	self ensureRowanSampleProjectsLoadedFromDisk.
-	self commitTransaction.
+	comment := 'test comment'.
+	self jadeiteTestResourceClass current createRowanSample1Project.
 	self selectRowanSample1Class.
 	self projectsPresenter selectClassCommentTab.
-	originalComment := self projectsPresenter selectedClass comment.
-	self
-		assert: self projectsPresenter classCommentPresenter text asString
-		equals: originalComment.
-	self projectsPresenter classCommentPresenter text: 'test comment'.
+	self projectsPresenter classCommentPresenter text: comment.
+	self projectsPresenter editSaveClassComment.
+	self commitTransaction.
+
+	self projectsPresenter classCommentPresenter text: 'new comment'.
 	self projectsPresenter editSaveClassComment.
 	self
 		assert: self projectsPresenter classCommentPresenter text asString
 		equals: self projectsPresenter selectedClass comment.
+
 	[
 	self abortTransaction.
 	self selectRowanSample1Class.
 	self
 		assert: self projectsPresenter classCommentPresenter text asString
-		equals: originalComment.
+		equals: comment.
 	self
 		assert: self projectsPresenter selectedClass comment
-		equals: originalComment ] ensure: [
+		equals: comment ] ensure: [
 		self jadeiteTestResourceClass current unloadSampleProject1.
 		self commitTransaction.
 		self ensureRowanSampleProjectsLoaded ]

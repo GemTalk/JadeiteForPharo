@@ -1083,12 +1083,9 @@ JadeiteBrowserPresenter >> editSaveClassComment [
 		command: #classComment:;
 		commandArgs:
 			(Array with: classCommentPresenter text asString trimBoth).
-	self issueCommand: classService onCompletion: [].
-	self refreshFromServer.
-	classCommentPresenter view isModified: false.
-	self todo: [
-		classCommentPresenter backcolor:
-			JadeiteTextStyles default colorForNoEdits ]
+	self
+		issueCommand: classService
+		onCompletion: [ classCommentPresenter view isModified: false ]
 ]
 
 { #category : 'as yet unclassified' }
