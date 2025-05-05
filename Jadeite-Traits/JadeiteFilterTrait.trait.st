@@ -16,25 +16,26 @@ JadeiteFilterTrait >> addMethodCategory [
 ]
 
 { #category : 'actions' }
-JadeiteFilterTrait >> basicRemoveInstVarNamed: instVar [
+JadeiteFilterTrait >> basicRemoveInstVarNamed: instVars [
 
 	| refs |
-	refs := self instVarReferences: instVar.
+	refs := self instVarReferences: instVars.
 	refs notEmpty
 		ifTrue: [
 			| shell |
 			(shell := JadeiteMethodListApplication showOnSession:
 				          self gciSession library)
 				methods: refs
-				selectingAnyMatch: instVar.
+				selectingAnyMatch: instVars.
 			shell updateCaptionFromSearchString:
-				'Instance Variable References for ' , '''' , instVar , ''''.
-			UIManager default confirm:
+				'Instance Variable References for ' , '''' , instVars printString
+				, ''''.
+			UIManager default alert:
 				'Selected instance var has references. Instance variable not removed.' ]
 		ifFalse: [
 			self selectedClass
-				command: #removeInstVar:;
-				commandArgs: (Array with: self variableListPresenter selectedItem).
+				command: #removeInstVars:;
+				commandArgs: (Array with: instVars).
 			RowanServiceUpdater current
 				issueCommand: self selectedClass
 				session: self gciSession
@@ -123,7 +124,7 @@ JadeiteFilterTrait >> browseInstVarReferences: instVarName in: className session
 
 	| shell refs |
 	instVarName ifNil: [ ^ nil ].
-	refs := self instVarReferences: instVarName.
+	refs := self instVarReferences: (Array with: instVarName).
 	(shell := JadeiteMethodListApplication showOnSession:
 		          self gciSession library)
 		methods: refs
@@ -247,34 +248,42 @@ JadeiteFilterTrait >> initializeVariableListMenu [
 ]
 
 { #category : 'accessing' }
-JadeiteFilterTrait >> instVarReferences: instVar [
+JadeiteFilterTrait >> instVarReferences: instVars [
 
 	| service refs |
 	refs := OrderedCollection new.
 	RowanServiceUpdater current critical: [
-		service := RowanQueryService
-			           command: #instVarReaders:in:
-			           withArgs:
-			           (Array with: instVar with: self selectedClass name).
-		RowanServiceUpdater current
-			issueCommand: service
-			session: self gciSession
-			onCompletion: [ refs addAll: service queryResults ].
-		service
-			command: #instVarWriters:in:;
-			commandArgs: (Array with: instVar with: self selectedClass name).
-		RowanServiceUpdater current
-			issueCommand: service
-			session: self gciSession
-			onCompletion: [ refs addAll: service queryResults ] ].
-	refs := refs asSet asSortedCollection: [:x :y | x className <= y className].
+		instVars do: [ :instVar |
+			service := RowanQueryService
+				           command: #instVarReaders:in:
+				           withArgs:
+				           (Array with: instVar with: self selectedClass name).
+			RowanServiceUpdater current
+				issueCommand: service
+				session: self gciSession
+				onCompletion: [ refs addAll: service queryResults ].
+			service
+				command: #instVarWriters:in:;
+				commandArgs: (Array with: instVar with: self selectedClass name).
+			RowanServiceUpdater current
+				issueCommand: service
+				session: self gciSession
+				onCompletion: [ refs addAll: service queryResults ] ] ].
+	refs := refs asSet asSortedCollection: [ :x :y |
+		        x className <= y className ].
 	^ refs
+]
+
+{ #category : 'testing' }
+JadeiteFilterTrait >> isOneVariableSelected [
+
+	^ self variableListPresenter selections size = 1
 ]
 
 { #category : 'testing' }
 JadeiteFilterTrait >> isVariableSelected [
 
-	^self variableListPresenter selections size = 1
+	^ self variableListPresenter selections notEmpty
 ]
 
 { #category : 'menus' }
@@ -320,33 +329,38 @@ JadeiteFilterTrait >> newVariableMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-			  group addItem: [ :item |
+			  group
+				  addItem: [ :item |
 					  item
 						  name: 'Add Accessors';
 						  action: [ self addVariableAccessors ];
-						  enabled: [ self isVariableSelected ] ] ];
+						  enabled: [ self isVariableSelected ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Add All Missing Accessors';
+						  action: [ self addMissingAccessors ] ] ];
 		  addGroup: [ :group |
 			  group
 				  addItem: [ :item |
 					  item
 						  name: 'Browse Inst Var References';
 						  action: [ self browseInstVarReferences ];
-						  enabled: [ self isVariableSelected ] ];
+						  enabled: [ self isOneVariableSelected ] ];
 				  addItem: [ :item |
 					  item
 						  name: 'Browse Inst Var Readers';
 						  action: [ self browseInstVarReaders ];
-						  enabled: [ self isVariableSelected ] ];
+						  enabled: [ self isOneVariableSelected ] ];
 				  addItem: [ :item |
 					  item
 						  name: 'Browse Inst Var Writers';
 						  action: [ self browseInstVarWriters ];
-						  enabled: [ self isVariableSelected ] ] ];
+						  enabled: [ self isOneVariableSelected ] ] ];
 		  addGroup: [ :group |
 			  group addItem: [ :item |
 				  item
-					  name: 'Remove Inst Var';
-					  action: [ self removeInstVar ];
+					  name: 'Remove Inst Vars ...';
+					  action: [ self removeInstVars ];
 					  enabled: [ self isVariableSelected ] ] ];
 		  yourself
 ]
@@ -360,16 +374,26 @@ JadeiteFilterTrait >> openMethodListOn: service selectingAnyMatch: string sessio
 ]
 
 { #category : 'actions' }
-JadeiteFilterTrait >> removeInstVar [
+JadeiteFilterTrait >> removeInstVars [
 
-	| instVar shouldRemove |
-	"pretty up display"
-	instVar := self variableListPresenter selectedItem.
-	shouldRemove := UIManager default confirm:
-		                'Really remove instance variable '
-		                , self variableListPresenter selectedItem , '?'.
+	| instVars shouldRemove ws |
+	ws := WriteStream on: String new.
+	ws nextPutAll: 'Really remove instance variable'.
+	instVars := self variableListPresenter selectedItems
+		            asSortedCollection.
+	instVars size > 1 ifTrue: [ ws nextPut: $s ].
+	ws
+		space;
+		nextPut: $-;
+		space.
+	instVars do: [ :instVar |
+		ws
+			nextPutAll: instVar;
+			space ].
+	ws nextPut: $?.
+	shouldRemove := UIManager default confirm: ws contents.
 	shouldRemove ifFalse: [ ^ self ].
-	self basicRemoveInstVarNamed: instVar
+	self basicRemoveInstVarNamed: instVars asOrderedCollection
 ]
 
 { #category : 'actions' }

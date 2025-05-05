@@ -13,7 +13,7 @@ Class {
 		'firstReferenceString'
 	],
 	#pools : [
-		'ScintillaConstants'
+		'AnObsoleteScintillaConstants'
 	],
 	#category : 'Jadeite-MethodBrowser',
 	#package : 'Jadeite-MethodBrowser'

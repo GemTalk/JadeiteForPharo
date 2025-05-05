@@ -612,19 +612,6 @@ JadeiteProjectBrowserTestCase >> test_addPackageReloadProject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	self
-		assert: (self primaryTestWindow class defaultAdditionalAccelerators includes: #(#insertIfFalse 'Ctrl+Shift+D')).
-	self
-		assert: (self primaryTestWindow class defaultAdditionalAccelerators includes: #(#insertIfTrue 'Ctrl+Shift+T')).
-	self assert: self projectsPresenter class defaultAdditionalAccelerators size equals: 3	"should fail if we add a new one"
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_allSpacesCategory [
 	self testsIssue: #issue724 withTitle: 'Add a method category with a name of only spaces, get errors (3.0.93-5)'.
 	self selectRowanSample1Class.

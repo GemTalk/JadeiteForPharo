@@ -12,13 +12,13 @@ Class {
 JadeiteConnectionApplication class >> menuCommandOn: aBuilder [
 	"Add a custom menu item to the world menu"
 
-	<worldMenu>
+	<worldMenu> 
 	(aBuilder item: #'Jadeite Launcher')
 		order: 4.0;
 		icon: nil;
 		parent: #Tools;
 		"This appears as the Library menu option for whatever reason"
-		keyText: 'J';
+		keyText: 'o, j';
 		"hot key doesn't work yet"help:
 			'Open a Jadeite Connections Launcher';
 		action: [ self openOnlyOneLauncher ]

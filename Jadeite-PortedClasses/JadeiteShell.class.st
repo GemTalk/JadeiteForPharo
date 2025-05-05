@@ -9,11 +9,6 @@ Class {
 	#package : 'Jadeite-PortedClasses'
 }
 
-{ #category : 'constants' }
-JadeiteShell class >> defaultAdditionalAccelerators [
-	^#(#(#raiseConsole 'Ctrl+F7'))
-]
-
 { #category : 'public' }
 JadeiteShell class >> icon [
 

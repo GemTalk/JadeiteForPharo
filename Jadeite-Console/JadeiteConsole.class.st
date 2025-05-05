@@ -53,13 +53,6 @@ JadeiteConsole class >> currentConsole: anObject [
 ]
 
 { #category : 'defaults' }
-JadeiteConsole class >> defaultAdditionalAccelerators [
-	"Private - Even though this is specified in the context menu in JadeiteTranscript, the accelerator key is not recognized"
-
-	^super defaultAdditionalAccelerators , #(#(#jadeExecute 'Ctrl+E'))
-]
-
-{ #category : 'defaults' }
 JadeiteConsole class >> defaultColumnWidths [
 
 	^ { 200. 100. 100. nil }

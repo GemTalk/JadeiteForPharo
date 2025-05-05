@@ -37,34 +37,6 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_abstractTestsShown [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserLowerTabsTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	self selectRowanSample1Class.
-	self selectServiceNamed: 'foo' in: self methodListPresenter.
-	self assert: (self projectsPresenter class defaultAdditionalAccelerators
-				includes: #(#insertIfFalse 'Ctrl+Shift+D')).
-	self assert: (self projectsPresenter class defaultAdditionalAccelerators
-				includes: #(#insertIfTrue 'Ctrl+Shift+T')).
-	self assert: self projectsPresenter class defaultAdditionalAccelerators size equals: 3.	"if a new accelerator gets added, fail test so it gets updated."
-	
-	[| command sourcePresenter |
-	sourcePresenter := self projectsPresenter methodSourcePresenter.
-	sourcePresenter topShell view buildCombinedAcceleratorTable.	"lazily done by Dolphin when view is engaged"
-	command := sourcePresenter topShell view combinedAcceleratorTable commands values
-				detect: [:ea | ea command = #insertIfFalse]
-				ifNone: [].
-	self denyIsNil: command.
-	command := sourcePresenter topShell view combinedAcceleratorTable commands values
-				detect: [:ea | ea command = #insertIfTrue]
-				ifNone: [].
-	self denyIsNil: command]
-			ensure: [self destroy: projectsBrowser]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_breakAtDisplaysOneTime [
 	"make sure to properly remove menu item before adding a new one based on caret position"
 

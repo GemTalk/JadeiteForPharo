@@ -403,33 +403,6 @@ JadeiteMethodListBrowserTestCase >> test_adHocContextInstanceSide [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	methodListBrowser := JadePresenter browseImplementorsOf: #test1 session: session.
-	self assert: (self methodListBrowserPresenter class defaultAdditionalAccelerators
-				includes: #(#insertIfFalse 'Ctrl+Shift+D')).
-	self assert: (self methodListBrowserPresenter class defaultAdditionalAccelerators
-				includes: #(#insertIfTrue 'Ctrl+Shift+T')).
-	self assert: self methodListBrowserPresenter class defaultAdditionalAccelerators size equals: 3.	"if a new accelerator gets added, fail test so it gets updated."
-	
-	[| command sourcePresenter |
-	sourcePresenter := self methodListBrowserPresenter methodSourcePresenter.
-	sourcePresenter topShell view buildCombinedAcceleratorTable.	"lazily done by Dolphin when view is engaged"
-	command := sourcePresenter topShell view combinedAcceleratorTable commands values
-				detect: [:ea | ea command = #insertIfFalse]
-				ifNone: [].
-	self denyIsNil: command.
-	command := sourcePresenter topShell view combinedAcceleratorTable commands values
-				detect: [:ea | ea command = #insertIfTrue]
-				ifNone: [].
-	self denyIsNil: command]
-			ensure: [self destroy: projectsBrowser]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_browseBreakpoints [
 	| methodService |
 	self testsIssue: #issue225 withTitle: 'nice to have a breakpoint browser'.
@@ -1275,38 +1248,6 @@ JadeiteMethodListBrowserTestCase >> test_firstReferenceRetained [
 JadeiteMethodListBrowserTestCase >> test_globalAdditionalAccelerators [
 	methodListBrowser := JadePresenter browseImplementorsOf: #size session: session.
 	self assert: (self primaryTestWindow additionalAccelerators includes: #(#raiseConsole 'Ctrl+F7'))
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_insertIfFalse [
-	methodListBrowser := JadePresenter browseImplementorsOf: #test1 session: session.
-	methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selectionRange: (1 to: 0).
-	methodListBrowser primaryPresenter insertIfFalse.
-	self
-		assert: (methodListBrowser primaryPresenter methodSourcePresenter documentPresenter value copyFrom: 1
-				to: 10)
-		equals: 'ifFalse:[]'.
-	self
-		assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selectionRange
-		equals: (10 to: 9).
-	self assert: (methodListBrowser primaryPresenter class defaultAdditionalAccelerators
-				includes: #(#insertIfFalse 'Ctrl+Shift+D'))
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_insertIfTrue [
-	methodListBrowser := JadePresenter browseImplementorsOf: #test1 session: session.
-	methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selectionRange: (1 to: 0).
-	methodListBrowser primaryPresenter insertIfTrue.
-	self
-		assert: (methodListBrowser primaryPresenter methodSourcePresenter documentPresenter value copyFrom: 1
-				to: 9)
-		equals: 'ifTrue:[]'.
-	self
-		assert: methodListBrowser primaryPresenter methodSourcePresenter documentPresenter selectionRange
-		equals: (9 to: 8).
-	self assert: (methodListBrowser primaryPresenter class defaultAdditionalAccelerators
-				includes: #(#insertIfTrue 'Ctrl+Shift+T'))
 ]
 
 { #category : 'as yet unclassified' }

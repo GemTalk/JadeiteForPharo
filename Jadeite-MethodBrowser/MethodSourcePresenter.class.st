@@ -12,11 +12,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-MethodSourcePresenter class >> defaultAdditionalAccelerators [
-	^super defaultAdditionalAccelerators , #(#(#reformatSource 'Ctrl+Shift+O') #(#jadeDebug 'Ctrl+B')  #(#editFind 'Ctrl+F'))
-]
-
-{ #category : 'as yet unclassified' }
 MethodSourcePresenter class >> publishedEventsOfInstances [
     
     	^super publishedEventsOfInstances

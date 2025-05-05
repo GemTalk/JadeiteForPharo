@@ -16,12 +16,6 @@ Class {
 	#package : 'Jadeite-SUnitBrowser'
 }
 
-{ #category : 'as yet unclassified' }
-JadeiteSUnitPresenter class >> defaultAdditionalAccelerators [
-
-	^super defaultAdditionalAccelerators , #(#(#debug 'Ctrl+Shift+B'))
-]
-
 { #category : 'accessing' }
 JadeiteSUnitPresenter >> activePresenter [
 	"only presenter is myself"

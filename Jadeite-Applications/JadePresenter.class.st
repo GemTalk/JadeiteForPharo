@@ -27,11 +27,6 @@ JadePresenter class >> areAbortCommitEnabled [
 		or: [self transactionMode == #manualBegin and: [self inTransaction]]
 ]
 
-{ #category : 'constants' }
-JadePresenter class >> defaultAdditionalAccelerators [
-	^#(#(#raiseConsole 'Ctrl+F7'))
-]
-
 { #category : 'public' }
 JadePresenter class >> defaultMethodTemplate [
 

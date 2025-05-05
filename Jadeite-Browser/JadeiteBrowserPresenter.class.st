@@ -58,11 +58,6 @@ JadeiteBrowserPresenter class >> browseSendersOf: string session: session [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter class >> defaultAdditionalAccelerators [
-	^super defaultAdditionalAccelerators, #(#(#insertIfFalse 'Ctrl+Shift+D') #(#insertIfTrue 'Ctrl+Shift+T'))
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter class >> downArrowIcon [
 	^Icon fromFile: 'icons\DownArrow.ico'
 
@@ -195,6 +190,15 @@ JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
 							self classHierarchyPresenter selection selectedItem ];
 				enabled: [
 					self isClassSelected and: [ self selectedClass name ~= 'Object' ] ] ] ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> addMissingAccessors [
+
+	| classService |
+	classService := self selectedClass.
+	classService command: #addMissingAccessors.
+	self issueCommand: classService onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1608,7 +1612,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
-	variableListPresenter := JadeiteListPresenter new.
+	variableListPresenter := JadeiteListPresenter new beMultipleSelection.
 	packageMethodListPresenter := JadeiteListPresenter new
 		                              displayBold: [ :categoryString |
 			                              self selectedClass
