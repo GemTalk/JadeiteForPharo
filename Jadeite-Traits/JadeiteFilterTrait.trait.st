@@ -16,7 +16,7 @@ JadeiteFilterTrait >> addMethodCategory [
 ]
 
 { #category : 'actions' }
-JadeiteFilterTrait >> basicRemoveInstVarNamed: instVars [
+JadeiteFilterTrait >> basicRemoveInstVarsNamed: instVars [
 
 	| refs |
 	refs := self instVarReferences: instVars.
@@ -39,15 +39,16 @@ JadeiteFilterTrait >> basicRemoveInstVarNamed: instVars [
 			RowanServiceUpdater current
 				issueCommand: self selectedClass
 				session: self gciSession
-				onCompletion: [ "pretty up display"
-					RowanServiceUpdater current critical: [
-						| index |
-						index := self classListPresenter selection selectedIndex.
-						self packageListPresenter selectItem:
-							self packageListPresenter selectedItem.
-						self classListPresenter selection selectIndex: index.
-						self selectClassDefinitionTab.
-						self selectVariableTab ] ] ]
+				onCompletion: [ :classService |
+					self suspendSelectionEvents.
+					[
+					| index |
+					index := self classListPresenter selection selectedIndex.
+					self packageListPresenter selectItem:
+						self packageListPresenter selectedItem.
+					self classListPresenter selection selectIndex: index.
+					self selectClassDefinitionTab.
+					self selectVariableTab ] ensure: [ self resumeSelectionEvents ] ] ]
 ]
 
 { #category : 'actions' }
@@ -394,7 +395,7 @@ JadeiteFilterTrait >> removeInstVars [
 	ws nextPut: $?.
 	shouldRemove := UIManager default confirm: ws contents.
 	shouldRemove ifFalse: [ ^ self ].
-	self basicRemoveInstVarNamed: instVars asOrderedCollection
+	self basicRemoveInstVarsNamed: instVars asOrderedCollection
 ]
 
 { #category : 'actions' }

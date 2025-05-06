@@ -80,10 +80,10 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 	super connectPresenters.
 	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
 		:selection | self updateClassCategoriesFor: selection selectedItem ].
-	classCategoryPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
-		:selection |
-		self updateClassesForClassCategory: selection selectedItem.
-		self updateClassDefPresenter ]
+	classCategoryPresenter whenSelectionChangedDo: [ :selection |
+		selectionEventsSuspended ifFalse: [
+			self updateClassesForClassCategory: selection selectedItem.
+			self updateClassDefPresenter ] ]
 ]
 
 { #category : 'initialization' }
@@ -161,7 +161,8 @@ JadeiteBrowserPresenterWithoutRowan >> initializeFilterTabs: methodPanedLayout [
 	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
-	variableListPresenter := JadeiteListPresenter newFor: self.
+	variableListPresenter := (JadeiteListPresenter newFor: self)
+		                         beMultipleSelection.
 	self initializeVariableListMenu.
 	categoryPage := JadeiteNotebookPage
 		                title: 'Category'
