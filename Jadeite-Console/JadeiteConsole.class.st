@@ -917,11 +917,6 @@ JadeiteConsole >> shouldAskToCommitOnLogout [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> showPackageGroups [
-	^JadePresenter showPackageGroups
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> showPackageList [
 	^JadePresenter showPackageList
 ]
@@ -931,17 +926,6 @@ JadeiteConsole >> themeChanged [
 	"do any repair work from lousy pharo theme transitioning"
 
 	self adapter applyStyle
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> togglePackageGroups [
-	JadePresenter packageGroupsVisible
-		ifTrue: 
-			[JadePresenter packageGroupsVisible: false.
-			JadePresenter hidePackageGroups]
-		ifFalse: 
-			[JadePresenter packageGroupsVisible: true.
-			JadePresenter showPackageGroups]
 ]
 
 { #category : 'as yet unclassified' }

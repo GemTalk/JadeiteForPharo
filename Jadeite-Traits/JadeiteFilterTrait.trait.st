@@ -338,7 +338,8 @@ JadeiteFilterTrait >> newVariableMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Add All Missing Accessors';
-						  action: [ self addMissingAccessors ] ] ];
+						  action: [ self addMissingAccessors ];
+						  enabled: [ self selectedClass notNil ] ] ];
 		  addGroup: [ :group |
 			  group
 				  addItem: [ :item |

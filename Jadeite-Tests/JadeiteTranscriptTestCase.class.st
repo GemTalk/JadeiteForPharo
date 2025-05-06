@@ -877,27 +877,6 @@ JadeiteTranscriptTestCase >> test_openServerFile [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteTranscriptTestCase >> test_packageGroupsVisibility [
-	| packageGroupsWereVisible |
-	self testsIssue: #issue887
-		withTitle: '(Oscar V3.2) consider having the Preferences>>Package list visible menu apply to all tabs in a browser'.
-	self openProjectBrowser.
-	self selectRowanSample1Test.
-	packageGroupsWereVisible := JadePresenter packageGroupsVisible.
-	
-	[JadePresenter packageGroupsVisible
-		ifTrue: 
-			[self assert: self projectsPresenter packageGroupPresenter view isWindowVisible.
-			transcript togglePackageGroups.
-			self deny: self projectsPresenter packageGroupPresenter view isWindowVisible]
-		ifFalse: 
-			[self deny: self projectsPresenter packageGroupPresenter view isWindowVisible.
-			transcript togglePackageGroups.
-			self assert: self projectsPresenter packageGroupPresenter view isWindowVisible]]
-			ensure: [JadePresenter packageGroupsVisible: packageGroupsWereVisible]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteTranscriptTestCase >> test_packageListVisibility [
 	| packageListWasVisible |
 	self testsIssue: #issue887

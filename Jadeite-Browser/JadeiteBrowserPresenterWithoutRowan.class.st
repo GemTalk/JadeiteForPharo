@@ -78,13 +78,12 @@ JadeiteBrowserPresenterWithoutRowan >> connectPackageDictionaryPresenters [
 JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
-	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		selectionEventsSuspended ifFalse: [
-			self updateClassCategoriesFor: selection selectedItem ] ].
-	classCategoryPresenter whenSelectionChangedDo: [ :selection |
-		selectionEventsSuspended ifFalse: [
-			self updateClassesForClassCategory: selection selectedItem.
-			self updateClassDefPresenter ] ]
+	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		:selection | self updateClassCategoriesFor: selection selectedItem ].
+	classCategoryPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		:selection |
+		self updateClassesForClassCategory: selection selectedItem.
+		self updateClassDefPresenter ]
 ]
 
 { #category : 'initialization' }
@@ -143,8 +142,9 @@ JadeiteBrowserPresenterWithoutRowan >> initializeDictionaryTabIn: panedPresenter
 
 	| dictionaryListPage |
 	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
-	packageListPresenter := JadeiteListPresenter new.
-	dictionaryListPresenter := JadeiteListPresenter newNameSortedList
+	packageListPresenter := JadeiteListPresenter newFor: self.
+	dictionaryListPresenter := (JadeiteListPresenter
+		                            newNameSortedListFor: self)
 		                           contextMenu: self newDictionaryMenu.
 	dictionaryListPage := JadeiteNotebookPage
 		                      title: 'Dictionary'
@@ -161,7 +161,7 @@ JadeiteBrowserPresenterWithoutRowan >> initializeFilterTabs: methodPanedLayout [
 	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
-	variableListPresenter := JadeiteListPresenter new.
+	variableListPresenter := JadeiteListPresenter newFor: self.
 	self initializeVariableListMenu.
 	categoryPage := JadeiteNotebookPage
 		                title: 'Category'
@@ -215,7 +215,6 @@ JadeiteBrowserPresenterWithoutRowan >> initializePresenters [
 
 	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
-	packageGroupPresenter := JadeiteListPresenter new.
 	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ].
 	projectListPresenter := JadeiteListPresenter new. "may be able to remove"
 ]

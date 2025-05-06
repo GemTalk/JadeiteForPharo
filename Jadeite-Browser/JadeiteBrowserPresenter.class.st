@@ -9,12 +9,10 @@ Class {
 		'search',
 		'previousTabViewArrangement',
 		'previousTopViewArrangement',
-		'packageGroupPresenter',
 		'componentPackageContainer',
 		'packageDictionaryContainer',
 		'packageMethodListPresenter',
 		'projectListContainer',
-		'packageGroupsContainer',
 		'classContainer',
 		'projectInfoList',
 		'addPackagePresenter',
@@ -261,6 +259,12 @@ JadeiteBrowserPresenter >> addVariableAccessors [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> additionalAccelerators [
 	^super additionalAccelerators , #(#(#insertIfFalse 'Ctrl+Shift+D') #(#insertIfTrue 'Ctrl+Shift+T'))
+]
+
+{ #category : 'testing' }
+JadeiteBrowserPresenter >> areSelectionEventsSuspended [
+
+	^ selectionEventsSuspended
 ]
 
 { #category : 'accessing' }
@@ -741,11 +745,10 @@ JadeiteBrowserPresenter >> connectCancelActions [
 JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
-		whenSelectionChangedDo: [ :selection |
-			selectionEventsSuspended ifFalse: [
-					selection selectedItem ifNotNil: [
-							self classSelected: self selectedClass ] ] ];
-		whenNoneSelectedDo: [ self clearMethodLists ].
+		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
+			selection selectedItem ifNotNil: [
+					self classSelected: self selectedClass ] ];
+		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
 			RowanServiceUpdater current critical: [
@@ -795,10 +798,9 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 
 	packageListPresenter
-		whenSelectionChangedDo: [ :selection |
-			selectionEventsSuspended ifFalse: [
-					RowanServiceUpdater current critical: [ self updatePackage ] ] ];
-		whenNoneSelectedDo: [ self clearMethodLists ].
+		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
+			RowanServiceUpdater current critical: [ self updatePackage ] ];
+		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [
 			self classListPresenter clear.
@@ -808,8 +810,8 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 				ifTrue: [ self updateDictionaries ]
 				ifFalse: [ self updateProjectOnCompletion: [ self updatePackage ] ].
 			self updateClassesOnCompletion: [ self resetClassExtras ] ] ].
-	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		selectionEventsSuspended ifFalse: [ self updateDictionary ] ]
+	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		self updateDictionary ]
 ]
 
 { #category : 'initialization' }
@@ -835,10 +837,9 @@ JadeiteBrowserPresenter >> connectPresenters [
 JadeiteBrowserPresenter >> connectProjectListPresenter [
 
 	projectListPresenter
-		whenSelectionChangedDo: [ :selection |
-			selectionEventsSuspended ifFalse: [
-					self updateProjectOnCompletion: [  ] ] ];
-		whenNoneSelectedDo: [ self clearMethodLists ]
+		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
+			self updateProjectOnCompletion: [  ] ];
+		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1426,15 +1427,6 @@ JadeiteBrowserPresenter >> hasMethods [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> hidePackageGroups [
-	componentPackageContainer view arrangement: 1/5.
-	packageDictionaryContainer view arrangement: 100. 
-	projectListContainer view arrangement: 1/5. 
-	classContainer view arrangement: 1/5. 
-	packageGroupPresenter view creationParentView hide
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> hidePackageList [
 	componentPackageContainer view arrangement: 1 / 6.
 	packageDictionaryContainer view hide
@@ -1476,7 +1468,7 @@ JadeiteBrowserPresenter >> initialize [
 JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 
 	| listPresenter |
-	listPresenter := JadeiteListPresenter new.
+	listPresenter := JadeiteListPresenter newFor: self.
 	^ listPresenter beMultipleSelection
 		  dropEnabled: true;
 		  displayColor: [ :jadeiteCategory |
@@ -1566,7 +1558,8 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 
 	| classListPage |
 	classListHierarchyTabs := self instantiate: JadeiteNotebookPresenter.
-	classListPresenter := JadeiteListPresenter newNameSortedList
+	classListPresenter := (JadeiteListPresenter newNameSortedListFor:
+			                       self)
 		                      wantsDrop: [ :transfer |
 			                      self jadeiteWantsDrop: transfer ];
 		                      displayIcon: [ :classService |
@@ -1612,7 +1605,8 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	methodFilterTabs := self instantiate: JadeiteNotebookPresenter.
 	categoryListPresenter := self initializeCategoryListPresenter.
 	self initializeCategoryListMenu.
-	variableListPresenter := JadeiteListPresenter new beMultipleSelection.
+	variableListPresenter := (JadeiteListPresenter newFor: self)
+		                         beMultipleSelection.
 	packageMethodListPresenter := JadeiteListPresenter new
 		                              displayBold: [ :categoryString |
 			                              self selectedClass
@@ -1667,7 +1661,7 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	| methodsBox radioButtonBox |
 	methodsBox := SpBoxLayout newVertical.
 	self initializeMethodListHeader: methodsBox.
-	methodListPresenter := JadeiteListPresenter new
+	methodListPresenter := (JadeiteListPresenter newFor: self)
 		                       display: #selector;
 		                       beMultipleSelection;
 		                       displayColor: [ :methodService |
@@ -1750,7 +1744,8 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 
 	| packageListPage dictionaryListPage |
 	packageDictionaryTabs := self instantiate: JadeiteNotebookPresenter.
-	packageListPresenter := JadeiteListPresenter newNameSortedList
+	packageListPresenter := (JadeiteListPresenter newNameSortedListFor:
+			                         self)
 		                        wantsDrop: [ :transfer |
 			                        self jadeiteWantsDrop: transfer ];
 		                        display: [ :packageService |
@@ -1765,7 +1760,8 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 		                   provider: [ packageListPresenter ].
 	packageDictionaryTabs addPage: packageListPage.
 	self initializePackageMenu.
-	dictionaryListPresenter := JadeiteListPresenter newNameSortedList
+	dictionaryListPresenter := (JadeiteListPresenter
+		                            newNameSortedListFor: self)
 		                           contextMenu: self newDictionaryMenu.
 	dictionaryListPage := JadeiteNotebookPage
 		                      title: 'Dictionary'
@@ -1809,14 +1805,13 @@ JadeiteBrowserPresenter >> initializePresenters [
 	panedLayout4 add: methodLayout.
 	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
-	packageGroupPresenter := JadeiteListPresenter new.
 	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ]
 ]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 
-	projectListPresenter := JadeiteListPresenter new
+	projectListPresenter := (JadeiteListPresenter newFor: self)
 		                        display: [ :projectService |
 			                        projectService displayName ];
 		                        displayBold: [ :projectService |
@@ -2404,12 +2399,6 @@ JadeiteBrowserPresenter >> onDropOnPackageList: aSession [
 	SessionManager current pause
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> onViewClosed [
-	super onViewClosed.
-	RowanServiceUpdater current removeEventsTriggeredFor: packageGroupPresenter
-]
-
 { #category : 'actions' }
 JadeiteBrowserPresenter >> openBrowser [
 
@@ -2433,11 +2422,6 @@ JadeiteBrowserPresenter >> packageDictionaryCards [
 	"for testing"
 
 	^packageDictionaryCards
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> packageGroupPresenter [
-	^packageGroupPresenter
 ]
 
 { #category : 'accessing' }
@@ -3645,15 +3629,6 @@ JadeiteBrowserPresenter >> showMethodRecompileCompilationError: gsArgs [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> showPackageGroups [
-	componentPackageContainer view arrangement: 1/4.
-	packageDictionaryContainer view arrangement: 0.5. 
-	projectListContainer view arrangement: 3/20. 
-	classContainer view arrangement: 1/5. 
-	packageGroupPresenter view creationParentView show
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> showPackageList [
 	componentPackageContainer view arrangement: 1 / 3.
 	packageDictionaryContainer view show.
@@ -3800,17 +3775,6 @@ JadeiteBrowserPresenter >> textTabChanged [
 	textAreaTabs currentCard name = 'sunit'
 		ifTrue: [sunitPresenter methodListPresenter setFocus	"to ensure sunit bar is enabled"].
 	self updateMenuBar]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> togglePackageGroupsColumn [
-	packageGroupPresenter view creationParentView isWindowVisible
-		ifTrue: 
-			[JadePresenter packageGroupsVisible: false.
-			JadePresenter hidePackageGroups]
-		ifFalse: 
-			[JadePresenter packageGroupsVisible: true.
-			JadePresenter showPackageGroups]
 ]
 
 { #category : 'as yet unclassified' }

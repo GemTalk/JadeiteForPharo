@@ -23,16 +23,6 @@ RowanPackageGroupService >> allPackageGroupForProjectDefinition: projectDef [
 	self issueCommand: self session: session
 ]
 
-{ #category : 'public' }
-RowanPackageGroupService >> componentPackagesUpdate: presenter browser: browser [
-	wasUpdated ifFalse:[^self].
-	packageServices isEmpty ifTrue:[^self]. 
-	self
-		packagesUpdate: presenter
-		browser: browser
-		parentPresenter: browser packageGroupPresenter
-]
-
 { #category : 'accessing' }
 RowanPackageGroupService >> condition [
 	^condition

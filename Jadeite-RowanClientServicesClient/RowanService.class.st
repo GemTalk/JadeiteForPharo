@@ -597,24 +597,14 @@ RowanService >> packageServices [
 { #category : 'public' }
 RowanService >> packagesUpdate: presenter browser: browser parentPresenter: parentPresenter [
 
-	| packageServices selectedComponentPackages |
+	| packageServices |
 	(presenter class canUnderstand: #list) ifFalse: [ ^ self ].
 	presenter list isEmpty ifTrue: [
 		self initializePresenterList: presenter ].
 	parentPresenter selectedItems
 		detect: [ :service | service name = self name ]
 		ifNone: [ ^ self ].
-	self todo: [
-		selectedComponentPackages := (browser packageGroupPresenter
-			                              selectionIfNone: [  ])
-			                             ifNil: [ self packageServices ]
-			                             ifNotNil: [ :componentService |
-			                             componentService packageServices ] ].
-	packageServices := selectedComponentPackages
-		                   ifNil: [ self packageServices ]
-		                   ifNotNil: [
-		                   self packageServices intersection:
-			                   selectedComponentPackages ].
+	packageServices := self packageServices.
 	self
 		updateList: presenter
 		whilePreservingSelections: packageServices

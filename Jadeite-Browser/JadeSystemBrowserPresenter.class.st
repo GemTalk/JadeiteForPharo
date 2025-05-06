@@ -429,36 +429,6 @@ JadeSystemBrowserPresenter >> editUndo [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> fileOutDictionary [
-
-	| dictionaryName path string file index |
-	MessageBox notify: 'Filein/fileout are not Rowan-ready in this version'
-		caption: 'Filein/fileout notification'.
-	true ifTrue:[^self].
-	dictionaryName :=  dictionaryListPresenter selection key.
-	path := FileSaveDialog new
-		caption: 'File Out ' , dictionaryName;
-		fileTypes: self fileTypes;
-		defaultExtension: self defaultFileExtension;
-		value: dictionaryName , '.gs';
-		overwritePrompt;
-		showModal.
-	path isNil ifTrue: [^self].
-	string := environment printString , ' fileOutDictionary' , Character tab asString , dictionaryName.
-	string := self gciSession 
-		serverPerform: #'systemBrowser:' 
-		with: string.
-	index := string indexOf: Character lf.
-	file := FileStream write: path.
-	[
-		file nextPutAll: (string copyFrom: index + 1 to: string size).
-	] ensure: [
-		file close.
-	].
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> fileOutMethod [
 
 	| name path myReadStream writeStream |

@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteListPresenter',
 	#superclass : 'SpListPresenter',
+	#instVars : [
+		'browser'
+	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
@@ -12,10 +15,29 @@ JadeiteListPresenter class >> adapterName [
 ]
 
 { #category : 'instance creation' }
+JadeiteListPresenter class >> newFor: aBrowser [
+
+	| inst |
+	inst := super new.
+	inst browser: aBrowser.
+	^ inst
+]
+
+{ #category : 'instance creation' }
 JadeiteListPresenter class >> newNameSortedList [
 
 	| inst |
 	inst := self new
+		        display: [ :m | m displayString ];
+		        sortBlock: [ :x :y | x name < y name ].
+	^ inst
+]
+
+{ #category : 'instance creation' }
+JadeiteListPresenter class >> newNameSortedListFor: aBrowser [
+
+	| inst |
+	inst := (self newFor: aBrowser)
 		        display: [ :m | m displayString ];
 		        sortBlock: [ :x :y | x name < y name ].
 	^ inst
@@ -32,6 +54,18 @@ JadeiteListPresenter >> acceptDrop [
 JadeiteListPresenter >> beSorted [
 
 	model beSorted
+]
+
+{ #category : 'accessing' }
+JadeiteListPresenter >> browser [
+
+	^ browser
+]
+
+{ #category : 'accessing' }
+JadeiteListPresenter >> browser: anObject [
+
+	browser := anObject
 ]
 
 { #category : 'testing' }
@@ -197,6 +231,21 @@ JadeiteListPresenter >> sortBlock: aBlock [
 { #category : 'api' }
 JadeiteListPresenter >> update [
 	self refresh.	
+]
+
+{ #category : 'events' }
+JadeiteListPresenter >> whenNoneSelectedAndEventsNotSuspendedDo: aBlock [
+
+	^ super whenNoneSelectedDo: [
+		  browser areSelectionEventsSuspended ifFalse: [ aBlock value ] ]
+]
+
+{ #category : 'events' }
+JadeiteListPresenter >> whenSelectionChangedAndEventsNotSuspendedDo: aBlock [
+
+	^ super whenSelectionChangedDo: [ :selection |
+		  browser areSelectionEventsSuspended ifFalse: [
+			  aBlock cull: selection ] ]
 ]
 
 { #category : 'private - utilities' }

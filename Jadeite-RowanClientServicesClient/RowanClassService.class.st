@@ -460,6 +460,7 @@ RowanClassService >> filterUpdate: presenter browser: browser [
 { #category : 'public' }
 RowanClassService >> filterVariableUpdate: presenter browser: browser [
 
+	browser window isOpen ifFalse: [ ^ self ].
 	browser selectedClass ifNil: [ ^ self ].
 	browser isVariablesTabSelected ifFalse: [ ^ self ].
 	browser selectedClass name asString = name asString ifFalse: [
