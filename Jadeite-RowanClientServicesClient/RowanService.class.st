@@ -771,7 +771,7 @@ RowanService >> replicateFrom: newService [
 RowanService >> returnedServices [
 
 	"we return ourselves in RSR + updates"
-	^(Array with: self), updates
+	^(Array with: self), (updates ifNil: [ Array new ])
 ]
 
 { #category : 'Init / Release' }

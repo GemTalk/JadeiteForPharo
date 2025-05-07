@@ -142,7 +142,13 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 				 icon: (self iconNamed: #smallPaint);
 				 help: 'open SUnit Browser and Test Runner';
 				 action: [ self openSUnitBrowser ];
-				 yourself).
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Process Browser';
+				 icon: (self iconNamed: #processBrowser);
+				 help: 'open browser on GemStone processes';
+				 action: [ self openProcessBrowser ] yourself).
+
 	^ toolbar
 ]
 
@@ -163,6 +169,25 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 	| windowCaption |
 	windowCaption := 'Jadeite Git Commit Ids'.
 	^ self gitShaWorkspaceClientAndServer
+]
+
+{ #category : 'actions' }
+JadeiteToolbarTrait >> openProcessBrowser [
+
+	| answeringService inst |
+	self isConnected
+		ifTrue: [
+			answeringService := RowanAnsweringServiceClient new command:
+				                    #allProcesses.
+			RowanServiceUpdater current
+				issueCommand: answeringService
+				session: self gciSession
+				onCompletion: [
+					inst := JadeiteProcessBrowser
+						        showOnSession: self gciSession
+						        process: answeringService answer.
+					inst owner: self ] ]
+		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
 { #category : 'actions' }

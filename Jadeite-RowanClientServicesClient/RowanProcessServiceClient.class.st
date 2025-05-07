@@ -3,7 +3,9 @@ Class {
 	#superclass : 'RowanProcessService',
 	#instVars : [
 		'answer',
-		'debugger'
+		'debugger',
+		'inCommand',
+		'serviceCompletionBlock'
 	],
 	#classVars : [
 		'DebuggedProcessServices'
@@ -37,6 +39,18 @@ RowanProcessServiceClient >> debugger [
 	^ debugger
 ]
 
+{ #category : 'accessing' }
+RowanProcessServiceClient >> inCommand [
+
+	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]
+]
+
+{ #category : 'accessing' }
+RowanProcessServiceClient >> inCommand: anObject [
+
+	inCommand := anObject
+]
+
 { #category : 'debugger' }
 RowanProcessServiceClient >> openDebugger [
 
@@ -67,6 +81,18 @@ RowanProcessServiceClient >> openDebugger [
 	WorldMorph doOneCycle. "make sure tests get a gui cycle"
 	activeProcess suspend.
 	^ debugger answer
+]
+
+{ #category : 'accessing' }
+RowanProcessServiceClient >> serviceCompletionBlock [
+
+	^ serviceCompletionBlock
+]
+
+{ #category : 'accessing' }
+RowanProcessServiceClient >> serviceCompletionBlock: anObject [
+
+	serviceCompletionBlock := anObject
 ]
 
 { #category : 'debugger' }

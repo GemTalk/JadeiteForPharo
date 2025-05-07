@@ -103,11 +103,15 @@ RowanProcessService >> printFullStackOn: aStream [
 
 { #category : 'printing' }
 RowanProcessService >> printOn: aStream [
+
 	aStream
 		nextPutAll: 'RowanProcessService(';
 		print: oop;
 		nextPutAll: ')';
-		yourself
+		space;
+		nextPutAll: status; 
+		space; 
+		nextPutAll: (name ifNil: [ String new ])
 ]
 
 { #category : 'printing' }
@@ -128,12 +132,34 @@ RowanProcessService >> stack [
 	^frames ifNil: [Array new] ifNotNil: [frames collect: [:each | each printString]]
 ]
 
+{ #category : 'accessing' }
+RowanProcessService >> status [
+
+	^ status
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> status: anObject [
+
+	status := anObject
+]
+
 { #category : 'operations' }
 RowanProcessService >> terminate [
-	"temporary until debugger is rewritten"
 
-	"During logout, it's possible that the session may no longer be a session"
+	self command: #terminate.
+	RowanServiceUpdater current
+		issueCommand: self
+		session: GciSession current
+		onCompletion: [  ]
+]
 
-	(GciSession current isKindOf: GciSession) ifFalse: [^self].
-	(GsProcess session: GciSession current oopType: (GciSession current oopTypeWithOop: oop)) terminate
+{ #category : 'operations' }
+RowanProcessService >> terminateOnCompletion: completionBlock [
+
+	self command: #terminate.
+	RowanServiceUpdater current
+		issueCommand: self
+		session: GciSession current
+		onCompletion: completionBlock
 ]

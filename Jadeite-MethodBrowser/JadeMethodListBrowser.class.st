@@ -6,22 +6,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeMethodListBrowser class >> showOnSession: aGciSession [
-
-	aGciSession hasServer ifFalse: [
-		MessageBox
-			warning: 'Server initialization failed at login.'
-			caption: 'Unable to Open Browser'.
-	].
-	^self new 
-		gciSession: aGciSession;
-		createView: JadeMethodListPresenter getJadeShellViewName;
-		showShell;
-		yourself.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodListBrowser >> defaultPresenterName [
 
 	^JadeMethodListPresenter getJadeShellViewName
