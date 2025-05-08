@@ -50,5 +50,8 @@ RowanPackageServiceClient >> serviceCompletionBlock: anObject [
 { #category : 'as yet unclassified' }
 RowanPackageServiceClient >> sortedClasses [
 
-	^ classes asSortedCollection: [ :x :y | x name < y name ]
+	^ classes
+		  ifNil: [ OrderedCollection new ]
+		  ifNotNil: [
+		  classes asSortedCollection: [ :x :y | x name < y name ] ]
 ]

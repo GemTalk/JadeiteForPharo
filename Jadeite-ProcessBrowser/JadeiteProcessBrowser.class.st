@@ -24,7 +24,8 @@ JadeiteProcessBrowser class >> showOnSession: aGciSession process: processList [
 	inst
 		gciSession: aGciSession;
 		initializeProcessList: processList;
-		application: JadeiteConsole currentConsole application.
+		application: JadeiteConsole currentConsole application;
+		refresh.
 	windowPresenter := inst open.
 	inst addStyle: 'jadeiteTextBackgroundColor'.
 	^ inst

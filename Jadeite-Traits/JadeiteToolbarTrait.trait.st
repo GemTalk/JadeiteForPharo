@@ -185,8 +185,7 @@ JadeiteToolbarTrait >> openProcessBrowser [
 				onCompletion: [
 					inst := JadeiteProcessBrowser
 						        showOnSession: self gciSession
-						        process: answeringService answer.
-					inst owner: self ] ]
+						        process: answeringService answer ] ]
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
