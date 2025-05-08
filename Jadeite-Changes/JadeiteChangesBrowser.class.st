@@ -233,7 +233,7 @@ JadeiteChangesBrowser >> initializePresenters [
 JadeiteChangesBrowser >> initializeToolbar [
 
 	| toolbarBox |
-	toolbar := self newJadeiteToolbar.
+	toolbar := self instantiate: JadeiteToolbarPresenter.
 	toolbarBox := SpBoxLayout newHorizontal.
 	toolbarBox add: toolbar.
 	includesIdenticalPresenter := self newCheckBox

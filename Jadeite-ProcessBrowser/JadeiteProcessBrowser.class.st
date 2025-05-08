@@ -8,7 +8,9 @@ Class {
 		'toolbar',
 		'toolbarPresenter',
 		'layoutBox',
-		'processColumns'
+		'processColumns',
+		'autoRefreshPresenter',
+		'autoRefreshProcess'
 	],
 	#category : 'Jadeite-ProcessBrowser',
 	#package : 'Jadeite-ProcessBrowser'
@@ -87,7 +89,9 @@ JadeiteProcessBrowser >> connectPresenters [
 	SystemAnnouncer uniqueInstance weak
 		when: UIThemeChanged
 		send: #themeChanged
-		to: self
+		to: self.
+	autoRefreshPresenter whenChangedDo: [ :state |
+		self toggleAutoRefreshProcess: state ]
 ]
 
 { #category : 'actions' }
@@ -135,11 +139,17 @@ JadeiteProcessBrowser >> initializePresenters [
 
 	| waitBox |
 	super initializePresenters.
+	autoRefreshPresenter := self newCheckBox
+		                        label: 'Auto Refresh';
+		                        state: false.
+	self layout
+		add: autoRefreshPresenter
+		withConstraints: [ :constraints | constraints bePlacedAtEnd ].
 	layoutBox := SpBoxLayout newVertical.
 	self layout add: layoutBox.
 	waitBox := self initializeWaitPresenter.
 	layoutBox add: waitBox expand: false.
-	self initializeProcessListPresenterTo: layoutBox.
+	self initializeProcessListPresenterTo: layoutBox
 ]
 
 { #category : 'initialization' }
@@ -171,13 +181,34 @@ JadeiteProcessBrowser >> initializeProcessListPresenterTo: box [
 ]
 
 { #category : 'initialization' }
+JadeiteProcessBrowser >> initializeToolbar [
+
+	| toolbarBox |
+	toolbar := self instantiate: JadeiteToolbarPresenter.
+	toolbarBox := SpBoxLayout newHorizontal.
+	toolbarBox add: toolbar.
+	autoRefreshPresenter := self newCheckBox
+		                        label: 'Auto Refresh';
+		                        state: false.
+	toolbarBox
+		add: autoRefreshPresenter
+		withConstraints: [ :constraints | constraints bePlacedAtEnd ].
+	self layout
+		add: toolbarBox
+		expand: false
+		fill: false
+		padding: 0
+]
+
+{ #category : 'initialization' }
 JadeiteProcessBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		initialExtent: 80 @ 30 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
-	self updateCaption
+	self updateCaption.
+	aWindowPresenter whenClosedDo: [ self stopAutoRefresh ]
 ]
 
 { #category : 'menus' }
@@ -253,6 +284,25 @@ JadeiteProcessBrowser >> shortStack [
 ]
 
 { #category : 'actions' }
+JadeiteProcessBrowser >> startAutoRefresh [
+
+	autoRefreshProcess := [
+	                      [
+	                      self refresh.
+	                      (Delay forSeconds: 2) wait ] repeat ]
+		                      newProcess.
+	autoRefreshProcess name: 'Jadeite Process Browser Auto Refresh'.
+	^ autoRefreshProcess resume
+]
+
+{ #category : 'actions' }
+JadeiteProcessBrowser >> stopAutoRefresh [
+
+	^ [ autoRefreshProcess ifNotNil: [ :proc | proc terminate ] ]
+		  ensure: [ autoRefreshProcess := nil ]
+]
+
+{ #category : 'actions' }
 JadeiteProcessBrowser >> terminateProcess [
 
 	processListPresenter selectedItem terminateOnCompletion: [
@@ -265,6 +315,14 @@ JadeiteProcessBrowser >> themeChanged [
 	"do any repair work from lousy pharo theme transitioning"
 
 	self adapter applyStyle
+]
+
+{ #category : 'actions' }
+JadeiteProcessBrowser >> toggleAutoRefreshProcess: state [
+
+	^ state
+		  ifTrue: [ self startAutoRefresh ]
+		  ifFalse: [ self stopAutoRefresh ]
 ]
 
 { #category : 'accessing' }
