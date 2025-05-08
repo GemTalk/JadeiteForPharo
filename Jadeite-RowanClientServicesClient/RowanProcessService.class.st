@@ -6,7 +6,9 @@ Class {
 		'oop',
 		'status',
 		'name',
-		'errorMessage'
+		'errorMessage',
+		'priority',
+		'serverPrintString'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -18,11 +20,35 @@ RowanProcessService class >> templateClassName [
 	^#RowanProcessService
 ]
 
+{ #category : 'operations' }
+RowanProcessService >> changePriority: newPriority onCompletion: completionBlock [
+
+	self
+		command: #priority:;
+		commandArgs: (Array with: newPriority).
+	RowanServiceUpdater current
+		issueCommand: self
+		session: GciSession current
+		onCompletion: completionBlock
+]
+
 { #category : 'displaying' }
 RowanProcessService >> displayName [
 	"for logging. for now"
 
-	^name
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'GsProcess(oop=';
+		nextPutAll: self oop printString;
+		nextPut: $,;
+		nextPutAll: 'status=';
+		nextPutAll: self status printString;
+		nextPut: $,;
+		nextPutAll: 'priority=';
+		nextPutAll: self priority printString;
+		nextPut: $).
+	^ ws contents
 ]
 
 { #category : 'printing' }
@@ -119,6 +145,30 @@ RowanProcessService >> printShortStackOn: aStream [
 
 	1 to: frames size do: [ :index |
 	(frames at: index) printOn: aStream at: index ]
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> priority [
+
+	^ priority
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> priority: anObject [
+
+	priority := anObject
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> serverPrintString [
+
+	^ serverPrintString
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> serverPrintString: anObject [
+
+	serverPrintString := anObject
 ]
 
 { #category : 'accessing' }

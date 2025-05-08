@@ -36,6 +36,29 @@ JadeiteProcessBrowser >> addStyle: aString [
 	layoutBox ifNotNil: [ layoutBox adapter addStyle: aString ].
 ]
 
+{ #category : 'actions' }
+JadeiteProcessBrowser >> basicChangePriority: newPriority [
+
+	processListPresenter selectedItem
+		changePriority: newPriority
+		onCompletion: [
+			self updateProcessListOnCompletion: [
+				UIManager default inform: 'Process priority was updated' ] ]
+]
+
+{ #category : 'actions' }
+JadeiteProcessBrowser >> changePriority [
+
+	| newPriority |
+	newPriority := UIManager default
+		               request: 'Enter new priority (integer)'
+		               initialAnswer: '20'
+		               title: 'Change Process Priority'.
+	newPriority ifNil: [ ^ self ].
+	newPriority asInteger ifNotNil: [ :int |
+		self basicChangePriority: int ]
+]
+
 { #category : 'initialization' }
 JadeiteProcessBrowser >> columnWithAspect: aspect title: title [
 
@@ -98,7 +121,12 @@ JadeiteProcessBrowser >> initialProcessDisplayColumns [
 JadeiteProcessBrowser >> initializeMenubar [
 
 	^ self newMenuBar
-		  addGroup: [ :group | self addToolbarItemsToMenuGroup: group ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Process';
+						  subMenu: self newProcessMenu ].
+			  self addToolbarItemsToMenuGroup: group ];
 		  yourself
 ]
 
@@ -130,7 +158,7 @@ JadeiteProcessBrowser >> initializeProcessListMenu [
 JadeiteProcessBrowser >> initializeProcessListPresenterTo: box [
 
 	| initialWidths |
-	initialWidths := { 100. 100. 300 }.
+	initialWidths := { 100. 100. 100. 100 }.
 	processListPresenter := JadeiteTablePresenter new.
 	processColumns := self initialProcessDisplayColumns.
 	1 to: processColumns size do: [ :index |
@@ -147,7 +175,7 @@ JadeiteProcessBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 120 @ 30 * StandardFonts defaultFont pointSize;
+		initialExtent: 80 @ 30 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption
 ]
@@ -170,6 +198,18 @@ JadeiteProcessBrowser >> newProcessMenu [
 					action: [ self terminateProcess ];
 					enabled: [ processListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
+		group
+			addItem: [ :item |
+				item
+					name: 'Change Priority ...';
+					action: [ self changePriority ];
+					enabled: [ processListPresenter selectionOrNil notNil ] ];
+			addItem: [ :item |
+				item
+					name: 'Short Stack';
+					action: [ self shortStack ];
+					enabled: [ processListPresenter selectionOrNil notNil ] ] ].
+	menu addGroup: [ :group |
 		group addItem: [ :item |
 			item
 				name: 'Refresh';
@@ -182,9 +222,11 @@ JadeiteProcessBrowser >> processDisplayAttributes [
 
 	| attributes |
 	attributes := OrderedDictionary new.
-	attributes at: #status put: 'Status'.
-	attributes at: #oop put: 'Oop'.
-	attributes at: #name put: 'Name'.
+	attributes
+		at: #status put: 'Status';
+		at: #oop put: 'Oop';
+		at: #priority put: 'Priority';
+		at: #name put: 'Name'.
 	^ attributes
 ]
 
@@ -197,6 +239,17 @@ JadeiteProcessBrowser >> refresh [
 { #category : 'constants' }
 JadeiteProcessBrowser >> shellName [
 	^'Jadeite Process Browser'
+]
+
+{ #category : 'actions' }
+JadeiteProcessBrowser >> shortStack [
+
+	| workspace string processService |
+	workspace := JadeiteWorkspace showOnSession: self gciSession.
+	processService := processListPresenter selectedItem.
+	string := self gciSession titleBarFor: processService displayName.
+	workspace text: processService serverPrintString.
+	workspace caption: string
 ]
 
 { #category : 'actions' }
