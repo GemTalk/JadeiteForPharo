@@ -17,13 +17,12 @@ Class {
 }
 
 { #category : 'instance creation' }
-JadeiteProcessBrowser class >> showOnSession: aGciSession process: processList [
+JadeiteProcessBrowser class >> showOnSession: aGciSession [
 
 	| inst windowPresenter |
 	inst := self new.
 	inst
 		gciSession: aGciSession;
-		initializeProcessList: processList;
 		application: JadeiteConsole currentConsole application;
 		refresh.
 	windowPresenter := inst open.
@@ -260,6 +259,12 @@ JadeiteProcessBrowser >> processDisplayAttributes [
 		at: #priority put: 'Priority';
 		at: #name put: 'Name'.
 	^ attributes
+]
+
+{ #category : 'accessing' }
+JadeiteProcessBrowser >> processListPresenter [
+
+	^ processListPresenter
 ]
 
 { #category : 'initialization' }

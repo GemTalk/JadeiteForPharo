@@ -20,7 +20,9 @@ JadeiteForPharoProcessBrowserTestCase >> test_openProcessBrowser [
 
 	processBrowser := self waitForProcessBrowser: [
 		                  jadeiteShell openProcessBrowser ].
-	self assert: (processBrowser isKindOf: JadeiteProcessBrowser)
+	self assert: (processBrowser isKindOf: JadeiteProcessBrowser).
+	processBrowser processListPresenter list do: [ :processService |
+		self assert: (processService isKindOf: RowanProcessServiceClient) ]
 ]
 
 { #category : 'support' }

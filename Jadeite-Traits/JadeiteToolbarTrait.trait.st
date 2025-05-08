@@ -174,18 +174,10 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 { #category : 'actions' }
 JadeiteToolbarTrait >> openProcessBrowser [
 
-	| answeringService inst |
+	| inst |
 	self isConnected
 		ifTrue: [
-			answeringService := RowanAnsweringServiceClient new command:
-				                    #allProcesses.
-			RowanServiceUpdater current
-				issueCommand: answeringService
-				session: self gciSession
-				onCompletion: [
-					inst := JadeiteProcessBrowser
-						        showOnSession: self gciSession
-						        process: answeringService answer ] ]
+		inst := JadeiteProcessBrowser showOnSession: self gciSession ]
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
