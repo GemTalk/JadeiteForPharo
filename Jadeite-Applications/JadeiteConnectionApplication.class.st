@@ -14,32 +14,21 @@ JadeiteConnectionApplication class >> menuCommandOn: aBuilder [
 
 	<worldMenu>
 	(aBuilder item: #'Jadeite Launcher')
-		target: self; 
+		target: self;
 		order: 4.0;
 		icon: nil;
 		parent: #Tools;
 		"see WorldState class>>#libraryWorldMenuOn:"keyText: 'o, j';
 		help: 'Open a Jadeite Connections Launcher';
-		action: [ self openOnlyOneLauncher ]
-]
-
-{ #category : 'instance creation' }
-JadeiteConnectionApplication class >> openOnlyOneLauncher [
-
-	Singleton ifNil: [ ^ Singleton := self new start ].
-	Singleton window adapter widget restoreAndActivate
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionApplication class >> singleton: anObject [ 
-
-	Singleton := anObject
+		action: [ self new start ]
 ]
 
 { #category : 'actions' }
 JadeiteConnectionApplication >> start [
 
 	| inst windowPresenter |
+	JadeiteConnectionLauncher soleInstance ifNotNil: [ :launcher |
+		^ launcher adapter widget restoreAndActivate ].
 	inst := self new: JadeiteConnectionLauncher.
 	inst addStyle: 'jadeiteTextBackgroundColor'.
 	windowPresenter := inst open.
@@ -51,8 +40,6 @@ JadeiteConnectionApplication >> start [
 JadeiteConnectionApplication >> windowClosed: aWindow [
 
 	super windowClosed: aWindow.
-	self class singleton: nil.
-	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
-		^ self ].
-	JadeiteConnectionProfile connectionProfile disconnect
+	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
+		JadeiteConnectionProfile connectionProfile disconnect ]
 ]

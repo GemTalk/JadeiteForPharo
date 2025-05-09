@@ -173,27 +173,6 @@ JadeiteAbstractTestCase >> closeBrowser: theBrowser [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> closeExistingInspectors [
-	"not so elegant way of making sure the test gets the right inspector. Close others first"
-
-	JadeNavigationInspector allInstances do: 
-			[:oldInspector |
-			oldInspector view class = DeafObject
-				ifTrue: [oldInspector become: String new]
-				ifFalse: [oldInspector view close]].
-	JadeInspector allInstances do: 
-			[:oldInspector |
-			oldInspector view class = DeafObject
-				ifTrue: [oldInspector become: String new]
-				ifFalse: [oldInspector view close]].
-	JadeiteInspector allInstances do: 
-			[:oldInspector |
-			oldInspector view class = DeafObject
-				ifTrue: [oldInspector become: String new]
-				ifFalse: [oldInspector view close]]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> closeTranscriptAndLogout [
 	TestMessageBox enableJadeiteTestMessageBox.
 	TestMessageBox plannedResult: #no.	"closing the transcript will logout the session. don't commit"
@@ -578,15 +557,6 @@ JadeiteAbstractTestCase >> projectsPresenter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> queryCommand: commandSymbol inPresenter: presenter view: view [
-	| commandQuery |
-	commandQuery := CommandQuery new commandDescription: (CommandDescription new command: commandSymbol)
-				source: view.
-	presenter queryCommand: commandQuery.
-	^commandQuery
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> reloadProjectNamed: projectName [
 
 	| projectService |
@@ -639,27 +609,6 @@ JadeiteAbstractTestCase >> restoreBackupPrefsFile: prefsExisted [
 			[backupStream close.
 			(File open: backupPath) delete.
 			fileStream close]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> routeCommand: command toWindow: windowLikeThing [
-	"Private - see CommandDescription class comment for explanation of how it fits in the Dolphin MVP architecture.
-	Route the command description through the command policy to see if it finds the right home"
-
-	| commandDescription id |
-	commandDescription := CommandDescription registry keys detect: [:key | key command = command].
-	id := CommandDescription registry at: commandDescription.
-	self routeCommandWithId: id inVisual: windowLikeThing
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> routeCommandWithId: id inVisual: windowLikeThing [
-	"Private - see CommandDescription class comment for explanation of how it fits in the Dolphin MVP architecture.
-	Route the command description through the command policy to see if it finds the right home"
-
-	| commandDescription |
-	commandDescription := CommandDescription withId: id ifAbsent: [].
-	windowLikeThing commandPolicy route: commandDescription
 ]
 
 { #category : 'as yet unclassified' }

@@ -23,7 +23,8 @@ Class {
 	#classVars : [
 		'ConnectionProfile',
 		'ImportedConnections',
-		'LastImportDirectory'
+		'LastImportDirectory',
+		'SoleInstance'
 	],
 	#category : 'Jadeite-Connection',
 	#package : 'Jadeite-Connection'
@@ -44,15 +45,6 @@ JadeiteConnectionLauncher class >> addImportedConnections: directoryRef [
 	fileRefs := directoryRef files asSortedCollection.
 	fileRefs do: [ :fileRef | self addImportedConnection: fileRef ].
 	^ fileRefs
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConnectionLauncher class >> currentLauncher [
-
-	^ self allInstances
-		  detect: [ :launcher |
-		  launcher window notNil and: [ launcher window isOpen ] ]
-		  ifNone: [  ]
 ]
 
 { #category : 'defaults' }
@@ -106,6 +98,18 @@ JadeiteConnectionLauncher class >> newImportedConnections [
 JadeiteConnectionLauncher class >> shortPathFor: filePath [
 
 	^ filePath asFileReference basename
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> soleInstance [
+
+	^SoleInstance 
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> soleInstance: aConnectionLauncher [
+
+	SoleInstance := aConnectionLauncher
 ]
 
 { #category : 'actions' }
@@ -670,11 +674,14 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: (40 @ 70) * StandardFonts defaultFont pointSize;
+		initialExtent: 40 @ 70 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar;
 		centered.
 	self updateCaption.
-	aWindowPresenter whenClosedDo: [ self clearConnectionSubscriptions ]
+	aWindowPresenter whenClosedDo: [
+		self clearConnectionSubscriptions.
+		self class soleInstance: nil ].
+	self class soleInstance: aWindowPresenter
 ]
 
 { #category : 'connections' }

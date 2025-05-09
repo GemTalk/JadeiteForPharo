@@ -314,12 +314,11 @@ JadeiteTestResource >> loginWithRetry: loginShell [
 
 { #category : 'support' }
 JadeiteTestResource >> logout [
-	"hopeful none, but just in case"
+
 	self closeTranscripts.
-	JadeiteLoginShell allInstances do: 
-			[:shell |
-			shell view close.
-			(Delay forMilliseconds: 100) wait	"should save to the remote 'C:\Users\ewinger\AppData\Roaming\JadeDefaultConnection.gss' file"]
+	JadeiteLoginShell allInstances do: [ :shell |
+		shell view close.
+		(Delay forMilliseconds: 100) wait ]
 ]
 
 { #category : 'support' }

@@ -58,7 +58,7 @@ JadeiteForPharoGUITestCase >> displayAndPrint [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 
-	JadeiteConnectionLauncher currentLauncher ifNil: [
+	JadeiteConnectionLauncher soleInstance ifNil: [
 		JadeiteConnectionApplication new start ]
 ]
 

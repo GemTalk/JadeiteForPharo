@@ -65,8 +65,7 @@ JadeiteWindowsBrowser >> initializeJadeiteWindows [
 
 	windows := JadeiteConnectionProfile connectionProfile jadeiteWindows
 	           ,
-	           (Array with:
-		            JadeiteConnectionLauncher currentLauncher window).
+	           (Array with: JadeiteConnectionLauncher soleInstance window).
 	windows := windows asSortedCollection: [ :x :y | x title <= y title ]
 ]
 
