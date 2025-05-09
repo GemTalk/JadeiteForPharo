@@ -30,6 +30,12 @@ JadeiteConnectionProfile class >> connectionProfile: anObject [
 ]
 
 { #category : 'accessing' }
+JadeiteConnectionProfile >> addJadeiteWindow: jadeiteWindow [
+
+	jadeiteWindows add: jadeiteWindow
+]
+
+{ #category : 'accessing' }
 JadeiteConnectionProfile >> connection [
 
 	^ connection
@@ -78,6 +84,12 @@ JadeiteConnectionProfile >> jadeiteWindows [
 JadeiteConnectionProfile >> jadeiteWindows: anObject [
 
 	jadeiteWindows := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile >> removeJadeiteWindow: jadeiteWindow [
+
+	jadeiteWindows remove: jadeiteWindow ifAbsent: [  ]
 ]
 
 { #category : 'events' }

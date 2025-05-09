@@ -58,14 +58,8 @@ JadeiteForPharoGUITestCase >> displayAndPrint [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 
-	| launchers |
-	launchers := JadeiteConnectionLauncher allInstances.
-	launchers
-		ifEmpty: [ ^ JadeiteConnectionApplication new start ]
-		ifNotEmpty: [
-			(launchers noneSatisfy: [ :launcher |
-				 launcher window isNil or: [ launcher window isOpen ] ]) ifTrue: [
-				^ JadeiteConnectionApplication new start ] ]
+	JadeiteConnectionLauncher currentLauncher ifNil: [
+		JadeiteConnectionApplication new start ]
 ]
 
 { #category : 'support' }

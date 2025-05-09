@@ -46,6 +46,15 @@ JadeiteConnectionLauncher class >> addImportedConnections: directoryRef [
 	^ fileRefs
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteConnectionLauncher class >> currentLauncher [
+
+	^ self allInstances
+		  detect: [ :launcher |
+		  launcher window notNil and: [ launcher window isOpen ] ]
+		  ifNone: [  ]
+]
+
 { #category : 'defaults' }
 JadeiteConnectionLauncher class >> defaultConnectionSortBlock [
 
@@ -232,7 +241,7 @@ JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 
 	| jadeiteWindows |
 	jadeiteWindows := JadeiteConnectionProfile connectionProfile
-		                  jadeiteWindows.
+		                  jadeiteWindows copy.
 	[ jadeiteWindows do: [ :window | window close ] ] ensure: [
 		JadeiteConnectionProfile connectionProfile jadeiteWindows:
 			OrderedCollection new ]

@@ -147,8 +147,12 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 				 label: 'Process Browser';
 				 icon: (self iconNamed: #processBrowser);
 				 help: 'open browser on GemStone processes';
-				 action: [ self openProcessBrowser ] yourself).
-
+				 action: [ self openProcessBrowser ]);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Windows Browser';
+				 icon: (self iconNamed: #window);
+				 help: 'View and Manipulate Jadeite windows';
+				 action: [ self openWindowsBrowser ]).
 	^ toolbar
 ]
 
@@ -199,6 +203,12 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 				self application addBorderStyleTo: windowPresenter presenter: inst.
 				^ inst ] ]
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
+]
+
+{ #category : 'actions' }
+JadeiteToolbarTrait >> openWindowsBrowser [
+
+	JadeiteWindowsBrowser showOnSession: self gciSession
 ]
 
 { #category : 'actions' }
