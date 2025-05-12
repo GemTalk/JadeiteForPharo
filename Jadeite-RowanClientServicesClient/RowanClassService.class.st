@@ -602,6 +602,7 @@ RowanClassService >> jadeiteCategories [
 RowanClassService >> jadeiteCategoriesFor: aCollection [
 	"for comparing against presenter lists"
 
+	aCollection ifNil: [ ^ OrderedCollection new ].
 	^ aCollection collect: [ :categoryOrString |
 		  categoryOrString isString
 			  ifFalse: [ categoryOrString ]
