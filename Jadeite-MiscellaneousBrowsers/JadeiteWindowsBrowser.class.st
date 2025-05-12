@@ -249,9 +249,14 @@ JadeiteWindowsBrowser >> raisePharoSelectedWindow [
 { #category : 'accessing - model' }
 JadeiteWindowsBrowser >> refresh [
 
+	| jadeiteSelection pharoSelection |
+	jadeiteSelection := jadeiteWindowsListPresenter selectedItem.
+	pharoSelection := pharoWindowsListPresenter selectedItem.
 	self initializeWindows.
 	jadeiteWindowsListPresenter list: (ListModel on: jadeiteWindows).
-	pharoWindowsListPresenter list: (ListModel on: pharoWindows)
+	pharoWindowsListPresenter list: (ListModel on: pharoWindows).
+	jadeiteWindowsListPresenter selectItem: jadeiteSelection.
+	pharoWindowsListPresenter selectItem: pharoSelection
 ]
 
 { #category : 'constants' }
