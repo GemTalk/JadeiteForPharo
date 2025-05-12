@@ -7,9 +7,11 @@ Class {
 	#traits : 'JadeiteToolbarTrait',
 	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
-		'windows',
-		'windowsListPresenter',
-		'layoutBox'
+		'layoutBox',
+		'pharoWindows',
+		'jadeiteWindows',
+		'jadeiteWindowsListPresenter',
+		'pharoWindowsListPresenter'
 	],
 	#category : 'Jadeite-MiscellaneousBrowsers',
 	#package : 'Jadeite-MiscellaneousBrowsers'
@@ -45,9 +47,19 @@ JadeiteWindowsBrowser >> addStyle: aString [
 ]
 
 { #category : 'actions' }
-JadeiteWindowsBrowser >> closeSelectedWindow [
+JadeiteWindowsBrowser >> closeJadeiteSelectedWindow [
 
-	windowsListPresenter selectedItem window
+	jadeiteWindowsListPresenter selectedItem window
+		collapse;
+		minimizeOrRestore;
+		close.
+	self refresh
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> closePharoSelectedWindow [
+
+	pharoWindowsListPresenter selectedItem window
 		collapse;
 		minimizeOrRestore;
 		close.
@@ -61,23 +73,19 @@ JadeiteWindowsBrowser >> defaultLayout [
 ]
 
 { #category : 'initialization' }
-JadeiteWindowsBrowser >> initializeJadeiteWindows [
-
-	windows := JadeiteConnectionProfile connectionProfile jadeiteWindows
-	           ,
-	           (Array with: JadeiteConnectionLauncher soleInstance window).
-	windows := windows asSortedCollection: [ :x :y | x title <= y title ]
-]
-
-{ #category : 'initialization' }
 JadeiteWindowsBrowser >> initializeMenubar [
 
 	^ self newMenuBar
 		  addGroup: [ :group |
-			  group addItem: [ :item |
+			  group
+				  addItem: [ :item |
 					  item
-						  name: 'Windows';
-						  subMenu: self newWindowsMenu ].
+						  name: 'Jadeite Windows';
+						  subMenu: self newJadeiteWindowsMenu ];
+				  addItem: [ :item |
+					  item
+						  name: 'Pharo Windows';
+						  subMenu: self newPharoWindowsMenu ].
 			  self addToolbarItemsToMenuGroup: group ];
 		  yourself
 ]
@@ -105,28 +113,49 @@ JadeiteWindowsBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 80 @ 30 * StandardFonts defaultFont pointSize;
+		initialExtent: 90 @ 30 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
 	self updateCaption
 ]
 
 { #category : 'initialization' }
+JadeiteWindowsBrowser >> initializeWindows [
+
+	| allWindows |
+	allWindows := self currentWorld windowsSatisfying: [ :w | true ].
+	allWindows := allWindows asSortedCollection: [ :x :y | x label < y label ].
+	jadeiteWindows := allWindows select: [ :w | w isJadeiteWindow ].
+	pharoWindows := allWindows reject: [ :w | w isJadeiteWindow ]
+]
+
+{ #category : 'initialization' }
 JadeiteWindowsBrowser >> initializeWindowsListMenu [
-	self windowsListPresenter contextMenu: self newWindowsMenu
+
+	jadeiteWindowsListPresenter contextMenu: self newJadeiteWindowsMenu.
+	pharoWindowsListPresenter contextMenu: self newPharoWindowsMenu
 ]
 
 { #category : 'initialization' }
 JadeiteWindowsBrowser >> initializeWindowsListPresenterTo: box [
 
-	windowsListPresenter := JadeiteListPresenter new display: [ :window |
-		                        window title ].
-	windowsListPresenter headerTitle: 'Jadeite Windows'.
-	box add: windowsListPresenter.
+	| listsBox |
+	listsBox := SpBoxLayout newHorizontal.
+	jadeiteWindowsListPresenter := JadeiteListPresenter new display: [
+		                               :window | window label ].
+	jadeiteWindowsListPresenter headerTitle: 'Jadeite Windows'.
+	listsBox add: jadeiteWindowsListPresenter.
+
+	pharoWindowsListPresenter := JadeiteListPresenter new display: [
+		                             :window | window label ].
+	pharoWindowsListPresenter headerTitle: 'Pharo Windows'.
+	listsBox add: pharoWindowsListPresenter.
+
+	box add: listsBox.
 	self initializeWindowsListMenu
 ]
 
 { #category : 'initialization' }
-JadeiteWindowsBrowser >> newWindowsMenu [
+JadeiteWindowsBrowser >> newJadeiteWindowsMenu [
 
 	| menu |
 	menu := JadeiteMenuPresenter new.
@@ -136,13 +165,39 @@ JadeiteWindowsBrowser >> newWindowsMenu [
 				addItem: [ :item |
 					item
 						name: 'Raise';
-						action: [ self raiseSelectedWindow ];
-						enabled: [ self windowsListPresenter selectionOrNil notNil ] ];
+						action: [ self raiseJadeiteSelectedWindow ];
+						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 					item
 						name: 'Close';
-						action: [ self closeSelectedWindow ];
-						enabled: [ self windowsListPresenter selectionOrNil notNil ] ] ];
+						action: [ self closeJadeiteSelectedWindow ];
+						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'Refresh';
+					action: [ self refresh ] ] ].
+	^ menu
+]
+
+{ #category : 'initialization' }
+JadeiteWindowsBrowser >> newPharoWindowsMenu [
+
+	| menu |
+	menu := JadeiteMenuPresenter new.
+	menu
+		addGroup: [ :group |
+			group
+				addItem: [ :item |
+					item
+						name: 'Raise';
+						action: [ self raisePharoSelectedWindow ];
+						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+					item
+						name: 'Close';
+						action: [ self closePharoSelectedWindow ];
+						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ] ];
 		addGroup: [ :group |
 			group addItem: [ :item |
 				item
@@ -152,11 +207,19 @@ JadeiteWindowsBrowser >> newWindowsMenu [
 ]
 
 { #category : 'actions' }
-JadeiteWindowsBrowser >> raiseSelectedWindow [
+JadeiteWindowsBrowser >> raiseJadeiteSelectedWindow [
 	"kind of weird pharo code, but it seems that we have to collapse
 	the window first, then do a `minimizeOrRestore`"
 
-	windowsListPresenter selectedItem window
+	jadeiteWindowsListPresenter selectedItem window
+		collapse;
+		minimizeOrRestore
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> raisePharoSelectedWindow [
+
+	pharoWindowsListPresenter selectedItem window
 		collapse;
 		minimizeOrRestore
 ]
@@ -164,17 +227,9 @@ JadeiteWindowsBrowser >> raiseSelectedWindow [
 { #category : 'accessing - model' }
 JadeiteWindowsBrowser >> refresh [
 
-	self initializeJadeiteWindows.
-	windowsListPresenter list: (ListModel on: windows)
-]
-
-{ #category : 'accessing - model' }
-JadeiteWindowsBrowser >> setModelBeforeInitialization: jadeiteWindows [
-
-	jadeiteWindows copy do: [ :jadeiteWindow |
-		jadeiteWindow isClosed ifTrue: [
-			jadeiteWindows remove: jadeiteWindow ] ].
-	windows := jadeiteWindows
+	self initializeWindows.
+	jadeiteWindowsListPresenter list: (ListModel on: jadeiteWindows).
+	pharoWindowsListPresenter list: (ListModel on: pharoWindows)
 ]
 
 { #category : 'constants' }
@@ -185,11 +240,11 @@ JadeiteWindowsBrowser >> shellName [
 { #category : 'accessing' }
 JadeiteWindowsBrowser >> windowsListPresenter [
 
-	^ windowsListPresenter
+	^ jadeiteWindowsListPresenter
 ]
 
 { #category : 'accessing' }
 JadeiteWindowsBrowser >> windowsListPresenter: anObject [
 
-	windowsListPresenter := anObject
+	jadeiteWindowsListPresenter := anObject
 ]

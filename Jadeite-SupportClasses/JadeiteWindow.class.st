@@ -13,6 +13,12 @@ JadeiteWindow >> canDiscardEdits [
 	^false 
 ]
 
+{ #category : 'testing' }
+JadeiteWindow >> isJadeiteWindow [
+
+	^ true
+]
+
 { #category : 'icons' }
 JadeiteWindow >> taskbarIconName [
 
