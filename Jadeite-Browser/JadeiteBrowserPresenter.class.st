@@ -3966,6 +3966,7 @@ JadeiteBrowserPresenter >> updateDictionaries [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateDictionary [
 
+	self isDictionaryTabSelected ifFalse: [ ^ self ].
 	self selectClassListTab.
 	self setInstanceSide.
 	dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].

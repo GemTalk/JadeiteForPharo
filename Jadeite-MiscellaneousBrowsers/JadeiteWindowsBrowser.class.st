@@ -154,6 +154,18 @@ JadeiteWindowsBrowser >> initializeWindowsListPresenterTo: box [
 	self initializeWindowsListMenu
 ]
 
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> lowerJadeiteSelectedWindow [
+
+	jadeiteWindowsListPresenter selectedItem window collapse
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> lowerPharoSelectedWindow [
+
+	pharoWindowsListPresenter selectedItem window collapse
+]
+
 { #category : 'initialization' }
 JadeiteWindowsBrowser >> newJadeiteWindowsMenu [
 
@@ -166,6 +178,11 @@ JadeiteWindowsBrowser >> newJadeiteWindowsMenu [
 					item
 						name: 'Raise';
 						action: [ self raiseJadeiteSelectedWindow ];
+						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+				item					
+						name: 'Lower';
+						action: [ self lowerJadeiteSelectedWindow ];
 						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 					item
@@ -192,6 +209,11 @@ JadeiteWindowsBrowser >> newPharoWindowsMenu [
 					item
 						name: 'Raise';
 						action: [ self raisePharoSelectedWindow ];
+						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+					item
+						name: 'Lower';
+						action: [ self lowerPharoSelectedWindow ];
 						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 					item
@@ -235,6 +257,13 @@ JadeiteWindowsBrowser >> refresh [
 { #category : 'constants' }
 JadeiteWindowsBrowser >> shellName [
 	^'Jadeite Windows Browser'
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> startAutoRefresh [
+
+	super startAutoRefresh.
+	autoRefreshProcess name: 'Jadeite Windows Browser Auto Refresh'
 ]
 
 { #category : 'accessing' }

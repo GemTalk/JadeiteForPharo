@@ -27,14 +27,20 @@ JadeiteAutoRefreshPresenter >> initializeWindow: aWindowPresenter [
 ]
 
 { #category : 'actions' }
+JadeiteAutoRefreshPresenter >> refresh [
+
+	self subclassResponsibility
+]
+
+{ #category : 'actions' }
 JadeiteAutoRefreshPresenter >> startAutoRefresh [
+	"subclasses should name the auto refresh process appropriately"
 
 	autoRefreshProcess := [
 	                      [
 	                      self refresh.
 	                      (Delay forSeconds: 2) wait ] repeat ]
 		                      newProcess.
-	autoRefreshProcess name: 'Jadeite Process Browser Auto Refresh'.
 	^ autoRefreshProcess resume
 ]
 

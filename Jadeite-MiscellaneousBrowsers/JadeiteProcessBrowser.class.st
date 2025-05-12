@@ -264,6 +264,13 @@ JadeiteProcessBrowser >> shortStack [
 ]
 
 { #category : 'actions' }
+JadeiteProcessBrowser >> startAutoRefresh [
+
+	super startAutoRefresh.
+	autoRefreshProcess name: 'Jadeite Process Browser Auto Refresh'
+]
+
+{ #category : 'actions' }
 JadeiteProcessBrowser >> terminateProcess [
 
 	processListPresenter selectedItem terminateOnCompletion: [
