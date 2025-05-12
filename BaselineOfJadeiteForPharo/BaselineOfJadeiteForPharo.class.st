@@ -54,6 +54,8 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			with: [ spec requires: 'Jadeite-Debugger' ];
 			package: 'Jadeite-Help'
 			with: [ spec requires: 'Jadeite-Connection' ];
+			package: 'Jadeite-MiscellaneousBrowsers'
+			with: [ spec requires: 'Jadeite-Connection' ];
 			package: 'Jadeite-Tests'
 			with: [ spec requires: 'Jadeite-Connection' ].
 		spec

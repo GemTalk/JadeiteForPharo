@@ -61,6 +61,7 @@ ListModel >> at: anIndex [
 { #category : 'converting' }
 ListModel >> beSorted [
 
+	collection ifNil: [ ^ self ].
 	self collection: (self sortedFrom: collection)
 ]
 
