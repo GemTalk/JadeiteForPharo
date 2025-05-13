@@ -880,7 +880,7 @@ JadeiteBrowserPresenter >> copyProjectInfo [
 		^ self ].
 	projectInfoList selectedItem last ifNil: [ ^ self ].
 	selector := projectInfoList selectedItem last asSymbol.
-	selector isEmpty ifTrue: [
+	projectInfoList selectedItem first isString ifTrue: [
 		^ UIManager default alert: 'No selection to copy' ].
 	copyString := (projectInfoList selectedItem first perform: selector)
 		              displayString.
@@ -1830,17 +1830,20 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeProjectTab [
 
-	| column1 |
+	| column1 column2 |
 	column1 := SpStringTableColumn evaluated: [ :array |
 		           self projectInfoLabelDisplay: array ].
 	column1
-		displayBold: [ true ];
+		displayBold: [ :each |
+			each first = 'Packages' or: [ each first = 'Attribute' ] ];
 		beNotExpandable.
+	column2 := SpStringTableColumn evaluated: [ :array |
+		           self projectInfoValueDisplay: array ].
+	column2 displayBold: [ :each |
+		each last = 'Dictionary Name' or: [ each last = 'Value' ] ].
 	projectInfoList := JadeiteTablePresenter new
 		                   addColumn: column1;
-		                   addColumn:
-			                   (SpStringTableColumn evaluated: [ :array |
-					                    self projectInfoValueDisplay: array ]).
+		                   addColumn: column2.
 	projectInfoList contextMenu: self newProjectInfoMenu.
 	projectInfoTab := JadeiteNotebookPage
 		                  title: 'Project'
@@ -2565,25 +2568,14 @@ JadeiteBrowserPresenter >> projectInfoLabelDisplay: array [
 
 	array last = 'isSkew' ifTrue: [ ^ 'Skew' ].
 	array last = 'isDirty' ifTrue: [ ^ 'Dirty State' ].
+	array first isString ifTrue: [ ^ array first ].
+	array first isPackageService ifTrue: [ ^ array first name ].
 	^ array last normalizeCamelCase capitalized
 ]
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectInfoList [
 	^projectInfoList
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> projectInfoMenuStrings [
-	self rowanFixMe.	"this really is a cumbersome way to build a menu."
-	0 == 1
-		ifTrue: 
-			[self
-				copyInfo
-				].
-	^#('Dictionaries' 
-	'Copy//copyInfo'
-	'Browse Commit In GitHub//openCommitInGitHub')
 ]
 
 { #category : 'as yet unclassified' }
@@ -2594,10 +2586,15 @@ JadeiteBrowserPresenter >> projectInfoTab [
 { #category : 'displaying' }
 JadeiteBrowserPresenter >> projectInfoValueDisplay: array [
 
-	^ array last isEmpty ifFalse: [
-		  array last = 'isDirty'
-			  ifTrue: [ array first perform: #toolTip ]
-			  ifFalse: [ array first perform: array last asSymbol ] ]
+	^ array last isEmpty
+		  ifTrue: [ String new ]
+		  ifFalse: [
+			  (array first = 'Packages' or: [ array first = 'Attribute' ])
+				  ifTrue: [ ^ array last ]
+				  ifFalse: [
+					  array last = 'isDirty'
+						  ifTrue: [ array first perform: #toolTip ]
+						  ifFalse: [ array first perform: array last asSymbol ] ] ]
 ]
 
 { #category : 'events' }
@@ -4148,21 +4145,25 @@ JadeiteBrowserPresenter >> updateProjectInfo [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
+
 	| array |
-	array := WriteStream on: Array new. 
+	array := WriteStream on: Array new.
 	array nextPut: (Array with: service with: 'rowanProjectsHome').
 	array nextPut: (Array with: RowanProjectService new with: String new).
-	service wasUpdated
-		ifTrue: 
-			[array nextPut: (Array with: service with: 'name').
-			array nextPut: (Array with: service with: 'sha').
-			array nextPut: (Array with: service with: 'diskSha').
-			array nextPut: (Array with: service with: 'branch').
-			array nextPut: (Array with: service with: 'isSkew').
-			array nextPut: (Array with: service with: 'isDirty').
-			array nextPut: (Array with: service with: 'projectUrl').
-			array nextPut: (Array with: service with: 'packageConvention').
-			service == service ifFalse: [array nextPut: (Array with: RowanProjectService new with: nil)]].
+	service wasUpdated ifTrue: [
+		array nextPut: (Array with: 'Attribute' with: 'Value').
+		array nextPut: (Array with: service with: 'name').
+		array nextPut: (Array with: service with: 'sha').
+		array nextPut: (Array with: service with: 'diskSha').
+		array nextPut: (Array with: service with: 'branch').
+		array nextPut: (Array with: service with: 'isSkew').
+		array nextPut: (Array with: service with: 'isDirty').
+		array nextPut: (Array with: service with: 'projectUrl').
+		array nextPut: (Array with: service with: 'packageConvention').
+		array nextPut: (Array with: String new with: String new).
+		array nextPut: (Array with: 'Packages' with: 'Dictionary Name').
+		service packageServices do: [ :packageService |
+			array nextPut: (Array with: packageService with: 'dictionaryName') ] ].
 	projectInfoList items: array contents
 ]
 
