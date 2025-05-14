@@ -49,20 +49,14 @@ JadeiteWindowsBrowser >> addStyle: aString [
 { #category : 'actions' }
 JadeiteWindowsBrowser >> closeJadeiteSelectedWindow [
 
-	jadeiteWindowsListPresenter selectedItem window
-		collapse;
-		minimizeOrRestore;
-		close.
+	jadeiteWindowsListPresenter selectedItem window close.
 	self refresh
 ]
 
 { #category : 'actions' }
 JadeiteWindowsBrowser >> closePharoSelectedWindow [
 
-	pharoWindowsListPresenter selectedItem window
-		collapse;
-		minimizeOrRestore;
-		close.
+	pharoWindowsListPresenter selectedItem window close.
 	self refresh
 ]
 

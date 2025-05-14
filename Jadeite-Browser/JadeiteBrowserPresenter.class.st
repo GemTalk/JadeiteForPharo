@@ -1831,16 +1831,14 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 JadeiteBrowserPresenter >> initializeProjectTab [
 
 	| column1 column2 |
-	column1 := SpStringTableColumn evaluated: [ :array |
-		           self projectInfoLabelDisplay: array ].
+	column1 := SpStringTableColumn evaluated: [ :projectRow |
+		           projectRow label ].
 	column1
-		displayBold: [ :each |
-			each first = 'Packages' or: [ each first = 'Attribute' ] ];
+		displayBold: [ :projectRow | projectRow bold ];
 		beNotExpandable.
-	column2 := SpStringTableColumn evaluated: [ :array |
-		           self projectInfoValueDisplay: array ].
-	column2 displayBold: [ :each |
-		each last = 'Dictionary Name' or: [ each last = 'Value' ] ].
+	column2 := SpStringTableColumn evaluated: [ :projectRow |
+		           projectRow value ].
+	column2 displayBold: [ :projectRow | projectRow bold ].
 	projectInfoList := JadeiteTablePresenter new
 		                   addColumn: column1;
 		                   addColumn: column2.
@@ -2581,20 +2579,6 @@ JadeiteBrowserPresenter >> projectInfoList [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectInfoTab [
 	^projectInfoTab
-]
-
-{ #category : 'displaying' }
-JadeiteBrowserPresenter >> projectInfoValueDisplay: array [
-
-	^ array last isEmpty
-		  ifTrue: [ String new ]
-		  ifFalse: [
-			  (array first = 'Packages' or: [ array first = 'Attribute' ])
-				  ifTrue: [ ^ array last ]
-				  ifFalse: [
-					  array last = 'isDirty'
-						  ifTrue: [ array first perform: #toolTip ]
-						  ifFalse: [ array first perform: array last asSymbol ] ] ]
 ]
 
 { #category : 'events' }
@@ -4145,26 +4129,29 @@ JadeiteBrowserPresenter >> updateProjectInfo [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
+    | rows |
+    rows := OrderedCollection new.
+    rows add: (ProjectInfoRow new label: 'RowanProjectsHome'; value: service rowanProjectsHome; yourself).
+    rows add: ProjectInfoRow new blankLine.
 
-	| array |
-	array := WriteStream on: Array new.
-	array nextPut: (Array with: service with: 'rowanProjectsHome').
-	array nextPut: (Array with: RowanProjectService new with: String new).
-	service wasUpdated ifTrue: [
-		array nextPut: (Array with: 'Attribute' with: 'Value').
-		array nextPut: (Array with: service with: 'name').
-		array nextPut: (Array with: service with: 'sha').
-		array nextPut: (Array with: service with: 'diskSha').
-		array nextPut: (Array with: service with: 'branch').
-		array nextPut: (Array with: service with: 'isSkew').
-		array nextPut: (Array with: service with: 'isDirty').
-		array nextPut: (Array with: service with: 'projectUrl').
-		array nextPut: (Array with: service with: 'packageConvention').
-		array nextPut: (Array with: String new with: String new).
-		array nextPut: (Array with: 'Packages' with: 'Dictionary Name').
-		service packageServices do: [ :packageService |
-			array nextPut: (Array with: packageService with: 'dictionaryName') ] ].
-	projectInfoList items: array contents
+    service wasUpdated ifTrue: [
+        rows add: (ProjectInfoRow new label: 'Attribute'; value: 'Value'; bold: true;  yourself).
+        rows add: (ProjectInfoRow new label: 'Name'; value: service name; yourself).
+        rows add: (ProjectInfoRow new label: 'SHA'; value: service sha; yourself).
+        rows add: (ProjectInfoRow new label: 'Disk SHA'; value: service diskSha; yourself).
+        rows add: (ProjectInfoRow new label: 'Branch'; value: service branch; yourself).
+        rows add: (ProjectInfoRow new label: 'Is Skew'; value: service isSkew; yourself).
+        rows add: (ProjectInfoRow new label: 'Is Dirty'; value: service toolTip; yourself).
+        rows add: (ProjectInfoRow new label: 'Project URL'; value: service projectUrl; yourself).
+        rows add: (ProjectInfoRow new label: 'Package Convention'; value: service packageConvention; yourself).
+        rows add: ProjectInfoRow new blankLine.
+        rows add: (ProjectInfoRow new label: 'Packages'; value: 'Dictionary Name'; bold: true; yourself).
+
+        service packageServices do: [ :packageService |
+            rows add: (ProjectInfoRow new label: packageService name; value: packageService dictionaryName; yourself) ].
+    ].
+
+    projectInfoList items: rows
 ]
 
 { #category : 'updates' }

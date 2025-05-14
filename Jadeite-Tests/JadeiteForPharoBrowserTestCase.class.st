@@ -9,6 +9,29 @@ Class {
 }
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> projectInfoMockService [
+
+	| mockService |
+	mockService := Object new.
+	mockService class compile: 'wasUpdated ^true'.
+	mockService class compile: 'name ^''MyProject'''.
+	mockService class compile: 'sha ^''abc123'''.
+	mockService class compile: 'diskSha ^''def456'''.
+	mockService class compile: 'branch ^''main'''.
+	mockService class compile: 'isSkew ^false'.
+	mockService class compile: 'isDirty ^true'.
+	mockService class compile: 'projectUrl ^''http://project.url'''.
+	mockService class compile: 'packageConvention ^''convention'''.
+	mockService class compile: 'rowanProjectsHome ^''aPath'''.
+	mockService class compile: 'toolTip ^''is dirty state tool tip'''.
+	mockService class compile:
+		'packageServices 
+			^Array with: (RowanPackageServiceClient new name: ''MockPackageService''; dictionaryName: ''MockDictionary''; yourself)'.
+
+	^ mockService
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> setUp [
 
 	super setUp.
@@ -634,6 +657,45 @@ JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 		assert: self projectsPresenter statusBarText message
 		equals: 'CompileError - expected a right bracket (])'.
 	self methodSourcePresenter hasUnacceptedEdits: false
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_projectInfoTab [
+	"test a few of the values to ensure the format the gui is expecting doesn't change"
+	| mockService items |
+	mockService := self projectInfoMockService.
+	self projectsPresenter updateProjectInfoTabFor: mockService.
+
+	items := self projectsPresenter projectInfoList items.
+	self assert: items notEmpty.
+	self assert: (items anySatisfy: [ :each |
+			 each label = 'Name' and: [ each value = 'MyProject' ] ]).
+	self assert: (items anySatisfy: [ :each |
+			 each label = 'SHA' and: [ each value = 'abc123' ] ]).
+	self assert: (items anySatisfy: [ :each |
+			 each label = 'Disk SHA' and: [ each value = 'def456' ] ]).
+	self assert: (items anySatisfy: [ :each | each label = 'Packages' ]).
+	self assert:
+		(items anySatisfy: [ :each | each value = 'MockDictionary' ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_projectInfoTabUnpackaged [
+	
+	| unpackagedService items |
+	unpackagedService := self projectsPresenter selectProjectNamed:
+		                     'UnPackaged'.
+	self projectsPresenter selectProjectInfoTab.
+
+	items := self projectsPresenter projectInfoList items.
+	self assert: items notEmpty.
+	self assert: (items anySatisfy: [ :each |
+			 each label = 'Name' and: [ each value = 'UnPackaged' ] ]).
+	self assert: (items anySatisfy: [ :each |
+			 each label = 'SHA' and: [ each value = '' ] ]). "handles blanks"
+	self assert: (items anySatisfy: [ :each |
+			 each label = 'Disk SHA' and: [ each value = '' ] ]).
+	self assert: (items anySatisfy: [ :each | each label = 'Packages' ])
 ]
 
 { #category : 'tests' }

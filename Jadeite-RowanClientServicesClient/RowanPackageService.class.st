@@ -151,6 +151,12 @@ RowanPackageService >> dictionaryName [
 	^dictionaryName
 ]
 
+{ #category : 'accessing' }
+RowanPackageService >> dictionaryName: aString [
+
+	dictionaryName := aString
+]
+
 { #category : 'displaying' }
 RowanPackageService >> displayName [
 
