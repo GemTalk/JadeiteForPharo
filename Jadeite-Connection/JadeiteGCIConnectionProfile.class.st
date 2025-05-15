@@ -140,8 +140,8 @@ JadeiteGCIConnectionProfile >> connect [
 			^ GciError signal: ex message ].
 	GciSession current stoneName: stone.
 	connection := self setupRSRConnection.
-	"session logoutNbNoError. don't logout or nil the session. Need to revert when on 3731 or later"
-	"session := nil"
+	session logoutNbNoError.
+	session := nil.
 	GciSession current library: connection.
 	self applyPreferences.
 	"Uncomment following three lines to enable RSR tracing"
@@ -165,8 +165,6 @@ JadeiteGCIConnectionProfile >> disconnect [
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
 	GciSession clearCurrent. 
 	connection := nil.
-	session logoutNoError. 
-	session := nil. 
 	self notifyPropertyChanged: #connection.
 	RowanServiceUpdater clearCurrent
 ]
@@ -385,7 +383,7 @@ JadeiteGCIConnectionProfile >> setupRSRConnection [
 			with: acceptor token bytes.
 		detailBytes'
 		               maxResultSize: 1024.
-	session executeStringNb: '| connection resolverClass |
+	session executeStringAndDetachNb: '| connection resolverClass |
 		connection := (SessionTemps current at: #PendingConnectionAcceptor) waitForConnection.
 		resolverClass := ((AllUsers userWithId: ''SystemUser'') objectNamed: ''RowanClientServiceTemplateResolver'').
 		GsFile gciLogServer: ''resolverClass: '', resolverClass printString. 

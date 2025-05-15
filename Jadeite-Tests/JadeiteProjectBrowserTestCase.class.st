@@ -2237,28 +2237,6 @@ JadeiteProjectBrowserTestCase >> test_issue261 [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserTestCase >> test_maximizeCode [
-	"the arrangement proportions are somewhat arbitrary in appearance.
-	Good enough to test that the tabView got doubled in size"
-
-	| tabView |
-	self testsIssue: #issue495 withTitle: 'minor error dialogs (3.0.73)'.
-	tabView := (self projectsPresenter view viewNamed: 'textAreaTabs') parentView.
-	self assert: tabView arrangement equals: 12.
-	projectsBrowser maximizeCode.
-	self assert: tabView arrangement equals: 24.
-	self assert: self projectsPresenter previousTabViewArrangement equals: 12.
-	projectsBrowser maximizeCode.	"minimizes tabView"
-	self assert: tabView arrangement equals: 12.
-	self selectSUnitTab.
-	projectsBrowser maximizeCode.
-	self assert: tabView arrangement equals: 24.
-	self assert: self projectsPresenter previousTabViewArrangement equals: 12.
-	projectsBrowser maximizeCode.	"minimizes tabView"
-	self assert: tabView arrangement equals: 12
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserTestCase >> test_menuEnablementDoesNotBreak [
 	"the bug in the issue was a bad enablement test in a menu item
 	during the query. If nothing else, test that we can always query

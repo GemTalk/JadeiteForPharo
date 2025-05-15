@@ -6,9 +6,6 @@ Class {
 	#instVars : [
 		'packageDictionaryCards',
 		'globalsTab',
-		'search',
-		'previousTabViewArrangement',
-		'previousTopViewArrangement',
 		'componentPackageContainer',
 		'packageDictionaryContainer',
 		'packageMethodListPresenter',
@@ -2523,26 +2520,6 @@ JadeiteBrowserPresenter >> preUpdate: services [
 
 	services do: [ :service | 
 		service preUpdate: self  ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> previousTabViewArrangement [
-	^previousTabViewArrangement
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> previousTabViewArrangement: anObject [
-	previousTabViewArrangement := anObject
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> previousTopViewArrangement [
-	^previousTopViewArrangement
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> previousTopViewArrangement: anObject [
-	previousTopViewArrangement := anObject
 ]
 
 { #category : 'selections' }
