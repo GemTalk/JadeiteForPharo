@@ -118,8 +118,7 @@ BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 	path := description withoutPrefix: 'gitlocal://'.
 
 	self copyFile: 'jadeitehelp.md' path: path.
-	(path asFileReference / 'startup.st') isSymlink ifFalse: [
-		self copyFile: 'startup.st' path: path ]
+
 ]
 
 { #category : 'baselines' }
