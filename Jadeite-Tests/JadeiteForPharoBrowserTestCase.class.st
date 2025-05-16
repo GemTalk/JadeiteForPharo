@@ -320,16 +320,18 @@ JadeiteForPharoBrowserTestCase >> test_copyProjectAspect [
 		selectServiceNamed: 'RowanClientServices'
 		in: self projectListPresenter.
 	self projectsPresenter selectProjectInfoTab.
-	1 to: 10 do: [ :index |
-		| selector copyString |
-		index = 2 ifFalse: [ "2 is a blank line"
-			| selectedItem |
-			self projectsPresenter projectInfoList selectIndex: index.
-			self projectsPresenter copyProjectInfo.
-			selectedItem := self projectsPresenter projectInfoList selectedItem.
-			selector := selectedItem last asSymbol.
-			copyString := (selectedItem first perform: selector) displayString.
-			self assert: Clipboard clipboardText equals: copyString ] ]
+	1 to: self projectsPresenter projectInfoList items size do: [ :index |
+		| copyString selectedItem |
+		self projectsPresenter projectInfoList selectIndex: index.
+		selectedItem := self projectsPresenter projectInfoList selectedItem.
+		(selectedItem isBlankLine not and: [ selectedItem header not ])
+			ifTrue: [
+				[ self projectsPresenter copyProjectInfo ]
+					on: ProvideAnswerNotification
+					do: [ :ex |
+					self assert: (selectedItem value , '*' match: ex messageText) ].
+				copyString := selectedItem value.
+				self assert: Clipboard clipboardText equals: copyString ] ]
 ]
 
 { #category : 'tests' }

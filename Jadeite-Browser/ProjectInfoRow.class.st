@@ -4,16 +4,17 @@ Class {
 	#instVars : [
 		'label',
 		'value',
-		'bold'
+		'bold',
+		'header'
 	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }
 
-{ #category : 'accessing' }
-ProjectInfoRow >> blankLine [
+{ #category : 'instance creation' }
+ProjectInfoRow class >> blankLine [
 
-	^ self
+	^ self new
 		  label: '';
 		  value: ''
 ]
@@ -30,11 +31,30 @@ ProjectInfoRow >> bold: anObject [
 	bold := anObject
 ]
 
+{ #category : 'accessing' }
+ProjectInfoRow >> header [
+
+	^ header
+]
+
+{ #category : 'accessing' }
+ProjectInfoRow >> header: anObject [
+
+	header := anObject
+]
+
 { #category : 'initialization' }
 ProjectInfoRow >> initialize [
 
 	super initialize.
-	bold := false
+	bold := false.
+	header := false. 
+]
+
+{ #category : 'testing' }
+ProjectInfoRow >> isBlankLine [
+
+	^ self label isEmpty and: [ self value isEmpty ]
 ]
 
 { #category : 'accessing' }

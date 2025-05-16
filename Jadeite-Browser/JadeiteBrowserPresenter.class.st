@@ -871,18 +871,13 @@ JadeiteBrowserPresenter >> copyInfo [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> copyProjectInfo [
 
-	| copyString selector |
-	projectInfoList selectionIfNone: [
-		UIManager default alert: 'No selection to copy'.
-		^ self ].
-	projectInfoList selectedItem last ifNil: [ ^ self ].
-	selector := projectInfoList selectedItem last asSymbol.
-	projectInfoList selectedItem first isString ifTrue: [
-		^ UIManager default alert: 'No selection to copy' ].
-	copyString := (projectInfoList selectedItem first perform: selector)
-		              displayString.
+	| copyString |
+	projectInfoList selectionIfNone: [ ^ self noProjectInfoToCopyAlert ].
+	projectInfoList selectedItem isBlankLine ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	copyString := projectInfoList selectedItem value.
 	Clipboard clipboardText: copyString.
-	UIManager default inform: selector , ' copied to clipboard'
+	UIManager default inform: copyString , ' copied to clipboard'
 ]
 
 { #category : 'private' }
@@ -2312,6 +2307,16 @@ JadeiteBrowserPresenter >> newProjectNamed: projectName [
 JadeiteBrowserPresenter >> noClassSelectedInEitherPresenter [
 	classListPresenter selectionIfNone: [classHierarchyPresenter selectionIfNone: [^true]].
 	^false
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> noProjectInfoToCopyAlert [
+
+	| message |
+	message := 'No selection to copy'.
+
+	ProvideAnswerNotification signal: message.
+	UIManager default alert: message
 ]
 
 { #category : 'as yet unclassified' }
@@ -4109,20 +4114,20 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
     | rows |
     rows := OrderedCollection new.
     rows add: (ProjectInfoRow new label: 'RowanProjectsHome'; value: service rowanProjectsHome; yourself).
-    rows add: ProjectInfoRow new blankLine.
+    rows add: ProjectInfoRow blankLine.
 
     service wasUpdated ifTrue: [
-        rows add: (ProjectInfoRow new label: 'Attribute'; value: 'Value'; bold: true;  yourself).
+        rows add: (ProjectInfoRow new label: 'Attribute'; value: 'Value'; bold: true;  header: true; yourself).
         rows add: (ProjectInfoRow new label: 'Name'; value: service name; yourself).
         rows add: (ProjectInfoRow new label: 'SHA'; value: service sha; yourself).
         rows add: (ProjectInfoRow new label: 'Disk SHA'; value: service diskSha; yourself).
         rows add: (ProjectInfoRow new label: 'Branch'; value: service branch; yourself).
-        rows add: (ProjectInfoRow new label: 'Is Skew'; value: service isSkew; yourself).
+        rows add: (ProjectInfoRow new label: 'Is Skew'; value: service isSkew printString; yourself).
         rows add: (ProjectInfoRow new label: 'Is Dirty'; value: service toolTip; yourself).
         rows add: (ProjectInfoRow new label: 'Project URL'; value: service projectUrl; yourself).
         rows add: (ProjectInfoRow new label: 'Package Convention'; value: service packageConvention; yourself).
-        rows add: ProjectInfoRow new blankLine.
-        rows add: (ProjectInfoRow new label: 'Packages'; value: 'Dictionary Name'; bold: true; yourself).
+        rows add: ProjectInfoRow blankLine.
+        rows add: (ProjectInfoRow new label: 'Packages'; value: 'Dictionary Name'; bold: true; header: true; yourself).
 
         service packageServices do: [ :packageService |
             rows add: (ProjectInfoRow new label: packageService name; value: packageService dictionaryName; yourself) ].
