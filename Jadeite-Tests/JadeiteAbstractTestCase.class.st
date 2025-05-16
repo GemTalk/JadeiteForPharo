@@ -12,6 +12,22 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteAbstractTestCase class >> codeCoverageClasses [
+
+	^ {  }
+]
+
+{ #category : 'coverage' }
+JadeiteAbstractTestCase class >> codeCoverageMethods [
+
+	^ self codeCoverageClasses
+		  inject: OrderedCollection new
+		  into: [ :coll :theClass |
+			  coll addAll: theClass methods.
+			  coll asOrderedCollection ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase class >> isAbstract [
 	^self == JadeiteAbstractTestCase

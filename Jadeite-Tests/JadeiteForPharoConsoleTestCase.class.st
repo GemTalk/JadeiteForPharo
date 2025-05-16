@@ -5,6 +5,18 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoConsoleTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ {
+		  JadeiteConsoleApplication.
+		  JadeiteConsole.
+		  JadeiteConsoleWithoutRowan.
+		  JadeiteConsoleTableColumn } asOrderedCollection
+]
+
 { #category : 'support' }
 JadeiteForPharoConsoleTestCase >> console [
 	"transcript is from the JfD days"

@@ -5,6 +5,14 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ { JadeiteConnectionLauncher }
+]
+
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [ 
 	

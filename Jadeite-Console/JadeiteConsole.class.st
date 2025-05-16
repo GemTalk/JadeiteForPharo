@@ -772,16 +772,6 @@ JadeiteConsole >> projectListUpdated [
 	"no other lists to clear"
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> refreshFromServer [
-
-	| selection |
-	selection := self projectListPresenter selectedItem.
-	self updateProjectsOnCompletion: [  ].
-	selection ifNotNil: [
-		self projectListPresenter selectItem: selection ]
-]
-
 { #category : 'updates' }
 JadeiteConsole >> refreshProjectInfoTab [
 ]

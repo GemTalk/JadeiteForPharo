@@ -662,6 +662,16 @@ JadeiteProjectsTrait >> pushToGit [
 				'Project ' , projectService name , ' pushed to remote repository!' ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> refreshFromServer [
+
+	| selection |
+	selection := self projectListPresenter selectedItem.
+	self updateProjectsOnCompletion: [  ].
+	selection ifNotNil: [
+		self projectListPresenter selectItem: selection ]
+]
+
 { #category : 'actions' }
 JadeiteProjectsTrait >> refreshGlobalSelections [
 	"refresh selections in all browsers."

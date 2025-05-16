@@ -5,6 +5,17 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoBrowserWithoutRowanTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor.
+	Currently don't look at super classes"
+
+	^ {
+		  JadeiteBrowserWithoutRowan.
+		  JadeiteBrowserPresenterWithoutRowan }
+]
+
 { #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
 	self projectsPresenter classDefinitionPresenter
