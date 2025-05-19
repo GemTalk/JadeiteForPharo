@@ -85,7 +85,7 @@ JadeiteHistoryBrowser >> initializeDiffsPresenter [
 JadeiteHistoryBrowser >> initializeMenubar [
 
 	^ self newMenuBar
-		  addGroup: [ :group | self addToolbarItemsToMenuGroup: group ];
+		  addGroup: [ :group | self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

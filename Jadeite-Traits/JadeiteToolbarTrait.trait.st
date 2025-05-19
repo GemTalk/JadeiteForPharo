@@ -23,8 +23,11 @@ JadeiteToolbarTrait >> addToolbarCommandsTo: aGroup [
 ]
 
 { #category : 'initialization' }
-JadeiteToolbarTrait >> addToolbarItemsToMenuGroup: group [
-
+JadeiteToolbarTrait >> addToolsToMenuGroup: group [
+	group addItem: [ :item |
+					  item
+						  name: 'Tools';
+						  subMenu: self newToolsMenu ]. 
 	^ self newJadeiteToolbar items do: [ :toolbarItem |
 		  group addItem: [ :item |
 			  item
@@ -45,6 +48,24 @@ JadeiteToolbarTrait >> basicOpenBrowser: browser [
 	browser addStyle: 'jadeWorkspace'.
 	self application addBorderStyleTo: windowPresenter presenter: browser.
 	^ browser
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> browserAction [
+
+	^ [ self openBrowser ]
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> browserIcon [
+
+	^ self iconNamed: #smallSystemBrowser
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> browserLabel [
+
+	^ 'Browser'
 ]
 
 { #category : 'trait protocol conflict' }
@@ -97,7 +118,7 @@ JadeiteToolbarTrait >> jadeiteServerGitRepositories [
 	^ #( 'RowanClientServices' )
 ]
 
-{ #category : 'initialization' }
+{ #category : 'menus' }
 JadeiteToolbarTrait >> newJadeiteToolbar [
 
 	toolbar := self instantiate: JadeiteToolbarPresenter.
@@ -106,34 +127,59 @@ JadeiteToolbarTrait >> newJadeiteToolbar [
 		fillWith: self toolbarActions.
 	toolbar
 		addItem: (SpToolbarButtonPresenter new
-				 label: 'Workspace';
-				 icon: (self iconNamed: #workspace);
+				 label: self workspaceLabel;
+				 icon: self workspaceIcon;
 				 help: 'opens GemStone workspace';
-				 action: [ self openWorkspace ];
+				 action: self workspaceAction;
 				 yourself);
 		addItem: (SpToolbarButtonPresenter new
-				 label: 'Browser';
-				 icon: (self iconNamed: #smallSystemBrowser);
+				 label: self browserLabel;
+				 icon: self browserIcon;
 				 help: 'open Browser';
-				 action: [ self openBrowser ];
+				 action: self browserAction;
 				 yourself);
 		addItem: (SpToolbarButtonPresenter new
-				 label: 'SUnit Browser';
-				 icon: (self iconNamed: #smallPaint);
+				 label: self sunitBrowserLabel;
+				 icon: self sunitBrowserIcon;
 				 help: 'open SUnit Browser and Test Runner';
-				 action: [ self openSUnitBrowser ];
-				 yourself);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Process Browser';
-				 icon: (self iconNamed: #processBrowser);
-				 help: 'open browser on GemStone processes';
-				 action: [ self openProcessBrowser ]);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Windows Browser';
-				 icon: (self iconNamed: #window);
-				 help: 'View and Manipulate Jadeite windows';
-				 action: [ self openWindowsBrowser ]).
+				 action: self sunitBrowserAction;
+				 yourself).
+
 	^ toolbar
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> newToolsMenu [
+
+	^ self newMenu
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: self workspaceLabel;
+						  icon: self workspaceIcon;
+						  action: self workspaceAction ];
+				  addItem: [ :item |
+					  item
+						  name: self browserLabel;
+						  icon: self browserIcon;
+						  action: self browserAction ];
+				  addItem: [ :item |
+					  item
+						  name: self sunitBrowserLabel;
+						  icon: self sunitBrowserIcon;
+						  action: self sunitBrowserAction ];
+				  addItem: [ :item |
+					  item
+						  name: 'Process Browser';
+						  icon: (self iconNamed: #processBrowser);
+						  action: [ self openProcessBrowser ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Windows Browser';
+						  icon: (self iconNamed: #window);
+						  action: [ self openWindowsBrowser ] ] ];
+		  yourself
 ]
 
 { #category : 'actions' }
@@ -222,6 +268,24 @@ JadeiteToolbarTrait >> serverCommitIdDescription: ws onCompletion: completionBlo
 			completionBlock value ]
 ]
 
+{ #category : 'menus' }
+JadeiteToolbarTrait >> sunitBrowserAction [
+
+	^ [ self openSUnitBrowser ]
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> sunitBrowserIcon [
+
+	^ self iconNamed: #smallPaint
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> sunitBrowserLabel [
+
+	^ 'SUnit Browser'
+]
+
 { #category : 'accessing' }
 JadeiteToolbarTrait >> sunitBrowserPresenterClass [
 
@@ -236,4 +300,22 @@ JadeiteToolbarTrait >> toolbarActions [
 	^ CmCommandGroup forSpec
 		in: [ :this | self addToolbarCommandsTo: this ];
 		yourself
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> workspaceAction [
+
+	^ [ self openWorkspace ]
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> workspaceIcon [
+
+	^ self iconNamed: #workspace
+]
+
+{ #category : 'menus' }
+JadeiteToolbarTrait >> workspaceLabel [
+
+	^ 'Workspace'
 ]

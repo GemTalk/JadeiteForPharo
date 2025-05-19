@@ -240,7 +240,7 @@ JadeiteBrowser >> initializeMenubar [
 					  item
 						  name: 'Method';
 						  subMenu: self fullMethodListMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

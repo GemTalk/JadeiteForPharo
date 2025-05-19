@@ -52,7 +52,7 @@ JadeiteSUnitPresenter >> addSUnitMethodListMenuItems [
 ]
 
 { #category : 'initialization' }
-JadeiteSUnitPresenter >> addToolbarItemsToMenuGroup: group [
+JadeiteSUnitPresenter >> addToolsToMenuGroup: group [
 
 	^ self newJadeiteSUnitToolbar items do: [ :toolbarItem |
 		  group addItem: [ :item |
@@ -255,7 +255,7 @@ JadeiteSUnitPresenter >> initializeClassList [
 JadeiteSUnitPresenter >> initializeMenuBar [
 
 	^ self newMenuBar addGroup: [ :group |
-		  self addToolbarItemsToMenuGroup: group ]
+		  self addToolsToMenuGroup: group ]
 ]
 
 { #category : 'initialization' }

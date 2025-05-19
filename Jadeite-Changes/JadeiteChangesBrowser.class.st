@@ -146,7 +146,7 @@ JadeiteChangesBrowser >> initializeMenubar [
 					  item
 						  name: 'Jadeite';
 						  subMenu: self initializeJadeiteMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

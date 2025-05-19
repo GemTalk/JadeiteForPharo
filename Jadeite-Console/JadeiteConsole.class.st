@@ -521,7 +521,7 @@ JadeiteConsole >> initializeMenubar [
 					  item
 						  name: 'Help';
 						  subMenu: self initializeHelpMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

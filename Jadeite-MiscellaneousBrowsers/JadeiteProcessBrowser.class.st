@@ -125,7 +125,7 @@ JadeiteProcessBrowser >> initializeMenubar [
 					  item
 						  name: 'Process';
 						  subMenu: self newProcessMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

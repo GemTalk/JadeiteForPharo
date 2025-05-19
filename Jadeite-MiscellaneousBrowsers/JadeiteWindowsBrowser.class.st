@@ -82,7 +82,7 @@ JadeiteWindowsBrowser >> initializeMenubar [
 					  item
 						  name: 'Pharo Windows';
 						  subMenu: self newPharoWindowsMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

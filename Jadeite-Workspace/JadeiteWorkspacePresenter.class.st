@@ -70,7 +70,7 @@ JadeiteWorkspacePresenter >> initializeMenubar [
 					  item
 						  name: 'File';
 						  subMenu: self initializeFileMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 

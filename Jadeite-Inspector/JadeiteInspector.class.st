@@ -546,7 +546,7 @@ JadeiteInspector >> initializeMenubar [
 					  item
 						  name: 'Browse';
 						  subMenu: self initializeBrowseMenu ].
-			  self addToolbarItemsToMenuGroup: group ];
+			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
 
