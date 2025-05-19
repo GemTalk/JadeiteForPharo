@@ -9,6 +9,14 @@ Class {
 }
 
 { #category : 'support' }
+JadeiteForPharoWindowBrowserTestCase >> setUp [
+
+	super setUp.
+	windowsBrowser := self waitForWindowsBrowser: [
+		                  jadeiteShell openWindowsBrowser ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoWindowBrowserTestCase >> tearDown [
 
 	super tearDown.
@@ -18,9 +26,13 @@ JadeiteForPharoWindowBrowserTestCase >> tearDown [
 { #category : 'tests' }
 JadeiteForPharoWindowBrowserTestCase >> test_openWindowsBrowser [
 
-	windowsBrowser := self waitForWindowsBrowser: [
-		                  jadeiteShell openWindowsBrowser ].
 	self assert: (windowsBrowser isKindOf: JadeiteWindowsBrowser)
+]
+
+{ #category : 'support' }
+JadeiteForPharoWindowBrowserTestCase >> toolTested [
+
+	^ windowsBrowser
 ]
 
 { #category : 'support' }

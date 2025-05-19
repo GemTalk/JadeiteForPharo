@@ -34,7 +34,9 @@ JadeiteWindowsBrowser class >> showOnSession: aGciSession [
 		application: JadeiteConsole currentConsole application.
 	windowPresenter := inst open.
 	inst refresh. "to show this window in list"
-	inst addStyle: 'jadeiteTextBackgroundColor'.
+	inst
+		addStyle: 'jadeiteTextBackgroundColor';
+		showNotWait.
 	^ inst
 ]
 
