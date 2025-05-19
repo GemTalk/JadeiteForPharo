@@ -25,6 +25,10 @@ JadeiteTestCodeCoverageCommand class >> fullBrowserMenuActivation [
 ]
 
 { #category : 'activation' }
+JadeiteTestCodeCoverageCommand class >> fullBrowserShortcutActivation [
+]
+
+{ #category : 'activation' }
 JadeiteTestCodeCoverageCommand class >> queryBrowserMenuActivation [
 	<classAnnotation>
 
@@ -60,7 +64,7 @@ JadeiteTestCodeCoverageCommand >> execute [
 			            classes do: [ :theClass |
 				            theClass suite run: TestResult new ] ].
 		ClyQueryBrowserMorph openOn: ((ClyConstantMethodQuery
-				  named: 'UncoveredMethods for '
+				  named: 'Uncovered Methods for '
 					  , (classes collect: [ :ea | ea name ]) printString
 				  with: coverage uncoveredMethods) scope: (ClyClassScope
 					  ofAll: (Smalltalk globals allClasses select: [ :ea |

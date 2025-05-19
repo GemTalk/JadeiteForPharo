@@ -8,6 +8,16 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoDebuggerTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ {
+		  JadeiteDebuggerPresenter.
+		  JadeiteDebuggerApplication } asOrderedCollection
+]
+
 { #category : 'accessing' }
 JadeiteForPharoDebuggerTestCase class >> jadeiteTestResourceClass [ 
 
@@ -114,6 +124,16 @@ JadeiteForPharoDebuggerTestCase >> test_selectDebuggerVariable [
 ]
 
 { #category : 'support' }
+JadeiteForPharoDebuggerTestCase >> toolTested [
+
+	^ debugger ifNil: [
+		  | service |
+		  service := RowanAnsweringServiceClient newForked.
+		  service exec: '$abc' in: GciSession current onCompletion: [  ].
+		  self waitForDebugger ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 
 	| debuggedProcesses |
@@ -122,5 +142,6 @@ JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 	[ debuggedProcesses isEmpty ] whileTrue: [
 		(Delay forMilliseconds: 1) wait.
 		WorldMorph doOneCycle ].
-	debugger := debuggedProcesses first debugger
+	debugger := debuggedProcesses first debugger.
+	^ debugger
 ]

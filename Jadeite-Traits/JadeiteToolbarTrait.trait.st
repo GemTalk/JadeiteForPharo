@@ -47,14 +47,6 @@ JadeiteToolbarTrait >> basicOpenBrowser: browser [
 	^ browser
 ]
 
-{ #category : 'actions' }
-JadeiteToolbarTrait >> displayClientCommitId: workspace [
-
-	| commitIdDescription |
-	commitIdDescription := self clientCommitIdDescription.
-	^ workspace text: commitIdDescription
-]
-
 { #category : 'trait protocol conflict' }
 JadeiteToolbarTrait >> existingBrowser [
 
@@ -72,18 +64,6 @@ JadeiteToolbarTrait >> existingBrowser [
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
 	^ JadeiteConnectionProfile connectionProfile gitShaWorkspace
-]
-
-{ #category : 'actions' }
-JadeiteToolbarTrait >> gitShaWorkspaceClientOnly [
-
-	| workspace windowCaption |
-	windowCaption := 'Jadeite Git Commit Ids'.
-	workspace := JadeiteNonSessionApplication new start.
-	self displayClientCommitId: workspace.
-	workspace setCaption: windowCaption.
-	workspace hasUnacceptedEdits: false.
-	^ workspace
 ]
 
 { #category : 'initialization' }

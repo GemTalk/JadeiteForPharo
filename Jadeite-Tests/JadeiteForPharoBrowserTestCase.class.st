@@ -15,7 +15,7 @@ JadeiteForPharoBrowserTestCase class >> codeCoverageClasses [
 
 	^ {
 		  JadeiteBrowser.
-		  JadeiteBrowserPresenter }
+		  JadeiteBrowserPresenter } asOrderedCollection
 ]
 
 { #category : 'support' }

@@ -5,6 +5,16 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoWorkspaceTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ {
+		  JadeiteWorkspacePresenter.
+		  JadeiteWorkspace } asOrderedCollection
+]
+
 { #category : 'support' }
 JadeiteForPharoWorkspaceTestCase >> fileContents: thePath [
 
@@ -125,7 +135,7 @@ JadeiteForPharoWorkspaceTestCase >> test_serverFileDialogSaveAs [
 	self saveTestFileTo: filePath.
 	[
 	workspace := (JadeiteWorkspace showOnSession: session) caption:
-		             'Jade Workspace - test_serverFileDialogSave'.
+		             'Jade Workspace - test_serverFileDialogSaveAs'.
 	[ workspace openServerFile ]
 		on: ProvideAnswerNotification
 		do: [ :notification | notification resume: filePath ].
@@ -223,4 +233,11 @@ JadeiteForPharoWorkspaceTestCase >> test_workspaceDoIt [
 		assert:
 		(session executeString: 'UserGlobals at: #test_workspaceDoIt')
 		equals: 123
+]
+
+{ #category : 'support' }
+JadeiteForPharoWorkspaceTestCase >> toolTested [
+
+	^ workspace ifNil: [
+		  workspace := JadeiteWorkspace showOnSession: session ]
 ]

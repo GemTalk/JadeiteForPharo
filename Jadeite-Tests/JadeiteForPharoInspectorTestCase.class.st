@@ -65,7 +65,8 @@ JadeiteForPharoInspectorTestCase >> openWorkspaceAndInspect: aString [
 	workspace text: aString.
 	inspector := workspace
 		             executeSelectionOrLineInspectingResult: aString
-		             shouldDebug: false
+		             shouldDebug: false.
+	^ inspector
 ]
 
 { #category : 'support' }
@@ -619,4 +620,10 @@ JadeiteForPharoInspectorTestCase >> test_selectAllString [
 1: $a
 2: $b
 3: $c' match: inspector value)
+]
+
+{ #category : 'support' }
+JadeiteForPharoInspectorTestCase >> toolTested [
+
+	^ inspector ifNil: [ self openWorkspaceAndInspect: '3+4' ]
 ]

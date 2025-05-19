@@ -13,7 +13,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase class >> codeCoverageClasses [
 
 	^ {
 		  JadeiteBrowserWithoutRowan.
-		  JadeiteBrowserPresenterWithoutRowan }
+		  JadeiteBrowserPresenterWithoutRowan } asOrderedCollection
 ]
 
 { #category : 'support' }

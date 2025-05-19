@@ -28,6 +28,10 @@ JadeiteTestCountCommand class >> fullBrowserMenuActivation [
 ]
 
 { #category : 'activation' }
+JadeiteTestCountCommand class >> fullBrowserShortcutActivation [
+]
+
+{ #category : 'activation' }
 JadeiteTestCountCommand class >> queryBrowserMenuActivation [
 	<classAnnotation>
 

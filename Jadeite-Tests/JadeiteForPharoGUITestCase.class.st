@@ -15,6 +15,11 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'as yet unclassified' }
+JadeiteForPharoGUITestCase class >> isAbstract [ 
+	^ self name = #JadeiteForPharoGUITestCase 
+]
+
 { #category : 'constants' }
 JadeiteForPharoGUITestCase >> compileErrorMethodText [
 
@@ -77,6 +82,23 @@ JadeiteForPharoGUITestCase >> tearDown [
 		workspace isModified: false.
 		self destroy: workspace ].
 	self destroy: methodListBrowser.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoGUITestCase >> test_openBrowser [
+	"verify toolbar button works"
+
+	| browser |
+	browser := self toolTested openBrowser.
+	[ self assert: (browser isKindOf: JadeiteBrowser) ] ensure: [
+		self destroy: browser ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoGUITestCase >> toolTested [
+	"if a test specifies a tool, then use it for common tests"
+
+	^ nil
 ]
 
 { #category : 'support' }

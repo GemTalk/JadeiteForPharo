@@ -593,3 +593,12 @@ JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
 	widget hasUnacceptedEdits: false.
 	JadeiteConnectionProfile connectionProfile disconnect "get rid of methods"
 ]
+
+{ #category : 'support' }
+JadeiteForPharoMethodListTestCase >> toolTested [
+
+	^ methodListBrowser ifNil: [
+		  RowanServiceUpdater current critical: [
+			  self openMethodListBrowserOfReferencesTo: 'AbstractCharacter' ].
+		  methodListBrowser ]
+]

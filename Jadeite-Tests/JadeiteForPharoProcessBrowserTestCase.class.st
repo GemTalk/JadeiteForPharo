@@ -8,6 +8,22 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoProcessBrowserTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ { JadeiteProcessBrowser } asOrderedCollection
+]
+
+{ #category : 'tests' }
+JadeiteForPharoProcessBrowserTestCase >> setUp [
+
+	super setUp.
+	processBrowser := self waitForProcessBrowser: [
+		                  jadeiteShell openProcessBrowser ]
+]
+
 { #category : 'support' }
 JadeiteForPharoProcessBrowserTestCase >> tearDown [
 
@@ -26,9 +42,7 @@ proc name: ''test_changePriority''.
 proc resume'
 		                    in: session
 		                    onCompletion: [  ].
-
-	processBrowser := self waitForProcessBrowser: [
-		                  jadeiteShell openProcessBrowser ].
+	processBrowser refresh.
 	delayItem := self waitForProcessNamed: 'test_changePriority'.
 	self assert: delayItem priority equals: 15.
 	processBrowser processListPresenter selectItem: delayItem.
@@ -45,12 +59,17 @@ proc resume'
 
 { #category : 'tests' }
 JadeiteForPharoProcessBrowserTestCase >> test_openProcessBrowser [
+	"opened in setUp"
 
-	processBrowser := self waitForProcessBrowser: [
-		                  jadeiteShell openProcessBrowser ].
 	self assert: (processBrowser isKindOf: JadeiteProcessBrowser).
 	processBrowser processListPresenter list do: [ :processService |
 		self assert: (processService isKindOf: RowanProcessServiceClient) ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoProcessBrowserTestCase >> toolTested [
+
+	^ processBrowser
 ]
 
 { #category : 'support' }

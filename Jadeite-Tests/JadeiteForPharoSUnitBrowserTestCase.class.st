@@ -419,3 +419,9 @@ JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 		sunitBrowser textResultPresenter adapter widget scrollPane color
 		equals: JadeTestResult new jadeiteColorPass
 ]
+
+{ #category : 'support' }
+JadeiteForPharoSUnitBrowserTestCase >> toolTested [
+
+	^ sunitBrowser
+]

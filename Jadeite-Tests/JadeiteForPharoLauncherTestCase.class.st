@@ -11,6 +11,14 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoLauncherTestCase class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ { JadeiteConnectionLauncher } asOrderedCollection
+]
+
 { #category : 'support' }
 JadeiteForPharoLauncherTestCase >> createConnectionProfileDirectory [
 

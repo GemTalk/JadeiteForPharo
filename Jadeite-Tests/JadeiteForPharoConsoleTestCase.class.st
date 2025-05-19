@@ -140,3 +140,9 @@ JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
 		self deny: (projectService displayName includes: $*).
 		self deny: projectService isCurrent ]
 ]
+
+{ #category : 'support' }
+JadeiteForPharoConsoleTestCase >> toolTested [
+
+	^ jadeiteShell
+]

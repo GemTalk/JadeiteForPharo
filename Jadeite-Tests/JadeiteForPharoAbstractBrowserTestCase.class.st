@@ -1714,3 +1714,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 		assert: methodListBrowser methodSourcePresenter selection
 		equals: '_isNumber'
 ]
+
+{ #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> toolTested [
+
+	^ projectsBrowser
+]
