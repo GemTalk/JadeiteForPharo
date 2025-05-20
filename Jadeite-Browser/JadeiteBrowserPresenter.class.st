@@ -188,15 +188,6 @@ JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> addMissingAccessors [
-
-	| classService |
-	classService := self selectedClass.
-	classService command: #addMissingAccessors.
-	self issueCommand: classService onCompletion: [  ]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> addNoneProject [
 	(projectListPresenter list includes: RowanProjectService noneProject)
 		ifFalse: [projectListPresenter model add: RowanProjectService noneProject]

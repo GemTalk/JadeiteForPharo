@@ -16,6 +16,15 @@ JadeiteFilterTrait >> addMethodCategory [
 ]
 
 { #category : 'actions' }
+JadeiteFilterTrait >> addMissingAccessors [
+
+	| classService |
+	classService := self selectedClass.
+	classService command: #addMissingAccessors.
+	self issueCommand: classService onCompletion: [  ]
+]
+
+{ #category : 'actions' }
 JadeiteFilterTrait >> basicRemoveInstVarsNamed: instVars [
 
 	| refs |

@@ -234,7 +234,7 @@ JadeiteToolbarTrait >> openSUnitBrowser [
 { #category : 'actions' }
 JadeiteToolbarTrait >> openWindowsBrowser [
 
-	JadeiteWindowsBrowser showOnSession: self gciSession
+	JadeiteWindowsBrowser show
 ]
 
 { #category : 'actions' }

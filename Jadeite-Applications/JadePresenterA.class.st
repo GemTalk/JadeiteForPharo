@@ -112,19 +112,6 @@ JadePresenterA >> createLabelEditSchematicWiringFor: aPresenter [
 ]
 
 { #category : 'drag & drop' }
-JadePresenterA >> createSchematicWiring [
-
-	super createSchematicWiring.
-	self dragDropPresenters do: [:each | 
-		self createDragDropSchematicWiringFor: each.
-	].
-	self labelEditPresenters do: [:each | 
-		self createLabelEditSchematicWiringFor: each.
-	].
-
-]
-
-{ #category : 'drag & drop' }
 JadePresenterA >> dragDropPresenter [
 
 	^self primaryPresenter.

@@ -38,14 +38,6 @@ JadeTranscript >> browseProcesses [
 ]
 
 { #category : 'as yet unclassified' }
-JadeTranscript >> createSchematicWiring [
-
-	super createSchematicWiring.
-	(self view viewNamed: 'cardContainer') when: #'currentCardChanged' send: #'currentCardChanged' to: self.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeTranscript >> currentCardChanged [
 
 	| currentCard |

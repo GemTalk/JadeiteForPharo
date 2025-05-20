@@ -112,18 +112,6 @@ CodeSourcePresenter >> copySelection [
 ]
 
 { #category : 'Jade' }
-CodeSourcePresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	documentPresenter
-		when: #aboutToDisplayMenu:
-			send: #methodMenu:
-			to: self;
-		when: #leftButtonDoubleClicked:
-			send: #methodDoubleClicked:
-			to: self
-]
-
-{ #category : 'Jade' }
 CodeSourcePresenter >> currentSelectionOrLine [
 
 	| range |

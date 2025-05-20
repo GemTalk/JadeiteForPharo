@@ -119,7 +119,8 @@ JadeitePresenter >> suspendSelectionEvents [
 
 { #category : 'initialization' }
 JadeitePresenter >> updateCaption [
-	self caption: (GciSession current titleBarFor: self shellName)
+
+	self caption: self shellName
 ]
 
 { #category : 'initialization' }

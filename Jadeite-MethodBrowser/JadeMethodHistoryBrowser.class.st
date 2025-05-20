@@ -10,14 +10,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeMethodHistoryBrowser >> createSchematicWiring [
-
-	super createSchematicWiring.
-	versionListPresenter when: #'selectionChanged' send: #'fillMethodSource' to: self.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodHistoryBrowser >> fillMethodSource [
 
 	editorPresenter value: (versionListPresenter selection at: 3).

@@ -42,22 +42,6 @@ MethodSourcePresenter >> codePresenterIsMethod [
 ]
 
 { #category : 'as yet unclassified' }
-MethodSourcePresenter >> createSchematicWiring [
-	super createSchematicWiring.
-	documentPresenter
-		when: #hoverStart:
-			send: #hoverStart:
-			to: self;
-		when: #hoverEnd:
-			send: #hoverEnd:
-			to: self;
-		when: #focusLost
-			send: #cancelCallTip
-			to: documentPresenter view;
-		yourself
-]
-
-{ #category : 'as yet unclassified' }
 MethodSourcePresenter >> defaultMethod [
 	^JadePresenter defaultMethodTemplate
 ]

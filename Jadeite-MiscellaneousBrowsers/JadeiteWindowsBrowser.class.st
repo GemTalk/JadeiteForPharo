@@ -24,14 +24,12 @@ JadeiteWindowsBrowser class >> currentApplication [
 ]
 
 { #category : 'instance creation' }
-JadeiteWindowsBrowser class >> showOnSession: aGciSession [
+JadeiteWindowsBrowser class >> show [
 
 	| inst windowPresenter |
 	inst := self basicNew.
 	inst initialize.
-	inst
-		gciSession: aGciSession;
-		application: JadeiteConsole currentConsole application.
+	inst application: JadeiteApplication new.
 	windowPresenter := inst open.
 	inst refresh. "to show this window in list"
 	inst
@@ -81,8 +79,7 @@ JadeiteWindowsBrowser >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'Pharo Windows';
-						  subMenu: self newPharoWindowsMenu ].
-			  self addToolsToMenuGroup: group ];
+						  subMenu: self newPharoWindowsMenu ] ];
 		  yourself
 ]
 
@@ -222,6 +219,12 @@ JadeiteWindowsBrowser >> newPharoWindowsMenu [
 					name: 'Refresh';
 					action: [ self refresh ] ] ].
 	^ menu
+]
+
+{ #category : 'showing' }
+JadeiteWindowsBrowser >> open [
+
+	^ self asWindow open
 ]
 
 { #category : 'actions' }

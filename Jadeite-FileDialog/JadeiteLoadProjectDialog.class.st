@@ -95,15 +95,6 @@ JadeiteLoadProjectDialog >> apply [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteLoadProjectDialog >> createSchematicWiring [
-	super createSchematicWiring.
-	fileSelectorPresenter directoryContentsList
-		when: #selectionChanged
-		send: #updateProperties
-		to: self
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteLoadProjectDialog >> initialize [
 	super initialize.
 	self class previousFilePath

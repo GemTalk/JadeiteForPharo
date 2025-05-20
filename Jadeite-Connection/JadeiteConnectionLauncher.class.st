@@ -592,7 +592,11 @@ JadeiteConnectionLauncher >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'About';
-						  subMenu: self initializeAboutMenu ] ];
+						  subMenu: self initializeAboutMenu ];
+				  addItem: [ :item |
+					  item
+						  name: 'Tools';
+						  subMenu: self initializeToolsMenu ] ];
 		  yourself
 ]
 
@@ -651,6 +655,17 @@ JadeiteConnectionLauncher >> initializeStonePresenter [
 	self layout add: (self newLabel label: 'Stone:').
 	stoneText := self newTextInput.
 	self layout add: stoneText
+]
+
+{ #category : 'initialization' }
+JadeiteConnectionLauncher >> initializeToolsMenu [
+
+	^ self newMenu
+		  addItem: [ :item |
+			  item
+				  name: 'Windows Browser';
+				  action: [ self openWindowsBrowser ] ];
+		  yourself
 ]
 
 { #category : 'initialization' }
@@ -717,6 +732,12 @@ JadeiteConnectionLauncher >> newConnection [
 	shouldClear := UIManager default confirm:
 		               'Clear all fields to enter new connection information?'.
 	shouldClear ifTrue: [ self basicNewConnection ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> openWindowsBrowser [
+
+	JadeiteWindowsBrowser show
 ]
 
 { #category : 'accessing' }
