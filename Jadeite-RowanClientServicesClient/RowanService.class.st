@@ -248,8 +248,9 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 		catch: [ :value |
 			[
 			RowanServiceUpdater current isLogging ifTrue: [ value traceCr ].
-			value tag = 'rsrProcessTerminated' ifTrue: [
-				RowanServiceUpdater current logComment: 'rsrProcessTerminated' ].
+			(value class canUnderstand: #tag) ifTrue: [
+				value tag = 'rsrProcessTerminated' ifTrue: [
+					RowanServiceUpdater current logComment: 'rsrProcessTerminated' ] ].
 			self terminate: process error: value.
 			self raiseCompileErrorIfNeeded.
 			self catchBlock cull: value ] ensure: [ self inCommand signal ] ]

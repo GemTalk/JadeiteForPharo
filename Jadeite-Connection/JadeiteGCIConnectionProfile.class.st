@@ -394,6 +394,7 @@ JadeiteGCIConnectionProfile >> setupRSRConnection [
 		"connection log addSink: (RsrCustomSink action: [:message | GsFile gciLogServer: message ]).
 		connection log verbosity: connection log levelTrace."
 		GsFile gciLogServer: ''about to waitUntilClose''.
+		Processor activeProcess name: ''RSR waitUntilClose''.
 		connection waitUntilClose.'.
 	thePort := detailBytes unsignedShortAt: 1 bigEndian: true.
 	token := RsrToken bytes: (detailBytes copyFrom: 3 to: 18).

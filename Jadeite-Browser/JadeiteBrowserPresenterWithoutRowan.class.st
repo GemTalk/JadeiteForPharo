@@ -355,11 +355,15 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService method
 		RowanServiceUpdater current applyUpdateWhile: [
 			self selectDictionaryNamed: classService dictionaryName.
 			self updateService: self dictionaryListPresenter selectedItem.
-			self updateClassCategoriesFor: self dictionaryListPresenter selectedItem.
+			self updateClassCategoriesFor:
+				self dictionaryListPresenter selectedItem.
 			self setAppropriateMeta: classService.
-			self selectClassListTab.
+			self isHierarchyTabSelected ifTrue: [
+				self selectedClass = classService ifFalse: [
+					self selectClassListTab ] ].
 			self selectClassCategoryFor: classService.
-			self updateClassesForClassCategory: self classCategoryPresenter selectedItem. 
+			self updateClassesForClassCategory:
+				self classCategoryPresenter selectedItem.
 			self selectClass: classService completionBlock: completionBlock.
 			methodListPresenter items: classService methods.
 			methodListPresenter beSorted.

@@ -856,6 +856,33 @@ JadeiteForPharoBrowserTestCase >> test_runTestInBrowser [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_saveClassOnHierarchyStaysOnHierarchy [
+
+	self
+		testsJadeiteForPharoIssue: #issu280
+		title:
+		'Saving a class while in hierarchy view switches you back to class view'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/280'.
+	self selectServiceNamed: 'UnPackaged' in: self projectListPresenter.
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self packageListPresenter.
+	self selectHierarchyTab.
+	self
+		saveClass: 'TestSaveOnHierarchy'
+		superclass: 'Object'
+		instVars: #( 'oneInstVar' )
+		package: 'UnPackaged-RowanClientServices'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestSaveOnHierarchy'.
+	self assert: self projectsPresenter isHierarchyTabSelected.
+	self projectsPresenter
+		basicRemoveClass: self classListPresenter selectedItem
+		onCompletion: nil
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_selectVariable [
 
 	self selectRowanServicesPackage.

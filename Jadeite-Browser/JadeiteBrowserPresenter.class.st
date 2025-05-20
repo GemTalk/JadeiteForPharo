@@ -3777,7 +3777,9 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 				ifNotNil: [
 					projectService := array first.
 					packageService := array last.
-					self selectClassListTab.
+					self isHierarchyTabSelected ifTrue: [
+						self selectedClass = classService ifFalse: [
+							self selectClassListTab ] ].
 					self selectPackageListTab.
 					self
 						selectClassNamed: classService
