@@ -9,6 +9,13 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'support' }
+JadeiteForPharoFileDialogTestCase >> fileAndDirectoryNames [
+
+	^ fileDialogPresenter directoryContentsList list collect: [ :assoc |
+		  assoc key ]
+]
+
 { #category : 'tests' }
 JadeiteForPharoFileDialogTestCase >> fileName [
 
@@ -50,31 +57,31 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 	"the default directory is $ROWAN_PROJECTS_HOME
 	so we know that JadeiteForPharo directory will be there."
 
-	| item keys list |
+	| item keys dirContentsList |
 	fileDialogPresenter := fileDialog fileSelectorPresenter.
-	list := fileDialogPresenter directoryContentsList.
-	item := list list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
+	dirContentsList := fileDialogPresenter directoryContentsList.
+	item := dirContentsList list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
 	fileDialogPresenter directoryContentsList selectItem: item.
 	self
 		assert: fileDialogPresenter pathText text
 		equals: '$ROWAN_PROJECTS_HOME'.
-	keys := fileDialogPresenter directoryContentsList list collect: [
-		        :assoc | assoc key ].
+	keys := self fileAndDirectoryNames.
 	self deny: (keys includes: 'Jadeite-Browser').
 	fileDialogPresenter dive.
 	self
 		assert: fileDialogPresenter pathText text
 		equals: '$ROWAN_PROJECTS_HOME/JadeiteForPharo'.
-	keys := fileDialogPresenter directoryContentsList list collect: [
-		        :assoc | assoc key ].
+	keys := self fileAndDirectoryNames.
 	self assert: (keys includes: 'Jadeite-Browser').
 	fileDialogPresenter pop.
+	keys := self fileAndDirectoryNames.
+	self deny: (keys includes: 'Jadeite-Browser').
+	item := dirContentsList list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
 	fileDialogPresenter directoryContentsList selectItem: item.
 	fileDialogPresenter directoryContentsList doActivateAtIndex:
 		fileDialogPresenter directoryContentsList selection selectedIndex.
-	keys := fileDialogPresenter directoryContentsList list collect: [
-		        :assoc | assoc key ].
-	self deny: (keys includes: 'Jadeite-Browser')
+	keys := self fileAndDirectoryNames.
+	self assert: (keys includes: 'Jadeite-Browser')
 ]
 
 { #category : 'tests' }
