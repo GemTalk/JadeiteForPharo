@@ -80,6 +80,14 @@ RowanFileServiceClient >> fileInChunk: aString [
 ]
 
 { #category : 'commands' }
+RowanFileServiceClient >> fileInOnCompletion: completionBlock [
+
+	command := #fileIn:.
+	commandArgs := Array with: path.
+	self issueFileServiceCommandOnCompletion: completionBlock
+]
+
+{ #category : 'commands' }
 RowanFileServiceClient >> fileName [
 
 	command := #fileName.

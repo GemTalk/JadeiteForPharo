@@ -277,17 +277,17 @@ JadeiteWindowsBrowser >> raisePharoWindows [
 			minimizeOrRestore ]
 ]
 
-{ #category : 'accessing - model' }
+{ #category : 'actions' }
 JadeiteWindowsBrowser >> refresh [
 
-	| jadeiteSelection pharoSelection |
-	jadeiteSelection := jadeiteWindowsListPresenter selectedItem.
-	pharoSelection := pharoWindowsListPresenter selectedItem.
+	| jadeiteSelections pharoSelections |
+	jadeiteSelections := jadeiteWindowsListPresenter selectedItems.
+	pharoSelections := pharoWindowsListPresenter selectedItems.
 	self initializeWindows.
 	jadeiteWindowsListPresenter list: (ListModel on: jadeiteWindows).
 	pharoWindowsListPresenter list: (ListModel on: pharoWindows).
-	jadeiteWindowsListPresenter selectItem: jadeiteSelection.
-	pharoWindowsListPresenter selectItem: pharoSelection
+	jadeiteWindowsListPresenter selectItems: jadeiteSelections.
+	pharoWindowsListPresenter selectItems: pharoSelections
 ]
 
 { #category : 'constants' }

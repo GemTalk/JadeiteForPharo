@@ -60,6 +60,80 @@ JadeiteForPharoConsoleTestCase >> test_browseProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_fileIn [
+
+	| classes newClass fileName path |
+	self console unsetCurrentProject.
+
+	self openProjectBrowser.
+	self
+		selectServiceNamed: 'UnPackaged'
+		in: self projectsPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	self projectsPresenter setCurrentProject.
+	self projectsPresenter setCurrentPackage.
+	self projectsPresenter packageListPresenter unselectAll.
+
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self assertIsNil: newClass.
+
+	self
+		saveClass: 'TestingFileIn'
+		superclass: 'Object'
+		instVars: #(  )
+		package: 'UnPackaged-RowanClientServices'.
+
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self denyIsNil: newClass.
+	self projectsPresenter selectClassNamed: 'TestingFileIn'.
+	fileName := 'test_fileIn.txt'.
+	path := (FileSystem disk workingDirectoryPath / fileName)
+		        asFileReference pathString.
+
+	self projectsPresenter fileOutClassOnPath: path.
+
+	self abortTransaction.
+
+	self projectsPresenter packageListPresenter unselectAll.
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self assertIsNil: newClass.
+
+	self console basicFileInServerFile: path.
+
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self denyIsNil: newClass.
+	
+	self abortTransaction.
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_openHelp [
 	"open the Jadeite Help File and make sure it's contents match the .md file prescribed"
 

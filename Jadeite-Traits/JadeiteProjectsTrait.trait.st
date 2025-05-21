@@ -693,11 +693,18 @@ JadeiteProjectsTrait >> refreshGlobalSelections [
 { #category : 'actions' }
 JadeiteProjectsTrait >> refreshProjects [
 
+	self refreshProjectsOnCompletion: [  ]
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> refreshProjectsOnCompletion: completionBlock [
+
 	| browserService |
 	browserService := RowanBrowserService new command: #updateProjects.
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
+		onCompletion: completionBlock
 ]
 
 { #category : 'actions' }

@@ -129,7 +129,18 @@ JadeiteConsole >> autoCompleteEnabled: boolean [
 	autoCompleteEnabled value: boolean
 ]
 
-{ #category : 'accessing' }
+{ #category : 'actions' }
+JadeiteConsole >> basicFileInServerFile: filePath [
+
+	| service |
+	service := RowanFileServiceClient new
+		           path: filePath;
+		           session: self gciSession.
+	service fileInOnCompletion: [
+		UIManager default inform: 'FileIn complete - ' , filePath ]
+]
+
+{ #category : 'actions' }
 JadeiteConsole >> basicOpenServerFile: filePath [
 
 	^ JadeiteServerFileWorkspaceApplication
@@ -137,13 +148,13 @@ JadeiteConsole >> basicOpenServerFile: filePath [
 		  path: filePath
 ]
 
-{ #category : 'accessing' }
+{ #category : 'actions' }
 JadeiteConsole >> basicSetFont: newFont [
 	JadeitePreferences displayFontFrom: newFont.
 	JadeitePreferences current currentFont: newFont
 ]
 
-{ #category : 'accessing' }
+{ #category : 'actions' }
 JadeiteConsole >> basicSetTextFont: newFont [
 	JadeiteScintillaView allInstances do: [:scintillaView | scintillaView font: newFont].
 	JadeitePreferences current currentTextFont: newFont
@@ -289,6 +300,23 @@ JadeiteConsole >> createNewProject [
 	^projectListPresenter createNewProject
 ]
 
+{ #category : 'accessing' }
+JadeiteConsole >> currentPackage [
+
+	^ self currentProject ifNotNil: [ :projectService |
+		  projectService packageServices
+			  detect: [ :packageService | packageService isCurrent ]
+			  ifNone: [  ] ]
+]
+
+{ #category : 'accessing' }
+JadeiteConsole >> currentProject [
+
+	^ self projectListPresenter list
+		  detect: [ :projectService | projectService isCurrent ]
+		  ifNone: [  ]
+]
+
 { #category : 'defaults' }
 JadeiteConsole >> defaultLayout [ 
 
@@ -312,6 +340,18 @@ JadeiteConsole >> displayLastKnownCommitOrAbort [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> editLoadSpecFromFile [
 	^JadeiteLoadSpecEditor editLoadSpecFromFileInSession: gciSession
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> fileInServerFile [
+
+	| filePath |
+	RowanServiceUpdater current critical: [
+		filePath := JadeiteServerFileSelectorDialog
+			            showOnSession: gciSession
+			            defaultPath:
+			            JadePresenter rowanProjectsHomeEnvVarString.
+		filePath ifNotNil: [ self basicFileInServerFile: filePath ] ]
 ]
 
 { #category : 'actions' }
@@ -464,7 +504,12 @@ JadeiteConsole >> initializeFileMenu [
 			  item
 				  name: 'Open Server File ...';
 				  action: [ self openServerFile ] ];
-		  yourself 
+		  addItem: [ :item |
+			  item
+				  name: 'File In Server File ...';
+				  action: [ self fileInServerFile ];
+				  enabled: [ self isCurrentProjectAndPackageSet ] ];
+		  yourself
 ]
 
 { #category : 'initialization' }
@@ -616,6 +661,12 @@ JadeiteConsole >> isCommitEnabled [
 	^self parentPresenter isCommitEnabled
 ]
 
+{ #category : 'testing' }
+JadeiteConsole >> isCurrentProjectAndPackageSet [
+
+	^ self currentProject notNil and: [ self currentPackage notNil ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> isTranscriptInstalled [
 	^isTranscriptInstalled value
@@ -710,14 +761,6 @@ JadeiteConsole >> openGitHubJadeiteProject [
 { #category : 'actions' }
 JadeiteConsole >> openGitHubRowanProject [
 	^JadePresenter openGitHubRowanProject
-]
-
-{ #category : 'actions' }
-JadeiteConsole >> openJadeiteHelpFile [
-
-	| browser |
-	browser := JadeiteHelpPresenter new gciSession: GciSession current.
-	^ browser open
 ]
 
 { #category : 'actions' }

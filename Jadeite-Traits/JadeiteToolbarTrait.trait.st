@@ -168,7 +168,9 @@ JadeiteToolbarTrait >> newToolsMenu [
 					  item
 						  name: self sunitBrowserLabel;
 						  icon: self sunitBrowserIcon;
-						  action: self sunitBrowserAction ];
+						  action: self sunitBrowserAction ] ];
+		  addGroup: [ :group |
+			  group
 				  addItem: [ :item |
 					  item
 						  name: 'Process Browser';
@@ -178,7 +180,11 @@ JadeiteToolbarTrait >> newToolsMenu [
 					  item
 						  name: 'Windows Browser';
 						  icon: (self iconNamed: #window);
-						  action: [ self openWindowsBrowser ] ] ];
+						  action: [ self openWindowsBrowser ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Jadeite Help';
+						  action: [ self openJadeiteHelpFile ] ] ];
 		  yourself
 ]
 
@@ -199,6 +205,14 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 	| windowCaption |
 	windowCaption := 'Jadeite Git Commit Ids'.
 	^ self gitShaWorkspaceClientAndServer
+]
+
+{ #category : 'actions' }
+JadeiteToolbarTrait >> openJadeiteHelpFile [
+
+	| browser |
+	browser := JadeiteHelpPresenter new gciSession: GciSession current.
+	^ browser open
 ]
 
 { #category : 'actions' }
