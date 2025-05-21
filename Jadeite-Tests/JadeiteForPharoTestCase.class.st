@@ -67,9 +67,21 @@ JadeiteForPharoTestCase >> selectVariableNamed: varName [
 { #category : 'support' }
 JadeiteForPharoTestCase >> setUp [
 
+	| openConsoles |
 	super setUp.
 	savedSettings := JadeitePreferences current copy.
 	JadeitePreferences isRowanLoaded: true. "Not all test classes will run with rowan being available"
+
+	openConsoles := JadeiteConsole allInstances select: [ :console |
+		                console window isOpen ].
+	self assert: openConsoles size equals: 1.
+	openConsoles size > 1 ifTrue: [
+		UIManager default alert:
+			'Found multiple consoles! Stop test until debugged'.
+		self halt ].
+	self
+		assert: openConsoles first
+		identicalTo: JadeiteConsole currentConsole
 ]
 
 { #category : 'support' }
