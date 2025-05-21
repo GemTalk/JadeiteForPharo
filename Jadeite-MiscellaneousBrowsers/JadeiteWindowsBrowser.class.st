@@ -47,16 +47,18 @@ JadeiteWindowsBrowser >> addStyle: aString [
 ]
 
 { #category : 'actions' }
-JadeiteWindowsBrowser >> closeJadeiteSelectedWindow [
+JadeiteWindowsBrowser >> closeJadeiteWindows [
 
-	jadeiteWindowsListPresenter selectedItem window close.
+	jadeiteWindowsListPresenter selectedItems do: [ :presenter |
+		presenter window close ].
 	self refresh
 ]
 
 { #category : 'actions' }
-JadeiteWindowsBrowser >> closePharoSelectedWindow [
+JadeiteWindowsBrowser >> closePharoWindows [
 
-	pharoWindowsListPresenter selectedItem window close.
+	pharoWindowsListPresenter selectedItems do: [ :presenter |
+		presenter window close ].
 	self refresh
 ]
 
@@ -133,13 +135,15 @@ JadeiteWindowsBrowser >> initializeWindowsListPresenterTo: box [
 
 	| listsBox |
 	listsBox := SpBoxLayout newHorizontal.
-	jadeiteWindowsListPresenter := JadeiteListPresenter new display: [
-		                               :window | window label ].
+	jadeiteWindowsListPresenter := JadeiteListPresenter new
+		                               display: [ :window | window label ];
+		                               beMultipleSelection.
 	jadeiteWindowsListPresenter headerTitle: 'Jadeite Windows'.
 	listsBox add: jadeiteWindowsListPresenter.
 
-	pharoWindowsListPresenter := JadeiteListPresenter new display: [
-		                             :window | window label ].
+	pharoWindowsListPresenter := JadeiteListPresenter new
+		                             display: [ :window | window label ];
+		                             beMultipleSelection.
 	pharoWindowsListPresenter headerTitle: 'Pharo Windows'.
 	listsBox add: pharoWindowsListPresenter.
 
@@ -147,16 +151,30 @@ JadeiteWindowsBrowser >> initializeWindowsListPresenterTo: box [
 	self initializeWindowsListMenu
 ]
 
-{ #category : 'actions' }
-JadeiteWindowsBrowser >> lowerJadeiteSelectedWindow [
+{ #category : 'accessing' }
+JadeiteWindowsBrowser >> jadeiteWindowsListPresenter [
 
-	jadeiteWindowsListPresenter selectedItem window collapse
+	^ jadeiteWindowsListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteWindowsBrowser >> jadeiteWindowsListPresenter: anObject [
+
+	jadeiteWindowsListPresenter := anObject
 ]
 
 { #category : 'actions' }
-JadeiteWindowsBrowser >> lowerPharoSelectedWindow [
+JadeiteWindowsBrowser >> lowerJadeiteWindows [
 
-	pharoWindowsListPresenter selectedItem window collapse
+	jadeiteWindowsListPresenter selectedItems do: [ :presenter |
+		presenter window collapse ]
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> lowerPharoWindows [
+
+	pharoWindowsListPresenter selectedItems do: [ :presenter |
+		presenter window collapse ]
 ]
 
 { #category : 'initialization' }
@@ -170,17 +188,17 @@ JadeiteWindowsBrowser >> newJadeiteWindowsMenu [
 				addItem: [ :item |
 					item
 						name: 'Raise';
-						action: [ self raiseJadeiteSelectedWindow ];
+						action: [ self raiseJadeiteWindows ];
 						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
-				item					
+					item
 						name: 'Lower';
-						action: [ self lowerJadeiteSelectedWindow ];
+						action: [ self lowerJadeiteWindows ];
 						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 					item
 						name: 'Close';
-						action: [ self closeJadeiteSelectedWindow ];
+						action: [ self closeJadeiteWindows ];
 						enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ] ];
 		addGroup: [ :group |
 			group addItem: [ :item |
@@ -201,17 +219,17 @@ JadeiteWindowsBrowser >> newPharoWindowsMenu [
 				addItem: [ :item |
 					item
 						name: 'Raise';
-						action: [ self raisePharoSelectedWindow ];
+						action: [ self raisePharoWindows ];
 						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 					item
 						name: 'Lower';
-						action: [ self lowerPharoSelectedWindow ];
+						action: [ self lowerPharoWindows ];
 						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 					item
 						name: 'Close';
-						action: [ self closePharoSelectedWindow ];
+						action: [ self closePharoWindows ];
 						enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ] ];
 		addGroup: [ :group |
 			group addItem: [ :item |
@@ -227,22 +245,36 @@ JadeiteWindowsBrowser >> open [
 	^ self asWindow open
 ]
 
-{ #category : 'actions' }
-JadeiteWindowsBrowser >> raiseJadeiteSelectedWindow [
-	"kind of weird pharo code, but it seems that we have to collapse
-	the window first, then do a `minimizeOrRestore`"
+{ #category : 'accessing' }
+JadeiteWindowsBrowser >> pharoWindowsListPresenter [
 
-	jadeiteWindowsListPresenter selectedItem window
-		collapse;
-		minimizeOrRestore
+	^ pharoWindowsListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteWindowsBrowser >> pharoWindowsListPresenter: anObject [
+
+	pharoWindowsListPresenter := anObject
 ]
 
 { #category : 'actions' }
-JadeiteWindowsBrowser >> raisePharoSelectedWindow [
+JadeiteWindowsBrowser >> raiseJadeiteWindows [
+	"kind of weird pharo code, but it seems that we have to collapse
+	the window first, then do a `minimizeOrRestore`"
 
-	pharoWindowsListPresenter selectedItem window
-		collapse;
-		minimizeOrRestore
+	jadeiteWindowsListPresenter selectedItems do: [ :presenter |
+		presenter window
+			collapse;
+			minimizeOrRestore ]
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> raisePharoWindows [
+
+	pharoWindowsListPresenter selectedItems do: [ :presenter |
+		presenter window
+			collapse;
+			minimizeOrRestore ]
 ]
 
 { #category : 'accessing - model' }
@@ -268,16 +300,4 @@ JadeiteWindowsBrowser >> startAutoRefresh [
 
 	super startAutoRefresh.
 	autoRefreshProcess name: 'Jadeite Windows Browser Auto Refresh'
-]
-
-{ #category : 'accessing' }
-JadeiteWindowsBrowser >> windowsListPresenter [
-
-	^ jadeiteWindowsListPresenter
-]
-
-{ #category : 'accessing' }
-JadeiteWindowsBrowser >> windowsListPresenter: anObject [
-
-	jadeiteWindowsListPresenter := anObject
 ]

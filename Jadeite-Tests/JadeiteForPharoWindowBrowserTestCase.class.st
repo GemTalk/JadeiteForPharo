@@ -24,15 +24,29 @@ JadeiteForPharoWindowBrowserTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoWindowBrowserTestCase >> test_lowerAndRaiseAllWindows [
+
+	windowsBrowser jadeiteWindowsListPresenter selectAll.
+	windowsBrowser lowerJadeiteWindows.
+	windowsBrowser jadeiteWindowsListPresenter items do: [ :presenter |
+		self assert: presenter window isMinimized ].
+	windowsBrowser raiseJadeiteWindows.
+	windowsBrowser jadeiteWindowsListPresenter items do: [ :presenter |
+		self assert: presenter window isMinimized not ].
+
+	windowsBrowser pharoWindowsListPresenter selectAll.
+	windowsBrowser lowerPharoWindows.
+	windowsBrowser pharoWindowsListPresenter items do: [ :presenter |
+		self assert: presenter window isMinimized ].
+	windowsBrowser raisePharoWindows.
+	windowsBrowser pharoWindowsListPresenter items do: [ :presenter |
+		self assert: presenter window isMinimized not ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoWindowBrowserTestCase >> test_openWindowsBrowser [
 
 	self assert: (windowsBrowser isKindOf: JadeiteWindowsBrowser)
-]
-
-{ #category : 'support' }
-JadeiteForPharoWindowBrowserTestCase >> toolTested [
-
-	^ windowsBrowser
 ]
 
 { #category : 'support' }
