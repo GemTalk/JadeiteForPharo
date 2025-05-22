@@ -447,6 +447,27 @@ JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_dirtyBolding [
+
+	| packageBoldAction packageService projectBoldAction projectService |
+	packageBoldAction := self packageListPresenter instVarNamed:
+		                     #boldAction.
+	self denyIsNil: [ packageBoldAction ].
+	packageService := RowanPackageService new isDirty: true.
+	self assert: (packageBoldAction value: packageService).
+	packageService := RowanProjectService new isDirty: false.
+	self deny: (packageBoldAction value: packageService).
+
+	projectBoldAction := self projectListPresenter instVarNamed:
+		                     #boldAction.
+	self denyIsNil: [ projectBoldAction ].
+	projectService := RowanPackageService new isDirty: true.
+	self assert: (projectBoldAction value: projectService).
+	projectService := RowanProjectService new isDirty: false.
+	self deny: (projectBoldAction value: projectService)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_existsOnDiskDisplay [
 	"only test the display which was broken"
 

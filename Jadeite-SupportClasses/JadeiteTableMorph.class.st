@@ -20,9 +20,24 @@ JadeiteTableMorph >> defaultContainer [
 ]
 
 { #category : 'selection' }
+JadeiteTableMorph >> mouseLeaveDragging: event [
+
+	highlightedIndexes := {  }.
+	self refresh.
+	^ super mouseLeaveDragging: event
+]
+
+{ #category : 'accessing - colors' }
+JadeiteTableMorph >> secondarySelectionColor [
+
+	^Color veryLightGray lighter 
+]
+
+{ #category : 'selection' }
 JadeiteTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
 
 	self selectionConfirmationBlock value ifFalse: [ ^ self ].
+	highlightedIndexes := { }. 
 	^ super
 		  selectIndexes: anArray
 		  andMakeVisibleIf: shouldEnsureVisibleSelection
