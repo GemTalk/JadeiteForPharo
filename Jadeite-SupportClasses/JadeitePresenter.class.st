@@ -56,7 +56,7 @@ JadeitePresenter >> initializeWaitPresenter [
 	self showNotWait.
 	horizontalBox add: box.
 	stopWaitButton := self newButton
-		                  icon: (self iconNamed: #halt);
+		                  icon: (self iconNamed: #stop);
 		                  help: 'Stop Progress Bar';
 		                  action: [
 			                  RowanServiceUpdater current stopProgressBar ].
