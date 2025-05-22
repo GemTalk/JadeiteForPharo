@@ -1733,6 +1733,8 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 			                        self jadeiteWantsDrop: transfer ];
 		                        display: [ :packageService |
 			                        packageService displayName ];
+		                        displayBold: [ :packageService |
+			                        packageService isDirty ];
 		                        acceptDrop: [ :transfer |
 			                        self
 				                        dropMethods: transfer passenger
