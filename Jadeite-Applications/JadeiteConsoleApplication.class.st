@@ -6,7 +6,7 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteConsoleApplication >> jadeiteConsoleClass [
+JadeiteConsoleApplication class >> jadeiteConsoleClass [
 
 	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ JadeiteConsole ]
@@ -28,13 +28,13 @@ JadeiteConsoleApplication >> start [
 
 	| inst windowPresenter |
 	RowanServiceUpdater current critical: [
-		inst := self new: self jadeiteConsoleClass.
+		inst := self new: self class jadeiteConsoleClass.
 		inst
 			gciSession: gciSession;
 			installTranscript;
 			updateProjectsOnCompletion: [  ];
 			initializeAutoCommit.
-		self jadeiteConsoleClass currentConsole: inst.
+		self class jadeiteConsoleClass currentConsole: inst.
 		windowPresenter := inst open.
 		self addBorderStyleTo: windowPresenter presenter: inst.
 		inst addStyle: 'jadeiteTextBackgroundColor' ]
