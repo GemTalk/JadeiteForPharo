@@ -8,33 +8,32 @@ Class {
 		'netldi',
 		'user',
 		'password',
-		'path',
 		'port',
 		'session'
 	],
 	#classVars : [
-		'DefaultPath'
+		'ClientLibrariesPath'
 	],
 	#category : 'Jadeite-Connection',
 	#package : 'Jadeite-Connection'
 }
 
 { #category : 'accessing' }
-JadeiteGCIConnectionProfile class >> defaultPath [
+JadeiteGCIConnectionProfile class >> clientLibrariesPath [
 
-	^DefaultPath
+	^ClientLibrariesPath
 ]
 
 { #category : 'accessing' }
-JadeiteGCIConnectionProfile class >> defaultPath: string [
+JadeiteGCIConnectionProfile class >> clientLibrariesPath: string [
 
-	DefaultPath := string
+	ClientLibrariesPath := string
 ]
 
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile class >> initialize [
 
-	DefaultPath := String new
+	ClientLibrariesPath := String new
 ]
 
 { #category : 'accessing' }
@@ -125,7 +124,7 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
-	GciInterface libraryDirectory: path.
+	GciInterface libraryDirectory: self path.
 	session := GsSession
 		           newForGsVersion: version
 		           threadSafe: true
@@ -167,6 +166,16 @@ JadeiteGCIConnectionProfile >> disconnect [
 	connection := nil.
 	self notifyPropertyChanged: #connection.
 	RowanServiceUpdater clearCurrent
+]
+
+{ #category : 'instance creation' }
+JadeiteGCIConnectionProfile >> fromSton: stonReader [
+
+	[ ^ super fromSton: stonReader ]
+		on: InstanceVariableNotFound
+		do: [ :ex |
+			ex instVarName = 'path' ifFalse: [ "allow older connection files without the library path to work "
+				ex pass ] ]
 ]
 
 { #category : 'commit ids' }
@@ -269,13 +278,7 @@ JadeiteGCIConnectionProfile >> password: anObject [
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile >> path [
 
-	^ path
-]
-
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> path: anObject [
-
-	path := anObject
+	^ self class clientLibrariesPath
 ]
 
 { #category : 'accessing' }
@@ -304,7 +307,7 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 
 	| commitIdString sem proc loggedIn errorMessage |
 	sem := Semaphore new.
-	GciInterface libraryDirectory: path.
+	GciInterface libraryDirectory: self path.
 	session := GsSession
 		           newForGsVersion: version
 		           threadSafe: true

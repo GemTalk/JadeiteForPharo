@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteForPharoConnectionLauncherTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
+	#instVars : [
+		'clientLibariesPath'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -13,10 +16,43 @@ JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
 	^ { JadeiteConnectionLauncher }
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> profile [
+
+	^ JadeiteGCIConnectionProfile connectionProfile
+]
+
 { #category : 'support' }
-JadeiteForPharoConnectionLauncherTestCase >> tearDown [ 
-	
-	^super tearDown
+JadeiteForPharoConnectionLauncherTestCase >> tearDown [
+
+	super tearDown.
+	clientLibariesPath ifNotNil: [
+		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
+		JadeiteConnectionLauncher soleInstance window close.
+		JadeiteConnectionApplication new start ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
+
+	| launcher changedPathRef originalPath |
+	self profile isConnected ifTrue: [ self profile disconnect ].
+	JadeiteConnectionLauncher soleInstance window close.
+
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
+	originalPath := 'testPath'.
+	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
+	JadeiteConnectionApplication new start.
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	self assert: launcher pathText text equals: originalPath.
+	changedPathRef := 'clientLibrariesChanged.txt' asFileReference.
+	[ launcher setPath ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: changedPathRef ].
+	launcher window close.
+	JadeiteConnectionApplication new start.
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	self assert: launcher pathText text equals: changedPathRef fullName
 ]
 
 { #category : 'tests' }

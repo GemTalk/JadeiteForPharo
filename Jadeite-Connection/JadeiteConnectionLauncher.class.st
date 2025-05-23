@@ -255,6 +255,9 @@ JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 JadeiteConnectionLauncher >> connect [
 
 	| shouldDebug |
+	pathText text isEmpty ifTrue: [
+		UIManager default alert: 'Client Libraries Path must be set'.
+		self setPath ifNil: [ ^ self ] ].
 	self populateConnectionProfile.
 	[ self connectionProfile connect ]
 		on: Error
@@ -774,7 +777,6 @@ JadeiteConnectionLauncher >> populate: profile [
 		password: passwordText text;
 		version: versionText text;
 		netldi: netldiText text;
-		path: pathText text ;
 		port: portText text
 ]
 
@@ -869,11 +871,14 @@ JadeiteConnectionLauncher >> setFocusOrder [
 JadeiteConnectionLauncher >> setPath [
 
 	| path |
-	path := UIManager default chooseDirectory.
-	path ifNil: [ ^ self ].
-	self connectionProfile path: path fullName.
-	JadeiteGCIConnectionProfile defaultPath: self connectionProfile path.
-	pathText text: self connectionProfile path. 
+	path := UIManager default
+		        chooseDirectory: 'Choose Client Library Directory'
+		        from:
+		        JadeiteGCIConnectionProfile clientLibrariesPath
+			        asFileReference.
+	path ifNil: [ ^ nil ].
+	JadeiteGCIConnectionProfile clientLibrariesPath: path fullName.
+	pathText text: path fullName
 ]
 
 { #category : 'accessing' }
