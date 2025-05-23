@@ -23,6 +23,8 @@ Class {
 	#classVars : [
 		'ConnectionProfile',
 		'ImportedConnections',
+		'ImportedProfiles',
+		'LastClientLibrariesPath',
 		'LastImportDirectory',
 		'SoleInstance'
 	],
@@ -33,9 +35,16 @@ Class {
 { #category : 'connections' }
 JadeiteConnectionLauncher class >> addImportedConnection: filePath [
 
+	| profile |
 	(self importedConnections includes: filePath) ifTrue: [ ^ self ].
+	self importedProfiles at: filePath ifAbsentPut: [
+		[ profile := STON fromString: filePath asFileReference contents ]
+			on: Error
+			do: [ :ex |
+			^ self handleErrorInstantiatingConnectionFile: filePath ] ].
 	self importedConnections add: filePath.
-	self importedConnections collection reSort
+	self importedConnections collection reSort.
+	^ profile
 ]
 
 { #category : 'connections' }
@@ -51,6 +60,16 @@ JadeiteConnectionLauncher class >> addImportedConnections: directoryRef [
 JadeiteConnectionLauncher class >> defaultConnectionSortBlock [
 
 	^ [ :x :y | (self shortPathFor: x) < (self shortPathFor: y) ]
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher class >> handleErrorInstantiatingConnectionFile: filePath [
+	"display a non-intrusive message and write to transcript "
+
+	| message |
+	message := 'Error instantiating connection file contents. File not imported: '
+	           , filePath.
+	^ UIManager inform: message traceCr
 ]
 
 { #category : 'accessing' }
@@ -74,6 +93,25 @@ JadeiteConnectionLauncher class >> importedConnections: connections [
 	"for testing only"
 
 	ImportedConnections := connections
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> importedProfiles [
+
+	ImportedProfiles ifNil: [ ImportedProfiles := Dictionary new ].
+	^ ImportedProfiles
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> lastClientLibrariesPath [
+
+	^ LastClientLibrariesPath
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher class >> lastClientLibrariesPath: aString [
+
+	LastClientLibrariesPath := aString
 ]
 
 { #category : 'accessing' }
@@ -145,10 +183,17 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 ]
 
 { #category : 'connections' }
-JadeiteConnectionLauncher >> basicImportProfile: fileRef [
+JadeiteConnectionLauncher >> basicImportProfile: aStream path: path [
 
 	| connectionProfile |
-	connectionProfile := STON fromString: fileRef contents.
+	connectionProfile := self class importedProfiles
+		                     at: path
+		                     ifAbsent: [
+		                     self class addImportedConnection: path ].
+	self class lastClientLibrariesPath ifNil: [
+		self class lastClientLibrariesPath: connectionProfile path ].
+	(self validateClientLibrariesPath: connectionProfile) ifFalse: [
+		^ self ].
 	self clearConnectionSubscriptions.
 	JadeiteConnectionProfile connectionProfile: connectionProfile.
 	self populateTextFields.
@@ -163,7 +208,7 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 	self class lastImportDirectory: directoryRef asAbsolute asText.
 	fileRefs := self class addImportedConnections: directoryRef.
 	fileRefs do: [ :fileRef |
-		[ self basicImportProfile: fileRef ]
+		[ self basicImportProfile: fileRef path: fileRef pathString ]
 			on: Error
 			do: [ :ex |
 				| ws |
@@ -188,7 +233,9 @@ JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
 	self class addImportedConnection:
 		fileWindow selectedPathName asFileReference.
 	[
-	self basicImportProfile: FileReference / fileWindow selectedPathName ]
+	self
+		basicImportProfile: FileReference / fileWindow selectedPathName
+		path: fileWindow selectedPathName ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -708,8 +755,8 @@ JadeiteConnectionLauncher >> installImportedConnection: filePath [
 	fileStream := ZnCharacterReadStream
 		              on: filePath asFileReference binaryReadStream
 		              encoding: 'utf8'.
-	self basicImportProfile: fileStream.
-	self populateTextFields 
+	self basicImportProfile: fileStream path: filePath.
+	self populateTextFields
 ]
 
 { #category : 'accessing' }
@@ -873,7 +920,8 @@ JadeiteConnectionLauncher >> setPath [
 	path ifNil: [ ^ self ].
 	self connectionProfile path: path fullName.
 	JadeiteGCIConnectionProfile defaultPath: self connectionProfile path.
-	pathText text: self connectionProfile path. 
+	pathText text: self connectionProfile path.
+	self class lastClientLibrariesPath: self connectionProfile path
 ]
 
 { #category : 'accessing' }
@@ -917,6 +965,23 @@ JadeiteConnectionLauncher >> userText [
 JadeiteConnectionLauncher >> userText: anObject [
 
 	userText := anObject
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> validateClientLibrariesPath: connectionProfile [
+
+	| choice |
+	connectionProfile path = self class lastClientLibrariesPath ifFalse: [
+		choice := UIManager default
+			          chooseFrom: (Array
+					           with: connectionProfile path
+					           with: self class lastClientLibrariesPath)
+			          message:
+			          'The last saved client libraries path does not match the client libraries path of the imported file. Please choose.'.
+		choice ifNil: [ ^ false ].
+		connectionProfile path: choice.
+		self class lastClientLibrariesPath: choice ].
+	^ true
 ]
 
 { #category : 'accessing' }

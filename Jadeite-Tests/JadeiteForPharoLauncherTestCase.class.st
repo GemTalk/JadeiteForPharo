@@ -121,7 +121,7 @@ JadeiteForPharoLauncherTestCase >> test_basicFileImport [
 	launcher passwordText text: String new.
 	launcher pathText text: String new.
 
-	launcher basicImportProfile: fileRef.
+	launcher basicImportProfile: fileRef path: fileRef pathString.
 	"check some fields"
 	self assert: launcher versionText text equals: profile version.
 	self assert: launcher stoneText text equals: profile stone.

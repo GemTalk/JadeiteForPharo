@@ -290,6 +290,19 @@ JadeiteGCIConnectionProfile >> port: anObject [
 	port := anObject
 ]
 
+{ #category : 'printing' }
+JadeiteGCIConnectionProfile >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream
+		space;
+		nextPut: $(;
+		nextPutAll: host;
+		space;
+		nextPutAll: stone;
+		nextPut: $)
+]
+
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> reconnectIfNecessary [
 
