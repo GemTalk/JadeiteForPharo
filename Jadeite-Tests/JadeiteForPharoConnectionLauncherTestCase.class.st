@@ -23,13 +23,38 @@ JadeiteForPharoConnectionLauncherTestCase >> profile [
 ]
 
 { #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> setUp [
+
+	super setUp.
+	JadeiteTestManager replacing: self uiManager
+]
+
+{ #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 
 	super tearDown.
+	self uiManager previousManager ifNotNil: [:manager | manager beDefault]. 
 	clientLibariesPath ifNotNil: [
 		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
 		JadeiteConnectionLauncher soleInstance window close.
 		JadeiteConnectionApplication new start ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
+
+	| launcher |
+	self profile isConnected ifTrue: [ self profile disconnect ].
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	JadeiteGCIConnectionProfile clientLibrariesPath: String new.
+
+	[ launcher connect ]
+		on: ProvideAnswerNotification
+		do: [ :notification |
+			self assert:
+				('Client library could not be found. Error message:*' match:
+					 notification messageText) ]
 ]
 
 { #category : 'tests' }

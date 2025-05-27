@@ -125,12 +125,18 @@ JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
 	GciInterface libraryDirectory: self path.
+	[
 	session := GsSession
 		           newForGsVersion: version
 		           threadSafe: true
 		           stone: stone
 		           host: host
-		           netldi: netldi.
+		           netldi: netldi ]
+		on: FileDoesNotExistException
+		do: [ :ex |
+			^ UIManager default alert:
+				  'Client library could not be found. Error message: '
+				  , ex messageText ].
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
