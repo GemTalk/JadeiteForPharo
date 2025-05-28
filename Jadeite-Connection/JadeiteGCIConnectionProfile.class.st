@@ -50,6 +50,31 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 	prefs applyPreferences
 ]
 
+{ #category : 'actions' }
+JadeiteGCIConnectionProfile >> basicConnect [
+
+	[
+	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
+		on: GciError
+		do: [ :ex |
+			session := nil.
+			^ GciError signal: ex message ].
+	GciSession current stoneName: stone.
+	connection := self setupRSRConnection.
+	session logoutNbNoError.
+	session := nil.
+	GciSession current library: connection.
+	self applyPreferences.
+	"Uncomment following three lines to enable RSR tracing"
+	"	connection log addSink: (RsrCustomSink action: [ :message |
+			 RowanServiceUpdater current logComment: message ]).
+	connection log verbosity: connection log levelTrace."
+	"Uncomment following two lines to enable jadeite tracing"
+	"RowanServiceUpdater current isLogging: true.
+	RowanServiceUpdater current logComment: 'Connection established!'."
+	^ connection
+]
+
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> clientCommitIdDescription [
 
@@ -124,6 +149,10 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 JadeiteGCIConnectionProfile >> connect [
 	"initialize gci library"
 
+	"need to analyze result b4 proceeding""Uncomment following three lines to enable RSR tracing""	connection log addSink: (RsrCustomSink action: [ :message |
+			 RowanServiceUpdater current logComment: message ]).
+	connection log verbosity: connection log levelTrace.""Uncomment following two lines to enable jadeite tracing""RowanServiceUpdater current isLogging: true.
+	RowanServiceUpdater current logComment: 'Connection established!'."
 	GciInterface libraryDirectory: self path.
 	[
 	session := GsSession
@@ -137,26 +166,7 @@ JadeiteGCIConnectionProfile >> connect [
 			^ UIManager default alert:
 				  'Client library could not be found. Error message: '
 				  , ex messageText ].
-	[
-	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
-		on: GciError
-		do: [ :ex |
-			session := nil.
-			^ GciError signal: ex message ].
-	GciSession current stoneName: stone.
-	connection := self setupRSRConnection.
-	session logoutNbNoError.
-	session := nil.
-	GciSession current library: connection.
-	self applyPreferences.
-	"Uncomment following three lines to enable RSR tracing"
-	"	connection log addSink: (RsrCustomSink action: [ :message |
-			 RowanServiceUpdater current logComment: message ]).
-	connection log verbosity: connection log levelTrace."
-	"Uncomment following two lines to enable jadeite tracing"
-	"RowanServiceUpdater current isLogging: true.
-	RowanServiceUpdater current logComment: 'Connection established!'."
-	^ connection
+	^ self basicConnect
 ]
 
 { #category : 'actions' }
