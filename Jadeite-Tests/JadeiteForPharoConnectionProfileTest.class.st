@@ -45,14 +45,17 @@ JadeiteForPharoConnectionProfileTest >> testConnectEstablishesRsrConnection [
 { #category : 'tests' }
 JadeiteForPharoConnectionProfileTest >> testConnectHandlesGciErrorGracefully [
 
-	| errorMessage |
+	| errorMessage theUser |
 	currentProfile isConnected ifTrue: [ currentProfile disconnect ].
+	theUser := currentProfile user.
 	currentProfile user: 'InvalidUser'.
 
 	"Catch the re-signaled GciError"
+	[
 	[ currentProfile connect ]
 		on: GciError
-		do: [ :ex | errorMessage := ex messageText ].
+		do: [ :ex | errorMessage := ex messageText ] ] ensure: [
+		currentProfile user: theUser ].
 
 	self
 		assert: errorMessage
