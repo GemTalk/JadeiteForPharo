@@ -17,7 +17,9 @@ JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
 	"classes that are tested by this test class.
 	Code coverage tool is given these classes to monitor"
 
-	^ { JadeiteConnectionLauncher } asOrderedCollection
+	^ {
+		  JadeiteConnectionLauncher.
+		  JadeiteGCIConnectionProfile } asOrderedCollection
 ]
 
 { #category : 'support' }
@@ -228,6 +230,54 @@ JadeiteForPharoConnectionLauncherTestCase >> test_fixedPort [
 	profile connect.
 	self assert: profile isConnected.
 	profile disconnect.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
+
+	| jfpSha gemstoneFFISha rsrSha clientServicesSha browserService desiredWorkspaceText |
+	self
+		testsIssue: #issue29
+		withTitle:
+		'Need a report to show what all git repository shas I have loaded'.
+
+	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
+		JadeiteConnectionProfile connectionProfile connect ].
+	workspace := launcher openCommitIdWindow.
+	[
+	jfpSha := (IceRepository registry detect: [ :ea |
+		           ea name = 'JadeiteForPharo' ]) properties commitish
+		          shortId.
+	gemstoneFFISha := (IceRepository registry detect: [ :ea |
+		                   ea name = 'PharoGemStoneFFI' ]) properties
+		                  commitish shortId.
+	rsrSha := (IceRepository registry detect: [ :ea |
+		           ea name = 'RemoteServiceReplication' ]) properties
+		          commitish shortId.
+	browserService := RowanBrowserService new.
+	browserService command: #updateProjects.
+	browserService command: #updateProjects.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session:
+		(GciSession new library: launcher connectionProfile connection)
+		onCompletion: [
+			clientServicesSha := (browserService projects detect: [
+				                      :projectService |
+				                      projectService name = 'RowanClientServices' ])
+				                     sha.
+			desiredWorkspaceText := 'Client:*
+JadeiteForPharo ' , jfpSha asString , '
+PharoGemStoneFFI ' , gemstoneFFISha asString , '
+RemoteServiceReplication ' , rsrSha asString , '
+---------------------------------------------
+Server Required Projects:*
+RemoteServiceReplication ' , rsrSha asString , '
+RowanClientServices ' , clientServicesSha asString , '
+---------------------------------------------
+All loaded projects:*'.
+			self assert: (desiredWorkspaceText match: workspace text asString) ] ]
+		ensure: [ self destroy: workspace ]
 ]
 
 { #category : 'tests' }
