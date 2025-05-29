@@ -236,7 +236,7 @@ JadeiteForPharoWorkspaceTestCase >> test_workspaceDoIt [
 ]
 
 { #category : 'support' }
-JadeiteForPharoWorkspaceTestCase >> toolTested [
+JadeiteForPharoWorkspaceTestCase >> toolUsedForCommonTests [
 
 	^ workspace ifNil: [
 		  workspace := JadeiteWorkspace showOnSession: session ]

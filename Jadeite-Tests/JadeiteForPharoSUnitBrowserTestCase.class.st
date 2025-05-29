@@ -421,7 +421,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 ]
 
 { #category : 'support' }
-JadeiteForPharoSUnitBrowserTestCase >> toolTested [
+JadeiteForPharoSUnitBrowserTestCase >> toolUsedForCommonTests [
 
 	^ sunitBrowser
 ]

@@ -62,6 +62,16 @@ JadeiteWindowsBrowser >> closePharoWindows [
 	self refresh
 ]
 
+{ #category : 'initialization' }
+JadeiteWindowsBrowser >> connectPresenters [
+
+	super connectPresenters.
+	jadeiteWindowsListPresenter whenActivatedDo: [ :selection |
+		self raiseJadeiteWindows ].
+	pharoWindowsListPresenter whenActivatedDo: [ :selection |
+		self raisePharoWindows ]
+]
+
 { #category : 'defaults' }
 JadeiteWindowsBrowser >> defaultLayout [ 
 

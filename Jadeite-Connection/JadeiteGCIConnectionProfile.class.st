@@ -2,7 +2,6 @@ Class {
 	#name : 'JadeiteGCIConnectionProfile',
 	#superclass : 'JadeiteConnectionProfile',
 	#instVars : [
-		'threadSafe',
 		'version',
 		'stone',
 		'netldi',
@@ -434,18 +433,6 @@ JadeiteGCIConnectionProfile >> stone [
 JadeiteGCIConnectionProfile >> stone: anObject [
 
 	stone := anObject
-]
-
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> threadSafe [
-
-	^ threadSafe
-]
-
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> threadSafe: anObject [
-
-	threadSafe := anObject
 ]
 
 { #category : 'accessing' }

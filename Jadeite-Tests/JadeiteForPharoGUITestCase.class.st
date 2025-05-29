@@ -89,16 +89,16 @@ JadeiteForPharoGUITestCase >> test_openBrowser [
 	"verify toolbar button works"
 
 	| browser |
-	self toolTested ifNil: [
+	self toolUsedForCommonTests ifNil: [
 		^ self skip:
 			  'Only subclasses that define toolTested can run this test. Classes testing tools have a tool bar that can open a browser' ].
-	browser := self toolTested openBrowser.
+	browser := self toolUsedForCommonTests openBrowser.
 	[ self assert: (browser isKindOf: JadeiteBrowser) ] ensure: [
 		self destroy: browser ]
 ]
 
 { #category : 'tests' }
-JadeiteForPharoGUITestCase >> toolTested [
+JadeiteForPharoGUITestCase >> toolUsedForCommonTests [
 	"if a test specifies a tool, then use it for common tests"
 
 	^ nil

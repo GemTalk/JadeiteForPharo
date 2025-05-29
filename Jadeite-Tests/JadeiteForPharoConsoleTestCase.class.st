@@ -216,7 +216,7 @@ JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
 ]
 
 { #category : 'support' }
-JadeiteForPharoConsoleTestCase >> toolTested [
+JadeiteForPharoConsoleTestCase >> toolUsedForCommonTests [
 
 	^ jadeiteShell
 ]

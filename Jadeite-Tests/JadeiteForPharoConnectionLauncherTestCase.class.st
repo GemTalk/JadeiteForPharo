@@ -2,6 +2,10 @@ Class {
 	#name : 'JadeiteForPharoConnectionLauncherTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
+		'launcher',
+		'fileRef',
+		'backupConnections',
+		'backupLastDirectory',
 		'clientLibariesPath'
 	],
 	#category : 'Jadeite-Tests',
@@ -13,23 +17,63 @@ JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
 	"classes that are tested by this test class.
 	Code coverage tool is given these classes to monitor"
 
-	^ { JadeiteConnectionLauncher }
+	^ { JadeiteConnectionLauncher } asOrderedCollection
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> connectionDirName [
+
+	^ 'testImportFromConnectionDir'
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> connectionFileName [
+
+	^ 'testConnectionFile'
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> createConnectionProfileDirectory [
+
+	| dir |
+	dir := self connectionDirName asFileReference asAbsolute.
+	dir createDirectory.
+	1 to: self numberOfTestConnections do: [ :idx |
+		| profileCopy ref filename |
+		filename := self connectionFileName , idx printString.
+		profileCopy := JadeiteConnectionProfile connectionProfile copy.
+		ref := (dir / filename) asAbsolute.
+		launcher basicExportProfile: ref ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> numberOfTestConnections [
+
+	^ 10
+]
+
+{ #category : 'accessing' }
 JadeiteForPharoConnectionLauncherTestCase >> profile [
 
 	^ JadeiteGCIConnectionProfile connectionProfile
 ]
 
 { #category : 'support' }
-JadeiteForPharoConnectionLauncherTestCase >> setUp [
+JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 
-	super setUp.
-	JadeiteTestManager replacing: self uiManager
+	self connectionDirName asFileReference ensureDeleteAll
 ]
 
-{ #category : 'support' }
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> setUp [
+
+	JadeiteTestManager replacing: self uiManager.
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	backupConnections := launcher class importedConnections copy. "backup"
+	backupLastDirectory := launcher class lastImportDirectory
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 
 	super tearDown.
@@ -37,13 +81,81 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	clientLibariesPath ifNotNil: [
 		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
 		JadeiteConnectionLauncher soleInstance window close.
-		JadeiteConnectionApplication new start ]
+		JadeiteConnectionApplication new start ].
+	JadeiteConnectionProfile connectionProfile disconnect.
+	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
+	self removeConnectionProfileDirectory.
+	self destroy: launcher.
+	launcher class importedConnections: backupConnections.
+	launcher class lastImportDirectory: backupLastDirectory.
+	self ensureLauncherOpened
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_basicFileExport [
+
+	| profile fileName fileProfile |
+	fileName := 'jfp_testConnectionFile.txt'.
+	fileRef := (FileSystem disk workingDirectoryPath / fileName)
+		           asFileReference.
+	fileRef exists ifTrue: [ fileRef delete ].
+	profile := JadeiteConnectionProfile connectionProfile.
+	launcher basicExportProfile: fileRef.
+	self assert: fileRef exists.
+	fileProfile := STON fromString: fileRef contents.
+	"check some fields"
+	self assert: fileProfile version equals: profile version. 
+	self assert: fileProfile stone equals: profile stone. 
+	self assert: fileProfile netldi equals: profile netldi. 
+	self assert: fileProfile user equals: profile user. 
+	self assert: fileProfile password equals: profile password. 
+	self assert: fileProfile path equals: profile path. 
+
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_basicFileImport [
+
+	| profile fileName |
+	JadeiteConnectionProfile connectionProfile disconnect.
+	fileName := 'jfp_testConnectionFile.txt'.
+	fileRef := (FileSystem disk workingDirectoryPath / fileName)
+		           asFileReference.
+	fileRef exists ifTrue: [ fileRef delete ].
+	profile := JadeiteConnectionProfile connectionProfile.
+	launcher basicExportProfile: fileRef.
+	self assert: fileRef exists.
+	launcher versionText text: String new.
+	launcher stoneText text: String new.
+	launcher netldiText text: String new.
+	launcher userText text: String new.
+	launcher passwordText text: String new.
+	launcher pathText text: String new.
+
+	launcher basicImportProfile: fileRef.
+	"check some fields"
+	self assert: launcher versionText text equals: profile version.
+	self assert: launcher stoneText text equals: profile stone.
+	self assert: launcher netldiText text equals: profile netldi.
+	self assert: launcher userText text equals: profile user.
+	self assert: launcher passwordText text equals: profile password.
+	self assert: launcher pathText text equals: profile path
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_buttonEnablement [
+
+	JadeiteConnectionProfile connectionProfile disconnect.
+	self assert: launcher connectButton isEnabled.
+	self deny: launcher disconnectButton isEnabled.
+	JadeiteConnectionProfile connectionProfile connect.
+	self deny: launcher connectButton isEnabled.
+	self assert: launcher disconnectButton isEnabled
 ]
 
 { #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 
-	| launcher |
 	self profile isConnected ifTrue: [ self profile disconnect ].
 	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
@@ -60,7 +172,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 { #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 
-	| launcher changedPathRef originalPath |
+	| changedPathRef originalPath |
 	self profile isConnected ifTrue: [ self profile disconnect ].
 	JadeiteConnectionLauncher soleInstance window close.
 
@@ -81,14 +193,74 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_closeDisconnects [
+
+	JadeiteConnectionProfile connectionProfile connect.
+	self assert: JadeiteConnectionProfile connectionProfile isConnected.
+	[ launcher window close ]
+		on: ProvideAnswerNotification
+		do: [ :notification | notification resume: true ].
+	self assert: launcher window isClosed.
+	self deny: JadeiteConnectionProfile connectionProfile isConnected
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_fixedPort [
+	| profile |
+	profile := JadeiteConnectionProfile connectionProfile.
+	profile disconnect.
+	self deny: profile isConnected.
+	profile port: '2000'. "1024 and above should always be valid"
+	profile connect.
+	self assert: profile isConnected.
+	profile disconnect.
+	
+	profile port: '1023'.
+	self should: [ profile connect ] raise: Error. 
+	self deny: profile isConnected.
+	
+	profile port: String new. 
+	profile connect.
+	self assert: profile isConnected.
+	profile disconnect.
+	
+	profile port: nil.
+	profile connect.
+	self assert: profile isConnected.
+	profile disconnect.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_importFromDirectory [
+
+	self createConnectionProfileDirectory.
+	launcher basicImportProfileDirectory:
+		self connectionDirName asFileReference asAbsolute.
+	self verifyAllTestConnectionsImported
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_refreshFromImportDirectory [
+
+	self createConnectionProfileDirectory.
+	launcher basicImportProfileDirectory:
+		self connectionDirName asFileReference asAbsolute.
+	self verifyAllTestConnectionsImported.
+	launcher basicRemoveAllConnections.
+	launcher refreshFromLastImportDirectory.
+	self verifyAllTestConnectionsImported
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_soleInstance [
 
 	| launchers launcherSingleton |
-	self assert: JadeiteConnectionProfile connectionProfile isConnected.
-	JadeiteConnectionProfile connectionProfile disconnect.
+	JadeiteConnectionProfile connectionProfile isConnected ifTrue: [
+		JadeiteConnectionProfile connectionProfile disconnect ].
 	launchers := JadeiteConnectionLauncher allInstances select: [
-		             :launcher |
-		             launcher window notNil and: [ launcher window isOpen ] ].
+		             :theLauncher |
+		             theLauncher window notNil and: [
+			             theLauncher window isOpen ] ].
 	self assert: launchers size equals: 1.
 
 	launcherSingleton := launchers first window.
@@ -99,10 +271,23 @@ JadeiteForPharoConnectionLauncherTestCase >> test_soleInstance [
 	launcherSingleton window close.
 
 	launchers := JadeiteConnectionLauncher allInstances select: [
-		             :launcher |
-		             launcher window notNil and: [ launcher window isOpen ] ].
+		             :theLauncher |
+		             theLauncher window notNil and: [
+			             theLauncher window isOpen ] ].
 	self assert: launchers isEmpty.
 	self assertIsNil: JadeiteConnectionLauncher soleInstance.
 
 	self ensureLauncherOpened "for the next test"
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> verifyAllTestConnectionsImported [
+
+	1 to: self numberOfTestConnections do: [ :idx |
+		| path itemPrintStrings |
+		path := self connectionDirName asFileReference
+		        / (self connectionFileName , idx printString).
+		itemPrintStrings := launcher availableConnectionPresenter items
+			                    collect: [ :item | item printString ].
+		self assert: (itemPrintStrings includes: path asAbsolute asString) ]
 ]

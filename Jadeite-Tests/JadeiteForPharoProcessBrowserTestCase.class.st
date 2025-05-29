@@ -67,7 +67,7 @@ JadeiteForPharoProcessBrowserTestCase >> test_openProcessBrowser [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoProcessBrowserTestCase >> toolTested [
+JadeiteForPharoProcessBrowserTestCase >> toolUsedForCommonTests [
 
 	^ processBrowser
 ]

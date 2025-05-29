@@ -1716,7 +1716,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 ]
 
 { #category : 'support' }
-JadeiteForPharoAbstractBrowserTestCase >> toolTested [
+JadeiteForPharoAbstractBrowserTestCase >> toolUsedForCommonTests [
 
 	^ projectsBrowser
 ]

@@ -124,7 +124,7 @@ JadeiteForPharoDebuggerTestCase >> test_selectDebuggerVariable [
 ]
 
 { #category : 'support' }
-JadeiteForPharoDebuggerTestCase >> toolTested [
+JadeiteForPharoDebuggerTestCase >> toolUsedForCommonTests [
 
 	^ debugger ifNil: [
 		  | service |

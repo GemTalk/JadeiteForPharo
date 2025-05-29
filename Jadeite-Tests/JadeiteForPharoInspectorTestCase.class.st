@@ -623,7 +623,7 @@ JadeiteForPharoInspectorTestCase >> test_selectAllString [
 ]
 
 { #category : 'support' }
-JadeiteForPharoInspectorTestCase >> toolTested [
+JadeiteForPharoInspectorTestCase >> toolUsedForCommonTests [
 
 	^ inspector ifNil: [ self openWorkspaceAndInspect: '3+4' ]
 ]

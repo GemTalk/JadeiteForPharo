@@ -13,6 +13,14 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'coverage' }
+JadeiteForPharoConnectionProfileTest class >> codeCoverageClasses [
+	"classes that are tested by this test class.
+	Code coverage tool is given these classes to monitor"
+
+	^ { JadeiteGCIConnectionProfile } asOrderedCollection
+]
+
 { #category : 'support' }
 JadeiteForPharoConnectionProfileTest >> setUp [
 	currentProfile := JadeiteGCIConnectionProfile connectionProfile. "restore at end of test"

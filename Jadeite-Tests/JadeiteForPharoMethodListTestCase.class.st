@@ -595,7 +595,7 @@ JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
 ]
 
 { #category : 'support' }
-JadeiteForPharoMethodListTestCase >> toolTested [
+JadeiteForPharoMethodListTestCase >> toolUsedForCommonTests [
 
 	^ methodListBrowser ifNil: [
 		  RowanServiceUpdater current critical: [
