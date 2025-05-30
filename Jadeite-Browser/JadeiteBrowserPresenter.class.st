@@ -3837,6 +3837,12 @@ JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: s
 		  onCompletion: [  ]
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> updateAutoCommitButton [
+
+	^ self parentPresenter updateAutoCommitButton
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> updateClass: classService [
 	" a class service was updated, refresh our display"

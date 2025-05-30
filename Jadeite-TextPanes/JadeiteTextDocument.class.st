@@ -856,6 +856,13 @@ JadeiteTextDocument >> undo [
 	documentPresenter undo
 ]
 
+{ #category : 'updates' }
+JadeiteTextDocument >> updateAutoCommitButton [
+	" a cheat"
+
+	^ JadeiteConsole currentConsole updateAutoCommitButton
+]
+
 { #category : 'private' }
 JadeiteTextDocument >> updateCodeFont [
 

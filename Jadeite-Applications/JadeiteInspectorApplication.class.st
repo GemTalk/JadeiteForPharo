@@ -8,12 +8,24 @@ Class {
 { #category : 'instance creation' }
 JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSession context: context onCompletion: completionBlock [
 
+	^ self
+		  executeThenShowOn: aString
+		  session: gciSession
+		  context: context
+		  onCompletion: completionBlock
+		  title: String new
+]
+
+{ #category : 'instance creation' }
+JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSession context: context onCompletion: completionBlock title: windowTitle [
+
 	| inst |
 	inst := self new gciSession: gciSession.
 	^ inst
 		  executeThenInspect: aString
 		  inContext: context
 		  onCompletion: completionBlock
+		  title: windowTitle
 ]
 
 { #category : 'instance creation' }
@@ -25,7 +37,7 @@ JadeiteInspectorApplication class >> show: oop onSession: gciSession [
 ]
 
 { #category : 'accessing' }
-JadeiteInspectorApplication >> executeThenInspect: aString inContext: context onCompletion: completionBlock [
+JadeiteInspectorApplication >> executeThenInspect: aString inContext: context onCompletion: completionBlock title: windowTitle [
 
 	| inst |
 	inst := self new: JadeiteInspector.
@@ -36,6 +48,7 @@ JadeiteInspectorApplication >> executeThenInspect: aString inContext: context on
 		  executeThenInspect: aString
 		  inContext: context
 		  onCompletion: completionBlock
+		  title: windowTitle
 ]
 
 { #category : 'accessing' }

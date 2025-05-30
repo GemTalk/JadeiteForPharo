@@ -17,7 +17,8 @@ JadeiteTestManager class >> replacing: aUIManager [
 { #category : 'ui TEasilyThemed' }
 JadeiteTestManager >> alert: aStringOrText [
 
-	ProvideAnswerNotification signal: aStringOrText.
+	(ProvideAnswerNotification signal: aStringOrText) ifNotNil: [ :answer |
+		^ answer ].
 	^ super alert: aStringOrText
 ]
 

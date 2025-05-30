@@ -8,6 +8,21 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'support' }
+JadeiteForPharoAutoCommitTestCase >> setUp [
+
+	super setUp.
+	JadeiteTestManager replacing: self uiManager
+]
+
+{ #category : 'support' }
+JadeiteForPharoAutoCommitTestCase >> tearDown [
+
+	self uiManager previousManager ifNotNil: [ :manager |
+		manager beDefault ].
+	RowanAnsweringService new setAutoCommit: false for: session
+]
+
 { #category : 'tests' }
 JadeiteForPharoAutoCommitTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpeningBrowser [
 	"Not a very good test but the last service logged should not be an #updateAutoCommit command which was the bug"
@@ -23,6 +38,53 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpen
 	RowanServiceUpdater current loggingService services do: [ :service |
 		self deny: (service updateType includes: #updateAutoCommitButton) ] ]
 		ensure: [ RowanServiceUpdater current isLogging: loggingState ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteForPharoAutoCommitTestCase >> test_autoCommitFailure [
+
+	| transactionConflictInspector |
+	self
+		testsJadeiteForPharoIssue: #issue249
+		title:
+		'Autocommit commit conflicts brings up dialog, but ignoring dialog should not allow business as usual'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/249'.
+	self setupProjectBrowser.
+	RowanAnsweringService new setAutoCommit: false for: session.
+	self
+		assert: projectsBrowser autoCommitButton color
+		equals: projectsBrowser autoCommitButton defaultColor.
+	RowanAnsweringService new setAutoCommit: true for: session.
+	self
+		assert: projectsBrowser autoCommitButton color
+		equals: Color green.
+	[
+	| service |
+	service := RowanAutoCommitServiceClient new autoCommit: #failed.
+	service autoCommitUpdate: self projectsPresenter.
+	service postUpdateBlock value ]
+		on: ProvideAnswerNotification
+		do: [ :notification |
+			self
+				assert: notification messageText
+				equals: RowanAutoCommitServiceClient autoCommitFailureMessage.
+			notification resume: false "this simulates press 'No' on the dialog and auto commit will be turned off" ].
+
+	[
+	(transactionConflictInspector := JadeiteInspector allInstances
+		                                 detect: [ :inspector |
+			                                 ('Transaction Conflicts' match:
+				                                  inspector window title) and: [
+				                                 inspector window isOpen ] ]
+		                                 ifNone: [  ]) isNil ] whileTrue: [
+		(Delay forMilliseconds: 2) wait ].
+
+	[ self denyIsNil: transactionConflictInspector ] ensure: [
+		transactionConflictInspector window close ].
+	"auto commit is turned off (but not really) so don't test the underlying value "
+	self
+		assert: projectsBrowser autoCommitButton color
+		equals: projectsBrowser autoCommitButton defaultColor
 ]
 
 { #category : 'tests' }

@@ -455,11 +455,13 @@ JadeiteAbstractTestCase >> loadRowanSample1InProjectList [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> loginOtherSession [
-	 session
-		executeString: 'UserGlobals at: #otherSession put: (GsExternalSession gemNRS: ''' , session gemNRS
-				, ''' stoneNRS: ''' , session stoneName
-				, ''' username: ''SystemUser'' password: ''swordfish'') login'.
 
+	| profile |
+	profile := JadeiteConnectionProfile connectionProfile.
+	session executeString:
+		'UserGlobals at: #otherSession put: (GsExternalSession gemNRS: '''
+		, profile netldi , ''' stoneNRS: ''' , profile stone
+		, ''' username: ''SystemUser'' password: ''swordfish'') login'
 ]
 
 { #category : 'as yet unclassified' }
@@ -483,8 +485,10 @@ JadeiteAbstractTestCase >> loginWithRetry: loginShell [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> logoutOtherSession [
-	^session executeString: '
-				(UserGlobals at: #otherSession) ifNotNil: [:sess | sess logout]'
+
+	^ session executeString: '
+				(UserGlobals at: #otherSession ifAbsent: []) ifNotNil: [:sess | sess logout].
+				UserGlobals at: #otherSession put: nil'
 ]
 
 { #category : 'as yet unclassified' }

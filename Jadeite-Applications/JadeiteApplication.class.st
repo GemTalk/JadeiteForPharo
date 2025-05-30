@@ -49,14 +49,19 @@ JadeiteApplication class >> commitTransactionInSession: session onCompletion: co
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: session
-		onCompletion: [:service | 
+		onCompletion: [ :service |
 			commitResult := service updates first answer. "should only get one update back"
 			commitResult
 				ifTrue: [
 					UIManager default inform: 'Commit succeeded'.
 					JadeiteSound informationBeep ]
 				ifFalse: [
-				UIManager default alert: 'Commit failure' title: 'Jaded warning' ].
+					| message |
+					message := 'Commit failure. Abort recommended. '.
+					GciSession current isAutoCommit ifTrue: [
+						GciSession current basicFlipAutoCommit.
+						message := message , 'Auto Commit has been turned off' ].
+					UIManager default alert: message title: 'Jadeite warning' ].
 			completionBlock value ]
 ]
 
@@ -168,7 +173,7 @@ JadeiteApplication >> commitTransaction [
 	all commits in Jadeite pass through here"
 
 	gciSession ifNil: [ gciSession := GciSession current ].
-	self class commitTransactionInSession: gciSession onCompletion: nil
+	self class commitTransactionInSession: gciSession onCompletion: [  ]
 ]
 
 { #category : 'constants' }

@@ -40,8 +40,8 @@ RowanAutoCommitService >> displayTransactionConflicts: browser [
 		             executeThenShowOn: 'System transactionConflicts'
 		             session: session
 		             context: session oopNil value
-		             onCompletion: [].
-	inspector owner title: 'Transaction Conflicts'
+		             onCompletion: [  ]
+		             title: 'Transaction Conflicts'
 ]
 
 { #category : 'printing' }

@@ -79,7 +79,9 @@ GciSession >> basicFlipAutoCommit [
 { #category : 'actions' }
 GciSession >> commit [
 
-	JadeiteApplication commitTransactionInSession: self onCompletion: nil
+	JadeiteApplication
+		commitTransactionInSession: self
+		onCompletion: [  ]
 ]
 
 { #category : 'accessing' }
@@ -105,6 +107,7 @@ GciSession >> executeString: aString [
 		onCompletion: [  ].
 	answeringService ifNotNil: [
 		answer := answeringService answer.
+		answer ifNil: [ ^nil ]. "something happened. get out"
 		answer first ifFalse: [ ^ answer at: 2 ] ].
 	^ answer last
 ]
@@ -119,6 +122,12 @@ GciSession >> flipAutoCommit [
 GciSession >> initializeAutoCommitRefreshing: console [
 
 	self updateAutoCommitRefreshing: console
+]
+
+{ #category : 'testing' }
+GciSession >> isAutoCommit [
+
+	^ autoCommit value
 ]
 
 { #category : 'testing' }

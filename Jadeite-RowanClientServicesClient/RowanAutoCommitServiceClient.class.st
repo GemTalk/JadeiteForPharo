@@ -11,22 +11,37 @@ Class {
 }
 
 { #category : 'public' }
+RowanAutoCommitServiceClient class >> autoCommitFailureMessage [
+
+	^ 'Auto Commit has failed to commit. Your changes will not be commited in the repository until you abort. If you do not abort, Auto Commit will be disabled. Abort now?
+
+(If you choose ''No'' you will be prompted with a list of transaction conflicts)'
+]
+
+{ #category : 'public' }
+RowanAutoCommitServiceClient >> autoCommitFailureMessage [
+	^ self class autoCommitFailureMessage
+]
+
+{ #category : 'public' }
 RowanAutoCommitServiceClient >> autoCommitUpdate: browser [
 
 	| shouldAbort |
 	autoCommit == #failed ifTrue: [
 		postUpdateBlock := [
 		                   shouldAbort := MessageBox confirm:
-			                                  'Autocommit has failed to commit. Your changes will not be commited in the repository until you abort. Abort now?
-
-(If you choose ''No'' you will be prompted with a list of transaction conflicts)'.
+			                                  self autoCommitFailureMessage.
 		                   shouldAbort
 			                   ifTrue: [
 			                   JadePresenter abortTransactionInSession:
 				                   browser gciSession ]
 			                   ifFalse: [
-			                   self displayTransactionConflicts: browser ] ] ].
+				                   RowanAnsweringService new
+					                   setAutoCommit: false
+					                   for: GciSession current.
+				                   self displayTransactionConflicts: browser ] ] ].
 	browser autoCommit: autoCommit.
+	browser updateAutoCommitButton.
 	^ postUpdateBlock
 ]
 

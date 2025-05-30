@@ -37,7 +37,7 @@ JadeiteForPharoConnectionProfileTest >> tearDown [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testConnectEstablishesRsrConnection [
+JadeiteForPharoConnectionProfileTest >> test_connectEstablishesRsrConnection [
 
 	testProfile := JadeiteConnectionProfile connectionProfile.
 	testProfile isConnected ifTrue: [ testProfile disconnect ].
@@ -51,7 +51,7 @@ JadeiteForPharoConnectionProfileTest >> testConnectEstablishesRsrConnection [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testConnectHandlesGciErrorGracefully [
+JadeiteForPharoConnectionProfileTest >> test_connectHandlesGciErrorGracefully [
 
 	| errorMessage theUser |
 	currentProfile isConnected ifTrue: [ currentProfile disconnect ].
@@ -74,7 +74,7 @@ JadeiteForPharoConnectionProfileTest >> testConnectHandlesGciErrorGracefully [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testPathReturnsClientLibrariesPath [
+JadeiteForPharoConnectionProfileTest >> test_pathReturnsClientLibrariesPath [
 
 	| clientLibrariesPath |
 	clientLibrariesPath := JadeiteGCIConnectionProfile
@@ -87,42 +87,42 @@ JadeiteForPharoConnectionProfileTest >> testPathReturnsClientLibrariesPath [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testSetAndGetNetldi [
+JadeiteForPharoConnectionProfileTest >> test_setAndGetNetldi [
 
 	testProfile netldi: 'myNetldi'.
 	self assert: testProfile netldi equals: 'myNetldi'
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testSetAndGetPassword [
+JadeiteForPharoConnectionProfileTest >> test_setAndGetPassword [
 
 	testProfile password: 'secret'.
 	self assert: testProfile password equals: 'secret'
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testSetAndGetPort [
+JadeiteForPharoConnectionProfileTest >> test_setAndGetPort [
 
 	testProfile port: 1234.
 	self assert: testProfile port equals: 1234
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testSetAndGetStone [
+JadeiteForPharoConnectionProfileTest >> test_setAndGetStone [
 
 	testProfile stone: 'devStone'.
 	self assert: testProfile stone equals: 'devStone'
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testSetAndGetUser [
+JadeiteForPharoConnectionProfileTest >> test_setAndGetUser [
 
 	testProfile user: 'admin'.
 	self assert: testProfile user equals: 'admin'
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionProfileTest >> testSetAndGetVersion [
+JadeiteForPharoConnectionProfileTest >> test_setAndGetVersion [
 
 	testProfile version: '3.6.1'.
 	self assert: testProfile version equals: '3.6.1'

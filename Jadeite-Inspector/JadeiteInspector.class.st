@@ -409,7 +409,7 @@ JadeiteInspector >> evaluateText: string thenInspectInContext: context [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspector >> executeThenInspect: aString inContext: context onCompletion: completionBlock [
+JadeiteInspector >> executeThenInspect: aString inContext: context onCompletion: completionBlock title: windowTitle [
 
 	| window |
 	window := self asWindow.
@@ -423,6 +423,7 @@ JadeiteInspector >> executeThenInspect: aString inContext: context onCompletion:
 			service oop ifNotNil: [
 				| windowPresenter |
 				windowPresenter := self show: window on: service.
+				windowPresenter title: windowTitle.
 				self application addBorderStyleTo: windowPresenter presenter: self ] ]
 ]
 
