@@ -337,7 +337,7 @@ JadeiteForPharoConnectionLauncherTestCase >> verifyAllTestConnectionsImported [
 		| path itemPrintStrings |
 		path := self connectionDirName asFileReference
 		        / (self connectionFileName , idx printString).
-		itemPrintStrings := launcher availableConnectionPresenter items
-			                    collect: [ :item | item printString ].
-		self assert: (itemPrintStrings includes: path asAbsolute asString) ]
+		itemPrintStrings := launcher availableConnectionPresenter items.
+		itemPrintStrings includes: path asAbsolute pathString.
+		self assert: (itemPrintStrings includes: path asAbsolute pathString) ]
 ]

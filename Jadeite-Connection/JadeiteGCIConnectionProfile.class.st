@@ -173,11 +173,18 @@ JadeiteGCIConnectionProfile >> disconnect [
 	"not only close & logout the session, but cleanup any 
 	subscriptions to the connection so launcher's don't get
 	stuck open"
-	connection ifNil: [ ^self ].
-	self confirmAllWindowsCanClose ifFalse: [^self]. 
+
+	connection ifNil: [ ^ self ].
+	self confirmAllWindowsCanClose ifFalse: [ ^ self ].
 	connection close.
+	connection channel sink isProcessActive ifTrue: [
+		UIManager alert:
+			'Connection not properly closed. Channel sink process is still active.' ].
+	connection channel source isProcessActive ifTrue: [
+		UIManager alert:
+			'Connection not properly closed. Channel source process is still active.' ].
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
-	GciSession clearCurrent. 
+	GciSession clearCurrent.
 	connection := nil.
 	self notifyPropertyChanged: #connection.
 	RowanServiceUpdater clearCurrent

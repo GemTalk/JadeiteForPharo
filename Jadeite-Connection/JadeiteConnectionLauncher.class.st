@@ -148,6 +148,7 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 
 	| connectionProfile |
+	self class addImportedConnection: fileRef pathString.
 	connectionProfile := STON fromString: fileRef contents.
 	self clearConnectionSubscriptions.
 	JadeiteConnectionProfile connectionProfile: connectionProfile.
@@ -161,7 +162,7 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 
 	| fileRefs |
 	self class lastImportDirectory: directoryRef asAbsolute asText.
-	fileRefs := self class addImportedConnections: directoryRef.
+	fileRefs := directoryRef files asSortedCollection.
 	fileRefs do: [ :fileRef |
 		[ self basicImportProfile: fileRef ]
 			on: Error
@@ -185,8 +186,6 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 { #category : 'connections' }
 JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
 
-	self class addImportedConnection:
-		fileWindow selectedPathName asFileReference.
 	[
 	self basicImportProfile: FileReference / fileWindow selectedPathName ]
 		on: Error
@@ -708,10 +707,10 @@ JadeiteConnectionLauncher >> installImportedConnection: filePath [
 	| fileStream fileRef |
 	fileRef := filePath asFileReference.
 	fileRef exists ifFalse: [ ^ self ].
-	fileStream := ZnCharacterReadStream
+"	fileStream := ZnCharacterReadStream
 		              on: filePath asFileReference binaryReadStream
-		              encoding: 'utf8'.
-	self basicImportProfile: fileStream.
+		              encoding: 'utf8'."
+	self basicImportProfile: fileRef.
 	self populateTextFields 
 ]
 

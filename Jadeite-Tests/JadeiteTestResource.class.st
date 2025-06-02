@@ -107,23 +107,12 @@ JadeiteTestResource >> closeTranscripts [
 
 { #category : 'support' }
 JadeiteTestResource >> connectThenSignal: sem [
-
+	"ignore sem for testing"
 	| profile |
-	^ [
-	  profile := JadeiteConnectionProfile connectionProfile.
-	  profile isConnected ifTrue: [ profile disconnect ].
-	  RowanTestServiceUpdater installTestUpdater.
-	  profile connect ] ensure: [
-		  | waitForConsoleSem |
-		  waitForConsoleSem := Semaphore new.
-		  [
-		  [
-		  WorldMorph doOneCycle.
-		  JadeiteConsole currentConsole ] whileNil: [
-			  (Delay forMilliseconds: 1) wait ].
-		  waitForConsoleSem signal ] fork.
-		  waitForConsoleSem waitTimeoutSeconds: 5.
-		  sem signal ]
+	profile := JadeiteConnectionProfile connectionProfile.
+	profile isConnected ifTrue: [ profile disconnect ].
+	RowanTestServiceUpdater installTestUpdater.
+	^ profile connect
 ]
 
 { #category : 'projects creating' }
@@ -235,11 +224,7 @@ JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath 
 { #category : 'support' }
 JadeiteTestResource >> forceReconnect [
 
-	| sem |
-	sem := Semaphore new.
-	[ self connectThenSignal: sem ] fork.
-	(sem waitTimeoutSeconds: 5) ifTrue: [
-		Error signal: 'connection failed to complete' ]
+	self connectThenSignal: Semaphore new
 ]
 
 { #category : 'accessing' }

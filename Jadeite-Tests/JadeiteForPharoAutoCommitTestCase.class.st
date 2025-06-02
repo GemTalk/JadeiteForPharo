@@ -54,6 +54,9 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitFailure [
 	self
 		assert: projectsBrowser autoCommitButton color
 		equals: projectsBrowser autoCommitButton defaultColor.
+	self
+		assert: projectsBrowser autoCommitButton label
+		equals: 'Auto Commit - false'.
 	RowanAnsweringService new setAutoCommit: true for: session.
 	self
 		assert: projectsBrowser autoCommitButton color
@@ -84,7 +87,10 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitFailure [
 	"auto commit is turned off (but not really) so don't test the underlying value "
 	self
 		assert: projectsBrowser autoCommitButton color
-		equals: projectsBrowser autoCommitButton defaultColor
+		equals: projectsBrowser autoCommitButton defaultColor.
+	self
+		assert: projectsBrowser autoCommitButton label
+		equals: 'Auto Commit - false'
 ]
 
 { #category : 'tests' }
