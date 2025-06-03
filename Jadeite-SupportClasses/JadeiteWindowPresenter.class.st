@@ -16,3 +16,10 @@ JadeiteWindowPresenter >> okToClose [
 
 	^self presenter okToClose
 ]
+
+{ #category : 'private' }
+JadeiteWindowPresenter >> title: aString [
+
+	aString ifNil: [ ^ self ].
+	^ super title: aString
+]

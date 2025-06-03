@@ -592,7 +592,7 @@ JadeiteForPharoInspectorTestCase >> test_inspectSet [
 JadeiteForPharoInspectorTestCase >> test_inspectString [
 
 	self openWorkspaceAndInspect: '''abc'''.
-	self assert: (inspector isKindOf: JadeInspector).
+	self assert: (inspector isKindOf: JadeiteInspector).
 	self assert: (session executeString:
 			 'Object _objectForOop: ' , inspector oopsCollection first printString)
 		= 'abc'

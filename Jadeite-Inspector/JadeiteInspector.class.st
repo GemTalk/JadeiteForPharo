@@ -3,7 +3,7 @@ documentPresenter & codePane are identical as ported code from Dolphin used both
 "
 Class {
 	#name : 'JadeiteInspector',
-	#superclass : 'JadeInspector',
+	#superclass : 'JadeiteSessionPresenter',
 	#traits : 'JadeiteToolbarTrait',
 	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
@@ -13,7 +13,9 @@ Class {
 		'documentPresenter',
 		'toolbar',
 		'oopsCollection',
-		'objectIndex'
+		'objectIndex',
+		'instVarListPresenter',
+		'className'
 	],
 	#category : 'Jadeite-Inspector',
 	#package : 'Jadeite-Inspector'
@@ -686,6 +688,18 @@ JadeiteInspector >> inspectOop: oop [
 { #category : 'as yet unclassified' }
 JadeiteInspector >> instVarListIndexFromIndexedOffset: index [
 	^index + model instVarNames size + self dynamicInstVars size + 2	"2 = self + asOop"
+]
+
+{ #category : 'accessing' }
+JadeiteInspector >> instVarListPresenter [
+
+	^ instVarListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteInspector >> instVarListPresenter: anObject [
+
+	instVarListPresenter := anObject
 ]
 
 { #category : 'as yet unclassified' }

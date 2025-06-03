@@ -106,8 +106,8 @@ JadeiteTestResource >> closeTranscripts [
 ]
 
 { #category : 'support' }
-JadeiteTestResource >> connectThenSignal: sem [
-	"ignore sem for testing"
+JadeiteTestResource >> connect [
+
 	| profile |
 	profile := JadeiteConnectionProfile connectionProfile.
 	profile isConnected ifTrue: [ profile disconnect ].
@@ -147,10 +147,11 @@ JadeiteTestResource >> createRowanSample1ProjectWithEmpyClassCategory [
 
 { #category : 'actions' }
 JadeiteTestResource >> destroy: visualThing [
-	visualThing ifNil:[^self]. 
-	(Delay forMilliseconds: 200) wait.
-	visualThing window close.
-	(Delay forMilliseconds: 20) wait.
+
+	visualThing ifNil: [ ^ self ].
+	(Delay forMilliseconds: 100) wait.
+	visualThing window ifNotNil: [ :window | window close ].
+	(Delay forMilliseconds: 20) wait
 ]
 
 { #category : 'support' }
@@ -219,12 +220,6 @@ JadeiteTestResource >> ensureSampleProjectLoaded: unloadBlock path: projectPath 
 			projectsHome: '$ROWAN_PROJECTS_HOME'
 			customConditionalAttributes: #( 'tests' )
 			componentNames: #( 'Core' 'Tests' ) ]
-]
-
-{ #category : 'support' }
-JadeiteTestResource >> forceReconnect [
-
-	self connectThenSignal: Semaphore new
 ]
 
 { #category : 'accessing' }

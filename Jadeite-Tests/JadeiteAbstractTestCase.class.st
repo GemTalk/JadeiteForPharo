@@ -355,8 +355,8 @@ JadeiteAbstractTestCase >> executeStringInOtherSession: string [
 { #category : 'support' }
 JadeiteAbstractTestCase >> forceReconnect [
 
-	self jadeiteTestResourceClass current forceReconnect.
-	jadeiteShell := JadeiteConsole currentConsole 
+	self jadeiteTestResourceClass current connect.
+	jadeiteShell := JadeiteConsole currentConsole
 ]
 
 { #category : 'as yet unclassified' }

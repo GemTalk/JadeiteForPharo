@@ -13,7 +13,7 @@ JadeiteInspectorApplication class >> executeThenShowOn: aString session: gciSess
 		  session: gciSession
 		  context: context
 		  onCompletion: completionBlock
-		  title: String new
+		  title: nil
 ]
 
 { #category : 'instance creation' }
