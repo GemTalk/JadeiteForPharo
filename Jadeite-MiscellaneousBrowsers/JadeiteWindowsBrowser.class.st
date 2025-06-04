@@ -214,7 +214,13 @@ JadeiteWindowsBrowser >> newJadeiteWindowsMenu [
 			group addItem: [ :item |
 				item
 					name: 'Refresh';
-					action: [ self refresh ] ] ].
+					action: [ self refresh ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'Inspect';
+					action: [ jadeiteWindowsListPresenter selectionOrNil inspect ];
+					enabled: [ jadeiteWindowsListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]
 
@@ -245,7 +251,13 @@ JadeiteWindowsBrowser >> newPharoWindowsMenu [
 			group addItem: [ :item |
 				item
 					name: 'Refresh';
-					action: [ self refresh ] ] ].
+					action: [ self refresh ] ] ];
+		addGroup: [ :group |
+			group addItem: [ :item |
+				item
+					name: 'Inspect';
+					action: [ pharoWindowsListPresenter selectionOrNil inspect ];
+					enabled: [ pharoWindowsListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]
 

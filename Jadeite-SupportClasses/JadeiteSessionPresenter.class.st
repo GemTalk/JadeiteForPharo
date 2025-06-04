@@ -40,5 +40,6 @@ JadeiteSessionPresenter >> open [
 	jadeiteWindow := super open.
 	JadeiteConnectionProfile connectionProfile ifNotNil: [ :profile |
 		profile addJadeiteWindow: jadeiteWindow ].
+	self showNotWait.
 	^ jadeiteWindow
 ]
