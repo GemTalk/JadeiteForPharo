@@ -384,6 +384,28 @@ JadeiteForPharoMethodListTestCase >> test_canDiscardSelectionEdits [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_findReplaceButtonsEnabled [
+
+	| findService |
+	self
+		testsJadeiteForPharoIssue: #issue285
+		title:
+		'Find & Replace dialog doesn''t work well when invoked with no selection'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/285'.
+
+	self openMethodListBrowserOfImplementorsOf: 'size'.
+	self methodListPresenter selectIndex: 1.
+	findService := self methodSourcePresenter adapter widget textArea
+		               findReplaceService openDialog.
+	[
+	self assert: (findService isKindOf: SpRubFindReplaceService).
+	self assert: findService dialog findButton isEnabled.
+	self assert: findService dialog replaceButton isEnabled.
+	self assert: findService dialog replaceAllButton isEnabled ] ensure: [
+		findService dialog window close ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_methodCompileError [
 
 	self openMethodListBrowserOfImplementorsOf: 'answer'.
