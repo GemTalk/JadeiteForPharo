@@ -12,7 +12,7 @@ WorldState >> adjustWakeupTimes: now [
 	deltaTime := now - lastStepTime.
 	stepList do: [ :entry |
 		| theEntry |
-		theEntry := entry.
+		theEntry := entry. "entry seems to become nil anytime even though it's a parameter"
 		theEntry ifNotNil: [
 			theEntry scheduledTime: theEntry scheduledTime + deltaTime ] ].
 	lastStepTime := now

@@ -27,6 +27,14 @@ JadeiteTableMorph >> mouseLeaveDragging: event [
 	^ super mouseLeaveDragging: event
 ]
 
+{ #category : 'private' }
+JadeiteTableMorph >> recalculateVerticalScrollBar [
+
+	(self dataSource class canUnderstand: #listModel) ifTrue: [
+		self dataSource listModel ifNil: [ ^ self ] ].
+	^ super recalculateVerticalScrollBar
+]
+
 { #category : 'accessing - colors' }
 JadeiteTableMorph >> secondarySelectionColor [
 

@@ -17,10 +17,13 @@ JadeiteConsoleApplication class >> jadeiteConsoleClass [
 JadeiteConsoleApplication >> resetConfiguration [
 
 	super resetConfiguration.
-	JadeiteConsole allInstances do: [ :console |
-		console window ifNotNil: [ :window |
-			window isOpen ifTrue: [
-				console addStyle: 'jadeiteTextBackgroundColor' ] ] ]
+	JadeiteConsole currentConsole
+		ifNil: [ ^ self ]
+		ifNotNil: [ :console |
+			console window ifNotNil: [ :window |
+				window isOpen ifTrue: [
+					JadeiteConsole currentConsole addStyle:
+						'jadeiteTextBackgroundColor' ] ] ]
 ]
 
 { #category : 'accessing' }

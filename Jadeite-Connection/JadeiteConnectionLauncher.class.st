@@ -471,7 +471,7 @@ JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 	self layout add: (self newLabel label: 'Imported Connections List:').
 	availableConnectionPresenter := JadeiteListPresenter new
 		                                display: [ :filePath |
-			                                displayFullPath
+			                                displayFullPath value
 				                                ifTrue: [ filePath ]
 				                                ifFalse: [
 					                                self shortPathFor: filePath ] ];
