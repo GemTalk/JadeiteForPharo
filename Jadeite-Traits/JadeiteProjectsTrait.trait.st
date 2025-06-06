@@ -299,20 +299,20 @@ JadeiteProjectsTrait >> gitCheckoutTag: projectService [
 { #category : 'actions' }
 JadeiteProjectsTrait >> gitCommit [
 
-	| projectName message |
+	| projectName |
 	self canCommit ifFalse: [ ^ self ].
 	projectName := self projectListPresenter selectedItem name.
-	[message := UIManager default
-		           jadeiteMultiLineRequest:
-		           'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
-		           initialAnswer: '<enter commit comment here>'
-		           answerHeight: 250.
-	message ifNotNil: [
-		message value isEmpty
-			ifTrue: [
-				MessageBox notify:
-					'Commit message must not be empty. Commit to local repository NOT done.' ]
-			ifFalse: [ self gitCommit: projectName message: message ] ]] fork
+	UIManager default
+		jadeiteMultiLineRequest:
+		'Enter Git commit message. (Note - This will NOT do a GemStone commit)'
+		initialAnswer: '<enter commit comment here>'
+		answerHeight: 250
+		onCompletion: [ :message |
+			message value isEmpty
+				ifTrue: [
+					MessageBox notify:
+						'Commit message must not be empty. Commit to local repository NOT done.' ]
+				ifFalse: [ self gitCommit: projectName message: message ] ]
 ]
 
 { #category : 'actions' }
