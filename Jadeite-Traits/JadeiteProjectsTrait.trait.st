@@ -329,7 +329,8 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 		onCompletion: [
 			MessageBox notify:
 				'Project ' , projectName , ' committed to local repository!'.
-			self basicReloadProject: self projectListPresenter selections ]
+			self basicReloadProject: self projectListPresenter selections.
+			self markProjectContentsNotDirty ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -425,6 +426,12 @@ JadeiteProjectsTrait >> loadProject [
 	^ self
 		  installProjectFromPath: filePath
 		  projectsHome: JadePresenter rowanProjectsHomeEnvVarString
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> markProjectContentsNotDirty [
+
+	"Let each presenter handle it's own dirty state management"
 ]
 
 { #category : 'messages' }

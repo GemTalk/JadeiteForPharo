@@ -2120,6 +2120,21 @@ JadeiteBrowserPresenter >> makeSameSelectionsIn: newPresenter as: previousPresen
 	newPresenter findMethod: methodService selector
 ]
 
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> markProjectContentsNotDirty [
+
+	| browserPresenters |
+	browserPresenters := self parentPresenter tabs pages collect: [ :page |
+		                     page activePresenter ].
+	browserPresenters do: [ :browserPresenter |
+		browserPresenter packageListPresenter items do: [ :packageService |
+			packageService isDirty: false ].
+		browserPresenter classListPresenter items do: [ :classService |
+			classService isDirty: false ].
+		browserPresenter methodListPresenter items do: [ :methodService |
+			methodService isDirty: false ] ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> maxAutoCompleteListSize [
 	^50
