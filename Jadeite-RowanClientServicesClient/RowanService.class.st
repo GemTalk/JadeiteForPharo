@@ -61,12 +61,13 @@ RowanService class >> lookupVar: aName [
 	^ GlobalVariable key: aName asSymbol value: classService
 ]
 
-{ #category : 'initialization' }
+{ #category : 'instance creation' }
 RowanService class >> new [
+
 	| rsrInstance |
-	(self name last: 6) = 'Client' ifTrue:[^super new initialize]. 
-	rsrInstance := (Smalltalk at: (self name, 'Client')) basicNew.	
-	^rsrInstance initialize
+	(self name last: 6) = 'Client' ifTrue: [ ^ super new ].
+	rsrInstance := (Smalltalk at: self name , 'Client') basicNew.
+	^ rsrInstance initialize
 ]
 
 { #category : 'constants' }

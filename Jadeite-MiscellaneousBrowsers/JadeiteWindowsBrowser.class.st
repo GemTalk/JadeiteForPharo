@@ -120,7 +120,8 @@ JadeiteWindowsBrowser >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		initialExtent: 90 @ 30 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar.
-	self updateCaption
+	self updateCaption.
+	autoRefreshPresenter state: true 
 ]
 
 { #category : 'initialization' }

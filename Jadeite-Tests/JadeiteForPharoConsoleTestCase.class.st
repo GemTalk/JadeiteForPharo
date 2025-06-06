@@ -215,6 +215,16 @@ JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
 		self deny: projectService isCurrent ]
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_windowTitle [
+	"we lost the connection information in the window title. 
+	Test to catch if it happens again. "
+
+	self assert:
+		(jadeiteShell shellName , '*for*' , session stoneName , ' @*[*]'
+			 match: jadeiteShell window title)
+]
+
 { #category : 'support' }
 JadeiteForPharoConsoleTestCase >> toolUsedForCommonTests [
 

@@ -994,6 +994,11 @@ JadeiteConsole >> transactionMode: aSymbol [
 ]
 
 { #category : 'updates' }
+JadeiteConsole >> updateCaption [
+	self caption: (self gciSession titleBarFor: self shellName)
+]
+
+{ #category : 'updates' }
 JadeiteConsole >> updateProjectPackagesOnCompletion: anObject [
 	"no op for project list"
 ]

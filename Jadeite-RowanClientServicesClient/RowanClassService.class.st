@@ -46,7 +46,8 @@ Class {
 		'wasRemoved',
 		'renamedName',
 		'hasSubclasses',
-		'classCategory'
+		'classCategory',
+		'isDirty'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -552,6 +553,18 @@ RowanClassService >> isClassService [
 RowanClassService >> isDefined [
 
 	^isExtension not
+]
+
+{ #category : 'accessing' }
+RowanClassService >> isDirty [
+
+	^ isDirty
+]
+
+{ #category : 'accessing' }
+RowanClassService >> isDirty: anObject [
+
+	isDirty := anObject
 ]
 
 { #category : 'accessing' }

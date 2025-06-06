@@ -132,41 +132,35 @@ JadeiteForPharoGUITestCase >> waitForCloseDialog [
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
-	"would really like a more determinate way of getting the correct method list"
 
-	| existingMethodLists newMethodLists count |
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: aBlock
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
+
+	| existing new count |
 	RsrGarbageCollector maximumReclamation.
-	existingMethodLists := JadeiteMethodListPresenter allInstances.
+	existing := presenterClass allInstances.
 	aBlock fork.
 	count := 0.
 	[
-	count > 100 or: [
-		(newMethodLists := JadeiteMethodListPresenter allInstances
-			                   asOrderedCollection) size
-		> existingMethodLists size ] ] whileFalse: [
+	count > 10 or: [
+		(new := presenterClass allInstances asOrderedCollection) size
+		> existing size ] ] whileFalse: [
 		count := count + 1.
-		(Delay forMilliseconds: 1) wait ].
-	newMethodLists removeAll: existingMethodLists.
-	methodListBrowser := newMethodLists first
+		(Delay forMilliseconds: 50) wait ].
+	new removeAll: existing.
+	new isEmpty ifTrue: [ ^ nil ].
+	^ new first
 ]
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
 
-	| existingBrowsers newBrowsers count |
-	RsrGarbageCollector maximumReclamation.
-	existingBrowsers := JadeiteBrowser allInstances.
-	aBlock fork.
-	count := 0.
-	[
-	count > 10 or: [
-		(newBrowsers := JadeiteBrowser allInstances
-			                   asOrderedCollection) size
-		> existingBrowsers size ] ] whileFalse: [
-		count := count + 1.
-		(Delay forMilliseconds: 50) wait ].
-	newBrowsers removeAll: existingBrowsers.
-	projectsBrowser := newBrowsers first
+	projectsBrowser := self waitForNew: JadeiteBrowser while: aBlock
 ]
 
 { #category : 'support' }

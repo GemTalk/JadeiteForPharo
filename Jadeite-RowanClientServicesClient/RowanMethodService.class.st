@@ -42,7 +42,8 @@ Class {
 		'homeMethodOop',
 		'hasMethodHistory',
 		'searchString',
-		'definedClassName'
+		'definedClassName',
+		'isDirty'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -444,6 +445,18 @@ RowanMethodService >> initialize [
 	hasMethodHistory := true.
 	isExtension := false.
 	inSelectedPackage := true
+]
+
+{ #category : 'accessing' }
+RowanMethodService >> isDirty [
+
+	^ isDirty
+]
+
+{ #category : 'accessing' }
+RowanMethodService >> isDirty: anObject [
+
+	isDirty := anObject
 ]
 
 { #category : 'accessing' }
