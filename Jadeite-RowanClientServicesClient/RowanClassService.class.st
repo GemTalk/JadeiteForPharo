@@ -532,10 +532,11 @@ RowanClassService >> hierarchyServices: anObject [
 ]
 
 { #category : 'initialize' }
-RowanClassService >> initialize [  
+RowanClassService >> initialize [
 
-	super initialize. 
-	selectedPackageServices := Array new
+	super initialize.
+	selectedPackageServices := Array new.
+	isDirty := false
 ]
 
 { #category : 'accessing' }

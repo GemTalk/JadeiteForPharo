@@ -1521,7 +1521,7 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 		                           displayColor: [ :classService |
 			                           self classDisplayColor: classService ];
 		                           displayBold: [ :classService |
-			                           classService isDirty ];
+			                           classService isDirty == true ];
 		                           children: [ :service |
 			                           service subclassServices ].
 	classHierarchyPresenter
@@ -1550,7 +1550,7 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 		                      displayIcon: [ :classService |
 			                      self testClassResultIconFor: classService ];
 		                      displayBold: [ :classService |
-			                      classService isDirty ];
+			                      classService isDirty == true "could be nil" ];
 		                      acceptDrop: [ :transfer |
 			                      transfer index = 0 ifFalse: [
 					                      self
