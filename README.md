@@ -30,8 +30,7 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 
 - Install Pharo 12 Smalltalk.
   * Jadeite for Pharo only works with Pharo 12
-  * Recommended build -
-    * Pharo-12.0.0+SNAPSHOT.build.1546.sha.30427d35e51ff0351e1dc860306faf36d9d8931c (64 Bit)
+  * Recommended build - Latest Pharo 12 stable
 
 - The env variable $ROWAN_PROJECTS_HOME must be set to the directory containing the checkouts of github clones on local disk.  If you will run the client on the same node as the host, you may use the git repositories previously cloned.
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local disk: 
