@@ -1520,8 +1520,6 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 		                           display: [ :m | m displayString ];
 		                           displayColor: [ :classService |
 			                           self classDisplayColor: classService ];
-		                           displayBold: [ :classService |
-			                           classService isDirty == true ];
 		                           children: [ :service |
 			                           service subclassServices ].
 	classHierarchyPresenter
@@ -1549,8 +1547,6 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 			                      self jadeiteWantsDrop: transfer ];
 		                      displayIcon: [ :classService |
 			                      self testClassResultIconFor: classService ];
-		                      displayBold: [ :classService |
-			                      classService isDirty == true "could be nil" ];
 		                      acceptDrop: [ :transfer |
 			                      transfer index = 0 ifFalse: [
 					                      self
@@ -1659,8 +1655,6 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];
-		                       displayBold: [ :methodService |
-			                       methodService isDirty ];
 		                       displayIcon: [ :methodService |
 			                       self testMethodResultIconFor: methodService ];
 		                       dragEnabled: true.
