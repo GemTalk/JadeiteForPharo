@@ -178,10 +178,10 @@ JadeiteGCIConnectionProfile >> disconnect [
 	self confirmAllWindowsCanClose ifFalse: [ ^ self ].
 	connection close.
 	connection channel sink isProcessActive ifTrue: [
-		UIManager alert:
+		UIManager default alert:
 			'Connection not properly closed. Channel sink process is still active.' ].
 	connection channel source isProcessActive ifTrue: [
-		UIManager alert:
+		UIManager default alert:
 			'Connection not properly closed. Channel source process is still active.' ].
 	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
 	GciSession clearCurrent.
@@ -376,6 +376,12 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
 			withoutQuotes := answeringService answer copyWithout: $'.
 			self gitShaWorkspace: workspacePresenter using: withoutQuotes ].
 	^ workspacePresenter workspace
+]
+
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> session [
+
+	^ session
 ]
 
 { #category : 'actions' }

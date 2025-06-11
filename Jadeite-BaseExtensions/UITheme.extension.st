@@ -28,7 +28,7 @@ UITheme >> jadeiteChangedTextBackgroundColor [
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
-UITheme >> jadeiteChooseForSaveFileReferenceIn: aThemedMorph title: title extensions: exts path: path preview: preview [
+UITheme >> jadeiteChooseForSaveFileReferenceIn: aThemedMorph title: title extensions: exts filename: path preview: preview [
 
 	| dialog pathFileReference |
 	pathFileReference := path asFileReference.

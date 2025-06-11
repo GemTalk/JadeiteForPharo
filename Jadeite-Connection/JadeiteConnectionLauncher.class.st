@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteConnectionLauncher',
-	#superclass : 'JadeitePresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#traits : 'JadeiteToolbarTrait',
 	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
@@ -18,7 +18,8 @@ Class {
 		'lastImportedFileName',
 		'availableConnectionPresenter',
 		'displayFullPath',
-		'portText'
+		'portText',
+		'selectedProfile'
 	],
 	#classVars : [
 		'ConnectionProfile',
@@ -151,10 +152,11 @@ JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 	self class addImportedConnection: fileRef pathString.
 	connectionProfile := STON fromString: fileRef contents.
 	self clearConnectionSubscriptions.
-	JadeiteConnectionProfile connectionProfile: connectionProfile.
+	selectedProfile := connectionProfile.
 	self populateTextFields.
 	self connectConnection.
-	availableConnectionPresenter model collection reSort
+	availableConnectionPresenter model collection reSort.
+	availableConnectionPresenter selection: fileRef pathString
 ]
 
 { #category : 'connections' }
@@ -258,7 +260,10 @@ JadeiteConnectionLauncher >> connect [
 		UIManager default alert: 'Client Libraries Path must be set'.
 		self setPath ifNil: [ ^ self ] ].
 	self populateConnectionProfile.
-	[ self connectionProfile connect ]
+	[
+	self connectionProfile connect.
+	self gciSession: GciSession current.
+	self updateCaption ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -316,6 +321,12 @@ JadeiteConnectionLauncher >> connectionProfile [
 	^JadeiteConnectionProfile connectionProfile
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> connectionProfile: aProfile [
+
+	JadeiteConnectionProfile connectionProfile: aProfile
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> copyConnection [
 	"a copy is essentially a do nothing operation"
@@ -352,7 +363,9 @@ JadeiteConnectionLauncher >> defaultWindowPresenterClass [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> disconnect [
 
-	self connectionProfile disconnect
+	self connectionProfile disconnect.
+	self gciSession: nil.
+	self updateCaption
 ]
 
 { #category : 'accessing' }
@@ -380,12 +393,13 @@ JadeiteConnectionLauncher >> enableButtons [
 { #category : 'connections' }
 JadeiteConnectionLauncher >> exportProfile [
 
-	| fileRef |
+	| fileRef suggestedFileName |
+	suggestedFileName := self suggestedExportName.
 	fileRef := UIManager default theme
 		           jadeiteChooseForSaveFileReferenceIn: Smalltalk ui
 		           title: 'Export Connection File'
 		           extensions: nil
-		           path: 'jadeiteConnection.txt'
+		           filename: suggestedFileName
 		           preview: nil.
 	fileRef ifNil: [ ^ self ].
 	fileRef exists ifTrue: [
@@ -628,7 +642,9 @@ JadeiteConnectionLauncher >> initializePortNumber [
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePresenter [
-	super initializePresenter. 
+
+	super initializePresenter.
+	selectedProfile := JadeiteConnectionProfile connectionProfile copy.
 	self populateTextFields.
 	self enableButtons
 ]
@@ -691,7 +707,7 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 40 @ 70 * StandardFonts defaultFont pointSize;
+		initialExtent: 43 @ 70 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar;
 		centered.
 	self updateCaption.
@@ -704,14 +720,11 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 { #category : 'connections' }
 JadeiteConnectionLauncher >> installImportedConnection: filePath [
 
-	| fileStream fileRef |
+	| fileRef |
 	fileRef := filePath asFileReference.
 	fileRef exists ifFalse: [ ^ self ].
-"	fileStream := ZnCharacterReadStream
-		              on: filePath asFileReference binaryReadStream
-		              encoding: 'utf8'."
 	self basicImportProfile: fileRef.
-	self populateTextFields 
+	self populateTextFields
 ]
 
 { #category : 'accessing' }
@@ -734,6 +747,15 @@ JadeiteConnectionLauncher >> newConnection [
 	shouldClear := UIManager default confirm:
 		               'Clear all fields to enter new connection information?'.
 	shouldClear ifTrue: [ self basicNewConnection ]
+]
+
+{ #category : 'showing' }
+JadeiteConnectionLauncher >> open [
+
+	| jadeiteWindow |
+	jadeiteWindow := self asWindow open.
+	self showNotWait.
+	^ jadeiteWindow
 ]
 
 { #category : 'actions' }
@@ -789,16 +811,16 @@ JadeiteConnectionLauncher >> populateConnectionProfile [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> populateTextFields [
 
-	hostText text: self connectionProfile host.
-	stoneText text: self connectionProfile stone.
-	userText text: self connectionProfile user.
-	passwordText text: self connectionProfile password.
-	versionText text: self connectionProfile version.
-	netldiText text: self connectionProfile netldi.
-	pathText text: self connectionProfile path.
-	self connectionProfile port
+	hostText text: selectedProfile host.
+	stoneText text: selectedProfile stone.
+	userText text: selectedProfile user.
+	passwordText text: selectedProfile password.
+	versionText text: selectedProfile version.
+	netldiText text: selectedProfile netldi.
+	pathText text: selectedProfile path.
+	selectedProfile port
 		ifNil: [ portText text: String new ]
-		ifNotNil: [ portText text: self connectionProfile port ]
+		ifNotNil: [ portText text: selectedProfile port ]
 ]
 
 { #category : 'accessing' }
@@ -880,6 +902,12 @@ JadeiteConnectionLauncher >> setPath [
 	pathText text: path fullName
 ]
 
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> shellName [
+
+	^ 'Jadeite Connection Launcher '
+]
+
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> shortPathFor: filePath [
 
@@ -898,6 +926,18 @@ JadeiteConnectionLauncher >> stoneText: anObject [
 	stoneText := anObject
 ]
 
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> suggestedExportName [
+
+	| stoneString versionString userString |
+	stoneString := stoneText text ifNil: [ String new ].
+	versionString := versionText text ifNil: [ String new ].
+	userString := userText text ifNil: [ String new ].
+	(stoneString , versionString , userString) isEmpty ifTrue: [
+		^ 'jadeiteConnection.txt' ].
+	^ stoneString , '_' , versionString , '_' , userString , '.txt'
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> toggleFullPathDisplay [
 
@@ -906,9 +946,11 @@ JadeiteConnectionLauncher >> toggleFullPathDisplay [
 ]
 
 { #category : 'actions' }
-JadeiteConnectionLauncher >> updateCaption [ 
-	
-	self caption: 'Jadeite Connection Launcher'
+JadeiteConnectionLauncher >> updateCaption [
+
+	self caption: (self gciSession
+			 ifNil: [ self shellName ]
+			 ifNotNil: [ self gciSession titleBarFor: self shellName ])
 ]
 
 { #category : 'accessing' }
