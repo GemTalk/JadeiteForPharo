@@ -262,6 +262,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 		session:
 		(GciSession new library: launcher connectionProfile connection)
 		onCompletion: [
+			| workspaceString |
 			clientServicesSha := (browserService projects detect: [
 				                      :projectService |
 				                      projectService name = 'RowanClientServices' ])
@@ -276,7 +277,9 @@ RemoteServiceReplication ' , rsrSha asString , '
 RowanClientServices ' , clientServicesSha asString , '
 ---------------------------------------------
 All loaded projects:*'.
-			self assert: (desiredWorkspaceText match: workspace text asString) ] ]
+			"In the event of failure, cache the workspace contents otherwise workspace will be destroyed before analysis can be done"
+			workspaceString := workspace text asString.
+			self assert: (desiredWorkspaceText match: workspaceString) ] ]
 		ensure: [ self destroy: workspace ]
 ]
 
