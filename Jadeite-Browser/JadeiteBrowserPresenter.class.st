@@ -3813,7 +3813,8 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 						index := self methodListPresenter items indexOf: methodService.
 						self methodListPresenter
 							selectIndex: index
-							scrollToSelection: true ] ] ] ensure: [
+							scrollToSelection: true ].
+					self updateTabLabel ] ] ensure: [
 				self resumeSelectionEvents ] ]
 ]
 

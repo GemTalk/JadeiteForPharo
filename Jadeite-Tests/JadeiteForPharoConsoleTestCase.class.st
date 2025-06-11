@@ -134,6 +134,36 @@ JadeiteForPharoConsoleTestCase >> test_fileIn [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
+
+	| projectsPresenter sem |
+	RowanServiceUpdater uninstallTestUpdater.
+
+	projectsPresenter := self
+		                     waitForNew: JadeiteBrowserPresenter
+		                     while: [ jadeiteShell findClassNamed: 'Object' ].
+	projectsBrowser := projectsPresenter parentPresenter.
+	sem := Semaphore new.
+	[
+	[
+	projectsPresenter selectedClass
+		ifNil: [ false ]
+		ifNotNil: [ :classService | classService name = 'Object' ] ]
+		whileFalse: [ (Delay forMilliseconds: 1) wait ].
+	sem signal ] fork.
+
+	sem waitTimeoutSeconds: 2.
+	self assert: projectsPresenter selectedClass name equals: 'Object'.
+	self
+		assert: projectsPresenter parentPresenter
+		isKindOf: JadeiteBrowser.
+	self assert: projectsPresenter owner isKindOf: SpNotebookPresenter.
+	self
+		assert: projectsPresenter parentPresenter tabs selectedPage title
+		equals: '1 Object'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_openHelp [
 	"open the Jadeite Help File and make sure it's contents match the .md file prescribed"
 
