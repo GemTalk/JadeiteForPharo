@@ -1,3 +1,6 @@
+"
+Instances of RowanService subclasses are the primary transport mechanism to get server information to the client. 
+"
 Class {
 	#name : 'RowanService',
 	#superclass : 'RsrService',
@@ -46,6 +49,11 @@ RowanService class >> icon [
 	"Answers an Icon that can be used to represent this class"
 
 	^##(self) defaultIcon
+]
+
+{ #category : 'testing' }
+RowanService class >> isAbstract [
+	^self == RowanService 
 ]
 
 { #category : 'ast' }
@@ -156,12 +164,6 @@ RowanService >> cleanUpService [
 	updates := nil.
 	1 to: self class instSize do: [ :index |  
 	self instVarAt: index put: nil ]
-]
-
-{ #category : 'public' }
-RowanService >> clientDefinitionClass [
-
-	^self subclassResponsibility
 ]
 
 { #category : 'accessing' }
@@ -726,11 +728,6 @@ RowanService >> printOn: aStream [
 RowanService >> raiseCompileErrorIfNeeded [
  
 	self isCompileError ifTrue: [ self signalCompileError ]
-]
-
-{ #category : 'must not strip' }
-RowanService >> remoteServiceName [
-	self subclassResponsibility
 ]
 
 { #category : 'private' }

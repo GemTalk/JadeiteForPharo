@@ -113,6 +113,14 @@ JadeiteConnectionLauncher class >> soleInstance: aConnectionLauncher [
 	SoleInstance := aConnectionLauncher
 ]
 
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> addFileToAvailableConnections: fileRef [
+
+	availableConnectionPresenter addIfAbsent: fileRef pathString.
+	availableConnectionPresenter model collection reSort.
+	availableConnectionPresenter selection: fileRef pathString
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> addStyle: style [
 
@@ -142,7 +150,9 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 	profileCopy := JadeiteGCIConnectionProfile new.
 	self populate: profileCopy. "don't want to export the connection"
 	ws nextPutAll: (STON toString: profileCopy).
-	ws flush ] ensure: [ ws close ]
+	ws flush ] ensure: [ ws close ].
+	self resetChangedTextFields.
+	self basicImportProfile: fileRef.
 ]
 
 { #category : 'connections' }
@@ -155,8 +165,7 @@ JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 	selectedProfile := connectionProfile.
 	self populateTextFields.
 	self connectConnection.
-	availableConnectionPresenter model collection reSort.
-	availableConnectionPresenter selection: fileRef pathString
+	self addFileToAvailableConnections: fileRef
 ]
 
 { #category : 'connections' }
@@ -591,7 +600,7 @@ JadeiteConnectionLauncher >> initializeFileMenu [
 JadeiteConnectionLauncher >> initializeHostPresenter [
 
 	self layout add: (self newLabel label: 'Host:').
-	hostText := self newTextInput.
+	hostText := JadeiteTextInputFieldPresenter new.
 	self layout add: hostText
 ]
 
@@ -620,7 +629,7 @@ JadeiteConnectionLauncher >> initializeMenubar [
 JadeiteConnectionLauncher >> initializeNetldiPresenter [
 
 	self layout add: (self newLabel label: 'Netldi:').
-	netldiText := self newTextInput.
+	netldiText := JadeiteTextInputFieldPresenter new.
 	self layout add: netldiText
 ]
 
@@ -628,7 +637,7 @@ JadeiteConnectionLauncher >> initializeNetldiPresenter [
 JadeiteConnectionLauncher >> initializePasswordPresenter [
 
 	self layout add: (self newLabel label: 'Password:').
-	passwordText := self newTextInput bePassword.
+	passwordText := JadeiteTextInputFieldPresenter new bePassword.
 	self layout add: passwordText
 ]
 
@@ -636,7 +645,7 @@ JadeiteConnectionLauncher >> initializePasswordPresenter [
 JadeiteConnectionLauncher >> initializePortNumber [
 
 	self layout add: (self newLabel label: 'Fixed Port (leave blank for wildcard port)').
-	portText := self newTextInput.
+	portText := JadeiteTextInputFieldPresenter new.
 	self layout add: portText
 ]
 
@@ -671,7 +680,7 @@ JadeiteConnectionLauncher >> initializePresenters [
 JadeiteConnectionLauncher >> initializeStonePresenter [
 
 	self layout add: (self newLabel label: 'Stone:').
-	stoneText := self newTextInput.
+	stoneText := JadeiteTextInputFieldPresenter new.
 	self layout add: stoneText
 ]
 
@@ -690,7 +699,7 @@ JadeiteConnectionLauncher >> initializeToolsMenu [
 JadeiteConnectionLauncher >> initializeUserPresenter [
 
 	self layout add: (self newLabel label: 'User:').
-	userText := self newTextInput.
+	userText := JadeiteTextInputFieldPresenter new.
 	self layout add: userText
 ]
 
@@ -698,7 +707,7 @@ JadeiteConnectionLauncher >> initializeUserPresenter [
 JadeiteConnectionLauncher >> initializeVersionPresenter [
 
 	self layout add: (self newLabel label: 'Version:').
-	versionText := self newTextInput.
+	versionText := JadeiteTextInputFieldPresenter new.
 	self layout add: versionText
 ]
 
@@ -792,13 +801,13 @@ JadeiteConnectionLauncher >> pathText: anObject [
 JadeiteConnectionLauncher >> populate: profile [
 
 	profile
-		host: hostText text;
-		stone: stoneText text;
-		user: userText text;
-		password: passwordText text;
-		version: versionText text;
-		netldi: netldiText text;
-		port: portText text
+		host: hostText adapter widget text asString;
+		stone: stoneText adapter widget text asString;
+		user: userText adapter widget text asString;
+		password: passwordText adapter widget text asString;
+		version: versionText adapter widget text asString;
+		netldi: netldiText adapter widget text asString;
+		port: portText adapter widget text asString
 ]
 
 { #category : 'actions' }
@@ -867,8 +876,27 @@ JadeiteConnectionLauncher >> removeSelectedConnection [
 
 	(UIManager default confirm: 'Really remove imported connection?')
 		ifFalse: [ ^ self ].
-	availableConnectionPresenter model remove:
+	availableConnectionPresenter remove:
 		availableConnectionPresenter selectedItem
+]
+
+{ #category : 'actions' }
+JadeiteConnectionLauncher >> resetChangedTextFields [
+
+	self hostText adapter widget accept.
+	self hostText adapter widget hasUnacceptedEdits: false.
+	self versionText adapter widget accept.
+	self versionText adapter widget hasUnacceptedEdits: false.
+	self stoneText adapter widget accept.
+	self stoneText adapter widget hasUnacceptedEdits: false.
+	self userText adapter widget accept.
+	self userText adapter widget hasUnacceptedEdits: false.
+	self passwordText adapter widget accept.
+	self passwordText adapter widget hasUnacceptedEdits: false.
+	self netldiText adapter widget accept.
+	self netldiText adapter widget hasUnacceptedEdits: false.
+	self portText adapter widget accept.
+	self portText adapter widget hasUnacceptedEdits: false
 ]
 
 { #category : 'initialization' }
@@ -928,11 +956,15 @@ JadeiteConnectionLauncher >> stoneText: anObject [
 
 { #category : 'connections' }
 JadeiteConnectionLauncher >> suggestedExportName [
+	"go to the widget which will pickup unsaved changes"
 
 	| stoneString versionString userString |
-	stoneString := stoneText text ifNil: [ String new ].
-	versionString := versionText text ifNil: [ String new ].
-	userString := userText text ifNil: [ String new ].
+	stoneString := stoneText adapter widget text asString ifNil: [
+		               String new ].
+	versionString := versionText adapter widget text asString ifNil: [
+		                 String new ].
+	userString := userText adapter widget text asString ifNil: [
+		              String new ].
 	(stoneString , versionString , userString) isEmpty ifTrue: [
 		^ 'jadeiteConnection.txt' ].
 	^ stoneString , '_' , versionString , '_' , userString , '.txt'

@@ -76,7 +76,7 @@ JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 	self connectionDirName asFileReference ensureDeleteAll
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> setUp [
 
 	JadeiteTestManager replacing: self uiManager.
@@ -86,7 +86,7 @@ JadeiteForPharoConnectionLauncherTestCase >> setUp [
 	shouldReopenLauncher := true.
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 
 	super tearDown.
@@ -100,9 +100,9 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
 	shouldReopenLauncher ifTrue: [ self destroy: launcher ].
-	launcher ifNil: [ ^ self ].
 	launcher class importedConnections: backupConnections.
 	launcher class lastImportDirectory: backupLastDirectory.
+	launcher ifNil: [ ^ self ].
 	self ensureLauncherOpened
 ]
 

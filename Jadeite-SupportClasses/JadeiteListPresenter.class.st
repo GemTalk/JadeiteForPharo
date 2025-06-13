@@ -50,6 +50,18 @@ JadeiteListPresenter >> acceptDrop [
 	^super acceptDrop
 ]
 
+{ #category : 'api' }
+JadeiteListPresenter >> add: anObject [
+
+	self model add: anObject
+]
+
+{ #category : 'api' }
+JadeiteListPresenter >> addIfAbsent: anObject [
+
+	(self model includes: anObject) ifFalse: [ self model add: anObject ]
+]
+
 { #category : 'sorting' }
 JadeiteListPresenter >> beSorted [
 
@@ -148,6 +160,12 @@ JadeiteListPresenter >> postDrop [
 		theAdapter widget
 			initializeSelectedIndexes;
 			refresh ]
+]
+
+{ #category : 'api' }
+JadeiteListPresenter >> remove: anObject [
+
+	self model remove: anObject
 ]
 
 { #category : 'api' }

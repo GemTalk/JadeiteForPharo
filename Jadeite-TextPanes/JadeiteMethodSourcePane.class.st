@@ -10,19 +10,6 @@ Class {
 	#package : 'Jadeite-TextPanes'
 }
 
-{ #category : 'adding' }
-JadeiteMethodSourcePane >> addTextSegmentDecoration: aDecorationSegment [
-
-	[ super addTextSegmentDecoration: aDecorationSegment ]
-		on: Error
-		do: [ :ex |
-			Transcript
-				cr;
-				show: 'JadeiteMethodSourcePane>>#addTextSegmentDecoration: error - ';
-				print: ex;
-				flush ]
-]
-
 { #category : 'testing' }
 JadeiteMethodSourcePane >> canDiscardEdits [
 	"needed?"
