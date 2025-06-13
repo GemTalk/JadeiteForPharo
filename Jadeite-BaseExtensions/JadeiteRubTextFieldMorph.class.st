@@ -8,7 +8,7 @@ Class {
 { #category : 'drawing' }
 JadeiteRubTextFieldMorph >> drawOn: aCanvas [
 	super drawOn: aCanvas.
-	self hasUnacceptedEdits traceCr
+	self hasUnacceptedEdits
 		ifTrue: [
 			aCanvas
 				fillRectangle: self scrollBounds

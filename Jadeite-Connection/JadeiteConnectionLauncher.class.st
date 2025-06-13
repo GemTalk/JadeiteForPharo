@@ -959,14 +959,9 @@ JadeiteConnectionLauncher >> suggestedExportName [
 	"go to the widget which will pickup unsaved changes"
 
 	| stoneString versionString userString |
-	stoneString := stoneText adapter widget text asString ifNil: [
-		               String new ].
-	versionString := versionText adapter widget text asString ifNil: [
-		                 String new ].
-	userString := userText adapter widget text asString ifNil: [
-		              String new ].
-	(stoneString , versionString , userString) isEmpty ifTrue: [
-		^ 'jadeiteConnection.txt' ].
+	stoneString := stoneText adapter widget text asString.
+	versionString := versionText adapter widget text asString.
+	userString := userText adapter widget text asString.
 	^ stoneString , '_' , versionString , '_' , userString , '.txt'
 ]
 

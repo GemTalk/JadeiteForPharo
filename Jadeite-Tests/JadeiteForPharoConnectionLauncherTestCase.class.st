@@ -76,14 +76,15 @@ JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 	self connectionDirName asFileReference ensureDeleteAll
 ]
 
-{ #category : 'support' }
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> setUp [
 
 	JadeiteTestManager replacing: self uiManager.
+	self ensureLauncherOpened.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	backupConnections := launcher class importedConnections copy. "backup"
 	backupLastDirectory := launcher class lastImportDirectory.
-	shouldReopenLauncher := true.
+	shouldReopenLauncher := true
 ]
 
 { #category : 'support' }
@@ -100,10 +101,10 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
 	shouldReopenLauncher ifTrue: [ self destroy: launcher ].
-	launcher class importedConnections: backupConnections.
-	launcher class lastImportDirectory: backupLastDirectory.
-	launcher ifNil: [ ^ self ].
-	self ensureLauncherOpened
+	backupConnections ifNotNil: [
+		JadeiteConnectionLauncher importedConnections: backupConnections ].
+	backupLastDirectory ifNotNil: [
+		JadeiteConnectionLauncher lastImportDirectory: backupLastDirectory ]
 ]
 
 { #category : 'support' }
@@ -344,32 +345,23 @@ JadeiteForPharoConnectionLauncherTestCase >> test_soleInstance [
 		             theLauncher window notNil and: [
 			             theLauncher window isOpen ] ].
 	self assert: launchers isEmpty.
-	self assertIsNil: JadeiteConnectionLauncher soleInstance.
-
-	self ensureLauncherOpened "for the next test"
+	self assertIsNil: JadeiteConnectionLauncher soleInstance
 ]
 
 { #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_suggestedExportName [
 
 	| testLauncher |
-	testLauncher := JadeiteConnectionLauncher new.
-	testLauncher stoneText text: nil.
-	testLauncher userText text: nil.
-	testLauncher versionText text: nil.
-	self assertIsNil: testLauncher stoneText text.
-	self assertIsNil: testLauncher userText text.
-	self assertIsNil: testLauncher versionText text.
-	self
-		assert: testLauncher suggestedExportName
-		equals: 'jadeiteConnection.txt'.
+	testLauncher := JadeiteConnectionLauncher new open presenter.
+	shouldReopenLauncher := false.
+	[
 	testLauncher stoneText text: 'myStone'.
 	testLauncher userText text: 'SystemUser'.
 	testLauncher versionText text: '3.7.5'.
 	self
 		assert: testLauncher suggestedExportName
-		equals: 'myStone_3.7.5_SystemUser.txt'.
-	shouldReopenLauncher := false
+		equals: 'myStone_3.7.5_SystemUser.txt' ] ensure: [
+		testLauncher window close ]
 ]
 
 { #category : 'tests' }
