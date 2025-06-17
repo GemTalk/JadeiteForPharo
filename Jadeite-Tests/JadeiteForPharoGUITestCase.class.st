@@ -69,7 +69,9 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 		             :theLauncher |
 		             theLauncher window notNil and: [
 			             theLauncher window isOpen ] ].
-	launchers do: [ :launcher | launcher window close ].
+	launchers do: [ :launcher |
+		launcher isConnected ifTrue: [ launcher disconnect ].
+		launcher window close ].
 	JadeiteConnectionLauncher soleInstance ifNil: [
 		JadeiteConnectionApplication new start ].
 	jfpGuiTestConnection := JadeiteConnectionLauncher soleInstance
