@@ -9,7 +9,8 @@ Class {
 	#instVars : [
 		'workspace',
 		'methodListBrowser',
-		'progressBarState'
+		'progressBarState',
+		'jfpGuiTestConnection'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -70,7 +71,17 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 			             theLauncher window isOpen ] ].
 	launchers do: [ :launcher | launcher window close ].
 	JadeiteConnectionLauncher soleInstance ifNil: [
-		JadeiteConnectionApplication new start ]
+		JadeiteConnectionApplication new start ].
+	jfpGuiTestConnection := JadeiteConnectionLauncher soleInstance
+		                        presenter basicImportProfile:
+		                        self jfpGuiTestConnectionFileName
+			                        asFileReference
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> jfpGuiTestConnectionFileName [
+
+	^ 'jfpGuiTestConnection.txt'
 ]
 
 { #category : 'support' }

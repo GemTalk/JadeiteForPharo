@@ -63,6 +63,7 @@ JadeiteForPharoConnectionLauncherTestCase >> createConnectionProfileDirectory [
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> deleteTestConnectionFile [
 
+	fileRef ifNil: [ ^ self ].
 	fileRef exists ifTrue: [ fileRef delete ]
 ]
 

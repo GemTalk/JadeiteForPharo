@@ -165,7 +165,8 @@ JadeiteConnectionLauncher >> basicImportProfile: fileRef [
 	selectedProfile := connectionProfile.
 	self populateTextFields.
 	self connectConnection.
-	self addFileToAvailableConnections: fileRef
+	self addFileToAvailableConnections: fileRef.
+	^fileRef
 ]
 
 { #category : 'connections' }
