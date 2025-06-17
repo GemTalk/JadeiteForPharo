@@ -27,6 +27,14 @@ JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
 ]
 
 { #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> changeTextOf: widget [
+
+	widget updateTextWith: 'text changed'.
+	widget textChanged.
+	WorldMorph doOneCycle
+]
+
+{ #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> connectionDirName [
 
 	^ 'testImportFromConnectionDir'
@@ -104,15 +112,25 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	backupConnections ifNotNil: [
 		JadeiteConnectionLauncher importedConnections: backupConnections ].
 	backupLastDirectory ifNotNil: [
-		JadeiteConnectionLauncher lastImportDirectory: backupLastDirectory ]
+		JadeiteConnectionLauncher lastImportDirectory: backupLastDirectory ].
+	self deleteTestConnectionFile "for those tests that create one"
 ]
 
-{ #category : 'support' }
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> testConnectionFileReference [
 
 	| fileName |
 	fileName := self connectionFileName.
 	^ (FileSystem disk workingDirectoryPath / fileName) asFileReference
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_autoAcceptState [
+	"if autoAccept is not false, we don't get hasUnacceptedEdit changes. 
+	We use hasUnacceptedEdit to know what indication to put on the text fields. 
+	Expose this simple change as a test so we know where this is done - JadeiteTextInputFieldAdapter >> buildWidget"
+
+	self deny: launcher hostText adapter widget autoAccept
 ]
 
 { #category : 'tests' }
@@ -131,6 +149,37 @@ JadeiteForPharoConnectionLauncherTestCase >> test_basicFileExport [
 	self assert: fileProfile user equals: profile user.
 	self assert: fileProfile password equals: profile password.
 	self assert: fileProfile path equals: profile path
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_basicFileExportResetsChangedTextFields [
+
+	| profile |
+	fileRef := self testConnectionFileReference.
+	self deleteTestConnectionFile.
+	profile := JadeiteConnectionProfile connectionProfile.
+	self changeTextOf: launcher hostText adapter widget.
+	self changeTextOf: launcher stoneText adapter widget.
+	self changeTextOf: launcher userText adapter widget.
+	self changeTextOf: launcher passwordText adapter widget.
+	self changeTextOf: launcher versionText adapter widget.
+	self changeTextOf: launcher netldiText adapter widget.
+
+	launcher basicExportProfile: fileRef.
+	self assert: fileRef exists.
+
+	self validateUnchangedTextWidgetColor:
+		launcher hostText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher stoneText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher userText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher passwordText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher versionText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher netldiText adapter widget
 ]
 
 { #category : 'tests' }
@@ -404,6 +453,59 @@ JadeiteForPharoConnectionLauncherTestCase >> test_switchConnectionsWhileConnecte
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_textFieldsShowChangeIndication [
+
+	self verifyTextChangeMakesColorChange:
+		launcher hostText adapter widget.
+	self verifyTextChangeMakesColorChange:
+		launcher stoneText adapter widget.
+	self verifyTextChangeMakesColorChange:
+		launcher userText adapter widget.
+	self verifyTextChangeMakesColorChange:
+		launcher passwordText adapter widget.
+	self verifyTextChangeMakesColorChange:
+		launcher versionText adapter widget.
+	self verifyTextChangeMakesColorChange:
+		launcher netldiText adapter widget
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_titleChangesOnConnect [
+
+	launcher connectionProfile isConnected ifTrue: [ launcher disconnect ].
+	self
+		assert: launcher window title
+		equals: 'Jadeite Connection Launcher'.
+	launcher connect.
+	self
+		assert: launcher window title
+		equals: (launcher gciSession titleBarFor: launcher shellName).
+	launcher disconnect. 
+	self
+		assert: launcher window title
+		equals: 'Jadeite Connection Launcher'.
+	
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> updateAndVerifyTextChanged: widget [
+
+	self changeTextOf: widget.
+	self
+		assert: widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> validateUnchangedTextWidgetColor: widget [
+
+	WorldMorph doOneCycle.
+	self
+		assert: widget color
+		equals: Smalltalk ui theme jadeiteBackgroundColor
+]
+
+{ #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> verifyAllTestConnectionsImported [
 
 	1 to: self numberOfTestConnections do: [ :idx |
@@ -413,4 +515,15 @@ JadeiteForPharoConnectionLauncherTestCase >> verifyAllTestConnectionsImported [
 		itemPrintStrings := launcher availableConnectionPresenter items.
 		itemPrintStrings includes: path asAbsolute pathString.
 		self assert: (itemPrintStrings includes: path asAbsolute pathString) ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> verifyTextChangeMakesColorChange: widget [
+	"assume widget is not changed on entry"
+
+	self validateUnchangedTextWidgetColor: widget.
+	self updateAndVerifyTextChanged: widget.
+	widget cancel.
+	WorldMorph doOneCycle.
+	self validateUnchangedTextWidgetColor: widget
 ]

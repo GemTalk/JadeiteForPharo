@@ -7,18 +7,14 @@ Class {
 
 { #category : 'drawing' }
 JadeiteRubTextFieldMorph >> drawOn: aCanvas [
+
 	super drawOn: aCanvas.
-	self hasUnacceptedEdits
-		ifTrue: [
-			aCanvas
-				fillRectangle: self scrollBounds
-				color: (self theme jadeiteChangedTextBackgroundColor alpha: 1.0) ]
-		ifFalse: [
-			aCanvas
-				fillRectangle: self scrollBounds
-				color: (self theme jadeiteBackgroundColor alpha: 1.0) ].
-	
-	
+	color := self hasUnacceptedEdits
+		         ifTrue: [
+		         self theme jadeiteChangedTextBackgroundColor alpha: 1.0 ]
+		         ifFalse: [ self theme jadeiteBackgroundColor alpha: 1.0 ].
+	aCanvas fillRectangle: self scrollBounds color: color.
+	self color: color
 ]
 
 { #category : 'model protocol' }

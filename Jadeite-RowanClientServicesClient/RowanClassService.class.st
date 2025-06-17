@@ -924,18 +924,6 @@ RowanClassService >> sortAspect [
 	^name
 ]
 
-{ #category : 'accessing' }
-RowanClassService >> subclassServices [
-
-	^self subclassResponsibility
-]
-
-{ #category : 'accessing' }
-RowanClassService >> subclassServices: anObject [
-
-	^self subclassResponsibility
-]
-
 { #category : 'public' }
 RowanClassService >> sunitMethodsUpdate: presenter browser: browser [
 	| selections oldClassService |

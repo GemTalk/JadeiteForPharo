@@ -250,12 +250,6 @@ JadeiteApplication >> jadeiteBackgroundColor [
 	^self class jadeiteBackgroundColor
 ]
 
-{ #category : 'constants' }
-JadeiteApplication >> jadeiteChangedTextBackgroundColor [ 
-
-	^self class jadeiteChangedTextBackgroundColor
-]
-
 { #category : 'initialize' }
 JadeiteApplication >> registerBrowserEventsFor: browserPresenter [
 

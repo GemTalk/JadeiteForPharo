@@ -933,7 +933,7 @@ JadeiteConnectionLauncher >> setPath [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> shellName [
 
-	^ 'Jadeite Connection Launcher '
+	^ 'Jadeite Connection Launcher'
 ]
 
 { #category : 'accessing' }

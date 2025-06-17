@@ -82,13 +82,14 @@ JadeiteTestResource >> cloneRowanSample1 [
 ]
 
 { #category : 'support' }
-JadeiteTestResource >> closeConnectionLaunchers [ 
+JadeiteTestResource >> closeConnectionLaunchers [
 
 	JadeiteConnectionLauncher allInstances do: [ :launcher |
 		| profile |
 		profile := launcher connectionProfile.
 		profile isConnected ifTrue: [ profile disconnect ].
-		self destroy: launcher ].
+		self destroy: launcher.
+		launcher become: String new "they won't go away otherwise. Someday may find culprit. " ]
 ]
 
 { #category : 'support' }
@@ -149,9 +150,9 @@ JadeiteTestResource >> createRowanSample1ProjectWithEmpyClassCategory [
 JadeiteTestResource >> destroy: visualThing [
 
 	visualThing ifNil: [ ^ self ].
-	(Delay forMilliseconds: 100) wait.
+	(Delay forMilliseconds: 10) wait.
 	visualThing window ifNotNil: [ :window | window close ].
-	(Delay forMilliseconds: 20) wait
+	(Delay forMilliseconds: 10) wait
 ]
 
 { #category : 'support' }
