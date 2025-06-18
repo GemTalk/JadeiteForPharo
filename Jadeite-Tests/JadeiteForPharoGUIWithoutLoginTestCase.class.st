@@ -92,7 +92,7 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 	launcher pathText text: String new.
 	launcher portText text: String new.
 
-	launcher basicImportProfile: fileRef.
+	launcher basicImportProfileFromFileReference: fileRef.
 	profile := JadeiteConnectionProfile connectionProfile.
 
 	self assert: launcher hostText text equals: profile host.

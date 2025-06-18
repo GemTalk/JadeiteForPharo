@@ -152,21 +152,16 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 	ws nextPutAll: (STON toString: profileCopy).
 	ws flush ] ensure: [ ws close ].
 	self resetChangedTextFields.
-	self basicImportProfile: fileRef.
+	self basicImportProfileFromFileReference: fileRef.
 ]
 
 { #category : 'connections' }
-JadeiteConnectionLauncher >> basicImportProfile: fileRef [
+JadeiteConnectionLauncher >> basicImportProfile: connectionProfile [
 
-	| connectionProfile |
-	self class addImportedConnection: fileRef pathString.
-	connectionProfile := STON fromString: fileRef contents.
 	self clearConnectionSubscriptions.
 	selectedProfile := connectionProfile.
 	self populateTextFields.
-	self connectConnection.
-	self addFileToAvailableConnections: fileRef.
-	^fileRef
+	self connectConnection
 ]
 
 { #category : 'connections' }
@@ -176,7 +171,7 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 	self class lastImportDirectory: directoryRef asAbsolute asText.
 	fileRefs := directoryRef files asSortedCollection.
 	fileRefs do: [ :fileRef |
-		[ self basicImportProfile: fileRef ]
+		[ self basicImportProfileFromFileReference: fileRef ]
 			on: Error
 			do: [ :ex |
 				| ws |
@@ -196,10 +191,20 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 ]
 
 { #category : 'connections' }
-JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
+JadeiteConnectionLauncher >> basicImportProfileFromFileReference: fileRef [
 
-	[
-	self basicImportProfile: FileReference / fileWindow selectedPathName ]
+	| connectionProfile |
+	self class addImportedConnection: fileRef pathString.
+	connectionProfile := STON fromString: fileRef contents.
+	self basicImportProfile: connectionProfile.
+	self addFileToAvailableConnections: fileRef.
+	^ fileRef
+]
+
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> basicImportProfileFromPath: path [
+
+	[ self basicImportProfileFromFileReference: FileReference / path ]
 		on: Error
 		do: [ :ex |
 			| ws |
@@ -207,7 +212,7 @@ JadeiteConnectionLauncher >> basicImportProfileFile: fileWindow [
 			ws
 				nextPutAll: 'Error importing file:';
 				space;
-				nextPutAll: fileWindow selectedPathName;
+				nextPutAll: path;
 				cr;
 				nextPutAll: 'Error message:';
 				space;
@@ -287,7 +292,8 @@ JadeiteConnectionLauncher >> connect [
 				               title: 'Jadeite Connection Error'.
 			shouldDebug
 				ifTrue: [ ex pass ]
-				ifFalse: [ ^ self ] ]
+				ifFalse: [ ^ self ] ].
+	self resetChangedTextFields
 ]
 
 { #category : 'accessing' }
@@ -469,7 +475,7 @@ JadeiteConnectionLauncher >> importProfileFile [
 		              openModal;
 		              answer.
 	fileStream ifNil: [ ^ self ].
-	self basicImportProfileFile: fileWindow
+	self basicImportProfileFromPath: fileWindow selectedPathName
 ]
 
 { #category : 'initialization' }
@@ -733,7 +739,7 @@ JadeiteConnectionLauncher >> installImportedConnection: filePath [
 	| fileRef |
 	fileRef := filePath asFileReference.
 	fileRef exists ifFalse: [ ^ self ].
-	self basicImportProfile: fileRef.
+	self basicImportProfileFromFileReference: fileRef.
 	self populateTextFields
 ]
 

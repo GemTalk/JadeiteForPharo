@@ -46,10 +46,8 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			with: [ spec requires: 'Jadeite-MethodBrowser' ];
 			package: 'Jadeite-FileDialog'
 			with: [ spec requires: 'Jadeite-SUnitBrowser' ];
-			package: 'Jadeite-Changes'
-			with: [ spec requires: 'Jadeite-FileDialog' ];
 			package: 'Jadeite-Debugger'
-			with: [ spec requires: 'Jadeite-Changes' ];
+			with: [ spec requires: 'Jadeite-FileDialog' ];
 			package: 'Jadeite-Connection'
 			with: [ spec requires: 'Jadeite-Debugger' ];
 			package: 'Jadeite-Help'

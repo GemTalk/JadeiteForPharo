@@ -76,14 +76,8 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 		JadeiteConnectionApplication new start ].
 	jfpGuiTestConnection := JadeiteConnectionLauncher soleInstance
 		                        presenter basicImportProfile:
-		                        self jfpGuiTestConnectionFileName
-			                        asFileReference
-]
-
-{ #category : 'support' }
-JadeiteForPharoGUITestCase >> jfpGuiTestConnectionFileName [
-
-	^ 'jfpGuiTestConnection.txt'
+		                        self jadeiteTestResourceClass current
+			                        testConnectionProfile
 ]
 
 { #category : 'support' }

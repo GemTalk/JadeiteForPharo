@@ -4,11 +4,20 @@ Class {
 	#instVars : [
 		'projectsBrowser',
 		'jadeiteShell',
-		'progressBarState'
+		'progressBarState',
+		'testConnectionProfile'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
+
+{ #category : 'running' }
+JadeiteTestResource class >> availableFor: aTestAsserter [
+
+	aTestAsserter
+		assert: self isAvailable
+		description: [ self unavailbleResourceMessageUsing: aTestAsserter ]
+]
 
 { #category : 'as yet unclassified' }
 JadeiteTestResource class >> current [
@@ -19,36 +28,51 @@ JadeiteTestResource class >> current [
 		window := SettingBrowser open.
 		window close.
 		current := self new.
-		current progressBarState: JadeitePreferences showProgressBar. 
+		current progressBarState: JadeitePreferences showProgressBar.
 		JadeitePreferences showProgressBar: false.
-		current session ifNil: [ ^ nil "notified earlier" ] ].
-	current hasValidSession ifFalse: [ current := self new ].
+		JadeiteConnectionProfile connectionProfile ifNil: [
+			self signalInitializationError ].
+		current testConnectionProfile:
+			JadeiteConnectionProfile connectionProfile ].
 	^ current
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteTestResource class >> isAvailable [
 	^self current isAvailable
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteTestResource class >> sampleProject1Name [
 	^'RowanSample1'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteTestResource class >> sampleProject9Name [
 	^'RowanSample9'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteTestResource class >> signalInitializationError [
 	"TestSuite>>run: in the SUnit pacakge sends this method
 	to the class, but implements it on the instance. That appears
 	to be a bug."
 
 	self reset.
-	^TestResult signalErrorWith: 'Resource ' , self name , ' could not be initialized'
+	^ TestResult signalErrorWith:
+		  (self unavailbleResourceMessageUsing: nil)
+]
+
+{ #category : 'running' }
+JadeiteTestResource class >> unavailbleResourceMessageUsing: aTestAsserterOrNil [
+
+	| requestorString |
+	requestorString := aTestAsserterOrNil
+		                   ifNil: [ String new ]
+		                   ifNotNil: [
+		                   ' requested by ' , aTestAsserterOrNil printString ].
+	^ 'Unavailable resource ' , self name , requestorString
+	  , '. Verify connection launcher is open and connection established'
 ]
 
 { #category : 'projects loading' }
@@ -229,17 +253,10 @@ JadeiteTestResource >> gciSession [
 	^self session
 ]
 
-{ #category : 'support' }
-JadeiteTestResource >> hasValidSession [
-	| session |
-	session := GciSession current.
-	session ifNil: [^false].
-	^session isValidSession
-]
-
 { #category : 'testing' }
 JadeiteTestResource >> isAvailable [
-	^self session notNil
+
+	^ self session notNil and: [ self testConnectionProfile notNil ]
 ]
 
 { #category : 'support' }
@@ -472,6 +489,18 @@ JadeiteTestResource >> tearDown [
 		console
 			basicUnloadProjects: (Array with: self sampleProject1Name)
 			onCompletion: [  ] ]
+]
+
+{ #category : 'accessing' }
+JadeiteTestResource >> testConnectionProfile [
+
+	^ testConnectionProfile
+]
+
+{ #category : 'accessing' }
+JadeiteTestResource >> testConnectionProfile: anObject [
+
+	testConnectionProfile := anObject
 ]
 
 { #category : 'support' }

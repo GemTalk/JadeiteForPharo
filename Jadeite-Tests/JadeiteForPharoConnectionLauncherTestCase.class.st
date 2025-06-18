@@ -201,7 +201,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_basicFileImport [
 	launcher passwordText text: String new.
 	launcher pathText text: String new.
 	
-	launcher basicImportProfile: fileRef.
+	launcher basicImportProfileFromFileReference: fileRef.
 	
 	self assert: launcher versionText text equals: profile version.
 	self assert: launcher stoneText text equals: profile stone.
@@ -435,7 +435,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_switchConnectionsWhileConnecte
 
 	launcher basicExportProfile: fileRef.
 	self assert: fileRef exists.
-	launcher basicImportProfile: fileRef.
+	launcher basicImportProfileFromFileReference: fileRef.
 	selectedConnection := launcher availableConnectionPresenter
 		                      selectedItem.
 	self
