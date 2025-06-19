@@ -89,7 +89,7 @@ JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 JadeiteForPharoConnectionLauncherTestCase >> setUp [
 
 	JadeiteTestManager replacing: self uiManager.
-	self ensureLauncherOpened.
+	self ensureConnectionProfileEstablished.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	backupConnections := launcher class importedConnections copy. "backup"
 	backupLastDirectory := launcher class lastImportDirectory.

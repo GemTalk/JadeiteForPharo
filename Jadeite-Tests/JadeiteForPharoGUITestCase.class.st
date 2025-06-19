@@ -9,8 +9,7 @@ Class {
 	#instVars : [
 		'workspace',
 		'methodListBrowser',
-		'progressBarState',
-		'jfpGuiTestConnection'
+		'progressBarState'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -62,28 +61,24 @@ JadeiteForPharoGUITestCase >> displayAndPrint [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> ensureConnectionProfileEstablished [
+
+	self ensureLauncherOpened.
+	JadeiteConnectionLauncher soleInstance presenter basicImportProfile:
+		self jadeiteTestResourceClass current testConnectionProfile
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 
-	| launchers |
-	launchers := JadeiteConnectionLauncher allInstances select: [
-		             :theLauncher |
-		             theLauncher window notNil and: [
-			             theLauncher window isOpen ] ].
-	launchers do: [ :launcher |
-		launcher isConnected ifTrue: [ launcher disconnect ].
-		launcher window close ].
 	JadeiteConnectionLauncher soleInstance ifNil: [
-		JadeiteConnectionApplication new start ].
-	jfpGuiTestConnection := JadeiteConnectionLauncher soleInstance
-		                        presenter basicImportProfile:
-		                        self jadeiteTestResourceClass current
-			                        testConnectionProfile
+		JadeiteConnectionApplication new start ]
 ]
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
 
-	self ensureLauncherOpened.
+	self ensureConnectionProfileEstablished.
 	super setUp
 ]
 
