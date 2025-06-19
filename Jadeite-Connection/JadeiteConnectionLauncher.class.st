@@ -198,7 +198,7 @@ JadeiteConnectionLauncher >> basicImportProfileFromFileReference: fileRef [
 	connectionProfile := STON fromString: fileRef contents.
 	self basicImportProfile: connectionProfile.
 	self addFileToAvailableConnections: fileRef.
-	^ fileRef
+	^ connectionProfile
 ]
 
 { #category : 'connections' }
