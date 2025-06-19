@@ -100,7 +100,7 @@ JadeitePresenter >> shellName [
 JadeitePresenter >> showNotWait [
 
 	waitIndicator ifNotNil: [ :indicator |
-		indicator progress: [ 0 ] every: 60 second.
+		indicator fixedAt: 0.5.
 		indicator hide ].
 	stopWaitButton ifNotNil: [ :button | button hide ]
 ]
