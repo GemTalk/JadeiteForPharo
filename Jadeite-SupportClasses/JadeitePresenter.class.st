@@ -99,7 +99,9 @@ JadeitePresenter >> shellName [
 { #category : 'waiting' }
 JadeitePresenter >> showNotWait [
 
-	waitIndicator ifNotNil: [ :indicator | indicator hide ].
+	waitIndicator ifNotNil: [ :indicator |
+		indicator progress: [ 0 ] every: 60 second.
+		indicator hide ].
 	stopWaitButton ifNotNil: [ :button | button hide ]
 ]
 
@@ -107,8 +109,10 @@ JadeitePresenter >> showNotWait [
 JadeitePresenter >> showWait [
 
 	JadeitePreferences showProgressBar ifFalse: [ ^ self ].
-	waitIndicator ifNotNil: [ :indicator | indicator show ].
-	stopWaitButton ifNotNil: [ :button | button show ].
+	waitIndicator ifNotNil: [ :indicator |
+		indicator indeterminate.
+		indicator show ].
+	stopWaitButton ifNotNil: [ :button | button show ]
 ]
 
 { #category : 'find' }
