@@ -1,27 +1,27 @@
 # Disclaimer!!! Jadeite for Pharo is still in active development
 * No official support provided.
-* Any code imported (such as a user's project) must be "rowanized". Filein and Fileout have limited support; see the Jadeite help for details.
-* Only SystemUser is supported currently.
+* Any code imported (such as a user's project) must be "rowanized". Filein and Fileout have limited support; see the Jadeite Help (on the Tools menu) for details.
 * Jadeite for Pharo is not traits aware.
 
 # JadeiteForPharo
 IDE for GemStone Smalltalk application development in Pharo
 
-The current Jadeite for Pharo is a first alpha release with known issues.
+The current Jadeite for Pharo is a early alpha release with known issues.
 
 ## Setup the GemStone server
 
-Jadeite For Pharo is only tested for use with GemStone 3.7.2. 
+This branch of Jadeite For Pharo is tested for use with GemStone 3.7.4.1. 
 
-- Install GemStone 3.7.2, and set the path and $GEMSTONE environment variable.
-- Create a GemStone/Rowan server using extent `extent0.rowan3.dbf` from the GemStone/64 3.7.2 release directory
+- Install GemStone 3.7.4.1, and set the path and $GEMSTONE environment variable.
+- Create a GemStone/Rowan server using extent `extent0.rowan3.dbf` from the GemStone/64 3.7.4.1 release directory
 - Set the env variable $ROWAN_PROJECTS_HOME to the directory in which you will clone the github projects. 
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local server disk:
 	* RemoteServiceReplication, branch main-v2, `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
- 	* RowanClientServices, branch JfpAlpha372, `git clone -b JfpAlpha372 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`
+ 	* RowanClientServices, branch main3741, `git clone -b main3741 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`
 	* Announcements, `git clone https://github.com/GemTalk/Announcements`
 
-- Setup a .topazini file for SystemUser with your Stone's login parameters 
+- Setup a .topazini file for SystemUser with your Stone's login parameters
+- Start up the Stone and NetLDI
 - Connect to the latest RowanClientServices code by running the followings scripts from a directory with above topazini file
 	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RemoteServiceReplication/rowan/specs/RemoteServiceReplication.ston --projectsHome=$ROWAN_PROJECTS_HOME`
 	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RowanClientServices/rowan/specs/RowanClientServicesV3.ston --projectsHome=$ROWAN_PROJECTS_HOME`
@@ -34,15 +34,15 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 
 - The env variable $ROWAN_PROJECTS_HOME must be set to the directory containing the checkouts of github clones on local disk.  If you will run the client on the same node as the host, you may use the git repositories previously cloned.
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local disk: 
-	* JadeiteForPharo, branch JfpAlpha372, `git clone -b JfpAlpha372 https://github.com/GemTalk/JadeiteForPharo`
+	* JadeiteForPharo, branch main3741, `git clone -b main3741 https://github.com/GemTalk/JadeiteForPharo`
 	* PharoGemStoneFFI, branch main, `git clone -b main https://github.com/GemTalk/PharoGemStoneFFI`
 	* RemoteServiceReplication, branch main-v2, `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
 
-- setup a clientlibs directory containing 3.7.2 shared libraries\
+- setup a clientlibs directory containing 3.7.4.1 shared libraries\
 Download for Linux:\
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.2/GemStoneClientLibs3.7.2-x86_64.Linux.zip\
+https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-x86_64.Linux.zip\
 ...or download for Windows:\
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.2/GemStoneClientLibs3.7.2-x86.Windows_NT.zip.
+https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-x86.Windows_NT.zip.
 
 - create a new Pharo 12 image.
 - Copy `startup.st` from the root directory of the JadeiteForPharo project checkout into the Pharo image directory.
