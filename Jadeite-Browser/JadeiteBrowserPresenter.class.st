@@ -479,11 +479,11 @@ JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
 { #category : 'actions' }
 JadeiteBrowserPresenter >> browseMethodClass [
 
-	self openBrowserOn: self postOpen: [ :browserPresenter |
-		browserPresenter
-			updateAfterFindClass: self selectedClass
-			methodService: self methodListPresenter selectedItem
-			onCompletion: [  ] ]
+	^ self openBrowserOn: self postOpen: [ :browserPresenter |
+		  browserPresenter
+			  updateAfterFindClass: self selectedClass
+			  methodService: self methodListPresenter selectedItem
+			  onCompletion: [  ] ]
 ]
 
 { #category : 'accessing' }
