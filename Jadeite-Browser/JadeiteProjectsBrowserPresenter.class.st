@@ -565,12 +565,6 @@ JadeiteProjectsBrowserPresenter >> savePackage [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectCategoryFrom: methodService [
-	^categoryListPresenter selectionOrNil = methodService category
-		ifFalse: [categoryListPresenter selection: methodService category]
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectClassDefinitionTab [
 	self selectSourceTabNamed: 'classDefinition'
 ]

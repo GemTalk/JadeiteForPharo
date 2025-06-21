@@ -215,6 +215,41 @@ JadeiteForPharoBrowserTestCase >> test_browseProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_browseUnsavedMethod [
+	"an unsaved method shouldn't be overwritten with original source
+	if a new browser is opened on the same method."
+
+	self selectRowanAnsweringService.
+	self selectCategoryNamed: 'client commands'.
+	self selectMethodNamed: #allProcesses.
+	self deny:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	self methodSourcePresenter text: self methodSourcePresenter text
+		, ' add some text to make method pane dirty'.
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+
+	secondBrowser := self projectsPresenter browseMethodClass presenter.
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	secondPresenter := secondBrowser activePresenter.
+	self deny: secondPresenter methodSourcePresenter adapter widget
+			hasUnacceptedEdits.
+	"note to self - browseMethodClass selects the correct method interactively but not in the test.
+	Need to track down. After quite a bit of time, it's likely a hard timing/process problem. 
+	Since it's only a test problem, can defer. "
+	secondPresenter methodListPresenter resetSelection.
+	secondPresenter methodListPresenter selection:
+		(secondPresenter methodListPresenter list detect: [ :svc |
+			 svc selector = #allProcesses ]).
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	self deny: secondPresenter methodSourcePresenter adapter widget
+			hasUnacceptedEdits.
+	self methodSourcePresenter adapter widget cancel
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_categoryExtensionMethodsDisplayed [
 
 	| extensionCategory nonExtensionCategory nonExtensionMethod |

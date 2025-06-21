@@ -1225,27 +1225,6 @@ JadeSystemBrowserPresenter >> selectedClasses [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> setEnvironment0 [
-
-	self setEnvironment: 0
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> setEnvironment1 [
-
-	self setEnvironment: 1
-
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> setEnvironment2 [
-
-	self setEnvironment: 2
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> setEnvironment: anInteger [
 
 	environment := anInteger.

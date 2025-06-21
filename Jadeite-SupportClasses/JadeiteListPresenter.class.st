@@ -262,8 +262,9 @@ JadeiteListPresenter >> whenNoneSelectedAndEventsNotSuspendedDo: aBlock [
 JadeiteListPresenter >> whenSelectionChangedAndEventsNotSuspendedDo: aBlock [
 
 	^ super whenSelectionChangedDo: [ :selection |
-		  browser areSelectionEventsSuspended ifFalse: [
-			  aBlock cull: selection ] ]
+		  browser ifNotNil: [
+			  browser areSelectionEventsSuspended ifFalse: [
+				  aBlock cull: selection ] ] ]
 ]
 
 { #category : 'private - utilities' }

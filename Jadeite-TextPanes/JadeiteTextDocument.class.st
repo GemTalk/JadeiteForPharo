@@ -797,25 +797,6 @@ JadeiteTextDocument >> setFocus [
 	self todo: 'need to do anything?'
 ]
 
-{ #category : 'private' }
-JadeiteTextDocument >> showError: aList on: aString [
-
-	self setDocumentData: aString.
-	aList do: [:each | 
-		| offset error |
-		offset := (each at: 2).
-		error := (each at: 3).
-		self activeTextEdit 
-			caretPosition: offset;
-			replaceSelection: error;
-			selectionStart: self activeTextEdit caretPosition - error size length: error size.
-	].
-	self isModified: false.
-	(MessageBox confirm: 'Continue?' caption: 'Compile Error Found') ifTrue: [^self].
-	TerminateProcess signal.
-
-]
-
 { #category : 'actions' }
 JadeiteTextDocument >> showNotWait [
 ]

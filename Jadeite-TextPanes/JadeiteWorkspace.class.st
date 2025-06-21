@@ -128,18 +128,6 @@ JadeiteWorkspace >> parseText: fullSource [
 	^ RBParser parseFaultyExpression: fullSource
 ]
 
-{ #category : 'public' }
-JadeiteWorkspace >> queryCommand: aCommandQuery [
-
-	| cmd |
-	
-	cmd := aCommandQuery commandSymbol.
-	(cmd == #'setEnvironment0' and: [environment == 0]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
-	(cmd == #'setEnvironment1' and: [environment == 1]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
-	(cmd == #'setEnvironment2' and: [environment == 2]) ifTrue: [aCommandQuery isChecked: true; isEnabled: false. ^true].
-	^super queryCommand: aCommandQuery
-]
-
 { #category : 'actions' }
 JadeiteWorkspace >> resetFileText [
 
@@ -200,24 +188,6 @@ JadeiteWorkspace >> setCaption: string [
 	| theString |
 	theString := gciSession titleBarFor: string.
 	self caption: theString
-]
-
-{ #category : 'public' }
-JadeiteWorkspace >> setEnvironment0 [
-
-	self setEnvironment: 0.
-]
-
-{ #category : 'public' }
-JadeiteWorkspace >> setEnvironment1 [
-
-	self setEnvironment: 1.
-]
-
-{ #category : 'public' }
-JadeiteWorkspace >> setEnvironment2 [
-
-	self setEnvironment: 2.
 ]
 
 { #category : 'public' }

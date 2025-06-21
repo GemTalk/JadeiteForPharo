@@ -761,14 +761,16 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectFilterPresenters [
 
-	categoryListPresenter whenSelectionChangedDo: [ :selection |
-		self refreshCategoryListWithSelection: selection ].
-	variableListPresenter whenSelectionChangedDo: [ :selection |
+	categoryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		:selection | self refreshCategoryListWithSelection: selection ].
+	variableListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		:selection |
 		selection isEmpty ifFalse: [
 			self refreshMethodsOn: methodListPresenter extensions: Array new ] ].
-	packageMethodListPresenter whenSelectionChangedDo: [ :selection |
-		selection isEmpty ifFalse: [
-			self refreshMethodsOn: methodListPresenter extensions: Array new ] ]
+	packageMethodListPresenter
+		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
+			selection isEmpty ifFalse: [
+				self refreshMethodsOn: methodListPresenter extensions: Array new ] ]
 ]
 
 { #category : 'initialization' }
@@ -1255,6 +1257,7 @@ JadeiteBrowserPresenter >> filterClassesBySelectedClassCategory: theClasses [
 { #category : 'events' }
 JadeiteBrowserPresenter >> filterTabChanged: tab [
 
+	self areSelectionEventsSuspended ifTrue: [ ^ self ].
 	self isClassSelected
 		ifTrue: [
 			RowanServiceUpdater current
@@ -2053,6 +2056,24 @@ JadeiteBrowserPresenter >> jadeInspect [
 	inspector := JadeiteInspector new gciSession: gciSession.
 	^inspector evaluateSelectedTextIn: methodSourcePresenter
 		thenInspectInContext: self inspectorContextObject
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> jadeiteCategories [
+	"for comparing against presenter lists"
+
+	^ self jadeiteCategoriesFor: categoryListPresenter items
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> jadeiteCategoriesFor: aCollection [
+	"for comparing against presenter lists"
+
+	aCollection ifNil: [ ^ OrderedCollection new ].
+	^ aCollection collect: [ :categoryOrString |
+		  categoryOrString isString
+			  ifFalse: [ categoryOrString ]
+			  ifTrue: [ JadeiteCategory named: categoryOrString ] ]
 ]
 
 { #category : 'testing' }
@@ -3144,6 +3165,17 @@ JadeiteBrowserPresenter >> selectCategoriesNamed: selections [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectCategoryFrom: methodService [
+
+	categoryListPresenter selectionOrNil = methodService category
+		ifTrue: [ ^ self ].
+	categoryListPresenter model collection:
+		(self jadeiteCategories asSortedCollection: [ :x :y |
+			 x categoryName < y categoryName ]) asOrderedCollection.
+	categoryListPresenter selectItem: methodService category
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectCategoryNamed: category [
 
 	category ifNil: [ ^ self ].
@@ -3781,8 +3813,8 @@ JadeiteBrowserPresenter >> unsubcribePresenters [
 JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
 
 	| packageService projectService |
-	self suspendSelectionEvents.
 	classService ifNil: [ ^ self ].
+	self suspendSelectionEvents.
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |
@@ -3814,8 +3846,7 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 						self methodListPresenter
 							selectIndex: index
 							scrollToSelection: true ].
-					self updateTabLabel ] ] ensure: [
-				self resumeSelectionEvents ] ]
+					self updateTabLabel ] ] ensure: [ self resumeSelectionEvents ] ]
 ]
 
 { #category : 'find' }
@@ -4055,9 +4086,11 @@ JadeiteBrowserPresenter >> updateMethodSource: anAnnouncement [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 
-	methodSourcePresenter methodService: aMethodService. 
+	methodSourcePresenter adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits ifTrue: [ ^ self ] ].
+	methodSourcePresenter methodService: aMethodService.
 	methodSourcePresenter value: aMethodService source.
-	self updateMethodSourceGlyphs. 
+	self updateMethodSourceGlyphs
 ]
 
 { #category : 'updates' }
