@@ -27,9 +27,46 @@ JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
 ]
 
 { #category : 'support' }
-JadeiteForPharoConnectionLauncherTestCase >> changeTextOf: widget [
+JadeiteForPharoConnectionLauncherTestCase >> changeAllLauncherFields [
 
-	widget updateTextWith: 'text changed'.
+	self changeValueOf: launcher hostText adapter widget text: 'newValue'.
+	self
+		assert: launcher hostText adapter widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor.
+	self
+		changeValueOf: launcher stoneText adapter widget
+		text: 'newValue'.
+	self
+		assert: launcher stoneText adapter widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor.
+	self changeValueOf: launcher userText adapter widget text: 'newValue'.
+	self
+		assert: launcher userText adapter widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor.
+	self
+		changeValueOf: launcher passwordText adapter widget
+		text: 'newValue'.
+	self
+		assert: launcher passwordText adapter widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor.
+	self
+		changeValueOf: launcher versionText adapter widget
+		text: 'newValue'.
+	self
+		assert: launcher versionText adapter widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor.
+	self
+		changeValueOf: launcher netldiText adapter widget
+		text: 'newValue'.
+	self
+		assert: launcher netldiText adapter widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> changeValueOf: widget text: aString [
+
+	widget updateTextWith: aString.
 	widget textChanged.
 	WorldMorph doOneCycle
 ]
@@ -85,7 +122,7 @@ JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 	self connectionDirName asFileReference ensureDeleteAll
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> setUp [
 
 	JadeiteTestManager replacing: self uiManager.
@@ -153,37 +190,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_basicFileExport [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionLauncherTestCase >> test_basicFileExportResetsChangedTextFields [
-
-	| profile |
-	fileRef := self testConnectionFileReference.
-	self deleteTestConnectionFile.
-	profile := JadeiteConnectionProfile connectionProfile.
-	self changeTextOf: launcher hostText adapter widget.
-	self changeTextOf: launcher stoneText adapter widget.
-	self changeTextOf: launcher userText adapter widget.
-	self changeTextOf: launcher passwordText adapter widget.
-	self changeTextOf: launcher versionText adapter widget.
-	self changeTextOf: launcher netldiText adapter widget.
-
-	launcher basicExportProfile: fileRef.
-	self assert: fileRef exists.
-
-	self validateUnchangedTextWidgetColor:
-		launcher hostText adapter widget.
-	self validateUnchangedTextWidgetColor:
-		launcher stoneText adapter widget.
-	self validateUnchangedTextWidgetColor:
-		launcher userText adapter widget.
-	self validateUnchangedTextWidgetColor:
-		launcher passwordText adapter widget.
-	self validateUnchangedTextWidgetColor:
-		launcher versionText adapter widget.
-	self validateUnchangedTextWidgetColor:
-		launcher netldiText adapter widget
-]
-
-{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_basicFileImport [
 
 	| profile |
@@ -220,6 +226,32 @@ JadeiteForPharoConnectionLauncherTestCase >> test_buttonEnablement [
 	JadeiteConnectionProfile connectionProfile connect.
 	self deny: launcher connectButton isEnabled.
 	self assert: launcher disconnectButton isEnabled
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_changeFieldsResetOnExport [
+
+	| profile |
+	self changeAllLauncherFields.
+	profile := JadeiteGCIConnectionProfile new.
+	launcher populate: profile.
+	fileRef := 'test_changeFieldsResetOnExport.txt' asFileReference.
+	launcher basicExportProfile: fileRef.
+	self verifyAllLauncherFieldsAreUnchanged
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_changeFieldsResetOnImport [
+
+	| profile |
+	fileRef := self testConnectionFileReference.
+	self deleteTestConnectionFile.
+	profile := JadeiteConnectionProfile connectionProfile.
+	launcher basicExportProfile: fileRef.
+
+	self changeAllLauncherFields.
+	launcher basicImportProfile: profile.
+	self verifyAllLauncherFieldsAreUnchanged
 ]
 
 { #category : 'tests' }
@@ -271,6 +303,14 @@ JadeiteForPharoConnectionLauncherTestCase >> test_closeDisconnects [
 		do: [ :notification | notification resume: true ].
 	self assert: launcher window isClosed.
 	self deny: JadeiteConnectionProfile connectionProfile isConnected
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_connectDoesNotClearChangeFields [
+
+	self changeAllLauncherFields.
+	JadeiteConnectionProfile connectionProfile connect.
+	self verifyAllLauncherFieldsAreChanged
 ]
 
 { #category : 'tests' }
@@ -491,7 +531,16 @@ JadeiteForPharoConnectionLauncherTestCase >> test_titleChangesOnConnect [
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> updateAndVerifyTextChanged: widget [
 
-	self changeTextOf: widget.
+	self changeValueOf: widget text: 'some text'.
+	self
+		assert: widget color
+		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> validateChangedTextWidgetColor: widget [
+
+	WorldMorph doOneCycle.
 	self
 		assert: widget color
 		equals: Smalltalk ui theme jadeiteChangedTextBackgroundColor
@@ -504,6 +553,38 @@ JadeiteForPharoConnectionLauncherTestCase >> validateUnchangedTextWidgetColor: w
 	self
 		assert: widget color
 		equals: Smalltalk ui theme jadeiteBackgroundColor
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> verifyAllLauncherFieldsAreChanged [
+
+	self validateChangedTextWidgetColor: launcher hostText adapter widget.
+	self validateChangedTextWidgetColor:
+		launcher stoneText adapter widget.
+	self validateChangedTextWidgetColor: launcher userText adapter widget.
+	self validateChangedTextWidgetColor:
+		launcher passwordText adapter widget.
+	self validateChangedTextWidgetColor:
+		launcher versionText adapter widget.
+	self validateChangedTextWidgetColor:
+		launcher netldiText adapter widget
+]
+
+{ #category : 'support' }
+JadeiteForPharoConnectionLauncherTestCase >> verifyAllLauncherFieldsAreUnchanged [
+
+	self validateUnchangedTextWidgetColor:
+		launcher hostText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher stoneText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher userText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher passwordText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher versionText adapter widget.
+	self validateUnchangedTextWidgetColor:
+		launcher netldiText adapter widget
 ]
 
 { #category : 'support' }

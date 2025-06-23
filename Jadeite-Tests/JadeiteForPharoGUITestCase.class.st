@@ -70,7 +70,16 @@ JadeiteForPharoGUITestCase >> ensureConnectionProfileEstablished [
 
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> ensureLauncherOpened [
+	"make sure we only have one launcher per tests that require it"
 
+	| launchers |
+	launchers := JadeiteConnectionLauncher allInstances select: [
+		             :theLauncher |
+		             theLauncher window notNil and: [
+			             theLauncher window isOpen ] ].
+	launchers do: [ :launcher |
+		launcher isConnected ifTrue: [ launcher disconnect ].
+		launcher window close ].
 	JadeiteConnectionLauncher soleInstance ifNil: [
 		JadeiteConnectionApplication new start ]
 ]

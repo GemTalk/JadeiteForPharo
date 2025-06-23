@@ -161,6 +161,7 @@ JadeiteConnectionLauncher >> basicImportProfile: connectionProfile [
 	self clearConnectionSubscriptions.
 	selectedProfile := connectionProfile.
 	self populateTextFields.
+	self resetChangedTextFields.
 	self connectConnection
 ]
 
@@ -293,7 +294,6 @@ JadeiteConnectionLauncher >> connect [
 			shouldDebug
 				ifTrue: [ ex pass ]
 				ifFalse: [ ^ self ] ].
-	self resetChangedTextFields
 ]
 
 { #category : 'accessing' }

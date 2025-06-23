@@ -41,6 +41,14 @@ JadeiteTableMorph >> secondarySelectionColor [
 	^Color veryLightGray lighter 
 ]
 
+{ #category : 'private' }
+JadeiteTableMorph >> selectIndex: index event: event [
+	self selectedIndex = index ifTrue: [ ^self ]. 
+	index
+		ifNotNil: [ self selectionStrategy selectIndex: index event: event ]
+		ifNil: [ self deselectAll ]
+]
+
 { #category : 'selection' }
 JadeiteTableMorph >> selectIndexes: anArray andMakeVisibleIf: shouldEnsureVisibleSelection [
 
