@@ -504,6 +504,42 @@ JadeiteForPharoMethodListTestCase >> test_methodReadsWritesSameInstvar [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
+
+	| newCompiledMethodBrowser |
+	self
+		testsJadeiteForPharoIssue: #issue168
+		title:
+			'After using method browser to create a new method with a new selector, cannot revert to original method in that browser
+'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/168'.
+
+	self waitForMethodListBrowserWhile: [
+		jadeiteShell browseImplementorsOf: #answer ].
+	self methodSourcePresenter text: 'answer3
+^#answer3'.
+	newCompiledMethodBrowser := self
+		                            waitForNew: JadeiteMethodListPresenter
+		                            while: [
+		                            methodListBrowser editSaveMethod ].
+	[
+	self
+		assert: newCompiledMethodBrowser methodListPresenter items size
+		equals: 1.
+	self
+		assert:
+		newCompiledMethodBrowser methodListPresenter items first selector
+		equals: #answer3.
+	self
+		assert: newCompiledMethodBrowser methodSourcePresenter text
+		equals: 'answer3
+^#answer3' replaceCrWithLf.
+	self assert: self methodSourcePresenter text equals: 'answer
+	^answer' replaceCrWithLf ] ensure: [
+		newCompiledMethodBrowser window close ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 
 	| oldSource newSource |

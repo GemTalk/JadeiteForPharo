@@ -172,7 +172,7 @@ JadeiteMethodListPresenter >> editSave [
 JadeiteMethodListPresenter >> editSaveMethod [
 
 	methodListPresenter selectedItem ifNotNil: [ :selection |
-		self editSaveMethod: selection classService onCompletion: nil ]
+		self editSaveMethod: selection classService onCompletion: [  ] ]
 ]
 
 { #category : 'actions' }
@@ -185,6 +185,14 @@ JadeiteMethodListPresenter >> editSaveMethod: classService onCompletion: complet
 		                 in: methodSourcePresenter
 		                 category: methodListPresenter selectedItem category
 		                 onCompletion: [
+			                 methodListPresenter list
+				                 detect: [ :svc |
+				                 svc = classService selectedMethods first ]
+				                 ifNone: [
+					                 self
+						                 openMethodBrowserOnNewMethodInClass:
+						                 classService
+						                 statusBarText: self statusBarText message ].
 			                 self updateService: classService onCompletion: [
 				                 self statusBarText message ifNotNil: [ :text |
 					                 text isEmpty ifTrue: [ "don't reselect methods when status bar is full so as not to upset the compile information"
@@ -363,6 +371,26 @@ JadeiteMethodListPresenter >> onCloseRequested: aCloseEvent [
 	aCloseEvent value: (methodSourcePresenter documentPresenter view isModified
 				ifTrue: [methodSourcePresenter isOkayToChange]
 				ifFalse: [true])
+]
+
+{ #category : 'actions' }
+JadeiteMethodListPresenter >> openMethodBrowserOnNewMethodInClass: classService statusBarText: text [
+	"method compiled is not in list, open a selected methods browser."
+
+	| shell |
+	shell := (JadeiteMethodListApplication showOnSession:
+		          self gciSession library) methods:
+		         classService selectedMethods.
+	shell updateCaptionFromSearchString:
+		'Method compiled that was not in method browser list'.
+	text ifNotEmpty: [
+		shell statusBarText pushMessage: text.
+		shell setCompileWarningColor ].
+
+	methodSourcePresenter text: methodListPresenter selectedItem source.
+	methodSourcePresenter hasUnacceptedEdits: false.
+	self statusBarText pushMessage: String new.
+	self resetStatusBarColor
 ]
 
 { #category : 'as yet unclassified' }

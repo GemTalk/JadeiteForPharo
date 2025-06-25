@@ -43,7 +43,11 @@ JadeiteTableMorph >> secondarySelectionColor [
 
 { #category : 'private' }
 JadeiteTableMorph >> selectIndex: index event: event [
-	self selectedIndex = index ifTrue: [ ^self ]. 
+
+	self selectedIndex = index ifTrue: [
+		(event shiftPressed or: [ event controlKeyPressed ]) ifTrue: [
+			self deselectAll ].
+		^ self ].
 	index
 		ifNotNil: [ self selectionStrategy selectIndex: index event: event ]
 		ifNil: [ self deselectAll ]
