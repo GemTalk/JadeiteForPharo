@@ -1167,12 +1167,40 @@ JadeiteForPharoAbstractBrowserTestCase >> test_compileClassCompilerError [
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames: invalid pound sign # abc )
+	instVarNames:  invalid pound sign# abc )
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
 	category: ''RowanSample1-Core''
 	options: #()'.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_compileErrorCorrectlyPlaced [
+
+	self selectRowanSample1Class.
+	self
+		saveMethod: 'foo
+
+| abc | 
+abc := 1. 
+^abc' replaceCrWithLf
+		in: 'RowanSample1'
+		category: 'dontcare'
+		meta: false.
+	self selectMethodNamed: 'foo'.
+	self methodSourcePresenter text: 'foo
+abc := 1.  
+^abc' replaceCrWithLf. "will not compile"
+	self methodSourcePresenter adapter widget selectFrom: 3 to: 3. 
+	self methodSourcePresenter adapter widget handleEvent: (self simulatedKeyStrokeFromChar: $o). "get cursor at end of line"
+	self methodSourcePresenter adapter widget textArea editor
+		crWithIndent: (self simulatedKeyStrokeFromChar: Character cr). "this cr was setting up the bad compiler error text placement"
+	self methodSourcePresenter triggerSubmitAction.
+	self assert: self methodSourcePresenter text equals: 'foo
+
+ undefined symbolabc := 1.  
+^abc' replaceCrWithLf
 ]
 
 { #category : 'tests' }
@@ -1189,7 +1217,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_compileErrorDisplay [
 	self projectsPresenter editSaveMethod.
 	self
 		assert: self methodSourcePresenter selectionInterval
-		equals: (46 to: 81)
+		equals: (47 to: 82)
 ]
 
 { #category : 'tests' }
@@ -1581,6 +1609,31 @@ JadeiteForPharoAbstractBrowserTestCase >> test_jadeiteCategories [
 		self projectsPresenter categoryListPresenter items do: [ :item |
 			self assert: item isKindOf: JadeiteCategory ] ].
 	self abortTransaction
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_lfInput [
+	"test that lf is the character entered, not cr like regular pharo text panes"
+
+	self selectRowanSample1Class.
+	self
+		saveMethod: 'foo
+
+| abc | 
+abc := 1. 
+^abc' replaceCrWithLf
+		in: 'RowanSample1'
+		category: 'dontcare'
+		meta: false.
+	self selectMethodNamed: 'foo'.
+	self
+		assert: (self methodSourcePresenter adapter widget text at: 1)
+		equals: $f.
+	self methodSourcePresenter adapter widget textArea editor
+		crWithIndent: (self simulatedKeyStrokeFromChar: Character cr). "Method with fix would normally insert cr"
+	self
+		assert: (self methodSourcePresenter adapter widget text at: 1)
+		equals: Character lf
 ]
 
 { #category : 'tests' }

@@ -40,7 +40,7 @@ JadeiteForPharoGUITestCase >> compileErrorMethodTextShowingCompileError [
 	| coll |
 	coll := Array with: 1 with: 2. 
 	coll do: [ :int |
-		"missing right bracket expected a right bracket (])".
+		"missing right bracket" expected a right bracket (]).
 	^coll'
 ]
 
@@ -89,6 +89,37 @@ JadeiteForPharoGUITestCase >> setUp [
 
 	self ensureConnectionProfileEstablished.
 	super setUp
+]
+
+{ #category : 'utilities' }
+JadeiteForPharoGUITestCase >> simulatedKeyStrokeFromChar: aCharacter [
+
+	^ self simulatedKeyStrokeFromChar: aCharacter alt: false ctrl: false command: false shift: false
+]
+
+{ #category : 'utilities' }
+JadeiteForPharoGUITestCase >> simulatedKeyStrokeFromChar: aCharacter alt: useAlt ctrl: useCtrl command: useCommand shift: useShift [
+	| event modifier code |
+	event := KeyboardEvent new.
+	modifier := 0.
+	useShift
+		ifTrue: [ modifier := modifier + 8 ].
+	useCtrl
+		ifTrue: [ modifier := modifier + 16 ].
+	useAlt
+		ifTrue: [ modifier := modifier + 32 ].
+	useCommand
+		ifTrue: [ modifier := modifier + 64 ].
+	code := aCharacter asInteger.
+	event
+		setType: #keystroke
+		buttons: modifier
+		position: 0 @ 0
+		keyValue: code
+		charCode: code
+		hand: self currentWorld currentHand
+		stamp: Time now.
+	^ event
 ]
 
 { #category : 'support' }

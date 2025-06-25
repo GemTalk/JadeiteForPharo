@@ -717,7 +717,7 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 			compileErrorText := argArray at: 3.
 			widget
 				notify: compileErrorText
-				at: (argArray at: 2) + selectionStart - 1
+				at: (argArray at: 2) + selectionStart
 				in: self text asString.
 			widget scrollPane scrollSelectionIntoView.
 			self announcer announce:
