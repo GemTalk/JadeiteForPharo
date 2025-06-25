@@ -451,6 +451,35 @@ JadeiteSmalltalkEditor >> nextWord: position stopOnUpperCase: stopOnUpperCase [
 	^ index
 ]
 
+{ #category : 'menu messages' }
+JadeiteSmalltalkEditor >> paste [
+	"Paste the text from the shared buffer over the current selection and
+	redisplay if necessary.  Undoer & Redoer: undoAndReselect."
+
+	| node character escapedText |
+	"This method is specialized for Pharo code.
+	If paste happens in the context of a comment or a string, the pasted contents should be properly escaped.""Get the AST node corresponding to where we are going to paste.
+	If there is a selection, cut it off, because pasting it will over-write it, and get the AST node at the cut position.
+	This is specially important when the selection spans multiple scopes (e.g., it starts inside a comment and finished in the middle of another)."
+	node := self bestNodeInTextAreaWithoutSelection.
+
+	"The pasted text could be inserted in some context requiring escaping, e.g., a comment, a string.
+	If so, get the escaping character, and escape the pasted text before pasting it."
+	character := self getEscapeCharacterFromAst: node.
+	escapedText := (self shouldEscapeCharacter: character)
+		               ifTrue: [
+			               self
+				               escapeCharacter: character
+				               inString: self clipboardText withUnixLineEndings "<<<<<<Jadeite change. clipboardText changes lfs to cr. JfP changes them back so we can see what's actually in the buffer." ]
+		               ifFalse: [
+		               self clipboardText withUnixLineEndings "<<<<<<Jadeite change" ].
+
+	self
+		replace: self selectionInterval
+		with: escapedText
+		and: [ self selectAt: self pointIndex ]
+]
+
 { #category : 'private' }
 JadeiteSmalltalkEditor >> previousWord: position stopOnUpperCase: stopOnUpperCase [
 

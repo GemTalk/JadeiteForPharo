@@ -79,6 +79,29 @@ JadeiteForPharoWorkspaceTestCase >> test_ctrlSKeybindings [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_pasteLeavesLFs [
+
+	| workspace2 theText |
+	theText := 'abc
+def
+ghi
+jkl' replaceCrWithLf.
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - test_pasteLeavesLFs'.
+	workspace codePane text: theText.
+
+	workspace codePane selectAll.
+	workspace codePane adapter widget textArea editor copySelection.
+
+	workspace2 := (JadeiteWorkspace showOnSession: session) caption:
+		              'Jade Workspace - test_pasteLeavesLFs (2)'.
+	[
+	workspace2 codePane adapter widget textArea editor paste.
+	self assert: workspace codePane text equals: theText "LFs were pasted. OSWindowClipboard>>#clipboardText was changing line endings" ]
+		ensure: [ workspace2 window close ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoWorkspaceTestCase >> test_reset [
 
 	| filePath fileContents |
