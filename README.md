@@ -2,6 +2,7 @@
 * No official support provided.
 * Any code imported (such as a user's project) must be "rowanized". Filein and Fileout have limited support; see the Jadeite Help (on the Tools menu) for details.
 * Jadeite for Pharo is not traits aware.
+* Internal GemStone users: see the wiki page Jadeite/Rowan_for_GemStone_Server_Development
 
 # JadeiteForPharo
 IDE for GemStone Smalltalk application development in Pharo.
@@ -22,11 +23,11 @@ This branch of Jadeite For Pharo should work with GemStone 3.7.4.1 or 3.7.5. Ver
             `git clone -b main3741 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`   
             `git clone -b main375 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`
 	* Announcements:   
-           `git clone https://github.com/GemTalk/Announcements`
+           `git clone -b main https://github.com/GemTalk/Announcements`
 
 - Setup a .topazini file for SystemUser with your Stone's login parameters
 - Start up the Stone and NetLDI
-- Connect to the latest RowanClientServices code by running the followings scripts from a directory with above topazini file
+- Connect to the latest RowanClientServices code by running the followings scripts, from a directory with above topazini file
 	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RemoteServiceReplication/rowan/specs/RemoteServiceReplication.ston --projectsHome=$ROWAN_PROJECTS_HOME`
 	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RowanClientServices/rowan/specs/RowanClientServicesV3.ston --projectsHome=$ROWAN_PROJECTS_HOME`
 
@@ -53,7 +54,7 @@ The unreleased v3.7.5 libraries are not publically available; to download 3.7.4.
 
 - create a new Pharo 12 image.
 - Copy `startup.st` from the root directory of the JadeiteForPharo project checkout into the Pharo image directory.
-- Shut down and restart your Pharo image.
+- Startup the new Pharo image.
 	* If $ROWAN_PROJECTS_HOME is set, `startup.st` will attempt to install Jadeite for Pharo from the local git repository clones in that directory.
  	* If $ROWAN_PROJECTS_HOME is not set, `startup.st` will open a file dialog allowing the user to choose the directory
   * Upon successful completion of `startup.st`, a Jadeite Connection Launcher window will open. 
