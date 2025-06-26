@@ -4,21 +4,25 @@
 * Jadeite for Pharo is not traits aware.
 
 # JadeiteForPharo
-IDE for GemStone Smalltalk application development in Pharo
+IDE for GemStone Smalltalk application development in Pharo.
 
-The current Jadeite for Pharo is a early alpha release with known issues.
+Jadeite for Pharo is early alpha-quality code under development, with known issues.
 
 ## Setup the GemStone server
 
-This branch of Jadeite For Pharo is tested for use with GemStone 3.7.4.1. 
+This branch of Jadeite For Pharo should work with GemStone 3.7.4.1 or 3.7.5. Version 3.7.5 is unreleased and not publically available.
 
-- Install GemStone 3.7.4.1, and set the path and $GEMSTONE environment variable.
-- Create a GemStone/Rowan server using extent `extent0.rowan3.dbf` from the GemStone/64 3.7.4.1 release directory
+- Install the GemStone server, and set the path and $GEMSTONE environment variable.
+- Create a GemStone/Rowan server using extent `extent0.rowan3.dbf` from the GemStone/64 product bin subdirectory
 - Set the env variable $ROWAN_PROJECTS_HOME to the directory in which you will clone the github projects. 
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local server disk:
-	* RemoteServiceReplication, branch main-v2, `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
- 	* RowanClientServices, branch main3741, `git clone -b main3741 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`
-	* Announcements, `git clone https://github.com/GemTalk/Announcements`
+	* RemoteServiceReplication, branch main-v2:   
+            `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
+ 	* RowanClientServices, branch main3741 or main375; one of the following:   
+            `git clone -b main3741 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`   
+            `git clone -b main375 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`
+	* Announcements:   
+           `git clone https://github.com/GemTalk/Announcements`
 
 - Setup a .topazini file for SystemUser with your Stone's login parameters
 - Start up the Stone and NetLDI
@@ -28,21 +32,24 @@ This branch of Jadeite For Pharo is tested for use with GemStone 3.7.4.1.
 
 ## To load JadeiteForPharo into a Pharo image:
 
-- Install Pharo 12 Smalltalk.
-  * Jadeite for Pharo only works with Pharo 12
-  * Recommended build - Latest Pharo 12 stable
+- Install Pharo 12 Smalltalk. Jadeite for Pharo currently is only compatible with Pharo 12.
 
-- The env variable $ROWAN_PROJECTS_HOME must be set to the directory containing the checkouts of github clones on local disk.  If you will run the client on the same node as the host, you may use the git repositories previously cloned.
+- The env variable $ROWAN_PROJECTS_HOME should be set to the directory containing the checkouts of github clones on local disk.  If you will run the client on the same node as the host, you may use the git repositories previously cloned.
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local disk: 
-	* JadeiteForPharo, branch main3741, `git clone -b main3741 https://github.com/GemTalk/JadeiteForPharo`
-	* PharoGemStoneFFI, branch main, `git clone -b main https://github.com/GemTalk/PharoGemStoneFFI`
-	* RemoteServiceReplication, branch main-v2, `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
+	* JadeiteForPharo, branch main3741 or main375; one of the following:   
+          `git clone -b main3741 https://github.com/GemTalk/JadeiteForPharo`   
+          `git clone -b main375 https://github.com/GemTalk/JadeiteForPharo`
+	* PharoGemStoneFFI, branch main:   
+	  `git clone -b main https://github.com/GemTalk/PharoGemStoneFFI`
+	* RemoteServiceReplication, branch main-v2:   
+         `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
 
-- setup a clientlibs directory containing 3.7.4.1 shared libraries\
-Download for Linux:\
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-x86_64.Linux.zip\
-...or download for Windows:\
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-x86.Windows_NT.zip.
+- setup a clientlibs directory containing the correct version shared libraries. Jadeite expects a directory structure with the shared libraries under &lt;clientLibsDir&gt;/&lt;versionNumber&gt;/64bit|32bit/   
+The unreleased v3.7.5 libraries are not publically available; to download 3.7.4.1:   
+
+   * Linux: https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-x86_64.Linux.zip   
+   * Windows: https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-x86.Windows_NT.zip
+   * Mac: https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.7.4.1-arm64.Darwin.dmg
 
 - create a new Pharo 12 image.
 - Copy `startup.st` from the root directory of the JadeiteForPharo project checkout into the Pharo image directory.
@@ -52,9 +59,9 @@ https://downloads.gemtalksystems.com/pub/GemStone64/3.7.4.1/GemStoneClientLibs3.
   * Upon successful completion of `startup.st`, a Jadeite Connection Launcher window will open. 
 
 ## Using JadeiteForPharo without Rowan
-Support for using JadeiteForPharo without Rowan is still under development and may contain significant bugs or limitations.
+JadeiteForPharo is usable without Rowan if code is loaded correctly into a GemStone image. This is still under development. 
 
-- To use Jadeite for Pharo without Rowan:
+- To enable Jadeite for Pharo without Rowan:
 	* Open a Settings Browser in Pharo.
  	* Uncheck Jadeite for Pharo>Rowan Available
 
