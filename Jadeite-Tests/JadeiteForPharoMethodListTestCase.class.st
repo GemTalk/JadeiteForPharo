@@ -540,6 +540,46 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
+
+	| newCompiledMethodBrowser newMethodSource |
+	self
+		testsJadeiteForPharoIssue: #issue168
+		title:
+			'After using method browser to create a new method with a new selector, cannot revert to original method in that browser
+'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/168'.
+
+	self waitForMethodListBrowserWhile: [
+		jadeiteShell browseImplementorsOf: #answer ].
+	newMethodSource := 'answer3
+| abc | "create compiler warning for unused temp"
+^#answer3'.
+	self methodSourcePresenter text: newMethodSource.
+	newCompiledMethodBrowser := self
+		                            waitForNew: JadeiteMethodListPresenter
+		                            while: [
+		                            methodListBrowser editSaveMethod ].
+	[
+	self
+		assert: newCompiledMethodBrowser methodListPresenter items size
+		equals: 1.
+	self
+		assert:
+		newCompiledMethodBrowser methodListPresenter items first selector
+		equals: #answer3.
+	self
+		assert: newCompiledMethodBrowser methodSourcePresenter text
+		equals: newMethodSource replaceCrWithLf.
+	self assert: ('WARNING: unused method temp ''abc''*' match:
+			 newCompiledMethodBrowser statusBarText message).
+	self assert: self methodSourcePresenter text equals: 'answer
+	^answer' replaceCrWithLf.
+	self assert: methodListBrowser statusBarText message isEmpty ]
+		ensure: [ newCompiledMethodBrowser window close ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 
 	| oldSource newSource |
