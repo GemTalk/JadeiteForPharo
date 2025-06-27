@@ -1,14 +1,13 @@
-﻿## Jadeite Help  
+## Jadeite Help  
 
 Jadeite is a graphical user interface for code development and debugging, for use with the Rowan code manager within a GemStone environment. For more information, see the [Github project](https://github.com/GemTalk/JadeiteForPharo).  
  
-_This help is incomplete, in progress for unreleased Jadeite for Pharo_  
+_This help is in progress_  
   
  Topics are: 
 *   Status decorations for Projects, Classes, and Methods
 *   Filein and Fileout
-*   Viewing the Class Hierarchy
-*   Issues with Modifying Class instance variables and method recompile in this alpha version
+*   Known serious issues in this version 
 
 ### Font Status Decorations
 
@@ -64,27 +63,39 @@ This screenshot example shows the following decorations:
 
 ### Filein and Fileout
 
-Filing out code into topaz format, and Filein in code in topaz format that was exported using other tools, is possible but not reliable in this alpha version. 
-
-Note that Rowan packages are associated with a specific SymbolDictionary, and any code you filein must define any classes as being in this same SymbolDictionary.  The SymbolDictionaries are specified during Package creation and are not subsquently visible in Jadeite.
+Filing out code into topaz format, and filing in code in topaz format that was exported using other tools such as topaz or GBS, can be done in this alpha version with some caveats.
 
 #### Fileout
 
-Jadeite implements fileout on Project, Package, Class, one or more class categories, and one or more selected methods.
-
-Note that class comments are not retained by fileout in this alpha version. 
+Jadeite implements fileout menu items to fileout a Project, Package, Class, one or more class categories, and one or more selected methods.
 
 #### Filein
 
+Filing topaz format code into Rowan using Jadeite "rowanizes" the code. This places some requirements on what is filed in, since Rowan has rules for handling SymbolDictionaries and Packages that the filein must conform to.
+
+Each Rowan package is  associated with a single SymbolDictionary, and all classes and methods in that package must be in that same SymbolDictionary. 
+
+If your fileout includes class definitions, which specify the SymbolDictionary name, the specified name **must** match the SymbolDictionary of the package that this code will be filed into. Since the package must be created (with the correct SymbolDictionary) before you can filein, any SymbolDictionary creation expression in the filein will not be sufficient. If the SymbolDictionary specified by the class creation statements does not exist, you need to create this before, creating the Package, before filing in. 
+
+If your filein includes classes in multiple dictionaries, you will need to break the file into multiple files per SymbolDictionary, and file these in separately.  
+
 To filein, in the Project Browser:
-*   If necessary, create the symbol dictionary.
-*   if necessary, create your Project and Package, and ensure they are committed.
-*   select the Project and Package, and use the Set Current menu items. 
-*   use the server GsFileIn class to file in.  
-For example,
+*   If necessary, create the symbol dictionary associated with the classes in your filein code.
+*   Choose or create a Project.
+*   Choose or create a Package for your filein code, specifying with the SymbolDictionary that will hold your classes
+*   Commmit, to ensure your Project and Package are committed, and to allow recovery if there are issues during filein.
+*   Select the Project and Package, and use the Set Current menu items. They will now have an asterisk.
+*   File in using the Package pane popup or dropdown menu item Filein. 
+
+Example of creating a SymbolDictionary:
 ```
-   GsFileIn fromServerPath: '/path/filename.gs'
-````
+| newDict |
+newDict := SymbolDictionary new.
+newDict at: #MySymDictionaryName put: newDict.
+System myUserProfile insertDictionary: newDict at: 1.
+```
+
+##Known serious issues in this version
 
 ### Viewing the Class Hierarchy
 
@@ -107,6 +118,3 @@ When adding or removing instance variables from a class in this alpha version, u
 ####Workaround
 
 To avoid aborting your session, you may manually delete or fix the problem methods, and compile the class again.  This will create an additional version, but provided all methods compile, jadeite will display it correctly.
-
-
-
