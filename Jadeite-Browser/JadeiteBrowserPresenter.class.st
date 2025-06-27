@@ -268,16 +268,17 @@ JadeiteBrowserPresenter >> basicAddDictionaryNamed: newDictionaryName [
 	insertionIndex := dictionaryListPresenter selection selectedIndex = 0
 		                  ifTrue: [ dictionaryListPresenter list size + 1 ]
 		                  ifFalse: [
-		                  dictionaryListPresenter selection selectedIndex + 1 ].
+		                  dictionaryListPresenter selection selectedIndex
+		                  + 1 ].
 	dictionaryService := RowanDictionaryService new name:
 		                     newDictionaryName.
 	dictionaryService
 		command: #insertAt:;
 		commandArgs: (Array with: insertionIndex).
-	self issueCommand: dictionaryService onCompletion: [  ].
-	dictionaryListPresenter selection:
-		(dictionaryListPresenter list detect: [ :newService |
-			 newService name = newDictionaryName ])
+	self issueCommand: dictionaryService onCompletion: [
+		dictionaryListPresenter selection:
+			(dictionaryListPresenter list detect: [ :newService |
+				 newService name = newDictionaryName ]) ]
 ]
 
 { #category : 'as yet unclassified' }

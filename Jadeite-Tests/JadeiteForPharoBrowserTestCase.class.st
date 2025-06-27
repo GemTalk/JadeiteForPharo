@@ -4,6 +4,9 @@ browser tests that depend on Rowan available = true should go here
 Class {
 	#name : 'JadeiteForPharoBrowserTestCase',
 	#superclass : 'JadeiteForPharoAbstractBrowserTestCase',
+	#instVars : [
+		'dictionary'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -50,6 +53,16 @@ JadeiteForPharoBrowserTestCase >> setUp [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> tearDown [
+
+	dictionary ifNotNil: [
+		[ self projectsPresenter removeDictionary ]
+			on: ProvideAnswerNotification
+			do: [ :not | not resume: true ] ].
+	super tearDown
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 	self selectRowanSample1Test.
 	[self denyIsNil: (self projectListPresenter list
@@ -88,6 +101,27 @@ JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self assert: self methodListPresenter selectedItem selector equals: #foo.
 	self assert: self classListPresenter selectedItem name equals: 'RowanSample1'.
 	self assert: self packageListPresenter selectedItem name equals: 'RowanSample1-Extensions'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_addDictionary [
+
+	| firstAnswer secondAnswer |
+	self projectsPresenter selectDictionaryListTab.
+	self projectsPresenter selectProjectNamed: 'UnPackaged'.
+	firstAnswer := 'JfPTestDictionary'.
+	secondAnswer := true.
+	[ self projectsPresenter addDictionary ]
+		on: ProvideAnswerNotification
+		do: [ :not1 |
+			| resumeValue |
+			resumeValue := firstAnswer ifNil: [ secondAnswer ].
+			firstAnswer := nil.
+			not1 resume: resumeValue ].
+	dictionary := self dictionaryListPresenter selectedItem. "will get removed in tearDown"
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'JfPTestDictionary'
 ]
 
 { #category : 'tests' }
