@@ -222,9 +222,7 @@ JadeiteTextDocument >> commitTransaction [
 JadeiteTextDocument >> connectPresenters [
 
 	super connectPresenters.
-	self whenResetDo: [
-		self isModified: false.
-		self resetStatusBar ]
+	self whenResetDo: [ self reset ]
 ]
 
 { #category : 'accessing' }
@@ -724,6 +722,22 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 				(JadeiteCompileErrorAnnouncement new compileErrorText:
 					 compileErrorText) ] ].
 	^ nil
+]
+
+{ #category : 'initialization' }
+JadeiteTextDocument >> reset [
+
+	self announcer announce: JadeiteCancelAnnouncement new.
+]
+
+{ #category : 'actions' }
+JadeiteTextDocument >> resetSource [
+	self halt. 
+	"self clearStatusBar.
+	methodSourcePresenter text:
+		methodSourcePresenter methodService source.
+	methodSourcePresenter isModified: false.
+	^ self updateMethodSourceGlyphs"
 ]
 
 { #category : 'actions' }

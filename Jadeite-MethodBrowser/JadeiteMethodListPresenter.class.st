@@ -122,17 +122,11 @@ JadeiteMethodListPresenter >> connectPresenters [
 		self updateMethodSource.
 		self selectFirstReference: selection selectedItem ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	methodSourcePresenter whenResetDo: [
-		self clearStatusBar.
-		methodSourcePresenter text:
-			methodSourcePresenter methodService source.
-		methodSourcePresenter isModified: false.
-		self updateMethodSourceGlyphs ].
 	self application
 		when: #abortedTransaction
 		send: #abortedTransaction
 		to: self.
-	self registerForStatusBarAnnouncements
+	self registerForAnnouncements
 ]
 
 { #category : 'as yet unclassified' }
@@ -442,6 +436,16 @@ JadeiteMethodListPresenter >> registerPresentersForUpdates [
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> removeComparisonTab [
 	self textTabs remove: self comparisonTab ifAbsent: []
+]
+
+{ #category : 'initialization' }
+JadeiteMethodListPresenter >> resetSource [
+
+	self clearStatusBar.
+	methodSourcePresenter text:
+		methodSourcePresenter methodService source.
+	methodSourcePresenter isModified: false.
+	^ self updateMethodSourceGlyphs
 ]
 
 { #category : 'as yet unclassified' }

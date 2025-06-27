@@ -1726,9 +1726,49 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
 	self methodSourcePresenter text: 'foo  ^''dontcare'''.
 	self assert: self morphicMethodSourceHasUnacceptedEdits.	
-	self projectsPresenter resetMethodSource. 
+	self projectsPresenter resetSource. 
 	self assert: self methodSourcePresenter text = 'foo  ^''instance side'''. 
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_reset [
+
+	| source |
+	self
+		testsJadeiteForPharoIssue: #issue290
+		title:
+		'In a method source pane, menu item Cancel and Ctrl-L do different things'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
+
+	self selectRowanSample1Class.
+	source := 'foo
+
+| abc | 
+abc := 1. 
+^abc' replaceCrWithLf.
+	self
+		saveMethod: source
+		in: 'RowanSample1'
+		category: 'dontcare'
+		meta: false.
+	self selectMethodNamed: 'foo'.
+
+	self
+		assert: self methodSourcePresenter adapter widget text
+		equals: source.
+	self methodSourcePresenter adapter widget text: 'changed the text!' replaceCrWithLf.
+
+	self methodSourcePresenter adapter widget textArea editor
+		dispatchKeystrokeForEvent: (self
+				 simulatedKeyStrokeFromChar: $l
+				 alt: false
+				 ctrl: true
+				 command: false
+				 shift: false).
+	self
+		assert: self methodSourcePresenter adapter widget text
+		equals: source.
 ]
 
 { #category : 'tests' }

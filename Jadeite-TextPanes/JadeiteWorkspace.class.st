@@ -33,15 +33,6 @@ JadeiteWorkspace >> codePane [
 	^codePane
 ]
 
-{ #category : 'initialization' }
-JadeiteWorkspace >> connectPresenters [
-
-	super connectPresenters.
-	self whenResetDo: [
-		self isModified: false.
-		filePathString ifNotNil: [ self resetFileText ] ]
-]
-
 { #category : 'accessing' }
 JadeiteWorkspace >> defaultSaveAsFileName [
 	| tail | 
@@ -126,6 +117,14 @@ JadeiteWorkspace >> openServerFile [
 JadeiteWorkspace >> parseText: fullSource [
 
 	^ RBParser parseFaultyExpression: fullSource
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspace >> reset [
+
+	self value: String new.
+	self hasUnacceptedEdits: false.
+	filePathString ifNotNil: [ self resetFileText ]
 ]
 
 { #category : 'actions' }

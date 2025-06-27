@@ -139,7 +139,7 @@ JadeiteDebuggerPresenter >> connectPresenters [
 		self methodSourcePresenter text:
 			self methodSourcePresenter methodService source.
 		self methodSourcePresenter isModified: false ].
-	self registerForStatusBarAnnouncements
+	self registerForAnnouncements
 ]
 
 { #category : 'actions' }

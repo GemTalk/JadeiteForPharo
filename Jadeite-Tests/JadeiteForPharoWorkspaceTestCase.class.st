@@ -105,6 +105,12 @@ jkl' replaceCrWithLf.
 JadeiteForPharoWorkspaceTestCase >> test_reset [
 
 	| filePath fileContents |
+	self
+		testsJadeiteForPharoIssue: #issue290
+		title:
+		'In a method source pane, menu item Cancel and Ctrl-L do different things'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
+		
 	filePath := '$HOME/test_reset.txt'.
 
 	self saveTestFileTo: filePath.
@@ -119,7 +125,7 @@ JadeiteForPharoWorkspaceTestCase >> test_reset [
 	self assert: fileContents equals: 'testFile'.
 	workspace codePane text: 'some new content'.
 	self assert: workspace codePane text equals: 'some new content'.
-	workspace resetFileText.
+	workspace reset.
 	self assert: workspace codePane text equals: 'testFile' ] ensure: [
 		self removeTestFile: filePath ]
 ]

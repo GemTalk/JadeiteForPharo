@@ -86,6 +86,11 @@ JadeiteForPharoMiscellaneousTestCase >> test_cancel [
 	"make sure text reverts after cancel"
 
 	| path |
+	self
+		testsJadeiteForPharoIssue: #issue290
+		title:
+		'In a method source pane, menu item Cancel and Ctrl-L do different things'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
 	path := '$HOME/jfp_testfile_deleteme'.
 	workspace := JadeiteWorkspace showOnSession: session.
 	workspace setDocumentData: '#(1 2 3)'.

@@ -720,7 +720,7 @@ JadeiteBrowserPresenter >> computedExtensionCategoryName [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectCancelActions [
 
-	methodSourcePresenter whenResetDo: [ self resetMethodSource ].
+	methodSourcePresenter whenResetDo: [ self resetSource ].
 	classCommentPresenter whenResetDo: [
 		self resetClassComment.
 		classCommentPresenter isModified: false ].
@@ -781,7 +781,7 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
 		self classSelected: self selectedClass ].
-	self registerForStatusBarAnnouncements
+	self registerForAnnouncements
 ]
 
 { #category : 'initialization' }
@@ -1716,7 +1716,7 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ];
-		whenResetDo: [ self resetMethodSource ];
+		whenResetDo: [ self resetSource ];
 		whenTextChangedDo: [ self sourcePaneChanged ]. 
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
@@ -3125,7 +3125,7 @@ JadeiteBrowserPresenter >> resetCurrentProjectFor: aService [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> resetMethodSource [
+JadeiteBrowserPresenter >> resetSource [
 
 	methodSourcePresenter methodService
 		ifNil: [ methodSourcePresenter text: self defaultMethod ]
