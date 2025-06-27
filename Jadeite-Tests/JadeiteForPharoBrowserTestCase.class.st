@@ -881,6 +881,35 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_noProjectSelection [
+
+	self projectListPresenter unselectAll.
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_packageSelected [
+
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_projectSelection [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_runTestInBrowser [
 
 	| methodService |

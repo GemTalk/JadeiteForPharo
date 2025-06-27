@@ -718,18 +718,6 @@ JadeiteBrowserPresenter >> computedExtensionCategoryName [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenter >> connectCancelActions [
-
-	methodSourcePresenter whenResetDo: [ self resetSource ].
-	classCommentPresenter whenResetDo: [
-		self resetClassComment.
-		classCommentPresenter isModified: false ].
-	classDefinitionPresenter whenResetDo: [
-		self resetClassTemplate.
-		classDefinitionPresenter isModified: false ]
-]
-
-{ #category : 'initialization' }
 JadeiteBrowserPresenter >> connectClassPresenters [
 
 	classListPresenter
@@ -781,7 +769,8 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
 		self classSelected: self selectedClass ].
-	self registerForAnnouncements
+	self registerForMethodPaneAnnouncements.
+	self registerForClassPanesAnnouncements
 ]
 
 { #category : 'initialization' }
@@ -814,13 +803,12 @@ JadeiteBrowserPresenter >> connectPresenters [
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
 		self filterTabChanged: selection ].
 	self connectMethodPresenters.
-	self connectCancelActions.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].
 	self application
 		when: #abortedTransaction
 		send: #abortedTransaction
-		to: self.
+		to: self
 ]
 
 { #category : 'initialization' }
@@ -1478,9 +1466,7 @@ JadeiteBrowserPresenter >> initializeClassCommentTab [
 
 	classCommentPresenter := JadeiteTextDocument new _gciSession:
 		                         self gciSession.
-	classCommentPresenter
-		saveAction: [ self editSaveClassComment ];
-		whenResetDo: [ self resetClassComment ].
+	classCommentPresenter saveAction: [ self editSaveClassComment ].
 	classCommentTab := JadeiteNotebookPage
 		                   title: 'Class Comment'
 		                   icon: nil
@@ -1716,7 +1702,6 @@ JadeiteBrowserPresenter >> initializeMethodSourceTab [
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ];
-		whenResetDo: [ self resetSource ];
 		whenTextChangedDo: [ self sourcePaneChanged ]. 
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
@@ -2878,6 +2863,19 @@ JadeiteBrowserPresenter >> registerFilterListsForUpdates [
 ]
 
 { #category : 'registration' }
+JadeiteBrowserPresenter >> registerForClassPanesAnnouncements [
+
+	self classCommentPresenter announcer
+		when: JadeiteCancelAnnouncement
+		send: #resetClassComment
+		to: self.
+	self classDefinitionPresenter announcer
+		when: JadeiteCancelAnnouncement
+		send: #resetClassTemplate
+		to: self
+]
+
+{ #category : 'registration' }
 JadeiteBrowserPresenter >> registerMethodPresentersForUpdates [
 
 	RowanServiceUpdater current
@@ -3073,6 +3071,7 @@ JadeiteBrowserPresenter >> resetChildrenFor: classService parents: parents [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> resetClassComment [
 
+	classCommentPresenter isModified: false.
 	^ classCommentPresenter value: (self selectedClass
 			   ifNil: [ String new ]
 			   ifNotNil: [ :classService | classService comment ])
@@ -3080,9 +3079,9 @@ JadeiteBrowserPresenter >> resetClassComment [
 
 { #category : 'actions' }
 JadeiteBrowserPresenter >> resetClassTemplate [
-	"as yet unclassified"
 
 	| presenter |
+	classDefinitionPresenter isModified: false.
 	presenter := packageListPresenter.
 	presenter list isEmpty ifTrue: [
 		classDefinitionPresenter value: String new.

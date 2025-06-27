@@ -102,6 +102,16 @@ JadeiteForPharoDebuggerTestCase >> test_openDebugger [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoDebuggerTestCase >> test_reset [
+
+	| service |
+	service := RowanAnsweringServiceClient newForked.
+	service exec: '$abc' in: GciSession current onCompletion: [  ].
+	self waitForDebugger.
+	self assertTextPaneResetFor: debugger methodSourcePresenter
+]
+
+{ #category : 'tests' }
 JadeiteForPharoDebuggerTestCase >> test_selectDebuggerVariable [
 	"selecting the display labels was giving walkback"
 
@@ -143,5 +153,6 @@ JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 		(Delay forMilliseconds: 1) wait.
 		WorldMorph doOneCycle ].
 	debugger := debuggedProcesses first debugger.
+	(Delay forMilliseconds: 250) wait. "wait for widget to be built"
 	^ debugger
 ]

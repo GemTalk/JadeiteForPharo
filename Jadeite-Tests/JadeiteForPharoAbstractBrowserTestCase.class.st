@@ -1732,7 +1732,70 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_reset [
+JadeiteForPharoAbstractBrowserTestCase >> test_resetClassComment [
+
+	| classComment |
+	self
+		testsJadeiteForPharoIssue: #issue290
+		title:
+		'In a method source pane, menu item Cancel and Ctrl-L do different things'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
+
+	self selectRowanSample1Class.
+	self projectsPresenter selectClassCommentTab.
+	classComment := self projectsPresenter classCommentPresenter text.
+
+	self projectsPresenter classCommentPresenter adapter widget setText:
+		'changed the text!' replaceCrWithLf.
+
+	self projectsPresenter classCommentPresenter adapter widget textArea
+		dispatchKeystrokeForEvent: (self
+				 simulatedKeyStrokeFromChar: $l
+				 alt: false
+				 ctrl: true
+				 command: false
+				 shift: false).
+	self assert: self projectsPresenter classCommentPresenter text equals: classComment
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_resetClassDefinitionTemplate [
+
+	| classDefinitionTemplate |
+	self
+		testsJadeiteForPharoIssue: #issue290
+		title:
+		'In a method source pane, menu item Cancel and Ctrl-L do different things'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
+
+	self selectRowanSample1Class.
+	classDefinitionTemplate := self projectsPresenter classDefinitionPresenter text.
+
+	self projectsPresenter classDefinitionPresenter adapter widget
+		setText: 'changed the text!' replaceCrWithLf.
+
+	self projectsPresenter classDefinitionPresenter adapter widget
+		textArea dispatchKeystrokeForEvent: (self
+			 simulatedKeyStrokeFromChar: $l
+			 alt: false
+			 ctrl: true
+			 command: false
+			 shift: false).
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: classDefinitionTemplate
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_resetClassDefinitionTemplate_classSelected [
+
+	self selectRowanSample1Class.
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_resetMethodSource [
 
 	| source |
 	self
@@ -1757,9 +1820,10 @@ abc := 1.
 	self
 		assert: self methodSourcePresenter adapter widget text
 		equals: source.
-	self methodSourcePresenter adapter widget text: 'changed the text!' replaceCrWithLf.
+	self methodSourcePresenter adapter widget setText:
+		'changed the text!' replaceCrWithLf.
 
-	self methodSourcePresenter adapter widget textArea editor
+	self methodSourcePresenter adapter widget textArea
 		dispatchKeystrokeForEvent: (self
 				 simulatedKeyStrokeFromChar: $l
 				 alt: false
@@ -1768,7 +1832,7 @@ abc := 1.
 				 shift: false).
 	self
 		assert: self methodSourcePresenter adapter widget text
-		equals: source.
+		equals: source
 ]
 
 { #category : 'tests' }

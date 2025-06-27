@@ -225,6 +225,14 @@ JadeiteConsole >> cardContainer: anObject [
 	cardContainer := anObject
 ]
 
+{ #category : 'initialization' }
+JadeiteConsole >> clearTranscript [
+
+	transcriptPresenter
+		clearContent;
+		hasUnacceptedEdits: false
+]
+
 { #category : 'as yet unclassified' }
 JadeiteConsole >> colorForCompileError [
 	| newColor |
@@ -272,9 +280,9 @@ JadeiteConsole >> committedTransaction [
 ]
 
 { #category : 'initialization' }
-JadeiteConsole >> connectPresenters [ 
+JadeiteConsole >> connectPresenters [
 
-	super connectPresenters. 
+	super connectPresenters.
 	self application
 		when: #abortedTransaction
 		send: #abortedTransaction
@@ -283,9 +291,13 @@ JadeiteConsole >> connectPresenters [
 		when: #committedTransaction
 		send: #committedTransaction
 		to: self.
-	SystemAnnouncer uniqueInstance weak 
-		when: UIThemeChanged 
+	SystemAnnouncer uniqueInstance weak
+		when: UIThemeChanged
 		send: #themeChanged
+		to: self.
+	transcriptPresenter announcer
+		when: JadeiteCancelAnnouncement
+		send: #clearTranscript
 		to: self
 ]
 
@@ -479,7 +491,7 @@ JadeiteConsole >> initializeAutoCommit [
 	self gciSession initializeAutoCommitRefreshing: self
 ]
 
-{ #category : 'initialization' }
+{ #category : 'menus' }
 JadeiteConsole >> initializeBrowseMenu [
 
 	^ self newBrowseMethodsConsoleMenu
@@ -496,7 +508,7 @@ JadeiteConsole >> initializeBrowseMenu [
 		  yourself
 ]
 
-{ #category : 'initialization' }
+{ #category : 'menus' }
 JadeiteConsole >> initializeFileMenu [
 
 	^ self newMenu
@@ -512,7 +524,7 @@ JadeiteConsole >> initializeFileMenu [
 		  yourself
 ]
 
-{ #category : 'initialization' }
+{ #category : 'menus' }
 JadeiteConsole >> initializeHelpMenu [
 
 	^ self newMenu
@@ -622,10 +634,7 @@ JadeiteConsole >> initializeTranscriptPresenter: tabs [
 		SpMenuPresenter new addItem: [ :item |
 			item
 				name: 'Clear';
-				action: [
-					transcriptPresenter
-						clearContent;
-						hasUnacceptedEdits: false ];
+				action: [ self clearTranscript ];
 				enabled: true ] ]
 ]
 
@@ -877,6 +886,12 @@ JadeiteConsole >> resetTransactionModeRadioButtons [
 	(transactionModePresenter view viewNamed: self transactionMode asString) displayValue: true
 ]
 
+{ #category : 'selecting' }
+JadeiteConsole >> selectTranscriptTab [
+
+	consoleTabs adapter widget selectedPageIndex: 2
+]
+
 { #category : 'accessing' }
 JadeiteConsole >> selectedPackageServices [
 
@@ -991,6 +1006,12 @@ JadeiteConsole >> transactionMode: aSymbol [
 			[self basicTransactionMode: aSymbol.
 			JadePresenter trigger: #abortedTransaction]
 		ifFalse: [self resetTransactionModeRadioButtons]
+]
+
+{ #category : 'actions' }
+JadeiteConsole >> transcriptPresenter [
+
+	^ transcriptPresenter
 ]
 
 { #category : 'updates' }

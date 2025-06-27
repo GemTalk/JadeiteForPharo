@@ -20,6 +20,39 @@ JadeiteForPharoGUITestCase class >> isAbstract [
 	^ self name = #JadeiteForPharoGUITestCase 
 ]
 
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> assertTextPaneResetFor: presenter [
+
+	| text |
+	self
+		testsJadeiteForPharoIssue: #issue290
+		title:
+		'In a method source pane, menu item Cancel and Ctrl-L do different things'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
+	text := presenter text.
+	presenter adapter widget setText: 'changed the text!' replaceCrWithLf.
+	self
+		assert: presenter adapter widget text
+		equals: 'changed the text!'.
+
+	"cancel using Ctrl-L"
+	presenter adapter widget textArea dispatchKeystrokeForEvent: (self
+			 simulatedKeyStrokeFromChar: $l
+			 alt: false
+			 ctrl: true
+			 command: false
+			 shift: false).
+	self assert: presenter text equals: text.
+	presenter adapter widget setText: 'changed the text with menu item!'.
+	self
+		assert: presenter adapter widget text
+		equals: 'changed the text with menu item!'.
+
+	"cancel using menu item"
+	(SpCancelChangesCommand forContext: presenter) execute.
+	self assert: presenter text equals: text
+]
+
 { #category : 'constants' }
 JadeiteForPharoGUITestCase >> compileErrorMethodText [
 

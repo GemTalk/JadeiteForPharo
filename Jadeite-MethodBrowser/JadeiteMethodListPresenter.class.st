@@ -126,7 +126,7 @@ JadeiteMethodListPresenter >> connectPresenters [
 		when: #abortedTransaction
 		send: #abortedTransaction
 		to: self.
-	self registerForAnnouncements
+	self registerForMethodPaneAnnouncements
 ]
 
 { #category : 'as yet unclassified' }

@@ -580,6 +580,13 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_reset [
+
+	self openMethodListBrowserOfImplementorsOf: 'answer'.
+	self assertTextPaneResetFor: methodListBrowser methodSourcePresenter
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 
 	| oldSource newSource |

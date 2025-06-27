@@ -724,20 +724,10 @@ JadeiteTextDocument >> reportCompileError: gsArguments [
 	^ nil
 ]
 
-{ #category : 'initialization' }
+{ #category : 'actions' }
 JadeiteTextDocument >> reset [
 
-	self announcer announce: JadeiteCancelAnnouncement new.
-]
-
-{ #category : 'actions' }
-JadeiteTextDocument >> resetSource [
-	self halt. 
-	"self clearStatusBar.
-	methodSourcePresenter text:
-		methodSourcePresenter methodService source.
-	methodSourcePresenter isModified: false.
-	^ self updateMethodSourceGlyphs"
+	self announcer announce: JadeiteCancelAnnouncement new
 ]
 
 { #category : 'actions' }

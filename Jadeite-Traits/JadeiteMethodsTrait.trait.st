@@ -899,7 +899,7 @@ JadeiteMethodsTrait >> reformatSourceInPresenter: presenter methodService: theMe
 ]
 
 { #category : 'initialization' }
-JadeiteMethodsTrait >> registerForAnnouncements [
+JadeiteMethodsTrait >> registerForMethodPaneAnnouncements [
 
 	self methodSourcePresenter announcer
 		when: JadeiteCompileErrorAnnouncement
@@ -916,7 +916,7 @@ JadeiteMethodsTrait >> registerForAnnouncements [
 	self methodSourcePresenter announcer
 		when: JadeiteResetStatusBarAnnouncement
 		send: #clearStatusBar
-		to: self. 
+		to: self.
 	self methodSourcePresenter announcer
 		when: JadeiteCancelAnnouncement
 		send: #resetSource

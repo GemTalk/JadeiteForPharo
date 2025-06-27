@@ -135,11 +135,7 @@ JadeiteDebuggerPresenter >> connectPresenters [
 						text: sel value;
 						hasUnacceptedEdits: false ] ] ].
 	self methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	self methodSourcePresenter whenResetDo: [
-		self methodSourcePresenter text:
-			self methodSourcePresenter methodService source.
-		self methodSourcePresenter isModified: false ].
-	self registerForAnnouncements
+	self registerForMethodPaneAnnouncements
 ]
 
 { #category : 'actions' }
@@ -546,6 +542,14 @@ JadeiteDebuggerPresenter >> registerPresentersForUpdates [
 		register: codePane
 		selector: #debuggerMethodSourceUpdate:browser:
 		browser: self
+]
+
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> resetSource [
+
+	self methodSourcePresenter text:
+		self methodSourcePresenter methodService source.
+	self methodSourcePresenter isModified: false
 ]
 
 { #category : 'actions' }
