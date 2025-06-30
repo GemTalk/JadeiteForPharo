@@ -18,8 +18,7 @@ JadeiteForPharoAutoCommitTestCase >> setUp [
 { #category : 'support' }
 JadeiteForPharoAutoCommitTestCase >> tearDown [
 
-	self uiManager previousManager ifNotNil: [ :manager |
-		manager beDefault ].
+	self uiManager restore.
 	session isValidSession ifTrue: [
 		RowanAnsweringService new setAutoCommit: false for: session ]
 ]
