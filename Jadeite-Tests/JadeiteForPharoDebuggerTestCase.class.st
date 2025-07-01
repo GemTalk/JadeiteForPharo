@@ -1,9 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoDebuggerTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
-	#instVars : [
-		'debugger'
-	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -72,6 +69,52 @@ JadeiteForPharoDebuggerTestCase >> test_browseFrameMethod [
 		assert:
 		self projectsPresenter methodListPresenter selectedItem selector
 		equals: #_switchFrom:to:
+]
+
+{ #category : 'tests' }
+JadeiteForPharoDebuggerTestCase >> test_fileInError [
+	"file in errors should not result in a hung image"
+
+	| fileContents fileName fileRef |
+	self
+		testsJadeiteForPharoIssue: #issue295
+		title:
+		'Hard hang on filein with method class set to unknown class name'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/295'.
+
+	RowanServiceUpdater current singleThreaded: true.
+	fileContents := 'method BananaSkidoo
+testingFileinIssuePleaseIgnore
+^6
+%' replaceCrWithLf.
+
+	fileName := FileSystem workingDirectory fullName
+	            , 'test_fileInError.txt'.
+	fileRef := fileName asFileReference.
+	fileRef writeStream
+		nextPutAll: fileContents;
+		flush.
+	[
+	self assert: fileRef exists.
+	[ JadeiteConsole currentConsole basicFileInServerFile: fileName ]
+		fork.
+	self waitForDebugger.
+	self assert: debugger isKindOf: JadeiteDebuggerPresenter.
+	self assert:
+		('invalid class name ''BananaSkidoo'', at line 1 file*' match:
+			 debugger errorMessagePresenter text).
+	self
+		assert: debugger frameListPresenter selectedItem printString
+		equals: 'GsFileIn class >> _resolveClass: @7 line 4'.
+	self
+		assert: debugger frameListPresenter selection selectedIndex
+		equals: 13.
+	debugger frameListPresenter selectIndex: 14. "can do stuff so image not hung (and of course test continues)"
+	self
+		assert: debugger frameListPresenter selection selectedIndex
+		equals: 14 ] ensure: [
+		fileRef delete.
+		RowanServiceUpdater current singleThreaded: false ]
 ]
 
 { #category : 'tests' }
