@@ -178,11 +178,10 @@ RowanFileServiceClient >> issueFileServiceCommand [
 { #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommandOnCompletion: completionBlock [
 
-	RowanServiceUpdater current critical: [
-		RowanServiceUpdater current
-			issueCommand: self
-			session: self session
-			onCompletion: completionBlock ]
+	RowanServiceUpdater current
+		issueCommand: self
+		session: self session
+		onCompletion: completionBlock
 ]
 
 { #category : 'testing' }
