@@ -170,6 +170,14 @@ RowanFileServiceClient >> isDirectory: directory onCompletion: completionBlock [
 ]
 
 { #category : 'commands' }
+RowanFileServiceClient >> isWritable [
+	command := #isWritable.
+	commandArgs := Array new. 
+	self issueFileServiceCommand.
+	^answer
+]
+
+{ #category : 'commands' }
 RowanFileServiceClient >> issueFileServiceCommand [
 
 	self issueFileServiceCommandOnCompletion: [  ]
