@@ -34,13 +34,16 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath:
 ]
 
 { #category : 'instance creation' }
-JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: path defaultFileName: fileName [
+JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: defaultPath defaultFileName: fileName [
 
-	| inst modal answer expandedPath |
-	(ProvideAnswerNotification signal: path) ifNotNil: [ :theAnswer |
-		^ theAnswer ].
+	| inst modal answer expandedPath path |
+	(ProvideAnswerNotification signal: defaultPath) ifNotNil: [
+		:theAnswer | ^ theAnswer ].
+	path := JadePresenter lastFilePath
+		        ifNil: [ defaultPath ]
+		        ifNotNil: [ :thePath | thePath ].
 	inst := self createDialogOn: aGciSession path: path.
-	expandedPath := inst fileSelectorPresenter pathText text. 
+	expandedPath := inst fileSelectorPresenter pathText text.
 	modal := (inst application: JadeiteSpApplication new) asModalWindow.
 	modal centered.
 	inst initializeWith: expandedPath fileName: fileName.
@@ -74,25 +77,34 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 	fileService := RowanFileServiceClient new
 		               path: path;
 		               session: self gciSession.
-	fileService isDirectory ifTrue: [
-		fileService setPathFor: fileNamePresenter text ].
+	fileService isDirectory
+		ifNil: [ ^ false "server already told of permission problem" ]
+		ifNotNil: [ :bool |
+			bool ifTrue: [ fileService setPathFor: fileNamePresenter text ] ].
 	^ fileService exists
-		  ifTrue: [
-			  (UIManager default confirm:
-				   fileService path , ' exists. Overwrite?')
+		  ifNil: [ ^ false "no permissions" ]
+		  ifNotNil: [ :bool |
+			  bool
 				  ifTrue: [
+					  (UIManager default confirm:
+						   fileService path , ' exists. Overwrite?')
+						  ifTrue: [
+							  aWindowPresenter beOk.
+							  true ]
+						  ifFalse: [ false ] ]
+				  ifFalse: [
 					  aWindowPresenter beOk.
-					  true ]
-				  ifFalse: [ false ] ]
-		  ifFalse: [
-			  aWindowPresenter beOk.
-			  true ]
+					  true ] ]
 ]
 
 { #category : 'initialization' }
 JadeiteServerFileSaveDialog >> connectPresenters [
 
 	super connectPresenters.
+	fileSelectorPresenter directoryContentsList whenSelectionChangedDo: [
+		:selection |
+		selection selectedItem ifNotNil: [ :item |
+			fileNamePresenter text: item key ] ].
 	fileNamePresenter bindKeyCombination: KeyboardKey enter toAction: [
 		self window
 			beOk;

@@ -97,20 +97,19 @@ JadeiteWorkspace >> inspectOop: anOop [
 JadeiteWorkspace >> openServerFile [
 
 	| filePath service |
-	RowanServiceUpdater current critical: [
-		filePath := JadeiteServerFileSelectorDialog
-			            showOnSession: gciSession
-			            defaultPath: self defaultSaveFileAsDirectory.
-		filePath ifNil: [ ^ self ].
-		filePathString := filePath.
-		service := RowanFileServiceClient new
-			           session: gciSession;
-			           path: filePathString.
-		service isDirectory ifTrue: [
-			^ MessageBox notify: 'Cannot open a directory' ].
-		codePane text: service fileContents.
-		self updateCaption.
-		self hasUnacceptedEdits: false ]
+	filePath := JadeiteServerFileSelectorDialog
+		            showOnSession: gciSession
+		            defaultPath: self defaultSaveFileAsDirectory.
+	filePath ifNil: [ ^ self ].
+	filePathString := filePath.
+	service := RowanFileServiceClient new
+		           session: gciSession;
+		           path: filePathString.
+	service isDirectory ifTrue: [
+		^ MessageBox notify: 'Cannot open a directory' ].
+	codePane text: service fileContents.
+	self updateCaption.
+	self hasUnacceptedEdits: false
 ]
 
 { #category : 'accessing' }
@@ -151,14 +150,13 @@ JadeiteWorkspace >> saveServerFile [
 JadeiteWorkspace >> saveServerFileAs [
 
 	| filePath |
-	RowanServiceUpdater current critical: [
-		filePath := JadeiteServerFileSaveDialog
-			            showOnSession: GciSession current
-			            defaultPath: self defaultSaveFileAsDirectory
-			            defaultFileName: self defaultSaveAsFileName.
-		filePath ifNotNil: [
-			filePathString := filePath.
-			self writeDocumentTo: filePathString ] ]
+	filePath := JadeiteServerFileSaveDialog
+		            showOnSession: GciSession current
+		            defaultPath: self defaultSaveFileAsDirectory
+		            defaultFileName: self defaultSaveAsFileName.
+	filePath ifNotNil: [
+		filePathString := filePath.
+		self writeDocumentTo: filePathString ]
 ]
 
 { #category : 'command support' }

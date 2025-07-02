@@ -776,17 +776,10 @@ JadeiteConsole >> openGitHubRowanProject [
 JadeiteConsole >> openServerFile [
 
 	| filePath |
-	RowanServiceUpdater current critical: [
-		filePath := JadeiteServerFileSelectorDialog 
-			            showOnSession: gciSession
-			            defaultPath:
-			            JadePresenter rowanProjectsHomeEnvVarString.
-		filePath ifNotNil: [ self basicOpenServerFile: filePath ] ]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> openSourceStyler [
-	JadeiteScintillaView openSourceStyler
+	filePath := JadeiteServerFileSelectorDialog
+		            showOnSession: gciSession
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+	filePath ifNotNil: [ self basicOpenServerFile: filePath ]
 ]
 
 { #category : 'accessing' }

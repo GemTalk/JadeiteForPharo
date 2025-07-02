@@ -45,12 +45,15 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath:
 ]
 
 { #category : 'instance creation' }
-JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: path shellName: shellName [
+JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: defaultPath shellName: shellName [
 
-	| inst modal answer |
-	(ProvideAnswerNotification signal: path) ifNotNil: [ :theAnswer |
-		^ theAnswer ].
-	inst := self createDialogOn: aGciSession path: path.
+	| inst modal answer path |
+	(ProvideAnswerNotification signal: defaultPath) ifNotNil: [
+		:theAnswer | ^ theAnswer ].
+	path := JadePresenter lastFilePath
+		        ifNil: [ defaultPath ]
+		        ifNotNil: [ :thePath | thePath ].
+	inst := self createDialogOn: aGciSession path: defaultPath.
 	inst shellName: shellName.
 	inst application: JadeiteSpApplication new.
 	modal := inst asModalWindow.
@@ -133,18 +136,6 @@ JadeiteServerFileSelectorDialog >> pop [
 	self halt. 
 ]
 
-{ #category : 'actions' }
-JadeiteServerFileSelectorDialog >> select [
-	| service |
-	service := RowanFileServiceClient new
-				path: fileSelectorPresenter newPathText;
-				session: model session.
-	service isDirectory ifTrue: [^MessageBox notify: 'Cannot open a directory'].
-	fileSelectorPresenter selectionMade.
-	self ok.
-	^fileSelectorPresenter pathText value
-]
-
 { #category : 'accessing' }
 JadeiteServerFileSelectorDialog >> selectedFileOrDirectory [
 
@@ -154,11 +145,6 @@ JadeiteServerFileSelectorDialog >> selectedFileOrDirectory [
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorDialog >> setPathText: thePathText [
 	fileSelectorPresenter pathText value: thePathText
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorDialog >> setPresenterModel [
-	fileSelectorPresenter model: model
 ]
 
 { #category : 'as yet unclassified' }

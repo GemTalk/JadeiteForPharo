@@ -13,10 +13,12 @@ JadeiteServerFileWorkspaceApplication class >> showOnSession: aGciSession path: 
 		           session: aGciSession;
 		           path: path.
 
-	service isDirectory ifNil: [ ^ self ] ifNotNil: [ :bool |
-		bool ifTrue: [
-			^ self uiManager alert: 'Cannot open a directory, ' , path ] ].
-	
+	service isDirectory
+		ifNil: [ ^ self "server already told of permission problem" ]
+		ifNotNil: [ :bool |
+			bool ifTrue: [
+				^ self uiManager alert: 'Cannot open a directory, ' , path ] ].
+
 	service fileContents.
 	workspacePresenter := (JadeiteServerFileWorkspacePresenter new
 		                       gciSession: aGciSession)

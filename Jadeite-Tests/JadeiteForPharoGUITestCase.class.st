@@ -225,7 +225,7 @@ JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
 	| existing new count |
 	RsrGarbageCollector maximumReclamation.
 	existing := presenterClass allInstances.
-	aBlock fork.
+	aBlock forkAt: Processor activePriority + 1.
 	count := 0.
 	[
 	count > 10 or: [
