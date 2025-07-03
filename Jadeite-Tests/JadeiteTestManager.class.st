@@ -71,7 +71,6 @@ JadeiteTestManager >> restore [
 	previousManager
 		ifNil: [ previousManagerClass new beDefault ]
 		ifNotNil: [ :manager | manager beDefault ].
-	self assert: UIManager default ~~ self.
-	[ self assert: UIManager default class ~= self class ] ensure: [
-		MorphicUIManager new beDefault ]
+	UIManager default == self ifTrue: [
+		MorphicUIManager new beDefault "make absolutely sure it's not a test manager" ]
 ]

@@ -27,6 +27,18 @@ JadeiteForPharoFileTestCase >> createInaccessibleFileAndDirectory [
 ]
 
 { #category : 'support' }
+JadeiteForPharoFileTestCase >> createTempFiles [
+
+	| dirRef |
+	dirRef := (FileSystem workingDirectory / self tempDirName)
+		          asFileReference.
+	dirRef createDirectory.
+	(dirRef / self tempFileName1) createFile.
+	(dirRef / self tempFileName2) createFile.
+	(dirRef / self tempFileName3) createFile
+]
+
+{ #category : 'support' }
 JadeiteForPharoFileTestCase >> deleteInaccessibleFileAndDirectory [
 
 	| dirRef fileRef permissions |
@@ -40,6 +52,22 @@ JadeiteForPharoFileTestCase >> deleteInaccessibleFileAndDirectory [
 	fileRef exists ifFalse: [ ^ dirRef delete ].
 	fileRef permissions: permissions.
 	fileRef delete.
+	dirRef delete
+]
+
+{ #category : 'support' }
+JadeiteForPharoFileTestCase >> deleteTempFiles [
+
+	| dirRef fileRef |
+	dirRef := (FileSystem workingDirectory / self tempDirName)
+		          asFileReference.
+	dirRef exists ifFalse: [ ^ self ].
+	fileRef := dirRef / self tempFileName1.
+	fileRef exists ifTrue: [ fileRef delete ].
+	fileRef := dirRef / self tempFileName2.
+	fileRef exists ifTrue: [ fileRef delete ].
+	fileRef := dirRef / self tempFileName3.
+	fileRef exists ifTrue: [ fileRef delete ].
 	dirRef delete
 ]
 
@@ -75,7 +103,32 @@ JadeiteForPharoFileTestCase >> setUp [
 JadeiteForPharoFileTestCase >> tearDown [
 
 	self uiManager restore.
-	self deleteInaccessibleFileAndDirectory
+	self deleteInaccessibleFileAndDirectory.
+	self deleteTempFiles
+]
+
+{ #category : 'constants' }
+JadeiteForPharoFileTestCase >> tempDirName [
+
+	^ 'jadeiteTestTempDir'
+]
+
+{ #category : 'constants' }
+JadeiteForPharoFileTestCase >> tempFileName1 [
+
+	^'jadeiteTestTemp1'
+]
+
+{ #category : 'constants' }
+JadeiteForPharoFileTestCase >> tempFileName2 [
+
+	^'jadeiteTestTemp2'
+]
+
+{ #category : 'constants' }
+JadeiteForPharoFileTestCase >> tempFileName3 [
+
+	^ 'jadeiteTestTemp3'
 ]
 
 { #category : 'tests' }
@@ -207,4 +260,115 @@ JadeiteForPharoFileTestCase >> test_fileSelectInitialPath [
 			fileDialog window
 				beCancel;
 				triggerCancelAction ] ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
+
+	| tempDir fileDialog backupPath tempFile dirRef sem |
+	self createTempFiles.
+	backupPath := JadePresenter lastFilePath.
+	[
+	| newFileRef |
+	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
+	self
+		assert: JadePresenter lastFilePath
+		equals: FileSystem workingDirectory pathString.
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - test_lastFilePathOnSave'.
+	fileDialog := self
+		              waitForNew: JadeiteServerFileSaveDialog
+		              while: [ workspace saveServerFile ].
+	tempDir := fileDialog fileSelectorPresenter directoryContentsList
+		           list detect: [ :assoc | assoc key = self tempDirName ].
+	fileDialog fileSelectorPresenter directoryContentsList selectItem:
+		tempDir.
+	fileDialog fileSelectorPresenter dive.
+	dirRef := fileDialog pathText text asFileReference.
+	tempFile := fileDialog fileSelectorPresenter directoryContentsList
+		            list detect: [ :assoc | assoc key = self tempFileName1 ].
+	fileDialog fileSelectorPresenter directoryContentsList selectItem:
+		tempFile.
+	fileDialog fileNamePresenter text: 'workspace.txt'.
+	fileDialog window
+		beOk;
+		triggerOkAction.
+	sem := Semaphore new.
+	newFileRef := dirRef / 'workspace.txt'.
+	[
+	[ newFileRef exists ] whileFalse: [ (Delay forMilliseconds: 5) wait ].
+	sem signal ] fork.
+	sem waitTimeoutSeconds: 1.
+	self assert: newFileRef exists. 
+	newFileRef delete.
+	self deny: newFileRef exists.
+	self assert: JadePresenter lastFilePath equals: dirRef pathString ]
+		ensure: [
+			JadePresenter lastFilePath: backupPath.
+			workspace window close ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileTestCase >> test_lastFilePathOnSelect [
+
+	| tempDir fileDialog backupPath tempFile dirRef sem |
+	self createTempFiles.
+	backupPath := JadePresenter lastFilePath.
+	[
+	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
+	self
+		assert: JadePresenter lastFilePath
+		equals: FileSystem workingDirectory pathString.
+	workspace := (JadeiteWorkspace showOnSession: session) caption:
+		             'Jade Workspace - lastFilePathOnSelect'.
+	fileDialog := self
+		              waitForNew: JadeiteServerFileSelectorDialog
+		              while: [ workspace openServerFile ].
+	tempDir := fileDialog fileSelectorPresenter directoryContentsList
+		           list detect: [ :assoc | assoc key = self tempDirName ].
+	fileDialog fileSelectorPresenter directoryContentsList selectItem:
+		tempDir.
+	fileDialog fileSelectorPresenter dive.
+	dirRef := fileDialog pathText text asFileReference.
+	tempFile := fileDialog fileSelectorPresenter directoryContentsList
+		            list detect: [ :assoc | assoc key = self tempFileName1 ].
+	fileDialog fileSelectorPresenter directoryContentsList selectItem:
+		tempFile.
+	fileDialog window
+		beOk;
+		triggerOkAction.
+	sem := Semaphore new.
+	[
+	[
+	JadePresenter lastFilePath = FileSystem workingDirectory pathString ]
+		whileTrue: [ (Delay forMilliseconds: 10) wait ].
+	sem signal ] fork.
+	sem waitTimeoutSeconds: 1.
+	self assert: JadePresenter lastFilePath equals: dirRef pathString ]
+		ensure: [
+			JadePresenter lastFilePath: backupPath.
+			workspace window close ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileTestCase >> test_tempFiles [
+	"test our temporary support files on disk"
+
+	| fileRef dirRef |
+	self createTempFiles.
+	dirRef := self tempDirName asFileReference.
+	self assert: dirRef exists.
+	fileRef := dirRef / self tempFileName1.
+	self assert: fileRef exists.
+	fileRef := dirRef / self tempFileName2.
+	self assert: fileRef exists.
+	fileRef := dirRef / self tempFileName3.
+	self assert: fileRef exists.
+	self deleteTempFiles. 
+]
+
+{ #category : 'support' }
+JadeiteForPharoFileTestCase >> toolUsedForCommonTests [
+
+	^ nil
 ]

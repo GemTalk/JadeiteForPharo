@@ -199,7 +199,6 @@ JadeiteServerFileSelectorPresenter >> selectedFilePath [
 { #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> setPath: path [
 	self pathText text: path.
-	self todo:[self model value path: path]. 
 ]
 
 { #category : 'accessing' }

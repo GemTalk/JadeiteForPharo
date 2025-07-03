@@ -60,6 +60,7 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath:
 	inst initializeWith: path.
 	answer := modal open.
 	answer cancelled ifTrue: [ ^ nil ].
+	JadePresenter lastFilePath: inst pathText text.
 	^ inst selectedFileOrDirectory
 ]
 
