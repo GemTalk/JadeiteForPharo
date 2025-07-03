@@ -10,7 +10,23 @@ Class {
 	#package : 'Jadeite-FileDialog'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
+JadeiteServerFileSelectorPresenter >> activationAction [
+
+	| directoryName sem |
+	directoryName := directoryContentsList selectedItem key.
+	directoryName = '..' ifTrue: [ ^ self pop ].
+	sem := Semaphore new.
+	fileService
+		isDirectory: directoryContentsList selectedItem key
+		onCompletion: [ sem signal ].
+	sem wait.
+	fileService answer ifNil: [ ^ self "no permission" ].
+	fileService answer ifTrue: [ ^ self basicDive: fileService ].
+	self window okAction value 
+]
+
+{ #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> basicDive: service [
 
 	service answer
@@ -31,7 +47,7 @@ JadeiteServerFileSelectorPresenter >> defaultLayout [
 	^SpBoxLayout newVertical
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> directoryContentsList [
 	^directoryContentsList
 ]
@@ -50,9 +66,9 @@ JadeiteServerFileSelectorPresenter >> dive [
 	self basicDive: fileService
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> fileName [
-	^self model fileName
+	^pathText text 
 ]
 
 { #category : 'accessing' }
@@ -66,26 +82,6 @@ JadeiteServerFileSelectorPresenter >> fileService: anObject [
 
 	fileService := anObject. 
 	fileService session: gciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorPresenter >> goto [
-	model value path: pathText value.
-	self showDirectoryContents
-]
-
-{ #category : 'initialization' }
-JadeiteServerFileSelectorPresenter >> initializeBottomWidgets [
-
-	| bottomWidgets |
-	bottomWidgets := SpBoxLayout newHorizontal.
-	bottomWidgets add: (SpButtonPresenter new
-			 label: 'Select';
-			 action: [ self select ]).
-	bottomWidgets add: (SpButtonPresenter new
-			 label: 'Cancel';
-			 action: [ self cancel ]).
-	self layout add: bottomWidgets expand: false.
 ]
 
 { #category : 'initialization' }
@@ -108,14 +104,14 @@ JadeiteServerFileSelectorPresenter >> initializePresenters [
 	self initializeTopWidgets.
 	directoryContentsList := JadeiteListPresenter new
 		                         display: #key;
-		                         displayIcon: [ :assoc | 
+		                         displayIcon: [ :assoc |
 			                         assoc value last
-				                         ifTrue: [ 
+				                         ifTrue: [
 					                         self iconNamed: #glamorousFolder ]
 				                         ifFalse: [ nil ] ].
 	directoryContentsList
 		activateOnDoubleClick;
-		whenActivatedDo: [ :selection | self dive ].
+		whenActivatedDo: [ :selection | self activationAction ].
 	self layout add: directoryContentsList.
 	self initializeContextMenu
 ]
@@ -134,30 +130,24 @@ JadeiteServerFileSelectorPresenter >> initializeTopWidgets [
 	self layout add: topBox expand: false
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteServerFileSelectorPresenter >> isDirectorySelected [
 	^(directoryContentsList selectionIfNone: [^true]) value
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteServerFileSelectorPresenter >> isFileSelected [
 	^(directoryContentsList selectionIfNone: [^false]) value not
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorPresenter >> load [
-
-	^parentPresenter load
-]
-
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> logoutRequested: aValueHolder [
 	"Private - Opportunity to save changes."
 
 	aValueHolder value: true.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> newPathText [
 	| item newPathText finalSlash |
 	item := directoryContentsList selectionOrNil ifNil: [String new] ifNotNil: [:sel | sel key].
@@ -167,17 +157,17 @@ JadeiteServerFileSelectorPresenter >> newPathText [
 	^newPathText
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> parentDirectoryPath [
 	^self model parentDirectoryPath
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> pathText [
 	^pathText ifNil:[pathText := ValueHolder new]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> pathText: anObject [
 	pathText := anObject
 ]
@@ -188,9 +178,10 @@ JadeiteServerFileSelectorPresenter >> pop [
 	fileService popWith: directoryContentsList with: pathText
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorPresenter >> select [
-	parentPresenter select
+{ #category : 'accessing' }
+JadeiteServerFileSelectorPresenter >> selectedDirectory [
+
+	^ pathText text
 ]
 
 { #category : 'accessing' }
@@ -199,27 +190,25 @@ JadeiteServerFileSelectorPresenter >> selectedFileOrDirectory [
 	^directoryContentsList selectedItem value ifNil:[ pathText text] ifNotNil: [ :array | array first ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> selectedFilePath [
 
 	^ fileService pathStringFor: directoryContentsList selection key
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteServerFileSelectorPresenter >> selectionMade [
-	| newPathText |
-	model value path = pathText value ifFalse: [^self goto].
-	newPathText := self newPathText.
-	pathText value: newPathText
-]
-
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> setPath: path [
 	self pathText text: path.
-	self todo:[self model value path: path]. 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
+JadeiteServerFileSelectorPresenter >> shellName [
+	"to avoid 'should be implemented' category"
+
+	
+]
+
+{ #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> showDirectoryContents [
 
 	| sem |

@@ -14,7 +14,7 @@ JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
 	| filePath |
 	filePath := JadeiteServerFileSaveDialog
 		            showOnSession: GciSession current
-		            defaultPath: JadePresenter lastSavePath
+		            defaultPath: JadePresenter lastFilePath
 		            defaultFileName: defaultFileName.
 	^ filePath ifNotNil: [
 		  | service |
@@ -23,7 +23,7 @@ JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
 			             session: self gciSession.
 		  service extension isEmpty ifTrue: [
 			  service path: filePath , '.gs' ].
-		  JadePresenter lastSavePath: service directoryPath.
+		  JadePresenter lastFilePath: service directoryPath.
 		  service path ]
 ]
 

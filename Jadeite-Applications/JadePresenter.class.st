@@ -9,7 +9,7 @@ Class {
 	#superclass : 'JadeiteApplication',
 	#classVars : [
 		'ExpandedRowanProjectsHome',
-		'LastSavePath',
+		'LastFilePath',
 		'PackageGroupsVisible',
 		'PackageListVisible',
 		'SigAbortProcessInterval',
@@ -61,52 +61,24 @@ JadePresenter class >> isCommitEnabled [
 ]
 
 { #category : 'constants' }
-JadePresenter class >> lastSavePath [
+JadePresenter class >> lastFilePath [
 	"when writing fileouts, etc save the last path saved for convenience"
 
-	LastSavePath ifNil: [
-		LastSavePath := self rowanProjectsHomeEnvVarString ].
-	^ LastSavePath
+	LastFilePath ifNil: [
+		LastFilePath := self rowanProjectsHomeEnvVarString ].
+	^ LastFilePath
 ]
 
 { #category : 'constants' }
-JadePresenter class >> lastSavePath: filePath [
+JadePresenter class >> lastFilePath: filePath [
 	"when writing fileouts, etc save the last path saved for convenience"
 
-	LastSavePath := filePath
-]
-
-{ #category : 'operations' }
-JadePresenter class >> loadViewResource2: aString inContext: contextView [
-	| resourceIdentifier |
-	ShellView
-		defaultExtentBlock: [:shellView | shellView extent];
-		createHookBlock: 
-				[:shellView :createBlock | (Smalltalk at: #stopOnce)
-		ifTrue: 
-			["Smalltalk at: #stopOnce put: true"
-			Smalltalk at: #stopOnce put: false.
-			self halt]. 
-				shellView beCentered.
-				createBlock value.
-				].
-	
-	[resourceIdentifier := ResourceIdentifier class: self name: aString.
-	^resourceIdentifier loadWithContext: contextView]
-			ensure: 
-				[ShellView
-					defaultExtentBlock: nil;
-					createHookBlock: nil]
+	LastFilePath := filePath
 ]
 
 { #category : 'constants' }
 JadePresenter class >> maxPrintStringSize [
 	^100000
-]
-
-{ #category : 'browsing' }
-JadePresenter class >> openCommit: sha inGitHub: projectService [
-	^ShellLibrary default shellOpen: projectService projectUrl , '/commit/' , sha directory: ''
 ]
 
 { #category : 'preferences' }

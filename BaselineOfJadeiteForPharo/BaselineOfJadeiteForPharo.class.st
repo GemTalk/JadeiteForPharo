@@ -32,8 +32,6 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			with: [ spec requires: 'Jadeite-PortedClasses' ];
 			package: 'Jadeite-Diffs'
 			with: [ spec requires: 'Jadeite-Connection' ];
-			package: 'Jadeite-MethodHistory'
-			with: [ spec requires: 'Jadeite-Connection' ];
 			package: 'Jadeite-Console'
 			with: [ spec requires: 'Jadeite-Browser' ];
 			package: 'Jadeite-Inspector'

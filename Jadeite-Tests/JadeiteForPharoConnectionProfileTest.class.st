@@ -32,8 +32,7 @@ JadeiteForPharoConnectionProfileTest >> setUp [
 JadeiteForPharoConnectionProfileTest >> tearDown [
 
 	JadeiteGCIConnectionProfile connectionProfile: currentProfile.
-	self uiManager previousManager ifNotNil: [ :manager |
-		manager beDefault ]
+	self uiManager restore
 ]
 
 { #category : 'tests' }

@@ -590,6 +590,18 @@ JadeiteAbstractTestCase >> reloadProjectNamed: projectName [
 		onCompletion: nil
 ]
 
+{ #category : 'support' }
+JadeiteAbstractTestCase >> removeLoggingFile [
+	"for now, it's ok to just remove the log file if it's created by the test
+	as the log isn't really tested or used. Should the 'then' change, we should
+	only delete the log file if the test passes. "
+
+	| fileRef |
+	fileRef := RowanServiceUpdater current logger logFileName
+		           asFileReference.
+	fileRef exists ifTrue: [ fileRef delete ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> removeMultipleReferencesToStringMethods [
 	self projectsPresenter categoryListPresenter selections: #('other' 'tests').
@@ -1145,6 +1157,7 @@ JadeiteAbstractTestCase >> switchTransactionModeTo: aSymbol [
 JadeiteAbstractTestCase >> tearDown [
 
 	super tearDown.
+	self removeLoggingFile.
 	projectsBrowser ifNotNil: [
 		self projectsPresenter ifNotNil: [ :presenter |
 			presenter methodSourcePresenter adapter ifNotNil: [ :a |

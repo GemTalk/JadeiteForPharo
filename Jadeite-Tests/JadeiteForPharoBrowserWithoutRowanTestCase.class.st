@@ -32,9 +32,6 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: s
 
 { #category : 'selection' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
-	" A little weird but select the answering service twice. 
-	The first selection may reset the class category which causes
-	a refresh in the class list and the test can't keep up (but manually can)"
 
 	self
 		selectServiceNamed: 'RowanClientServices'
@@ -46,7 +43,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
 			 yourself).
 	self
 		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter.
+		in: self classListPresenter
 ]
 
 { #category : 'selection' }
@@ -364,6 +361,39 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	self
 		assert: self classListPresenter items first name
 		equals: 'RowanSample1'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate_classCategorySelected [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Core';
+			 substringIndex: 3;
+			 yourself).
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate_dictionarySelection [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate_noDictionarySelection [
+
+	self dictionaryListPresenter unselectAll.
+	self assertTextPaneResetFor:
+		self projectsPresenter classDefinitionPresenter
 ]
 
 { #category : 'tests' }

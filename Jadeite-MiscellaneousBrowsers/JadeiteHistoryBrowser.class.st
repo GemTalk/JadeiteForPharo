@@ -8,8 +8,8 @@ Class {
 		'methodService',
 		'versionListPresenter'
 	],
-	#category : 'Jadeite-MethodHistory',
-	#package : 'Jadeite-MethodHistory'
+	#category : 'Jadeite-MiscellaneousBrowsers',
+	#package : 'Jadeite-MiscellaneousBrowsers'
 }
 
 { #category : 'instance creation' }

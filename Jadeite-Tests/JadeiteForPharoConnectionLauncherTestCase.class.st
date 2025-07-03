@@ -137,8 +137,7 @@ JadeiteForPharoConnectionLauncherTestCase >> setUp [
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 
 	super tearDown.
-	self uiManager previousManager ifNotNil: [ :manager |
-		manager beDefault ].
+	self uiManager restore.
 	clientLibariesPath ifNotNil: [
 		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
 		JadeiteConnectionLauncher soleInstance window close.
