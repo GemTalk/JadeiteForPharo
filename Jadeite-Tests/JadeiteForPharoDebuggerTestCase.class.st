@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteForPharoDebuggerTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
+	#instVars : [
+		'debugger'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
