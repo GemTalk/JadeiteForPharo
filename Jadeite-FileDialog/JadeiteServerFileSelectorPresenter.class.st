@@ -68,7 +68,7 @@ JadeiteServerFileSelectorPresenter >> dive [
 
 { #category : 'accessing' }
 JadeiteServerFileSelectorPresenter >> fileName [
-	^self model fileName
+	^pathText text 
 ]
 
 { #category : 'accessing' }
@@ -176,6 +176,12 @@ JadeiteServerFileSelectorPresenter >> pathText: anObject [
 JadeiteServerFileSelectorPresenter >> pop [
 
 	fileService popWith: directoryContentsList with: pathText
+]
+
+{ #category : 'accessing' }
+JadeiteServerFileSelectorPresenter >> selectedDirectory [
+
+	^ pathText text
 ]
 
 { #category : 'accessing' }

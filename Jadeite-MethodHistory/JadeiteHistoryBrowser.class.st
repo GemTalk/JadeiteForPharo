@@ -75,9 +75,10 @@ JadeiteHistoryBrowser >> defaultLayout [
 ]
 
 { #category : 'initialization' }
-JadeiteHistoryBrowser >> initializeDiffsPresenter [
-	diffsPresenter := JadeiteDiffPresenter new. 
-	self layout add: diffsPresenter.
+JadeiteHistoryBrowser >> initializeDiffsPresenter: panedLayout [
+
+	diffsPresenter := JadeiteDiffPresenter new.
+	panedLayout add: diffsPresenter.
 	diffsPresenter showOptions: false
 ]
 
@@ -92,37 +93,26 @@ JadeiteHistoryBrowser >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteHistoryBrowser >> initializePresenters [
 
+	| panedLayout |
 	super initializePresenters.
-	self initializeVersionsList.
-	self initializeDiffsPresenter.
+	panedLayout := SpPanedLayout newVertical positionOfSlider: 0.30.
+	self initializeVersionsList: panedLayout.
+	self initializeDiffsPresenter: panedLayout.
+	self layout add: panedLayout.
 	self initializeVersionsListContextMenu
 ]
 
 { #category : 'initialization' }
-JadeiteHistoryBrowser >> initializeVersionsList [
+JadeiteHistoryBrowser >> initializeVersionsList: panedLayout [
 
-	| col |
 	versionListPresenter := JadeiteTablePresenter new beMultipleSelection.
 	versionListPresenter addColumn: (SpStringTableColumn
 			 title: 'Method'
 			 evaluated: [ :operation | operation selectorPrintString ]).
-	"	col displayColor: [ :operation |
-		operation reverted ifTrue: [ Color green adjustBrightness: -0.5 ] ]."
 	versionListPresenter addColumn: (SpStringTableColumn
 			 title: 'category'
 			 evaluated: [ :operation | operation category ]).
-	"
-	versionList addColumn: (SpStringTableColumn
-			 title: 'Class'
-			 evaluated: [ :operation | operation definition jadeiteClassName ]).
-	versionList addColumn: (SpStringTableColumn
-			 title: 'Selector'
-			 evaluated: [ :operation | operation selector ]).
-	versionList addColumn: (SpStringTableColumn
-			 title: 'Detail'
-			 evaluated: [ :operation | operation detailsString ])."
-
-	self layout add: versionListPresenter
+	panedLayout add: versionListPresenter
 ]
 
 { #category : 'initialization' }

@@ -49,7 +49,7 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: def
 	inst initializeWith: expandedPath fileName: fileName.
 	answer := modal open.
 	answer cancelled ifTrue: [ ^ nil ].
-	^ inst selectedFileOrDirectory
+	^ inst pathText text 
 ]
 
 { #category : 'instance creation' }
@@ -73,14 +73,12 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 
 	| path fileService |
 	ProvideAnswerNotification signal ifNotNil: [ :answer | ^ answer ].
-	path := fileSelectorPresenter selectedFileOrDirectory.
+	path := fileSelectorPresenter selectedDirectory.
 	fileService := RowanFileServiceClient new
 		               path: path;
 		               session: self gciSession.
-	fileService isDirectory
-		ifNil: [ ^ false "server already told of permission problem" ]
-		ifNotNil: [ :bool |
-			bool ifTrue: [ fileService setPathFor: fileNamePresenter text ] ].
+	fileService setPathFor: fileNamePresenter text.
+	self pathText text: fileService path.
 	^ fileService exists
 		  ifNil: [ ^ false "no permissions" ]
 		  ifNotNil: [ :bool |
