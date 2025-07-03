@@ -176,19 +176,6 @@ JadeiteServerFileSaveDialog >> pop [
 ]
 
 { #category : 'accessing' }
-JadeiteServerFileSaveDialog >> selectedFileOrDirectory [
-
-	| fileService selFileOrDir |
-	selFileOrDir := self fileSelectorPresenter selectedFileOrDirectory.
-	fileService := RowanFileServiceClient new
-		               path: selFileOrDir;
-		               session: self gciSession.
-	^ (fileService isDirectory
-		   ifTrue: [ fileService pathStringFor: fileNamePresenter text ]
-		   ifFalse: [ fileService pathStringFor: nil ])
-]
-
-{ #category : 'accessing' }
 JadeiteServerFileSaveDialog >> shellName [
 
 	^ 'Jadeite Save File Dialog'
