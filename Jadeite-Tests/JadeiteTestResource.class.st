@@ -77,15 +77,13 @@ JadeiteTestResource class >> unavailbleResourceMessageUsing: aTestAsserterOrNil 
 
 { #category : 'projects loading' }
 JadeiteTestResource >> basicUnloadProjects: projectNames onCompletion: completionBlock [
-
+	"don't refresh global selections as our test run is complete"
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: projectNames).
-	self issueCommand: browserService onCompletion: [
-		self refreshGlobalSelections.
-		completionBlock value ]
+	self issueCommand: browserService onCompletion: completionBlock value
 ]
 
 { #category : 'support' }

@@ -294,6 +294,28 @@ JadeiteBrowserPresenterWithoutRowan >> renameCommandFor: classService to: newNam
 ]
 
 { #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
+
+	| presenter |
+	classDefinitionPresenter isModified: false.
+	presenter := classCategoryPresenter.
+	presenter roots isEmpty ifTrue: [
+		classDefinitionPresenter value: String new.
+		^ self ].
+	classDefinitionPresenter value: (presenter selectedItem
+			 ifNil: [ self updateClassDefPresenter ]
+			 ifNotNil: [ :selectedItem |
+				 self selectedClassTab
+					 ifNil: [ selectedItem defaultTemplate ]
+					 ifNotNil: [
+						 self selectedClassTab activePresenter selection selectedItem
+							 ifNil: [ self defaultTemplateForClassCategory: selectedItem ]
+							 ifNotNil: [
+							 self selectedClassTab activePresenter selectedItem template ] ] ]).
+	self resetClassDefinitionPane
+]
+
+{ #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> selectClass: classService completionBlock: completionBlock [
 
 	classService ifNil: [ ^ self ].

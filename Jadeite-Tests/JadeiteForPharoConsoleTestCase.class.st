@@ -217,6 +217,13 @@ JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_transcriptReset [
+
+	self console selectTranscriptTab.
+	self assertTextPaneResetFor: self console transcriptPresenter
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
 
 	| servicesProjectService |
