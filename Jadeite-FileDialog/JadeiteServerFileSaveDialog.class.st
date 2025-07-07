@@ -81,7 +81,7 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 		               session: self gciSession.
 	fileService setPathFor: fileNamePresenter text.
 	^ fileService exists
-		  ifNil: [ ^ false "no permissions" ]
+		  ifNil: [ false "no permissions" ]
 		  ifNotNil: [ :bool |
 			  bool
 				  ifTrue: [
@@ -100,10 +100,6 @@ JadeiteServerFileSaveDialog >> confirmSave: aWindowPresenter [
 JadeiteServerFileSaveDialog >> connectPresenters [
 
 	super connectPresenters.
-	fileSelectorPresenter directoryContentsList whenSelectionChangedDo: [
-		:selection |
-		selection selectedItem ifNotNil: [ :item |
-			fileNamePresenter text: item key ] ].
 	fileNamePresenter bindKeyCombination: KeyboardKey enter toAction: [
 		self window
 			beOk;

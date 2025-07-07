@@ -1322,6 +1322,27 @@ JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyAction [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_fileInOnBrowser [
+	"document that we moved our file-in menu option to the browser per issue #263"
+
+	self
+		testsJadeiteForPharoIssue: #issue263
+		title:
+		'Filein of server code is possible: please add menu item/file selection dialog'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/263'.
+	JadeiteTestManager replacing: self uiManager.
+	RowanBrowserService new unsetCurrentPackage.
+	RowanBrowserService new unsetCurrentProject.
+	[ projectsBrowser fileInServerFile ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+			self
+				assert: ex messageText
+				equals: 'Current Project and Current Package must be set first' ].
+	self uiManager restore
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |

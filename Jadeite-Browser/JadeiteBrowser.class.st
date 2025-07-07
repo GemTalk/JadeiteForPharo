@@ -75,6 +75,18 @@ JadeiteBrowser >> basicAddMethodCategory: aString [
 	^self activePresenter basicAddMethodCategory: aString
 ]
 
+{ #category : 'actions' }
+JadeiteBrowser >> basicFileInServerFile: filePath [
+
+	| service |
+	service := RowanFileServiceClient new
+		           path: filePath;
+		           session: self gciSession.
+	service fileInOnCompletion: [
+		self refreshGlobalSelections.
+		UIManager default inform: 'FileIn complete - ' , filePath ]
+]
+
 { #category : 'accessing' }
 JadeiteBrowser >> browserPresenterClass [
 
@@ -134,10 +146,40 @@ JadeiteBrowser >> currentCard [
 	^self activePresenter
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowser >> currentPackage [
+
+	^ self currentProject ifNotNil: [ :projectService |
+		  projectService packageServices
+			  detect: [ :packageService | packageService isCurrent ]
+			  ifNone: [  ] ]
+]
+
+{ #category : 'accessing' }
+JadeiteBrowser >> currentProject [
+
+	^ self projectListPresenter list
+		  detect: [ :projectService | projectService isCurrent ]
+		  ifNone: [  ]
+]
+
 { #category : 'layout' }
 JadeiteBrowser >> defaultLayout [ 
 
 	^SpBoxLayout newVertical
+]
+
+{ #category : 'actions' }
+JadeiteBrowser >> fileInServerFile [
+
+	| filePath |
+	self isCurrentProjectAndPackageSet ifFalse: [
+		^ self uiManager alert:
+			  'Current Project and Current Package must be set first' ].
+	filePath := JadeiteServerFileSelectorDialog
+		            showOnSession: gciSession
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+	filePath ifNotNil: [ self basicFileInServerFile: filePath ]
 ]
 
 { #category : 'accessing' }
@@ -196,6 +238,11 @@ JadeiteBrowser >> initializeJadeiteMenu [
 						  name: 'Find Class References ...';
 						  shortcut: $r shift ctrl;
 						  action: [ self findClassReferences ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'File In Server File ...';
+					  action: [ self fileInServerFile ] ] ];
 		  yourself
 ]
 
@@ -292,6 +339,12 @@ JadeiteBrowser >> isCategorySelected [
 JadeiteBrowser >> isClassSelected [
 
 	^self activePresenter isClassSelected
+]
+
+{ #category : 'testing' }
+JadeiteBrowser >> isCurrentProjectAndPackageSet [
+
+	^ self currentProject notNil and: [ self currentPackage notNil ]
 ]
 
 { #category : 'testing' }

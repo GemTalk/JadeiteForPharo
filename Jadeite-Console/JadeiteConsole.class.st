@@ -312,23 +312,6 @@ JadeiteConsole >> createNewProject [
 	^projectListPresenter createNewProject
 ]
 
-{ #category : 'accessing' }
-JadeiteConsole >> currentPackage [
-
-	^ self currentProject ifNotNil: [ :projectService |
-		  projectService packageServices
-			  detect: [ :packageService | packageService isCurrent ]
-			  ifNone: [  ] ]
-]
-
-{ #category : 'accessing' }
-JadeiteConsole >> currentProject [
-
-	^ self projectListPresenter list
-		  detect: [ :projectService | projectService isCurrent ]
-		  ifNone: [  ]
-]
-
 { #category : 'defaults' }
 JadeiteConsole >> defaultLayout [ 
 
@@ -352,18 +335,6 @@ JadeiteConsole >> displayLastKnownCommitOrAbort [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> editLoadSpecFromFile [
 	^JadeiteLoadSpecEditor editLoadSpecFromFileInSession: gciSession
-]
-
-{ #category : 'actions' }
-JadeiteConsole >> fileInServerFile [
-
-	| filePath |
-	RowanServiceUpdater current critical: [
-		filePath := JadeiteServerFileSelectorDialog
-			            showOnSession: gciSession
-			            defaultPath:
-			            JadePresenter rowanProjectsHomeEnvVarString.
-		filePath ifNotNil: [ self basicFileInServerFile: filePath ] ]
 ]
 
 { #category : 'actions' }
@@ -516,11 +487,6 @@ JadeiteConsole >> initializeFileMenu [
 			  item
 				  name: 'Open Server File ...';
 				  action: [ self openServerFile ] ];
-		  addItem: [ :item |
-			  item
-				  name: 'File In Server File ...';
-				  action: [ self fileInServerFile ];
-				  enabled: [ self isCurrentProjectAndPackageSet ] ];
 		  yourself
 ]
 
@@ -668,12 +634,6 @@ JadeiteConsole >> isBeginTransactionEnabled [
 { #category : 'as yet unclassified' }
 JadeiteConsole >> isCommitEnabled [
 	^self parentPresenter isCommitEnabled
-]
-
-{ #category : 'testing' }
-JadeiteConsole >> isCurrentProjectAndPackageSet [
-
-	^ self currentProject notNil and: [ self currentPackage notNil ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -23,7 +23,6 @@ JadeiteUtilityTrait >> fileoutFileSelection: defaultFileName [
 			             session: self gciSession.
 		  service extension isEmpty ifTrue: [
 			  service path: filePath , '.gs' ].
-		  JadePresenter lastFilePath: service directoryPath.
 		  service path ]
 ]
 

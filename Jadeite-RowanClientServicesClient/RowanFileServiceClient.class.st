@@ -34,9 +34,12 @@ RowanFileServiceClient >> directoryPath [
 { #category : 'commands' }
 RowanFileServiceClient >> exists [
 
+	| sem |
+	sem := Semaphore new.
 	command := #exists.
 	commandArgs := Array new.
-	self issueFileServiceCommand.
+	self issueFileServiceCommandOnCompletion: [ sem signal ].
+	sem wait.
 	^ answer
 ]
 
@@ -51,9 +54,12 @@ RowanFileServiceClient >> expandPath [
 { #category : 'commands' }
 RowanFileServiceClient >> extension [
 
+	| sem |
+	sem := Semaphore new.
 	command := #extension.
 	commandArgs := Array new.
-	self issueFileServiceCommand.
+	self issueFileServiceCommandOnCompletion: [ sem signal ].
+	sem wait.
 	^ answer
 ]
 
@@ -272,7 +278,8 @@ RowanFileServiceClient >> session: anObject [
 { #category : 'commands' }
 RowanFileServiceClient >> setPathFor: fileName [
 
-	command := #pathStringFor:.
-	commandArgs := Array with: fileName.
-	self issueFileServiceCommandOnCompletion: [ path := answer ]
+	RowanServiceUpdater current critical: [
+		command := #pathStringFor:.
+		commandArgs := Array with: fileName.
+		self issueFileServiceCommandOnCompletion: [ path := answer ] ]
 ]
