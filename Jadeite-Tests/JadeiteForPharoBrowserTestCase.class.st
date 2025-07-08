@@ -22,6 +22,41 @@ JadeiteForPharoBrowserTestCase class >> codeCoverageClasses [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> assertNoSelectedClass [
+
+	self assertIsNil: self projectsPresenter selectedClass
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserTestCase >> deleteFileInTestFile [
+
+	| path |
+	path := self fileInFilePath.
+	(session executeString: '''' , path , ''' asFileReference exists')
+		ifTrue: [
+		session executeString: '''' , path , ''' asFileReference delete' ].
+	^ path
+]
+
+{ #category : 'constants' }
+JadeiteForPharoBrowserTestCase >> fileInClassName [
+
+	^ 'TestFileIn'
+]
+
+{ #category : 'constants' }
+JadeiteForPharoBrowserTestCase >> fileInFileName [
+
+	^ 'TestFileIn.gs'
+]
+
+{ #category : 'constants' }
+JadeiteForPharoBrowserTestCase >> fileInFilePath [
+
+	^ (FileSystem workingDirectory / self fileInFileName) pathString
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> projectInfoMockService [
 
 	| mockService |
@@ -559,6 +594,123 @@ JadeiteForPharoBrowserTestCase >> test_existsOnDiskDisplay [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_fileIn [
+
+	| classes newClass fileName path |
+	projectsBrowser unsetCurrentProject.
+
+	self openProjectBrowser.
+	self
+		selectServiceNamed: 'UnPackaged'
+		in: self projectsPresenter projectListPresenter.
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	self projectsPresenter setCurrentProject.
+	self projectsPresenter setCurrentPackage.
+	self projectsPresenter packageListPresenter unselectAll.
+
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self assertIsNil: newClass.
+
+	self
+		saveClass: 'TestingFileIn'
+		superclass: 'Object'
+		instVars: #(  )
+		package: 'UnPackaged-RowanClientServices'.
+
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self denyIsNil: newClass.
+	self projectsPresenter selectClassNamed: 'TestingFileIn'.
+	fileName := 'test_fileIn.txt'.
+	path := (FileSystem disk workingDirectoryPath / fileName)
+		        asFileReference pathString.
+
+	self projectsPresenter fileOutClassOnPath: path.
+
+	self abortTransaction.
+
+	self projectsPresenter packageListPresenter unselectAll.
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self assertIsNil: newClass.
+
+	projectsBrowser basicFileInServerFile: path.
+
+	self
+		selectServiceNamed: 'UnPackaged-RowanClientServices'
+		in: self projectsPresenter packageListPresenter.
+	classes := self projectsPresenter classListPresenter list.
+	newClass := classes
+		            detect: [ :classService |
+		            classService name = 'TestingFileIn' ]
+		            ifNone: [  ].
+	self denyIsNil: newClass.
+
+	self abortTransaction
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_fileIn2 [
+
+	| path className |
+	self openProjectBrowser.
+	path := self deleteFileInTestFile.
+	[ "Create Test Class with methods and fileout"
+	className := self fileInClassName.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #( 'instVarA' )
+		package: 'RowanSample1-Core'.
+	self saveMethod: 'method1 ^true' in: self fileInClassName.
+	self saveMethod: 'method2 ^true' in: self fileInClassName.
+	self saveMethod: 'method3 ^true' in: self fileInClassName.
+	self projectsPresenter fileOutClassOnPath: path.
+	"Remove Class "
+	self assert:
+		(session executeString: '''' , path , ''' asFileReference exists') ]
+		ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: [  ] ].
+	[
+	self assertIsNil:
+		(session executeString: 'Rowan globalNamed: ''' , className , '''').
+
+	"File In"
+	projectsBrowser basicFileInServerFile: path.
+
+	"Assertions: Verify file existence, filed in class exists, and method functionality"
+	self assert:
+		(session executeString: '(Rowan globalNamed: ''' , className , ''') notNil').
+	self assert:
+		(session executeString: self fileInClassName , ' new method1').
+	self assert:
+		(session executeString: self fileInClassName , ' new method2').
+	self assert:
+		(session executeString: self fileInClassName , ' new method3') ]
+		ensure: [ self deleteFileInTestFile ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_fileoutPackage [
 
 	| fileOutPath fileOutRef |
@@ -722,11 +874,17 @@ JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
 		testsIssue: #issue175
 		withTitle:
 		'[jpf] change packages from hierarchy view gives walkback'. "https://github.com/GemTalk/JadeiteForPharo/issues/175"
+
+	"Select the RowanAnsweringService class and confirm it is selected."
+
 	self selectRowanAnsweringService.
 	self selectHierarchyTab.
 	self
 		assert: self projectsPresenter selectedClass name
 		equals: 'RowanAnsweringService'.
+
+	"Select the Rowan-Services-Tests package and verify it is the selected item and we switched to class side."
+
 	self
 		selectServiceNamed: 'Rowan-Services-Tests'
 		in: self packageListPresenter.
@@ -734,7 +892,36 @@ JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
 		assert: self packageListPresenter selectedItem name
 		equals: 'Rowan-Services-Tests'.
 	self assert: self projectsPresenter isClassListTabSelected.
-	self assertIsNil: self projectsPresenter selectedClass
+
+	self assertNoSelectedClass
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_isCurrentProjectAndPackageSet [
+
+	| selectedProject selectedPackage |
+	"Unsets any current project and package, confirming neither is set."
+	projectsBrowser unsetCurrentProject.
+	projectsBrowser unsetCurrentPackage.
+	self deny: projectsBrowser isCurrentProjectAndPackageSet.
+
+	"Selects and sets the first project as current, asserting it is current."
+
+	self projectListPresenter selectIndex: 1.
+	selectedProject := self projectListPresenter selectedItem.
+	self deny: selectedProject isCurrent.
+	projectsBrowser setCurrentProject.
+	self assert: selectedProject isCurrent.
+	self deny: projectsBrowser isCurrentProjectAndPackageSet.
+
+	"Selects and sets the first package as current, asserting both are now set correctly."
+
+	self packageListPresenter selectIndex: 1.
+	selectedPackage := self packageListPresenter selectedItem.
+	self deny: selectedPackage isCurrent.
+	projectsBrowser setCurrentPackage.
+	self assert: selectedPackage isCurrent.
+	self assert: projectsBrowser isCurrentProjectAndPackageSet
 ]
 
 { #category : 'tests' }
@@ -888,10 +1075,13 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 
 	| targetProject |
 	self testsIssue: #issue129 withTitle: 'Expose unload project.'.
+
+	"Select the target project using self sampleProject1Name."
 	targetProject := self projectNamed: self sampleProject1Name.
 	self denyIsNil: targetProject.
 	self projectListPresenter selection: targetProject.
-	"just select an element in each list to test cleanup after removal"
+
+	"Select the first item in each of the package, class, category, and method list presenters."
 	self packageListPresenter selection:
 		self packageListPresenter list first.
 	self classListPresenter selection: self classListPresenter list first.
@@ -899,19 +1089,20 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 		self categoryListPresenter list first.
 	self methodListPresenter selection:
 		self methodListPresenter list first.
+
+	"Unload the project using self sampleProject1Name."
 	self unloadProject: self sampleProject1Name.
+
+	"Confirm the target project is nil."
 	targetProject := self projectNamed: self sampleProject1Name.
 	self assertIsNil: targetProject.
-	"make sure browser cleans itself up"
 
-	[
+	"Assert that all list presenters are empty."
 	self assert: self projectListPresenter selections isEmpty.
 	self assert: self packageListPresenter list isEmpty.
 	self assert: self classListPresenter list isEmpty.
 	self assert: self categoryListPresenter list isEmpty.
-	self assert: self methodListPresenter list isEmpty ] ensure: [
-		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded ]
+	self assert: self methodListPresenter list isEmpty
 ]
 
 { #category : 'tests' }

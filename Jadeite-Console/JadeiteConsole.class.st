@@ -130,17 +130,6 @@ JadeiteConsole >> autoCompleteEnabled: boolean [
 ]
 
 { #category : 'actions' }
-JadeiteConsole >> basicFileInServerFile: filePath [
-
-	| service |
-	service := RowanFileServiceClient new
-		           path: filePath;
-		           session: self gciSession.
-	service fileInOnCompletion: [
-		UIManager default inform: 'FileIn complete - ' , filePath ]
-]
-
-{ #category : 'actions' }
 JadeiteConsole >> basicOpenServerFile: filePath [
 
 	^ JadeiteServerFileWorkspaceApplication

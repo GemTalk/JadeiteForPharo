@@ -131,12 +131,6 @@ JadeiteServerFileSelectorDialog >> pathText [
 	^fileSelectorPresenter pathText
 ]
 
-{ #category : 'actions' }
-JadeiteServerFileSelectorDialog >> pop [
-
-	self halt. 
-]
-
 { #category : 'accessing' }
 JadeiteServerFileSelectorDialog >> selectedFileOrDirectory [
 

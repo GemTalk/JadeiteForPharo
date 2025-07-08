@@ -84,7 +84,7 @@ JadeiteBrowser >> basicFileInServerFile: filePath [
 		           session: self gciSession.
 	service fileInOnCompletion: [
 		self refreshGlobalSelections.
-		UIManager default inform: 'FileIn complete - ' , filePath ]
+		self uiManager inform: 'FileIn complete - ' , filePath ]
 ]
 
 { #category : 'accessing' }

@@ -1,5 +1,5 @@
 "
-These tests should not assume a connection to the server is present. 
+These tests should not assume a connection to the server is present. Although it's perfectly ok if the test wants to create a session. 
 "
 Class {
 	#name : 'JadeiteForPharoHeadlessTestCase',
