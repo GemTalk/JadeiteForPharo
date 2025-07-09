@@ -4,10 +4,11 @@ Extension { #name : 'RubTextSegmentMorph' }
 RubTextSegmentMorph >> computeStraightVertices [
 
 	| firstCB lastCB firstLineIndex lastLineIndex firstLine lastLine verts lines textarea margins segmentGap textAreaLeft |
+	self lines ifNil: [^self]. "<<<<<<< Jadeite change here. lines can return nil"
 	self lines ifEmpty: [ ^ self ].
 	firstCB := self characterBlockForIndex: firstIndex.
 	lastCB := self characterBlockForIndex: lastIndex.
-	lines := self lines ifNil: [^self].
+	lines := self lines.
 	textarea := self textArea.
 	margins := self margins.
 	firstLineIndex := self lineIndexOfCharacterIndex: firstIndex.

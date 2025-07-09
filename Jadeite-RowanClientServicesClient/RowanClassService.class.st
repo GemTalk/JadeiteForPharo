@@ -46,7 +46,8 @@ Class {
 		'wasRemoved',
 		'renamedName',
 		'hasSubclasses',
-		'classCategory'
+		'classCategory',
+		'methodsFailingRecompilation'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -706,6 +707,8 @@ RowanClassService >> newClass: presenter browser: browser [
 	updateType = #newClass:browser: ifFalse: [ ^ self ].
 	browser newClass: self addedTo: presenter.
 	browser updateService: self. "make sure we have a current view of the class"
+	methodsFailingRecompilation ifNotEmpty: [
+		self raiseCompileFailsMethodBrowser ]
 ]
 
 { #category : 'accessing' }
@@ -744,6 +747,18 @@ RowanClassService >> prepareForReplication [
 { #category : 'accessing' }
 RowanClassService >> projectName [
 	^projectName
+]
+
+{ #category : 'actions' }
+RowanClassService >> raiseCompileFailsMethodBrowser [
+
+	| queryService |
+	queryService := RowanQueryServiceClient new.
+	queryService queryResults: methodsFailingRecompilation.
+	^ JadeiteFailedCompileMethodListBrowser
+		  openOn: queryService
+		  selecting: String new
+		  session: GciSession current
 ]
 
 { #category : 'must not strip' }

@@ -9,18 +9,18 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowser class >> openOn: service selecting: string session: session [
+JadeiteMethodListBrowser class >> openOn: queryService selecting: string session: session [
 
 	| shell |
 	(shell := JadeiteMethodListApplication showOnSession: session library)
 		firstReferenceString: string.
-	shell methods: service queryResults.
-	service queryResults isEmpty ifTrue: [ ^ shell selecting: 0 ].
-	service queryResults first firstReference
+	shell methods: queryService queryResults.
+	queryService queryResults isEmpty ifTrue: [ ^ shell selecting: 0 ].
+	queryService queryResults first firstReference
 		ifNil: [
 			string ifNotNil: [
 				shell selecting:
-					(service queryResults first source indexOfSubCollection: string) ] ]
+					(queryService queryResults first source indexOfSubCollection: string) ] ]
 		ifNotNil: [ :index | shell selecting: index ].
 	^ shell
 ]
@@ -46,12 +46,6 @@ JadeiteMethodListBrowser >> firstReferenceString [
 { #category : 'as yet unclassified' }
 JadeiteMethodListBrowser >> firstReferenceString: anObject [
 	firstReferenceString := anObject
-]
-
-{ #category : 'accessing' }
-JadeiteMethodListBrowser >> methods: methodServices selection: stringOrIndex [
-
-	self methodListPresenter methods: methodServices
 ]
 
 { #category : 'as yet unclassified' }

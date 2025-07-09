@@ -928,7 +928,7 @@ JadeiteInspector >> printInstVar [
 	| answeringService oop theValue |
 	^ [
 	  answeringService := RowanAnsweringServiceClient new registerWith:
-		                      gciSession library.
+		                      gciSession connection.
 	  theValue := instVarListPresenter selectedItems first last. "oop or Array"
 	  oop := (theValue isKindOf: Array)
 		         ifTrue: [ theValue at: 2 ]
@@ -946,9 +946,8 @@ JadeiteInspector >> printInstVar [
 	  answeringService answer ]
 		  on: Error
 		  do: [ :ex |
-			  self
-				  displayInstVarError: ex
-				  instVar: instVarListPresenter selectedItems first last ]
+			  codePane text: 'ERROR GETTING PRINTSTRING: ' , ex printString.
+			  codePane hasUnacceptedEdits: false ]
 ]
 
 { #category : 'as yet unclassified' }
