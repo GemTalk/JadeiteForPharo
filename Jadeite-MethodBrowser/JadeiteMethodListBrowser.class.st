@@ -12,15 +12,17 @@ Class {
 JadeiteMethodListBrowser class >> openOn: queryService selecting: string session: session [
 
 	| shell |
-	(shell := JadeiteMethodListApplication showOnSession: session library)
-		firstReferenceString: string.
+	(shell := JadeiteMethodListApplication
+		          showOn: self presenterClass
+		          session: session library) firstReferenceString: string.
 	shell methods: queryService queryResults.
 	queryService queryResults isEmpty ifTrue: [ ^ shell selecting: 0 ].
 	queryService queryResults first firstReference
 		ifNil: [
 			string ifNotNil: [
 				shell selecting:
-					(queryService queryResults first source indexOfSubCollection: string) ] ]
+					(queryService queryResults first source indexOfSubCollection:
+						 string) ] ]
 		ifNotNil: [ :index | shell selecting: index ].
 	^ shell
 ]
@@ -31,6 +33,12 @@ JadeiteMethodListBrowser class >> openOn: service selectingAnyMatch: string sess
 	(shell := JadeiteMethodListApplication showOnSession: gciSession library) methods: service queryResults
 		selectingAnyMatch: string.
 	^shell
+]
+
+{ #category : 'accessing' }
+JadeiteMethodListBrowser class >> presenterClass [
+
+	^#JadeiteMethodListPresenter
 ]
 
 { #category : 'as yet unclassified' }
@@ -63,17 +71,4 @@ JadeiteMethodListBrowser >> onViewOpened [
 	super onViewOpened.
 	RowanServiceUpdater current
 		logComment: 'Opening Method List Browser {' , self identityHash printString , '}'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowser >> presenterClass [
-
-	^JadeiteMethodListPresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteMethodListBrowser >> shellName [
-
-	^'Jadeite Method List Browser'.
-
 ]

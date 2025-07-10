@@ -1285,12 +1285,6 @@ JadeiteBrowserPresenter >> findProjectNamed: projectName [
 ]
 
 { #category : 'accessing' }
-JadeiteBrowserPresenter >> gciSession [
-
-	^ gciSession
-]
-
-{ #category : 'accessing' }
 JadeiteBrowserPresenter >> gciSession: aSession [
 	"make sure my subpresenters have the session, too"
 	gciSession := aSession.

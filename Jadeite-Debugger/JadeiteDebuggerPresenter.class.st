@@ -671,11 +671,6 @@ JadeiteDebuggerPresenter >> trimStack [
 	answer := Array with: #trimStackToLevel: with: selectionIndex
 ]
 
-{ #category : 'initialization' }
-JadeiteDebuggerPresenter >> updateCaption [
-	self caption: (self gciSession titleBarFor: self shellName)
-]
-
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> updateMethodSource [
 

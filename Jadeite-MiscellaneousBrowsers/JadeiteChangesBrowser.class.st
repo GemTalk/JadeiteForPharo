@@ -426,8 +426,3 @@ JadeiteChangesBrowser >> showNoComparison [
 		leftLabel: 'Disk';
 		rightLabel:  'Image'
 ]
-
-{ #category : 'initialization' }
-JadeiteChangesBrowser >> updateCaption [
-	self caption: (self gciSession titleBarFor: self shellName)
-]

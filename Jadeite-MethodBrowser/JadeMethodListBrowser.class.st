@@ -24,12 +24,6 @@ JadeMethodListBrowser >> presenterClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeMethodListBrowser >> shellName [
-	^'Jadeite Method List Browser'.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodListBrowser >> statusBarText [
 	^(self view viewNamed: 'statusBarField') 
 ]

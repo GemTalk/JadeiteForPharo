@@ -194,9 +194,12 @@ JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory 
 	self text: self adapter widget textArea text. "this should NOT be necessary. Something is broken in the way we set the Jadeite editor in JadeiteMorphicTextAdapter>>buildWidget"
 	methodSource1 := self currentMethodSourceFrom: self text.
 	theCategory := jadeiteCategory ifNil: [ 'other' ] ifNotNil: [ :cat |
-		               cat isString
-			               ifTrue: [ jadeiteCategory ]
-			               ifFalse: [ jadeiteCategory categoryName ] ].
+		               cat isEmpty
+			               ifTrue: [ 'other' ]
+			               ifFalse: [
+				               cat isString
+					               ifTrue: [ jadeiteCategory ]
+					               ifFalse: [ jadeiteCategory categoryName ] ] ].
 	classService
 		command: #saveMethodSource:category:;
 		commandArgs: (Array with: methodSource1 with: theCategory);

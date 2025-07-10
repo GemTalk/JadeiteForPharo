@@ -434,12 +434,6 @@ JadeiteInspector >> expectedModelClass [
 	^RowanInspectorService
 ]
 
-{ #category : 'accessing' }
-JadeiteInspector >> gciSession [ 
-	
-	^self application gciSession
-]
-
 { #category : 'navigation' }
 JadeiteInspector >> getNextObject [
 
@@ -1223,12 +1217,6 @@ JadeiteInspector >> showOn: service [
 { #category : 'as yet unclassified' }
 JadeiteInspector >> statusText [
 	^statusTextPresenter value
-]
-
-{ #category : 'accessing' }
-JadeiteInspector >> updateCaption [
-
-	self caption: self caption
 ]
 
 { #category : 'as yet unclassified' }

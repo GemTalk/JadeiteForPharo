@@ -752,26 +752,6 @@ RowanMethodService >> setPassed [
 	testResult := 'passed'
 ]
 
-{ #category : 'public' }
-RowanMethodService >> shouldReplicateInstVarAtIndex: index newService: newService [
-	"first reference is only valid on the first return of a method service for a particular browser. 
-	It may be better to (someday) move firstReference to the browser state"
-
-	| isTestResultInstVar |
-	(super shouldReplicateInstVarAtIndex: index newService: newService)
-		ifFalse: [ ^ false ].
-	index = self indexOfFirstReferenceInstVar ifTrue: [
-		firstReference ifNotNil: [ ^ false ] ].
-	isTestResultInstVar := self indexOfTestResultInstVar = index.
-	isTestResultInstVar ifTrue: [ ^ false ].
-	self indexOfSourceInstVar = index ifTrue: [
-		^ newService source isNil not ]. "fastRefresh nils out stepPoints and sources for performance"
-	self indexOfStepPointsInstVar = index ifTrue: [
-		^ newService stepPoints isNil not ].
-	^ self indexOfSourceInstVar = index and: [
-		  (newService instVarAt: index) notNil ]
-]
-
 { #category : 'accessing' }
 RowanMethodService >> sortAspect [
 

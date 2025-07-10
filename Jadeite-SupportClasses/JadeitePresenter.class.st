@@ -122,12 +122,6 @@ JadeitePresenter >> suspendSelectionEvents [
 ]
 
 { #category : 'initialization' }
-JadeitePresenter >> updateCaption [
-
-	self caption: self shellName
-]
-
-{ #category : 'initialization' }
 JadeitePresenter >> updatePresenter [
 
 	super updatePresenter.

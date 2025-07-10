@@ -227,18 +227,6 @@ JadeiteSUnitPresenter >> editSelectAll [
 		ifFalse: [super editSelectAll]
 ]
 
-{ #category : 'accessing' }
-JadeiteSUnitPresenter >> gciSession [
-
-	^ gciSession
-]
-
-{ #category : 'accessing' }
-JadeiteSUnitPresenter >> gciSession: anObject [
-
-	gciSession := anObject
-]
-
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> getTestCounter [
 

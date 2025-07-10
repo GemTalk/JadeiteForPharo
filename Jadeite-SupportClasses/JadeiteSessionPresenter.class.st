@@ -43,3 +43,9 @@ JadeiteSessionPresenter >> open [
 	self showNotWait.
 	^ jadeiteWindow
 ]
+
+{ #category : 'initialization' }
+JadeiteSessionPresenter >> updateCaption [
+
+	self caption: (self gciSession titleBarFor: self shellName)
+]

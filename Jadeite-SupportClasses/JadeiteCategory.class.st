@@ -73,6 +73,13 @@ JadeiteCategory >> isComputed: anObject [
 ]
 
 { #category : 'testing' }
+JadeiteCategory >> isEmpty [
+
+	categoryName ifNil: [ ^ false ].
+	^ categoryName isEmpty
+]
+
+{ #category : 'testing' }
 JadeiteCategory >> isJadeiteCategory [
 
 	^true

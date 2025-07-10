@@ -89,12 +89,6 @@ JadeiteServerFileSelectorDialog >> fileSelectorPresenter [
 ]
 
 { #category : 'accessing' }
-JadeiteServerFileSelectorDialog >> gciSession [
-
-	^ gciSession
-]
-
-{ #category : 'accessing' }
 JadeiteServerFileSelectorDialog >> gciSession: aSession [
 
 	gciSession := aSession.

@@ -24,7 +24,8 @@ JadeiteRenameClassMethodListBrowser class >> openOn: answeringService selecting:
 	^ shell
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteRenameClassMethodListBrowser >> presenterClass [
-	^JadeiteRenameClassMethodListPresenter
+{ #category : 'accessing' }
+JadeiteRenameClassMethodListBrowser class >> presenterClass [
+
+	^ #JadeiteRenameClassMethodListPresenter
 ]

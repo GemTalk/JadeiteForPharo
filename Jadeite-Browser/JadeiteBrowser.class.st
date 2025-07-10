@@ -183,12 +183,6 @@ JadeiteBrowser >> fileInServerFile [
 ]
 
 { #category : 'accessing' }
-JadeiteBrowser >> gciSession [
-
-	^ gciSession
-]
-
-{ #category : 'accessing' }
 JadeiteBrowser >> gciSession: anObject [
 
 	gciSession := anObject.
@@ -488,11 +482,6 @@ JadeiteBrowser >> updateAfterFindClassName: className methodSelector: selector m
 		  updateAfterFindClassName: className
 		  methodSelector: selector
 		  meta: meta
-]
-
-{ #category : 'initialization' }
-JadeiteBrowser >> updateCaption [
-	self caption: (self gciSession titleBarFor: self shellName)
 ]
 
 { #category : 'tabs' }

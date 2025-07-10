@@ -10,6 +10,18 @@ Class {
 	#package : 'Jadeite-MethodBrowser'
 }
 
+{ #category : 'actions' }
+JadeiteFailedCompileMethodListPresenter >> handleMethodNotInListIn: classService statusBarText: text [
+	"Any methods compiled in the failed compile list will not be in the method list"
+
+	| methodService |
+	methodService := classService selectedMethods first.
+	methodListPresenter selectedItem selector: methodService selector.
+	methodListPresenter selectedItem replicateFrom: methodService.
+	methodListPresenter refresh. 
+	self resetVisibleMethodDetails
+]
+
 { #category : 'registration' }
 JadeiteFailedCompileMethodListPresenter >> registerMethodPresentersForUpdates [
 ]
@@ -36,4 +48,18 @@ JadeiteFailedCompileMethodListPresenter >> selectFirstReference: methodService [
 						         from: index
 						         to: methodService searchString size + index - 1.
 					methodSourcePresenter selectionInterval: range ] ] ]
+]
+
+{ #category : 'constants' }
+JadeiteFailedCompileMethodListPresenter >> shellName [
+	^'Jadeite Failed Compile Method List Browser'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteFailedCompileMethodListPresenter >> updateMethodSource [
+
+	firstReferenceString := self methodListPresenter selectedItem
+		                        ifNil: [ String new ]
+		                        ifNotNil: [ :item | item searchString ].
+	^ super updateMethodSource
 ]

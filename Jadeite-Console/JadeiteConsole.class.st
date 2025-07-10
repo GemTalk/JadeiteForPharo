@@ -393,12 +393,6 @@ JadeiteConsole >> flipTranscript [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> gciSession [
-
-	^gciSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> gciSession: aGciSession [
 	"don't do the force logout. We'll close us ourselves"
 
@@ -954,11 +948,6 @@ JadeiteConsole >> transactionMode: aSymbol [
 JadeiteConsole >> transcriptPresenter [
 
 	^ transcriptPresenter
-]
-
-{ #category : 'updates' }
-JadeiteConsole >> updateCaption [
-	self caption: (self gciSession titleBarFor: self shellName)
 ]
 
 { #category : 'updates' }

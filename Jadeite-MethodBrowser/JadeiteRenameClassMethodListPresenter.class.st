@@ -103,6 +103,11 @@ JadeiteRenameClassMethodListPresenter >> selectionChanged [
 	self showComparison
 ]
 
+{ #category : 'constants' }
+JadeiteRenameClassMethodListPresenter >> shellName [
+	^'Jadeite Renamed Class Method List Browser'
+]
+
 { #category : 'as yet unclassified' }
 JadeiteRenameClassMethodListPresenter >> showComparison [
 	| selection |

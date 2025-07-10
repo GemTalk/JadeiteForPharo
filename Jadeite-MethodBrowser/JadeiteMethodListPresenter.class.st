@@ -184,7 +184,7 @@ JadeiteMethodListPresenter >> editSaveMethod: classService onCompletion: complet
 				                 svc = classService selectedMethods first ]
 				                 ifNone: [
 					                 self
-						                 openMethodBrowserOnNewMethodInClass:
+						                 handleMethodNotInListIn:
 						                 classService
 						                 statusBarText: self statusBarText message ].
 			                 self updateService: classService onCompletion: [
@@ -216,14 +216,25 @@ JadeiteMethodListPresenter >> firstReferenceString: anObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> gciSession [
-	^gciSession
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> gciSession: aGciSession [
 	gciSession := aGciSession.
 	methodSourcePresenter _gciSession: aGciSession.
+]
+
+{ #category : 'actions' }
+JadeiteMethodListPresenter >> handleMethodNotInListIn: classService statusBarText: text [
+	"method compiled is not in list, open a selected methods browser."
+
+	| shell |
+	shell := (JadeiteMethodListApplication showOnSession:
+		          self gciSession library) methods:
+		         classService selectedMethods.
+	shell updateCaptionFromSearchString:
+		'Method compiled that was not in method browser list'.
+	text ifNotEmpty: [
+		shell statusBarText pushMessage: text.
+		shell setCompileWarningColor ].
+	self resetVisibleMethodDetails
 ]
 
 { #category : 'initialization' }
@@ -367,26 +378,6 @@ JadeiteMethodListPresenter >> onCloseRequested: aCloseEvent [
 				ifFalse: [true])
 ]
 
-{ #category : 'actions' }
-JadeiteMethodListPresenter >> openMethodBrowserOnNewMethodInClass: classService statusBarText: text [
-	"method compiled is not in list, open a selected methods browser."
-
-	| shell |
-	shell := (JadeiteMethodListApplication showOnSession:
-		          self gciSession library) methods:
-		         classService selectedMethods.
-	shell updateCaptionFromSearchString:
-		'Method compiled that was not in method browser list'.
-	text ifNotEmpty: [
-		shell statusBarText pushMessage: text.
-		shell setCompileWarningColor ].
-
-	methodSourcePresenter text: methodListPresenter selectedItem source.
-	methodSourcePresenter hasUnacceptedEdits: false.
-	self statusBarText pushMessage: String new.
-	self resetStatusBarColor
-]
-
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> postEditSaveMethod [
 	| methodService |
@@ -446,6 +437,15 @@ JadeiteMethodListPresenter >> resetSource [
 		methodSourcePresenter methodService source.
 	methodSourcePresenter isModified: false.
 	^ self updateMethodSourceGlyphs
+]
+
+{ #category : 'actions' }
+JadeiteMethodListPresenter >> resetVisibleMethodDetails [
+
+	methodSourcePresenter text: methodListPresenter selectedItem source.
+	methodSourcePresenter hasUnacceptedEdits: false.
+	self statusBarText pushMessage: String new.
+	self resetStatusBarColor
 ]
 
 { #category : 'as yet unclassified' }

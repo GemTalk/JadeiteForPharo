@@ -5,10 +5,10 @@ Class {
 	#package : 'Jadeite-MethodBrowser'
 }
 
-{ #category : 'as yet unclassified' }
-JadeiteFailedCompileMethodListBrowser >> presenterClass [
+{ #category : 'accessing' }
+JadeiteFailedCompileMethodListBrowser class >> presenterClass [
 
-	^ JadeiteFailedCompileMethodListPresenter
+	^ #JadeiteFailedCompileMethodListPresenter
 ]
 
 { #category : 'as yet unclassified' }
