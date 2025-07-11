@@ -566,7 +566,7 @@ JadeiteDebuggerPresenter >> selectInitialFrame [
 { #category : 'accessing' }
 JadeiteDebuggerPresenter >> shellName [
 
-	^'Debugger'
+	^'Jadeite Debugger'
 ]
 
 { #category : 'actions' }

@@ -599,6 +599,71 @@ JadeiteForPharoInspectorTestCase >> test_inspectString [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_printStringErrorInstVar [
+
+	| className |
+	self openProjectBrowser.
+	className := 'ObjectWithBadPrintString'.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'printOn: aStream 
+"nextPut: will error when it gets a collection"
+aStream nextPut: (super printOn: aStream)'
+		in: className
+		category: 'other'.
+
+	self openWorkspaceAndInspect: 'Array with: ' , className , ' new'.
+	self selectInstVarAtIndex: 3.
+	self assert:
+		('Error printing object with oop *' match:
+			 inspector codePane text)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_printStringErrorSelf [
+
+	| className |
+	self openProjectBrowser.
+	className := 'ObjectWithBadPrintString'.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'printOn: aStream 
+"nextPut: will error when it gets a collection"
+aStream nextPut: (super printOn: aStream)'
+		in: className
+		category: 'other'.
+
+	self openWorkspaceAndInspect: className , ' new'.
+
+	self assert:
+		('Error printing object with oop *. Error text:*' match:
+			 inspector codePane text)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_printStringInstVar [
+
+	self openWorkspaceAndInspect: 'Bag new add: ''abc''; add: 123; yourself'.
+	
+	self selectInstVarAtIndex: #( 9 ).
+	self
+		assert: inspector codePane text equals: '''abc'''.
+
+	self selectInstVarAtIndex: #( 10 ).
+	self
+		assert: inspector codePane text equals: '123'.
+
+]
+
+{ #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_selectAll [
 
 	self openWorkspaceAndInspect: '97'.

@@ -940,7 +940,7 @@ JadeiteInspector >> printInstVar [
 	  answeringService answer ]
 		  on: Error
 		  do: [ :ex |
-			  codePane text: 'ERROR GETTING PRINTSTRING: ' , ex printString.
+			  codePane text: 'Error printing object ' , ex printString.
 			  codePane hasUnacceptedEdits: false ]
 ]
 
@@ -1170,7 +1170,7 @@ JadeiteInspector >> setNewInspectedObject [
 JadeiteInspector >> shellName [
 	| inspectionTarget |
 	inspectionTarget := className ifNil: [model ifNil: [String new] ifNotNil: [model printString]].
-	^'Inspector on ' , inspectionTarget , self shellNameExtraInfo
+	^'Jadeite Inspector on ' , inspectionTarget , self shellNameExtraInfo
 ]
 
 { #category : 'as yet unclassified' }

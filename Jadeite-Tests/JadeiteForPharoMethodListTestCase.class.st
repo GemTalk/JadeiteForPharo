@@ -587,6 +587,33 @@ JadeiteForPharoMethodListTestCase >> test_reset [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_resetMethodDetails [
+
+	| methodService |
+	self openMethodListBrowserOfImplementorsOf: 'includes:'.
+	self
+		assert: self methodSourcePresenter text
+		equals: self methodListPresenter selectedItem source.
+	methodService := methodListBrowser methodListPresenter selectedItem.
+
+	self methodSourcePresenter hasUnacceptedEdits: true.
+	methodListBrowser setCompileWarningColor.
+	methodService source: 'I am changed!'.
+	self assert: self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	self assertIsNil: methodListBrowser statusBarText message.
+	self
+		assert: methodListBrowser statusBarText adapter widget color
+		equals: Color yellow.
+	methodListBrowser resetVisibleMethodDetails.
+	self assert: self methodSourcePresenter text equals: 'I am changed!'.
+	self deny: self methodSourcePresenter hasUnacceptedEdits.
+	self assert: methodListBrowser statusBarText message equals: String new. 
+	self
+		assert: methodListBrowser statusBarText adapter widget color
+		equals: Color transparent
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 
 	| oldSource newSource |

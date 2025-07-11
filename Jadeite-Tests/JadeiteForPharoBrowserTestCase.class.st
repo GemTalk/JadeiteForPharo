@@ -949,6 +949,138 @@ JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
+
+	| className failedMethodPresenter |
+	className := 'Foo'.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'aMethodWithVar | meth | meth := 1. ^meth'
+		in: className
+		category: 'other'.
+	self
+		saveMethod: 'methodWithoutVar ^1'
+		in: className
+		category: 'other'.
+
+	self projectsPresenter selectClassNamed: className.
+	self assert: self methodListPresenter items size equals: 2.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'aMethodWithVar'.
+	self
+		assert: self methodListPresenter items last selector
+		equals: 'methodWithoutVar'.
+
+	self assert: self classListPresenter selectedItem version equals: 1.
+	failedMethodPresenter := self
+		                         waitForNew:
+		                         JadeiteFailedCompileMethodListPresenter
+		                         while: [
+			                         self
+				                         saveClass: className
+				                         superclass: 'Object'
+				                         instVars: #( 'meth' )
+				                         package: 'RowanSample1-Tests' ].
+	self assert: self methodListPresenter items size equals: 1.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'methodWithoutVar'.
+	self assert: self classListPresenter selectedItem version equals: 2.
+	self
+		assert: failedMethodPresenter
+		isKindOf: JadeiteFailedCompileMethodListPresenter.
+	self
+		assert: failedMethodPresenter methodListPresenter items size
+		equals: 1.
+	self
+		assert:
+		failedMethodPresenter methodListPresenter items first searchString
+		equals: failedMethodPresenter firstReferenceString.
+	self
+		assert: failedMethodPresenter methodSourcePresenter text
+		equals:
+		'aMethodWithVar | variable has already been declared->meth | meth := 1. ^meth'.
+	failedMethodPresenter window close
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassChange [
+
+	| superclassName subclassName failedMethodPresenter |
+	superclassName := 'Foo'.
+	self
+		saveClass: superclassName
+		superclass: 'Object'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+
+	subclassName := 'FooSub'.
+	self
+		saveClass: subclassName
+		superclass: 'Foo'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+
+	self projectsPresenter selectClassNamed: subclassName.
+	self
+		saveMethod: 'aMethodWithVar | meth | meth := 1. ^meth'
+		in: subclassName
+		category: 'other'.
+	self
+		saveMethod: 'methodWithoutVar ^1'
+		in: subclassName
+		category: 'other'.
+
+	self assert: self methodListPresenter items size equals: 2.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'aMethodWithVar'.
+	self
+		assert: self methodListPresenter items last selector
+		equals: 'methodWithoutVar'.
+	self assert: self classListPresenter selectedItem version equals: 1.
+
+	self projectsPresenter selectClassNamed: superclassName.
+	failedMethodPresenter := self
+		                         waitForNew:
+		                         JadeiteFailedCompileMethodListPresenter
+		                         while: [
+			                         self
+				                         saveClass: superclassName
+				                         superclass: 'Object'
+				                         instVars: #( 'meth' )
+				                         package: 'RowanSample1-Tests' ].
+			
+	(Delay forMilliseconds: 250) wait. 
+	self projectsPresenter selectClassNamed: subclassName.
+
+	self assert: self methodListPresenter items size equals: 1.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'methodWithoutVar'.
+	self assert: self classListPresenter selectedItem version equals: 2.
+
+	self projectsPresenter selectClassNamed: superclassName.
+	self assert: self classListPresenter selectedItem version equals: 2.
+	self
+		assert: failedMethodPresenter
+		isKindOf: JadeiteFailedCompileMethodListPresenter.
+	self
+		assert: failedMethodPresenter methodListPresenter items size
+		equals: 1.
+	self
+		assert: failedMethodPresenter methodSourcePresenter text
+		equals:
+		'aMethodWithVar | variable has already been declared->meth | meth := 1. ^meth'.
+	failedMethodPresenter window close
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectInfoTab [
 	"test a few of the values to ensure the format the gui is expecting doesn't change"
 	| mockService items |

@@ -30,7 +30,7 @@ JadeiteFailedCompileMethodListPresenter >> registerMethodPresentersForUpdates [
 JadeiteFailedCompileMethodListPresenter >> registerPresentersForUpdates [
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'selecting' }
 JadeiteFailedCompileMethodListPresenter >> selectFirstReference: methodService [
 
 	methodService ifNil: [ ^ self ].
@@ -55,7 +55,7 @@ JadeiteFailedCompileMethodListPresenter >> shellName [
 	^'Jadeite Failed Compile Method List Browser'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteFailedCompileMethodListPresenter >> updateMethodSource [
 
 	firstReferenceString := self methodListPresenter selectedItem

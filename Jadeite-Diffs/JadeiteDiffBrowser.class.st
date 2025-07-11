@@ -98,5 +98,5 @@ JadeiteDiffBrowser >> rightText: aString [
 { #category : 'accessing' }
 JadeiteDiffBrowser >> shellName [
 
-	^'Difference Browser'
+	^'Jadeite Difference Browser'
 ]
