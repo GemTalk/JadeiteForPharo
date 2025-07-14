@@ -136,8 +136,7 @@ JadeiteBrowser >> connectPresenters [
 
 	super connectPresenters.
 	tabs whenPageRemovedDo: [ :removedPage |
-		tabs pages do: [ :openPage |
-			openPage activePresenter updateSystemTab ] ]
+		tabs pages do: [ :tab | tab updateTitle ] ]
 ]
 
 { #category : 'accessing' }

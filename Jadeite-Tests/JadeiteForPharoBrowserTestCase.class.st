@@ -5,7 +5,8 @@ Class {
 	#name : 'JadeiteForPharoBrowserTestCase',
 	#superclass : 'JadeiteForPharoAbstractBrowserTestCase',
 	#instVars : [
-		'dictionary'
+		'dictionary',
+		'failedMethodPresenter'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -87,13 +88,16 @@ JadeiteForPharoBrowserTestCase >> setUp [
 	self setupProjectBrowser
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> tearDown [
 
+	failedMethodPresenter ifNotNil: [
+		self destroy: failedMethodPresenter ].
 	dictionary ifNotNil: [
 		[ self projectsPresenter removeDictionary ]
 			on: ProvideAnswerNotification
 			do: [ :not | not resume: true ] ].
+
 	super tearDown
 ]
 
@@ -643,6 +647,9 @@ JadeiteForPharoBrowserTestCase >> test_fileIn [
 
 	self projectsPresenter packageListPresenter unselectAll.
 	self
+		selectServiceNamed: 'UnPackaged'
+		in: self projectsPresenter projectListPresenter.
+	self
 		selectServiceNamed: 'UnPackaged-RowanClientServices'
 		in: self projectsPresenter packageListPresenter.
 	classes := self projectsPresenter classListPresenter list.
@@ -653,7 +660,9 @@ JadeiteForPharoBrowserTestCase >> test_fileIn [
 	self assertIsNil: newClass.
 
 	projectsBrowser basicFileInServerFile: path.
-
+	self
+		selectServiceNamed: 'UnPackaged'
+		in: self projectsPresenter projectListPresenter.
 	self
 		selectServiceNamed: 'UnPackaged-RowanClientServices'
 		in: self projectsPresenter packageListPresenter.
@@ -951,7 +960,7 @@ JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 
-	| className failedMethodPresenter |
+	| className |
 	className := 'Foo'.
 	self
 		saveClass: className
@@ -966,7 +975,6 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 		saveMethod: 'methodWithoutVar ^1'
 		in: className
 		category: 'other'.
-
 	self projectsPresenter selectClassNamed: className.
 	self assert: self methodListPresenter items size equals: 2.
 	self
@@ -975,7 +983,6 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 	self
 		assert: self methodListPresenter items last selector
 		equals: 'methodWithoutVar'.
-
 	self assert: self classListPresenter selectedItem version equals: 1.
 	failedMethodPresenter := self
 		                         waitForNew:
@@ -1009,23 +1016,85 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassChange [
+JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarRemoved [
 
-	| superclassName subclassName failedMethodPresenter |
+	| className sources |
+	"We don't know what order the methods will appear in the list. 
+	Test that both expected sources were present. "
+	className := 'Foo'.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Tests'.
+	self
+		saveMethod: 'abc: param abc := param. '
+		in: className
+		category: 'accessing'.
+	self saveMethod: 'abc  ^abc' in: className category: 'accessing'.
+	self projectsPresenter selectClassNamed: className.
+	self assert: self methodListPresenter items size equals: 2.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'abc'.
+	self
+		assert: self methodListPresenter items last selector
+		equals: 'abc:'.
+	self assert: self classListPresenter selectedItem version equals: 1.
+	failedMethodPresenter := self
+		                         waitForNew:
+		                         JadeiteFailedCompileMethodListPresenter
+		                         while: [
+			                         self
+				                         saveClass: className
+				                         superclass: 'Object'
+				                         instVars: #(  )
+				                         package: 'RowanSample1-Tests' ].
+	self assert: self methodListPresenter items size equals: 0.
+	self assert: self classListPresenter selectedItem version equals: 2.
+	self
+		assert: failedMethodPresenter
+		isKindOf: JadeiteFailedCompileMethodListPresenter.
+	self
+		assert: failedMethodPresenter methodListPresenter items size
+		equals: 2.
+	self
+		assert:
+		failedMethodPresenter methodListPresenter items first searchString
+		equals: failedMethodPresenter firstReferenceString.
+	self
+		assert:
+		failedMethodPresenter methodListPresenter selection selectedIndex
+		equals: 1.
+	sources := OrderedCollection new.
+	sources add: failedMethodPresenter methodSourcePresenter text.
+	failedMethodPresenter methodListPresenter adapter widget
+		selectIndex: 1.
+	failedMethodPresenter methodListPresenter adapter widget
+		selectIndex: 2.
+	sources add: failedMethodPresenter methodSourcePresenter text.
+	self assert: (sources includes: 'abc  ^undefined symbol->abc').
+	self assert:
+		(sources includes: 'abc: param undefined symbol->abc := param. ').
+	failedMethodPresenter window close
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassInstVarAddition [
+
+	| superclassName subclassName |
 	superclassName := 'Foo'.
 	self
 		saveClass: superclassName
 		superclass: 'Object'
 		instVars: #(  )
 		package: 'RowanSample1-Tests'.
-
 	subclassName := 'FooSub'.
 	self
 		saveClass: subclassName
 		superclass: 'Foo'
 		instVars: #(  )
 		package: 'RowanSample1-Tests'.
-
 	self projectsPresenter selectClassNamed: subclassName.
 	self
 		saveMethod: 'aMethodWithVar | meth | meth := 1. ^meth'
@@ -1035,7 +1104,6 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassChange
 		saveMethod: 'methodWithoutVar ^1'
 		in: subclassName
 		category: 'other'.
-
 	self assert: self methodListPresenter items size equals: 2.
 	self
 		assert: self methodListPresenter items first selector
@@ -1044,7 +1112,6 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassChange
 		assert: self methodListPresenter items last selector
 		equals: 'methodWithoutVar'.
 	self assert: self classListPresenter selectedItem version equals: 1.
-
 	self projectsPresenter selectClassNamed: superclassName.
 	failedMethodPresenter := self
 		                         waitForNew:
@@ -1055,16 +1122,13 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassChange
 				                         superclass: 'Object'
 				                         instVars: #( 'meth' )
 				                         package: 'RowanSample1-Tests' ].
-			
-	(Delay forMilliseconds: 250) wait. 
+	(Delay forMilliseconds: 250) wait.
 	self projectsPresenter selectClassNamed: subclassName.
-
 	self assert: self methodListPresenter items size equals: 1.
 	self
 		assert: self methodListPresenter items first selector
 		equals: 'methodWithoutVar'.
 	self assert: self classListPresenter selectedItem version equals: 2.
-
 	self projectsPresenter selectClassNamed: superclassName.
 	self assert: self classListPresenter selectedItem version equals: 2.
 	self
@@ -1077,6 +1141,70 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassChange
 		assert: failedMethodPresenter methodSourcePresenter text
 		equals:
 		'aMethodWithVar | variable has already been declared->meth | meth := 1. ^meth'.
+	failedMethodPresenter window close
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassInstVarRemoval [
+
+	| superclassName subclassName |
+	superclassName := 'Foo'.
+	self
+		saveClass: superclassName
+		superclass: 'Object'
+		instVars: #( 'meth' )
+		package: 'RowanSample1-Tests'.
+	subclassName := 'FooSub'.
+	self
+		saveClass: subclassName
+		superclass: 'Foo'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self projectsPresenter selectClassNamed: subclassName.
+	self
+		saveMethod: 'aMethodWithVar meth := 1. ^meth'
+		in: subclassName
+		category: 'other'.
+	self
+		saveMethod: 'methodWithoutVar ^1'
+		in: subclassName
+		category: 'other'.
+	self assert: self methodListPresenter items size equals: 2.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'aMethodWithVar'.
+	self
+		assert: self methodListPresenter items last selector
+		equals: 'methodWithoutVar'.
+	self assert: self classListPresenter selectedItem version equals: 1.
+	self projectsPresenter selectClassNamed: superclassName.
+	failedMethodPresenter := self
+		                         waitForNew:
+		                         JadeiteFailedCompileMethodListPresenter
+		                         while: [
+			                         self
+				                         saveClass: superclassName
+				                         superclass: 'Object'
+				                         instVars: #(  )
+				                         package: 'RowanSample1-Tests' ].
+	(Delay forMilliseconds: 250) wait.
+	self projectsPresenter selectClassNamed: subclassName.
+	self assert: self methodListPresenter items size equals: 1.
+	self
+		assert: self methodListPresenter items first selector
+		equals: 'methodWithoutVar'.
+	self assert: self classListPresenter selectedItem version equals: 2.
+	self projectsPresenter selectClassNamed: superclassName.
+	self assert: self classListPresenter selectedItem version equals: 2.
+	self
+		assert: failedMethodPresenter
+		isKindOf: JadeiteFailedCompileMethodListPresenter.
+	self
+		assert: failedMethodPresenter methodListPresenter items size
+		equals: 1.
+	self
+		assert: failedMethodPresenter methodSourcePresenter text
+		equals: 'aMethodWithVar undefined symbol->meth := 1. ^meth'.
 	failedMethodPresenter window close
 ]
 
@@ -1441,6 +1569,77 @@ JadeiteForPharoBrowserTestCase >> test_setCurrentProject [
 	self projectsPresenter unsetCurrentProject.
 	self assert: rowanProjectService displayName equals: 'Rowan'.
 	self deny: rowanProjectService isCurrent
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_titleChangedAfterTabRemoved [
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	projectsBrowser openBrowserTab.
+	projectsBrowser findClassService:
+		(RowanClassService new name: 'AbstractFileReference').
+	self
+		assert: projectsBrowser tabs pages first title
+		equals: '1 RowanClientServices'.
+	self
+		assert: projectsBrowser tabs pages last title
+		equals: '2 AbstractFileReference'.
+	self assert: projectsBrowser tabs pages size equals: 2.
+	projectsBrowser openBrowserTab.
+	projectsBrowser findClassService:
+		(RowanClassService new name: 'Collection').
+	self assert: projectsBrowser tabs pages size equals: 3.
+	self
+		assert: projectsBrowser tabs pages first title
+		equals: '1 RowanClientServices'.
+	self
+		assert: projectsBrowser tabs pages second title
+		equals: '2 AbstractFileReference'.
+	self
+		assert: projectsBrowser tabs pages last title
+		equals: '3 Collection'.
+	projectsBrowser openBrowserTab.
+	projectsBrowser findClassService:
+		(RowanClassService new name: 'CypressError').
+	self
+		assert: projectsBrowser tabs pages first title
+		equals: '1 RowanClientServices'.
+	self
+		assert: projectsBrowser tabs pages second title
+		equals: '2 AbstractFileReference'.
+	self
+		assert: projectsBrowser tabs pages third title
+		equals: '3 Collection'.
+	self
+		assert: projectsBrowser tabs pages last title
+		equals: '4 CypressError'.
+
+	"remove tabs"
+	projectsBrowser tabs removePageAt: 1.
+	self
+		assert: projectsBrowser tabs pages first title
+		equals: '1 AbstractFileReference'.
+	self
+		assert: projectsBrowser tabs pages second title
+		equals: '2 Collection'.
+	self
+		assert: projectsBrowser tabs pages last title
+		equals: '3 CypressError'.
+
+	projectsBrowser tabs removePageAt: 1.
+	self
+		assert: projectsBrowser tabs pages first title
+		equals: '1 Collection'.
+	self
+		assert: projectsBrowser tabs pages last title
+		equals: '2 CypressError'.
+
+	projectsBrowser tabs removePageAt: 1.
+	self
+		assert: projectsBrowser tabs pages last title
+		equals: '1 CypressError'
 ]
 
 { #category : 'tests' }

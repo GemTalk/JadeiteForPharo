@@ -148,12 +148,6 @@ JadeiteSUnitInClassPresenter >> moveCardRight [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitInClassPresenter >> newBrowser [
-
-	^parentPresenter newBrowser
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitInClassPresenter >> onViewOpened [
 	super onViewOpened. 
 	self registerPresentersForUpdates.

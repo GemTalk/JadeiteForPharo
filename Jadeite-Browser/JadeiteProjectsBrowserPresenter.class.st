@@ -325,14 +325,6 @@ JadeiteProjectsBrowserPresenter >> methodSourcePresenter: anObject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> newBrowser [
-	| classService selector |
-	classService := self selectedClass.
-	selector := methodListPresenter selectionOrNil ifNotNil: [:methodService | methodService selector].
-	^self openProjectBrowserOn: classService selector: selector
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> onSetFocus: aView stack: aString [
 
 	"no need for constant trips to the server"

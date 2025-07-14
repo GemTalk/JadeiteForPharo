@@ -25,3 +25,9 @@ JadeiteNotebookPage >> newLabelPresenterFor: ownerPresenter [
 		instantiate: JadeiteNotebookPageLabelPresenter 
 		on: self
 ]
+
+{ #category : 'updates' }
+JadeiteNotebookPage >> updateTitle [
+
+	self title: self activePresenter projectTabLabel
+]
