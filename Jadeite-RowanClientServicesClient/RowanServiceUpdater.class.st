@@ -71,7 +71,7 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	postExecutionBlock := [ :aService |
 	                      [
 	                      [
-	                      self possibleSignalCompileError: aService.
+	                      self possiblySignalCompileError: aService.
 	                      self applyUpdates: aService.
 	                      aService handleServiceCompletion ]
 		                      ifCurtailed: [ aService inCommand signal ].
@@ -398,7 +398,7 @@ RowanServiceUpdater >> performUpdate: updateBlock with: selector [
 ]
 
 { #category : 'commands' }
-RowanServiceUpdater >> possibleSignalCompileError: service [
+RowanServiceUpdater >> possiblySignalCompileError: service [
 
 	service returnedServices do: [ :svc | svc signalCompileError ]
 ]
