@@ -40,8 +40,13 @@ JadeiteForPharoDebuggerTestCase >> setUp [
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> tearDown [
 
+	projectsBrowser ifNotNil: [
+		self projectsPresenter ifNotNil: [ :presenter |
+			presenter methodSourcePresenter adapter ifNotNil: [ :a |
+				a widget hasUnacceptedEdits: false ] ] ].
+	self destroy: projectsBrowser.
 	self destroy: debugger.
-	JadeiteConnectionProfile connectionProfile disconnect. 
+	JadeiteConnectionProfile connectionProfile disconnect
 ]
 
 { #category : 'tests' }
@@ -85,6 +90,7 @@ JadeiteForPharoDebuggerTestCase >> test_fileInError [
 		'Hard hang on filein with method class set to unknown class name'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/295'.
 
+	projectsBrowser := JadeiteConsole currentConsole openBrowser.
 	RowanServiceUpdater current singleThreaded: true.
 	fileContents := 'method BananaSkidoo
 testingFileinIssuePleaseIgnore
@@ -99,8 +105,7 @@ testingFileinIssuePleaseIgnore
 		flush.
 	[
 	self assert: fileRef exists.
-	[ JadeiteConsole currentConsole basicFileInServerFile: fileName ]
-		fork.
+	[ projectsBrowser basicFileInServerFile: fileName ] fork.
 	self waitForDebugger.
 	self assert: debugger isKindOf: JadeiteDebuggerPresenter.
 	self assert:
