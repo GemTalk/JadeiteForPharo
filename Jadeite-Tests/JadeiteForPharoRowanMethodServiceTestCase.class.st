@@ -46,3 +46,35 @@ JadeiteForPharoRowanMethodServiceTestCase >> test_methodServiceReplication [
 					assert: (replicatedService instVarAt: index)
 					equals: (service instVarAt: index) ] "semaphore" ] ]
 ]
+
+{ #category : 'tests' }
+JadeiteForPharoRowanMethodServiceTestCase >> test_methodServiceReplicationIndices [
+	"Inst var lookups are slower than indexed lookups
+	so RowanClientServices replication uses indexes. 
+	This can be broken when new inst vars are added. 
+	Test that indexes actually represent the inst vars intended."
+
+	| methodService theClass |
+	theClass := RowanMethodServiceClient.
+	methodService := theClass new.
+	self
+		assert: (theClass methodDictionary keys select: [ :key |
+				 'indexOf*' match: key ]) size
+		equals: 6.
+	self
+		assert:
+		(theClass allInstVarNames at: methodService indexOfInCommandInstVar)
+		equals: #inCommand.
+	self
+		assert: (theClass allInstVarNames at:
+				 methodService indexOfFirstReferenceInstVar)
+		equals: #firstReference.
+	self
+		assert:
+		(theClass allInstVarNames at: methodService indexOfTestResultInstVar)
+		equals: #testResult.
+	self
+		assert: (theClass allInstVarNames at:
+				 methodService indexOfServiceCompletionBlock)
+		equals: #serviceCompletionBlock
+]

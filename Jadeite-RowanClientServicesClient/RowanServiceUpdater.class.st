@@ -71,17 +71,17 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	postExecutionBlock := [ :aService |
 	                      [
 	                      [
-	                      self possiblySignalCompileError: aService.
-	                      self applyUpdates: aService.
-	                      aService handleServiceCompletion ]
-		                      ifCurtailed: [ aService inCommand signal ].
-	                      aService inCommand signal ]
+	                      self possiblySignalCompileError: service.
+	                      self applyUpdates: service.
+	                      service handleServiceCompletion ] ifCurtailed: [
+		                      service inCommand signal ].
+	                      service inCommand signal ]
 		                      on: GsCompileError
 		                      do: [ :ex |
-			                      aService handleCompileError: ex.
-			                      aService inCommand signal.
-			                      self stopCommandProgressBar: aService ].
-	                      self stopCommandProgressBar: aService ].
+			                      service handleCompileError: ex.
+			                      service inCommand signal.
+			                      self stopCommandProgressBar: service ].
+	                      self stopCommandProgressBar: service ].
 
 	service
 		executeInSession: GciSession current

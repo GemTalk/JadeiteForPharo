@@ -28,27 +28,27 @@ JadeiteForPharoRowanClassServiceTestCase >> test_classServiceReplicationIndices 
 	This can be broken when new inst vars are added. 
 	Test that indexes actually represent the inst vars intended."
 
-	| methodService theClass |
+	| classService theClass |
 	theClass := RowanClassServiceClient.
-	methodService := theClass new.
+	classService := theClass new.
 	self
 		assert: (theClass methodDictionary keys select: [ :key |
 				 'indexOf*' match: key ]) size
 		equals: 4.
 	self
 		assert:
-		(theClass allInstVarNames at: methodService indexOfInCommandInstVar)
+		(theClass allInstVarNames at: classService indexOfInCommandInstVar)
 		equals: #inCommand.
 	self
 		assert: (theClass allInstVarNames at:
-				 methodService indexOfServiceCompletionBlock)
+				 classService indexOfServiceCompletionBlock)
 		equals: #serviceCompletionBlock.
 	self
 		assert:
-		(theClass allInstVarNames at: methodService indexOfMetaInstVar)
+		(theClass allInstVarNames at: classService indexOfMetaInstVar)
 		equals: #meta.
 	self
 		assert:
-		(theClass allInstVarNames at: methodService indexOfMethodsInstVar)
+		(theClass allInstVarNames at: classService indexOfMethodsInstVar)
 		equals: #methods
 ]
