@@ -287,7 +287,7 @@ JadeiteForPharoInspectorTestCase >> test_canDiscardSelectionEdits [
 JadeiteForPharoInspectorTestCase >> test_caption [
 
 	self openWorkspaceAndInspect: '123'.
-	self assert: ('Inspector on SmallInteger for*' match: inspector owner title).
+	self assert: ('Jadeite Inspector on SmallInteger for*' match: inspector owner title).
 ]
 
 { #category : 'tests' }
@@ -299,26 +299,26 @@ JadeiteForPharoInspectorTestCase >> test_captionChange [
 		withTitle: 'Change inspector title on dive #154'.
 	self openWorkspaceAndInspect:
 		'Array with: (Dictionary new at: #oc put: (OrderedCollection with: #leaf); yourself)'.
-	self assert: ('Inspector on Array for*' match: inspector caption).
+	self assert: ('Jadeite Inspector on Array for*' match: inspector caption).
 	self diveAt: 3.
 	self assert:
-		('Inspector on Dictionary for*' match: inspector caption).
+		('Jadeite Inspector on Dictionary for*' match: inspector caption).
 	ocIndex := inspector instVarListPresenter list indexOf:
 		           (inspector instVarListPresenter list detect: [ :item |
 			            item first = '#''oc''' ]).
 	self diveAt: ocIndex.
 	self assert:
-		('Inspector on OrderedCollection for*' match: inspector caption).
+		('Jadeite Inspector on OrderedCollection for*' match: inspector caption).
 	self diveAt: 3.
-	self assert: ('Inspector on Symbol for*' match: inspector caption).
+	self assert: ('Jadeite Inspector on Symbol for*' match: inspector caption).
 	inspector getPreviousObject.
 	self assert:
-		('Inspector on OrderedCollection for*' match: inspector caption).
+		('Jadeite Inspector on OrderedCollection for*' match: inspector caption).
 	inspector getPreviousObject.
 	self assert:
-		('Inspector on Dictionary for*' match: inspector caption).
+		('Jadeite Inspector on Dictionary for*' match: inspector caption).
 	inspector getPreviousObject.
-	self assert: ('Inspector on Array for*' match: inspector caption)
+	self assert: ('Jadeite Inspector on Array for*' match: inspector caption)
 ]
 
 { #category : 'tests' }
