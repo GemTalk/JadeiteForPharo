@@ -523,6 +523,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 		                            while: [
 		                            methodListBrowser editSaveMethod ].
 	[
+	self methodSourcePresenter hasUnacceptedEdits: false. 
 	self
 		assert: newCompiledMethodBrowser methodListPresenter items size
 		equals: 1.
@@ -561,6 +562,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 		                            while: [
 		                            methodListBrowser editSaveMethod ].
 	[
+	self methodSourcePresenter hasUnacceptedEdits: false. 
 	self
 		assert: newCompiledMethodBrowser methodListPresenter items size
 		equals: 1.
