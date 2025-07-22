@@ -1647,6 +1647,16 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	instanceRadioButton := self newRadioButton label: 'Instance'.
 	classRadioButton := self newRadioButton label: 'Class'.
 	instanceRadioButton associatedRadioButtons: { classRadioButton }.
+
+	backButton := self newButton
+		              icon: (self iconNamed: #glamorousLeft);
+		              help: 'Method Navigation Back';
+		              action: [ self historyBack ].
+	forwardButton := self newButton
+		                 icon: (self iconNamed: #glamorousRight);
+		                 help: 'Method Navigation Forward';
+		                 action: [ self historyForward ].
+
 	radioButtonBox
 		add: instanceRadioButton;
 		add: classRadioButton;
@@ -1654,7 +1664,12 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 				 icon: (self iconNamed: #smallCopy);
 				 action: [ self copyMethodSelectors ];
 				 help: 'Copy Selector String')
-		withConstraints: [ :constraints | constraints width: 30 ].
+		withConstraints: [ :constraints | constraints width: 30 ];
+		add: backButton
+		withConstraints: [ :c |
+		c width: 3 * StandardFonts defaultFont pointSize ];
+		add: forwardButton withConstraints: [ :c | c width: 30 ].
+
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 3 * StandardFonts defaultFont pointSize ].
 	self initializeDefinedMethodPackageText: methodsBox.
@@ -1670,19 +1685,6 @@ JadeiteBrowserPresenter >> initializeMethodListHeader: methodColumn [
 	methodCategoryText := SpTextPresenter new beNotEditable.
 	methodCategoryText addStyle: 'jadeiteTextBackgroundColor'.
 	methodTopBox add: methodCategoryText.
-	backButton := self newButton
-		              icon: (self iconNamed: #glamorousLeft);
-		              help: 'Method Navigation Back';
-		              action: [ self historyBack ].
-	methodTopBox
-		add: backButton
-		withConstraints: [ :c |
-		c width: 3 * StandardFonts defaultFont pointSize ].
-	forwardButton := self newButton
-		                 icon: (self iconNamed: #glamorousRight);
-		                 help: 'Method Navigation Forward';
-		                 action: [ self historyForward ].
-	methodTopBox add: forwardButton withConstraints: [ :c | c width: 30 ].
 	methodColumn
 		add: methodTopBox
 		withConstraints: [ :c |
