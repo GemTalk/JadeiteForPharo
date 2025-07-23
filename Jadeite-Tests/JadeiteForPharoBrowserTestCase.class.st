@@ -501,6 +501,32 @@ JadeiteForPharoBrowserTestCase >> test_currentPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_currentPackageFirstInMoveList [
+
+	| browserService packageServices first |
+	self projectsPresenter unsetCurrentProject.
+	self selectRowanAnsweringService.
+	browserService := RowanBrowserService new
+		                  command: #allPackages;
+		                  commandArgs: Array new.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: session
+		onCompletion: [ :svc |
+			packageServices := projectsBrowser packageListForSearchDialog: svc ].
+	first := packageServices first.
+	projectsBrowser setCurrentPackage.
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: session
+		onCompletion: [ :svc |
+			packageServices := projectsBrowser packageListForSearchDialog: svc ].
+	self assert: packageServices first name equals: 'Rowan-Services-Core'.
+	self deny: packageServices first equals: first.
+	self projectsPresenter unsetCurrentProject
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_currentProject [
 
 	self

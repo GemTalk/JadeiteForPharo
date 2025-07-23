@@ -148,18 +148,13 @@ JadeiteBrowser >> currentCard [
 { #category : 'accessing' }
 JadeiteBrowser >> currentPackage [
 
-	^ self currentProject ifNotNil: [ :projectService |
-		  projectService packageServices
-			  detect: [ :packageService | packageService isCurrent ]
-			  ifNone: [  ] ]
+	^ self activePresenter currentPackage
 ]
 
 { #category : 'accessing' }
 JadeiteBrowser >> currentProject [
 
-	^ self projectListPresenter list
-		  detect: [ :projectService | projectService isCurrent ]
-		  ifNone: [  ]
+	^ self activePresenter currentPackage
 ]
 
 { #category : 'layout' }
@@ -422,7 +417,7 @@ JadeiteBrowser >> postOpenBlock: anObject [
 { #category : 'accessing' }
 JadeiteBrowser >> projectListPresenter [
 
-	^(tabs pages at: tabs selectedPageIndex) activePresenter projectListPresenter 
+	^ self activePresenter projectListPresenter
 ]
 
 { #category : 'testing' }

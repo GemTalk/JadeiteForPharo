@@ -182,26 +182,8 @@ JadeiteClassTrait >> findPackageAndMoveToPackage [
 		issueCommand: browserService
 		session: self gciSession
 		onCompletion: [
-			packageServices := browserService projects
-				                   inject:
-				                   (SortedCollection sortBlock: [ :x :y |
-					                    x name < y name ])
-				                   into: [ :coll :projectService |
-					                   coll addAll: projectService packages.
-					                   coll ].
-			dialogWindow := JadeiteSearchDialogWindow new
-				                getList: [ :rxMatcher |
-					                packageServices select: [ :thePackageService |
-							                rxMatcher isString
-								                ifTrue: [
-									                rxMatcher , '*' match: thePackageService name ]
-								                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-									                rxMatcher matchesPrefix:
-											                thePackageService name ] ] ];
-				                displayBlock: [ :e | e name ];
-				                doubleClickOk;
-				                title: 'Jadeite Find Package';
-				                yourself.
+			packageServices := self packageListForSearchDialog: browserService.
+			dialogWindow := self packageSearchDialogFor: packageServices.
 			packageService := dialogWindow chooseFromOwner: self currentWorld.
 			packageService ifNotNil: [
 				self moveClassToPackageNamed: packageService name ] ]
@@ -295,4 +277,36 @@ JadeiteClassTrait >> openClassSelectionDialogOn: classNames [
 		                title: 'Jadeite Regex Find ' , 'Class';
 		                yourself.
 	^ dialogWindow chooseFromOwner: self currentWorld
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> packageListForSearchDialog: browserService [
+
+	| packageServices |
+	packageServices := browserService projects
+		                   inject:
+		                   (SortedCollection sortBlock: [ :x :y |
+			                    x name < y name ])
+		                   into: [ :coll :projectService |
+			                   coll addAll: projectService packages.
+			                   coll ].
+	packageServices := packageServices asOrderedCollection.
+	self currentPackage ifNotNil: [ :pkg | packageServices addFirst: pkg ].
+	^ packageServices
+]
+
+{ #category : 'private' }
+JadeiteClassTrait >> packageSearchDialogFor: packageServices [
+
+	^ JadeiteSearchDialogWindow new
+		  getList: [ :rxMatcher |
+			  packageServices select: [ :thePackageService |
+					  rxMatcher isString
+						  ifTrue: [ rxMatcher , '*' match: thePackageService name ]
+						  ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+							  rxMatcher matchesPrefix: thePackageService name ] ] ];
+		  displayBlock: [ :e | e displayName ];
+		  doubleClickOk;
+		  title: 'Jadeite Find Package';
+		  yourself
 ]

@@ -891,6 +891,23 @@ JadeiteBrowserPresenter >> currentMethodSourceFrom: sourceString [
 
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> currentPackage [
+
+	^ self currentProject ifNotNil: [ :projectService |
+		  projectService packageServices
+			  detect: [ :packageService | packageService isCurrent ]
+			  ifNone: [  ] ]
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> currentProject [
+
+	^ self projectListPresenter list
+		  detect: [ :projectService | projectService isCurrent ]
+		  ifNone: [  ]
+]
+
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> debugMethodTests: methodServices [
 
@@ -2224,7 +2241,7 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 		methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
-{ #category : 'initialization' }
+{ #category : 'actions' }
 JadeiteBrowserPresenter >> moveMethodsToPackageFilterUsing: transfer [
 
 	| packageName |
