@@ -932,6 +932,26 @@ JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
+	"ctrl-b"
+	| widget editor | 
+	self selectRowanAnsweringService.
+	self selectMethodNamed: #updateServices:.
+	self
+		assert: self methodSourcePresenter text asString replaceLfWithCr
+		equals: 'updateServices: services
+	services
+		do: [ :service | 
+			service update.
+			RowanCommandResult addResult: service ]'.
+	widget := self methodSourcePresenter adapter widget.
+	editor := widget scrollPane textArea editor.
+	self methodSourcePresenter adapter widget selectFrom: 82 to: 82.
+	editor browseIt: nil. 
+	self halt. 
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_isCurrentProjectAndPackageSet [
 
 	| selectedProject selectedPackage |

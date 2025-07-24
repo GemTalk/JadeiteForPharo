@@ -26,6 +26,8 @@ JadeiteBrowseCommand >> browseMenuItemName [
 	selectionInterval := self context selectionInterval.
 	p := self context adapter widget paragraph characterBlockAtPoint:
 		     self lastClickPosition.
+	p stringIndex = 1 ifTrue: [ ^ 'it' ].
+	p stringIndex >= self context text size ifTrue: [ ^ 'it' ].
 	self context adapter widget textArea markBlock: p pointBlock: p.
 	self context adapter widget textArea editor selectWord.
 	selectedText := self context selectedText.

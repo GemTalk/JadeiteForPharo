@@ -105,6 +105,12 @@ JadeiteSmalltalkEditor >> application [
 	^JadeiteApplication new
 ]
 
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> basicInspectIt [
+	"Pharo shortcut not used in JfP"
+	^true
+]
+
 { #category : 'new selection' }
 JadeiteSmalltalkEditor >> beginningOfLine [
 	^(self encompassJadeiteParagraph: self selectionInterval) first. 
@@ -127,9 +133,28 @@ JadeiteSmalltalkEditor >> browseClassOfExpression [
 
 { #category : 'editing keys' }
 JadeiteSmalltalkEditor >> browseIt: aKeyboardEvent [
-	"do nothing for now. Might want to integrate JadeiteBrowseClassCommand someday"
 
-	
+	| classService selectedClassName node |
+	self selection size > 1
+		ifTrue: [ selectedClassName := self selection ]
+		ifFalse: [
+			node := self selectedNode.
+			node isMessage ifTrue: [
+				^ self uiManager alert: 'Invalid class name selected' ].
+			selectedClassName := self selectedNode name asString ].
+	selectedClassName first isUppercase ifFalse: [
+		^ self uiManager alert:
+			  selectedClassName , ' is not a valid class name' ].
+	classService := RowanClassService new name: selectedClassName.
+	classService meta: false.
+	self updateService: classService onCompletion: [
+		self openBrowserOn: self postOpen: [ :browserPresenter |
+			self halt. 
+			browserPresenter
+				updateAfterFindClass: classService
+				methodService: nil
+				onCompletion: [  ] ] ].
+	^ true
 ]
 
 { #category : 'menu messages' }
@@ -209,6 +234,18 @@ JadeiteSmalltalkEditor >> cursorHome: aKeyboardEvent [
 	^ true
 ]
 
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> debugIt: aKeyboardEvent [
+	"Pharo shortcut not used in JfP"
+	^true
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> doIt: aKeyboardEvent [
+	"Pharo shortcut not used in JfP"
+	^true
+]
+
 { #category : 'new selection' }
 JadeiteSmalltalkEditor >> encompassJadeiteParagraph: anInterval [
 
@@ -219,6 +256,12 @@ JadeiteSmalltalkEditor >> encompassJadeiteParagraph: anInterval [
 JadeiteSmalltalkEditor >> endOfLine [
 
 	^ (self encompassJadeiteParagraph: self selectionInterval) last
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> formatMethodCode [
+	"Pharo shortcut not used in JfP"
+	^true
 ]
 
 { #category : 'accessing' }
@@ -237,6 +280,14 @@ JadeiteSmalltalkEditor >> gciSession: anObject [
 JadeiteSmalltalkEditor >> implementorsOf: aSelector [
 
 	self browseImplementorsOf: aSelector
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> implementorsOfIt: aKeyboardEvent [
+	"My model is the sp adaptor whose model is the sp method source pane"
+
+	self browseImplementorsOf: self model model selectedSelector.
+	^ true
 ]
 
 { #category : 'private' }
@@ -339,6 +390,12 @@ JadeiteSmalltalkEditor >> inspectIt [
 	self halt.
 ]
 
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> inspectIt: aKeyboardEvent [
+	"Pharo shortcut not used in JfP"
+	^true
+]
+
 { #category : 'private' }
 JadeiteSmalltalkEditor >> lineStart: position [
 	"The offset of the start of the line of `postion`"
@@ -373,11 +430,10 @@ JadeiteSmalltalkEditor >> lines [
 	^lines
 ]
 
-{ #category : 'menu messages' }
+{ #category : 'editing keys' }
 JadeiteSmalltalkEditor >> methodCaseSensitiveStringsContainingIt [
-	self lineSelectAndEmptyCheck: [ ^ self ].
-	self browseLiteralReferences: self selection string
-	
+	"Pharo shortcut not used in JfP"
+	^true
 ]
 
 { #category : 'menu messages' }
@@ -393,6 +449,16 @@ JadeiteSmalltalkEditor >> methodSourceContainingIt [
 	self lineSelectAndEmptyCheck: [ ^ self ].
 	self browseMethodsContaining: self selection string
 	
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> methodStringsContainingIt: aKeyboardEvent [
+	"My model is the sp adaptor whose model is the sp method source pane"
+
+	| sel |
+	sel := self selectedSymbol ifNil: [ self selection ].
+	self model model doBrowseMethodsContainingString: sel asString.
+	^ true
 ]
 
 { #category : 'menu messages' }
@@ -531,10 +597,40 @@ JadeiteSmalltalkEditor >> previousWord: position stopOnUpperCase: stopOnUpperCas
 	^ index
 ]
 
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> printIt [
+	"Pharo shortcut not used in JfP"
+	^true
+]
+
 { #category : 'menu messages' }
 JadeiteSmalltalkEditor >> referencesTo: className [
 
 	self browseClassReferences: className
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> referencesToIt: aKeyboardEvent [
+
+	| selectedClassName node |
+	self selection size > 1
+		ifTrue: [ selectedClassName := self selection asString ]
+		ifFalse: [
+			node := self selectedNode.
+			node isMessage ifTrue: [
+				^ self uiManager alert: 'Invalid class name selected' ].
+			selectedClassName := self selectedNode name asString ].
+	selectedClassName first isUppercase ifFalse: [
+		^ self uiManager alert:
+			  selectedClassName , ' is not a valid class name' ].
+	self browseClassReferences: selectedClassName.
+	^ true
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> selectedNode [
+
+	^ self bestNodeInTextAreaOnError: [ String new ]
 ]
 
 { #category : 'private' }
@@ -564,4 +660,12 @@ JadeiteSmalltalkEditor >> sendersOfIt [
 	(selectedSelector := self selectedSelector) ifNil: [
 		^ textArea flash ].
 	self sendersOf: selectedSelector
+]
+
+{ #category : 'editing keys' }
+JadeiteSmalltalkEditor >> sendersOfIt: aKeyboardEvent [
+	"My model is the sp adaptor whose model is the sp method source pane"
+
+	self browseSendersOf: self model model selectedSelector.
+	^ true
 ]
