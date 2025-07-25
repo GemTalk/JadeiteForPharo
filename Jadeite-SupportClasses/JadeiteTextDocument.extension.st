@@ -4,7 +4,6 @@ Extension { #name : 'JadeiteTextDocument' }
 JadeiteTextDocument class >> buildCommandsGroupWith: presenter forRoot: aCmCommandsGroup [
 
 	super buildCommandsGroupWith: presenter forRoot: aCmCommandsGroup.
-	self registerFileActionsWithCommandGroup: aCmCommandsGroup.
 	self
 		registerSourceActionsWithCommandGroup: aCmCommandsGroup
 		presenter: presenter
@@ -63,20 +62,6 @@ JadeiteTextDocument >> filename [
 { #category : '*Jadeite-SupportClasses' }
 JadeiteTextDocument >> parentPresenter [ 
 	^application 
-]
-
-{ #category : '*Jadeite-SupportClasses' }
-JadeiteTextDocument class >> registerFileActionsWithCommandGroup: commandGroup [
-
-	| group |
-	group := (CmCommandGroup named: 'File actions') asSpecGroup
-		         description: 'Perform file operations';
-		         yourself.
-
-	group register: JadeiteFileInServerFileCommand forSpec.
-	group register: JadeiteFileInSelectedTextCommand forSpec.
-
-	commandGroup register: group
 ]
 
 { #category : '*Jadeite-SupportClasses' }

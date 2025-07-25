@@ -154,9 +154,7 @@ RowanServiceUpdater >> basicIssueCommand: service [
 	(service isInCommand and: [ singleThreaded not ]) ifTrue: [ ^ self ].
 	(singleThreaded and: [ service notAlwaysForked ])
 		ifTrue: [
-			serviceQueueSemaphore critical: [
-				self _basicIssueCommand: service.
-				WorldMorph doOneCycle ] ]
+			serviceQueueSemaphore critical: [ self _basicIssueCommand: service ] ]
 		ifFalse: [
 			[ self _basicIssueCommand: service ] fork.
 			Processor yield ]
@@ -191,8 +189,7 @@ RowanServiceUpdater >> commandCompleted: service [
 	self commandsStarted remove: service ifAbsent: [  ].
 	self commandsStarted ifEmpty: [
 		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
-			:window | window presenter showNotWait ].
-		WorldMorph doOneCycle ]
+			:window | window presenter showNotWait ] ]
 ]
 
 { #category : 'accessing' }

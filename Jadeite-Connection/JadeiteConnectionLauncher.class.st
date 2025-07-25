@@ -19,7 +19,9 @@ Class {
 		'availableConnectionPresenter',
 		'displayFullPath',
 		'portText',
-		'selectedProfile'
+		'selectedProfile',
+		'connectionBox',
+		'nonConnectionBox'
 	],
 	#classVars : [
 		'ConnectionProfile',
@@ -498,7 +500,8 @@ JadeiteConnectionLauncher >> initializeAboutMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 
-	self layout add: (self newLabel label: 'Imported Connections List:').
+	nonConnectionBox add:
+		(self newLabel label: 'Imported Connections List:') height: 30.
 	availableConnectionPresenter := JadeiteListPresenter new
 		                                display: [ :filePath |
 			                                displayFullPath value
@@ -507,7 +510,7 @@ JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 					                                self shortPathFor: filePath ] ];
 		                                contextMenu:
 			                                self initializeConnectionsMenu.
-	self layout add: availableConnectionPresenter height: 100.
+	nonConnectionBox add: availableConnectionPresenter.
 	availableConnectionPresenter model: self class importedConnections
 ]
 
@@ -533,19 +536,22 @@ JadeiteConnectionLauncher >> initializeButtons [
 JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 
 	| pathBox |
-	pathBox := SpBoxLayout newHorizontal.
+	pathBox := SpBoxLayout newVertical.
 	pathBox add: (self newLabel label: 'Client Libraries Path:').
 	setPathButton := self newButton
 		                 label: 'Set Path';
 		                 icon: (self iconNamed: #smallHome);
 		                 action: [ self setPath ].
+
+
+	pathText := self newTextInput beNotEditable.
+	pathBox add: pathText.
 	pathBox
 		add: setPathButton
 		withConstraints: [ :constraints1 | constraints1 padding: 5 ].
-	self layout add: pathBox.
-
-	pathText := self newTextInput beNotEditable.
-	self layout add: pathText
+	nonConnectionBox
+		add: pathBox
+		withConstraints: [ :constraints | constraints height: 90 ]
 ]
 
 { #category : 'initialization' }
@@ -606,9 +612,9 @@ JadeiteConnectionLauncher >> initializeFileMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeHostPresenter [
 
-	self layout add: (self newLabel label: 'Host:').
+	connectionBox add: (self newLabel label: 'Host:').
 	hostText := JadeiteTextInputFieldPresenter new.
-	self layout add: hostText
+	connectionBox add: hostText
 ]
 
 { #category : 'initialization' }
@@ -635,25 +641,26 @@ JadeiteConnectionLauncher >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeNetldiPresenter [
 
-	self layout add: (self newLabel label: 'Netldi:').
+	connectionBox add: (self newLabel label: 'Netldi:').
 	netldiText := JadeiteTextInputFieldPresenter new.
-	self layout add: netldiText
+	connectionBox add: netldiText
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePasswordPresenter [
 
-	self layout add: (self newLabel label: 'Password:').
+	connectionBox add: (self newLabel label: 'Password:').
 	passwordText := JadeiteTextInputFieldPresenter new bePassword.
-	self layout add: passwordText
+	connectionBox add: passwordText
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePortNumber [
 
-	self layout add: (self newLabel label: 'Fixed Port (leave blank for wildcard port)').
+	connectionBox add:
+		(self newLabel label: 'Fixed Port (leave blank for wildcard port)').
 	portText := JadeiteTextInputFieldPresenter new.
-	self layout add: portText
+	connectionBox add: portText
 ]
 
 { #category : 'initialization' }
@@ -668,27 +675,51 @@ JadeiteConnectionLauncher >> initializePresenter [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializePresenters [
 
+	| box label connectionLabelBox nonConnectionLabelBox |
 	super initializePresenters.
+	box := SpBoxLayout newHorizontal.
+	connectionBox := SpBoxLayout newVertical.
+	connectionLabelBox := SpBoxLayout newHorizontal hAlignCenter.
+	label := self newLabel
+		         label: 'Connection';
+		         help:
+			         'The values in the left column can be exported to disk'.
+	connectionLabelBox add: label.
+	connectionBox add: connectionLabelBox.
 	self initializeHostPresenter.
 	self initializeStonePresenter.
 	self initializeUserPresenter.
 	self initializePasswordPresenter.
 	self initializeVersionPresenter.
 	self initializeNetldiPresenter.
+	self initializePortNumber.
+	box
+		add: connectionBox
+		withConstraints: [ :constraints | constraints padding: 5 ].
+	nonConnectionBox := SpBoxLayout newVertical.
+	connectionBox := SpBoxLayout newVertical.
+	nonConnectionLabelBox := SpBoxLayout newHorizontal hAlignCenter.
+	label := self newLabel
+		         label: 'Non Connection';
+		         help: 'The values in the right column are not exported'.
+	nonConnectionLabelBox add: label.
+	nonConnectionBox add: nonConnectionLabelBox height: 30.
 	self initializeClientLibPathPresenter.
-	self initializePortNumber. 
-	self initializeAvailableConnectionPresenter. 
-	self initializeButtons. 
+	self initializeAvailableConnectionPresenter.
+	box
+		add: nonConnectionBox
+		withConstraints: [ :constraints | constraints padding: 5 ].
+	self layout add: box.
+	self initializeButtons.
 	self setFocusOrder
-	
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeStonePresenter [
 
-	self layout add: (self newLabel label: 'Stone:').
+	connectionBox add: (self newLabel label: 'Stone:').
 	stoneText := JadeiteTextInputFieldPresenter new.
-	self layout add: stoneText
+	connectionBox add: stoneText
 ]
 
 { #category : 'initialization' }
@@ -705,17 +736,17 @@ JadeiteConnectionLauncher >> initializeToolsMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeUserPresenter [
 
-	self layout add: (self newLabel label: 'User:').
+	connectionBox add: (self newLabel label: 'User:').
 	userText := JadeiteTextInputFieldPresenter new.
-	self layout add: userText
+	connectionBox add: userText
 ]
 
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeVersionPresenter [
 
-	self layout add: (self newLabel label: 'Version:').
+	connectionBox add: (self newLabel label: 'Version:').
 	versionText := JadeiteTextInputFieldPresenter new.
-	self layout add: versionText
+	connectionBox add: versionText
 ]
 
 { #category : 'initialization' }
@@ -723,7 +754,7 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		initialExtent: 43 @ 70 * StandardFonts defaultFont pointSize;
+		initialExtent: 70 @ 40 * StandardFonts defaultFont pointSize;
 		menu: self initializeMenubar;
 		centered.
 	self updateCaption.
