@@ -681,6 +681,7 @@ JadeiteConnectionLauncher >> initializePresenters [
 	connectionBox := SpBoxLayout newVertical.
 	connectionLabelBox := SpBoxLayout newHorizontal hAlignCenter.
 	label := self newLabel
+		         displayBold: [ true ];
 		         label: 'Connection';
 		         help:
 			         'The values in the left column can be exported to disk'.
@@ -700,6 +701,7 @@ JadeiteConnectionLauncher >> initializePresenters [
 	connectionBox := SpBoxLayout newVertical.
 	nonConnectionLabelBox := SpBoxLayout newHorizontal hAlignCenter.
 	label := self newLabel
+		         displayBold: [ true ];
 		         label: 'Non Connection';
 		         help: 'The values in the right column are not exported'.
 	nonConnectionLabelBox add: label.
