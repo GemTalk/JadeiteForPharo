@@ -147,13 +147,11 @@ JadeiteSmalltalkEditor >> browseIt: aKeyboardEvent [
 			  selectedClassName , ' is not a valid class name' ].
 	classService := RowanClassService new name: selectedClassName.
 	classService meta: false.
-	self updateService: classService onCompletion: [
-		self openBrowserOn: self postOpen: [ :browserPresenter |
-			self halt. 
-			browserPresenter
-				updateAfterFindClass: classService
-				methodService: nil
-				onCompletion: [  ] ] ].
+	self openBrowserOn: self postOpen: [ :browserPresenter |
+		browserPresenter
+			updateAfterFindClass: classService
+			methodService: nil
+			onCompletion: [  ] ].
 	^ true
 ]
 
@@ -453,11 +451,21 @@ JadeiteSmalltalkEditor >> methodSourceContainingIt [
 
 { #category : 'editing keys' }
 JadeiteSmalltalkEditor >> methodStringsContainingIt: aKeyboardEvent [
-	"My model is the sp adaptor whose model is the sp method source pane"
+	"ought to be a better way to get the token than using, effectively, a case statement. "
 
-	| sel |
-	sel := self selectedSymbol ifNil: [ self selection ].
-	self model model doBrowseMethodsContainingString: sel asString.
+	| sel node |
+	self selection size > 1
+		ifTrue: [ sel := self selection ]
+		ifFalse: [
+			node := self selectedNode.
+			sel := node isMessage
+				       ifTrue: [ sel := node selector ]
+				       ifFalse: [
+					       node isLiteralNode
+						       ifTrue: [ sel := node value ]
+						       ifFalse: [ sel := node name ] ].
+			sel := sel asString ].
+	self model model doBrowseMethodsContainingString: sel asString. "My model is the sp adaptor whose model is the sp method source pane"
 	^ true
 ]
 

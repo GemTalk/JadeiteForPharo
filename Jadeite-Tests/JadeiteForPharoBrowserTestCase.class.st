@@ -91,13 +91,12 @@ JadeiteForPharoBrowserTestCase >> setUp [
 { #category : 'support' }
 JadeiteForPharoBrowserTestCase >> tearDown [
 
-	failedMethodPresenter ifNotNil: [
-		self destroy: failedMethodPresenter ].
+	self destroy: failedMethodPresenter.
+	secondPresenter ifNotNil:[self destroy: secondPresenter owner].
 	dictionary ifNotNil: [
 		[ self projectsPresenter removeDictionary ]
 			on: ProvideAnswerNotification
 			do: [ :not | not resume: true ] ].
-
 	super tearDown
 ]
 
@@ -934,7 +933,8 @@ JadeiteForPharoBrowserTestCase >> test_hierarchySelectionChangePackage [
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
 	"ctrl-b"
-	| widget editor | 
+
+	| widget editor sem |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
 	self
@@ -946,9 +946,152 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
 			RowanCommandResult addResult: service ]'.
 	widget := self methodSourcePresenter adapter widget.
 	editor := widget scrollPane textArea editor.
-	self methodSourcePresenter adapter widget selectFrom: 82 to: 82.
-	editor browseIt: nil. 
-	self halt. 
+	self methodSourcePresenter adapter widget selectFrom: 82 to: 82. "On RowanCommandResult"
+	secondPresenter := self
+		                   waitForNew: JadeiteBrowser
+		                   while: [ editor browseIt: nil ].
+	sem := Semaphore new.
+	[
+	[
+	secondPresenter activePresenter isNil or: [
+		secondPresenter selectedClass isNil ] ] whileTrue: [
+		(Delay forMilliseconds: 10) wait ] ] fork.
+	sem waitTimeoutSeconds: 2.
+	self
+		assert: secondPresenter selectedClass name
+		equals: 'RowanCommandResult'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hotKeyImplementors [
+	"ctrl-m"
+
+	| widget editor |
+	self selectRowanAnsweringService.
+	self selectMethodNamed: #updateServices:.
+	self
+		assert: self methodSourcePresenter text asString replaceLfWithCr
+		equals: 'updateServices: services
+	services
+		do: [ :service | 
+			service update.
+			RowanCommandResult addResult: service ]'.
+	widget := self methodSourcePresenter adapter widget.
+	editor := widget scrollPane textArea editor.
+	self methodSourcePresenter adapter widget selectFrom: 69 to: 69. "On update message"
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [ editor implementorsOfIt: nil ].
+	self
+		assert: methodListBrowser methodListPresenter selectedItem selector
+		equals: #update.
+	self assert: ('*Implementors of ''update'' for*' match:
+			 methodListBrowser window title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingClass [
+	"ctrl-shift-e"
+
+	| widget editor |
+	self selectRowanAnsweringService.
+	self selectMethodNamed: #basicSortedSymbols.
+	self
+		assert: self methodSourcePresenter text asString replaceLfWithCr
+		equals: 'basicSortedSymbols
+  | sortedSymbols |
+  sortedSymbols := SortedCollection new.
+  ((AllUsers userWithId: #''SymbolUser'') resolveSymbol: #''AllSymbols'') value
+    keysDo: [ :symbol | 
+      symbol charSize = 1
+        ifTrue: [ sortedSymbols add: symbol ] ].
+  ^sortedSymbols asArray'.
+	widget := self methodSourcePresenter adapter widget.
+	editor := widget scrollPane textArea editor.
+	self methodSourcePresenter adapter widget selectFrom: 67 to: 67.
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [ editor methodStringsContainingIt: nil ].
+	self assert: ('*Methods Containing ''SortedCollection'' for*' match:
+			 methodListBrowser window title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingMessage [
+	"ctrl-shift-e"
+
+	| widget editor |
+	self selectRowanAnsweringService.
+	self selectMethodNamed: #basicSortedSymbols.
+	self
+		assert: self methodSourcePresenter text asString replaceLfWithCr
+		equals: 'basicSortedSymbols
+  | sortedSymbols |
+  sortedSymbols := SortedCollection new.
+  ((AllUsers userWithId: #''SymbolUser'') resolveSymbol: #''AllSymbols'') value
+    keysDo: [ :symbol | 
+      symbol charSize = 1
+        ifTrue: [ sortedSymbols add: symbol ] ].
+  ^sortedSymbols asArray'.
+	widget := self methodSourcePresenter adapter widget.
+	editor := widget scrollPane textArea editor.
+	self methodSourcePresenter adapter widget selectFrom: 100 to: 100.
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [ editor methodStringsContainingIt: nil ].
+	self assert: ('*Methods Containing ''userWithId:'' for*' match:
+			 methodListBrowser window title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingSymbol [
+	"ctrl-shift-e"
+
+	| widget editor |
+	self selectRowanAnsweringService.
+	self selectMethodNamed: #basicSortedSymbols.
+	self
+		assert: self methodSourcePresenter text asString replaceLfWithCr
+		equals: 'basicSortedSymbols
+  | sortedSymbols |
+  sortedSymbols := SortedCollection new.
+  ((AllUsers userWithId: #''SymbolUser'') resolveSymbol: #''AllSymbols'') value
+    keysDo: [ :symbol | 
+      symbol charSize = 1
+        ifTrue: [ sortedSymbols add: symbol ] ].
+  ^sortedSymbols asArray'.
+	widget := self methodSourcePresenter adapter widget.
+	editor := widget scrollPane textArea editor.
+	self methodSourcePresenter adapter widget selectFrom: 113 to: 113.
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [ editor methodStringsContainingIt: nil ].
+	self assert: ('*Methods Containing ''SymbolUser'' for*' match:
+			 methodListBrowser window title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_hotKeySenders [
+	"ctrl-n"
+
+	| widget editor |
+	self selectRowanAnsweringService.
+	self selectMethodNamed: #updateServices:.
+	self
+		assert: self methodSourcePresenter text asString replaceLfWithCr
+		equals: 'updateServices: services
+	services
+		do: [ :service | 
+			service update.
+			RowanCommandResult addResult: service ]'.
+	widget := self methodSourcePresenter adapter widget.
+	editor := widget scrollPane textArea editor.
+	self methodSourcePresenter adapter widget selectFrom: 69 to: 69. "On update message"
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [ editor sendersOfIt: nil ].
+	self assert:
+		('*Senders of ''update'' for*' match: methodListBrowser window title)
 ]
 
 { #category : 'tests' }
