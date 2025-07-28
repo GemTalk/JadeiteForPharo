@@ -104,6 +104,28 @@ JadeiteDebuggerPresenter >> browseFrameMethod [
 		  meta: frameListPresenter selectedItem method meta
 ]
 
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> browseFrameMethodInMethodList [
+
+	| className selector methodService shell |
+	frameListPresenter selectedItem ifNil: [ ^ self ].
+	className := frameListPresenter selectedItem homeMethodClassName.
+	className ifNil: [ ^ self ].
+	(className includes: Character space) ifTrue: [
+		className := (ReadStream on: className) upTo: Character space ].
+	selector := frameListPresenter selectedItem homeMethodSelector.
+	methodService := RowanMethodServiceClient new
+		                 className: className;
+		                 selector: selector;
+		                 meta: frameListPresenter selectedItem method meta.
+
+	self updateService: methodService onCompletion: [
+		shell := (JadeiteMethodListApplication showOnSession:
+			          self gciSession library) methods:
+			         (Array with: methodService).
+		shell updateCaptionFromSearchString: 'Selected Method' ]
+]
+
 { #category : 'testing' }
 JadeiteDebuggerPresenter >> canDiscardEdits [
 
@@ -422,10 +444,20 @@ JadeiteDebuggerPresenter >> initializeStackMenu [
 
 	^ self newMenu
 		  addGroup: [ :group |
-			  group addItem: [ :item |
+			  group
+				  addItem: [ :item |
 					  item
 						  name: 'Browse';
 						  action: [ self browseFrameMethod ];
+						  enabled: [
+							  frameListPresenter selectedItem
+								  ifNil: [ false ]
+								  ifNotNil: [ :frameService |
+									  frameService homeMethodClassName notNil ] ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Browse In Method List';
+						  action: [ self browseFrameMethodInMethodList ];
 						  enabled: [
 							  frameListPresenter selectedItem
 								  ifNil: [ false ]

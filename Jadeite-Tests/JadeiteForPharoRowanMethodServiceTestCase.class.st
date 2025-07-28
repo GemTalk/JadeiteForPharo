@@ -33,18 +33,19 @@ JadeiteForPharoRowanMethodServiceTestCase >> test_methodServiceReplication [
 		           selector: #answer;
 		           className: 'RowanAnsweringService';
 		           meta: false.
-	updater updateService: service session: session onCompletion: [  ].
-	replicatedService := RowanMethodService new
-		                     selector: #answer;
-		                     className: 'RowanAnsweringService';
-		                     meta: false.
-	replicatedService replicateFrom: service.
-	1 to: replicatedService class instSize do: [ :index |
-		index <= 5 ifFalse: [
-			index = 44 ifFalse: [
-				self
-					assert: (replicatedService instVarAt: index)
-					equals: (service instVarAt: index) ] "semaphore" ] ]
+	updater updateService: service session: session onCompletion: [ "]"
+		replicatedService := RowanMethodService new
+			                     selector: #answer;
+			                     className: 'RowanAnsweringService';
+			                     meta: false.
+		replicatedService replicateFrom: service.
+		1 to: replicatedService class instSize do: [ :index |
+			index <= 5 ifFalse: [
+				index = 44 ifFalse: ["indexOfInCommandInstVar"
+					index = 45 ifFalse: ["indexOfServiceCompletionBlock"
+						self
+							assert: (replicatedService instVarAt: index)
+							equals: (service instVarAt: index) ] ] ] ] ]
 ]
 
 { #category : 'tests' }

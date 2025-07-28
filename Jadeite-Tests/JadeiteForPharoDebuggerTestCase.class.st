@@ -80,6 +80,29 @@ JadeiteForPharoDebuggerTestCase >> test_browseFrameMethod [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoDebuggerTestCase >> test_browseFrameMethodInMethodList [
+
+	| service |
+	service := RowanAnsweringServiceClient newForked.
+	service exec: '$abc' in: GciSession current onCompletion: [  ].
+	self waitForDebugger.
+	debugger frameListPresenter selectIndex: 1.
+
+	self waitForMethodListBrowserWhile: [
+		debugger browseFrameMethodInMethodList ].
+
+	self
+		assert: methodListBrowser methodListPresenter items size
+		equals: 1.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem className
+		equals: 'ProcessorScheduler'.
+	self
+		assert: methodListBrowser methodListPresenter selectedItem selector
+		equals: '_switchFrom:to:'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoDebuggerTestCase >> test_fileInError [
 	"file in errors should not result in a hung image"
 
