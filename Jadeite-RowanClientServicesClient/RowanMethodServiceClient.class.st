@@ -125,3 +125,10 @@ RowanMethodServiceClient >> stepPointRanges [
 
 	^ stepPoints collect: [ :array | self stepPointRangeFrom: array ]
 ]
+
+{ #category : 'accessing' }
+RowanMethodServiceClient >> visibleTests [
+	"for polymorphism"
+
+	^ Array with: self
+]

@@ -909,15 +909,19 @@ JadeiteBrowserPresenter >> currentProject [
 ]
 
 { #category : 'sunit support' }
-JadeiteBrowserPresenter >> debugMethodTests: methodServices [
+JadeiteBrowserPresenter >> debugMethodTests: classOrMethodService [
 
 	| sem |
+	classOrMethodService isClassService
+		ifTrue: [ classListPresenter selectItem: classOrMethodService ]
+		ifFalse: [ methodListPresenter selectItem: classOrMethodService ].
+	(Delay forMilliseconds: 500) wait. 
 	[
-	self clearMethodListTestResultIn: methodServices.
+	self clearMethodListTestResultIn: classOrMethodService visibleTests.
 	self refreshClassAndMethodPresenters.
 	sem := Semaphore new.
 
-	methodServices do: [ :methodService |
+	classOrMethodService visibleTests do: [ :methodService |
 		methodService
 			command: #debugTest:inClassName:;
 			commandArgs:
@@ -2142,11 +2146,7 @@ JadeiteBrowserPresenter >> markProjectContentsNotDirty [
 		                     page activePresenter ].
 	browserPresenters do: [ :browserPresenter |
 		browserPresenter packageListPresenter items do: [ :packageService |
-			packageService isDirty: false ].
-		browserPresenter classListPresenter items do: [ :classService |
-			classService isDirty: false ].
-		browserPresenter methodListPresenter items do: [ :methodService |
-			methodService isDirty: false ] ]
+			packageService isDirty: false ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3738,15 +3738,11 @@ JadeiteBrowserPresenter >> testClassResultIconFor: classService [
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> testItemButtonWithIconNamed: iconName service: clickedService [
 
-	| methodServices |
-	methodServices := clickedService isClassService
-		                  ifTrue: [ clickedService visibleTests ]
-		                  ifFalse: [ { clickedService } ].
 	^ IconicButtonMorph new
 		  target: self;
 		  labelGraphic: (self iconNamed: iconName);
 		  actionSelector: #debugMethodTests:;
-		  arguments: (Array with: methodServices);
+		  arguments: (Array with: clickedService);
 		  color: Color transparent;
 		  helpText: 'Run Tests';
 		  borderWidth: 0;
