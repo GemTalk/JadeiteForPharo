@@ -459,7 +459,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_runTestInBrowser [
 			(self projectsPresenter methodListPresenter displayIcon value:
 				 methodService) labelGraphic
 		equals: (Smalltalk ui icons iconNamed: #testNotRun).
-	self projectsPresenter debugMethodTests: (Array with: methodService).
+	self projectsPresenter debugMethodTests: methodService.
 	(Delay forMilliseconds: 500) wait. "arbitrary wait could be improved. "
 	self
 		assert:
