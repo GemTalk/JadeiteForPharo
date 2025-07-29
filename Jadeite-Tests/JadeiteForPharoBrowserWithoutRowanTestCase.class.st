@@ -135,6 +135,45 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> setUp [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_abstractTestClassesHaveNoRunButton [
+
+	self
+		testsJadeiteForPharoIssue: #issue166
+		title: 'Running sunit tests from button on class'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/166'.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan';
+			 substringIndex: 1;
+			 yourself).
+	self classListPresenter items do: [ :classService |
+		| isAbstract stream |
+		stream := WriteStream on: String new.
+		stream
+			nextPut: $[;
+			nextPutAll: classService name;
+			nextPutAll: ' isAbstract] on: Error do:[:ex | nil]'.
+		isAbstract := session executeString: stream contents.
+
+		isAbstract
+			ifNil: [
+				self assertIsNil:
+					(self classListPresenter displayIcon value: classService) ]
+			ifNotNil: [
+				isAbstract
+					ifTrue: [
+						self assertIsNil:
+							(self classListPresenter displayIcon value: classService) ]
+					ifFalse: [
+						self assert:
+							((self classListPresenter displayIcon value: classService)
+								 isKindOf: IconicButtonMorph) ] ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_browseClass [
 	"project browser opened in setup"
 

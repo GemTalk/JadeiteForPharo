@@ -122,6 +122,43 @@ JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_abstractTestClassesHaveNoRunButton [
+
+	self
+		testsJadeiteForPharoIssue: #issue166
+		title: 'Running sunit tests from button on class'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/166'.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self classListPresenter items do: [ :classService |
+		| isAbstract stream |
+		stream := WriteStream on: String new.
+		stream
+			nextPut: $[;
+			nextPutAll: classService name;
+			nextPutAll: ' isAbstract] on: Error do:[:ex | nil]'.
+		isAbstract := session executeString: stream contents.
+
+		isAbstract
+			ifNil: [
+				self assertIsNil:
+					(self classListPresenter displayIcon value: classService) ]
+			ifNotNil: [
+				isAbstract
+					ifTrue: [
+						self assertIsNil:
+							(self classListPresenter displayIcon value: classService) ]
+					ifFalse: [
+						self assert:
+							((self classListPresenter displayIcon value: classService)
+								 isKindOf: IconicButtonMorph) ] ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self testsIssue: #issue375
 		withTitle: '(3.0.53) accept non-extension method in an extension package .... lose selected class'.
@@ -1584,6 +1621,55 @@ JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_projectSelec
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_runButtonSelectsClass [
+
+	| browserTest |
+	self
+		testsJadeiteForPharoIssue: #issue166
+		title: 'Running sunit tests from button on class'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/166'.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	browserTest := self classListPresenter items detect: [ :classService |
+		               classService name = 'RowanBrowserServiceTest' ].
+	self assertIsNil: self classListPresenter selectedItem.
+	self projectsPresenter debugMethodTests: browserTest.
+	self assert: self classListPresenter selectedItem equals: browserTest
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_runClassTestsInBrowser [
+
+	| classService |
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanAnsweringServiceTest'
+		in: self classListPresenter.
+	classService := self classListPresenter selectedItem.
+	self
+		assert:
+			(self projectsPresenter classListPresenter displayIcon value:
+				 classService) labelGraphic
+		equals: (Smalltalk ui icons iconNamed: #testNotRun).
+	self projectsPresenter debugMethodTests: classService.
+	(Delay forMilliseconds: 2000) wait. "arbitrary wait could be improved. "
+	self
+		assert:
+			(self projectsPresenter classListPresenter displayIcon value:
+				 classService) labelGraphic
+		equals: (Smalltalk ui icons iconNamed: #testGreen)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_runTestInBrowser [
 
 	| methodService |
@@ -1605,7 +1691,7 @@ JadeiteForPharoBrowserTestCase >> test_runTestInBrowser [
 			(self projectsPresenter methodListPresenter displayIcon value:
 				 methodService) labelGraphic
 		equals: (Smalltalk ui icons iconNamed: #testNotRun).
-	self projectsPresenter debugMethodTests: (Array with: methodService).
+	self projectsPresenter debugMethodTests: methodService.
 	(Delay forMilliseconds: 500) wait. "arbitrary wait could be improved. "
 	self
 		assert:
