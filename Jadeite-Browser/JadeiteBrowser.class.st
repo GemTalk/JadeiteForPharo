@@ -82,9 +82,10 @@ JadeiteBrowser >> basicFileInServerFile: filePath [
 	service := RowanFileServiceClient new
 		           path: filePath;
 		           session: self gciSession.
-	service fileInOnCompletion: [
-		self refreshGlobalSelections.
-		self uiManager inform: 'FileIn complete - ' , filePath ]
+	service fileInOnCompletion: [ :svc |
+		svc answer ifNotNil: [
+			self refreshGlobalSelections.
+			self uiManager inform: 'FileIn complete - ' , filePath ] ]
 ]
 
 { #category : 'accessing' }
