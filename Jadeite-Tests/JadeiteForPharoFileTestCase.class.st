@@ -193,6 +193,45 @@ JadeiteForPharoFileTestCase >> test_createInaccessibleFile [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoFileTestCase >> test_fileInError [
+	"file in errors should not result in a hung image"
+
+	| fileContents fileName fileRef alertDialog |
+	self
+		testsJadeiteForPharoIssue: #issue295
+		title:
+		'Hard hang on filein with method class set to unknown class name'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/295'.
+
+	projectsBrowser := JadeiteConsole currentConsole openBrowser.
+	RowanServiceUpdater current singleThreaded: true.
+	fileContents := 'method BananaSkidoo
+testingFileinIssuePleaseIgnore
+^6
+%' replaceCrWithLf.
+
+	fileName := FileSystem workingDirectory fullName
+	            , 'test_fileInError.txt'.
+	fileRef := fileName asFileReference.
+	fileRef writeStream
+		nextPutAll: fileContents;
+		flush.
+	[
+	self assert: fileRef exists.
+	alertDialog := self
+		               waitForNew: AlertDialogWindow
+		               while: [
+		               projectsBrowser basicFileInServerFile: fileName ].
+	self assert:
+		('Error during file in. File in cancelled. Error Text: invalid class name ''BananaSkidoo'', 
+at line 1 file*' match:
+			 alertDialog textMorph text asString replaceLfWithCr).
+	alertDialog close ] ensure: [
+		fileRef delete.
+		RowanServiceUpdater current singleThreaded: false ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_fileSaveInitialPath [
 	"should use the saved path if possible"
 
