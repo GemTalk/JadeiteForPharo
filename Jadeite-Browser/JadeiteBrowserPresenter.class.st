@@ -3723,7 +3723,7 @@ JadeiteBrowserPresenter >> testClassResultIconFor: classService [
 							  testItemButtonWithIconNamed: #testYellow
 							  service: classService ]
 						  ifFalse: [
-							  testResult = 'failure'
+							  testResult = 'error'
 								  ifTrue: [
 								  self
 									  testItemButtonWithIconNamed: #testRed
@@ -3768,7 +3768,7 @@ JadeiteBrowserPresenter >> testMethodResultIconFor: methodService [
 								  testItemButtonWithIconNamed: #testYellow
 								  service: methodService ]
 						  ifFalse: [
-							  testResult = 'failure'
+							  testResult = 'error'
 								  ifTrue: [
 									  self
 										  testItemButtonWithIconNamed: #testRed

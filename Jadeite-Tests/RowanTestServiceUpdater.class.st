@@ -20,8 +20,12 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	sem := Semaphore new.
 	processingCommand := true.
 	Processor activeProcess name = 'Morphic UI Process' ifTrue: [
+		[
 		[ MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
-			fork ].
+			on: Error
+			do: [ :ex |
+				processingCommand := false.
+				ex pass "stop the render loop and let a debugger open" ] ] fork ].
 	[
 	[ self _basicIssueCommand: service ] ensure: [
 		processingCommand := false.
