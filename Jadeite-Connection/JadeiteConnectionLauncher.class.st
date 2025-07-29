@@ -728,11 +728,16 @@ JadeiteConnectionLauncher >> initializeStonePresenter [
 JadeiteConnectionLauncher >> initializeToolsMenu [
 
 	^ self newMenu
-		  addItem: [ :item |
-			  item
-				  name: 'Windows Browser';
-				  action: [ self openWindowsBrowser ] ];
-		  yourself
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Windows Browser';
+						  action: [ self openWindowsBrowser ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'Jadeite Help';
+					  action: [ self openJadeiteHelpFile ] ] ] yourself
 ]
 
 { #category : 'initialization' }

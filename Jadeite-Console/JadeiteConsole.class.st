@@ -439,6 +439,28 @@ JadeiteConsole >> initialProjectDisplayColumns [
 	^ columns
 ]
 
+{ #category : 'menus' }
+JadeiteConsole >> initializeAboutMenu [
+
+	^ self newMenu
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'Jadeite for Pharo GitHub Project';
+						  action: [ self gotoJfPGitHubProject ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Rowan GitHub Project';
+						  action: [ self gotoRowanGitHubProject ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'Git Commit Ids';
+					  action: [ self openCommitIdWindow ] ] ];
+		  yourself
+]
+
 { #category : 'initialization' }
 JadeiteConsole >> initializeAutoCommit [
 
@@ -473,33 +495,6 @@ JadeiteConsole >> initializeFileMenu [
 		  yourself
 ]
 
-{ #category : 'menus' }
-JadeiteConsole >> initializeHelpMenu [
-
-	^ self newMenu
-		  addGroup: [ :group |
-			  group
-				  addItem: [ :item |
-					  item
-						  name: 'Jadeite for Pharo GitHub Project';
-						  action: [ self gotoJfPGitHubProject ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Rowan GitHub Project';
-						  action: [ self gotoRowanGitHubProject ] ] ];
-		  addGroup: [ :group |
-			  group
-				  addItem: [ :item |
-					  item
-						  name: 'Git Commit Ids';
-						  action: [ self openCommitIdWindow ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'Jadeite Help';
-						  action: [ self openJadeiteHelpFile ] ] ];
-		  yourself
-]
-
 { #category : 'initialization' }
 JadeiteConsole >> initializeKeyBindings: aWindowPresenter [
 
@@ -525,8 +520,8 @@ JadeiteConsole >> initializeMenubar [
 						  subMenu: self initializeBrowseMenu ];
 				  addItem: [ :item |
 					  item
-						  name: 'Help';
-						  subMenu: self initializeHelpMenu ].
+						  name: 'About';
+						  subMenu: self initializeAboutMenu ].
 			  self addToolsToMenuGroup: group ];
 		  yourself
 ]

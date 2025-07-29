@@ -47,7 +47,9 @@ JadeiteSessionPresenter >> open [
 { #category : 'initialization' }
 JadeiteSessionPresenter >> updateCaption [
 
-	self caption: (self gciSession
-			 ifNil: [ self shellName ]
-			 ifNotNil: [ :sess | sess titleBarFor: self shellName ])
+	self caption:
+		(self gciSession ifNil: [ self shellName ] ifNotNil: [ :sess |
+			 sess isValidSession
+				 ifTrue: [ sess titleBarFor: self shellName ]
+				 ifFalse: [ self shellName ] ])
 ]

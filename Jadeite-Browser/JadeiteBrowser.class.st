@@ -88,6 +88,12 @@ JadeiteBrowser >> basicFileInServerFile: filePath [
 ]
 
 { #category : 'accessing' }
+JadeiteBrowser >> browserOpener [
+
+	^ self
+]
+
+{ #category : 'accessing' }
 JadeiteBrowser >> browserPresenterClass [
 
 	^ JadeitePreferences isRowanLoaded
@@ -202,6 +208,18 @@ JadeiteBrowser >> initializeBindings [
 JadeiteBrowser >> initializeJadeiteMenu [
 
 	^ JadeiteMenuPresenter new
+		  addGroup: [ :group |
+			  group
+				  addItem: [ :item |
+					  item
+						  name: 'Abort Transaction';
+						  action: [ (JadeiteAbortCommand forContext: self) execute ];
+						  icon: (self iconNamed: JadeiteAbortCommand defaultIconName) ];
+				  addItem: [ :item |
+					  item
+						  name: 'CommitTransaction';
+						  action: [ (JadeiteCommitCommand forContext: self) execute ];
+						  icon: (self iconNamed: JadeiteCommitCommand defaultIconName) ] ];
 		  addGroup: [ :group |
 			  group
 				  addItem: [ :item |

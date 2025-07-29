@@ -471,20 +471,24 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Reload from Disk';
-					action: [ self reloadProject ] ];
+					action: [ self reloadProject ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Unload';
 					action: [ self unloadProject ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ];
 					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Refresh from Server';
-					action: [ self refreshProjects ] ];
+					action: [ self refreshProjects ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Set Current';
 					action: [ self setCurrentProject ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ];
 					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
@@ -495,26 +499,31 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Pull from Git';
-					action: [ self pullFromGit ] ];
+					action: [ self pullFromGit ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Commit to Git ...';
 					action: [ [ self gitCommit ] fork ];
-					enabled: [ self allSelectedProjectsDirty ] ];
+					enabled: [ self allSelectedProjectsDirty ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Push to Git';
-					action: [ self pushToGit ] ];
+					action: [ self pushToGit ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Git Log';
-					action: [ self gitProjectLog ] ] ].
+					action: [ self gitProjectLog ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group
 			addItem: [ :item |
 				item
 					name: 'Changes';
-					action: [ self projectChanges ] ];
+					action: [ self projectChanges ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Write';
@@ -523,11 +532,13 @@ JadeiteProjectsTrait >> newProjectMenu [
 			addItem: [ :item |
 				item
 					name: 'Checkout Git Tag ...';
-					action: [ self gitCheckoutTag ] ];
+					action: [ self gitCheckoutTag ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 			addItem: [ :item |
 				item
 					name: 'Checkout Git Branch ...';
-					action: [ self gitCheckoutBranch ] ] ].
+					action: [ self gitCheckoutBranch ];
+					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
 		group
 			addItem: [ :item |
