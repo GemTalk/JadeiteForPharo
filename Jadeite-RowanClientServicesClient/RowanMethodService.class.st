@@ -307,7 +307,11 @@ RowanMethodService >> definedPackage [
 
 { #category : 'displaying' }
 RowanMethodService >> displayClassName [
-	^className , (meta ifTrue: [' class'] ifFalse: [String new])
+
+	meta ifNil: [ meta := false ]. "to avoid catastrophic failures during a display if the window is going away"
+	^ className , (meta
+		   ifTrue: [ ' class' ]
+		   ifFalse: [ String new ])
 ]
 
 { #category : 'displaying' }
