@@ -216,6 +216,8 @@ GciSession >> titleBarFor: windowName [
 	stream
 		nextPutAll: windowName;
 		nextPutAll: ' for ';
+		nextPutAll: userID;
+		nextPutAll: ' on ';
 		nextPutAll: stoneName;
 		space;
 		nextPut: $@;
@@ -236,4 +238,16 @@ GciSession >> updateAutoCommitRefreshing: console [
 		self autoCommit value: (service answer ifNil: [ false ]).
 		self autoCommit whenChangedSend: #updateAutoCommitButton to: console.
 		console updateAutoCommitButton ]
+]
+
+{ #category : 'accessing' }
+GciSession >> userID [
+
+	^ userID
+]
+
+{ #category : 'accessing' }
+GciSession >> userID: anObject [
+
+	userID := anObject
 ]

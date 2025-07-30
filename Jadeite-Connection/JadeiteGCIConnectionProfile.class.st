@@ -58,7 +58,9 @@ JadeiteGCIConnectionProfile >> basicConnect [
 		do: [ :ex |
 			session := nil.
 			^ GciError signal: ex message ].
-	GciSession current stoneName: stone.
+	GciSession current
+		stoneName: stone;
+		userID: user.
 	connection := self setupRSRConnection.
 	session logoutNbNoError.
 	session := nil.

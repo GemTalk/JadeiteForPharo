@@ -179,6 +179,29 @@ JadeiteForPharoGUITestCase >> test_openBrowser [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoGUITestCase >> test_windowTitleShowsUser [
+
+	| sem proc |
+	self toolUsedForCommonTests ifNil: [
+		^ self skip:
+			  'Only subclasses that define toolTested can run this test' ].
+	sem := Semaphore new.
+	[
+	proc := [
+	        self toolUsedForCommonTests window notNil and: [
+		        self toolUsedForCommonTests window isOpen ] ] whileFalse: [
+		        (Delay forMilliseconds: 10) wait ].
+	sem signal ] fork.
+	sem
+		waitTimeoutSeconds: 5
+		onCompletion: [
+			self assert:
+				('*for SystemUser*' match:
+					 self toolUsedForCommonTests window title) ]
+		onTimeout: [ proc terminate ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoGUITestCase >> toolUsedForCommonTests [
 	"if a test specifies a tool, then use it for common tests"
 
