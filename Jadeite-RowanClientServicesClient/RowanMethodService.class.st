@@ -335,14 +335,6 @@ RowanMethodService >> displayString [
 	^selector
 ]
 
-{ #category : 'displaying' }
-RowanMethodService >> displayStringFor: displayThing [
-	isExtension
-		ifTrue: 
-			[displayThing forecolor: Color darkMagenta.
-			inSelectedPackage ifFalse: [displayThing font beUnderlined ]]
-]
-
 { #category : 'comparing' }
 RowanMethodService >> equalBeforeRename: aMethodService [
 	^renamedName = aMethodService className
@@ -738,7 +730,9 @@ RowanMethodService >> selectorPrintString [
 { #category : 'displaying' }
 RowanMethodService >> selectorsDisplayString [
 
-	^className, '>>', selector
+	^ className , (self meta
+		  ifTrue: [ ' class' ]
+		  ifFalse: [ String new ]) , '>>' , selector
 ]
 
 { #category : 'public' }

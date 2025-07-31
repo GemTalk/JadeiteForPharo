@@ -24,6 +24,7 @@ Class {
 		'DefaultFont',
 		'DefaultTextFont',
 		'IsRowanLoaded',
+		'ShowMethodNavigation',
 		'ShowProgressBar'
 	],
 	#category : 'Jadeite-SupportClasses',
@@ -193,7 +194,23 @@ JadeitePreferences class >> settingsOn: aBuilder [
 					'For GemTalk internal development. Simulate Rowan availability.'.
 			(aBuilder setting: #current)
 				label: 'Show Progress Bar ';
-				dialog: [ self createShowProgressBarRow ] ]
+				dialog: [ self createShowProgressBarRow ].
+			(aBuilder setting: #showMethodNavigation)
+				label: 'Show Method Navigation In Browser';
+				default: false;
+				description: 'Show the list of previously visited methods in a browser. Setting takes effect when browser opened'. ]
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> showMethodNavigation [ 
+
+	^ShowMethodNavigation ifNil: [ ShowMethodNavigation := false ]
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> showMethodNavigation: aBoolean [
+
+	ShowMethodNavigation := aBoolean
 ]
 
 { #category : 'settings' }

@@ -24,9 +24,10 @@ Class {
 		'backButton',
 		'forwardButton',
 		'postOpenBlock',
-		'postUpdatePackageBlock',
 		'postUpdateClassBlock',
-		'selectionEventsSuspended'
+		'selectionEventsSuspended',
+		'methodNavigationList',
+		'methodNavigationDropList'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -767,6 +768,13 @@ JadeiteBrowserPresenter >> connectMethodPresenters [
 
 	methodListPresenter whenSelectionChangedDo: [ :selection |
 		self methodSelectionChanged ].
+	methodNavigationDropList ifNotNil: [ :drop |
+		drop whenSelectedItemChangedDo: [ :methodService |
+			methodService ifNotNil: [
+				self
+					updateAfterFindClassName: methodService className
+					methodSelector: methodService selector
+					meta: methodService meta ] ] ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
 	instanceRadioButton whenChangedDo: [ :selection |
 		self classSelected: self selectedClass ].
@@ -1451,7 +1459,8 @@ JadeiteBrowserPresenter >> indexOfServiceNamed: name in: listPresenter [
 JadeiteBrowserPresenter >> initialize [
 
 	super initialize.
-	self resumeSelectionEvents
+	self resumeSelectionEvents.
+	methodNavigationList := OrderedCollection new
 ]
 
 { #category : 'initialization' }
@@ -1668,7 +1677,6 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	instanceRadioButton := self newRadioButton label: 'Instance'.
 	classRadioButton := self newRadioButton label: 'Class'.
 	instanceRadioButton associatedRadioButtons: { classRadioButton }.
-
 	backButton := self newButton
 		              icon: (self iconNamed: #glamorousLeft);
 		              help: 'Method Navigation Back';
@@ -1677,7 +1685,6 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		                 icon: (self iconNamed: #glamorousRight);
 		                 help: 'Method Navigation Forward';
 		                 action: [ self historyForward ].
-
 	radioButtonBox
 		add: instanceRadioButton;
 		add: classRadioButton;
@@ -1690,9 +1697,21 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 		withConstraints: [ :c |
 		c width: 3 * StandardFonts defaultFont pointSize ];
 		add: forwardButton withConstraints: [ :c | c width: 30 ].
-
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 3 * StandardFonts defaultFont pointSize ].
+	JadeitePreferences showMethodNavigation ifTrue: [
+		methodNavigationDropList := self newDropList
+			                            help:
+				                            'Navigate to recently selected methods in this browser tab';
+			                            display: [ :each |
+				                            each
+					                            ifNil: [ String new ]
+					                            ifNotNil: [
+						                            each selectorsDisplayString ] ];
+			                            yourself.
+		methodsBox
+			add: methodNavigationDropList
+			withConstraints: [ :constraints | constraints height: 30 ] ].
 	self initializeDefinedMethodPackageText: methodsBox.
 	methodPanedPresenter add: methodsBox.
 	self initializeFullMethodListMenu
@@ -2165,6 +2184,18 @@ JadeiteBrowserPresenter >> methodMenu: aMenu [
 	self methodMenuBreak: aMenu
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> methodNavigationList [
+
+	^ methodNavigationList ifNil: [ methodNavigationList := OrderedCollection new ]
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> methodNavigationList: anObject [
+
+	methodNavigationList := anObject
+]
+
 { #category : 'events' }
 JadeiteBrowserPresenter >> methodSelectionChanged [
 
@@ -2182,7 +2213,15 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 				definedMethodPackageText text: String new.
 				self resetCategoryText ].
 			self updateHistory ].
-	self updateMethodSource
+	self updateMethodSource.
+	methodNavigationList
+		remove: methodListPresenter selectedItem
+		ifAbsent: [  ].
+	methodNavigationList remove: nil ifAbsent: [ "why is this there?" ].
+	methodNavigationList addFirst: methodListPresenter selectedItem.
+	methodNavigationDropList ifNotNil: [ :dropList |
+		dropList updateItemsKeepingSelection: methodNavigationList.
+		dropList selectIndex: 0 ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3847,15 +3886,21 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 					methodListPresenter items: classService methods.
 					methodListPresenter beSorted.
 					classService updateSortedJadeiteCategories: categoryListPresenter.
-					self setAppropriateMeta: classService.
-					methodService ifNotNil: [
-						| index |
-						self methodListPresenter selection unselectAll.
-						index := self methodListPresenter items indexOf: methodService.
-						self methodListPresenter
-							selectIndex: index
-							scrollToSelection: true ].
-					self updateTabLabel ] ] ensure: [ self resumeSelectionEvents ] ]
+					postUpdateClassBlock := [
+					                        methodService ifNotNil: [
+						                        | index |
+						                        self methodListPresenter selection
+							                        unselectAll.
+						                        index := self methodListPresenter items
+							                                 indexOf: methodService.
+						                        self methodListPresenter
+							                        selectIndex: index
+							                        scrollToSelection: true ].
+					                        self updateTabLabel ].
+					classService meta = classRadioButton state ifTrue: [
+						postUpdateClassBlock value "if changing sides, block will be executed after class refreshed" ].
+					self setAppropriateMeta: classService ] ] ensure: [
+				self resumeSelectionEvents ] ]
 ]
 
 { #category : 'find' }
@@ -4120,9 +4165,7 @@ JadeiteBrowserPresenter >> updatePackage [
 					packageListPresenter selectedItem sortedClasses ] ].
 		self updatePackageInfo.
 		self resetSunitTestList.
-		classExtraText text: String new.
-		[ postUpdatePackageBlock value ] ensure: [
-			postUpdatePackageBlock := nil ] ]
+		classExtraText text: String new ]
 ]
 
 { #category : 'as yet unclassified' }
