@@ -189,9 +189,9 @@ JadeitePreferences class >> settingsOn: aBuilder [
 					'After connection, open a browser on a class. To disable preference, leave class name blank.'.
 			(aBuilder setting: #isRowanLoaded)
 				label: 'Rowan Available';
-				default: String new;
+				default: true; 
 				description:
-					'For GemTalk internal development. Simulate Rowan availability.'.
+					'Set if Rowan is present in the server or not.'.
 			(aBuilder setting: #current)
 				label: 'Show Progress Bar ';
 				dialog: [ self createShowProgressBarRow ].

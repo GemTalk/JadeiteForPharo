@@ -60,15 +60,18 @@ JadeiteChangesBrowser >> afterTitle: operation [
 { #category : 'queries' }
 JadeiteChangesBrowser >> browseMethodClass [
 
-	| classService methodService change |
+	| classService methodService change classIsMeta |
 	change := self operationsListPresenter jadeiteSelections first.
+	classIsMeta := change isModification
+		               ifTrue: [ change modification classIsMeta ]
+		               ifFalse: [ change definition classIsMeta ].
 	classService := RowanClassServiceClient new
 		                name: change className;
-		                meta: change modification classIsMeta.
+		                meta: classIsMeta.
 	methodService := RowanMethodServiceClient new
 		                 className: change className;
 		                 selector: change selector;
-		                 meta: change modification classIsMeta.
+		                 meta: classIsMeta.
 	self openBrowser activePresenter
 		updateAfterFindClass: classService
 		methodService: methodService

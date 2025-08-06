@@ -133,7 +133,7 @@ RowanServiceUpdater >> applyUpdates: service [
 	self applyUpdatesFromReturnedServices: service returnedServices
 ]
 
-{ #category : 'accessing' }
+{ #category : 'private' }
 RowanServiceUpdater >> applyUpdatesFromReturnedServices: aCollection [
 	"don't just reinitialize the updates instance variable because
 	presenters are registered to that object"

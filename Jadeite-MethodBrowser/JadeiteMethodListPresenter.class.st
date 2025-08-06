@@ -238,6 +238,37 @@ JadeiteMethodListPresenter >> handleMethodNotInListIn: classService statusBarTex
 ]
 
 { #category : 'initialization' }
+JadeiteMethodListPresenter >> initializeFirstTwoColumns [
+
+	JadeitePreferences isRowanLoaded ifTrue: [ 
+		methodListPresenter
+			addColumn: (SpStringTableColumn
+					 title: 'Project'
+					 evaluated: [ :service | service projectName ]) beSortable;
+			addColumn: (SpStringTableColumn
+					 title: 'Package'
+					 evaluated: [ :service | service packageName ]) beSortable ]
+				
+			"JadeitePreferences isRowanLoaded
+		ifTrue: [
+			methodListPresenter
+				addColumn: (SpStringTableColumn
+						 title: 'Project'
+						 evaluated: [ :service | service projectName ]) beSortable;
+				addColumn: (SpStringTableColumn
+						 title: 'Package'
+						 evaluated: [ :service | service packageName ]) beSortable ]
+		ifFalse: [
+			methodListPresenter
+				addColumn: (SpStringTableColumn
+						 title: 'Dictionary'
+						 evaluated: [ :service | service dictionary ]) beSortable;
+				addColumn: (SpStringTableColumn
+						 title: 'Class Category'
+						 evaluated: [ :service | service packageName ]) beSortable ]"
+]
+
+{ #category : 'initialization' }
 JadeiteMethodListPresenter >> initializeMenubar [
 
 	^ self newMenuBar
@@ -253,37 +284,22 @@ JadeiteMethodListPresenter >> initializeMenubar [
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> initializeMethodListTableOn: panedLayout [
 
-	methodListPresenter := JadeiteTablePresenter new
-		                       beMultipleSelection;
-		                       addColumn: (SpStringTableColumn
-				                        title: 'Project'
-				                        evaluated: [ :service |
-					                        service projectName ]) beSortable;
-		                       addColumn: (SpStringTableColumn
-				                        title: 'Package'
-				                        evaluated: [ :service |
-					                        service packageName ]) beSortable;
-		                       addColumn: (SpStringTableColumn
-				                        title: 'Class'
-				                        evaluated: [ :service |
-					                        service displayClassName ]) beSortable;
-		                       addColumn: (SpStringTableColumn
-				                        title: 'Category'
-				                        evaluated: [ :service | service category ])
-				                       beSortable;
-		                       addColumn: (SpStringTableColumn
-				                        title: 'Method'
-				                        evaluated: [ :service | service selector ])
-				                       beSortable;
-		                       wantsDrop: [ :transfer |
-										"#canUnderstand: used in case nefarious objects are dropped"
-			                       (transfer passenger class canUnderstand:
-					                        #allSatisfy:) ifTrue: [
-					                       transfer passenger allSatisfy:
-							                       #isMethodService ] ];
-		                       acceptDrop: [ :transfer |
-			                       self dropMethods: transfer passenger ];
-		                       yourself.
+	methodListPresenter := JadeiteTablePresenter new beMultipleSelection.
+	self initializeFirstTwoColumns.
+	methodListPresenter
+		addColumn: (SpStringTableColumn
+				 title: 'Class'
+				 evaluated: [ :service | service displayClassName ]) beSortable;
+		addColumn: (SpStringTableColumn
+				 title: 'Category'
+				 evaluated: [ :service | service category ]) beSortable;
+		addColumn: (SpStringTableColumn
+				 title: 'Method'
+				 evaluated: [ :service | service selector ]) beSortable;
+		wantsDrop: [ :transfer | "#canUnderstand: used in case nefarious objects are dropped"
+			(transfer passenger class canUnderstand: #allSatisfy:) ifTrue: [
+					transfer passenger allSatisfy: #isMethodService ] ];
+		acceptDrop: [ :transfer | self dropMethods: transfer passenger ].
 	panedLayout add: methodListPresenter
 ]
 

@@ -52,6 +52,7 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> basicConnect [
 
+	| theConnection |
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
@@ -61,19 +62,20 @@ JadeiteGCIConnectionProfile >> basicConnect [
 	GciSession current
 		stoneName: stone;
 		userID: user.
-	connection := self setupRSRConnection.
+	theConnection := self setupRSRConnection.
 	session logoutNbNoError.
 	session := nil.
-	GciSession current library: connection.
-	self applyPreferences.
-	"Uncomment following three lines to enable RSR tracing"
-	"	connection log addSink: (RsrCustomSink action: [ :message |
+	GciSession current library: theConnection.
+	self setIsRowanAvailableOnCompletion: [
+		connection := theConnection. "don't trigger events until isRowanAvailable is set"
+		self applyPreferences
+		"Uncomment following three lines to enable RSR tracing"
+		"	connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace."
-	"Uncomment following two lines to enable jadeite tracing"
-	"RowanServiceUpdater current isLogging: true.
-	RowanServiceUpdater current logComment: 'Connection established!'."
-	^ connection
+		"Uncomment following two lines to enable jadeite tracing"
+		"RowanServiceUpdater current isLogging: true.
+	RowanServiceUpdater current logComment: 'Connection established!'." ]
 ]
 
 { #category : 'commit ids' }
@@ -154,6 +156,7 @@ JadeiteGCIConnectionProfile >> connect [
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace.""Uncomment following two lines to enable jadeite tracing""RowanServiceUpdater current isLogging: true.
 	RowanServiceUpdater current logComment: 'Connection established!'."
+
 	GciInterface libraryDirectory: self path.
 	[
 	session := GsSession
@@ -167,7 +170,7 @@ JadeiteGCIConnectionProfile >> connect [
 			^ UIManager default alert:
 				  'Client library could not be found. Error message: '
 				  , ex messageText ].
-	^ self basicConnect
+	self basicConnect
 ]
 
 { #category : 'actions' }
@@ -384,6 +387,20 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
 JadeiteGCIConnectionProfile >> session [
 
 	^ session
+]
+
+{ #category : 'actions' }
+JadeiteGCIConnectionProfile >> setIsRowanAvailableOnCompletion: completionBlock [
+
+	| answeringService |
+	answeringService := RowanAnsweringService new command:
+		                    #isRowanAvailable.
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: GciSession current
+		onCompletion: [
+			JadeitePreferences isRowanLoaded: answeringService answer.
+			completionBlock value ]
 ]
 
 { #category : 'actions' }
