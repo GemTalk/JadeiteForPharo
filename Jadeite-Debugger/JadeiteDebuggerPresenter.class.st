@@ -427,7 +427,7 @@ JadeiteDebuggerPresenter >> initializePresenters [
 	codePaneBox
 		add: self newStatusBar
 		withConstraints: [ :constraints | constraints height: 5 ].
-	codePane := JadeiteMethodSourcePane new.
+	codePane := self methodSourcePaneClass new.
 	codePane application: self application.
 	codePane saveAction: [ self editSaveMethod ].
 	codePaneBox add: codePane.
@@ -493,7 +493,7 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 	variableDataBox
 		add: self newStatusBar
 		withConstraints: [ :constraints | constraints height: 5 ].
-	variableDataPresenter := (JadeiteMethodSourcePane new text:
+	variableDataPresenter := (self methodSourcePaneClass new text:
 			                          String new)
 		                         withoutLineNumbers;
 		                         hasUnacceptedEdits: false.

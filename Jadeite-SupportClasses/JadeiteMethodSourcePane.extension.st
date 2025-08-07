@@ -1,6 +1,12 @@
 Extension { #name : 'JadeiteMethodSourcePane' }
 
 { #category : '*Jadeite-SupportClasses' }
+JadeiteMethodSourcePane class >> registerFormatSourceCommandWith: commandGroup [
+
+	commandGroup register: JadeiteFormatSourceCommand forSpec
+]
+
+{ #category : '*Jadeite-SupportClasses' }
 JadeiteMethodSourcePane class >> registerSourceActionsWithCommandGroup: commandGroup presenter: presenter [
 
 	| lastClickPosition |
@@ -10,7 +16,7 @@ JadeiteMethodSourcePane class >> registerSourceActionsWithCommandGroup: commandG
 		                     ifFalse: [
 			                     presenter adapter widget scrollPane textArea
 				                     lastClickPosition ifNil: [ 0 @ 0 ] ].
-	commandGroup register: JadeiteFormatSourceCommand forSpec.
+	self registerFormatSourceCommandWith: commandGroup.
 	commandGroup
 		register: (JadeiteAddBreakpointCommand
 				 forSpecContext: presenter

@@ -1734,16 +1734,16 @@ JadeiteBrowserPresenter >> initializeMethodListHeader: methodColumn [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeMethodSourceTab [
 
-	methodSourcePresenter := JadeiteMethodSourcePane new _gciSession:
+	methodSourcePresenter := self methodSourcePaneClass new _gciSession:
 		                         self gciSession.
 	methodSourcePresenter
 		application: self application;
 		saveAction: [ self editSaveMethod ];
-		whenTextChangedDo: [ self sourcePaneChanged ]. 
+		whenTextChangedDo: [ self sourcePaneChanged ].
 	methodSourcePage := JadeiteNotebookPage
 		                    title: 'Method Source'
 		                    icon: nil
- 		                    provider: [ methodSourcePresenter ].
+		                    provider: [ methodSourcePresenter ].
 	textAreaTabs addPage: methodSourcePage
 ]
 

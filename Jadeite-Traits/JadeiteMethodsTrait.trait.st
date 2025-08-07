@@ -571,7 +571,7 @@ JadeiteMethodsTrait >> copyMethodSelectors [
 		informing: 'Method selector(s) copied to clipboard'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteMethodsTrait >> displayBreakpoints [
 
 	self methodListPresenter selectedItem ifNil: [ ^ self ].
@@ -588,7 +588,7 @@ JadeiteMethodsTrait >> displayBreakpoints [
 					 interval: range) ] ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'actions' }
 JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 
 	self methodListPresenter selectedItem ifNil: [ ^ self ].
@@ -696,6 +696,15 @@ JadeiteMethodsTrait >> issueCommand: service onCompletion: completionBlock [
 JadeiteMethodsTrait >> maxSymbolSize [
 
 	^1024
+]
+
+{ #category : 'text panes' }
+JadeiteMethodsTrait >> methodSourcePaneClass [
+	"If debugger and method list ever get wor versions, refactor"
+
+	^ JadeitePreferences isRowanLoaded
+		  ifTrue: [ JadeiteMethodSourcePane ]
+		  ifFalse: [ JadeiteMethodSourcePaneWithoutRowan ]
 ]
 
 { #category : 'actions' }

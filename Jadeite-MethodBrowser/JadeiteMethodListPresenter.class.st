@@ -307,7 +307,7 @@ JadeiteMethodListPresenter >> initializeMethodListTableOn: panedLayout [
 JadeiteMethodListPresenter >> initializeMethodSourceOn: panedLayout [
 
 	| box |
-	methodSourcePresenter := JadeiteMethodSourcePane new _gciSession:
+	methodSourcePresenter := self methodSourcePaneClass new _gciSession:
 		                         self gciSession.
 	methodSourcePresenter
 		application: self application;

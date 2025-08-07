@@ -82,7 +82,7 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 		:selection | self updateClassCategoriesFor: selection selectedItem ].
 	classCategoryPresenter whenSelectionChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [
-			self updateClassesForClassCategory: selection selectedItem.
+			self updateClassesForClassCategories: selection selectedItems.
 			self updateClassDefPresenter ] ]
 ]
 
@@ -113,10 +113,13 @@ JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresen
 	| classCategoryPage |
 	classCategoryTabs := self instantiate: JadeiteNotebookPresenter.
 	classCategoryPresenter := (SpTreePresenter new children: [ :service |
-		                           self
-			                           classCategoriesAt: service substringIndex + 1
-			                           matching: service firstSubstringsToIndex , '*' ])
-		                          display: [ :m | m displayString ].
+			                           self
+				                           classCategoriesAt:
+					                           service substringIndex + 1
+				                           matching:
+					                           service firstSubstringsToIndex , '*' ])
+		                          display: [ :m | m displayString ];
+		                          beMultipleSelection.
 	classCategoryPage := JadeiteNotebookPage
 		                     title: 'Class Category'
 		                     icon: nil
@@ -324,7 +327,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClass: classService completionBlock
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: classCategoryService keepSelectedClass: selectedClass [
+JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: theClassCategoryServices keepSelectedClass: selectedClass [
 
 	| classes toBeSelected |
 	classes := self dictionaryListPresenter selectedItem classes select: [
@@ -332,8 +335,15 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: classCategoryService
 		           classService classCategory
 			           ifNil: [ false ]
 			           ifNotNil: [ :cat |
-			           classCategoryService firstSubstringsToIndex , '*'
-				           match: cat ] ].
+				           (theClassCategoryServices
+					            detect: [ :category |
+						            | stream |
+						            stream := WriteStream on: String new.
+						            stream
+							            nextPutAll: category firstSubstringsToIndex;
+							            nextPut: $*.
+						            stream contents match: cat ]
+					            ifNone: [  ]) notNil ] ].
 	self classListPresenter list:
 		(classes asSortedCollection: [ :x :y | x name < y name ]).
 	toBeSelected := self classListPresenter items
@@ -384,8 +394,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService method
 				self selectedClass = classService ifFalse: [
 					self selectClassListTab ] ].
 			self selectClassCategoryFor: classService.
-			self updateClassesForClassCategory:
-				self classCategoryPresenter selectedItem.
+			self updateClassesForClassCategories:
+				self classCategoryPresenter selectedItems.
 			self selectClass: classService completionBlock: completionBlock.
 			methodListPresenter items: classService methods.
 			methodListPresenter beSorted.
@@ -436,7 +446,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryServi
 					(self classCategoriesAt: 1 matching: '*') ] ]
 ]
 
-{ #category : 'initialization' }
+{ #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassDefPresenter [
 
 	| defaultTemplate |
@@ -515,6 +525,34 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassThenFind: classService onCompl
 				updateAfterFindClass: classService
 				methodService: nil
 				onCompletion: completionBlock ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selectedClassCategories [
+
+	| dictionaryService selectedClass |
+	selectedClassCategories ifEmpty: [ ^ self ].
+	(self classCategoryPresenter selectedItems includesAny:
+		 selectedClassCategories)
+		ifTrue: [ selectedClass := self selectedClass ]
+		ifFalse: [
+			classListPresenter unselectAll.
+			selectedClass := nil ].
+	dictionaryService := self dictionaryListPresenter selectedItem.
+	self dictionaryListPresenter selectedItem ifNil: [ ^ self ].
+	dictionaryService
+		command: #updateForClassCategories:;
+		commandArgs:
+			(Array with: (selectedClassCategories collect: [ :classCat |
+							  classCat firstSubstringsToIndex ]));
+		shouldUpdate: false.
+	RowanServiceUpdater current
+		issueCommand: dictionaryService
+		session: self gciSession
+		onCompletion: [
+			self
+				selectClassCategory: selectedClassCategories
+				keepSelectedClass: selectedClass ]
 ]
 
 { #category : 'updates' }
