@@ -2251,15 +2251,19 @@ JadeiteBrowserPresenter >> methodValueChanged [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> methodsUpdate: classService [
 
-	classService ifNil: [ ^self ].
+	classService ifNil: [ ^ self ].
 	classService meta = self isClassSideSelected ifFalse: [ ^ self ].
 	classListPresenter list isEmpty ifTrue: [
 		classService initializePresenterList: methodListPresenter ].
 	classService displayMethodsOn: methodListPresenter browser: self.
-	methodListPresenter selections isEmpty ifTrue: [
-		self setDefaultMethod.
-		definedMethodPackageText text: String new.
-		self resetCategoryText. ]
+	methodListPresenter selections isEmpty
+		ifTrue: [
+			self setDefaultMethod.
+			definedMethodPackageText text: String new.
+			self resetCategoryText ]
+		ifFalse: [
+			methodSourcePresenter text: methodListPresenter selectedItem source.
+			methodSourcePresenter hasUnacceptedEdits: false ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -946,7 +946,22 @@ JadeiteMethodsTrait >> removeMethodSelectors: selectors [
 { #category : 'actions' }
 JadeiteMethodsTrait >> removeMethods [
 
-	(MessageBox confirm: 'Really delete method(s)?') ifTrue: [ 
+	| selectorPrintString stream |
+	stream := self selectedMethodNames
+		          inject: (WriteStream on: String new)
+		          into: [ :string :each |
+			          string
+				          nextPut: $#;
+				          nextPutAll: each;
+				          space ].
+	selectorPrintString := stream contents trimBlanks.
+	selectorPrintString size > 75 ifTrue: [
+		selectorPrintString := (selectorPrintString copyFrom: 1 to: 50)
+		                       , '...' ].
+
+	(MessageBox confirm:
+		 'Really delete ' , self selectedMethodNames size printString
+		 , ' methods - ' , selectorPrintString , '?') ifTrue: [
 		self removeMethodSelectors: self selectedMethodNames ]
 ]
 
