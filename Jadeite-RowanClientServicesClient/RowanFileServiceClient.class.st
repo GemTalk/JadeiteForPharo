@@ -65,10 +65,21 @@ RowanFileServiceClient >> extension [
 
 { #category : 'commands' }
 RowanFileServiceClient >> fileContents [
-	command := #fileContents.
-	commandArgs := Array new. 
-	self issueFileServiceCommand.
-	^answer
+
+	RowanServiceUpdater current critical: [
+		command := #fileContents.
+		commandArgs := Array new.
+		self issueFileServiceCommand ].
+	^ answer
+]
+
+{ #category : 'commands' }
+RowanFileServiceClient >> fileContentsOnCompletion: completionBlock [
+
+	RowanServiceUpdater current critical: [
+		command := #fileContents.
+		commandArgs := Array new.
+		self issueFileServiceCommandOnCompletion: completionBlock ]
 ]
 
 { #category : 'commands' }
@@ -153,10 +164,14 @@ RowanFileServiceClient >> initialize [
 
 { #category : 'commands' }
 RowanFileServiceClient >> isDirectory [
+
+	| sem |
+	sem := Semaphore new.
 	command := #isDirectory.
-	commandArgs := Array new. 
-	self issueFileServiceCommand.
-	^answer
+	commandArgs := Array new.
+	self issueFileServiceCommandOnCompletion: [ sem signal ].
+	sem wait.
+	^ answer
 ]
 
 { #category : 'commands' }

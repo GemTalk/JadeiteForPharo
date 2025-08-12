@@ -19,18 +19,19 @@ JadeiteServerFileWorkspaceApplication class >> showOnSession: aGciSession path: 
 			bool ifTrue: [
 				^ self uiManager alert: 'Cannot open a directory, ' , path ] ].
 
-	service fileContents.
-	workspacePresenter := (JadeiteServerFileWorkspacePresenter new
-		                       gciSession: aGciSession)
-		                      addStyle: 'jadeiteTextBackgroundColor';
-		                      gciSession: aGciSession;
-		                      application: self new;
-		                      path: path;
-		                      open;
-		                      yourself.
-	workspace := workspacePresenter workspace.
-	workspace filePathString: path.
-	workspace codePane documentPresenter value: service answer
+
+	service fileContentsOnCompletion: [
+		workspacePresenter := (JadeiteServerFileWorkspacePresenter new
+			                       gciSession: aGciSession)
+			                      addStyle: 'jadeiteTextBackgroundColor';
+			                      gciSession: aGciSession;
+			                      application: self new;
+			                      path: path;
+			                      open;
+			                      yourself.
+		workspace := workspacePresenter workspace.
+		workspace filePathString: path.
+		workspace codePane documentPresenter value: service answer ]
 ]
 
 { #category : 'accessing' }

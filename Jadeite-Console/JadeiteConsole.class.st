@@ -143,12 +143,6 @@ JadeiteConsole >> basicSetFont: newFont [
 	JadeitePreferences current currentFont: newFont
 ]
 
-{ #category : 'actions' }
-JadeiteConsole >> basicSetTextFont: newFont [
-	JadeiteScintillaView allInstances do: [:scintillaView | scintillaView font: newFont].
-	JadeitePreferences current currentTextFont: newFont
-]
-
 { #category : 'as yet unclassified' }
 JadeiteConsole >> basicTransactionMode: aSymbol [
 	self parentPresenter transactionMode: aSymbol session: gciSession
@@ -863,16 +857,6 @@ JadeiteConsole >> setRowanProjectsHomeIfNecessary: aGciSession [
 				confirm: '$ROWAN_PROJECTS_HOME is not set. Would you like to set it? (Failure to do so will result in Jadeite errors)'.
 	shouldSet ifFalse: [^self].
 	self setRowanProjectsHome: aGciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> setTextFont [
-	| newFont currentFont |
-	currentFont := JadeitePreferences current currentTextFont
-				ifNil: [JadeitePreferences defaultTextFont].
-	newFont := FontDialog showModalOn: currentFont.
-	newFont ifNil: [^self].
-	self basicSetTextFont: newFont
 ]
 
 { #category : 'as yet unclassified' }

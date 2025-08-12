@@ -521,21 +521,6 @@ JadeitePreferencesTestCase >> test_setResetFont [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferencesTestCase >> test_setResetTextFont [
-	self testsIssue: #issue805 withTitle: 'Preference to adjust font size (3.1.0)'.
-	transcript basicSetTextFont: (Font name: 'Tahoma' pointSize: 16).
-	JadeiteScintillaView allInstances do: 
-			[:scintillaView |
-			self assert: scintillaView font pointSize equals: 16.
-			self assert: scintillaView font name equals: 'Tahoma'].
-	transcript resetFonts.
-	JadeiteScintillaView allInstances do: 
-			[:scintillaView |
-			self assert: scintillaView font pointSize equals: JadeitePreferences defaultTextFont pointSize.
-			self assert: scintillaView font name equals: JadeitePreferences defaultTextFont name]
-]
-
-{ #category : 'as yet unclassified' }
 JadeitePreferencesTestCase >> test_textFont [
 	| prefs |
 	self testsIssue: #issue805 withTitle: 'Preference to adjust font size (3.1.0)'.

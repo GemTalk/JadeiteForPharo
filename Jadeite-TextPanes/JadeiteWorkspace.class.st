@@ -107,9 +107,10 @@ JadeiteWorkspace >> openServerFile [
 		           path: filePathString.
 	service isDirectory ifTrue: [
 		^ MessageBox notify: 'Cannot open a directory' ].
-	codePane text: service fileContents.
-	self updateCaption.
-	self hasUnacceptedEdits: false
+	service fileContentsOnCompletion: [
+		codePane text: service answer.
+		self updateCaption.
+		self hasUnacceptedEdits: false ]
 ]
 
 { #category : 'accessing' }
