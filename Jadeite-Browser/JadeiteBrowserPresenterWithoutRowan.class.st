@@ -271,6 +271,21 @@ JadeiteBrowserPresenterWithoutRowan >> postOpen [
 		onCompletion: [ self basicPostOpen ]
 ]
 
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> refreshClassCategoriesFrom: dictionaryService [
+
+	| newServices |
+	dictionaryService classCategories
+		ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
+		ifNotNil: [
+			newServices := dictionaryService classCategories collect: [
+				               :category |
+				               RowanClassCategoryService new name: category ].
+			classCategoryServices := newServices.
+			classCategoryPresenter roots:
+				(self classCategoriesAt: 1 matching: '*') ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenterWithoutRowan >> refreshProjectInfoTab [
 ]
@@ -316,14 +331,6 @@ JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
 							 ifNotNil: [
 							 self selectedClassTab activePresenter selectedItem template ] ] ]).
 	self resetClassDefinitionPane
-]
-
-{ #category : 'actions' }
-JadeiteBrowserPresenterWithoutRowan >> selectClass: classService completionBlock: completionBlock [
-
-	classService ifNil: [ ^ self ].
-	self selectDictionaryNamed: classService dictionaryName.
-	super selectClass: classService completionBlock: completionBlock
 ]
 
 { #category : 'updates' }
@@ -380,34 +387,39 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
-
+	| methods | 
 	self suspendSelectionEvents.
-	self updateService: classService onCompletion: [
+	self updateService: classService onCompletion: [	
 		[
-		RowanServiceUpdater current applyUpdateWhile: [
-			self selectDictionaryNamed: classService dictionaryName.
-			self updateService: self dictionaryListPresenter selectedItem.
-			self updateClassCategoriesFor:
-				self dictionaryListPresenter selectedItem.
-			self setAppropriateMeta: classService.
-			self isHierarchyTabSelected ifTrue: [
-				self selectedClass = classService ifFalse: [
-					self selectClassListTab ] ].
-			self selectClassCategoryFor: classService.
-			self updateClassesForClassCategories:
-				self classCategoryPresenter selectedItems.
-			self selectClass: classService completionBlock: completionBlock.
-			methodListPresenter items: classService methods.
-			methodListPresenter beSorted.
-			classService updateSortedJadeiteCategories: categoryListPresenter.
-			methodService ifNotNil: [
-				| index |
-				self methodListPresenter selection unselectAll.
-				index := self methodListPresenter items indexOf: methodService.
-				self methodListPresenter
-					selectIndex: index
-					scrollToSelection: true ] ] ] ensure: [
-			self resumeSelectionEvents ] ]
+		self selectDictionaryNamed: classService dictionaryName.
+		methods := classService methods. 
+		self
+			updateService: self dictionaryListPresenter selectedItem
+			onCompletion: [	
+				classService methods: methods. "the update will clear the classService's methods"
+				self refreshClassCategoriesFrom:
+					self dictionaryListPresenter selectedItem.
+				self setAppropriateMeta: classService.
+				self isHierarchyTabSelected ifTrue: [
+					self selectedClass = classService ifFalse: [
+						self selectClassListTab ] ].
+				self selectClassCategoryFor: classService.
+				self
+					updateClassesForClassCategories:
+					self classCategoryPresenter selectedItems
+					using: self dictionaryListPresenter selectedItem.
+				self selectClass: classService completionBlock: [
+					methodListPresenter items: classService methods.
+					methodListPresenter beSorted.
+					classService updateSortedJadeiteCategories: categoryListPresenter.
+					methodService ifNotNil: [
+						| index |
+						self methodListPresenter selection unselectAll.
+						index := self methodListPresenter items indexOf: methodService.
+						self methodListPresenter
+							selectIndex: index
+							scrollToSelection: true ].
+					completionBlock value ] ] ] ensure: [ self resumeSelectionEvents ] ]
 ]
 
 { #category : 'updates' }
@@ -425,7 +437,12 @@ JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryService [
 
-	| newServices |
+	self updateClassCategoriesFor: dictionaryService onCompletion: [  ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryService onCompletion: completionBlock [
+
 	dictionaryService ifNil: [
 		^ classCategoryPresenter roots: OrderedCollection new ].
 	dictionaryService
@@ -435,15 +452,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryServi
 	classListPresenter items: Array new.
 	classHierarchyPresenter roots: Array new.
 	self issueCommand: dictionaryService onCompletion: [
-		dictionaryService classCategories
-			ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
-			ifNotNil: [
-				newServices := dictionaryService classCategories collect: [
-					               :category |
-					               RowanClassCategoryService new name: category ].
-				classCategoryServices := newServices.
-				classCategoryPresenter roots:
-					(self classCategoriesAt: 1 matching: '*') ] ]
+		self refreshClassCategoriesFrom: dictionaryService.
+		completionBlock value ]
 ]
 
 { #category : 'updates' }
@@ -553,6 +563,23 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selected
 			self
 				selectClassCategory: selectedClassCategories
 				keepSelectedClass: selectedClass ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selectedClassCategories using: dictionaryService [
+
+	| selectedClass |
+	selectedClassCategories ifEmpty: [ ^ self ].
+	(self classCategoryPresenter selectedItems includesAny:
+		 selectedClassCategories)
+		ifTrue: [ selectedClass := self selectedClass ]
+		ifFalse: [
+			classListPresenter unselectAll.
+			selectedClass := nil ].
+	self dictionaryListPresenter selectedItem ifNil: [ ^ self ].
+	self
+		selectClassCategory: selectedClassCategories
+		keepSelectedClass: selectedClass
 ]
 
 { #category : 'updates' }
