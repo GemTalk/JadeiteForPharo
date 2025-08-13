@@ -27,7 +27,7 @@ JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 		scrollToSelection: true.
 	selectedClassService ifNotNil: [
 		self selectClassCategoryFor: selectedClassService.
-		self selectClass: self selectedClass completionBlock: [  ] ]
+		self selectClass: selectedClassService completionBlock: [  ] ]
 ]
 
 { #category : 'actions' }
