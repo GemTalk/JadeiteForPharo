@@ -265,7 +265,7 @@ RowanServiceUpdater >> initialize [
 	logger := JadeiteLogger new.
 	breakpointsEnabled := false.
 	announcer := RowanServiceUpdaterAnnouncer new serviceUpdater: self.
-	serviceQueueSemaphore := Semaphore forMutualExclusion.
+	serviceQueueSemaphore := RowanSemaphore forMutualExclusion.
 	singleThreaded := false. 
 ]
 

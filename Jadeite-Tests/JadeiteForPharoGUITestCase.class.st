@@ -257,6 +257,9 @@ JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
 		count := count + 1.
 		(Delay forMilliseconds: 50) wait ].
 	new removeAll: existing.
+	self
+		deny: new isEmpty
+		description: presenterClass printString , ' was not opened!'.
 	new isEmpty ifTrue: [ ^ nil ].
 	^ new first
 ]
