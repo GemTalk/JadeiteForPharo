@@ -331,7 +331,7 @@ JadeiteConsole >> findClassNamed: selection [
 			browser activePresenter
 				updateAfterFindClass: classService
 				methodService: nil
-				onCompletion: [  ] ] ].
+				onCompletion: [ browser activePresenter updateTabLabel ] ] ].
 	self basicOpenBrowser: browser
 ]
 

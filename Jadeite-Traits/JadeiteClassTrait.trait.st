@@ -168,7 +168,7 @@ JadeiteClassTrait >> findClassService: classService [
 	self activePresenter
 		updateAfterFindClass: classService
 		methodService: nil
-		onCompletion: [  ]
+		onCompletion: [ self activePresenter updateTabLabel ]
 ]
 
 { #category : 'private' }

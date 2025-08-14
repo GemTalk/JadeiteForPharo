@@ -118,6 +118,37 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> selectRowanAnsweringService [
+
+	self selectRowanDictionaryOrPackage.
+	self
+		selectServiceNamed: 'RowanAnsweringService'
+		in: self classListPresenter
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> selectRowanDictionaryOrPackage [
+
+	JadeitePreferences isRowanLoaded
+		ifTrue: [
+			self
+				selectServiceNamed: 'RowanClientServices'
+				in: self projectListPresenter.
+			self
+				selectServiceNamed: 'Rowan-Services-Core'
+				in: self packageListPresenter ]
+		ifFalse: [
+			self
+				selectServiceNamed: 'RowanClientServices'
+				in: self dictionaryListPresenter.
+			self classCategoryPresenter selectItem:
+				(RowanClassCategoryService new
+					 name: 'Rowan';
+					 substringIndex: 1;
+					 yourself) ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
 
 	self ensureConnectionProfileEstablished.

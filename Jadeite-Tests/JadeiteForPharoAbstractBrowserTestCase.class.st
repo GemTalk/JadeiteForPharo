@@ -111,41 +111,10 @@ JadeiteForPharoAbstractBrowserTestCase >> projectNamed: aString [
 ]
 
 { #category : 'support' }
-JadeiteForPharoAbstractBrowserTestCase >> selectRowanAnsweringService [
-
-	self selectRowanDictionaryOrPackage.
-	self
-		selectServiceNamed: 'RowanAnsweringService'
-		in: self classListPresenter
-]
-
-{ #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> selectRowanClassServiceNamed: className [
 
 	self selectRowanDictionaryOrPackage.
 	self selectServiceNamed: className in: self classListPresenter
-]
-
-{ #category : 'support' }
-JadeiteForPharoAbstractBrowserTestCase >> selectRowanDictionaryOrPackage [
-
-	JadeitePreferences isRowanLoaded
-		ifTrue: [
-			self
-				selectServiceNamed: 'RowanClientServices'
-				in: self projectListPresenter.
-			self
-				selectServiceNamed: 'Rowan-Services-Core'
-				in: self packageListPresenter ]
-		ifFalse: [
-			self
-				selectServiceNamed: 'RowanClientServices'
-				in: self dictionaryListPresenter.
-			self classCategoryPresenter selectItem:
-				(RowanClassCategoryService new
-					 name: 'Rowan';
-					 substringIndex: 1;
-					 yourself) ]
 ]
 
 { #category : 'support' }

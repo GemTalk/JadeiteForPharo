@@ -9,17 +9,17 @@ Class {
 JadeiteForPharoChangesTestCase >> test_windowTitle [
 
 	| changesBrowser |
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: jadeiteShell projectListPresenter.
+	self openProjectBrowser.
+	self selectRowanAnsweringService.
+	self methodSourcePresenter text: 'foo  ^''instance side'''.
+	self projectsPresenter editSaveMethod.
 	changesBrowser := self
 		                  waitForNew: JadeiteChangesBrowser
-		                  while: [ jadeiteShell projectChanges ].
-	changesBrowser ifNil: [ "no changes, we'll test it next time we have changes"
-		^ self ].
+		                  while: [ self projectsPresenter projectChanges ].
 	[
 	self assert:
 		(changesBrowser shellName , '*for*' , session stoneName , ' @*[*]'
 			 match: changesBrowser window title) ] ensure: [
-		changesBrowser window close ]
+		changesBrowser window close.
+		self abortTransaction ]
 ]
