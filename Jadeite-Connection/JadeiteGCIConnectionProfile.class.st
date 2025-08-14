@@ -52,7 +52,7 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> basicConnect [
 
-	| theConnection |
+	| theConnection sem |
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
@@ -66,16 +66,26 @@ JadeiteGCIConnectionProfile >> basicConnect [
 	session logoutNbNoError.
 	session := nil.
 	GciSession current library: theConnection.
+	sem := Semaphore new. 
 	self setIsRowanAvailableOnCompletion: [
 		connection := theConnection. "don't trigger events until isRowanAvailable is set"
-		self applyPreferences
+		self applyPreferences.
+		sem signal; signal.
 		"Uncomment following three lines to enable RSR tracing"
 		"	connection log addSink: (RsrCustomSink action: [ :message |
 			 RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace."
 		"Uncomment following two lines to enable jadeite tracing"
 		"RowanServiceUpdater current isLogging: true.
-	RowanServiceUpdater current logComment: 'Connection established!'." ]
+	RowanServiceUpdater current logComment: 'Connection established!'." ].
+
+
+	Processor activeProcess name = 'Morphic UI Process' ifTrue: [
+		[
+		[ MorphicRenderLoop new doOneCycleWhile: [ sem isSignaled not ] ]
+			on: Error
+			do: [ :ex | ] ] fork ].
+	sem wait. 
 ]
 
 { #category : 'commit ids' }
