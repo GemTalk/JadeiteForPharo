@@ -3252,6 +3252,7 @@ JadeiteBrowserPresenter >> selectClass: classService completionBlock: completion
 		         indexOfServiceNamed: classService name
 		         in: self classListPresenter.
 	self classListPresenter selection selectedIndex = index ifTrue: [
+		completionBlock value.
 		^ self ].
 	self classListPresenter selection unselectAll.
 	RowanServiceUpdater current critical: [
