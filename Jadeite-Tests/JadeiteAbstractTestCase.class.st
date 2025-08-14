@@ -653,6 +653,13 @@ JadeiteAbstractTestCase >> rowanSample1Path [
 	^JadePresenter rowanSample1Path
 ]
 
+{ #category : 'running' }
+JadeiteAbstractTestCase >> runCase [
+	('Starting ', self class name, '>>', self selector) traceCr.
+	[ super runCase ]
+		ensure: [ ('Finished ', self class name, '>>', self selector) traceCr ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> sampleClassName [
 	^'RowanSample1'
