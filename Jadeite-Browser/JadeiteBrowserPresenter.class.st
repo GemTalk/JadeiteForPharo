@@ -2262,6 +2262,8 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 			definedMethodPackageText text: String new.
 			self resetCategoryText ]
 		ifFalse: [
+			methodSourcePresenter withAdapterDo: [ :a |
+				a widgetDo: [ :w | w hasUnacceptedEdits ifTrue: [ ^ self ] ] ].
 			methodSourcePresenter text: methodListPresenter selectedItem source.
 			methodSourcePresenter hasUnacceptedEdits: false ]
 ]

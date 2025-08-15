@@ -192,6 +192,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -207,7 +208,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 	poolDictionaries: #()
 	category: ''Rowan-Services-Tests''
 	options: #()' trimBlanks replaceCrWithLf.
-
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Core';
@@ -223,7 +224,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 	poolDictionaries: #()
 	category: ''Rowan-Services-Core''
 	options: #()' trimBlanks replaceCrWithLf.
-
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services';
@@ -239,7 +240,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 	poolDictionaries: #()
 	category: ''Rowan-Services''
 	options: #()' trimBlanks replaceCrWithLf.
-
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan';
@@ -255,7 +256,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 	poolDictionaries: #()
 	category: ''Rowan''
 	options: #()' trimBlanks replaceCrWithLf.
-
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -385,8 +386,9 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	self
 		selectServiceNamed: 'SampleSymbolDict'
 		in: self dictionaryListPresenter.
-	self assert: self classCategoryPresenter roots last name
-		= RowanClassCategoryService new nilCategoryDisplayName.
+	self
+		assert: self classCategoryPresenter roots last name
+		equals: RowanClassCategoryService new nilCategoryDisplayName.
 	self assert: self classListPresenter items size equals: 0.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
@@ -751,6 +753,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 		equals: 'RowanAnsweringService'.
 
 	"in hierarchy don't lose selection"
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Core';
@@ -759,6 +762,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanAnsweringService'.
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Core';
@@ -769,6 +773,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 		equals: 'RowanAnsweringService'.
 
 	"not in hierarchy, selection cleared"
+	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';

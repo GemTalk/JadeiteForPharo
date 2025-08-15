@@ -349,7 +349,9 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: theClassCategoryServ
 						            stream
 							            nextPutAll: category firstSubstringsToIndex;
 							            nextPut: $*.
-						            stream contents match: cat ]
+						            stream contents = '*'
+							            ifTrue: [ "nil class category" cat = String new ]
+							            ifFalse: [ stream contents match: cat ] ]
 					            ifNone: [  ]) notNil ] ].
 	self classListPresenter list:
 		(classes asSortedCollection: [ :x :y | x name < y name ]).
@@ -385,7 +387,7 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 		self classCategoryPresenter selectItem: classCategoryService ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
 	| methods | 
 	self suspendSelectionEvents.
