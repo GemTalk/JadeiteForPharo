@@ -98,6 +98,29 @@ JadeiteBrowserPresenterWithoutRowan >> defaultTemplateForClassCategory: classCat
 		  with: 'category: ''' , classCategory firstSubstringsToIndex , ''''
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenterWithoutRowan >> editSaveClass [
+
+	| browserService classHierarchyTabSelected |
+	classHierarchyTabSelected := self isClassHierarchyTabSelected.
+	browserService := RowanBrowserService new.
+	browserService
+		command: #compileClass:;
+		commandArgs: (Array with: classDefinitionPresenter text asString);
+		compileErrorHandler: [ :ex |
+			self classDefinitionPresenter reportCompileError: ex gsArguments ].
+	self selectedClass ifNotNil: [ :classService |
+		browserService selectedClass: classService name ].
+	self issueCommand: browserService onCompletion: [
+		self
+			updateAfterFindClass: browserService selectedClass
+			methodService: nil
+			onCompletion: [
+				classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ].
+				self updateTabLabel ].
+		classDefinitionPresenter hasUnacceptedEdits: false ]
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> filterClassesBySelectedClassCategory: theClasses [
 
