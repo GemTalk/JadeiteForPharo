@@ -105,7 +105,7 @@ JadeiteBrowserPresenterWithoutRowan >> editSaveClass [
 	classHierarchyTabSelected := self isClassHierarchyTabSelected.
 	browserService := RowanBrowserService new.
 	browserService
-		command: #compileClass:;
+		command: #jfpwor_compileClass:;
 		commandArgs: (Array with: classDefinitionPresenter text asString);
 		compileErrorHandler: [ :ex |
 			self classDefinitionPresenter reportCompileError: ex gsArguments ].

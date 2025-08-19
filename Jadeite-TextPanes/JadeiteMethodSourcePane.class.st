@@ -190,7 +190,7 @@ JadeiteMethodSourcePane >> removeAllTextSegmentDecorations [
 { #category : 'actions - saving methods' }
 JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory completionBlock: completionBlock [
 
-	| methodSource1 theCategory |
+	| methodSource1 theCategory serverSelector |
 	self text: self adapter widget textArea text. "this should NOT be necessary. Something is broken in the way we set the Jadeite editor in JadeiteMorphicTextAdapter>>buildWidget"
 	methodSource1 := self currentMethodSourceFrom: self text.
 	theCategory := jadeiteCategory ifNil: [ 'other' ] ifNotNil: [ :cat |
@@ -200,8 +200,11 @@ JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory 
 				               cat isString
 					               ifTrue: [ jadeiteCategory ]
 					               ifFalse: [ jadeiteCategory categoryName ] ] ].
+	serverSelector := JadeitePreferences isRowanLoaded
+		                  ifTrue: [ #saveMethodSource:category: ]
+		                  ifFalse: [ #jfpwor_saveMethodSource:category: ].
 	classService
-		command: #saveMethodSource:category:;
+		command: serverSelector;
 		commandArgs: (Array with: methodSource1 with: theCategory);
 		compileErrorHandler: [ :ex |
 			self reportCompileError: ex gsArguments ].

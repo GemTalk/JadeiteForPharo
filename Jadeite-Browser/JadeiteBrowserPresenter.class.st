@@ -2272,15 +2272,18 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategory [
 
-	| classService |
+	| classService serverSelector |
 	classService := self selectedClass.
+	serverSelector := JadeitePreferences isRowanLoaded
+		                  ifTrue: [ #moveMethods:to: ]
+		                  ifFalse: [ #jfpwor_moveMethods:to: ].
 	classService
-		command: #moveMethods:to:;
+		command: serverSelector;
 		commandArgs:
 			(Array with: methodServices with: targetCategory categoryName).
 	self issueCommand: classService onCompletion: [
 		| index |
-		categoryListPresenter unselectAll. 
+		categoryListPresenter unselectAll.
 		categoryListPresenter selectItem: targetCategory.
 		self methodsUpdate: classService.
 		index := methodListPresenter items indexOf: methodServices first.
