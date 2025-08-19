@@ -622,6 +622,7 @@ JadeiteBrowserPresenter >> classContainer [
 JadeiteBrowserPresenter >> classDisplayColor: classService [
 
 	| color |
+	classService ifNil: [ ^ nil ].
 	(classService shouldColorAsExtension: self) ifTrue: [
 		color := self theme jadeiteExtensionTextColor ].
 	^ color
