@@ -468,6 +468,36 @@ Dictionary: RowanKernel'.
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_compileClass [
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_copyProjectAspect [
 
 	self
@@ -779,6 +809,27 @@ JadeiteForPharoBrowserTestCase >> test_fileIn2 [
 	self assert:
 		(session executeString: self fileInClassName , ' new method3') ]
 		ensure: [ self deleteFileInTestFile ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_fileInOnBrowser [
+	"document that we moved our file-in menu option to the browser per issue #263"
+
+	self
+		testsJadeiteForPharoIssue: #issue263
+		title:
+		'Filein of server code is possible: please add menu item/file selection dialog'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/263'.
+	JadeiteTestManager replacing: self uiManager.
+	RowanBrowserService new unsetCurrentPackage.
+	RowanBrowserService new unsetCurrentProject.
+	[ projectsBrowser fileInServerFile ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+			self
+				assert: ex messageText
+				equals: 'Current Project and Current Package must be set first' ].
+	self uiManager restore
 ]
 
 { #category : 'tests' }

@@ -287,6 +287,35 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_compileClass [
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #(''abc'')
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 
 	self projectsPresenter

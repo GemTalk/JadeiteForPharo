@@ -939,7 +939,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferences [
 	self assert: list size equals: 1.
 	self assert: list first selector equals: #meth.
 	self
-		assert: methodListBrowser methodSourcePresenter codePane selection
+		assert:
+			methodListBrowser methodSourcePresenter adapter widget textArea
+				selection asString
 		equals: 'RenamedClass'
 ]
 
@@ -1028,10 +1030,13 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferencesHierarch
 		assert: methodListBrowser methodListPresenter list collection size
 		equals: 1.
 	self
-		assert: methodListBrowser methodListPresenter list collection  first selector
+		assert:
+		methodListBrowser methodListPresenter list collection first selector
 		equals: #meth.
 	self
-		assert: methodListBrowser methodSourcePresenter codePane selection
+		assert:
+			methodListBrowser methodSourcePresenter adapter widget textArea
+				selection asString
 		equals: 'RenamedClass' ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self projectsPresenter selectedClass
@@ -1079,41 +1084,13 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classRenameWithReferencesSimilarN
 	self assert: list size equals: 1.
 	self assert: list first selector equals: #meth.
 	self
-		assert: methodListBrowser methodSourcePresenter codePane selection
+		assert:
+			methodListBrowser methodSourcePresenter adapter widget textArea
+				selection asString
 		equals: 'RenamedClass' ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self classListPresenter selectedItem
 			onCompletion: [  ] ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_compileClass [
-
-	self
-		testsIssue: #issue390
-		withTitle:
-		'Rename instance variable with accessor method is... wonky'.
-	self selectRowanSample1Class.
-	self
-		saveClass: 'TestClass'
-		superclass: 'Object'
-		instVars: #( 'abc' )
-		package: 'RowanSample1-Core'.
-
-	self
-		assert: self projectsPresenter selectedClass name
-		equals: 'TestClass'.
-	self assert: self projectsPresenter isClassDefinitionTabSelected.
-	self
-		assert: self projectsPresenter classDefinitionPresenter text
-		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames: #( abc)
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()
-' replaceCrWithLf
 ]
 
 { #category : 'tests' }
@@ -1288,27 +1265,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyAction [
 		self
 			assert: (self classHierarchyPresenter itemAtPath: oc)
 			equals: subclassService ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_fileInOnBrowser [
-	"document that we moved our file-in menu option to the browser per issue #263"
-
-	self
-		testsJadeiteForPharoIssue: #issue263
-		title:
-		'Filein of server code is possible: please add menu item/file selection dialog'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/263'.
-	JadeiteTestManager replacing: self uiManager.
-	RowanBrowserService new unsetCurrentPackage.
-	RowanBrowserService new unsetCurrentProject.
-	[ projectsBrowser fileInServerFile ]
-		on: ProvideAnswerNotification
-		do: [ :ex |
-			self
-				assert: ex messageText
-				equals: 'Current Project and Current Package must be set first' ].
-	self uiManager restore
 ]
 
 { #category : 'tests' }
