@@ -11,6 +11,16 @@ JadeiteBrowserWithoutRowan class >> new [
 	^self basicNew initialize
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserWithoutRowan >> fileInServerFile [
+
+	| filePath |
+	filePath := JadeiteServerFileSelectorDialog
+		            showOnSession: gciSession
+		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+	filePath ifNotNil: [ self basicFileInServerFile: filePath ]
+]
+
 { #category : 'initialization' }
 JadeiteBrowserWithoutRowan >> initializeMenubar [
 
