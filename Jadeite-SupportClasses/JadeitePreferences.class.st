@@ -93,9 +93,16 @@ JadeitePreferences class >> initializeDefaultFonts [
 ]
 
 { #category : 'settings' }
-JadeitePreferences class >> isRowanLoaded [ 
+JadeitePreferences class >> isRowanAvailable [
 
-	^IsRowanLoaded ifNil: [ IsRowanLoaded := true ]
+	^ (IsRowanLoaded == #notAvailable) not
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> isRowanLoaded [
+
+	IsRowanLoaded == #notAvailable ifTrue: [ ^ false ].
+	^ IsRowanLoaded ifNil: [ IsRowanLoaded := true ]
 ]
 
 { #category : 'settings' }
@@ -187,18 +194,19 @@ JadeitePreferences class >> settingsOn: aBuilder [
 				default: String new;
 				description:
 					'After connection, open a browser on a class. To disable preference, leave class name blank.'.
-			(aBuilder setting: #isRowanLoaded)
-				label: 'Rowan Available';
-				default: true; 
-				description:
-					'Set if Rowan is present in the server or not.'.
+			JadeitePreferences isRowanAvailable ifTrue: [
+				(aBuilder setting: #isRowanLoaded)
+					label: 'Rowan Display Enabled';
+					default: true;
+					description: 'Set to display Rowan information like projects and packages. Default true if Rowan available in server.' ].
 			(aBuilder setting: #current)
 				label: 'Show Progress Bar ';
 				dialog: [ self createShowProgressBarRow ].
 			(aBuilder setting: #showMethodNavigation)
 				label: 'Show Method Navigation In Browser';
 				default: false;
-				description: 'Show the list of previously visited methods in a browser. Setting takes effect when browser opened'. ]
+				description:
+					'Show the list of previously visited methods in a browser. Setting takes effect when browser opened' ]
 ]
 
 { #category : 'settings' }

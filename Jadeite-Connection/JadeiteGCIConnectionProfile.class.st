@@ -202,7 +202,8 @@ JadeiteGCIConnectionProfile >> disconnect [
 	GciSession clearCurrent.
 	connection := nil.
 	self notifyPropertyChanged: #connection.
-	RowanServiceUpdater clearCurrent
+	RowanServiceUpdater clearCurrent.
+	JadeitePreferences isRowanLoaded: true. 
 ]
 
 { #category : 'instance creation' }
@@ -409,7 +410,10 @@ JadeiteGCIConnectionProfile >> setIsRowanAvailableOnCompletion: completionBlock 
 		issueCommand: answeringService
 		session: GciSession current
 		onCompletion: [
-			JadeitePreferences isRowanLoaded: answeringService answer.
+			answeringService answer
+				ifTrue: [
+				JadeitePreferences isRowanLoaded: answeringService answer ]
+				ifFalse: [ JadeitePreferences isRowanLoaded: #notAvailable ].
 			completionBlock value ]
 ]
 
