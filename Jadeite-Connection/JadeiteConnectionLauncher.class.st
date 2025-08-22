@@ -147,6 +147,10 @@ JadeiteConnectionLauncher >> availableConnectionPresenter [
 JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 
 	| profileCopy ws |
+	fileRef basename first = $. ifTrue: [
+		UIManager default alert:
+			'Cannot export profile to file starting with ''.'''.
+		^ self ].
 	ws := fileRef writeStream.
 	[
 	profileCopy := JadeiteGCIConnectionProfile new.
@@ -154,7 +158,7 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 	ws nextPutAll: (STON toString: profileCopy).
 	ws flush ] ensure: [ ws close ].
 	self resetChangedTextFields.
-	self basicImportProfileFromFileReference: fileRef.
+	self basicImportProfileFromFileReference: fileRef
 ]
 
 { #category : 'connections' }
@@ -197,6 +201,7 @@ JadeiteConnectionLauncher >> basicImportProfileDirectory: directoryRef [
 JadeiteConnectionLauncher >> basicImportProfileFromFileReference: fileRef [
 
 	| connectionProfile |
+	fileRef basename first = $. ifTrue: [ ^ self ].
 	self class addImportedConnection: fileRef pathString.
 	connectionProfile := STON fromString: fileRef contents.
 	self basicImportProfile: connectionProfile.

@@ -84,7 +84,7 @@ JadeiteForPharoConnectionLauncherTestCase >> connectionFileName [
 ]
 
 { #category : 'support' }
-JadeiteForPharoConnectionLauncherTestCase >> createConnectionProfileDirectory [
+JadeiteForPharoConnectionLauncherTestCase >> createMockConnectionProfileDirectory [
 
 	| dir |
 	dir := self connectionDirName asFileReference asAbsolute.
@@ -313,6 +313,21 @@ JadeiteForPharoConnectionLauncherTestCase >> test_connectDoesNotClearChangeField
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_exportConnectionWontExportDotFiles [
+	"connections beginning with a '.' should not be exported"
+
+	fileRef := (FileSystem disk workingDirectoryPath
+	            / '.testExportInValidFileName') asFileReference.
+	[ launcher basicExportProfile: fileRef ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+			self
+				assert: ex messageText
+				equals: 'Cannot export profile to file starting with ''.''' ].
+	self deny: fileRef exists
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_fixedPort [
 	| profile |
 	profile := JadeiteConnectionProfile connectionProfile.
@@ -390,24 +405,47 @@ All loaded projects:*'.
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionLauncherTestCase >> test_importFromDirectory [
+JadeiteForPharoConnectionLauncherTestCase >> test_importConnectionSkipsDotFiles [
+	"connections beginning with a '.' should not be imported"
 
-	self createConnectionProfileDirectory.
+	| dir filename ref itemPrintStrings |
+	self
+		testsJadeiteForPharoIssue: #issue307
+		title:
+		'It should be safe to ignore files with leading . in Connections directory'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/307'.
+	self createMockConnectionProfileDirectory.
+	dir := self connectionDirName asFileReference asAbsolute.
+	filename := '.deleteme'.
+	ref := dir / filename.
+	ref createFile.
+	self assert: ref exists.
 	launcher basicImportProfileDirectory:
 		self connectionDirName asFileReference asAbsolute.
-	self verifyAllTestConnectionsImported
+	self verifyTestConnectionsImported.
+	itemPrintStrings := launcher availableConnectionPresenter items.
+	self deny: (itemPrintStrings includes: ref asAbsolute pathString)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_importFromDirectory [
+
+	self createMockConnectionProfileDirectory.
+	launcher basicImportProfileDirectory:
+		self connectionDirName asFileReference asAbsolute.
+	self verifyTestConnectionsImported
 ]
 
 { #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_refreshFromImportDirectory [
 
-	self createConnectionProfileDirectory.
+	self createMockConnectionProfileDirectory.
 	launcher basicImportProfileDirectory:
 		self connectionDirName asFileReference asAbsolute.
-	self verifyAllTestConnectionsImported.
+	self verifyTestConnectionsImported.
 	launcher basicRemoveAllConnections.
 	launcher refreshFromLastImportDirectory.
-	self verifyAllTestConnectionsImported
+	self verifyTestConnectionsImported
 ]
 
 { #category : 'tests' }
@@ -587,14 +625,14 @@ JadeiteForPharoConnectionLauncherTestCase >> verifyAllLauncherFieldsAreUnchanged
 ]
 
 { #category : 'support' }
-JadeiteForPharoConnectionLauncherTestCase >> verifyAllTestConnectionsImported [
+JadeiteForPharoConnectionLauncherTestCase >> verifyTestConnectionsImported [
+	"unique profiles created by a test are not verified"
 
 	1 to: self numberOfTestConnections do: [ :idx |
 		| path itemPrintStrings |
 		path := self connectionDirName asFileReference
 		        / (self connectionFileName , idx printString).
 		itemPrintStrings := launcher availableConnectionPresenter items.
-		itemPrintStrings includes: path asAbsolute pathString.
 		self assert: (itemPrintStrings includes: path asAbsolute pathString) ]
 ]
 
