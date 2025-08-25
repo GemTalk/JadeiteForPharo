@@ -3935,6 +3935,16 @@ JadeiteBrowserPresenter >> updateAfterFindClassInDictionary: classService [
 { #category : 'find' }
 JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: selector meta: meta [
 
+	^ self
+		  updateAfterFindClassName: className
+		  methodSelector: selector
+		  meta: meta
+		  onCompletion: [  ]
+]
+
+{ #category : 'find' }
+JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: selector meta: meta onCompletion: completionBlock [
+
 	| classService methodService |
 	classService := RowanClassService new
 		                name: className;
@@ -3946,7 +3956,7 @@ JadeiteBrowserPresenter >> updateAfterFindClassName: className methodSelector: s
 	^ self
 		  updateAfterFindClass: classService
 		  methodService: methodService
-		  onCompletion: [  ]
+		  onCompletion: completionBlock
 ]
 
 { #category : 'accessing' }

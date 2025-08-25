@@ -141,6 +141,8 @@ JadeiteSmalltalkEditor >> browseIt: aKeyboardEvent [
 			node := self selectedNode.
 			node isMessage ifTrue: [
 				^ self uiManager alert: 'Invalid class name selected' ].
+			node isMethod ifTrue: [
+				^ self uiManager alert: 'Invalid class name selected' ].
 			selectedClassName := self selectedNode name asString ].
 	selectedClassName first isUppercase ifFalse: [
 		^ self uiManager alert:
