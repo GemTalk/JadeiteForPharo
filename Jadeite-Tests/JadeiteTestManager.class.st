@@ -35,6 +35,12 @@ JadeiteTestManager >> alert: aStringOrText [
 	^ super alert: aStringOrText
 ]
 
+{ #category : 'testing' }
+JadeiteTestManager >> isActiveManager [
+
+	^false 
+]
+
 { #category : 'ui requests' }
 JadeiteTestManager >> openComparisionFrom: targetMethodSource to: originalMethodSource belongingTo: aClass from: aChange [
 	"to avoid abstract superclass display"
