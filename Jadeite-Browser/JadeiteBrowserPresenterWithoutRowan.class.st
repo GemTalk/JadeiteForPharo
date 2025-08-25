@@ -360,6 +360,7 @@ JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
 JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: theClassCategoryServices keepSelectedClass: selectedClass [
 
 	| classes toBeSelected |
+	self dictionaryListPresenter selectedItem classes ifNil: [ ^self ].
 	classes := self dictionaryListPresenter selectedItem classes select: [
 		           :classService |
 		           classService classCategory
