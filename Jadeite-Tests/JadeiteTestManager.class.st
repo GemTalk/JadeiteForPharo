@@ -21,6 +21,18 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'testing' }
+JadeiteTestManager class >> isActiveManager [
+
+	^ false
+]
+
+{ #category : 'testing' }
+JadeiteTestManager class >> isValidForCurrentSystemConfiguration [
+
+	^ false
+]
+
 { #category : 'instance creation' }
 JadeiteTestManager class >> replacing: aUIManager [
 
@@ -33,12 +45,6 @@ JadeiteTestManager >> alert: aStringOrText [
 	(ProvideAnswerNotification signal: aStringOrText) ifNotNil: [ :answer |
 		^ answer ].
 	^ super alert: aStringOrText
-]
-
-{ #category : 'testing' }
-JadeiteTestManager >> isActiveManager [
-
-	^false 
 ]
 
 { #category : 'ui requests' }
