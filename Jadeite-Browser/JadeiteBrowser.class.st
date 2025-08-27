@@ -179,7 +179,7 @@ JadeiteBrowser >> fileInServerFile [
 			  'Current Project and Current Package must be set first' ].
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: gciSession
-		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+		            defaultPath: JadePresenter homeEnvVarString.
 	filePath ifNotNil: [ self basicFileInServerFile: filePath ]
 ]
 

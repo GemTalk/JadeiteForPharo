@@ -710,7 +710,7 @@ JadeiteConsole >> openServerFile [
 	| filePath |
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: gciSession
-		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString.
+		            defaultPath: JadePresenter homeEnvVarString.
 	filePath ifNotNil: [ self basicOpenServerFile: filePath ]
 ]
 

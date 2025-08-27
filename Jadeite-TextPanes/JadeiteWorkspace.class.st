@@ -46,7 +46,7 @@ JadeiteWorkspace >> defaultSaveFileAsDirectory [
 
 	| substrings |
 	filePathString ifNil: [
-		^ JadePresenter rowanProjectsHomeEnvVarString ].
+		^ JadePresenter homeEnvVarString ].
 	substrings := filePathString subStrings: { $/ }.
 	^ (substrings first: substrings size - 1)
 		  inject: String new

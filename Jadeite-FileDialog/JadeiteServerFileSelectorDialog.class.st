@@ -36,7 +36,10 @@ JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path 
 
 { #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession [
-	^self showOnSession: aGciSession defaultPath: JadePresenter rowanProjectsHomeEnvVarString
+
+	^ self
+		  showOnSession: aGciSession
+		  defaultPath: JadePresenter homeEnvVarString
 ]
 
 { #category : 'instance creation' }

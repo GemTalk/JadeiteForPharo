@@ -9,19 +9,6 @@ Class {
 }
 
 { #category : 'instance creation' }
-JadeiteServerFileSaveDialog class >> instantiateOnSession: aGciSession initialFileName: fileName [
-	| service inst |
-	service := RowanFileServiceClient new path: JadePresenter rowanProjectsHomeEnvVarString.
-	service session: aGciSession.
-	inst := self createOn: service.
-	inst setPresenterModel.
-	inst fileNamePresenter value: fileName.
-	inst pathText value: service path.
-	inst showDirectoryContents.
-	^inst
-]
-
-{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath: path [
 	"assumes path is a full path + file name" 
 	| inst answer  |
@@ -52,15 +39,6 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: def
 	newFilePathRef := inst pathText text asFileReference / inst fileNamePresenter text. 
 	JadePresenter lastFilePath: inst pathText text.
 	^ newFilePathRef pathString 
-]
-
-{ #category : 'instance creation' }
-JadeiteServerFileSaveDialog class >> showOnSession: aGciSession initialFileName: fileName [
-	"assumes default $ROWAN_PROJECTS_HOME directory"
-	| inst answer |
-	inst := self instantiateOnSession: aGciSession initialFileName: fileName.
-	answer := inst showModal.
-	^answer ifNil: [nil] ifNotNil: [inst pathText value]
 ]
 
 { #category : 'accessing' }

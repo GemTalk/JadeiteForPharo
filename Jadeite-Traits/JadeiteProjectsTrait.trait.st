@@ -420,12 +420,12 @@ JadeiteProjectsTrait >> loadProject [
 	| filePath |
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: self gciSession
-		            defaultPath: JadePresenter rowanProjectsHomeEnvVarString
+		            defaultPath: JadePresenter homeEnvVarString
 		            shellName: 'Jadeite Select Load Spec File'.
 	filePath ifNil: [ ^ self ].
 	^ self
 		  installProjectFromPath: filePath
-		  projectsHome: JadePresenter rowanProjectsHomeEnvVarString
+		  projectsHome: JadePresenter homeEnvVarString
 ]
 
 { #category : 'actions' }

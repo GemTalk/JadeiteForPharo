@@ -65,7 +65,7 @@ JadePresenter class >> lastFilePath [
 	"when writing fileouts, etc save the last path saved for convenience"
 
 	LastFilePath ifNil: [
-		LastFilePath := self rowanProjectsHomeEnvVarString ].
+		LastFilePath := self homeEnvVarString ].
 	^ LastFilePath
 ]
 
