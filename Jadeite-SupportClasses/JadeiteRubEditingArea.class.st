@@ -8,6 +8,15 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'drawing' }
+JadeiteRubEditingArea >> drawSubMorphOn: aCanvas [
+
+	[ ^ super drawSubmorphsOn: aCanvas ]
+		on: Error
+		do: [ :ex |
+			ex traceCr "quit showing red screens of death but at least give some indication something happened to the user " ]
+]
+
 { #category : 'formatting' }
 JadeiteRubEditingArea >> formatMethodCode [
 	"Ctrl-Shift-F is always find class in JfP

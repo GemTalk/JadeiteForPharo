@@ -5,6 +5,14 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'layout' }
+JadeiteScrolledTextMorph >> computeFullBounds [
+
+	[ self doLayoutIn: self layoutBounds ]
+		on: Error
+		do: [ :ex | fullBounds := bounds ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteScrolledTextMorph >> drawOn: aCanvas [
 

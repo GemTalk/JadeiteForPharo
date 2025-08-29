@@ -57,6 +57,13 @@ JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchS
 	^ matches asSet asSortedCollection: [ :x :y | x data < y data ]
 ]
 
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> classCategoryServicesFor: dictionaryService [
+
+	^ dictionaryService classCategories collect: [ :category |
+		  RowanClassCategoryService new name: category ]
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 
@@ -79,7 +86,7 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
 	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
-		:selection | self updateClassCategoriesFor: selection selectedItem ].
+		:selection | self updateClassCategoriesAndSelectAllFor: selection selectedItem ].
 	classCategoryPresenter whenSelectionChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [
 			self updateClassesForClassCategories: selection selectedItems.
@@ -301,9 +308,7 @@ JadeiteBrowserPresenterWithoutRowan >> refreshClassCategoriesFrom: dictionarySer
 	dictionaryService classCategories
 		ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
 		ifNotNil: [
-			newServices := dictionaryService classCategories collect: [
-				               :category |
-				               RowanClassCategoryService new name: category ].
+			newServices := self classCategoryServicesFor: dictionaryService.
 			classCategoryServices := newServices.
 			classCategoryPresenter roots:
 				(self classCategoriesAt: 1 matching: '*') ]
@@ -461,6 +466,21 @@ JadeiteBrowserPresenterWithoutRowan >> updateClass: classService [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesAndSelectAllFor: dictionaryService [
+
+	self updateClassCategoriesFor: dictionaryService onCompletion: [
+		| theClasses |
+		theClasses := dictionaryService classes
+			              ifNil: [ Array new ]
+			              ifNotNil: [
+				              (dictionaryService classes asSortedCollection: [ :x :y |
+					               x name < y name ]) asArray ].
+		classCategoryPresenter expandAll.
+		classCategoryPresenter adapter widget selectAll.
+		classListPresenter items: theClasses ]
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryService [
 
 	self updateClassCategoriesFor: dictionaryService onCompletion: [  ]
@@ -581,7 +601,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selected
 		commandArgs:
 			(Array with: (selectedClassCategories collect: [ :classCat |
 							  classCat firstSubstringsToIndex ]));
-		shouldUpdate: false.
+		shouldUpdate: true.
 	RowanServiceUpdater current
 		issueCommand: dictionaryService
 		session: self gciSession

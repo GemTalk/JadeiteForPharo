@@ -212,8 +212,9 @@ JadeiteListPresenter >> selection: anObject [
 
 { #category : 'selection' }
 JadeiteListPresenter >> selectionIfNone: aBlock [
-self hasSelection ifFalse: [ ^aBlock value ].
-	^self selectedItem ifNil: [ aBlock value ]
+
+	self hasSelection ifFalse: [ ^ aBlock value ].
+	^ self selectedItem ifNil: [ aBlock value ]
 ]
 
 { #category : 'selection' }
