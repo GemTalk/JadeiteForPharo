@@ -285,6 +285,7 @@ JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
 	count > 10 or: [
 		(new := presenterClass allInstances asOrderedCollection) size
 		> existing size ] ] whileFalse: [
+		WorldMorph doOneCycle.
 		count := count + 1.
 		(Delay forMilliseconds: 50) wait ].
 	new removeAll: existing.
