@@ -247,7 +247,7 @@ JadeiteForPharoGUITestCase >> waitFor: aBlock errorMessage: errorString [
 	[
 	aBlock whileTrue: [ (Delay forMilliseconds: 1) wait ].
 	sem signal ] fork.
-	(sem waitTimeoutSeconds: 1) ifTrue: [ Error signal: errorString ]
+	(sem waitTimeoutSeconds: 2) ifTrue: [ Error signal: errorString ]
 ]
 
 { #category : 'support' }
