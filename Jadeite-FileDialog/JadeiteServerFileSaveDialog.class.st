@@ -23,7 +23,7 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath:
 { #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: defaultPath defaultFileName: fileName [
 
-	| inst modal answer expandedPath path newFilePathRef |
+	| inst modal answer expandedPath path newFilePath service |
 	(ProvideAnswerNotification signal: defaultPath) ifNotNil: [
 		:theAnswer | ^ theAnswer ].
 	path := JadePresenter lastFilePath
@@ -36,9 +36,12 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: def
 	inst initializeWith: expandedPath fileName: fileName.
 	answer := modal open.
 	answer cancelled ifTrue: [ ^ nil ].
-	newFilePathRef := inst pathText text asFileReference / inst fileNamePresenter text. 
+	service := RowanFileServiceClient new session: GciSession current.
+	service path: inst pathText text.
+	service / inst fileNamePresenter text.
+	newFilePath := service answer.
 	JadePresenter lastFilePath: inst pathText text.
-	^ newFilePathRef pathString 
+	^ newFilePath
 ]
 
 { #category : 'accessing' }

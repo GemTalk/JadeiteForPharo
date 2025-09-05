@@ -11,6 +11,18 @@ Class {
 	#package : 'Jadeite-RowanClientServicesClient'
 }
 
+{ #category : 'commands' }
+RowanFileServiceClient >> / aString [
+
+	| sem |
+	sem := Semaphore new.
+	command := #/.
+	commandArgs := Array with: aString.
+	self issueFileServiceCommandOnCompletion: [ sem signal ].
+	sem wait.
+	^ answer
+]
+
 { #category : 'accessing' }
 RowanFileServiceClient >> alwaysForked [
 
