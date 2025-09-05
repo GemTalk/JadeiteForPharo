@@ -279,15 +279,7 @@ JadeiteBrowserPresenterWithoutRowan >> newClass: classService addedTo: presenter
 
 	dictionaryListPresenter selectedItem ifNotNil: [ :dictionaryService |
 		dictionaryService addClass: classService ].
-	self classCategoryPresenter ifNil: [ ^ self ].
-	self classCategoryPresenter selectedItem ifNotNil: [ :item |
-		classService classCategory = item name ifFalse: [
-			self selectClassCategoryFor: classService.
-			self classCategoryPresenter selectedItem ifNil: [ "still not found"
-				self addClassCategory: classService classCategory.
-				self selectClassCategoryFor: classService ] ] ].
-	(presenter items includes: classService) ifFalse: [
-		presenter items add: classService ]
+	self findClassService: classService
 ]
 
 { #category : 'initialization' }
@@ -365,13 +357,13 @@ JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
 JadeiteBrowserPresenterWithoutRowan >> selectClassCategory: theClassCategoryServices keepSelectedClass: selectedClass [
 
 	| classes toBeSelected |
-	self dictionaryListPresenter selectedItem classes ifNil: [ ^self ].
+	self dictionaryListPresenter selectedItem classes ifNil: [ ^ self ].
 	classes := self dictionaryListPresenter selectedItem classes select: [
 		           :classService |
 		           classService classCategory
 			           ifNil: [ false ]
 			           ifNotNil: [ :cat |
-				           (theClassCategoryServices
+				           ((theClassCategoryServices copyWithout: nil)
 					            detect: [ :category |
 						            | stream |
 						            stream := WriteStream on: String new.

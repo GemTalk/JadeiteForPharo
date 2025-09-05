@@ -316,6 +316,24 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_compileClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_createClassWithDifferentCategorySelected [
+
+	self projectsPresenter selectDictionaryNamed: 'RowanClientServices'.
+	self projectsPresenter classDefinitionPresenter text:
+		'(Object subclass: ''NewSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	inDictionary: UserGlobals
+	options: #()) category: ''NewCategory'''.
+	self projectsPresenter classDefinitionPresenter triggerSubmitAction.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'NewSubclass'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 
 	self projectsPresenter
