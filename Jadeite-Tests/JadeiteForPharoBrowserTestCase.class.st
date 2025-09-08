@@ -51,10 +51,19 @@ JadeiteForPharoBrowserTestCase >> fileInFileName [
 	^ 'TestFileIn.gs'
 ]
 
-{ #category : 'constants' }
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> fileInFilePath [
 
-	^ (FileSystem workingDirectory / self fileInFileName) pathString
+	| answeringService sem path |
+	answeringService := RowanAnsweringServiceClient new
+		                    command: #pathInWorkingDirectoryFor:;
+		                    commandArgs: (Array with: self fileInFileName).
+	sem := Semaphore new.
+	self issueCommand: answeringService onCompletion: [ :svc |
+		path := svc answer.
+		sem signal ].
+	sem wait.
+	^ path
 ]
 
 { #category : 'support' }
@@ -692,9 +701,8 @@ JadeiteForPharoBrowserTestCase >> test_existsOnDiskDisplay [
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_fileIn [
 
-	| classes newClass fileName path |
+	| classes newClass fileName path answeringService sem fileService |
 	projectsBrowser unsetCurrentProject.
-
 	self openProjectBrowser.
 	self
 		selectServiceNamed: 'UnPackaged'
@@ -730,9 +738,14 @@ JadeiteForPharoBrowserTestCase >> test_fileIn [
 	self denyIsNil: newClass.
 	self projectsPresenter selectClassNamed: 'TestingFileIn'.
 	fileName := 'test_fileIn.txt'.
-	path := (FileSystem disk workingDirectoryPath / fileName)
-		        asFileReference pathString.
-
+	answeringService := RowanAnsweringServiceClient new
+		                    command: #pathInWorkingDirectoryFor:;
+		                    commandArgs: (Array with: fileName).
+	sem := Semaphore new.
+	self issueCommand: answeringService onCompletion: [ :svc |
+		path := svc answer.
+		sem signal ].
+	sem wait.
 	self projectsPresenter fileOutClassOnPath: path.
 
 	self abortTransaction.
@@ -765,7 +778,12 @@ JadeiteForPharoBrowserTestCase >> test_fileIn [
 		            ifNone: [  ].
 	self denyIsNil: newClass.
 
-	self abortTransaction
+	self abortTransaction.
+	fileService := RowanFileServiceClient new path: path.
+	fileService
+		command: #remove;
+		commandArgs: Array new.
+	self issueCommand: fileService onCompletion: [  ]
 ]
 
 { #category : 'tests' }
@@ -800,8 +818,8 @@ JadeiteForPharoBrowserTestCase >> test_fileIn2 [
 	projectsBrowser basicFileInServerFile: path.
 
 	"Assertions: Verify file existence, filed in class exists, and method functionality"
-	self assert:
-		(session executeString: '(Rowan globalNamed: ''' , className , ''') notNil').
+	self assert: (session executeString:
+			 '(Rowan globalNamed: ''' , className , ''') notNil').
 	self assert:
 		(session executeString: self fileInClassName , ' new method1').
 	self assert:
@@ -836,11 +854,16 @@ JadeiteForPharoBrowserTestCase >> test_fileInOnBrowser [
 JadeiteForPharoBrowserTestCase >> test_fileoutPackage [
 
 	| fileOutPath fileOutRef |
+	Smalltalk os isWindows ifTrue: [
+		^ self skip:
+			  'JadeiteForPharoBrowserTestCase>>#test_fileoutPackage only runs on linux pharo client (currently)' ].
+
 	self
 		testsJadeiteForPharoIssue: #issue260
 		title:
 		'fileout package creates two files and an extra extension .gs.gs'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/260'.
+
 	fileOutRef := FileSystem disk workingDirectory
 	              / 'JfP_test_Rowan-Client-Services.gs'.
 	fileOutRef deleteIfAbsent: [  ].
@@ -863,9 +886,9 @@ JadeiteForPharoBrowserTestCase >> test_fileoutPackage [
 	self assert: fileOutRef extension equals: 'gs' ] ensure: [
 		FileSystem disk workingDirectory
 		/ 'JfP_test_Rowan-Client-Services.gs' deleteIfAbsent: [  ].
-		FileSystem disk workingDirectory
-		/ 'JfP_test_Rowan-Client-Services' deleteIfAbsent: [  ] "workaround for rowan creating extra file on fileout"
-		 ]
+		FileSystem disk workingDirectory / 'JfP_test_Rowan-Client-Services'
+			deleteIfAbsent: [ "workaround for rowan creating extra file on fileout"
+			 ] ]
 ]
 
 { #category : 'tests' }

@@ -59,6 +59,9 @@ JadeiteForPharoWorkspaceTestCase >> test_ctrlSKeybindings [
 		testsJadeiteForPharoIssue: #issue240
 		title: 'CTL-S does not do a save in a JfP workspace window'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/240'.
+	Smalltalk os isWindows ifTrue: [
+		^ self skip:
+			  'JadeiteForPharoWorkspaceTestCase>>#test_ctrlSKeybindings only runs on linux pharo client (currently)' ].
 	workspace := (JadeiteWorkspace showOnSession: session) caption:
 		             'Jade Workspace - Test Display'.
 	keymap := workspace contextKeyBindings keymaps detect: [ :ea |
