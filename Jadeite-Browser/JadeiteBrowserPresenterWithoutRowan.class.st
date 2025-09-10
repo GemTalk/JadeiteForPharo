@@ -142,7 +142,7 @@ JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresen
 
 	| classCategoryPage |
 	classCategoryTabs := self instantiate: JadeiteNotebookPresenter.
-	classCategoryPresenter := (SpTreePresenter new children: [ :service |
+	classCategoryPresenter := (JadeiteClassCategoryTreePresenter new children: [ :service |
 			                           self
 				                           classCategoriesAt:
 					                           service substringIndex + 1
@@ -468,7 +468,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesAndSelectAllFor: dic
 				              (dictionaryService classes asSortedCollection: [ :x :y |
 					               x name < y name ]) asArray ].
 		classCategoryPresenter expandAll.
-		classCategoryPresenter adapter widget selectAll.
+		self suspendSelectionEvents.
+		[ classCategoryPresenter adapter widget selectAll ] ensure: [
+			self resumeSelectionEvents ].
 		classListPresenter items: theClasses ]
 ]
 

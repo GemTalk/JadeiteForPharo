@@ -1,5 +1,5 @@
 Class {
-	#name : 'JadeiteTreePresenter',
+	#name : 'JadeiteClassTreePresenter',
 	#superclass : 'SpTreePresenter',
 	#instVars : [
 		'selectionBlock'
@@ -9,31 +9,31 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteTreePresenter class >> adapterName [
+JadeiteClassTreePresenter class >> adapterName [
 
 	^ #JadeiteTreeAdapter
 ]
 
 { #category : 'testing' }
-JadeiteTreePresenter >> canExpand [
+JadeiteClassTreePresenter >> canExpand [
 
 	self withAdapterDo: [ :anAdapter | ^ anAdapter canExpand ]
 ]
 
 { #category : 'actions' }
-JadeiteTreePresenter >> clear [ 
+JadeiteClassTreePresenter >> clear [ 
 
 	self roots: OrderedCollection new.
 ]
 
 { #category : 'testing' }
-JadeiteTreePresenter >> contains: anObject [
+JadeiteClassTreePresenter >> contains: anObject [
 
 	^ ((self pathIndexOf: (Array with: anObject)) first = 0) not
 ]
 
 { #category : 'private' }
-JadeiteTreePresenter >> doActivateAtPath: aPath [
+JadeiteClassTreePresenter >> doActivateAtPath: aPath [
 	"activate will handle selection activities"
 
 	| selBlock |
@@ -47,19 +47,19 @@ JadeiteTreePresenter >> doActivateAtPath: aPath [
 ]
 
 { #category : 'initialization' }
-JadeiteTreePresenter >> initialize [ 
+JadeiteClassTreePresenter >> initialize [ 
 	super initialize. 
 	roots := OrderedCollection new. 
 ]
 
 { #category : 'testing' }
-JadeiteTreePresenter >> model [
+JadeiteClassTreePresenter >> model [
 	"trees are completely different in pharo. This is an experiment."
 	^roots
 ]
 
 { #category : 'actions' }
-JadeiteTreePresenter >> recalculateChildrenFor: path [
+JadeiteClassTreePresenter >> recalculateChildrenFor: path [
 	"This will nil out the children for the FTBasicItem at the path so 
 	a lazy initialization is done again. Not very good hooks to make trees dynamic. "
 
@@ -71,50 +71,50 @@ JadeiteTreePresenter >> recalculateChildrenFor: path [
 ]
 
 { #category : 'selection' }
-JadeiteTreePresenter >> resetSelection [ 
+JadeiteClassTreePresenter >> resetSelection [ 
 	self unselectAll
 ]
 
 { #category : 'selection' }
-JadeiteTreePresenter >> scrollToSelection [
+JadeiteClassTreePresenter >> scrollToSelection [
 	self withAdapterPerformOrDefer: [ :anAdapter |
 		adapter scrollToSelection  ]
 ]
 
 { #category : 'api - selection' }
-JadeiteTreePresenter >> selectItem: anItem [
+JadeiteClassTreePresenter >> selectItem: anItem [
 
 	self selection selectedItem = anItem ifFalse: [
 		self selection selectItem: anItem ]
 ]
 
 { #category : 'api - selection' }
-JadeiteTreePresenter >> selectPath: aPath [
+JadeiteClassTreePresenter >> selectPath: aPath [
 
 	self selection selectedPath = aPath ifFalse: [
 		self selection selectPath: aPath ]
 ]
 
 { #category : 'accessing' }
-JadeiteTreePresenter >> selectionBlock [
+JadeiteClassTreePresenter >> selectionBlock [
 
 	^ selectionBlock
 ]
 
 { #category : 'accessing' }
-JadeiteTreePresenter >> selectionBlock: anObject [
+JadeiteClassTreePresenter >> selectionBlock: anObject [
 
 	selectionBlock := anObject
 ]
 
 { #category : 'selection' }
-JadeiteTreePresenter >> selectionIfNone: aBlock [
+JadeiteClassTreePresenter >> selectionIfNone: aBlock [
 
 	^self selectedItem ifNil: [ aBlock value ]
 ]
 
 { #category : 'api - events' }
-JadeiteTreePresenter >> whenSelectionChangedDo: aBlock [
+JadeiteClassTreePresenter >> whenSelectionChangedDo: aBlock [
 
 	selectionBlock := aBlock.
 	^ super whenSelectionChangedDo: aBlock

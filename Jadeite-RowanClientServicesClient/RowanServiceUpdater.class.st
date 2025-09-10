@@ -457,7 +457,7 @@ RowanServiceUpdater >> registeredPresenters [
 
 { #category : 'private' }
 RowanServiceUpdater >> registeredTreePresenters [
-	^self registeredPresenters select: [:presenter | presenter isKindOf: JadeiteTreePresenter]
+	^self registeredPresenters select: [:presenter | presenter isKindOf: JadeiteClassTreePresenter]
 ]
 
 { #category : 'public' }

@@ -1,6 +1,12 @@
 Extension { #name : 'ObservableValueHolder' }
 
 { #category : '*Jadeite-BaseExtensions' }
+ObservableValueHolder >> lock [ 
+
+	^lock 
+]
+
+{ #category : '*Jadeite-BaseExtensions' }
 ObservableValueHolder >> value: anObject [
 	"Handle circular references as explained in the class comment"
 

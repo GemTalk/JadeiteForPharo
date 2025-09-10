@@ -1531,7 +1531,7 @@ JadeiteBrowserPresenter >> initializeClassExtraText: classColumn [
 JadeiteBrowserPresenter >> initializeClassHierarchy [
 
 	| classHierarchyPage |
-	classHierarchyPresenter := JadeiteTreePresenter new
+	classHierarchyPresenter := JadeiteClassTreePresenter new
 		                           display: [ :m | m displayString ];
 		                           displayColor: [ :classService |
 			                           self classDisplayColor: classService ];

@@ -305,14 +305,14 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_compileClass [
 		equals: 'TestClass'.
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
 	self
-		assert: self projectsPresenter classDefinitionPresenter text
+		assert: self projectsPresenter classDefinitionPresenter text trimBlanks
 		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames: #(''abc'')
+	instVarNames: #( abc)
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
 	category: ''RowanSample1-Core''
-	options: #()'
+	options: #()' replaceCrWithLf 
 ]
 
 { #category : 'tests' }
@@ -436,7 +436,14 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	self
 		assert: self classCategoryPresenter roots last name
 		equals: RowanClassCategoryService new nilCategoryDisplayName.
-	self assert: self classListPresenter items size equals: 0.
+
+	self assert: self classListPresenter items size equals: 2.
+	self assert:
+		((self classListPresenter items collect: [ :ea | ea name ])
+			 includes: 'RowanSample1').
+	self assert:
+		((self classListPresenter items collect: [ :ea | ea name ])
+			 includes: 'RowanSample1Test').
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: String new;
