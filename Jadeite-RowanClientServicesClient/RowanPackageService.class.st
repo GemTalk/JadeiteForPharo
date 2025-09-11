@@ -132,8 +132,11 @@ RowanPackageService >> condenseExtensions: presenter [
 ]
 
 { #category : 'accessing' }
-RowanPackageService >> confirmClassRemoval: classService [
-	^MessageBox confirm: 'Really delete class ' , classService name , '?'
+RowanPackageService >> confirmClassRemoval: classService presenter: anObject shouldConfirm: confirmBoolean [
+
+	confirmBoolean ifFalse: [ ^ true ].
+	^ self uiManager confirm:
+		  'Really delete class ' , classService name , '?'
 ]
 
 { #category : 'accessing' }

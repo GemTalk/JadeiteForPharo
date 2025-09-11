@@ -115,19 +115,19 @@ RowanDictionaryService >> classesUpdate: presenter browser: browser [
 ]
 
 { #category : 'accessing' }
-RowanDictionaryService >> confirmClassRemoval: classService [
+RowanDictionaryService >> confirmClassRemoval: classService presenter: presenter shouldConfirm: confirmBoolean [
+
 	| messageStream |
+	confirmBoolean ifFalse: [ ^ true ].
 	messageStream := WriteStream on: String new.
 	messageStream
 		nextPutAll: 'Really delete class ';
 		nextPutAll: classService name;
 		nextPut: $?.
-	classService packageName = RowanService notRowanizedPackageName
-		ifTrue: 
-			[messageStream
-				cr;
-				nextPutAll: 'Note that removal of unpackaged classes will not be tracked by Rowan'].
-	^MessageBox confirm: messageStream contents
+	presenter
+		addUnpackagedClassesMessageTo: messageStream
+		using: classService.
+	^ self uiManager confirm: messageStream contents
 ]
 
 { #category : 'accessing' }

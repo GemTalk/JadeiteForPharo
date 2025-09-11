@@ -239,6 +239,17 @@ JadeiteBrowserPresenter >> addSystemBrowser [
 	^browser
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> addUnpackagedClassesMessageTo: messageStream using: classService [
+
+	classService packageName = RowanService notRowanizedPackageName
+		ifTrue: [
+			messageStream
+				cr;
+				nextPutAll:
+					'Note that removal of unpackaged classes will not be tracked by Rowan' ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> addVariableAccessors [
 	self confirmOverwriteAccessor ifFalse: [^self].
@@ -368,7 +379,7 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 		classHierarchyPresenter selection selectPath: newPath ].
 	service := self selectedDictionaryOrPackage.
 	service
-		command: #removeClass:;
+		command: self removeClassSelector;
 		commandArgs: (Array with: theClassService);
 		shouldUpdate: true.
 	self issueCommand: service onCompletion: [
@@ -3001,7 +3012,14 @@ JadeiteBrowserPresenter >> removeAppropriateTab [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> removeClass [
 
-	| classService answeringService classReferenceBrowser |
+	^ self removeClassConfirm: true
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> removeClassConfirm: confirmBoolean [
+	"confirm is used by tests to avoid the dialog raised in a forked thread"
+
+	| classReferenceBrowser answeringService classService |
 	classService := self selectedClass ifNil: [ ^ self ].
 	answeringService := RowanAnsweringService new.
 	answeringService
@@ -3010,21 +3028,29 @@ JadeiteBrowserPresenter >> removeClass [
 	self issueCommand: answeringService onCompletion: [
 		answeringService answer ifTrue: [
 			^ MessageBox notify: 'Cannot remove class with subclasses' ].
-		(self selectedDictionaryOrPackage confirmClassRemoval: classService)
-			ifFalse: [ ^ self ].
-		self
-			basicBrowseClassReferences: classService name
-			session: self gciSession
-			completionBlock: [ :queryService |
-				queryService hasResults ifTrue: [
-					classReferenceBrowser := self browseClassReferences:
-						                         classService name ].
-				self updateTabLabel.
-				self basicRemoveClass: classService onCompletion: [
+		(self selectedDictionaryOrPackage
+			 confirmClassRemoval: classService
+			 presenter: self
+			 shouldConfirm: confirmBoolean) ifTrue: [
+			self
+				basicBrowseClassReferences: classService name
+				session: self gciSession
+				completionBlock: [ :queryService |
 					queryService hasResults ifTrue: [
-						MessageBox notify: classService name
-							,
-							' was removed. You will need to remove references to the class or your code may not load in the future.' ] ] ] ]
+						classReferenceBrowser := self browseClassReferences:
+							                         classService name ].
+					self updateTabLabel.
+					self basicRemoveClass: classService onCompletion: [
+						queryService hasResults ifTrue: [
+							MessageBox notify: classService name
+								,
+								' was removed. You will need to remove references to the class or your code may not load in the future.' ] ] ] ] ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> removeClassSelector [
+
+	^ #removeClass:
 ]
 
 { #category : 'actions' }

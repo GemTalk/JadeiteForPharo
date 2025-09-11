@@ -43,6 +43,11 @@ JadeiteBrowserPresenterWithoutRowan >> addClassCategory: classCategory [
 		self dictionaryListPresenter selectedItem
 ]
 
+{ #category : 'actions' }
+JadeiteBrowserPresenterWithoutRowan >> addUnpackagedClassesMessageTo: messageStream using: classService [
+	"no message in JfPwoR"
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchString [
 
@@ -320,6 +325,14 @@ JadeiteBrowserPresenterWithoutRowan >> registerPackageDictionaryListsForUpdates 
 
 { #category : 'registration' }
 JadeiteBrowserPresenterWithoutRowan >> registerProjectListForUpdates [
+]
+
+{ #category : 'acccessing' }
+JadeiteBrowserPresenterWithoutRowan >> removeClassSelector [
+
+	^ JadeitePreferences isRowanAvailable
+		  ifTrue: [ #removeClass: ]
+		  ifFalse: [ #jfpwor_removeClass: ]
 ]
 
 { #category : 'private' }
