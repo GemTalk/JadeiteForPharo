@@ -945,7 +945,6 @@ RowanClassService >> sunitMethodsUpdate: presenter browser: browser [
 	browser classListPresenter selections isEmpty ifTrue: [^self].
 	browser classListPresenter selections size > 1
 		ifFalse: [browser classListPresenter jaditeSelection name asString = name asString ifFalse: [^self]].
-	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
 	selections := browser classListPresenter selections asOrderedCollection.
 	oldClassService := selections detect: [:classService | classService = self] ifNone: [^self].
 	oldClassService replicateFrom: self. 

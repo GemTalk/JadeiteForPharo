@@ -88,8 +88,6 @@ RowanPackageService >> classesUpdate: presenter browser: browser [
 
 	| condensedList selections selectedPackageServices validatedList |
 	classes ifNil: [ ^ self ].
-	presenter list isEmpty ifTrue: [
-		self initializePresenterList: presenter ].
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
 	self removeDeletedClassesIn: presenter browser: browser.
 	classes ifNil: [ ^ self ].

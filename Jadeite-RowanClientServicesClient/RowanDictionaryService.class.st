@@ -89,8 +89,7 @@ RowanDictionaryService >> classes: anArray [
 RowanDictionaryService >> classesUpdate: presenter browser: browser [
 
 	| updatedClasses theClasses |
-	presenter list isEmpty ifTrue: [
-		self initializePresenterList: presenter ].
+
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
 	classes ifNil: [ ^ presenter list: ListModel new ].
 	self removeDeletedClassesIn: presenter browser: browser.

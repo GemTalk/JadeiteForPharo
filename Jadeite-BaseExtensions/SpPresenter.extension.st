@@ -6,5 +6,4 @@ SpPresenter >> update: browserUpdate withSelector: selector browser: browser [
 		updatesPerform: selector
 		presenter: self
 		browser: browser.
-	(browser class canUnderstand: #redrawAllViews) ifTrue: [browser redrawAllViews]
 ]

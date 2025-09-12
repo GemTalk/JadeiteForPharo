@@ -1159,7 +1159,8 @@ JadeiteBrowserPresenter >> ensureSelectionAfterDropClass: classService methods: 
 	| targetSelectors indexes index |
 	index := self classListPresenter list indexOf: classService.
 	self classListPresenter selectIndex: index scrollToSelection: true.
-	self categoryListPresenter list: classService categories.
+	self categoryListPresenter list:
+		(self jadeiteCategoriesFor: classService categories).
 	self methodListPresenter list: classService methods.
 	targetSelectors := methodServices collect: [ :ea | ea selector ].
 	indexes := self methodListPresenter list
@@ -2101,7 +2102,6 @@ JadeiteBrowserPresenter >> jadeiteCategories [
 
 { #category : 'accessing' }
 JadeiteBrowserPresenter >> jadeiteCategoriesFor: aCollection [
-	"for comparing against presenter lists"
 
 	aCollection ifNil: [ ^ OrderedCollection new ].
 	^ aCollection collect: [ :categoryOrString |
@@ -2265,8 +2265,6 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 
 	classService ifNil: [ ^ self ].
 	classService meta = self isClassSideSelected ifFalse: [ ^ self ].
-	classListPresenter list isEmpty ifTrue: [
-		classService initializePresenterList: methodListPresenter ].
 	classService displayMethodsOn: methodListPresenter browser: self.
 	methodListPresenter selections isEmpty
 		ifTrue: [

@@ -1678,6 +1678,29 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_removeClass [
+
+	self
+		testsJadeiteForPharoIssue: #issue322
+		title: 'WOR: Remove class broken'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/322'.
+	self selectRowanSample1Class.
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self updateService: self projectsPresenter selectedClass. "make sure it's updated in for the test"
+	self projectsPresenter removeClassConfirm: false.
+	self
+		deny: self projectsPresenter selectedClass name
+		equals: 'TestClass'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_resetClassComment [
 
 	| classComment |

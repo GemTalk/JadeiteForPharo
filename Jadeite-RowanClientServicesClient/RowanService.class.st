@@ -327,12 +327,6 @@ RowanService >> initialize [
 	self inCommand: RowanSemaphore new
 ]
 
-{ #category : 'Init / Release' }
-RowanService >> initializePresenterList: presenter [
-	self todo: [presenter sortBlock: [:x :y | x sortAspect < y sortAspect]].
-	self todo:[presenter list: ListModel new "needed?"]
-]
-
 { #category : 'testing' }
 RowanService >> isAnsweringService [
 
@@ -603,8 +597,6 @@ RowanService >> packagesUpdate: presenter browser: browser parentPresenter: pare
 
 	| packageServices |
 	(presenter class canUnderstand: #list) ifFalse: [ ^ self ].
-	presenter list isEmpty ifTrue: [
-		self initializePresenterList: presenter ].
 	parentPresenter selectedItems
 		detect: [ :service | service name = self name ]
 		ifNone: [ ^ self ].
