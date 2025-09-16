@@ -48,6 +48,15 @@ JadeiteBrowserPresenterWithoutRowan >> addUnpackagedClassesMessageTo: messageStr
 	"no message in JfPwoR"
 ]
 
+{ #category : 'tab labels' }
+JadeiteBrowserPresenterWithoutRowan >> basicProjectTabLabel [
+
+	self classCategoryPresenter selectedItems ifEmpty: [
+		^ super basicProjectTabLabel ].
+	self selectedClass ifNotNil: [ ^ super basicProjectTabLabel ].
+	^ self classCategoryPresenter selectedItem firstSubstringsToIndex traceCr
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> classCategoriesAt: index matching: matchString [
 
@@ -81,9 +90,7 @@ JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectPackageDictionaryPresenters [
-
-"	dictionaryListPresenter whenSelectionChangedDo: [ :selection |
-		self updateDictionary ]"
+	"not present in JfPwoR"
 ]
 
 { #category : 'initialization' }
@@ -91,11 +98,11 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
 	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
-		:selection | self updateClassCategoriesAndSelectAllFor: selection selectedItem ].
+		:selection |
+		self updateClassCategoriesAndSelectAllFor: selection selectedItem ].
 	classCategoryPresenter whenSelectionChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [
-			self updateClassesForClassCategories: selection selectedItems.
-			self updateClassDefPresenter ] ]
+			self updateClassesForClassCategories: selection selectedItems ] ]
 ]
 
 { #category : 'initialization' }
@@ -484,7 +491,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesAndSelectAllFor: dic
 		self suspendSelectionEvents.
 		[ classCategoryPresenter adapter widget selectAll ] ensure: [
 			self resumeSelectionEvents ].
-		classListPresenter items: theClasses ]
+		classListPresenter items: theClasses.
+		self updateClassDefPresenter.
+		self updateTabLabel ]
 ]
 
 { #category : 'updates' }
@@ -615,7 +624,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selected
 		onCompletion: [
 			self
 				selectClassCategory: selectedClassCategories
-				keepSelectedClass: selectedClass ]
+				keepSelectedClass: selectedClass.
+			self updateClassDefPresenter.
+			self updateTabLabel ]
 ]
 
 { #category : 'updates' }
