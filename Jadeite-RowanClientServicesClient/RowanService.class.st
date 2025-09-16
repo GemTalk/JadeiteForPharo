@@ -138,23 +138,24 @@ RowanService >> chooseModel: presenter using: browser [
 
 { #category : 'public' }
 RowanService >> classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchyServices [
+
 	| treeModel subclasses parent |
-	browser isHierarchyTabSelected ifFalse: [^self].
-	hierarchyServices ifNil: [^self].
-	hierarchyServices isEmpty ifTrue: [^self].
-	presenter selectedItem isNil ifFalse: [(presenter selectedItem = self) ifFalse: [^self]].
+	browser isHierarchyTabSelected ifFalse: [ ^ self ].
+	hierarchyServices ifNil: [ ^ self ].
+	hierarchyServices isEmpty ifTrue: [ ^ self ].
+	presenter selectedItem ifNotNil: [
+		presenter selectedItem = self ifFalse: [ ^ self ] ].
 	treeModel := presenter.
 	parent := nil.
-	subclasses := hierarchyServices at: #nil ifAbsent: [].
-	presenter roots: subclasses. 
-	subclasses do: 
-			[:classService |
-			self
-				possiblyAddHierarchyService: classService
-				to: treeModel
-				withParent: parent
-				hierarchyServices: hierarchyServices].
-	presenter expandAll. 
+	subclasses := hierarchyServices at: #nil ifAbsent: [  ].
+	presenter roots: subclasses.
+	subclasses do: [ :classService |
+		self
+			possiblyAddHierarchyService: classService
+			to: treeModel
+			withParent: parent
+			hierarchyServices: hierarchyServices ].
+	presenter expandAll
 ]
 
 { #category : 'rsr' }

@@ -54,7 +54,9 @@ JadeiteBrowserPresenterWithoutRowan >> basicProjectTabLabel [
 	self classCategoryPresenter selectedItems ifEmpty: [
 		^ super basicProjectTabLabel ].
 	self selectedClass ifNotNil: [ ^ super basicProjectTabLabel ].
-	^ self classCategoryPresenter selectedItem firstSubstringsToIndex traceCr
+	self classCategoryPresenter selectedItem ifNil: [
+		^ super basicProjectTabLabel ].
+	^ self classCategoryPresenter selectedItem firstSubstringsToIndex
 ]
 
 { #category : 'updates' }
@@ -487,6 +489,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesAndSelectAllFor: dic
 			              ifNotNil: [
 				              (dictionaryService classes asSortedCollection: [ :x :y |
 					               x name < y name ]) asArray ].
+		self selectClassListTab. 
 		classCategoryPresenter expandAll.
 		self suspendSelectionEvents.
 		[ classCategoryPresenter adapter widget selectAll ] ensure: [
@@ -604,6 +607,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selected
 
 	| dictionaryService selectedClass |
 	selectedClassCategories ifEmpty: [ ^ self ].
+	self isHierarchyTabSelected ifTrue: [
+		^ self updateHierarchy ].
 	(self classCategoryPresenter selectedItems includesAny:
 		 selectedClassCategories)
 		ifTrue: [ selectedClass := self selectedClass ]
@@ -678,4 +683,22 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesOnCompletion: completionBloc
 	self
 		updateServices: dictionaryListPresenter selections
 		onCompletion: completionBlock
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateHierarchyForClassCategories [
+
+	| classServices browserService |
+	classServices := self filterClassesBySelectedClassCategory:
+		                 self dictionaryListPresenter selectedItem classes.
+	browserService := RowanBrowserService new.
+	browserService
+		command: #classHierarchyServices:;
+		commandArgs: (Array with: classServices).
+	self issueCommand: browserService onCompletion: [  ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateHierarchyForPacktionaries [
+	self updateHierarchyForClassCategories. 
 ]
