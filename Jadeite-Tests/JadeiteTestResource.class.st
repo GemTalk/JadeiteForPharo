@@ -138,6 +138,15 @@ JadeiteTestResource >> connect [
 	^ profile connect
 ]
 
+{ #category : 'support' }
+JadeiteTestResource >> connectIfNecessary [
+
+	| profile |
+	profile := JadeiteConnectionProfile connectionProfile.
+	RowanTestServiceUpdater installTestUpdater.
+	profile isConnected ifFalse: [ profile connect ]
+]
+
 { #category : 'projects creating' }
 JadeiteTestResource >> createRowanSample1Project [
 	"Don't get RowanSample1 project from disk.
