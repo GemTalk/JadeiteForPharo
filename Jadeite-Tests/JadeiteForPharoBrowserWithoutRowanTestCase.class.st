@@ -17,6 +17,20 @@ JadeiteForPharoBrowserWithoutRowanTestCase class >> codeCoverageClasses [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> classCategoryServices [
+
+	^ self classCategoryPresenter adapter widget dataSource allShownItems
+		  collect: [ :service | service data ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> classHierarchyServices [
+
+	^ self classHierarchyPresenter adapter widget dataSource allShownItems
+		  collect: [ :service | service data ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
 	self projectsPresenter classDefinitionPresenter
 		value: superName, ' rwSubclass: ', className printString, '
@@ -28,6 +42,16 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: s
 	category: ', aString printString, '
 	options: #()'.
 	^self projectsPresenter editSaveClass
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> selectClassCategoryNamed: name [
+
+	| services service |
+	services := self classCategoryServices.
+	service := services detect: [ :classCategoryService |
+		           classCategoryService name = name ].
+	self classCategoryPresenter selectItem: service
 ]
 
 { #category : 'selection' }
@@ -187,6 +211,40 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_browseClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_changeClassCategoryWhenHierarchyViewOpen [
+
+	| canonicalizationClasses canonicalizationHierarchyClasses |
+	self projectsPresenter selectDictionaryNamed: 'Globals'.
+	self selectClassCategoryNamed: 'Canonicalization'.
+	canonicalizationClasses := (self classListPresenter items
+		                            asSortedCollection: [ :x :y |
+		                            x name < y name ]) asArray.
+	canonicalizationClasses do: [ :classService |
+		self assert: classService classCategory equals: 'Canonicalization' ].
+	self selectHierarchyTab.
+	canonicalizationHierarchyClasses := ((self classHierarchyServices
+		                                      select: [ :classService |
+			                                      self updateService:
+				                                      classService.
+			                                      classService classCategory
+			                                      = 'Canonicalization' ])
+		                                     asSortedCollection: [ :x :y |
+		                                     x name < y name ]) asArray.
+	self
+		assert: canonicalizationClasses
+		equals: canonicalizationHierarchyClasses.
+	self selectClassCategoryNamed: 'Announcements-Core-GemStone-Test'.
+	canonicalizationHierarchyClasses := (self classHierarchyServices
+		                                     select: [ :classService |
+			                                     self updateService:
+				                                     classService.
+			                                     classService classCategory
+			                                     = 'Canonicalization' ])
+		                                    asArray.
+	self assert: canonicalizationHierarchyClasses isEmpty
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategoryChange [
 
 	self
@@ -284,6 +342,38 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 	poolDictionaries: #()
 	category: ''Rowan-Services-Tests''
 	options: #()' trimBlanks replaceCrWithLf
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_classListNotEmptyAfterHierarchy [
+
+	| canonicalizationClasses canonicalizationHierarchyClasses |
+	self projectsPresenter selectDictionaryNamed: 'Globals'.
+	self selectClassCategoryNamed: 'Canonicalization'.
+	canonicalizationClasses := (self classListPresenter items
+		                            asSortedCollection: [ :x :y |
+		                            x name < y name ]) asArray.
+	canonicalizationClasses do: [ :classService |
+		self assert: classService classCategory equals: 'Canonicalization' ].
+	self selectHierarchyTab.
+	canonicalizationHierarchyClasses := ((self classHierarchyServices
+		                                      select: [ :classService |
+			                                      self updateService:
+				                                      classService.
+			                                      classService classCategory
+			                                      = 'Canonicalization' ])
+		                                     asSortedCollection: [ :x :y |
+		                                     x name < y name ]) asArray.
+	self
+		assert: canonicalizationClasses
+		equals: canonicalizationHierarchyClasses.
+	self selectClassCategoryNamed: 'Announcements-Core-GemStone-Test'.
+	self selectClassListTab.
+	self deny: self classListPresenter items isEmpty.
+	self classListPresenter items do: [ :classService |
+		self
+			assert: classService classCategory
+			equals: 'Announcements-Core-GemStone-Test' ]
 ]
 
 { #category : 'tests' }

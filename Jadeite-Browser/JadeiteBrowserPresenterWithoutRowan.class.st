@@ -80,6 +80,21 @@ JadeiteBrowserPresenterWithoutRowan >> classCategoryServicesFor: dictionaryServi
 		  RowanClassCategoryService new name: category ]
 ]
 
+{ #category : 'events' }
+JadeiteBrowserPresenterWithoutRowan >> classListHierarchyTabsChanged [
+
+	self isHierarchyTabSelected
+		ifTrue: [ self updateHierarchy ]
+		ifFalse: [
+			self updateClassesForClassCategories:
+				self classCategoryPresenter selectedItems.
+			classHierarchyPresenter selectedItem ifNotNil: [ :sel |
+				classListPresenter
+					selectIndex: (classListPresenter items indexOf: sel)
+					scrollToSelection: true ] ].
+	^ self classSelected: self selectedClass
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 
@@ -608,6 +623,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selected
 	| dictionaryService selectedClass |
 	selectedClassCategories ifEmpty: [ ^ self ].
 	self isHierarchyTabSelected ifTrue: [
+		classListPresenter unselectAll. "don't pickup selection in classListPresenter"
 		^ self updateHierarchy ].
 	(self classCategoryPresenter selectedItems includesAny:
 		 selectedClassCategories)

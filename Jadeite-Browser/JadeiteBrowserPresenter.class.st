@@ -640,6 +640,19 @@ JadeiteBrowserPresenter >> classDisplayColor: classService [
 ]
 
 { #category : 'events' }
+JadeiteBrowserPresenter >> classListHierarchyTabsChanged [
+
+	self isHierarchyTabSelected
+		ifTrue: [ self updateHierarchy ]
+		ifFalse: [
+			classHierarchyPresenter selectedItem ifNotNil: [ :sel |
+				classListPresenter
+					selectIndex: (classListPresenter items indexOf: sel)
+					scrollToSelection: true ] ].
+	^ self classSelected: self selectedClass
+]
+
+{ #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
 	classService ifNotNil: [
@@ -748,14 +761,7 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 			RowanServiceUpdater current critical: [
 					self expandAt: selection selectedItem ] ].
 	classListHierarchyTabs whenSelectedPageChangedDo: [ :selection |
-		self isHierarchyTabSelected
-			ifTrue: [ self updateHierarchy ]
-			ifFalse: [
-				classHierarchyPresenter selectedItem ifNotNil: [ :sel |
-					classListPresenter
-						selectIndex: (classListPresenter items indexOf: sel)
-						scrollToSelection: true ] ].
-		self classSelected: self selectedClass ].
+		self classListHierarchyTabsChanged ].
 	classDefinitionPresenter whenSubmitDo: [ :text | self editSave ].
 	classCommentPresenter whenSubmitDo: [ :text | self editSave ]
 ]
