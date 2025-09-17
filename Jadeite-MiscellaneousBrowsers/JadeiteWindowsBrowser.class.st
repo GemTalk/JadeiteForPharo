@@ -148,12 +148,16 @@ JadeiteWindowsBrowser >> initializeWindowsListPresenterTo: box [
 	listsBox := SpBoxLayout newHorizontal.
 	jadeiteWindowsListPresenter := JadeiteListPresenter new
 		                               display: [ :window | window label ];
+		                               displayBold: [ :window |
+			                               window isTopWindow ];
 		                               beMultipleSelection.
 	jadeiteWindowsListPresenter headerTitle: 'Jadeite Windows'.
 	listsBox add: jadeiteWindowsListPresenter.
 
 	pharoWindowsListPresenter := JadeiteListPresenter new
 		                             display: [ :window | window label ];
+		                             displayBold: [ :window |
+			                             window isTopWindow ];
 		                             beMultipleSelection.
 	pharoWindowsListPresenter headerTitle: 'Pharo Windows'.
 	listsBox add: pharoWindowsListPresenter.
