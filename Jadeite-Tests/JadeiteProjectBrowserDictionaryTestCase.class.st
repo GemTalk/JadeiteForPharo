@@ -34,7 +34,7 @@ JadeiteProjectBrowserDictionaryTestCase >> test_compileMethodInNonPackagedClass 
 		ensure: [
 			self abortTransaction.
 			self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded ]
+			self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -218,7 +218,7 @@ JadeiteProjectBrowserDictionaryTestCase >> test_removeMethodInNonPackagedClass [
 			self dictionaryPresenter resetSelection. "to avoid long refresh"
 			self abortTransaction.
 			self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded ]
+			self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -362,7 +362,7 @@ JadeiteProjectBrowserHigherLevelFunctionsTestCase >> test_projectDisplaysSync [
 		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
 		"project addition in projects browser"
 		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded.
+		self ensureRowanSampleClassesLoaded.
 
 		[
 		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').

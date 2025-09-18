@@ -19,6 +19,12 @@ JadeiteAutoRefreshPresenter >> connectPresenters [
 		self toggleAutoRefreshProcess: state ]
 ]
 
+{ #category : 'constants' }
+JadeiteAutoRefreshPresenter >> defaultUpdateInterval [
+
+	^2
+]
+
 { #category : 'initialization' }
 JadeiteAutoRefreshPresenter >> initializeWindow: aWindowPresenter [
 
@@ -39,8 +45,8 @@ JadeiteAutoRefreshPresenter >> startAutoRefresh [
 	autoRefreshProcess := [
 	                      [
 	                      self refresh.
-	                      (Delay forSeconds: 2) wait ] repeat ]
-		                      newProcess.
+	                      (Delay forSeconds: self updateInterval) wait ]
+		                      repeat ] newProcess.
 	^ autoRefreshProcess resume
 ]
 
@@ -57,4 +63,10 @@ JadeiteAutoRefreshPresenter >> toggleAutoRefreshProcess: state [
 	^ state
 		  ifTrue: [ self startAutoRefresh ]
 		  ifFalse: [ self stopAutoRefresh ]
+]
+
+{ #category : 'constants' }
+JadeiteAutoRefreshPresenter >> updateInterval [
+
+	^ self defaultUpdateInterval
 ]

@@ -305,15 +305,39 @@ JadeiteAbstractTestCase >> ensureOneTab [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> ensureRowanSampleProjectsLoaded [
+JadeiteAbstractTestCase >> ensureRowanSampleClassesLoaded [
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self ensureRowanSampleDictionaryLoaded ].
+	self ensureRowanSampleProjectLoaded
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> ensureRowanSampleDictionaryLoaded [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #removeDictionariesNamed:;
+		commandArgs:
+			(Array with: self jadeiteTestResourceClass sampleProject1Name).
+	self issueCommand: browserService onCompletion: [
+		JadeiteApplication
+			commitTransactionInSession: session
+			onCompletion: [
+			self jadeiteTestResourceClass current createRowanSample1Dictionary ] ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> ensureRowanSampleProjectLoaded [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService
 		command: #unloadProjectsNamed:;
 		commandArgs: (Array with: (Array
-				 with: self jadeiteTestResourceClass sampleProject1Name
-				 with: self jadeiteTestResourceClass sampleProject9Name)).
+						  with: self jadeiteTestResourceClass sampleProject1Name
+						  with: self jadeiteTestResourceClass sampleProject9Name)).
 	self issueCommand: browserService onCompletion: [
 		JadeiteApplication
 			commitTransactionInSession: session
@@ -432,25 +456,6 @@ JadeiteAbstractTestCase >> jadeitePrefsFilePath [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> jadeiteTestResourceClass [
 	^ self class jadeiteTestResourceClass
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> loadRowanSample1InProjectList [
-
-	| sample1Path root selections |
-	sample1Path := self rowanSample1Path.
-	root := self rowanProjectsHome.
-	self transcriptTab basicLoadV2Project: sample1Path projectsHome: root.
-	self transcriptTab refresh.
-	self
-		selectServicesNamed: (Array with: self sampleProject1Name)
-		in: self transcriptTab projectListPresenter.
-	selections := self transcriptTab projectListPresenter selections.
-	RowanBrowserService new
-		reloadProjects: selections
-		presenter: self transcriptTab
-		onCompletion: nil.
-	self transcriptTab refresh
 ]
 
 { #category : 'as yet unclassified' }
@@ -956,7 +961,15 @@ JadeiteAbstractTestCase >> selectNoneProject [
 
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Class [
-	"big assumption - RowanSample1 class will always be in RowanSample1 project"
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		self
+			selectServiceNamed: 'RowanSample1Dictionary'
+			in: self dictionaryListPresenter.
+		self
+			selectServiceNamed: self sampleClassName
+			in: self classListPresenter.
+		^ self ].
 
 	JadeitePreferences isRowanLoaded
 		ifTrue: [
@@ -978,6 +991,14 @@ JadeiteAbstractTestCase >> selectRowanSample1Class [
 { #category : 'selection' }
 JadeiteAbstractTestCase >> selectRowanSample1Test [
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		self
+			selectServiceNamed: 'RowanSample1Dictionary'
+			in: self dictionaryListPresenter.
+		self
+			selectServiceNamed: 'RowanSample1Test'
+			in: self classListPresenter.
+		^ self ].
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
@@ -1105,7 +1126,7 @@ JadeiteAbstractTestCase >> setUp [
 	session := self jadeiteTestResourceClass current session.
 	transcript := self jadeiteTestResourceClass current transcript.
 	self setRemoteAutoCommit: false onCompletion: [
-		self ensureRowanSampleProjectsLoaded.
+		self ensureRowanSampleClassesLoaded.
 		JadeiteLoginShell allInstances size > 1 ifTrue: [
 			RsrGarbageCollector maximumReclamation ] ]
 ]

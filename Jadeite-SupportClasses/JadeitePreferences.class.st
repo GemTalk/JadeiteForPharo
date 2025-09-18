@@ -51,45 +51,25 @@ JadeitePreferences class >> createShowProgressBarRow [
 			  self stopProgressBarButton }
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeitePreferences class >> current [
 	^Current ifNil: [ Current := JadeitePreferences new ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeitePreferences class >> current: aJadeitePreferences [
 	self todo:[Current ifNil: [DefaultTextFont := self initializeDefaultFonts]].
 	Current := aJadeitePreferences
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeitePreferences class >> defaultFont [
 	^DefaultFont
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeitePreferences class >> defaultTextFont [
 	^DefaultTextFont
-]
-
-{ #category : 'as yet unclassified' }
-JadeitePreferences class >> displayFontFrom: newFont [
-	| lfw lf |
-	lf := newFont logFont.
-	lfw := LOGFONTW new. "believe this is necessary if the user picks a legacy font - LOGFONTA"
-	lfw
-		replaceFrom: 1
-		to: lf byteSize
-		with: lf bytes
-		startingAt: 1.
-	lfw faceName: lf faceName.
-	View desktop font: (Font fromLogFont: lfw)
-]
-
-{ #category : 'as yet unclassified' }
-JadeitePreferences class >> initializeDefaultFonts [
-	DefaultFont := SmalltalkSystem current defaultFont.
-	^Font name: 'Verdana' pointSize: 10
 ]
 
 { #category : 'settings' }
@@ -114,7 +94,7 @@ JadeitePreferences class >> isRowanLoaded: aBoolean [
 	IsRowanLoaded := aBoolean
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 JadeitePreferences class >> onSession: session [
 	^self new session: session
 ]
@@ -131,13 +111,13 @@ JadeitePreferences class >> openBrowserOnClass: aString [
 	self current openBrowserOnClass: aString
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'preferences' }
 JadeitePreferences class >> preferencesFile [
 
 	^'Jadeite.prefs'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'preferences' }
 JadeitePreferences class >> preferencesFileDefaultContents [
 
 	^ '#Remove # to uncomment option. 
@@ -169,7 +149,7 @@ JadeitePreferences class >> preferencesFileDefaultContents [
 		  replaceCrWithLf
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'preferences' }
 JadeitePreferences class >> preferencesPath [
 
 	^ FileSystem disk workingDirectoryPath pathString , '/'

@@ -154,7 +154,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectServicesNamed: services in: 
 JadeiteForPharoBrowserWithoutRowanTestCase >> setUp [
 
 	super setUp.
-	JadeitePreferences isRowanLoaded: false.
+	JadeitePreferences isRowanAvailable ifTrue: [
+		JadeitePreferences isRowanLoaded: false ].
 	self setupProjectBrowser
 ]
 

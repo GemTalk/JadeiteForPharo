@@ -2311,7 +2311,7 @@ JadeiteProjectBrowserTestCase >> test_projectDisplaysSync [
 		self assertIsNil: (self transcriptProjectNamed: 'RowanSample1').
 		"project addition in projects browser"
 		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded.
+		self ensureRowanSampleClassesLoaded.
 
 		[
 		self denyIsNil: (self transcriptProjectNamed: 'RowanSample1').
@@ -2417,7 +2417,7 @@ JadeiteProjectBrowserTestCase >> test_refreshAfterAbortMethodList [
 	self assert: methodListBrowser primaryPresenter methodListPresenter
 			methodListPresenter list isEmpty ] ensure: [
 		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded ]
+		self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2472,7 +2472,7 @@ JadeiteProjectBrowserTestCase >> test_refreshAfterAbortMethodListLeaveCommitted 
 				methodListPresenter list size
 		equals: beforeSize ] ensure: [
 		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded ]
+		self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2591,7 +2591,7 @@ JadeiteProjectBrowserTestCase >> test_removeAbortedClass [
 		assertIsNil: (self classListPresenter list detect: [:service | service name = 'TestClass'] ifNone: [])]
 			ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded].
+				self ensureRowanSampleClassesLoaded].
 	self saveTestClass.
 	self assert: self projectsPresenter selectedClass name = 'TestClass'.	"abort from a different browser"
 	transcript projectListPresenter abortTransaction.
@@ -2600,7 +2600,7 @@ JadeiteProjectBrowserTestCase >> test_removeAbortedClass [
 		assertIsNil: (self classListPresenter list detect: [:service | service name = 'TestClass'] ifNone: [])]
 			ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3673,7 +3673,7 @@ JadeiteProjectBrowserTestCase >> test_unicodeDisplayMethod [
 			ensure: 
 				[self abortTransaction.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }

@@ -130,6 +130,10 @@ JadeiteForPharoWindowlessBrowserTestCase >> test_browserOpener [
 { #category : 'tests' }
 JadeiteForPharoWindowlessBrowserTestCase >> test_browserPresenterClass [
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self
+			  assert: browser browserPresenterClass
+			  equals: JadeiteBrowserPresenterWithoutRowan ].
 	JadeitePreferences isRowanLoaded: true.
 	self
 		assert: browser browserPresenterClass

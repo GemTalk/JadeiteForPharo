@@ -39,7 +39,7 @@ JadeiteProjectBrowserClassesTestCase >> test_abortRemovesSelectedChildHierarchyT
 				ifNone: [])]
 			ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1036,7 +1036,7 @@ JadeiteProjectBrowserClassesTestCase >> test_extensionMethodSelection [
 	transcript projectListPresenter abortTransaction. "clean up Rowan project"
 	[  ] ensure: [
 		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded ]
+		self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1562,7 +1562,7 @@ JadeiteProjectBrowserClassesTestCase >> test_moveClassToPackageOutsideProject [
 JadeiteProjectBrowserClassesTestCase >> test_moveMethodDirtiesPackage [
 	self testsIssue: #issue950
 		withTitle: '(3.2.10) RowanClassService>>moveMethods:to: should not use the category name as a literal package name'.
-	self ensureRowanSampleProjectsLoaded.
+	self ensureRowanSampleClassesLoaded.
 	self selectRowanSample1Class.
 	self deny: self projectsPresenter projectListPresenter selection isDirty.
 	self deny: self projectsPresenter packageListPresenter selection isDirty.

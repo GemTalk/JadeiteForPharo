@@ -328,3 +328,9 @@ JadeiteWindowsBrowser >> startAutoRefresh [
 	super startAutoRefresh.
 	autoRefreshProcess name: 'Jadeite Windows Browser Auto Refresh'
 ]
+
+{ #category : 'constants' }
+JadeiteWindowsBrowser >> updateInterval [
+
+	^ 0.5
+]

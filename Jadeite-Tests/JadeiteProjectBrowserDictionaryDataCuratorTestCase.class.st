@@ -53,7 +53,7 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_abortInTranscriptRemo
 			ensure: 
 				[self auditAll.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -183,7 +183,7 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_changeMethodInDiction
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self selectRowanSample1Test.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.	"make sure project is not dirty"
+	self ensureRowanSampleClassesLoaded.	"make sure project is not dirty"
 	self selectRowanSample1Test.
 	self deny: self projectListPresenter selection isDirty.
 	
@@ -195,7 +195,7 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_changeMethodInDiction
 			ensure: 
 				[self abortTransaction.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -222,7 +222,7 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_commitAfterDictionary
 			ensure: 
 				[self auditAll.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }

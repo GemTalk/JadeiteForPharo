@@ -148,6 +148,16 @@ JadeiteTestResource >> connectIfNecessary [
 ]
 
 { #category : 'projects creating' }
+JadeiteTestResource >> createRowanSample1Dictionary [
+
+	| testService |
+	testService := RowanTestService new.
+	testService command: #createRowanSample1Dictionary.
+	testService commandArgs: Array new.
+	self issueCommand: testService onCompletion: [  ]
+]
+
+{ #category : 'projects creating' }
 JadeiteTestResource >> createRowanSample1Project [
 	"Don't get RowanSample1 project from disk.
 	It's good not to rely on an external git project which can be 
@@ -164,17 +174,17 @@ JadeiteTestResource >> createRowanSample1Project [
 
 { #category : 'projects creating' }
 JadeiteTestResource >> createRowanSample1ProjectWithEmpyClassCategory [
-	"Don't get RowanSample1 project from disk.
-	It's good not to rely on an external git project which can be 
-	changed anytime (unless necessary for the test)"
+	"assume RowanSample1 class is already on server "
 
-	| testService |
+	| testService selector |
+	selector := JadeitePreferences isRowanAvailable
+		            ifTrue: [ #createRowanSample1ProjectWithEmpyClassCategory ]
+		            ifFalse: [
+		            #jfpwor_addRowanSample1ClassWithEmpyClassCategory ].
 	testService := RowanTestService new.
-	testService command: #createRowanSample1ProjectWithEmpyClassCategory.
+	testService command: selector.
 	testService commandArgs: Array new.
-	self
-		issueCommand: testService
-		onCompletion: []
+	self issueCommand: testService onCompletion: [  ]
 ]
 
 { #category : 'actions' }
@@ -226,7 +236,7 @@ JadeiteTestResource >> ensureRowanSample9Loaded [
 ]
 
 { #category : 'projects loading' }
-JadeiteTestResource >> ensureRowanSampleProjectsLoaded [
+JadeiteTestResource >> ensureRowanSampleClassesLoaded [
 
 	self createRowanSample1Project
 ]
@@ -476,7 +486,7 @@ JadeiteTestResource >> setUp [
 		MessageBox notify: 'GciSession current is nil. Login again.'.
 		Processor activeProcess terminate "There's not a good way to safely return without many subsequent errors. Just kill the test process." ].
 	self unloadSampleProject1.
-	self ensureRowanSampleProjectsLoaded
+	self ensureRowanSampleClassesLoaded
 ]
 
 { #category : 'support' }

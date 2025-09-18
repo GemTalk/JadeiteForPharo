@@ -286,7 +286,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
 		equals: 1 ] ensure: [
 		self abortTransaction.
 		self cloneRowanSample1.
-		self ensureRowanSampleProjectsLoaded ]
+		self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'tests' }

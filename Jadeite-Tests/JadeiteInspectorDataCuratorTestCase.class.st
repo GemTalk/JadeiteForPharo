@@ -62,7 +62,7 @@ JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInNavigationInspecto
 	[transcript projectListPresenter refresh.
 	self denyProjectInList: 'RowanSample1'] ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded].
+				self ensureRowanSampleClassesLoaded].
 	"focus in code pane"
 	inspector documentPresenter setFocus.
 	abortItem commandDescription performAgainst: inspector.
@@ -70,7 +70,7 @@ JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInNavigationInspecto
 	[transcript projectListPresenter refresh.
 	self denyProjectInList: 'RowanSample1'] ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded].
+				self ensureRowanSampleClassesLoaded].
 	"focus in list pane"
 	inspector instVarListPresenter setFocus.
 	abortItem commandDescription performAgainst: inspector.
@@ -78,7 +78,7 @@ JadeiteInspectorDataCuratorTestCase >> test_abortTransactionInNavigationInspecto
 	[transcript projectListPresenter refresh.
 	self denyProjectInList: 'RowanSample1'] ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -371,7 +371,7 @@ JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInBasicInspector [
 	| remoteObject jadeiteMenu commitItem abortItem |
 	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
+	self ensureRowanSampleClassesLoaded.
 	self assertProjectInList: 'RowanSample1'.
 	remoteObject := session
 				executeString: '123'
@@ -389,7 +389,7 @@ JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInBasicInspector [
 	commitItem commandDescription performAgainst: inspector.
 	self denyProjectInList: 'RowanSample1'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded
+	self ensureRowanSampleClassesLoaded
 ]
 
 { #category : 'as yet unclassified' }
@@ -397,7 +397,7 @@ JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInNavigationInspect
 	| remoteObject jadeiteMenu commitItem abortItem |
 	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
+	self ensureRowanSampleClassesLoaded.
 	self assertProjectInList: 'RowanSample1'.
 	remoteObject := session
 				executeString: 'Array new'
@@ -416,7 +416,7 @@ JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInNavigationInspect
 	commitItem commandDescription performAgainst: inspector.
 	self denyProjectInList: 'RowanSample1'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded
+	self ensureRowanSampleClassesLoaded
 ]
 
 { #category : 'as yet unclassified' }
@@ -424,7 +424,7 @@ JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInNavigationInspect
 	| remoteObject jadeiteMenu commitItem abortItem |
 	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
+	self ensureRowanSampleClassesLoaded.
 	self assertProjectInList: 'RowanSample1'.
 	remoteObject := session
 				executeString: 'Array new'
@@ -443,7 +443,7 @@ JadeiteInspectorDataCuratorTestCase >> test_commitTransactionInNavigationInspect
 	commitItem commandDescription performAgainst: inspector.
 	self denyProjectInList: 'RowanSample1'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded
+	self ensureRowanSampleClassesLoaded
 ]
 
 { #category : 'as yet unclassified' }

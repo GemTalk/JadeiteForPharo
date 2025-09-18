@@ -77,7 +77,7 @@ JadeiteTransactionModeTestCase >> test_abortButtonAlwaysEnabled [
 				[transcript transactionMode == #autoBegin ifFalse: [self switchTransactionModeTo: #autoBegin].
 				projectsBrowser view close.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded	"this is needed because changing transaction mode does an abort"]
+				self ensureRowanSampleClassesLoaded	"this is needed because changing transaction mode does an abort"]
 ]
 
 { #category : 'as yet unclassified' }
@@ -106,7 +106,7 @@ JadeiteTransactionModeTestCase >> test_beginTransactionEnablement [
 			ensure: 
 				[transcript transactionMode == #autoBegin ifFalse: [self switchTransactionModeTo: #autoBegin].
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded	"this is needed because changing transaction mode does an abort"]
+				self ensureRowanSampleClassesLoaded	"this is needed because changing transaction mode does an abort"]
 ]
 
 { #category : 'as yet unclassified' }
@@ -148,7 +148,7 @@ JadeiteTransactionModeTestCase >> test_changeTransactionModeWithFailedCommit [
 				self commitTransaction.
 				projectsBrowser view close.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded	"this is needed because changing transaction mode does an abort"]
+				self ensureRowanSampleClassesLoaded	"this is needed because changing transaction mode does an abort"]
 ]
 
 { #category : 'as yet unclassified' }
@@ -164,7 +164,7 @@ JadeiteTransactionModeTestCase >> test_setTransactionModeChangesServer [
 				[transcript basicTransactionMode: previousTransactionMode.
 				self assert: (session executeString: 'System transactionMode') equals: previousTransactionMode.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -180,7 +180,7 @@ JadeiteTransactionModeTestCase >> test_setTransactionlessMode [
 				[transcript basicTransactionMode: previousTransactionMode.
 				self assert: (session executeString: 'System transactionMode') equals: previousTransactionMode.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -241,7 +241,7 @@ JadeiteTransactionModeTestCase >> test_transactionModeManualTurnsOnSigAbortListe
 				[transcript basicTransactionMode: previousTransactionMode.
 				self assert: (session executeString: 'System transactionMode') equals: previousTransactionMode.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -284,5 +284,5 @@ JadeiteTransactionModeTestCase >> test_transactionModeSigAbortsListener [
 				JadePresenter sigAbortProcessInterval: previousSigAbortProcessInterval.
 				self assert: (session executeString: 'System transactionMode') equals: previousTransactionMode.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]

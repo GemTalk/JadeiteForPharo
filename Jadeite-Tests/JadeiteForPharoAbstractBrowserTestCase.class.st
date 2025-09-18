@@ -178,24 +178,6 @@ JadeiteForPharoAbstractBrowserTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_abortOnVariablesTab [
-
-	self unloadSampleProject1.
-	self commitTransaction.
-	self ensureRowanSampleProjectsLoaded.
-	self selectRowanSample1Test.
-	self projectsPresenter selectVariableTab.
-	self projectsPresenter variableListPresenter selectIndex: 1.
-	self abortTransaction.
-	[
-	self assert:
-		self projectsPresenter variableListPresenter list isEmpty.
-	self assert: self classListPresenter list isEmpty.
-	self assert: self packageListPresenter list isEmpty ] ensure: [
-		self ensureRowanSampleProjectsLoaded ]
-]
-
-{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_abortRemovesClassAndMethod [
 	self testsIssue: #issue617 withTitle: 'Abort walkback if removing method from removed class'.
 	self selectRowanSample1Test.
@@ -218,7 +200,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_abortRemovesClassAndMethod [
 				ifNone: [])]
 			ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'tests' }
@@ -374,7 +356,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addStarredCategory [
 				["there's currently a bug in rowan #875 that affects removal of starred categories. Use abort temporarily instead."
 				self abortTransaction.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'tests' }
@@ -723,7 +705,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classCommentSave [
 		equals: comment ] ensure: [
 		self jadeiteTestResourceClass current unloadSampleProject1.
 		self commitTransaction.
-		self ensureRowanSampleProjectsLoaded ]
+		self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }

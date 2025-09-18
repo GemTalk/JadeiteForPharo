@@ -29,7 +29,6 @@ JadeiteForPharoDebuggerTestCase >> setUp [
 	"Debuggers should be closed before debugger test is run.
 	Don't call super setUp as we don't want to use the JadeiteTestResource for this test class"
 
-	JadeitePreferences isRowanLoaded: true.
 	self ensureLauncherOpened.
 	JadeiteConnectionProfile connectionProfile disconnect.
 	JadeiteConnectionProfile connectionProfile connect.

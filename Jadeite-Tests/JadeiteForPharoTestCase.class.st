@@ -69,7 +69,8 @@ JadeiteForPharoTestCase >> setUp [
 
 	super setUp.
 	savedSettings := JadeitePreferences current copy.
-	JadeitePreferences isRowanLoaded: true "Not all test classes will run with rowan being available"
+	JadeitePreferences isRowanAvailable ifTrue: [
+		JadeitePreferences isRowanLoaded: true ]
 ]
 
 { #category : 'support' }

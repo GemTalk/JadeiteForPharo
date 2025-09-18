@@ -292,7 +292,7 @@ JadeiteSUnitSupportTestCase >> test_commitNoSelections [
 				self unloadSampleProject1.
 				sunitBrowser primaryPresenter perform: commitCommand.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }
@@ -317,7 +317,7 @@ JadeiteSUnitSupportTestCase >> test_commitWithSelections [
 				self unloadSampleProject1.
 				sunitBrowser primaryPresenter perform: commitCommand.
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }

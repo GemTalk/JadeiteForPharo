@@ -203,7 +203,6 @@ JadeiteGCIConnectionProfile >> disconnect [
 	connection := nil.
 	self notifyPropertyChanged: #connection.
 	RowanServiceUpdater clearCurrent.
-	JadeitePreferences isRowanLoaded: true. 
 ]
 
 { #category : 'instance creation' }

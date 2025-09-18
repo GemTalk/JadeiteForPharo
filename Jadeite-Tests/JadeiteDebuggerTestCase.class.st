@@ -1888,7 +1888,7 @@ JadeiteDebuggerTestCase >> test_notifierDoesNotErrorCheckingResumeStatus [
 				[TestJadeErrorShell disableJadeiteErrorShell.
 				self abortTransaction. "make sure BadClass goes away" 
 				self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'as yet unclassified' }

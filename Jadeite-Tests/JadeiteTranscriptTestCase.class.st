@@ -93,7 +93,7 @@ JadeiteTranscriptTestCase >> test_abortRemovesProjectsInAllBrowsers [
 				detect: [:projectService1 | projectService1 name = 'RowanSample1-Tests']
 				ifNone: []).
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded]
+	self ensureRowanSampleClassesLoaded]
 			ensure: 
 				[SessionManager inputState pumpMessages.
 				self destroy: projectsBrowser.
@@ -108,7 +108,7 @@ JadeiteTranscriptTestCase >> test_abortTransaction [
 	transcript toolbarPresenter abort.
 	self denyProjectInList: 'RowanSample1'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded
+	self ensureRowanSampleClassesLoaded
 ]
 
 { #category : 'as yet unclassified' }
@@ -178,7 +178,7 @@ JadeiteTranscriptTestCase >> test_autoCommitOff [
 			session executeString:
 				'UserGlobals removeKey: #TestCommit ifAbsent:[]'.
 			self cloneRowanSample1.
-			self ensureRowanSampleProjectsLoaded ]
+			self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -501,7 +501,7 @@ JadeiteTranscriptTestCase >> test_closeConsoleNoCommitNeeded [
 JadeiteTranscriptTestCase >> test_commitTransaction [
 	self testsIssue: #issue383 withTitle: '(3.0.53) the commit button on the SUnit browser is silent'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
+	self ensureRowanSampleClassesLoaded.
 	transcript projectListPresenter refresh.
 	self assertProjectInList: 'RowanSample1'.
 	transcript toolbarPresenter commit.
@@ -512,7 +512,7 @@ JadeiteTranscriptTestCase >> test_commitTransaction [
 	transcript toolbarPresenter commit.
 	self denyProjectInList: 'RowanSample1'.
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded
+	self ensureRowanSampleClassesLoaded
 ]
 
 { #category : 'as yet unclassified' }

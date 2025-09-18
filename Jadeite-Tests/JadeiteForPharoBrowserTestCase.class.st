@@ -93,6 +93,8 @@ JadeiteForPharoBrowserTestCase >> projectInfoMockService [
 JadeiteForPharoBrowserTestCase >> setUp [
 
 	super setUp.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan display not selected. Test not run' ].
 	JadeitePreferences isRowanLoaded: true.
 	self setupProjectBrowser
 ]
@@ -107,6 +109,24 @@ JadeiteForPharoBrowserTestCase >> tearDown [
 			on: ProvideAnswerNotification
 			do: [ :not | not resume: true ] ].
 	super tearDown
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_abortOnVariablesTab [
+
+	self unloadSampleProject1.
+	self commitTransaction.
+	self ensureRowanSampleClassesLoaded.
+	self selectRowanSample1Test.
+	self projectsPresenter selectVariableTab.
+	self projectsPresenter variableListPresenter selectIndex: 1.
+	self abortTransaction.
+	[
+	self assert:
+		self projectsPresenter variableListPresenter list isEmpty.
+	self assert: self classListPresenter list isEmpty.
+	self assert: self packageListPresenter list isEmpty ] ensure: [
+		self ensureRowanSampleClassesLoaded ]
 ]
 
 { #category : 'tests' }
@@ -127,7 +147,7 @@ JadeiteForPharoBrowserTestCase >> test_abortRemovesProjectAndPackage [
 				ifNone: [])]
 			ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
 
 { #category : 'tests' }

@@ -227,7 +227,7 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_comparisonTabSuperclass [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_compileClassDirtiesPackageAndProject [
-	self ensureRowanSampleProjectsLoaded.	"reload to control dirty state"
+	self ensureRowanSampleClassesLoaded.	"reload to control dirty state"
 	self selectRowanSample1Class.
 	self deny: self projectListPresenter selection isDirty.
 	self deny: self packageListPresenter selection isDirty.
@@ -1346,7 +1346,7 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_sunitUpdatesProperly [
 { #category : 'as yet unclassified' }
 JadeiteProjectBrowserLowerTabsTestCase >> test_unloadProjectClearsProjectTab [
 	self cloneRowanSample1.
-	self ensureRowanSampleProjectsLoaded.
+	self ensureRowanSampleClassesLoaded.
 	self selectRowanSample1Class.
 	self unloadSampleProject1.
 	self projectsPresenter projectInfoTab model size >= 8.	"sanity test. presume that we won't remove info from this tab"
@@ -1356,5 +1356,5 @@ JadeiteProjectBrowserLowerTabsTestCase >> test_unloadProjectClearsProjectTab [
 	self assert: self projectsPresenter projectReadMeTab value isEmpty]
 			ensure: 
 				[self cloneRowanSample1.
-				self ensureRowanSampleProjectsLoaded]
+				self ensureRowanSampleClassesLoaded]
 ]
