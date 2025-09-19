@@ -459,6 +459,32 @@ JadeiteAbstractTestCase >> jadeiteTestResourceClass [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> jfp_saveClass: className superclass: instVars instVars: aString package: superName [
+
+	self projectsPresenter classDefinitionPresenter value:
+		superName , ' rwSubclass: ' , className printString , '
+	instVarNames: ' , instVars printString , '
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ' , aString printString , '
+	options: #()'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: instVars instVars: aString package: superName [
+
+	self projectsPresenter classDefinitionPresenter value:
+		superName , ' subclass: ' , className printString , '
+	instVarNames: ' , instVars printString , '
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	inDictionary: UserGlobals
+	options: #()'
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> loginOtherSession [
 
 	| profile |
@@ -684,16 +710,21 @@ JadeiteAbstractTestCase >> sampleProject1Name [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> saveClass: className superclass: superName instVars: instVars package: aString [
-	self projectsPresenter classDefinitionPresenter
-		value: superName, ' rwSubclass: ', className printString, '
-	instVarNames: ' , instVars printString
-				, '
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ', aString printString, '
-	options: #()'.
-	^self projectsPresenter editSaveClass
+
+	JadeitePreferences isRowanAvailable
+		ifTrue: [
+			self
+				jfp_saveClass: className
+				superclass: instVars
+				instVars: aString
+				package: superName ]
+		ifFalse: [
+			self
+				jfpwor_saveClass: className
+				superclass: instVars
+				instVars: aString
+				package: superName ].
+	^ self projectsPresenter editSaveClass
 ]
 
 { #category : 'as yet unclassified' }
