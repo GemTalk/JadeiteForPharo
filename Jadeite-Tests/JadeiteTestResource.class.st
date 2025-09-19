@@ -42,6 +42,12 @@ JadeiteTestResource class >> isAvailable [
 	^self current isAvailable
 ]
 
+{ #category : 'constants' }
+JadeiteTestResource class >> rowanSampleDictionaryName [
+
+	^ 'RowanSample1Dictionary'
+]
+
 { #category : 'accessing' }
 JadeiteTestResource class >> sampleProject1Name [
 	^'RowanSample1'
@@ -178,7 +184,8 @@ JadeiteTestResource >> createRowanSample1ProjectWithEmpyClassCategory [
 
 	| testService selector |
 	selector := JadeitePreferences isRowanAvailable
-		            ifTrue: [ #createRowanSample1ProjectWithEmpyClassCategory ]
+		            ifTrue: [
+		            #addRowanSample1ClassWithEmpyClassCategory ]
 		            ifFalse: [
 		            #jfpwor_addRowanSample1ClassWithEmpyClassCategory ].
 	testService := RowanTestService new.

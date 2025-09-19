@@ -20,11 +20,6 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> assertDictionaryNotInList:
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserDictionaryDataCuratorTestCase >> rowanSample1Dictionary [
-	^'SampleSymbolDict'
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserDictionaryDataCuratorTestCase >> setUp [
 	user ifNil: [user := 'DataCurator'].
 	super setUp
@@ -504,9 +499,9 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_gotoDictionary [
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self testsIssue: #issue491 withTitle: '(Oscar 3.0.73) need a way to find class in the dictionary '.
 	self selectRowanSample1Class.
-	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSample1Dictionary.
+	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSampleDictionaryName.
 	self projectsPresenter gotoDictionary.
-	self assert: self dictionaryPresenter selection name equals: self rowanSample1Dictionary.
+	self assert: self dictionaryPresenter selection name equals: self rowanSampleDictionaryName.
 	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
 	self projectsPresenter gotoClassDefinedPackage.
 	self assert: self projectListPresenter selection name equals: 'RowanSample1'.
@@ -520,9 +515,9 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_gotoDictionaryClassTa
 	self selectRowanSample1Class.
 	self selectClassTab.
 	self selectClassTab.
-	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSample1Dictionary.
+	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSampleDictionaryName.
 	self projectsPresenter gotoDictionary.
-	self assert: self dictionaryPresenter selection name equals: self rowanSample1Dictionary.
+	self assert: self dictionaryPresenter selection name equals: self rowanSampleDictionaryName.
 	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
 	self projectsPresenter gotoClassDefinedPackage.
 	self assert: self projectListPresenter selection name equals: 'RowanSample1'.
@@ -536,9 +531,9 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_gotoDictionaryHierarc
 	self testsIssue: #issue491 withTitle: '(Oscar 3.0.73) need a way to find class in the dictionary '.
 	self selectRowanSample1Class. 
 	self selectHierarchyTab.
-	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSample1Dictionary.
+	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSampleDictionaryName.
 	self projectsPresenter gotoDictionary.
-	self assert: self dictionaryPresenter selection name equals: self rowanSample1Dictionary.
+	self assert: self dictionaryPresenter selection name equals: self rowanSampleDictionaryName.
 	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
 	self projectsPresenter gotoClassDefinedPackage.
 	self assert: self projectListPresenter selection name equals: 'RowanSample1'.
@@ -552,9 +547,9 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_gotoDictionaryHierarc
 	self selectRowanSample1Class.
 	self selectClassTab. 
 	self selectHierarchyTab.
-	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSample1Dictionary.
+	self assert: self projectsPresenter selectedClass dictionaryName equals: self rowanSampleDictionaryName.
 	self projectsPresenter gotoDictionary.
-	self assert: self dictionaryPresenter selection name equals: self rowanSample1Dictionary.
+	self assert: self dictionaryPresenter selection name equals: self rowanSampleDictionaryName.
 	self assert: self projectsPresenter selectedClass name equals: 'RowanSample1'.
 	self projectsPresenter gotoClassDefinedPackage.
 	self assert: self projectListPresenter selection name equals: 'RowanSample1'.
@@ -873,7 +868,7 @@ JadeiteProjectBrowserDictionaryDataCuratorTestCase >> test_renameClassInDictiona
 	self testsIssue: #issue217 withTitle: 'Eliminate Dictionary Browser'.
 	self selectNoneProject.
 	self
-		selectServiceNamed: self rowanSample1Dictionary
+		selectServiceNamed: self rowanSampleDictionaryName
 		in: self dictionaryPresenter.
 	self projectsPresenter selectClassNamed: 'RowanSample1Test'.
 	self

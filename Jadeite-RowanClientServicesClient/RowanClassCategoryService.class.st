@@ -74,6 +74,12 @@ RowanClassCategoryService >> initializeSubstringIndex [
 	substringIndex := (name substrings: '-') size - 1
 ]
 
+{ #category : 'testing' }
+RowanClassCategoryService >> isUnder: categoryName [
+
+	^ self firstSubstringsToIndex, '*' match: categoryName
+]
+
 { #category : 'accessing' }
 RowanClassCategoryService >> name [
 

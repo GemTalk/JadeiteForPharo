@@ -658,6 +658,12 @@ JadeiteAbstractTestCase >> rowanSample1Path [
 	^JadePresenter rowanSample1Path
 ]
 
+{ #category : 'tests' }
+JadeiteAbstractTestCase >> rowanSampleDictionaryName [
+
+	^ self jadeiteTestResourceClass rowanSampleDictionaryName
+]
+
 { #category : 'running' }
 JadeiteAbstractTestCase >> runCase [
 	('Starting ', self class name, '>>', self selector) traceCr.
@@ -964,7 +970,7 @@ JadeiteAbstractTestCase >> selectRowanSample1Class [
 
 	JadeitePreferences isRowanAvailable ifFalse: [
 		self
-			selectServiceNamed: 'RowanSample1Dictionary'
+			selectServiceNamed: self rowanSampleDictionaryName
 			in: self dictionaryListPresenter.
 		self
 			selectServiceNamed: self sampleClassName
@@ -993,7 +999,7 @@ JadeiteAbstractTestCase >> selectRowanSample1Test [
 
 	JadeitePreferences isRowanAvailable ifFalse: [
 		self
-			selectServiceNamed: 'RowanSample1Dictionary'
+			selectServiceNamed: self rowanSampleDictionaryName
 			in: self dictionaryListPresenter.
 		self
 			selectServiceNamed: 'RowanSample1Test'

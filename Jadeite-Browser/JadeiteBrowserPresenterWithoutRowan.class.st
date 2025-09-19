@@ -162,8 +162,8 @@ JadeiteBrowserPresenterWithoutRowan >> filterClassesBySelectedClassCategory: the
 
 	classCategoryPresenter selectedItem ifNil: [ ^ theClasses ].
 	^ theClasses select: [ :classService |
-		  classService classCategory
-		  = classCategoryPresenter selectedItem name ]
+		  classCategoryPresenter selectedItem isUnder:
+			  classService classCategory ]
 ]
 
 { #category : 'initialization' }

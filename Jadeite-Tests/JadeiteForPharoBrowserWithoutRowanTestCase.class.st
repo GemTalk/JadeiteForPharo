@@ -75,7 +75,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Class [
 	"tests put the sample class in a few locations"
 
 	self
-		selectServiceNamed: 'SampleSymbolDict'
+		selectServiceNamed: self rowanSampleDictionaryName
 		in: self dictionaryListPresenter.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
@@ -109,7 +109,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1Test [
 JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanSample1TestIn: browser [
 
 	self
-		selectServiceNamed: 'SampleSymbolDict'
+		selectServiceNamed: self rowanSampleDictionaryName
 		in: browser dictionaryListPresenter.
 
 
@@ -143,7 +143,9 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectServicesNamed: services in: 
 	self packageListPresenter == presenter ifTrue: [ ^ self ].
 	(self projectListPresenter == presenter and: [
 		 services first = 'RowanSample1' ]) ifTrue: [
-		^ super selectServicesNamed: #( 'SampleSymbolDict' ) in: presenter "think/hope we only select one package at a time in practice" ].
+		^ super
+			  selectServicesNamed: #( self rowanSampleDictionaryName )
+			  in: presenter "think/hope we only select one package at a time in practice" ].
 	(self projectListPresenter == presenter and: [
 		 services first = 'Rowan' ]) ifTrue: [
 		^ super selectServicesNamed: #( 'Published' ) in: presenter ].
@@ -522,7 +524,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	self jadeiteTestResourceClass current
 		createRowanSample1ProjectWithEmpyClassCategory.
 	self
-		selectServiceNamed: 'SampleSymbolDict'
+		selectServiceNamed: self rowanSampleDictionaryName
 		in: self dictionaryListPresenter.
 	self
 		assert: self classCategoryPresenter roots last name
