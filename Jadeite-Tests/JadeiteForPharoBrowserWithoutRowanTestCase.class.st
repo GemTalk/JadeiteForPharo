@@ -31,6 +31,39 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> classHierarchyServices [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> compileClassExpectedClassDefinition [
+
+	^ JadeitePreferences isRowanAvailable
+		  ifTrue: [ self jfp_compileClassExpectedClassDefinition ]
+		  ifFalse: [ self jfpwor_compileClassExpectedClassDefinition ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> jfp_compileClassExpectedClassDefinition [
+
+	^ 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()' replaceCrWithLf
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> jfpwor_compileClassExpectedClassDefinition [
+
+	^ '(Object subclass: ''TestClass''
+  instVarNames: #( abc)
+  classVars: #()
+  classInstVars: #()
+  poolDictionaries: #()
+  inDictionary: UserGlobals
+  options: #()
+) category: ''Kernel''' replaceCrWithLf
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
 	self projectsPresenter classDefinitionPresenter
 		value: superName, ' rwSubclass: ', className printString, '
@@ -250,6 +283,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_changeClassCategoryWhenHierar
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategoryChange [
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self todo: 'not updated for rowan-stubbed servers yet' ].
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
@@ -398,14 +433,9 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_compileClass [
 		equals: 'TestClass'.
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
 	self
-		assert: self projectsPresenter classDefinitionPresenter text trimBlanks
-		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames: #( abc)
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()' replaceCrWithLf 
+		assert:
+		self projectsPresenter classDefinitionPresenter text trimBlanks
+		equals: self compileClassExpectedClassDefinition
 ]
 
 { #category : 'tests' }
@@ -429,6 +459,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_createClassWithDifferentCateg
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'classes are in different packages' ].
 	self projectsPresenter
 		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
 		methodService: nil
@@ -490,16 +522,16 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 		testsIssue: #issue156
 		withTitle: 'Double click on hierarchy class should expand list #156'.
 	self
-		selectServicesNamed: (Array with: 'RowanKernel')
+		selectServicesNamed: (Array with: 'Globals')
 		in: self dictionaryListPresenter.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
-			 name: 'Rowan';
+			 name: 'Collections';
 			 substringIndex: 1;
 			 yourself).
 	names := self classListPresenter model collection collect: [
 		         :classService | classService name ].
-	self assert: (names includes: 'RwPlatform').
+	self assert: (names includes: 'IdentityBag').
 	self selectHierarchyTab.
 	(Delay forMilliseconds: 500) wait.
 	hierarchyModel := self classHierarchyPresenter model.
@@ -509,11 +541,53 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_hierarchyExpansion [
 	hierarchyModel := self classHierarchyPresenter childrenFor:
 		                  hierarchyModel first.
 	self denyIsNil: (hierarchyModel
-			 detect: [ :svc | svc name = 'RwPlatform' ]
+			 detect: [ :svc | svc name = 'Association' ]
+			 ifNone: [  ]).
+	self denyIsNil: (hierarchyModel
+			 detect: [ :svc | svc name = 'Collection' ]
 			 ifNone: [  ]).
 	self assertIsNil: (hierarchyModel
 			 detect: [ :svc | svc name = 'RwGsPlatform' ]
 			 ifNone: [  ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_jfpworFindClass [
+
+	JadeitePreferences isRowanAvailable ifTrue: [
+		^ self skip: 'classes are in different packages' ].
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'RwGsPlatform')
+		methodService: nil
+		onCompletion: [  ].
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RwGsPlatform'.
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'UserGlobals'.
+	self
+		assert: self classCategoryPresenter selectedItem data
+		equals: 'Stubs'.
+	self projectsPresenter
+		updateAfterFindClass:
+		(RowanClassService new name: 'CypressClassDefinition')
+		methodService: nil
+		onCompletion: [  ].
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'Collection')
+		methodService: nil
+		onCompletion: [  ].
+	
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'Collection'.
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'Globals'.
+	self
+		assert: self classCategoryPresenter selectedItem data
+		equals: 'Collections'
 ]
 
 { #category : 'tests' }
@@ -926,7 +1000,9 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 			 name: 'Rowan-Services-Tests';
 			 substringIndex: 3;
 			 yourself).
-	self assertIsNil: self classListPresenter selectedItem
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RowanAnsweringService'.
 ]
 
 { #category : 'tests' }
