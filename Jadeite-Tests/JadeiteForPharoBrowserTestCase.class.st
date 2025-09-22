@@ -67,6 +67,14 @@ JadeiteForPharoBrowserTestCase >> fileInFilePath [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> performTest [
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan not available. Test not run' ].
+	^ super performTest
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> projectInfoMockService [
 
 	| mockService |
@@ -93,8 +101,7 @@ JadeiteForPharoBrowserTestCase >> projectInfoMockService [
 JadeiteForPharoBrowserTestCase >> setUp [
 
 	super setUp.
-	JadeitePreferences isRowanAvailable ifFalse: [
-		^ self skip: 'Rowan display not selected. Test not run' ].
+	JadeitePreferences isRowanAvailable ifFalse: [ ^ self ].
 	JadeitePreferences isRowanLoaded: true.
 	self setupProjectBrowser
 ]

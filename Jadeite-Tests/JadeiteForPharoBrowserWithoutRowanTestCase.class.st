@@ -185,6 +185,18 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> selectServicesNamed: services in: 
 	^ super selectServicesNamed: services in: presenter
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> servicesTestsLoaded [
+
+	self classCategoryPresenter selectItem:
+		(RowanClassCategoryService new
+			 name: 'Rowan-Services-Tests';
+			 substringIndex: 3;
+			 yourself).
+	self classListPresenter selectedItem ifNil: [ ^ false ].
+	^ true
+]
+
 { #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> setUp [
 
@@ -665,6 +677,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_runTestInBrowser [
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self servicesTestsLoaded ifFalse: [
+		^ self skip: 'service server tests not loaded. test skipped' ].
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -693,10 +707,13 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_runTestInBrowser [
 
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
-	| classService | 
+
+	| classService |
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self servicesTestsLoaded ifFalse: [
+		^ self skip: 'service server tests not loaded. test skipped' ].
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -719,8 +736,12 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
 	self assert: ('Object rwSubclass: ''TestClass''*' match:
 			 self projectsPresenter classDefinitionPresenter text).
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
-	classService := RowanClassService new name: 'TestClass'; meta: false. 
-	self assert: (self dictionaryListPresenter selectedItem classes includes: classService)
+	classService := RowanClassService new
+		                name: 'TestClass';
+		                meta: false.
+	self assert:
+		(self dictionaryListPresenter selectedItem classes includes:
+			 classService)
 ]
 
 { #category : 'tests' }
@@ -730,6 +751,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassChangedCategory [
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self servicesTestsLoaded ifFalse: [
+		^ self skip: 'service server tests not loaded. test skipped' ].
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -788,6 +811,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchy [
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self servicesTestsLoaded ifFalse: [
+		^ self skip: 'service server tests not loaded. test skipped' ].
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -808,11 +833,12 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchy [
 	self
 		assert: self classHierarchyPresenter selectedItem name
 		equals: 'TestClass'.
-	self assert: self classCategoryPresenter selectedItem equals:
-		(RowanClassCategoryService new
-			 name: 'Rowan-Services-Tests';
-			 substringIndex: 3;
-			 yourself).
+	self
+		assert: self classCategoryPresenter selectedItem
+		equals: (RowanClassCategoryService new
+				 name: 'Rowan-Services-Tests';
+				 substringIndex: 3;
+				 yourself).
 	self assert: ('Object rwSubclass: ''TestClass''*' match:
 			 self projectsPresenter classDefinitionPresenter text).
 	self assert: self projectsPresenter isClassDefinitionTabSelected
@@ -824,6 +850,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchyChangedCa
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self servicesTestsLoaded ifFalse: [
+		^ self skip: 'service server tests not loaded. test skipped' ].
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
@@ -844,11 +872,12 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchyChangedCa
 	self
 		assert: self classHierarchyPresenter selectedItem name
 		equals: 'TestClass'.
-	self assert: self classCategoryPresenter selectedItem equals:
-		(RowanClassCategoryService new
-			 name: 'Rowan-Services-Tests';
-			 substringIndex: 3;
-			 yourself).
+	self
+		assert: self classCategoryPresenter selectedItem
+		equals: (RowanClassCategoryService new
+				 name: 'Rowan-Services-Tests';
+				 substringIndex: 3;
+				 yourself).
 	self assert: ('Object rwSubclass: ''TestClass''*' match:
 			 self projectsPresenter classDefinitionPresenter text).
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
@@ -962,6 +991,10 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 	"should be able to select a new class category higher in the path
 	without losing the selection"
 
+	"in hierarchy don't lose selection""Rowan-Services""Rowan""not in hierarchy, selection cleared"
+
+	self servicesTestsLoaded ifFalse: [
+		^ self skip: 'service server tests not loaded. test skipped' ].
 	self selectRowanAnsweringService.
 	self
 		assert: self dictionaryListPresenter selectedItem name
@@ -972,13 +1005,11 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanAnsweringService'.
-
-	"in hierarchy don't lose selection"
 	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Core';
-			 substringIndex: 2; "Rowan-Services"
+			 substringIndex: 2;
 			 yourself).
 	self
 		assert: self classListPresenter selectedItem name
@@ -987,22 +1018,18 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_selectClassCategoryInSamePath
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Core';
-			 substringIndex: 1; "Rowan"
+			 substringIndex: 1;
 			 yourself).
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanAnsweringService'.
-
-	"not in hierarchy, selection cleared"
 	self classCategoryPresenter unselectAll.
 	self classCategoryPresenter selectItem:
 		(RowanClassCategoryService new
 			 name: 'Rowan-Services-Tests';
 			 substringIndex: 3;
 			 yourself).
-	self
-		assert: self classListPresenter selectedItem name
-		equals: 'RowanAnsweringService'.
+	self assertIsNil: self classListPresenter selectedItem
 ]
 
 { #category : 'tests' }

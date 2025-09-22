@@ -687,7 +687,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classCommentSave [
 		testsJadeiteForPharoIssue: #issue49
 		title: 'Class Comment tab doesn''t work correctly'.
 	comment := 'test comment'.
-	self jadeiteTestResourceClass current createRowanSample1Project.
+	self ensureRowanSampleProjectLoaded.
 	self selectRowanSample1Class.
 	self projectsPresenter selectClassCommentTab.
 	self projectsPresenter classCommentPresenter text: comment.
@@ -1366,8 +1366,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_removeClass [
 	self updateService: self projectsPresenter selectedClass. "make sure it's updated in for the test"
 	self projectsPresenter removeClassConfirm: false.
 	self
-		deny: self projectsPresenter selectedClass name
-		equals: 'TestClass'
+		assertIsNil: self projectsPresenter selectedClass
 ]
 
 { #category : 'tests' }
