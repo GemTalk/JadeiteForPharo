@@ -63,14 +63,17 @@ JadeiteFilterTrait >> basicRemoveInstVarsNamed: instVars [
 { #category : 'actions' }
 JadeiteFilterTrait >> basicRemoveMethodCategories [
 
-	| minusExtensions service |
-	minusExtensions := self categoryListPresenter selectedItems reject: [
+	| nonExtensionCategories service removeCategorySelector |
+	removeCategorySelector := JadeitePreferences isRowanAvailable
+		            ifTrue: [ #removeCategories: ]
+		            ifFalse: [ #jfpwor_removeCategories: ].
+	nonExtensionCategories := self categoryListPresenter selectedItems reject: [
 		                   :jadeiteCategory | jadeiteCategory isComputed ].
 	service := self selectedClass
-		           command: #removeCategories:;
+		           command: removeCategorySelector;
 		           commandArgs:
 			           (Array with:
-					            (minusExtensions collect: [ :ea | ea categoryName ])).
+					            (nonExtensionCategories collect: [ :ea | ea categoryName ])).
 	self issueCommand: service onCompletion: [  ]
 ]
 

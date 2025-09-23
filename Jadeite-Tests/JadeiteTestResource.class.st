@@ -185,7 +185,7 @@ JadeiteTestResource >> createRowanSample1ProjectWithEmpyClassCategory [
 	| testService selector |
 	selector := JadeitePreferences isRowanAvailable
 		            ifTrue: [
-		            #addRowanSample1ClassWithEmpyClassCategory ]
+		            #createRowanSample1ProjectWithEmpyClassCategory ]
 		            ifFalse: [
 		            #jfpwor_addRowanSample1ClassWithEmpyClassCategory ].
 	testService := RowanTestService new.
