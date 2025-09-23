@@ -687,7 +687,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_classCommentSave [
 		testsJadeiteForPharoIssue: #issue49
 		title: 'Class Comment tab doesn''t work correctly'.
 	comment := 'test comment'.
-	self ensureRowanSampleProjectLoaded.
+	self ensureRowanSampleClassesLoaded.
 	self selectRowanSample1Class.
 	self projectsPresenter selectClassCommentTab.
 	self projectsPresenter classCommentPresenter text: comment.
