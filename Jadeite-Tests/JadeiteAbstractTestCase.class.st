@@ -315,17 +315,13 @@ JadeiteAbstractTestCase >> ensureRowanSampleClassesLoaded [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> ensureRowanSampleDictionaryLoaded [
 
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService
-		command: #removeDictionariesNamed:;
-		commandArgs:
-			(Array with: self jadeiteTestResourceClass sampleProject1Name).
-	self issueCommand: browserService onCompletion: [
-		JadeiteApplication
-			commitTransactionInSession: session
-			onCompletion: [
-			self jadeiteTestResourceClass current createRowanSample1Dictionary ] ]
+	JadeiteBrowserPresenter
+		basicRemoveDictionaryNamed: self rowanSampleDictionaryName
+		onCompletion: [
+			JadeiteApplication
+				commitTransactionInSession: session
+				onCompletion: [
+				self jadeiteTestResourceClass current createRowanSample1Dictionary ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1308,7 +1304,8 @@ JadeiteAbstractTestCase >> transcriptTab [
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> unloadSampleProject1 [
 
-	self jadeiteTestResourceClass current unloadSampleProject1
+	GciSession current isValidSession ifTrue: [
+		self jadeiteTestResourceClass current unloadSampleProject1 ]
 ]
 
 { #category : 'as yet unclassified' }

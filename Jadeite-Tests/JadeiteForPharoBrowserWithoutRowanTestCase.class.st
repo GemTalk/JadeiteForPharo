@@ -206,6 +206,19 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> setUp [
 	self setupProjectBrowser
 ]
 
+{ #category : 'support' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> tearDown [
+
+	GciSession current isValidSession ifTrue: [
+		JadeitePreferences isRowanAvailable
+			ifTrue: [ self unloadSampleProject1 ]
+			ifFalse: [
+				JadeiteBrowserPresenter
+					basicRemoveDictionaryNamed: self rowanSampleDictionaryName
+					onCompletion: [  ] ] ].
+	super tearDown
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_abstractTestClassesHaveNoRunButton [
 

@@ -156,8 +156,8 @@ GciSession >> library: anObject [
 { #category : 'actions' }
 GciSession >> logout [
 
-	library close.
-	self class clearCurrent. 
+	library ifNotNil: [ library close ].
+	self class clearCurrent
 ]
 
 { #category : 'accessing' }

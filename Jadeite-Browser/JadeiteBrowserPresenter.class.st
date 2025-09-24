@@ -37,6 +37,20 @@ Class {
 }
 
 { #category : 'utility' }
+JadeiteBrowserPresenter class >> basicRemoveDictionaryNamed: dictionaryName onCompletion: completionBlock [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService
+		command: #removeDictionariesNamed:;
+		commandArgs: (Array with: (Array with: dictionaryName)).
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: GciSession current
+		onCompletion: completionBlock
+]
+
+{ #category : 'utility' }
 JadeiteBrowserPresenter class >> browseSendersOf: string session: session [
 
 	| service shell |
@@ -394,14 +408,11 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 ]
 
 { #category : 'actions' }
-JadeiteBrowserPresenter >> basicRemoveDictionary: dictionaryName [
+JadeiteBrowserPresenter >> basicRemoveDictionaryNamed: dictionaryName onCompletion: completionBlock [
 
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService
-		command: #removeDictionariesNamed:;
-		commandArgs: (Array with: (Array with: dictionaryName)).
-	self issueCommand: browserService onCompletion: [  ]
+	self class
+		basicRemoveDictionaryNamed: dictionaryName
+		onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }
@@ -3069,7 +3080,7 @@ JadeiteBrowserPresenter >> removeDictionary [
 	(MessageBox confirm:
 		 'Really remove dictionary ' , dictionaryName , ' ?
 This will commit the transaction.') ifFalse: [ ^ self ].
-	self basicRemoveDictionary: dictionaryName
+	self basicRemoveDictionaryNamed: dictionaryName onCompletion: [  ]
 ]
 
 { #category : 'as yet unclassified' }

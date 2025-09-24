@@ -23,17 +23,17 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 						name: 'Move to Package ...';
 						action: [ self moveClassToPackage ];
 						enabled: [ self isClassSelected ] ] ].
-			group
-				addItem: [ :item |
-					item
-						name: 'Copy ...';
-						action: [ self copyClass ];
-						enabled: [ self isClassSelected ] ];
-				addItem: [ :item |
+			group addItem: [ :item |
+				item
+					name: 'Copy ...';
+					action: [ self copyClass ];
+					enabled: [ self isClassSelected ] ].
+			JadeitePreferences isRowanAvailable ifTrue: [
+				group addItem: [ :item |
 					item
 						name: 'Rename ...';
 						action: [ self renameClass ];
-						enabled: [ self isClassSelected ] ] ];
+						enabled: [ self isClassSelected ] ] ] ];
 		addGroup: [ :group |
 			group addItem: [ :item |
 				item
