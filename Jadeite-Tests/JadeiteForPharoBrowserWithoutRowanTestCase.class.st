@@ -211,7 +211,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> tearDown [
 
 	GciSession current isValidSession ifTrue: [
 		JadeitePreferences isRowanAvailable
-			ifTrue: [ self unloadSampleProject1 ]
+		"	ifTrue: [ self unloadSampleProject1 ]"
 			ifFalse: [
 				JadeiteBrowserPresenter
 					basicRemoveDictionaryNamed: self rowanSampleDictionaryName
