@@ -686,8 +686,9 @@ JadeiteAbstractTestCase >> rowanSampleDictionaryName [
 	^ self jadeiteTestResourceClass rowanSampleDictionaryName
 ]
 
-{ #category : 'running' }
-JadeiteAbstractTestCase >> runCase [
+{ #category : 'debugging' }
+JadeiteAbstractTestCase >> runCaseWithLogging [
+	"can rename this #runCase this method when it's good to trace the test order output "
 	('Starting ', self class name, '>>', self selector) traceCr.
 	[ super runCase ]
 		ensure: [ ('Finished ', self class name, '>>', self selector) traceCr ]
