@@ -16,6 +16,11 @@ JadeiteForPharoAbstractBrowserTestCase class >> isAbstract [
 	^ self name = #JadeiteForPharoAbstractBrowserTestCase
 ]
 
+{ #category : 'factory' }
+JadeiteForPharoAbstractBrowserTestCase class >> suiteClass [
+	^JadeiteTestSuite
+]
+
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> addChildrenOf: item to: items [
 	| children |

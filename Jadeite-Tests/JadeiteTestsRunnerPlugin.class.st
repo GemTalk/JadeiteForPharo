@@ -19,6 +19,27 @@ JadeiteTestsRunnerPlugin >> buildConfigurationFrom: aDrTests [
 		  packages: aDrTests packagesSelected
 ]
 
+{ #category : 'ui' }
+JadeiteTestsRunnerPlugin >> pluginPresenterClass [
+
+	^ JadeiteTestsRunnerPluginPresenter
+]
+
+{ #category : 'api' }
+JadeiteTestsRunnerPlugin >> runForConfiguration: aDTpluginConfiguration [
+
+	| results |
+	[
+	results := self pluginResultClass new
+		           testResults:
+			           (self runTestSuites:
+					            { aDTpluginConfiguration asTestSuite });
+		           yourself ]
+		on: JadeiteTestSuiteError
+		do: [ ^ DTMockPluginResult new ].
+	^ aDTpluginConfiguration handleResults: results for: self
+]
+
 { #category : 'tests' }
 JadeiteTestsRunnerPlugin >> runSuite: aTestSuite withResult: aResult [
 

@@ -10,15 +10,17 @@ Class {
 
 { #category : 'accessing' }
 JadeiteTestSuite class >> randomSeed [
+	"Use this randomSeed to run JfP tests with Dr Tests
+	self randomSeed: 1234567"
 
 	RandomSeed ifNil: [
 		| seed |
-		seed := self uiManager request: 'Enter random seed'.
+		seed := self uiManager request:
+			        'Enter random seed (leave blank for new random seed)'.
+		seed isNil ifTrue: [ ^ JadeiteTestSuiteError signal ].
 		RandomSeed := (seed isNil or: [ seed isEmpty ])
 			              ifTrue: [ Random new seed ]
-			              ifFalse: [ seed asInteger ].
-		('----- Test started with random seed ' , RandomSeed printString
-		 , ' -----') traceCr ].
+			              ifFalse: [ seed asInteger ] ].
 	^ RandomSeed
 ]
 
@@ -43,6 +45,8 @@ JadeiteTestSuite >> resultClass [
 
 { #category : 'running' }
 JadeiteTestSuite >> shuffledTests [
-	
-	^ self tests shuffledBy: randomGenerator
+
+	('----- Test started with random seed '
+	 , self class randomSeed printString , ' -----') traceCr.
+	^ self tests shuffledBy: (Random new seed: self class randomSeed)
 ]
