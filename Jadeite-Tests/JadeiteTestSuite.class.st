@@ -46,7 +46,5 @@ JadeiteTestSuite >> resultClass [
 { #category : 'running' }
 JadeiteTestSuite >> shuffledTests [
 
-	('----- Test started with random seed '
-	 , self class randomSeed printString , ' -----') traceCr.
 	^ self tests shuffledBy: (Random new seed: self class randomSeed)
 ]

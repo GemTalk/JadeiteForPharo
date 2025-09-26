@@ -30,6 +30,8 @@ JadeiteTestsRunnerPlugin >> runForConfiguration: aDTpluginConfiguration [
 
 	| results |
 	[
+	('----- Test started with random seed '
+	 , JadeiteTestSuite randomSeed printString , ' -----') traceCr.
 	results := self pluginResultClass new
 		           testResults:
 			           (self runTestSuites:

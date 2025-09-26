@@ -687,19 +687,12 @@ JadeiteAbstractTestCase >> rowanSampleDictionaryName [
 ]
 
 { #category : 'debugging' }
-JadeiteAbstractTestCase >> runCase [
-	"can rename this #runCase this method when it's good to trace the test order output "
-	('Starting ', self class name, '>>', self selector) traceCr.
-	[ super runCase ]
-		ensure: [ ('Finished ', self class name, '>>', self selector) traceCr ]
-]
-
-{ #category : 'debugging' }
 JadeiteAbstractTestCase >> runCaseWithLogging [
-	"can rename this #runCase this method when it's good to trace the test order output "
-	('Starting ', self class name, '>>', self selector) traceCr.
-	[ super runCase ]
-		ensure: [ ('Finished ', self class name, '>>', self selector) traceCr ]
+	"can rename this #runCase this method when you want to trace the test method order "
+
+	('Starting ' , self class name , '>>' , self selector) traceCr.
+	[ super runCase ] ensure: [
+		('Finished ' , self class name , '>>' , self selector) traceCr ]
 ]
 
 { #category : 'as yet unclassified' }
