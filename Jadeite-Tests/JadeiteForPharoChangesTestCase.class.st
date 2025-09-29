@@ -5,6 +5,14 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'support' }
+JadeiteForPharoChangesTestCase >> performTest [
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan not available. Test not run' ].
+	^ super performTest
+]
+
 { #category : 'tests' }
 JadeiteForPharoChangesTestCase >> test_windowTitle [
 

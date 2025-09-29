@@ -132,11 +132,11 @@ JadeiteClassTrait >> findClass [
 ]
 
 { #category : 'private' }
-JadeiteClassTrait >> findClassNamed: selection [
+JadeiteClassTrait >> findClassNamed: className [
 
 	| classService |
 	classService := RowanClassService new
-		                name: selection;
+		                name: className;
 		                meta: false.
 	self activePresenter
 		updateAfterFindClass: classService

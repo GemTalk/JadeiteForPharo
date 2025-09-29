@@ -349,10 +349,10 @@ JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 		jadeiteShell browseSendersOf: #foo ].
 	methodListBrowser methodListPresenter items do: [ :methodService |
 		methodListBrowser methodListPresenter selectItem: methodService.
-		self assert: ('foo*' match:
-				 methodListBrowser methodSourcePresenter documentPresenter
-					 selection) "use match because we might pickup a '.'" ].
-	self assert: ('* Senders of ''foo'' for *' match: methodListBrowser owner title)
+		self assert:
+			('foo*' match: methodListBrowser methodSourcePresenter selection) "use match because we might pickup a '.'" ].
+	self assert:
+		('* Senders of ''foo'' for *' match: methodListBrowser owner title)
 ]
 
 { #category : 'tests' }
@@ -626,7 +626,7 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 		jadeiteShell browseImplementorsOf: #didSourceUpdate ].
 	self
 		assert:
-		methodListBrowser methodSourcePresenter documentPresenter text
+		methodListBrowser methodSourcePresenter text
 		equals: oldSource.
 	self
 		assert: methodListBrowser methodListPresenter list size
@@ -657,11 +657,11 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 		equals: #didSourceUpdate.
 	self
 		assert:
-		methodListBrowser methodSourcePresenter documentPresenter text
+		methodListBrowser methodSourcePresenter  text
 		equals: newSource.
 	self
 		assert:
-		self projectsPresenter methodSourcePresenter documentPresenter text
+		self projectsPresenter methodSourcePresenter  text
 		equals: newSource
 ]
 

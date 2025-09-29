@@ -52,13 +52,17 @@ JadeiteForPharoHeadlessMiscellaneousTestCase >> test_cleanUpServiceOnDisconnect 
 	"ensure the hook to cleanup after disconnect gets run"
 
 	| service |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	service := RowanClassService new
 		           name: 'RowanService';
 		           meta: false.
 	service
 		command: #update;
 		commandArgs: Array new.
-	GciSession current issueCommand: service onCompletion: [].
+	GciSession current issueCommand: service onCompletion: [  ].
 	"make sure a few random fields are filled in so we know the update succeeded"
 	self assert: service comment notEmpty.
 	self assert: service packageName equals: 'Rowan-Services-Core'.

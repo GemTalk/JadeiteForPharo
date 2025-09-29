@@ -321,17 +321,11 @@ JadeiteConsole >> editLoadSpecFromFile [
 ]
 
 { #category : 'actions' }
-JadeiteConsole >> findClassNamed: selection [
+JadeiteConsole >> findClassNamed: className [
 
-	| classService browser |
+	| browser |
 	browser := JadeiteBrowser new owner: self.
-	browser postOpenBlock: [
-		classService := RowanClassService new name: selection.
-		self updateService: classService onCompletion: [
-			browser activePresenter
-				updateAfterFindClass: classService
-				methodService: nil
-				onCompletion: [ browser activePresenter updateTabLabel ] ] ].
+	browser postOpenBlock: [ browser findClassNamed: className ].
 	self basicOpenBrowser: browser
 ]
 

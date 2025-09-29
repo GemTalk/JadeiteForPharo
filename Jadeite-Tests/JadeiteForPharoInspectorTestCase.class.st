@@ -109,6 +109,10 @@ JadeiteForPharoInspectorTestCase >> tearDown [
 { #category : 'as yet unclassified' }
 JadeiteForPharoInspectorTestCase >> test_abortTransactionInInspector [
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self
 		testsIssue: #issue383
 		withTitle:
@@ -209,6 +213,10 @@ JadeiteForPharoInspectorTestCase >> test_addCharacterToString [
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_browseClass [
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self openWorkspaceAndInspect: 'RowanClassService new'.
 	projectsBrowser := inspector browseClass.
 	self assert: (projectsBrowser isKindOf: JadeiteBrowser).
@@ -220,6 +228,29 @@ JadeiteForPharoInspectorTestCase >> test_browseClass [
 		equals: 'Rowan-Services-Core'.
 	self
 		assert: projectsBrowser classListPresenter selectedItem name
+		equals: 'RowanClassService'.
+	self deny: projectsBrowser activePresenter isClassSideSelected.
+	self assert: projectsBrowser activePresenter isCategoryTabSelected
+]
+
+{ #category : 'tests' }
+JadeiteForPharoInspectorTestCase >> test_browseClassJfPwoR [
+
+	JadeitePreferences isRowanAvailable ifTrue: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self openWorkspaceAndInspect: 'RowanClassService new'.
+	projectsBrowser := inspector browseClass.
+	self assert: (projectsBrowser isKindOf: JadeiteBrowserWithoutRowan).
+	self
+		assert: self dictionaryListPresenter selectedItem name
+		equals: 'RowanClientServices'.
+	self
+		assert: self classCategoryPresenter selectedItem name
+		equals: 'Rowan-Services-Core'.
+	self
+		assert: self classListPresenter selectedItem name
 		equals: 'RowanClassService'.
 	self deny: projectsBrowser activePresenter isClassSideSelected.
 	self assert: projectsBrowser activePresenter isCategoryTabSelected
@@ -239,6 +270,11 @@ JadeiteForPharoInspectorTestCase >> test_browseProjects [
 JadeiteForPharoInspectorTestCase >> test_browseSelectionClass [
 
 	| sem |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+
 	sem := Semaphore new.
 	self openWorkspaceAndInspect: 'RowanClassService new'.
 	self selectSlotNamed: 'isNewClass'.

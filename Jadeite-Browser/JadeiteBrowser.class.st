@@ -24,6 +24,14 @@ JadeiteBrowser class >> browserClass [
 ]
 
 { #category : 'accessing' }
+JadeiteBrowser class >> browserPresenterClass [
+
+	^ JadeitePreferences isRowanLoaded
+		  ifTrue: [ JadeiteBrowserPresenter ]
+		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
+]
+
+{ #category : 'accessing' }
 JadeiteBrowser class >> lastWindowSize [
 
 	^LastWindowSize
@@ -96,10 +104,7 @@ JadeiteBrowser >> browserOpener [
 
 { #category : 'accessing' }
 JadeiteBrowser >> browserPresenterClass [
-
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [ JadeiteBrowserPresenter ]
-		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
+	^ self class browserPresenterClass
 ]
 
 { #category : 'testing' }

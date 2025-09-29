@@ -282,7 +282,7 @@ JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
 	aBlock forkAt: Processor activePriority + 1.
 	count := 0.
 	[
-	count > 10 or: [
+	count > 50 or: [
 		(new := presenterClass allInstances asOrderedCollection) size
 		> existing size ] ] whileFalse: [
 		WorldMorph doOneCycle.

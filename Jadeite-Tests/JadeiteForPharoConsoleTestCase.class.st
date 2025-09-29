@@ -46,6 +46,10 @@ Just select everything and assert the selection index changed."
 JadeiteForPharoConsoleTestCase >> test_browseProject [
 
 	| projectsPresenter service |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	RowanServiceUpdater uninstallTestUpdater.
 	projectsPresenter := jadeiteShell projectListPresenter.
 	service := projectsPresenter items detect: [ :projectService |
@@ -66,8 +70,8 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 	RowanServiceUpdater uninstallTestUpdater.
 
 	projectsPresenter := self
-		                     waitForNew: JadeiteBrowserPresenter
-		                     while: [ jadeiteShell findClassNamed: 'Object' ].
+		                   waitForNew: JadeiteBrowser browserPresenterClass
+		                   while: [ jadeiteShell findClassNamed: 'Object' ].
 	projectsBrowser := projectsPresenter parentPresenter.
 	sem := Semaphore new.
 	[
@@ -75,7 +79,7 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 	projectsPresenter selectedClass
 		ifNil: [ false ]
 		ifNotNil: [ :classService | classService name = 'Object' ] ]
-		whileFalse: [ (Delay forMilliseconds: 1) wait ].
+		whileFalse: [ (Delay forMilliseconds: 10) wait ].
 	sem signal ] fork.
 
 	sem waitTimeoutSeconds: 2.
@@ -109,6 +113,10 @@ JadeiteForPharoConsoleTestCase >> test_openHelp [
 JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
 
 	| servicesProjectService rowanProjectService |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self console unsetCurrentProject.
 	self assert: self projectListPresenter list notEmpty.
 	self
@@ -153,6 +161,10 @@ JadeiteForPharoConsoleTestCase >> test_transcriptReset [
 JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
 
 	| servicesProjectService |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self console unsetCurrentProject.
 	self projectListPresenter items do: [ :projectService |
 		self deny: (projectService displayName includes: $*).

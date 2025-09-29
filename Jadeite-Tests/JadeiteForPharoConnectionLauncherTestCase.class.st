@@ -362,6 +362,8 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 		withTitle:
 		'Need a report to show what all git repository shas I have loaded'.
 
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan not available. Test not run' ].
 	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
 		JadeiteConnectionProfile connectionProfile connect ].
 	workspace := launcher openCommitIdWindow.
