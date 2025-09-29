@@ -17,13 +17,6 @@ JadeiteForPharoBrowserWithoutRowanTestCase class >> codeCoverageClasses [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserWithoutRowanTestCase >> classCategoryServices [
-
-	^ self classCategoryPresenter adapter widget dataSource allShownItems
-		  collect: [ :service | service data ]
-]
-
-{ #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> classHierarchyServices [
 
 	^ self classHierarchyPresenter adapter widget dataSource allShownItems
@@ -61,30 +54,6 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> jfpwor_compileClassExpectedClassDe
   inDictionary: UserGlobals
   options: #()
 ) category: ''Kernel''' replaceCrWithLf
-]
-
-{ #category : 'support' }
-JadeiteForPharoBrowserWithoutRowanTestCase >> saveClass: className superclass: superName instVars: instVars category: aString [
-	self projectsPresenter classDefinitionPresenter
-		value: superName, ' rwSubclass: ', className printString, '
-	instVarNames: ' , instVars printString
-				, '
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ', aString printString, '
-	options: #()'.
-	^self projectsPresenter editSaveClass
-]
-
-{ #category : 'support' }
-JadeiteForPharoBrowserWithoutRowanTestCase >> selectClassCategoryNamed: name [
-
-	| services service |
-	services := self classCategoryServices.
-	service := services detect: [ :classCategoryService |
-		           classCategoryService name = name ].
-	self classCategoryPresenter selectItem: service
 ]
 
 { #category : 'selection' }
@@ -739,7 +708,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClass [
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanAnsweringServiceTest'.
 	self
-		saveClass: 'TestClass'
+		jfpwor_classDefinitionFor: 'TestClass'
 		superclass: 'Object'
 		instVars: #( 'test_saveClass' )
 		category: 'Rowan-Services-Tests'.
@@ -778,7 +747,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassChangedCategory [
 		assert: self classListPresenter selectedItem name
 		equals: 'RowanAnsweringServiceTest'.
 	self
-		saveClass: 'TestClass'
+		jfpwor_classDefinitionFor: 'TestClass'
 		superclass: 'Object'
 		instVars: #( 'test_saveClass' )
 		category: 'Rowan-Services-Tests'.
@@ -801,7 +770,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassChangedCategory [
 			 classService).
 	"----------------Change the category and see if the category selection changes ------------------"
 	self
-		saveClass: 'TestClass'
+		jfpwor_classDefinitionFor: 'TestClass'
 		superclass: 'Object'
 		instVars: #( 'test_saveClass' )
 		category: 'Rowan-Services-Core'.
@@ -839,7 +808,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchy [
 		equals: 'RowanAnsweringServiceTest'.
 	self selectHierarchyTab.
 	self
-		saveClass: 'TestClass'
+		jfpwor_classDefinitionFor: 'TestClass'
 		superclass: 'Object'
 		instVars: #( 'test_saveClass' )
 		category: 'Rowan-Services-Tests'.
@@ -878,7 +847,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchyChangedCa
 		equals: 'RowanAnsweringServiceTest'.
 	self selectHierarchyTab.
 	self
-		saveClass: 'TestClass'
+		jfpwor_classDefinitionFor: 'TestClass'
 		superclass: 'Object'
 		instVars: #( 'test_saveClass' )
 		category: 'Rowan-Services-Tests'.
@@ -896,7 +865,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_saveClassInHierarchyChangedCa
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
 	"----------------Change the category and see if the category selection changes ------------------"
 	self
-		saveClass: 'TestClass'
+		jfpwor_classDefinitionFor: 'TestClass'
 		superclass: 'Object'
 		instVars: #( 'test_saveClass' )
 		category: 'Rowan-Services-Core'.
@@ -929,7 +898,7 @@ Even then it may not work as the test has never been successfully run"
 		assert: self classListPresenter selectedItem name
 		equals: 'Array'.
 	self
-		saveClass: 'TestClassWithNewCategory'
+		jfpwor_classDefinitionFor: 'TestClassWithNewCategory'
 		superclass: 'Object'
 		instVars: #( 'test_saveClassNewCategory' )
 		category: 'Rowan-Services-Tests-NewCategory'.

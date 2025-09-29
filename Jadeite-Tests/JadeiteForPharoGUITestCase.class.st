@@ -53,6 +53,13 @@ JadeiteForPharoGUITestCase >> assertTextPaneResetFor: presenter [
 	self assert: presenter text equals: text
 ]
 
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> classCategoryServices [
+
+	^ self classCategoryPresenter adapter widget dataSource allShownItems
+		  collect: [ :service | service data ]
+]
+
 { #category : 'constants' }
 JadeiteForPharoGUITestCase >> compileErrorMethodText [
 
@@ -115,6 +122,27 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 		launcher window close ].
 	JadeiteConnectionLauncher soleInstance ifNil: [
 		JadeiteConnectionApplication new start ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> jfpwor_classDefinitionFor: className superclass: superName instVars: instVars category: aString [
+
+	self
+		jfpwor_saveClass: className
+		superclass: instVars
+		instVars: aString
+		package: superName.
+	^ self projectsPresenter editSaveClass
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> selectClassCategoryNamed: name [
+
+	| services service |
+	services := self classCategoryServices.
+	service := services detect: [ :classCategoryService |
+		           classCategoryService name = name ].
+	self classCategoryPresenter selectItem: service
 ]
 
 { #category : 'support' }

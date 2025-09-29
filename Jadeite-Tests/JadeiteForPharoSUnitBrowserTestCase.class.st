@@ -25,9 +25,10 @@ JadeiteForPharoSUnitBrowserTestCase >> assertClassInList: name [
 
 { #category : 'support' }
 JadeiteForPharoSUnitBrowserTestCase >> assertPackageInList: name [
-	self denyIsNil: (sunitBrowser packageListPresenter list
-				detect: [:packageService | packageService name = name]
-				ifNone: [])
+
+	self denyIsNil: (self leftColumn list
+			 detect: [ :packageService | packageService name = name ]
+			 ifNone: [  ])
 ]
 
 { #category : 'support' }
@@ -39,15 +40,24 @@ JadeiteForPharoSUnitBrowserTestCase >> denyClassInList: name [
 
 { #category : 'support' }
 JadeiteForPharoSUnitBrowserTestCase >> denyPackageInList: name [
-	self assertIsNil: (sunitBrowser packageListPresenter list
-				detect: [:packageService | packageService name = name]
-				ifNone: [])
+
+	self assertIsNil: (self leftColumn list
+			 detect: [ :packageService | packageService name = name ]
+			 ifNone: [  ])
 ]
 
 { #category : 'support' }
 JadeiteForPharoSUnitBrowserTestCase >> gciSession [
 
 	^GciSession current 
+]
+
+{ #category : 'support' }
+JadeiteForPharoSUnitBrowserTestCase >> leftColumn [
+
+	^ JadeitePreferences isRowanAvailable
+		  ifTrue: [ sunitBrowser packageListPresenter ]
+		  ifFalse: [ sunitBrowser dictionaryListPresenter ]
 ]
 
 { #category : 'support' }
@@ -61,14 +71,66 @@ JadeiteForPharoSUnitBrowserTestCase >> setUp [
 JadeiteForPharoSUnitBrowserTestCase >> setupAbstractSuperWithTest [
 	"setup abstract super class with single test + 2 subclasses"
 
+	JadeitePreferences isRowanLoaded
+		ifTrue: [ self setupAbstractSuperWithTestForRowan ]
+		ifFalse: [ self setupAbstractSuperWithTestWithoutRowan ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoSUnitBrowserTestCase >> setupAbstractSuperWithTestForRowan [
+
 	| source |
-	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current
+		                   openProjectsBrowser.
 	self
 		saveClass: 'JadeiteTest'
 		superclass: 'TestCase'
 		instVars: #(  )
 		package: 'RowanSample1-Tests'.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self selectServiceNamed: 'JadeiteTest' in: self classListPresenter.
+	self selectClassTab.
+	source := 'isAbstract
+		^self name = #JadeiteTest'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: nil.
+	self selectInstanceSide.
+	source := 'test_className
+		"fail in one subclass only" 
+		self assert: self class name = #JadeiteTestSubclass1'.
+	self methodSourcePresenter value: source.
+	self projectsPresenter
+		editSaveMethod: self classListPresenter selectedItem
+		onCompletion: nil.
+	self
+		saveClass: 'JadeiteTestSubclass1'
+		superclass: 'JadeiteTest'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self
+		saveClass: 'JadeiteTestSubclass2'
+		superclass: 'JadeiteTest'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'
+]
+
+{ #category : 'support' }
+JadeiteForPharoSUnitBrowserTestCase >> setupAbstractSuperWithTestWithoutRowan [
+
+	| source |
+	projectsBrowser := self jadeiteTestResourceClass current
+		                   openProjectsBrowser.
+	self
+		saveClass: 'JadeiteTest'
+		superclass: 'TestCase'
+		instVars: #(  )
+		package: 'RowanSample1-Tests'.
+	self selectServiceNamed: 'RowanSample1' in: self dictionaryListPresenter.
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self packageListPresenter.
@@ -120,6 +182,10 @@ JadeiteForPharoSUnitBrowserTestCase >> test_abortNoSelections [
 		testsIssue: #issue383
 		withTitle:
 		'(3.0.53) the commit button on the SUnit browser is silent'.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self transcript
 		basicUnloadProjects: (Array with: self sampleProject1Name)
 		onCompletion: [  ].
@@ -139,6 +205,10 @@ JadeiteForPharoSUnitBrowserTestCase >> test_abortWithSelections [
 		testsIssue: #issue383
 		withTitle:
 		'(3.0.53) the commit button on the SUnit browser is silent'.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self transcript
 		basicUnloadProjects: (Array with: self sampleProject1Name)
 		onCompletion: [  ].
@@ -149,7 +219,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_abortWithSelections [
 	sunitBrowser selectMethodNamed: #test_addCategory.
 	sunitBrowser abortTransaction.
 	self
-		assert: sunitBrowser packageListPresenter selectedItem name
+		assert: self leftColumn selectedItem name
 		equals: 'Rowan-Services-Tests'.
 	self
 		assert: sunitBrowser classListPresenter selectedItem name
@@ -165,32 +235,52 @@ JadeiteForPharoSUnitBrowserTestCase >> test_abortWithSelections [
 
 { #category : 'tests' }
 JadeiteForPharoSUnitBrowserTestCase >> test_abstractTestAppearsOnlyInSubclasses [
+
 	| subclass1MethodService subclass2MethodService classNames |
-	self testsIssue: #issue755
-		withTitle: 'SUnit browser runs test in abstract test class if more than one test class selected'.
-	self testsIssue: #issue756
-		withTitle: 'SUnit Browser does not handle duplicated test method selectors well'.
+	self
+		testsIssue: #issue755
+		withTitle:
+		'SUnit browser runs test in abstract test class if more than one test class selected'.
+	self
+		testsIssue: #issue756
+		withTitle:
+		'SUnit Browser does not handle duplicated test method selectors well'.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	self setupAbstractSuperWithTest.
-	self selectServiceNamed: 'RowanSample1-Tests' in: self sunitPresenter packageListPresenter. 
-	classNames := sunitBrowser classListPresenter list
-				collect: [:classService | classService name].
+	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
+	classNames := sunitBrowser classListPresenter list collect: [
+		              :classService | classService name ].
 	self assert: (classNames includes: 'JadeiteTestSubclass1').
 	self assert: (classNames includes: 'JadeiteTestSubclass2').
 	self deny: (classNames includes: 'JadeiteTest').
-	self selectServicesNamed: #('JadeiteTestSubclass1' 'JadeiteTestSubclass2')
+	self
+		selectServicesNamed:
+		#( 'JadeiteTestSubclass1' 'JadeiteTestSubclass2' )
 		in: self sunitPresenter classListPresenter.
-	subclass1MethodService := self sunitPresenter methodListPresenter list detect: 
-					[:methodService |
-					methodService selector = #test_className and: [methodService className = 'JadeiteTestSubclass1']]
-				ifNone: [].
+	subclass1MethodService := self sunitPresenter methodListPresenter
+		                          list
+		                          detect: [ :methodService |
+			                          methodService selector = #test_className
+				                          and: [
+				                          methodService className
+				                          = 'JadeiteTestSubclass1' ] ]
+		                          ifNone: [  ].
 	self denyIsNil: subclass1MethodService.
-	subclass2MethodService := self sunitPresenter methodListPresenter list detect: 
-					[:methodService |
-					methodService selector = #test_className and: [methodService className = 'JadeiteTestSubclass2']]
-				ifNone: [].
+	subclass2MethodService := self sunitPresenter methodListPresenter
+		                          list
+		                          detect: [ :methodService |
+			                          methodService selector = #test_className
+				                          and: [
+				                          methodService className
+				                          = 'JadeiteTestSubclass2' ] ]
+		                          ifNone: [  ].
 	self denyIsNil: subclass2MethodService.
 	self sunitPresenter runAll.
-	[self sunitPresenter testProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
+	[ self sunitPresenter testProcess isNil ] whileFalse: [
+		(Delay forMilliseconds: 10) wait ].
 	self assert: subclass1MethodService testResult equals: #passed.
 	self assert: subclass2MethodService testResult equals: #failure
 ]
@@ -201,11 +291,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewNonTestClassDoesNotGetAdded [
 	self
 		testsIssue: #issue879
 		withTitle: 'Removing class does not remove class from sunit browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current
+		                   openProjectsBrowser.
 	self selectRowanSample1Test.
 	self denyClassInList: 'NewSubclass'.
 	self
@@ -225,11 +318,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestClass [
 	self
 		testsIssue: #issue879
 		withTitle: 'Removing class does not remove class from sunit browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current
+		                   openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
@@ -245,11 +341,16 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
 	"test package should show up when test method is added"
 
 	| packageName className methodService |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
 	"doesn't matter which component for test""don't pick a symbol list so default symbol list is used"
 	packageName := 'AddedPackage'.
 	className := 'AddedTestClass'.
 	self denyClassInList: className.
-	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current
+		                   openProjectsBrowser.
 	self selectRowanSample1Test.
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
 	self addPackageNamed: packageName.
@@ -268,11 +369,9 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestPackage [
 		saveMethod: 'test_blah'
 		category: 'tests'
 		session: session
-		onCompletion: [].
+		onCompletion: [  ].
 	self assertPackageInList: packageName.
-	self
-		selectServiceNamed: packageName
-		in: self sunitPresenter packageListPresenter.
+	self selectServiceNamed: packageName in: self leftColumn.
 	self assertClassInList: className.
 	self
 		selectServiceNamed: className
@@ -295,11 +394,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addRemoveTestClass [
 	self
 		testsIssue: #issue879
 		withTitle: 'Removing class does not remove class from sunit browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
 	self denyClassInList: 'NewSubclass'.
-	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.
+	projectsBrowser := self jadeiteTestResourceClass current
+		                   openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self projectsPresenter editSaveClass.
@@ -318,9 +420,11 @@ JadeiteForPharoSUnitBrowserTestCase >> test_browseSelectedMethodForNewlyAddedTes
 		testsIssue: #issue828
 		withTitle:
 		'`UndefinedObject does not understand #asString` from `Browse Selected method` in SUnit Browser'.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self sunitPresenter packageListPresenter.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
 	self
 		selectServiceNamed: 'RowanSample1Test'
 		in: self sunitPresenter classListPresenter.
@@ -359,7 +463,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 	self destroy: sunitBrowser. "opened in setUp"
 	25 timesRepeat: [
 		sunitBrowser := self openSUnitBrowser.
-		self assert: sunitBrowser packageListPresenter list notEmpty.
+		self assert: self leftColumn list notEmpty.
 		self destroy: sunitBrowser ]
 ]
 
@@ -367,20 +471,22 @@ JadeiteForPharoSUnitBrowserTestCase >> test_missingPackages [
 JadeiteForPharoSUnitBrowserTestCase >> test_multiSelect [
 
 	| rcsClasses rsrClasses combined |
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self sunitPresenter packageListPresenter.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self selectServiceNamed: 'Rowan-Services-Tests' in: self leftColumn.
 	rcsClasses := self sunitPresenter classListPresenter items.
 	self
 		selectServiceNamed: 'RemoteServiceReplication-Platform-Test'
-		in: self sunitPresenter packageListPresenter.
+		in: self leftColumn.
 	rsrClasses := self sunitPresenter classListPresenter items.
 
 	self
 		selectServicesNamed: (Array
 				 with: 'RemoteServiceReplication-Platform-Test'
 				 with: 'Rowan-Services-Tests')
-		in: self sunitPresenter packageListPresenter.
+		in: self leftColumn.
 	combined := rsrClasses asArray , rcsClasses asSortedCollection: [ :x :y |
 		            x name < y name ].
 	self
@@ -393,9 +499,11 @@ JadeiteForPharoSUnitBrowserTestCase >> test_multiSelect [
 { #category : 'tests' }
 JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self sunitPresenter packageListPresenter.
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip:
+			  'Rowan not available. ' , thisContext methodClass name , '>>#'
+			  , thisContext selector , ' not run' ].
+	self selectServiceNamed: 'Rowan-Services-Tests' in: self leftColumn.
 	self
 		selectServiceNamed: 'RowanAnsweringServiceTest'
 		in: self sunitPresenter classListPresenter.

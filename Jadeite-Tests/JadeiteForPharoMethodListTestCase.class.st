@@ -51,7 +51,9 @@ JadeiteForPharoMethodListTestCase >> saveSourcesFor_test_sourcesSync: oldSource 
 		saveClass: 'TestingMethodSource'
 		superclass: 'Object'
 		instVars: #( 'inst1' )
-		package: 'Rowan-Services-Tests'.
+		package: 'Rowan-Services-Tests'
+		dictionaryName: 'RowanSample1Dictionary'
+		classCategory: 'Rowan-Sample-Test'.
 	self
 		saveMethod: oldSource
 		in: 'TestingMethodSource'
@@ -92,16 +94,10 @@ JadeiteForPharoMethodListTestCase >> test_browseHierarchyImplementors [
 
 	| methodService |
 	self setupProjectBrowser.
+	projectsBrowser findClassNamed: 'ReadStreamPortable'.
 	self
-		selectServiceNamed: 'gemstoneBaseImage'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Filein2Streams'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'ReadStreamPortable'
-		in: self classListPresenter.
-	self selectServiceNamed: 'size' in: self projectsPresenter methodListPresenter.
+		selectServiceNamed: 'size'
+		in: self projectsPresenter methodListPresenter.
 	self waitForMethodListBrowserWhile: [
 		self projectsPresenter browseHierarchyImplementors ].
 	self assert:
@@ -137,16 +133,10 @@ JadeiteForPharoMethodListTestCase >> test_browseHierarchySenders [
 
 	| hierarchyClassNames |
 	self setupProjectBrowser.
+	projectsBrowser findClassNamed: 'ReadStreamPortable'.
 	self
-		selectServiceNamed: 'gemstoneBaseImage'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Filein2Streams'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'ReadStreamPortable'
-		in: self classListPresenter.
-	self selectServiceNamed: 'size' in: self projectsPresenter methodListPresenter.
+		selectServiceNamed: 'size'
+		in: self projectsPresenter methodListPresenter.
 	self waitForMethodListBrowserWhile: [
 		self projectsPresenter browseHierarchySenders ].
 	self assert:
@@ -434,24 +424,16 @@ JadeiteForPharoMethodListTestCase >> test_methodListSourceDoesNotDisappear [
 		assert: methodListBrowser methodListPresenter list size
 		equals: 1. "right now, implementors size = 1. If that changes, revisit test"
 	self
-		assert:
-		methodListBrowser methodSourcePresenter documentPresenter text
+		assert: methodListBrowser methodSourcePresenter text
 		equals: methodListBrowser methodListPresenter selectedItem source.
 	self openProjectBrowser.
+	projectsBrowser findClassNamed: 'RowanBrowserService'.
 	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
+		assert: methodListBrowser methodSourcePresenter text
+		equals: methodListBrowser methodListPresenter selectedItem source.
 	self
-		selectServiceNamed: 'Rowan-Services-Core'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'RowanBrowserService'
-		in: self classListPresenter. "this would have cleared the method source"
-	self assert: methodListBrowser methodSourcePresenter documentPresenter text 
-		= methodListBrowser methodListPresenter selectedItem source.
-	self assert:
-		methodListBrowser methodListPresenter selectedItem selector
-		= #compileClass:
+		assert: methodListBrowser methodListPresenter selectedItem selector
+		equals: #compileClass:
 ]
 
 { #category : 'tests' }
@@ -506,7 +488,7 @@ JadeiteForPharoMethodListTestCase >> test_methodReadsWritesSameInstvar [
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 
-	| newCompiledMethodBrowser |
+	| newCompiledMethodBrowser originalText |
 	self
 		testsJadeiteForPharoIssue: #issue168
 		title:
@@ -516,6 +498,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #answer ].
+	originalText := self methodSourcePresenter text replaceCrWithLf.
 	self methodSourcePresenter text: 'answer3
 ^#answer3'.
 	newCompiledMethodBrowser := self
@@ -523,7 +506,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 		                            while: [
 		                            methodListBrowser editSaveMethod ].
 	[
-	self methodSourcePresenter hasUnacceptedEdits: false. 
+	self methodSourcePresenter hasUnacceptedEdits: false.
 	self
 		assert: newCompiledMethodBrowser methodListPresenter items size
 		equals: 1.
@@ -535,15 +518,14 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 		assert: newCompiledMethodBrowser methodSourcePresenter text
 		equals: 'answer3
 ^#answer3' replaceCrWithLf.
-	self assert: self methodSourcePresenter text equals: 'answer
-	^answer' replaceCrWithLf ] ensure: [
-		newCompiledMethodBrowser window close ]
+	self assert: self methodSourcePresenter text equals: originalText ]
+		ensure: [ newCompiledMethodBrowser window close ]
 ]
 
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 
-	| newCompiledMethodBrowser newMethodSource |
+	| newCompiledMethodBrowser newMethodSource originalText |
 	self
 		testsJadeiteForPharoIssue: #issue168
 		title:
@@ -553,6 +535,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #answer ].
+	originalText := self methodSourcePresenter text replaceCrWithLf.
 	newMethodSource := 'answer3
 | abc | "create compiler warning for unused temp"
 ^#answer3'.
@@ -562,7 +545,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 		                            while: [
 		                            methodListBrowser editSaveMethod ].
 	[
-	self methodSourcePresenter hasUnacceptedEdits: false. 
+	self methodSourcePresenter hasUnacceptedEdits: false.
 	self
 		assert: newCompiledMethodBrowser methodListPresenter items size
 		equals: 1.
@@ -575,8 +558,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 		equals: newMethodSource replaceCrWithLf.
 	self assert: ('WARNING: unused method temp ''abc''*' match:
 			 newCompiledMethodBrowser statusBarText message).
-	self assert: self methodSourcePresenter text equals: 'answer
-	^answer' replaceCrWithLf.
+	self assert: self methodSourcePresenter text equals: originalText.
 	self assert: methodListBrowser statusBarText message isEmpty ]
 		ensure: [ newCompiledMethodBrowser window close ]
 ]
@@ -625,18 +607,24 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #didSourceUpdate ].
 	self
-		assert:
-		methodListBrowser methodSourcePresenter text
+		assert: methodListBrowser methodSourcePresenter text
 		equals: oldSource.
 	self
 		assert: methodListBrowser methodListPresenter list size
 		equals: 1.
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self packageListPresenter.
+	JadeitePreferences isRowanAvailable
+		ifFalse: [
+			self
+				selectServiceNamed: 'RowanSample1Dictionary'
+				in: self dictionaryListPresenter.
+			self selectClassCategoryNamed: 'Rowan-Sample-Test' ]
+		ifTrue: [
+			self
+				selectServiceNamed: 'RowanClientServices'
+				in: self projectListPresenter.
+			self
+				selectServiceNamed: 'Rowan-Services-Tests'
+				in: self packageListPresenter ].
 	self
 		selectServiceNamed: 'TestingMethodSource'
 		in: self classListPresenter.
@@ -645,7 +633,7 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 		in: self projectsPresenter methodListPresenter.
 	self
 		assert:
-		methodListBrowser methodSourcePresenter documentPresenter text
+		methodListBrowser methodSourcePresenter text
 		equals: methodListBrowser methodListPresenter selectedItem source.
 	newSource := 'didSourceUpdate  | tempVar | "test created method" self doSomethingNew '.
 	self
@@ -656,12 +644,10 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 		assert: methodListBrowser methodListPresenter selectedItem selector
 		equals: #didSourceUpdate.
 	self
-		assert:
-		methodListBrowser methodSourcePresenter  text
+		assert: methodListBrowser methodSourcePresenter text
 		equals: newSource.
 	self
-		assert:
-		self projectsPresenter methodSourcePresenter  text
+		assert: self projectsPresenter methodSourcePresenter text
 		equals: newSource
 ]
 

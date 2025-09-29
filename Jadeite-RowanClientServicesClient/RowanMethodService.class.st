@@ -463,7 +463,8 @@ RowanMethodService >> isReadOnly [
 
 { #category : 'public' }
 RowanMethodService >> isTestMethod [
-	^isTestMethod
+
+	^ isTestMethod ifNil: [ isTestMethod := false ]
 ]
 
 { #category : 'printing' }

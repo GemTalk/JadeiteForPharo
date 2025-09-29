@@ -455,7 +455,7 @@ JadeiteAbstractTestCase >> jadeiteTestResourceClass [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> jfp_saveClass: className superclass: instVars instVars: aString package: superName [
+JadeiteAbstractTestCase >> jfp_saveClass: className superclass: superName instVars: instVars package: aString [
 
 	self projectsPresenter classDefinitionPresenter value:
 		superName , ' rwSubclass: ' , className printString , '
@@ -468,7 +468,21 @@ JadeiteAbstractTestCase >> jfp_saveClass: className superclass: instVars instVar
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: instVars instVars: aString package: superName [
+JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: superName instVars: instVars package: packageName [
+
+	self
+		jfpwor_saveClass: className
+		superclass: superName
+		instVars: instVars
+		package: packageName
+		dictionaryName: nil
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: superName instVars: instVars package: packageName dictionaryName: dictionaryName [
+
+	| theDictionaryName |
+	theDictionaryName := dictionaryName ifNil: [ 'UserGlobals' ].
 
 	self projectsPresenter classDefinitionPresenter value:
 		superName , ' subclass: ' , className printString , '
@@ -476,8 +490,25 @@ JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: instVars inst
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
-	inDictionary: UserGlobals
+	inDictionary: ' , theDictionaryName , '
 	options: #()'
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: superName instVars: instVars package: packageName dictionaryName: dictionaryName classCategory: classCategoryName [
+
+	| theDictionaryName theClassCategory |
+	theDictionaryName := dictionaryName ifNil: [ 'UserGlobals' ].
+	theClassCategory := classCategoryName ifNil: [ 'Testing' ].
+
+	self projectsPresenter classDefinitionPresenter value:
+		'(' , superName , ' subclass: ' , className printString , '
+	instVarNames: ' , instVars printString , '
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	inDictionary: ' , theDictionaryName , '
+	options: #()) category: ''' , theClassCategory , ''''
 ]
 
 { #category : 'as yet unclassified' }
@@ -707,21 +738,62 @@ JadeiteAbstractTestCase >> sampleProject1Name [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteAbstractTestCase >> saveClass: className superclass: superName instVars: instVars package: aString [
+JadeiteAbstractTestCase >> saveClass: className superclass: superName instVars: instVars package: packageName [
 
 	JadeitePreferences isRowanAvailable
 		ifTrue: [
 			self
 				jfp_saveClass: className
-				superclass: instVars
-				instVars: aString
-				package: superName ]
+				superclass: superName
+				instVars: instVars
+				package: packageName ]
 		ifFalse: [
 			self
 				jfpwor_saveClass: className
-				superclass: instVars
-				instVars: aString
-				package: superName ].
+				superclass: superName
+				instVars: instVars
+				package: packageName ].
+	^ self projectsPresenter editSaveClass
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> saveClass: className superclass: superName instVars: instVars package: packageName dictionaryName: dictionaryName [
+
+	JadeitePreferences isRowanAvailable
+		ifTrue: [
+			self
+				jfp_saveClass: className
+				superclass: superName
+				instVars: instVars
+				package: packageName ]
+		ifFalse: [
+			self
+				jfpwor_saveClass: className
+				superclass: superName
+				instVars: instVars
+				package: packageName
+				dictionaryName: dictionaryName ].
+	^ self projectsPresenter editSaveClass
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> saveClass: className superclass: superName instVars: instVars package: packageName dictionaryName: dictionaryName classCategory: classCategoryName [
+
+	JadeitePreferences isRowanAvailable
+		ifTrue: [
+			self
+				jfp_saveClass: className
+				superclass: superName
+				instVars: instVars
+				package: packageName ]
+		ifFalse: [
+			self
+				jfpwor_saveClass: className
+				superclass: superName
+				instVars: instVars
+				package: packageName
+				dictionaryName: dictionaryName
+				classCategory: classCategoryName ].
 	^ self projectsPresenter editSaveClass
 ]
 

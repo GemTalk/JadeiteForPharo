@@ -110,6 +110,23 @@ JadeiteSUnitPresenterWithoutRowan >> registerPresentersForUpdates [
 		browser: self
 ]
 
+{ #category : 'selections' }
+JadeiteSUnitPresenterWithoutRowan >> selectDictionaryNamed: packageName [
+
+	| dictionaryService |
+	dictionaryService := dictionaryListPresenter list
+		                     detect: [ :service |
+		                     service name = packageName ]
+		                     ifNone: [ ^ self ].
+	dictionaryListPresenter selectItem: dictionaryService
+]
+
+{ #category : 'accessing' }
+JadeiteSUnitPresenterWithoutRowan >> selectPackageNamed: dictionaryName [
+
+	^ self selectDictionaryNamed: dictionaryName
+]
+
 { #category : 'updates' }
 JadeiteSUnitPresenterWithoutRowan >> updateClassesOnCompletion: completionBlock [
 
