@@ -312,9 +312,10 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 
 	| service jadeiteCategory listCategory |
 	jadeiteCategory := JadeiteCategory named: string.
-	listCategory := self categoryListPresenter list detect:[:jc | jc = jadeiteCategory] ifNone:[].
-	listCategory notNil ifTrue: [
-		listCategory isComputed ifFalse: [ ^ self ] ].
+	listCategory := self categoryListPresenter list
+		                detect: [ :jc | jc = jadeiteCategory ]
+		                ifNone: [  ].
+	listCategory ifNotNil: [ listCategory isComputed ifFalse: [ ^ self ] ].
 	service := self selectedClass
 		           command: #addCategory:;
 		           commandArgs: (Array with: string).
@@ -322,7 +323,9 @@ JadeiteBrowserPresenter >> basicAddMethodCategory: string [
 	RowanServiceUpdater current
 		issueCommand: service
 		session: self gciSession
-		onCompletion: [self selectCategoriesNamed: (Array with: jadeiteCategory)]
+		onCompletion: [
+			self selectCategoriesNamed: (Array with: jadeiteCategory).
+			self methodListPresenter clear ]
 ]
 
 { #category : 'as yet unclassified' }

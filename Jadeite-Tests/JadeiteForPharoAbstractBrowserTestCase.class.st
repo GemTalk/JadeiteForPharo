@@ -338,6 +338,27 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsVerifySource [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_addCategoryClearsMethodList [
+
+	self
+		testsJadeiteForPharoIssue: #issue327
+		title:
+		'Method list still has methods after creating new method category'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/327'.
+	self selectRowanSample1Class.
+	self assert: self methodListPresenter items isNotEmpty. "think it's safe to assume there's a method in there"
+	self projectsPresenter basicAddMethodCategory:
+		'test_addCategoryClearsMethodList'.
+
+	self assert: (self categoryListPresenter list includes:
+			 'test_addCategoryClearsMethodList').
+	self
+		assert: self categoryListPresenter selectionOrNil
+		equals: 'test_addCategoryClearsMethodList'.
+	self assert: self methodListPresenter items isEmpty
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_addRemoveCategory [
 	self selectRowanSample1Class.
 	self deny: (self categoryListPresenter list includes: 'jadeite test').
