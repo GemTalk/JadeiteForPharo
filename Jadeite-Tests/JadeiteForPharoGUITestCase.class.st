@@ -327,7 +327,9 @@ JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
 
-	projectsBrowser := self waitForNew: JadeiteBrowser while: aBlock
+	projectsBrowser := self
+		                   waitForNew: JadeiteBrowser browserClass
+		                   while: aBlock
 ]
 
 { #category : 'support' }

@@ -447,39 +447,44 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
-	| methods | 
+
+	| methods |
 	self suspendSelectionEvents.
-	self updateService: classService onCompletion: [	
+	self updateService: classService onCompletion: [
 		[
 		self selectDictionaryNamed: classService dictionaryName.
-		methods := classService methods. 
-		self
-			updateService: self dictionaryListPresenter selectedItem
-			onCompletion: [	
-				classService methods: methods. "the update will clear the classService's methods"
-				self refreshClassCategoriesFrom:
-					self dictionaryListPresenter selectedItem.
-				self setAppropriateMeta: classService.
-				self isHierarchyTabSelected ifTrue: [
-					self selectedClass = classService ifFalse: [
-						self selectClassListTab ] ].
-				self selectClassCategoryFor: classService.
-				self
-					updateClassesForClassCategories:
-					self classCategoryPresenter selectedItems
-					using: self dictionaryListPresenter selectedItem.
-				self selectClass: classService completionBlock: [
-					methodListPresenter items: classService methods.
-					methodListPresenter beSorted.
-					classService updateSortedJadeiteCategories: categoryListPresenter.
-					methodService ifNotNil: [
-						| index |
-						self methodListPresenter selection unselectAll.
-						index := self methodListPresenter items indexOf: methodService.
-						self methodListPresenter
-							selectIndex: index
-							scrollToSelection: true ].
-					completionBlock value ] ] ] ensure: [ self resumeSelectionEvents ] ]
+		"might not be a valid class, say in a preference"
+		classService dictionaryName ifNotNil: [
+			methods := classService methods.
+			self
+				updateService: self dictionaryListPresenter selectedItem
+				onCompletion: [
+					classService methods: methods. "the update will clear the classService's methods"
+					self refreshClassCategoriesFrom:
+						self dictionaryListPresenter selectedItem.
+					self setAppropriateMeta: classService.
+					self isHierarchyTabSelected ifTrue: [
+						self selectedClass = classService ifFalse: [
+							self selectClassListTab ] ].
+					self selectClassCategoryFor: classService.
+					self
+						updateClassesForClassCategories:
+						self classCategoryPresenter selectedItems
+						using: self dictionaryListPresenter selectedItem.
+					self selectClass: classService completionBlock: [
+						methodListPresenter items: classService methods.
+						methodListPresenter beSorted.
+						classService updateSortedJadeiteCategories:
+							categoryListPresenter.
+						methodService ifNotNil: [
+							| index |
+							self methodListPresenter selection unselectAll.
+							index := self methodListPresenter items indexOf: methodService.
+							self methodListPresenter
+								selectIndex: index
+								scrollToSelection: true ].
+						completionBlock value ] ] ] ] ensure: [
+			self resumeSelectionEvents ] ]
 ]
 
 { #category : 'updates' }
