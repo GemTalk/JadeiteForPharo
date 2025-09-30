@@ -41,6 +41,15 @@ JadeiteServerFileSelectorPresenter >> basicDive: service [
 		ifFalse: [ self window triggerOkAction ]
 ]
 
+{ #category : 'initialization' }
+JadeiteServerFileSelectorPresenter >> connectPresenters [
+
+	super connectPresenters.
+	pathText bindKeyCombination: KeyboardKey enter toAction: [
+		pathText text: pathText adapter widget text asString.
+		self showDirectoryContents ]
+]
+
 { #category : 'defaults' }
 JadeiteServerFileSelectorPresenter >> defaultLayout [ 
 
@@ -122,7 +131,7 @@ JadeiteServerFileSelectorPresenter >> initializeTopWidgets [
 	| topBox popButton |
 	topBox := SpBoxLayout newHorizontal.
 	topBox add: (SpLabelPresenter new label: 'Path:') expand: false.
-	topBox add: (pathText := SpTextInputFieldPresenter new).
+	topBox add: (pathText := JadeiteTextInputFieldPresenter new).
 	popButton := SpButtonPresenter new
 		             label: 'Pop';
 		             action: [ self pop ].
@@ -223,6 +232,11 @@ JadeiteServerFileSelectorPresenter >> showDirectoryContents [
 		session: self gciSession
 		onCompletion: [ sem signal ].
 	sem wait.
-	fileService answer ifNotNil: [
-		directoryContentsList list: fileService shortNames ]
+	fileService answer
+		ifNil: [
+			self window ifNotNil: [
+				self uiManager
+					alert: 'Invalid path entered'
+					title: 'File Dialog Alert' ] ]
+		ifNotNil: [ directoryContentsList list: fileService shortNames ]
 ]
