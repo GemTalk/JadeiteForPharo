@@ -54,8 +54,7 @@ JadeiteForPharoFileDialogTestCase >> tearDown [
 
 { #category : 'tests' }
 JadeiteForPharoFileDialogTestCase >> test_dive [
-	"the default directory is $ROWAN_PROJECTS_HOME
-	so we know that JadeiteForPharo directory will be there."
+	"the test sets $ROWAN_PROJECTS_HOME as the initial directory"
 
 	| item keys dirContentsList |
 	fileDialogPresenter := fileDialog fileSelectorPresenter.
@@ -82,6 +81,36 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 		fileDialogPresenter directoryContentsList selection selectedIndex.
 	keys := self fileAndDirectoryNames.
 	self assert: (keys includes: 'Jadeite-Browser')
+]
+
+{ #category : 'tests' }
+JadeiteForPharoFileDialogTestCase >> test_pathTextEntry [
+
+	| item dirContentsList names |
+	self
+		testsJadeiteForPharoIssue: #issue326
+		title:
+		'Would be convenient to be able to paste a directory/file path into the File Browser ... it seems you have to manually navigate using GUI'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/326'.
+	fileDialogPresenter := fileDialog fileSelectorPresenter.
+	dirContentsList := fileDialogPresenter directoryContentsList.
+	names := dirContentsList items collect: [ :ea | ea key ].
+	self deny: (names includes: '1.0.0').
+	self deny: (names includes: '3.7.4').
+	item := dirContentsList list detect: [ :assoc |
+		        assoc key = 'JadeiteForPharo' ].
+	fileDialogPresenter directoryContentsList selectItem: item.
+	self
+		assert: fileDialogPresenter pathText text
+		equals: '$ROWAN_PROJECTS_HOME'.
+	fileDialogPresenter pathText text:
+		'/export/gcm/where/gemstone64/releases'.
+	(fileDialogPresenter pathText adapter widget kmDispatcher
+		 directKeymaps keymaps detect: [ :ea |
+		 ea shortcut key name = #RETURN ]) action value. "this heinous piece of code simulates pressing enter in the pathText field. With Pharo made it easy to simulate key presses in tests"
+	names := dirContentsList items collect: [ :ea | ea key ].
+	self assert: (names includes: '1.0.0').
+	self assert: (names includes: '3.7.4')
 ]
 
 { #category : 'tests' }
