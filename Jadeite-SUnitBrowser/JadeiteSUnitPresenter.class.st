@@ -304,6 +304,12 @@ JadeiteSUnitPresenter >> isClassSelected [
 	^true
 ]
 
+{ #category : 'testing' }
+JadeiteSUnitPresenter >> isCodeBrowser [
+
+	^ false
+]
+
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> isNoneProjectSelected [
 	"no concept of dictionaries in sunit browser"

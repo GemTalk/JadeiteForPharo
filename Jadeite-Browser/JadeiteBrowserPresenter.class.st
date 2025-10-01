@@ -1968,6 +1968,12 @@ JadeiteBrowserPresenter >> isClassSideSelected [
 ]
 
 { #category : 'testing' }
+JadeiteBrowserPresenter >> isCodeBrowser [
+
+	^ true
+]
+
+{ #category : 'testing' }
 JadeiteBrowserPresenter >> isComparisonTabSelected [
 	self todo:[^textAreaTabs currentCard name = 'comparisonTab'].
 	^false

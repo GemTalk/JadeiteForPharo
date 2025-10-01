@@ -785,21 +785,19 @@ RowanClassService >> renamedClass: presenter browser: browser [
 	remove then add the class service to ensure the
 	list doesn't get in trouble"
 
-	presenter model asBag do: 
-			[:classService |
-			(self equalBeforeRename: classService)
-				ifTrue: 
-					[| wasSelected |
-					wasSelected := (presenter selectionIfNone: []) = classService.
-					presenter model remove: classService.
-					classService basicReplicateFrom: self.
-					classService renamedName: nil.
-					presenter model add: classService.
-					wasSelected
-						ifTrue: 
-							[presenter selection: classService.
-							browser classDefinitionPresenter value: template.
-							"browser displayNoMods: browser classDefinitionPresenter"]]].
+	presenter model asBag do: [ :classService |
+		(self equalBeforeRename: classService) ifTrue: [
+			| wasSelected |
+			wasSelected := (presenter selectionIfNone: [  ]) = classService.
+			presenter model remove: classService.
+			classService basicReplicateFrom: self.
+			classService renamedName: nil.
+			presenter model add: classService.
+			wasSelected ifTrue: [
+				presenter selection: classService.
+				browser isCodeBrowser ifTrue: [
+					browser classDefinitionPresenter value: template ]
+				"browser displayNoMods: browser classDefinitionPresenter" ] ] ].
 	presenter view invalidate
 ]
 

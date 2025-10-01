@@ -467,6 +467,18 @@ JadeiteAbstractTestCase >> jfp_saveClass: className superclass: superName instVa
 	options: #()'
 ]
 
+{ #category : 'selection' }
+JadeiteAbstractTestCase >> jfp_selectRowanSample1Test [
+
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: self classListPresenter
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> jfpwor_saveClass: className superclass: superName instVars: instVars package: packageName [
 
@@ -1106,13 +1118,7 @@ JadeiteAbstractTestCase >> selectRowanSample1Test [
 			selectServiceNamed: 'RowanSample1Test'
 			in: self classListPresenter.
 		^ self ].
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'RowanSample1Test'
-		in: self classListPresenter
+	self jfp_selectRowanSample1Test
 ]
 
 { #category : 'selection' }

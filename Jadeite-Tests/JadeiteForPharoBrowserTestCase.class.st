@@ -4,6 +4,8 @@ browser tests that depend on Rowan available = true should go here
 Class {
 	#name : 'JadeiteForPharoBrowserTestCase',
 	#superclass : 'JadeiteForPharoAbstractBrowserTestCase',
+	#traits : 'JadeiteToolbarTrait',
+	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
 		'dictionary',
 		'failedMethodPresenter'
@@ -20,6 +22,12 @@ JadeiteForPharoBrowserTestCase class >> codeCoverageClasses [
 	^ {
 		  JadeiteBrowser.
 		  JadeiteBrowserPresenter } asOrderedCollection
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoBrowserTestCase >> application [
+	"Spec2 needs this to open a browser via preferences"
+	^JadeiteConsoleApplication new gciSession: GciSession current 
 ]
 
 { #category : 'support' }
@@ -64,6 +72,12 @@ JadeiteForPharoBrowserTestCase >> fileInFilePath [
 		sem signal ].
 	sem wait.
 	^ path
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoBrowserTestCase >> gciSession [
+
+	^GciSession current 
 ]
 
 { #category : 'support' }
@@ -2008,6 +2022,40 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 	self assert: self classListPresenter list isEmpty.
 	self assert: self categoryListPresenter list isEmpty.
 	self assert: self methodListPresenter list isEmpty
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_renameClassWhileSelectedInSUnitBrowser [
+
+	| sunitBrowser |
+	self
+		testsJadeiteForPharoIssue: #issue328
+		title:
+		'Walkback when test class renamed that is selected in SUnit browser '
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/328'.
+	self selectRowanSample1Test.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanSample1Test'.
+	self
+		waitForNew: JadeiteSUnitPresenter
+		while: [ sunitBrowser := self openSUnitBrowser ].
+	[
+	self
+		selectServiceNamed: 'RowanSample1-Tests'
+		in: sunitBrowser packageListPresenter.
+	self
+		selectServiceNamed: 'RowanSample1Test'
+		in: sunitBrowser classListPresenter.
+	self projectsPresenter
+		basicRenameClass: self projectsPresenter selectedClass
+		to: 'RowanSample1Test2'.
+	self
+		assert: sunitBrowser classListPresenter selectedItem name
+		equals: 'RowanSample1Test2'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'RowanSample1Test2' ] ensure: [ self destroy: sunitBrowser ]
 ]
 
 { #category : 'tests' }
