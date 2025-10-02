@@ -37,6 +37,14 @@ JadeiteForPharoBrowserTestCase >> assertNoSelectedClass [
 ]
 
 { #category : 'support' }
+JadeiteForPharoBrowserTestCase >> debugTestProcesses [
+
+	^ (Process allInstances collect: [ :ea | ea printString ])
+		  detect: [ :ea | '*#debugTest:inClassName:*' match: ea ]
+		  ifNone: [  ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> deleteFileInTestFile [
 
 	| path |
@@ -1000,6 +1008,28 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 			ifFalse: [
 				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
 					self assert: projectService displayName = projectService name ] ] ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_debugTestProcessHangingAround [
+
+	| debugger |
+	self
+		testsJadeiteForPharoIssue: #issue329
+		title:
+		'Debugging failed test in browser leaves pharo process hanging around'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/329'.
+	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
+	self assertIsNil: self debugTestProcesses.
+	self projectsPresenter findClassNamed: 'JadeServerTest'.
+	self saveMethod: 'test_fail	self assert: false' in: 'JadeServerTest'.
+	debugger := self waitForNew: JadeiteDebuggerPresenter while: [
+		            self projectsPresenter debugMethodTests:
+			            self projectsPresenter selectedClass ].
+	[ self denyIsNil: self debugTestProcesses ] ensure: [
+		self destroy: debugger.
+		(Delay forMilliseconds: 500) wait. 
+		self assertIsNil: self debugTestProcesses ]
 ]
 
 { #category : 'tests' }
@@ -2498,7 +2528,7 @@ JadeiteForPharoBrowserTestCase >> test_unsetCurrentProject [
 		self deny: projectService isCurrent ]
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> unloadProject: projectName [
 
 	self projectsPresenter
@@ -2506,7 +2536,7 @@ JadeiteForPharoBrowserTestCase >> unloadProject: projectName [
 		onCompletion: [  ]
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> unloadProjectAndDeleteOnDisk: projectName [
 	"WARNING! This will remove the project's local disk directory"
 

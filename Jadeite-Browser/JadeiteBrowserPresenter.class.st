@@ -955,17 +955,20 @@ JadeiteBrowserPresenter >> debugMethodTests: classOrMethodService [
 	classOrMethodService isClassService
 		ifTrue: [ classListPresenter selectItem: classOrMethodService ]
 		ifFalse: [ methodListPresenter selectItem: classOrMethodService ].
-	(Delay forMilliseconds: 500) wait. 
+	(Delay forMilliseconds: 500) wait.
 	[
 	self clearMethodListTestResultIn: classOrMethodService visibleTests.
 	self refreshClassAndMethodPresenters.
 	sem := Semaphore new.
 
 	classOrMethodService visibleTests do: [ :methodService |
+		| process |
+		process := Processor activeProcess.
 		methodService
 			command: #debugTest:inClassName:;
 			commandArgs:
-				(Array with: methodService selector with: methodService className).
+				(Array with: methodService selector with: methodService className);
+			catchBlock: [ process terminate ].
 		self
 			issueCommand: methodService
 			onCompletion: [
