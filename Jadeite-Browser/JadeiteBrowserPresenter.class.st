@@ -3946,24 +3946,26 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 						selectClassNamed: classService
 						package: packageService
 						project: projectService
-						completionBlock: completionBlock.
-					methodListPresenter items: classService methods.
-					methodListPresenter beSorted.
-					classService updateSortedJadeiteCategories: categoryListPresenter.
-					postUpdateClassBlock := [
-					                        methodService ifNotNil: [
-						                        | index |
-						                        self methodListPresenter selection
-							                        unselectAll.
-						                        index := self methodListPresenter items
-							                                 indexOf: methodService.
-						                        self methodListPresenter
-							                        selectIndex: index
-							                        scrollToSelection: true ].
-					                        self updateTabLabel ].
-					classService meta = classRadioButton state ifTrue: [
-						postUpdateClassBlock value "if changing sides, block will be executed after class refreshed" ].
-					self setAppropriateMeta: classService ] ] ensure: [
+						completionBlock: [
+							methodListPresenter items: classService methods.
+							methodListPresenter beSorted.
+							classService updateSortedJadeiteCategories:
+								categoryListPresenter.
+							postUpdateClassBlock := [
+							                        methodService ifNotNil: [
+								                        | index |
+								                        self methodListPresenter selection
+									                        unselectAll.
+								                        index := self methodListPresenter
+									                                 items indexOf: methodService.
+								                        self methodListPresenter
+									                        selectIndex: index
+									                        scrollToSelection: true ].
+							                        self updateTabLabel ].
+							classService meta = classRadioButton state ifTrue: [
+								postUpdateClassBlock value "if changing sides , block will be executed after class refreshed" ].
+							self setAppropriateMeta: classService.
+							completionBlock value ] ] ] ensure: [
 				self resumeSelectionEvents ] ]
 ]
 

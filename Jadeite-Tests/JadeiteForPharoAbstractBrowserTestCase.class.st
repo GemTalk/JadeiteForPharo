@@ -32,6 +32,14 @@ JadeiteForPharoAbstractBrowserTestCase >> addChildrenOf: item to: items [
 ]
 
 { #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> debugTestProcesses [
+
+	^ (Process allInstances collect: [ :ea | ea printString ])
+		  detect: [ :ea | '*#debugTest:inClassName:*' match: ea ]
+		  ifNone: [  ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> hierarchyVisibleItems [
 	"return a collection of all visible items in the tree"
 	| items |
@@ -898,6 +906,29 @@ JadeiteForPharoAbstractBrowserTestCase >> test_confirmDiscardMethodChanges [
 		self
 			assert: self methodSourcePresenter text asString
 			equals: changedMethodSource ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_debugTestProcessHangingAround [
+
+	| debugger |
+	self
+		testsJadeiteForPharoIssue: #issue329
+		title:
+		'Debugging failed test in browser leaves pharo process hanging around'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/329'.
+	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
+	self assertIsNil: self debugTestProcesses.
+	self projectsPresenter findClassNamed: 'JadeServerTest'.
+	self saveMethod: 'test_fail	self assert: false' in: 'JadeServerTest'.
+	debugger := self waitForNew: JadeiteDebuggerPresenter while: [
+		            (Delay forMilliseconds: 250) wait.
+		            self projectsPresenter debugMethodTests:
+			            self projectsPresenter selectedClass ].
+	[ self denyIsNil: self debugTestProcesses ] ensure: [
+		self destroy: debugger.
+		(Delay forMilliseconds: 500) wait.
+		self assertIsNil: self debugTestProcesses ]
 ]
 
 { #category : 'tests' }

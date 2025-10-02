@@ -37,14 +37,6 @@ JadeiteForPharoBrowserTestCase >> assertNoSelectedClass [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> debugTestProcesses [
-
-	^ (Process allInstances collect: [ :ea | ea printString ])
-		  detect: [ :ea | '*#debugTest:inClassName:*' match: ea ]
-		  ifNone: [  ]
-]
-
-{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> deleteFileInTestFile [
 
 	| path |
@@ -310,6 +302,54 @@ JadeiteForPharoBrowserTestCase >> test_browseClass [
 	self denyIsNil: (self projectList
 			 detect: [ :projectService | projectService name = 'Rowan' ]
 			 ifNone: [  ])
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_browseInExistingBrowser [
+
+	self
+		testsJadeiteForPharoIssue: #issue309
+		title:
+		'browse in existing Browser menu item from method list opens tab on wrong class'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/309'.
+	JadeiteBrowser browserClass allInstances do: [ :browser |
+		self destroy: browser ].
+	projectsBrowser := nil.
+	self setupProjectBrowser.
+	self assert: projectsBrowser tabs pages size equals: 1.
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [
+		                     self projectsPresenter browseImplementorsOf:
+			                     #size: ].
+	self assert: methodListBrowser window adapter widget isActive.
+	methodListBrowser methodListPresenter unselectAll.
+
+
+	1 to: 1 do: [ :index |
+		| className stream |
+		methodListBrowser methodListPresenter selectIndex: index.
+		className := methodListBrowser methodListPresenter selectedItem
+			             className.
+		methodListBrowser browseMethodClassInExistingBrowser.
+		self assert: projectsBrowser window isTopWindow.
+		self assert: projectsBrowser tabs pages size equals: index + 1.
+		self
+			assert: projectsBrowser tabs selectedPageIndex
+			equals: index + 1.
+		self
+			assert: self classListPresenter selectedItem name
+			equals: className.
+		self
+			assert: self methodListPresenter selectedItem selector
+			equals: #size:.
+		stream := WriteStream on: String new.
+		stream
+			nextPut: $*;
+			space;
+			nextPutAll: className.
+		self assert:
+			(stream contents match: projectsBrowser tabs selectedPage title) ]
 ]
 
 { #category : 'tests' }
@@ -1008,28 +1048,6 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 			ifFalse: [
 				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
 					self assert: projectService displayName = projectService name ] ] ]
-]
-
-{ #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_debugTestProcessHangingAround [
-
-	| debugger |
-	self
-		testsJadeiteForPharoIssue: #issue329
-		title:
-		'Debugging failed test in browser leaves pharo process hanging around'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/329'.
-	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
-	self assertIsNil: self debugTestProcesses.
-	self projectsPresenter findClassNamed: 'JadeServerTest'.
-	self saveMethod: 'test_fail	self assert: false' in: 'JadeServerTest'.
-	debugger := self waitForNew: JadeiteDebuggerPresenter while: [
-		            self projectsPresenter debugMethodTests:
-			            self projectsPresenter selectedClass ].
-	[ self denyIsNil: self debugTestProcesses ] ensure: [
-		self destroy: debugger.
-		(Delay forMilliseconds: 500) wait. 
-		self assertIsNil: self debugTestProcesses ]
 ]
 
 { #category : 'tests' }

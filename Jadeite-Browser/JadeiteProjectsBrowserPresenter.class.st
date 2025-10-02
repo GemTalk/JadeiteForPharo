@@ -601,13 +601,6 @@ JadeiteProjectsBrowserPresenter >> selectVariableTab [
 ]
 
 { #category : 'selections' }
-JadeiteProjectsBrowserPresenter >> selectedClass [
-	^self isClassListTabSelected
-		ifTrue: [classListPresenter selectionIfNone: []]
-		ifFalse: [classHierarchyPresenter selectionIfNone: []]
-]
-
-{ #category : 'selections' }
 JadeiteProjectsBrowserPresenter >> selectedClassName [
 
 	^ self selectedClass ifNotNil: [ :cls | cls name ]
