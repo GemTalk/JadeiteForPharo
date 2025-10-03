@@ -325,9 +325,9 @@ JadeiteForPharoBrowserTestCase >> test_browseInExistingBrowser [
 	self assert: methodListBrowser window adapter widget isActive.
 	methodListBrowser methodListPresenter unselectAll.
 
-
-	1 to: 1 do: [ :index |
+	1 to: methodListBrowser methodListPresenter items size do: [ :index |
 		| className stream |
+		methodListBrowser methodListPresenter unselectAll.
 		methodListBrowser methodListPresenter selectIndex: index.
 		className := methodListBrowser methodListPresenter selectedItem
 			             className.
@@ -345,11 +345,12 @@ JadeiteForPharoBrowserTestCase >> test_browseInExistingBrowser [
 			equals: #size:.
 		stream := WriteStream on: String new.
 		stream
-			nextPut: $*;
+			nextPutAll: (index + 1) printString;
 			space;
 			nextPutAll: className.
 		self assert:
-			(stream contents match: projectsBrowser tabs selectedPage title) ]
+			(stream contents match: projectsBrowser tabs selectedPage title).
+		(Delay forMilliseconds: 10) wait ]
 ]
 
 { #category : 'tests' }

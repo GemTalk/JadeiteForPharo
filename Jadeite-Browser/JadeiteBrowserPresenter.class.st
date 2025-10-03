@@ -798,8 +798,8 @@ JadeiteBrowserPresenter >> connectFilterPresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> connectMethodPresenters [
 
-	methodListPresenter whenSelectionChangedDo: [ :selection |
-		self methodSelectionChanged ].
+	methodListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		:selection | self methodSelectionChanged ].
 	methodNavigationDropList ifNotNil: [ :drop |
 		drop whenSelectedItemChangedDo: [ :methodService |
 			methodService ifNotNil: [
@@ -842,7 +842,8 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectProjectListPresenter.
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
-		self filterTabChanged: selection ].
+		self areSelectionEventsSuspended ifFalse: [
+			self filterTabChanged: selection ] ].
 	self connectMethodPresenters.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].
@@ -2802,7 +2803,6 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 		extensions := self selectedClass methods select: [ :methodService |
 			              methodService isExtension ] ].
 	self refreshMethodsOn: methodListPresenter extensions: extensions.
-	methodListPresenter unselectAll.
 	self selectMethodSourceTab.
 	self resetCategoryText
 ]
@@ -2878,6 +2878,8 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 	classService filters: self selectedFilters.
 	self selectedFilterTab selectedItems isEmpty ifTrue: [
 		self clearMethodLists ].
+	(methodListPresenter items difference: classService methods)
+		ifEmpty: [ ^ self ].
 	self updateService: classService onCompletion: [
 		methodListPresenter list addAll:
 			(extensions reject: [ :svc |
@@ -2887,7 +2889,8 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 				self resetCategoryText.
 				definedMethodPackageText text: String new ]
 			ifFalse: [ self updateMethodSource ].
-		methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ] ]
+		methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ].
+		methodListPresenter unselectAll. ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3370,11 +3373,15 @@ JadeiteBrowserPresenter >> selectClassNamed: className [
 JadeiteBrowserPresenter >> selectClassNamed: classService package: packageService project: projectService completionBlock: completionBlock [
 	"jadeite list selection events must be suspended for this to work"
 
+	| numberedLabelString |
 	self selectProject: projectService.
 	packageListPresenter list: projectService sortedPackages.
 	self selectPackage: packageService.
 	classListPresenter list: packageService sortedClasses.
-	self selectClass: classService completionBlock: completionBlock
+	self selectClass: classService completionBlock: completionBlock.
+	numberedLabelString := self computeNumberedLabelUsing:
+		                       classService name.
+	self arrangement: numberedLabelString
 ]
 
 { #category : 'selections' }
@@ -3960,13 +3967,12 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 									                                 items indexOf: methodService.
 								                        self methodListPresenter
 									                        selectIndex: index
-									                        scrollToSelection: true ].
-							                        self updateTabLabel ].
+									                        scrollToSelection: true ] ].
 							classService meta = classRadioButton state ifTrue: [
 								postUpdateClassBlock value "if changing sides , block will be executed after class refreshed" ].
 							self setAppropriateMeta: classService.
-							completionBlock value ] ] ] ensure: [
-				self resumeSelectionEvents ] ]
+							completionBlock value.
+							self updateTabLabel ] ] ] ensure: [ self resumeSelectionEvents ] ]
 ]
 
 { #category : 'find' }

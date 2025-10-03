@@ -483,7 +483,8 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService method
 							self methodListPresenter
 								selectIndex: index
 								scrollToSelection: true ].
-						completionBlock value ] ] ] ] ensure: [
+						completionBlock value.
+						self updateTabLabel ] ] ] ] ensure: [
 			self resumeSelectionEvents ] ]
 ]
 
