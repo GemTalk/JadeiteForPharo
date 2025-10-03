@@ -2872,15 +2872,22 @@ JadeiteBrowserPresenter >> refreshFromServer [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 
-	| classService |
+	| classService visibleMethods selections |
 	classService := self selectedClass ifNil: [ ^ self ].
 	classService meta: self isClassSideSelected.
 	classService filters: self selectedFilters.
 	self selectedFilterTab selectedItems isEmpty ifTrue: [
 		self clearMethodLists ].
-	(methodListPresenter items difference: classService methods)
-		ifEmpty: [ ^ self ].
+	visibleMethods := classService
+		                  computeVisibleMethods: methodListPresenter
+		                  browser: self.
+	selections := methodListPresenter selectedItems.
+	(methodListPresenter items difference: visibleMethods) ifEmpty: [
+		(visibleMethods difference: methodListPresenter items) ifEmpty: [
+			^ self ] ].
 	self updateService: classService onCompletion: [
+		methodListPresenter unselectAll.
+		methodListPresenter selectItems: selections.
 		methodListPresenter list addAll:
 			(extensions reject: [ :svc |
 				 methodListPresenter list includes: svc ]).
@@ -2889,8 +2896,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 				self resetCategoryText.
 				definedMethodPackageText text: String new ]
 			ifFalse: [ self updateMethodSource ].
-		methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ].
-		methodListPresenter unselectAll. ]
+		methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ] ]
 ]
 
 { #category : 'as yet unclassified' }
