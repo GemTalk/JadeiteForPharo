@@ -417,7 +417,6 @@ JadeiteBrowser >> openNewBrowserTab [
 	notebookPage beCloseable.
 	tabs addPage: notebookPage.
 	tabs selectPage: notebookPage.
-	notebookPage activePresenter ifNotNil: [ :pres | pres basicPostOpen ].
 	^ notebookPage activePresenter
 ]
 

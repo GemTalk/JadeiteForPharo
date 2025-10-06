@@ -308,19 +308,17 @@ JadeiteForPharoBrowserTestCase >> test_browseClass [
 JadeiteForPharoBrowserTestCase >> test_browseInExistingBrowserFromMethodList [
 
 	| sunitTestMethod index |
+	"dolphin issue"
 	self
 		testsIssue: #issue827
 		withTitle:
-		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'. "dolphin issue"
+		'Would be nice to be able to request that all browse menu items be routed to an existing project browser'.
 	self
 		testsJadeiteForPharoIssue: #issue267
 		title:
 		'could use "Browse in existing package browser" from method browsers'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/267'.
-	JadeiteBrowser browserClass allInstances do: [ :browser |
-		self destroy: browser ].
-	projectsBrowser := nil.
-	self setupProjectBrowser.
+	self newBrowser.
 	self assert: projectsBrowser tabs pages size equals: 1.
 	self selectRowanSample1Test.
 	self selectMethodNamed: #testError.
@@ -342,9 +340,7 @@ JadeiteForPharoBrowserTestCase >> test_browseInExistingBrowserFromMethodList [
 	self
 		assert: methodListBrowser methodListPresenter selectedItem className
 		equals: 'SUnitTest'.
-
 	methodListBrowser browseMethodClassInExistingBrowser.
-
 	self assert: projectsBrowser window isTopWindow.
 	self assert: projectsBrowser tabs pages size equals: 2.
 	self assert: projectsBrowser tabs selectedPageIndex equals: 2.

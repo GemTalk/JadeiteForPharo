@@ -87,6 +87,15 @@ JadeiteForPharoAbstractBrowserTestCase >> moveMethodToCategory [
 		equals: 'accessing'
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> newBrowser [
+
+	JadeiteBrowser browserClass allInstances do: [ :browser |
+		self destroy: browser ].
+	projectsBrowser := nil.
+	self setupProjectBrowser
+]
+
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> openSecondBrowser [
 
@@ -419,10 +428,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowser [
 		title:
 		'browse in existing Browser menu item from method list opens tab on wrong class'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/309'.
-	JadeiteBrowser browserClass allInstances do: [ :browser |
-		self destroy: browser ].
-	projectsBrowser := nil.
-	self setupProjectBrowser.
+	self newBrowser.
 	self assert: projectsBrowser tabs pages size equals: 1.
 	methodListBrowser := self
 		                     waitForNew: JadeiteMethodListPresenter
@@ -431,7 +437,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowser [
 			                     #size: ].
 	self assert: methodListBrowser window adapter widget isActive.
 	methodListBrowser methodListPresenter unselectAll.
-
 	1 to: methodListBrowser methodListPresenter items size do: [ :index |
 		| className stream |
 		methodListBrowser methodListPresenter unselectAll.
@@ -468,10 +473,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserTabLabel [
 		title:
 		'Used the new menu item Browse in existing browser from a method list ... and the new tab is named Projects and not the name of the selected package'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/275'.
-	JadeiteBrowser browserClass allInstances do: [ :browser |
-		self destroy: browser ].
-	projectsBrowser := nil.
-	self setupProjectBrowser.
+	self newBrowser.
 	self assert: projectsBrowser tabs pages size equals: 1.
 	self selectRowanSample1Test.
 	self selectMethodNamed: #testError.
@@ -488,9 +490,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserTabLabel [
 	self
 		assert: methodListBrowser methodListPresenter selectedItem className
 		equals: 'SUnitTest'.
-
 	methodListBrowser browseMethodClassInExistingBrowser.
-
 	self assert: projectsBrowser window isTopWindow.
 	self assert: projectsBrowser tabs pages size equals: 2.
 	self assert: projectsBrowser tabs selectedPageIndex equals: 2.
@@ -500,7 +500,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserTabLabel [
 	self
 		assert: self methodListPresenter selectedItem selector
 		equals: #testError.
-	self assert: projectsBrowser tabs selectedPage title equals: '2 SUnitTest'.
+	self
+		assert: projectsBrowser tabs selectedPage title
+		equals: '2 SUnitTest'.
 	projectsBrowser tabs selectPageIndex: 1.
 	self
 		assert: self classListPresenter selectedItem name
@@ -508,7 +510,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserTabLabel [
 	self
 		assert: self methodListPresenter selectedItem selector
 		equals: #testError.
-	self assert: projectsBrowser tabs selectedPage title equals: '1 RowanSample1Test'.
+	self
+		assert: projectsBrowser tabs selectedPage title
+		equals: '1 RowanSample1Test'
 ]
 
 { #category : 'tests' }

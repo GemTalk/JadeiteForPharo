@@ -3974,11 +3974,12 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 								                        self methodListPresenter
 									                        selectIndex: index
 									                        scrollToSelection: true ] ].
-							classService meta = classRadioButton state ifTrue: [
-								postUpdateClassBlock value "if changing sides , block will be executed after class refreshed" ].
-							self setAppropriateMeta: classService.
-							completionBlock value.
-							self updateTabLabel ] ] ] ensure: [ self resumeSelectionEvents ] ]
+							classService meta = classRadioButton state
+								ifTrue: [
+									postUpdateClassBlock value "if changing sides , block will be executed after class refreshed" ]
+								ifFalse: [ self setAppropriateMeta: classService ].
+							completionBlock value ] ] ] ensure: [
+				self resumeSelectionEvents ] ]
 ]
 
 { #category : 'find' }
