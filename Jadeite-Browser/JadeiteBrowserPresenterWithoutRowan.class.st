@@ -451,10 +451,9 @@ JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService method
 	| methods |
 	self suspendSelectionEvents.
 	self updateService: classService onCompletion: [
-		[
-		self selectDictionaryNamed: classService dictionaryName.
-		"might not be a valid class, say in a preference"
+		[ "might not be a valid class, say in a preference"
 		classService dictionaryName ifNotNil: [
+			self selectDictionaryNamed: classService dictionaryName.
 			methods := classService methods.
 			self
 				updateService: self dictionaryListPresenter selectedItem

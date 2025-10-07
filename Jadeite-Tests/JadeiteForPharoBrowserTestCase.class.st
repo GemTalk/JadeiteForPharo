@@ -978,7 +978,8 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 	self projectListPresenter items do: [ :projectService |
 		projectService name = 'RowanClientServices' ifFalse: [
 			projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
-				self assert: projectService displayName = projectService name ] ] ].
+				projectService name = 'RowanServicesTestProject' ifFalse: [
+					self assert: projectService displayName = projectService name ] ] ] ].
 
 	jadeiteShell projectListPresenter items do: [ :projectService |
 		projectService name = 'RowanClientServices'
@@ -986,7 +987,8 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 			self assert: projectService displayName = '*RowanClientServices' ]
 			ifFalse: [
 				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
-					self assert: projectService displayName = projectService name ] ] ].
+					projectService name = 'RowanServicesTestProject' ifFalse: [
+						self assert: projectService displayName = projectService name ] ] ] ].
 
 	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
 	self projectsPresenter setCurrentProject.
@@ -997,13 +999,15 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 	self projectListPresenter items do: [ :projectService |
 		projectService name = 'Rowan' ifFalse: [
 			projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
-				self assert: projectService displayName = projectService name ] ] ].
+				projectService name = 'RowanServicesTestProject' ifFalse: [
+					self assert: projectService displayName = projectService name ] ] ] ].
 	jadeiteShell projectListPresenter items do: [ :projectService |
 		projectService name = 'Rowan'
 			ifTrue: [ self assert: projectService displayName = '*Rowan' ]
 			ifFalse: [
 				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
-					self assert: projectService displayName = projectService name ] ] ]
+					projectService name = 'RowanServicesTestProject' ifFalse: [
+						self assert: projectService displayName = projectService name ] ] ] ]
 ]
 
 { #category : 'tests' }
