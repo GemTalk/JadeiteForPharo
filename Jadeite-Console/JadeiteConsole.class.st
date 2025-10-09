@@ -77,16 +77,8 @@ JadeiteConsole class >> showOnSession: aGciSession [
 { #category : 'events' }
 JadeiteConsole >> abortedTransaction [
 
-	self updateProjectsOnCompletion: [  ].
-	self todo: [ self displayLastKnownCommitOrAbort ].
-	self projectListPresenter invalidate
-]
-
-{ #category : 'updates' }
-JadeiteConsole >> addNoneProject [
-	"project list does not add a none project"
-
-	
+	self updateProjectsOnCompletion: [
+		self projectListPresenter invalidate ]
 ]
 
 { #category : 'initialization' }
@@ -96,11 +88,6 @@ JadeiteConsole >> addStyle: aString [
 	waitIndicator addStyle: aString.
 	transcriptPresenter addStyle: aString.
 	layoutBox ifNotNil: [ layoutBox adapter addStyle: aString ].
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> additionalAccelerators [
-	^super additionalAccelerators , #(#(#raiseConsole 'Ctrl+F7'))
 ]
 
 { #category : 'as yet unclassified' }
@@ -135,22 +122,6 @@ JadeiteConsole >> basicOpenServerFile: filePath [
 	^ JadeiteServerFileWorkspaceApplication
 		  showOnSession: gciSession
 		  path: filePath
-]
-
-{ #category : 'actions' }
-JadeiteConsole >> basicSetFont: newFont [
-	JadeitePreferences displayFontFrom: newFont.
-	JadeitePreferences current currentFont: newFont
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> basicTransactionMode: aSymbol [
-	self parentPresenter transactionMode: aSymbol session: gciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> beginTransaction [
-	self parentPresenter beginTransaction
 ]
 
 { #category : 'as yet unclassified' }
@@ -196,16 +167,6 @@ JadeiteConsole >> canDiscardEdits [
 JadeiteConsole >> canDiscardSelectionEdits [
 
 	^ true
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> cardContainer [
-	^cardContainer
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> cardContainer: anObject [
-	cardContainer := anObject
 ]
 
 { #category : 'initialization' }
@@ -257,11 +218,6 @@ JadeiteConsole >> columnWithAspect: aspect title: title [
 	^ column
 ]
 
-{ #category : 'transactions' }
-JadeiteConsole >> committedTransaction [
-	self displayLastKnownCommitOrAbort
-]
-
 { #category : 'initialization' }
 JadeiteConsole >> connectPresenters [
 
@@ -305,14 +261,6 @@ JadeiteConsole >> defaultLayout [
 JadeiteConsole >> defaultWindowPresenterClass [
 		
 	^ JadeiteGlobalWindowPresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> displayLastKnownCommitOrAbort [
-	| writeStream |
-	writeStream := WriteStream on: String new.
-	TimeStamp current printOn: writeStream format: 'M/d/yyyy h:mm:ss tt'.
-	lastKnownTransaction value: 'Last Known Commit or Abort: ' , writeStream contents
 ]
 
 { #category : 'as yet unclassified' }
@@ -405,11 +353,6 @@ JadeiteConsole >> gotoJfPGitHubProject [
 JadeiteConsole >> gotoRowanGitHubProject [
 
 	WebBrowser openOn: 'https://github.com/GemTalk/Rowan'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> hidePackageGroups [
-	^JadePresenter hidePackageGroups
 ]
 
 { #category : 'as yet unclassified' }
@@ -548,13 +491,6 @@ JadeiteConsole >> initializeProjectListPresenter: tabs [
 	self initializeProjectListMenu
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> initializeTransactionModeSettings [
-	self transactionMode
-		ifNil: 
-			[self setTransactionModeFromServer	"should have already been set when window was created ... but just in case"]
-]
-
 { #category : 'initialization' }
 JadeiteConsole >> initializeTranscriptPresenter: tabs [
 
@@ -649,43 +585,6 @@ JadeiteConsole >> okToChangeSelections [
 JadeiteConsole >> okToClose [
 
 	^true
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> onCloseRequested: boolValueHolder [
-	| answer |
-	self onPromptToSaveChanges: boolValueHolder.
-	boolValueHolder value ifFalse: [^self].
-	gciSession isNil ifTrue: [^self].
-	gciSession isValidSession
-		ifFalse: 
-			[gciSession trigger: #forceJadeiteWindowClose.
-			^self].
-	gciSession logoutRequested
-		ifFalse: 
-			[boolValueHolder value: false.
-			^self].
-	(RowanAnsweringService new needsCommit: self gciSession)
-		ifTrue: 
-			[self shouldAskToCommitOnLogout
-				ifTrue: 
-					[answer := MessageBox new
-								caption: 'Close Requested';
-								confirmOrCancel: 'Commit current transaction?'.
-					boolValueHolder value: (#(#yes #no) includes: answer).
-					answer = #yes ifTrue: [gciSession commit]]].
-	boolValueHolder value ifFalse: [^self].
-	allSessionsPresenter aboutToClose.
-	gciSession notNil
-		ifTrue: 
-			[| temp |
-			JadePresenter
-				stopListeningForSigAborts;
-				resetSigAbortProcessEnablement;
-				resetSigAbortProcessInterval.
-			temp := gciSession.	"I'm getting closed so make sure session gets logged out"
-			gciSession := nil.
-			temp forceLogout]
 ]
 
 { #category : 'actions' }
@@ -817,60 +716,9 @@ JadeiteConsole >> selectedPackageServices [
 	^Array new
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> setFont [
-	| newFont currentFont |
-	currentFont := JadeitePreferences current currentFont ifNil: [JadeitePreferences defaultFont].
-	newFont := FontDialog showModalOn: currentFont.
-	newFont ifNil: [^self].
-	self basicSetFont: newFont
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> setRowanProjectsHome [
-	self setRowanProjectsHome: gciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> setRowanProjectsHome: aGciSession [
-	| varString |
-	varString := JadeiteServerFileSelectorDialog showOnSession: aGciSession
-				defaultPath: JadePresenter homeEnvVarString.
-	varString isNil ifTrue: [^MessageBox notify: '$ROWAN_PROJECTS_HOME was not set.'].
-	aGciSession
-		executeString: '(System gemEnvironmentVariable: ''ROWAN_PROJECTS_HOME'' put: ''' , varString , ''')'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> setRowanProjectsHomeIfNecessary: aGciSession [
-	| varSet shouldSet |
-	varSet := aGciSession
-				executeString: '(System gemEnvironmentVariable: ''ROWAN_PROJECTS_HOME'') notNil'.
-	varSet ifTrue: [^self].
-	shouldSet := MessageBox
-				confirm: '$ROWAN_PROJECTS_HOME is not set. Would you like to set it? (Failure to do so will result in Jadeite errors)'.
-	shouldSet ifFalse: [^self].
-	self setRowanProjectsHome: aGciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> setTransactionModeFromServer [
-	"Only run this when opening the transcript.  We don't use the service mutex so it's mildly dangerous."
-	self parentPresenter transactionMode: (gciSession executeString: 'System transactionMode').
-	self resetTransactionModeRadioButtons.
-	self parentPresenter inTransaction: (gciSession executeString: 'System inTransaction').
-	self parentPresenter resetListeningForSigAborts: gciSession
-]
-
 { #category : 'constants' }
 JadeiteConsole >> shellName [
 	^'Jadeite Console'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> shouldAskToCommitOnLogout [
-	^self transactionMode = #autoBegin
-		or: [self transactionMode = #manualBegin and: [self parentPresenter inTransaction]]
 ]
 
 { #category : 'as yet unclassified' }

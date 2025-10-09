@@ -510,17 +510,6 @@ JadeitePreferencesTestCase >> test_saveMultipleClassesInPrefsFile [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferencesTestCase >> test_setResetFont [
-	self testsIssue: #issue805 withTitle: 'Preference to adjust font size (3.1.0)'.
-	transcript basicSetFont: (Font name: 'Tahoma' pointSize: 16).
-	self assert: View desktop font name equals: 'Tahoma'.
-	self assert: View desktop font pointSize equals: 16.
-	transcript resetFonts.
-	self assert: View desktop font name equals: JadeitePreferences defaultFont name.
-	self assert: View desktop font pointSize equals: JadeitePreferences defaultFont pointSize
-]
-
-{ #category : 'as yet unclassified' }
 JadeitePreferencesTestCase >> test_textFont [
 	| prefs |
 	self testsIssue: #issue805 withTitle: 'Preference to adjust font size (3.1.0)'.

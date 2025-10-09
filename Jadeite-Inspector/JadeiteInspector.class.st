@@ -887,11 +887,6 @@ JadeiteInspector >> okToClose [
 	^ true
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteInspector >> onCloseRequested: boolValueHolder [
-	self isOkayToChange ifFalse:[boolValueHolder value: false]. 
-]
-
 { #category : 'inspecting' }
 JadeiteInspector >> oopFromSelection [
 

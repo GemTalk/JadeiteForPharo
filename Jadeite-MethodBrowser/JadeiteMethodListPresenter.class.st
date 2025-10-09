@@ -388,13 +388,6 @@ JadeiteMethodListPresenter >> okToClose [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> onCloseRequested: aCloseEvent [
-	aCloseEvent value: (methodSourcePresenter documentPresenter view isModified
-				ifTrue: [methodSourcePresenter isOkayToChange]
-				ifFalse: [true])
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> postEditSaveMethod [
 	| methodService |
 	methodService := self methodListPresenter methodListPresenter selectionIfNone: [^self].
