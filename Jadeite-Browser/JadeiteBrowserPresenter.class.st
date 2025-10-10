@@ -765,7 +765,10 @@ JadeiteBrowserPresenter >> connectClassPresenters [
 		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
 			selection selectedItem ifNotNil: [
 					self classSelected: self selectedClass ] ];
-		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ].
+		whenNoneSelectedAndEventsNotSuspendedDo: [
+			self
+				clearMethodLists;
+				updateClassDefPresenter ].
 	classHierarchyPresenter
 		whenSelectionChangedDo: [ :selection |
 			RowanServiceUpdater current critical: [
@@ -4044,6 +4047,12 @@ JadeiteBrowserPresenter >> updateClass: classService [
 				ifNone: [^self].
 	update replicateFrom: classService.
 	classListPresenter view invalidate.
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> updateClassDefPresenter [
+
+	self resetClassTemplate
 ]
 
 { #category : 'as yet unclassified' }

@@ -119,7 +119,7 @@ JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 		self updateClassCategoriesAndSelectAllFor: selection selectedItem ].
 	classCategoryPresenter whenSelectionChangedDo: [ :selection |
 		selectionEventsSuspended ifFalse: [
-			self updateClassesForClassCategories: selection selectedItems ] ]
+			self updateClassesForClassCategories: selection selectedItems ] ].
 ]
 
 { #category : 'initialization' }
@@ -445,6 +445,24 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 		self classCategoryPresenter selectItem: classCategoryService ]
 ]
 
+{ #category : 'acccessing' }
+JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
+
+	| answeringService |
+	classCategory ifNil: [
+		classDefinitionPresenter text:
+			self dictionaryListPresenter selectedItem defaultTemplate.
+		^ classDefinitionPresenter isModified: false ].
+	answeringService := RowanAnsweringService new
+		                    command: #templateForClassCategory:;
+		                    commandArgs:
+			                    (Array with:
+					                     classCategory firstSubstringsToIndex).
+	self issueCommand: answeringService onCompletion: [ :service |
+		classDefinitionPresenter text: service answer.
+		classDefinitionPresenter isModified: false ]
+]
+
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
 
@@ -544,22 +562,14 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryServi
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateClassDefPresenter [
 
-	| defaultTemplate |
 	self selectedClass ifNotNil: [ :classService |
 		classDefinitionPresenter text: classService template.
 		classDefinitionPresenter isModified: false.
 		^ self ].
 	self dictionaryListPresenter selectedItem ifNil: [
 		^ self resetClassDefinitionPane ].
-	defaultTemplate := self classCategoryPresenter selectedItem
-		                   ifNil: [
-		                   self dictionaryListPresenter selectedItem
-			                   defaultTemplate ]
-		                   ifNotNil: [ :classCategory |
-			                   self defaultTemplateForClassCategory:
-				                   classCategory ].
-	classDefinitionPresenter text: defaultTemplate.
-	classDefinitionPresenter isModified: false
+	self templateForClassCategory:
+		self classCategoryPresenter selectedItem
 ]
 
 { #category : 'updates' }
@@ -670,32 +680,6 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategories: selected
 	self
 		selectClassCategory: selectedClassCategories
 		keepSelectedClass: selectedClass
-]
-
-{ #category : 'updates' }
-JadeiteBrowserPresenterWithoutRowan >> updateClassesForClassCategory: classCategoryService [
-
-	| dictionaryService selectedClass |
-	classCategoryService ifNil: [ ^ self ].
-	self classCategoryPresenter selectedItem = classCategoryService
-		ifTrue: [ selectedClass := self selectedClass ]
-		ifFalse: [
-			classListPresenter unselectAll.
-			selectedClass := nil ].
-	dictionaryService := self dictionaryListPresenter selectedItem.
-	self dictionaryListPresenter selectedItem ifNil: [ ^ self ].
-	dictionaryService
-		command: #updateForClassCategory:;
-		commandArgs:
-			(Array with: classCategoryService firstSubstringsToIndex);
-		shouldUpdate: false.
-	RowanServiceUpdater current
-		issueCommand: dictionaryService
-		session: self gciSession
-		onCompletion: [
-			self
-				selectClassCategory: classCategoryService
-				keepSelectedClass: selectedClass ]
 ]
 
 { #category : 'as yet unclassified' }
