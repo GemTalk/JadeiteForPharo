@@ -178,7 +178,7 @@ JadeiteMethodSourcePane >> mouseClickedAt: click [
 	self displayStepPointAt: sourcePosition
 ]
 
-{ #category : 'adding' }
+{ #category : 'breakpoints' }
 JadeiteMethodSourcePane >> removeAllTextSegmentDecorations [
 
 	self withAdapterDo: [ :anAdapter |
