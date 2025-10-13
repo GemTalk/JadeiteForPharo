@@ -448,16 +448,17 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 { #category : 'acccessing' }
 JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
 
-	| answeringService |
+	| answeringService dictionaryService |
+	dictionaryService := self dictionaryListPresenter selectedItem.
 	classCategory ifNil: [
-		classDefinitionPresenter text:
-			self dictionaryListPresenter selectedItem defaultTemplate.
+		classDefinitionPresenter text: dictionaryService defaultTemplate.
 		^ classDefinitionPresenter isModified: false ].
 	answeringService := RowanAnsweringService new
-		                    command: #templateForClassCategory:;
-		                    commandArgs:
-			                    (Array with:
-					                     classCategory firstSubstringsToIndex).
+		                    command:
+			                    #templateForClassCategory:dictionaryName:;
+		                    commandArgs: (Array
+				                     with: classCategory firstSubstringsToIndex
+				                     with: dictionaryService name).
 	self issueCommand: answeringService onCompletion: [ :service |
 		classDefinitionPresenter text: service answer.
 		classDefinitionPresenter isModified: false ]
