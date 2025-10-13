@@ -10,6 +10,18 @@ Class {
 	#package : 'Jadeite-TextPanes'
 }
 
+{ #category : 'commands' }
+JadeiteMethodSourcePane >> announceBreakpoint [
+
+	| offset |
+	offset := self withAdapterDo: [ :a |
+		          a widgetDo: [ :w | w textArea scrollPane scroller offset ] ].
+	self resetText.
+	^ self announce: (JadeiteUpdateMethodSourceAnnouncement new
+			   scrollOffset: offset;
+			   yourself)
+]
+
 { #category : 'testing' }
 JadeiteMethodSourcePane >> canDiscardEdits [
 	"needed?"
@@ -25,7 +37,7 @@ JadeiteMethodSourcePane >> clearAllMethodBreakpoints [
 		           withArgs: (Array with: (Array with: self methodService)).
 	self
 		issueCommand: service
-		onCompletion: [ self announce: JadeiteUpdateMethodSourceAnnouncement ]
+		onCompletion: [ self announceBreakpoint ]
 ]
 
 { #category : 'breakpoints' }
@@ -43,7 +55,7 @@ JadeiteMethodSourcePane >> clearBreakpoint: stepPoint [
 	stepPoint isNil ifTrue: [ ^ self ].
 	self
 		clearBreakPointAt: stepPoint
-		onCompletion: [ self announce: JadeiteUpdateMethodSourceAnnouncement ]
+		onCompletion: [ self announceBreakpoint ]
 ]
 
 { #category : 'actions - saving methods' }
@@ -187,6 +199,17 @@ JadeiteMethodSourcePane >> removeAllTextSegmentDecorations [
 			w changed ] ]
 ]
 
+{ #category : 'commands' }
+JadeiteMethodSourcePane >> resetText [
+	"this is so dumb - In order for breakpoint highlights to disappear
+	when we clear breakpoints for a method, we have to reset the text
+	then go through our usual method changed code. No idea why. "
+
+	self text: self text , 'x'. "change the string only slightly so not to create a jarring visual effect"
+	self text: self text.
+	self hasUnacceptedEdits: false
+]
+
 { #category : 'actions - saving methods' }
 JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory completionBlock: completionBlock [
 
@@ -262,7 +285,7 @@ JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 		^ self ].
 	self
 		setBreakPointAt: stepPoint
-		onCompletion: [ self announce: JadeiteUpdateMethodSourceAnnouncement ]
+		onCompletion: [ self announceBreakpoint ]
 ]
 
 { #category : 'actions' }

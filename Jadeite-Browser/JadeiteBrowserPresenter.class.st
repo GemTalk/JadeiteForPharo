@@ -4231,22 +4231,14 @@ JadeiteBrowserPresenter >> updateMethodSource [
 
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateMethodSource: anAnnouncement [
-	"this is so dumb - In order for breakpoint highlights to disappear
-	when we clear breakpoints for a method, we have to reset the text
-	then go through our usual method changed code. No idea why. "
 
-	| text offset |
+	| text |
 	text := self methodSourcePresenter text.
-	offset := self methodSourcePresenter withAdapterDo: [ :a |
-		          a widgetDo: [ :w | w textArea scrollPane scroller offset ] ].
-	self methodSourcePresenter text: String new.
-	self methodSourcePresenter text: text.
-	self methodSourcePresenter hasUnacceptedEdits: false.
 	self methodSelectionChanged.
 	self methodSourcePresenter withAdapterDo: [ :a |
 		a widgetDo: [ :w |
 			w textArea scrollPane
-				vScrollbarValue: offset y;
+				vScrollbarValue: anAnnouncement scrollOffset y;
 				updateScrollbars ] ]
 ]
 
