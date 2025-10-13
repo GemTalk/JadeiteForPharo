@@ -377,6 +377,54 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategor
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefinitionTemplate [
+
+	JadeitePreferences isRowanAvailable ifTrue: [
+		^ self skip:
+			  'test_classDefinitionTemplate only available in stubbed image' ].
+	self
+		testsJadeiteForPharoIssue: #issue418
+		title:
+		'Navigating and category creation in class hiearchy view can''t keep class side/instance side straight'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/314'.
+	self
+		selectServiceNamed: self rowanSampleDictionaryName
+		in: self dictionaryListPresenter.
+	self
+		assert: self projectsPresenter classCategoryPresenter selectedItem
+				firstSubstringsToIndex
+		equals: 'Rowan'.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: '(Object subclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	inDictionary: RowanSample1Dictionary
+	options: #()) category:  ''Rowan''
+' replaceCrWithLf.
+
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self dictionaryListPresenter.
+	self
+		assert: self projectsPresenter classCategoryPresenter selectedItem
+				firstSubstringsToIndex
+		equals: 'Rowan'.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: '(Object subclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	inDictionary: RowanClientServices
+	options: #()) category:  ''Rowan''
+' replaceCrWithLf
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_classListNotEmptyAfterHierarchy [
 
 	| canonicalizationClasses canonicalizationHierarchyClasses |
