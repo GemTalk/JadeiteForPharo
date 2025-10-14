@@ -383,7 +383,7 @@ JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
 					 ifNil: [ selectedItem defaultTemplate ]
 					 ifNotNil: [
 						 self selectedClassTab activePresenter selection selectedItem
-							 ifNil: [ self defaultTemplateForClassCategory: selectedItem ]
+							 ifNil: [ self templateForClassCategory: selectedItem ]
 							 ifNotNil: [
 							 self selectedClassTab activePresenter selectedItem template ] ] ]).
 	self resetClassDefinitionPane
@@ -451,6 +451,10 @@ JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
 	dictionaryService := self dictionaryListPresenter selectedItem.
 	classCategory ifNil: [
 		classDefinitionPresenter text: dictionaryService defaultTemplate.
+		^ classDefinitionPresenter isModified: false ].
+	JadeitePreferences isRowanAvailable ifTrue: [
+		classDefinitionPresenter text:
+			(self defaultTemplateForClassCategory: classCategory).
 		^ classDefinitionPresenter isModified: false ].
 	answeringService := RowanAnsweringService new
 		                    command:
