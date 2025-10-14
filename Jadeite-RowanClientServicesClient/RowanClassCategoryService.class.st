@@ -13,6 +13,16 @@ Class {
 }
 
 { #category : 'instance creation' }
+RowanClassCategoryService class >> allClassCategory [
+
+	| inst |
+	inst := self new
+		        name: 'All';
+		        substringIndex: 1.
+	^ inst
+]
+
+{ #category : 'instance creation' }
 RowanClassCategoryService class >> nilClassCategory [
 
 	| inst |

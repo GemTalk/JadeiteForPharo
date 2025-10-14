@@ -325,12 +325,11 @@ JadeiteBrowserPresenterWithoutRowan >> postOpen [
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> refreshClassCategoriesFrom: dictionaryService [
 
-	| newServices |
 	dictionaryService classCategories
 		ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
 		ifNotNil: [
-			newServices := self classCategoryServicesFor: dictionaryService.
-			classCategoryServices := newServices.
+			classCategoryServices := self classCategoryServicesFor:
+				                         dictionaryService.
 			classCategoryPresenter roots:
 				(self classCategoriesAt: 1 matching: '*') ]
 ]
