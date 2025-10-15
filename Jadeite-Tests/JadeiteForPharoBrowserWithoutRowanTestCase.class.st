@@ -391,9 +391,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefinitionTemplate [
 		selectServiceNamed: self rowanSampleDictionaryName
 		in: self dictionaryListPresenter.
 	self
-		assert: self projectsPresenter classCategoryPresenter selectedItem
-				firstSubstringsToIndex
-		equals: 'Rowan'.
+		assert: (self projectsPresenter classCategoryPresenter selectedItem
+				isKindOf: RowanAllClassCategoryService).
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: '(Object subclass: ''NameOfSubclass''
@@ -402,16 +401,15 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefinitionTemplate [
 	classInstVars: #()
 	poolDictionaries: #()
 	inDictionary: RowanSample1Dictionary
-	options: #()) category:  ''Rowan''
+	options: #()) category:  ''''
 ' replaceCrWithLf.
 
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
-	self
-		assert: self projectsPresenter classCategoryPresenter selectedItem
-				firstSubstringsToIndex
-		equals: 'Rowan'.
+self
+		assert: (self projectsPresenter classCategoryPresenter selectedItem
+				isKindOf: RowanAllClassCategoryService).
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: '(Object subclass: ''NameOfSubclass''
@@ -420,7 +418,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefinitionTemplate [
 	classInstVars: #()
 	poolDictionaries: #()
 	inDictionary: RowanClientServices
-	options: #()) category:  ''Rowan''
+	options: #()) category:  ''''
 ' replaceCrWithLf
 ]
 
@@ -542,7 +540,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassWithNilClassCategory
 	self projectsPresenter findClassNamed: 'RowanSample1'.
 	self
 		assert: self classCategoryPresenter roots last name
-		equals: RowanClassCategoryService new nilCategoryDisplayName.
+		equals: 'All'.
 	self
 		assert: self classCategoryPresenter selectedItem name
 		equals: RowanClassCategoryService new nilCategoryDisplayName.
@@ -644,7 +642,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 		in: self dictionaryListPresenter.
 	self
 		assert: self classCategoryPresenter roots last name
-		equals: RowanClassCategoryService new nilCategoryDisplayName.
+		equals: 'All'.
 
 	self assert: self classListPresenter items size equals: 2.
 	self assert:
