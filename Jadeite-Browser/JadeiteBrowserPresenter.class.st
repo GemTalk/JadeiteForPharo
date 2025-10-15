@@ -1211,7 +1211,7 @@ JadeiteBrowserPresenter >> expandAt: classService [
 	| path |
 	classService subclassServices: Array new.
 	classService
-		command: #oneLevelClassHierarchy;
+		command: #fullHierarchy;
 		commandArgs: Array new.
 	self issueCommand: classService onCompletion: [
 		classHierarchyPresenter childrenFor: classService.
