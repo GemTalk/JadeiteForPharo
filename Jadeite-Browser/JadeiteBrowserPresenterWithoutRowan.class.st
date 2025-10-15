@@ -56,7 +56,7 @@ JadeiteBrowserPresenterWithoutRowan >> basicProjectTabLabel [
 	self selectedClass ifNotNil: [ ^ super basicProjectTabLabel ].
 	self classCategoryPresenter selectedItem ifNil: [
 		^ super basicProjectTabLabel ].
-	^ self classCategoryPresenter selectedItem firstSubstringsToIndex
+	^ self classCategoryPresenter selectedItem tabLabel
 ]
 
 { #category : 'updates' }
@@ -131,7 +131,9 @@ JadeiteBrowserPresenterWithoutRowan >> defaultTemplateForClassCategory: classCat
 
 	^ self dictionaryListPresenter selectedItem defaultTemplate
 		  copyReplaceAll: 'category: nil'
-		  with: 'category: ''' , classCategory firstSubstringsToIndex , ''''
+		  with:
+		  'category: ''' , classCategory classDefinitionTemplateString
+		  , ''''
 ]
 
 { #category : 'as yet unclassified' }
@@ -331,7 +333,8 @@ JadeiteBrowserPresenterWithoutRowan >> refreshClassCategoriesFrom: dictionarySer
 			classCategoryServices := self classCategoryServicesFor:
 				                         dictionaryService.
 			classCategoryPresenter roots:
-				(self classCategoriesAt: 1 matching: '*') ]
+				(OrderedCollection with:
+					 RowanAllClassCategoryService allClassCategory) ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -460,7 +463,8 @@ JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
 		                    command:
 			                    #templateForClassCategory:dictionaryName:;
 		                    commandArgs: (Array
-				                     with: classCategory firstSubstringsToIndex
+				                     with:
+					                     classCategory classDefinitionTemplateString
 				                     with: dictionaryService name).
 	self issueCommand: answeringService onCompletion: [ :service |
 		classDefinitionPresenter text: service answer.
@@ -531,11 +535,11 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesAndSelectAllFor: dic
 			              ifNotNil: [
 				              (dictionaryService classes asSortedCollection: [ :x :y |
 					               x name < y name ]) asArray ].
-		self selectClassListTab. 
+		self selectClassListTab.
 		classCategoryPresenter expandAll.
 		self suspendSelectionEvents.
-		[ classCategoryPresenter adapter widget selectAll ] ensure: [
-			self resumeSelectionEvents ].
+		[ classCategoryPresenter selectPath: #( 1 ) "All category" ]
+			ensure: [ self resumeSelectionEvents ].
 		classListPresenter items: theClasses.
 		self updateClassDefPresenter.
 		self updateTabLabel ]

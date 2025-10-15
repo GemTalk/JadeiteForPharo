@@ -13,16 +13,6 @@ Class {
 }
 
 { #category : 'instance creation' }
-RowanClassCategoryService class >> allClassCategory [
-
-	| inst |
-	inst := self new
-		        name: 'All';
-		        substringIndex: 1.
-	^ inst
-]
-
-{ #category : 'instance creation' }
 RowanClassCategoryService class >> nilClassCategory [
 
 	| inst |
@@ -42,11 +32,17 @@ RowanClassCategoryService >> = catService [
 ]
 
 { #category : 'accessing' }
+RowanClassCategoryService >> classDefinitionTemplateString [
+
+	^ self firstSubstringsToIndex
+]
+
+{ #category : 'accessing' }
 RowanClassCategoryService >> data [
 
 	name = String new ifTrue: [ ^ self nilCategoryDisplayName ].
 	name ifNil: [ ^ String new ].
-	substringIndex ifNil: [ ^ name ].
+	self substringIndex ifNil: [ ^ name ].
 	^ (name substrings: '-') at: substringIndex ifAbsent: [  ]
 ]
 
@@ -60,8 +56,8 @@ RowanClassCategoryService >> displayString [
 RowanClassCategoryService >> firstSubstringsToIndex [
 
 	self name = self nilCategoryDisplayName ifTrue: [ ^ String new ].
-	substringIndex ifNil: [ ^ name ].
-	^ ((name substrings: '-') first: substringIndex) fold: [ :a :b |
+	self substringIndex ifNil: [ ^ name ].
+	^ ((name substrings: '-') first: self substringIndex) fold: [ :a :b |
 		  a , '-' , b ]
 ]
 
@@ -131,4 +127,10 @@ RowanClassCategoryService >> substringIndex [
 RowanClassCategoryService >> substringIndex: anObject [
 
 	substringIndex := anObject
+]
+
+{ #category : 'accessing' }
+RowanClassCategoryService >> tabLabel [
+
+	^ self firstSubstringsToIndex
 ]
