@@ -1040,6 +1040,50 @@ JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyAction [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyActionLoadsFullSubhierarchy [
+
+	| selectedPath selectedItem index oc answeringService fileService |
+	self
+		testsJadeiteForPharoIssue: #issue233
+		title: 'Double-click in hierarchy needs extra selection'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/233'.
+	self classHierarchyPresenter selection whenChangedDo: [ :selection |
+		selectedPath := selection.
+		selectedItem := self classHierarchyPresenter selectedItem ].
+	self selectRowanAnsweringService.
+	self selectHierarchyTab.
+	self assert: selectedPath equals: #( 1 1 1 1 1 1 ).
+	self classHierarchyPresenter doubleClickAtPath: #( 1 1 1 1 1 ).
+	"subclasses of RowanService should be displayed"
+	index := 0.
+	oc := #( 1 1 1 1 1 1 ) asOrderedCollection.
+	answeringService := self classHierarchyPresenter selectedItem
+		                    subclassServices detect: [ :svc |
+		                    svc name = 'RowanAnsweringService' ].
+	self
+		assert: (self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 ))
+		equals: answeringService.
+	fileService := answeringService subclassServices detect: [ :svc |
+		               svc name = 'RowanFileService' ].
+	self
+		assert:
+		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 1 ))
+		equals: fileService.
+
+	self
+		assert:
+		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 2 ))
+		equals: (answeringService subclassServices detect: [ :svc |
+				 svc name = 'RowanAnsweringServiceServer' ]).
+
+	self
+		assert:
+		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 1 1 ))
+		equals: (fileService subclassServices detect: [ :svc |
+				 svc name = 'RowanFileServiceServer' ])
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
