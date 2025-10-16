@@ -294,7 +294,7 @@ JadeiteBrowserPresenterWithoutRowan >> initializeProjectListPresenterIn: panedLa
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> initializeProjectTab [
 
-	projectInfoList := JadeiteTablePresenter new.
+	projectInfoListLeft := JadeiteTablePresenter new.
 	projectInfoTab := JadeiteNotebookPage new
 ]
 

@@ -1041,6 +1041,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyAction [
 
 { #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyActionLoadsFullSubhierarchy [
+	"make sure more than one level of subclasses are expanded on double click"
 
 	| selectedPath selectedItem index oc answeringService fileService |
 	self
