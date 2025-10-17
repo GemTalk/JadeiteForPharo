@@ -135,7 +135,7 @@ JadeiteForPharoAbstractBrowserTestCase >> projectNamed: aString [
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> selectRowanClassServiceNamed: className [
 
-	self selectRowanDictionaryOrPackage.
+	self selectRowanClientServicesDictionaryOrPackage.
 	self selectServiceNamed: className in: self classListPresenter
 ]
 

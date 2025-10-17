@@ -870,7 +870,7 @@ JadeiteBrowserPresenter >> contextObject [
 	^self selectedClass ifNil: [^gciSession oopNil value] ifNotNil: [:classService | classService oop]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'copying' }
 JadeiteBrowserPresenter >> copyClass [
 
 	| oldClassService newClassName validClassName |
@@ -888,13 +888,43 @@ JadeiteBrowserPresenter >> copyClass [
 	self basicCopyClass: oldClassService to: newClassName
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'copying' }
+JadeiteBrowserPresenter >> copyDictionaryName [
+
+	| copyString |
+	projectInfoListLeft selectionIfNone: [
+		^ self noProjectInfoToCopyAlert ].
+	projectInfoListLeft selectedItem isBlankLine ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	projectInfoListLeft selectedItem column5 isEmpty ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	copyString := projectInfoListLeft selectedItem column5.
+	Clipboard clipboardText: copyString.
+	UIManager default inform: copyString , ' copied to clipboard'
+]
+
+{ #category : 'copying' }
 JadeiteBrowserPresenter >> copyInfo [
 	self copyProjectInfo
 	
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'copying' }
+JadeiteBrowserPresenter >> copyPackageName [
+
+	| copyString |
+	projectInfoListLeft selectionIfNone: [
+		^ self noProjectInfoToCopyAlert ].
+	projectInfoListLeft selectedItem isBlankLine ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	projectInfoListLeft selectedItem column4 isEmpty ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	copyString := projectInfoListLeft selectedItem column4.
+	Clipboard clipboardText: copyString.
+	UIManager default inform: copyString , ' copied to clipboard'
+]
+
+{ #category : 'copying' }
 JadeiteBrowserPresenter >> copyProjectInfo [
 
 	| copyString |
@@ -903,6 +933,21 @@ JadeiteBrowserPresenter >> copyProjectInfo [
 	projectInfoListLeft selectedItem isBlankLine ifTrue: [
 		^ self noProjectInfoToCopyAlert ].
 	copyString := projectInfoListLeft selectedItem column2.
+	Clipboard clipboardText: copyString.
+	UIManager default inform: copyString , ' copied to clipboard'
+]
+
+{ #category : 'copying' }
+JadeiteBrowserPresenter >> copyRequiredProject [
+
+	| copyString |
+	projectInfoListLeft selectionIfNone: [
+		^ self noProjectInfoToCopyAlert ].
+	projectInfoListLeft selectedItem isBlankLine ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	projectInfoListLeft selectedItem column3 isEmpty ifTrue: [
+		^ self noProjectInfoToCopyAlert ].
+	copyString := projectInfoListLeft selectedItem column3.
 	Clipboard clipboardText: copyString.
 	UIManager default inform: copyString , ' copied to clipboard'
 ]
@@ -1895,7 +1940,9 @@ JadeiteBrowserPresenter >> initializeProjectTab [
 	column3 displayBold: [ :projectRow | projectRow bold ].
 	column4 := SpStringTableColumn evaluated: [ :projectRow |
 		           projectRow column4 ].
-	column4 displayBold: [ :projectRow | projectRow bold ].
+	column4
+		displayBold: [ :projectRow | projectRow bold ];
+		width: 250.
 	column5 := SpStringTableColumn evaluated: [ :projectRow |
 		           projectRow column5 ].
 	column5 displayBold: [ :projectRow | projectRow bold ].
@@ -2419,11 +2466,27 @@ JadeiteBrowserPresenter >> newProjectInfoMenu [
 
 	| menu |
 	menu := JadeiteMenuPresenter new.
-	menu addItem: [ :item |
-		item
-			name: 'Copy';
-			action: [ self copyProjectInfo ];
-			enabled: [ self projectListPresenter hasSelection ] ].
+	menu
+		addItem: [ :item |
+			item
+				name: 'Copy Value';
+				action: [ self copyProjectInfo ];
+				enabled: [ self projectListPresenter hasSelection ] ];
+		addItem: [ :item |
+			item
+				name: 'Copy Required Project';
+				action: [ self copyRequiredProject ];
+				enabled: [ self projectListPresenter hasSelection ] ];
+		addItem: [ :item |
+			item
+				name: 'Copy Package';
+				action: [ self copyPackageName ];
+				enabled: [ self projectListPresenter hasSelection ] ];
+		addItem: [ :item |
+			item
+				name: 'Copy Dictionary';
+				action: [ self copyDictionaryName ];
+				enabled: [ self projectListPresenter hasSelection ] ].
 	^ menu
 ]
 
@@ -4362,7 +4425,7 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 		                    command: #requiredProjectNamesFor:;
 		                    commandArgs: (Array with: service name).
 	self issueCommand: answeringService onCompletion: [
-		requiredProjectNames := answeringService answer asOrderedCollection.
+		requiredProjectNames := answeringService answer asSortedCollection.
 		packageServices := service packageServices asOrderedCollection copy.
 		rows := OrderedCollection new.
 		service wasUpdated ifTrue: [
@@ -4371,7 +4434,7 @@ JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 					 column2: 'Value';
 					 column3: 'Required Projects';
 					 column4: 'Packages';
-					 column5: 'Dictionary Name';
+					 column5: 'Package''s Dictionary Name';
 					 bold: true;
 					 header: true;
 					 yourself).

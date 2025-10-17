@@ -148,14 +148,14 @@ JadeiteForPharoGUITestCase >> selectClassCategoryNamed: name [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> selectRowanAnsweringService [
 
-	self selectRowanDictionaryOrPackage.
+	self selectRowanClientServicesDictionaryOrPackage.
 	self
 		selectServiceNamed: 'RowanAnsweringService'
 		in: self classListPresenter
 ]
 
 { #category : 'support' }
-JadeiteForPharoGUITestCase >> selectRowanDictionaryOrPackage [
+JadeiteForPharoGUITestCase >> selectRowanClientServicesDictionaryOrPackage [
 
 	JadeitePreferences isRowanLoaded
 		ifTrue: [
@@ -174,6 +174,16 @@ JadeiteForPharoGUITestCase >> selectRowanDictionaryOrPackage [
 					 name: 'Rowan';
 					 substringIndex: 1;
 					 yourself) ]
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> selectRowanDictionaryOrPackage [
+
+	JadeitePreferences isRowanLoaded
+		ifTrue: [
+		self selectServiceNamed: 'Rowan' in: self projectListPresenter ]
+		ifFalse: [
+		self selectServiceNamed: 'Rowan' in: self dictionaryListPresenter ]
 ]
 
 { #category : 'support' }

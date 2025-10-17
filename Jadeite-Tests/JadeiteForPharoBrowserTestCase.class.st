@@ -89,29 +89,6 @@ JadeiteForPharoBrowserTestCase >> performTest [
 ]
 
 { #category : 'support' }
-JadeiteForPharoBrowserTestCase >> projectInfoMockService [
-
-	| mockService |
-	mockService := Object new.
-	mockService class compile: 'wasUpdated ^true'.
-	mockService class compile: 'name ^''MyProject'''.
-	mockService class compile: 'sha ^''abc123'''.
-	mockService class compile: 'diskSha ^''def456'''.
-	mockService class compile: 'branch ^''main'''.
-	mockService class compile: 'isSkew ^false'.
-	mockService class compile: 'isDirty ^true'.
-	mockService class compile: 'projectUrl ^''http://project.url'''.
-	mockService class compile: 'packageConvention ^''convention'''.
-	mockService class compile: 'rowanProjectsHome ^''aPath'''.
-	mockService class compile: 'toolTip ^''is dirty state tool tip'''.
-	mockService class compile:
-		'packageServices 
-			^Array with: (RowanPackageServiceClient new name: ''MockPackageService''; dictionaryName: ''MockDictionary''; yourself)'.
-
-	^ mockService
-]
-
-{ #category : 'support' }
 JadeiteForPharoBrowserTestCase >> setUp [
 
 	super setUp.
@@ -124,7 +101,7 @@ JadeiteForPharoBrowserTestCase >> setUp [
 JadeiteForPharoBrowserTestCase >> tearDown [
 
 	self destroy: failedMethodPresenter.
-	secondPresenter ifNotNil:[self destroy: secondPresenter owner].
+	secondPresenter ifNotNil: [ self destroy: secondPresenter owner ].
 	dictionary ifNotNil: [
 		[ self projectsPresenter removeDictionary ]
 			on: ProvideAnswerNotification
@@ -1878,26 +1855,53 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassInstVa
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectInfoTab [
 	"test a few of the values to ensure the format the gui is expecting doesn't change"
+
 	| mockService items |
-	mockService := self projectInfoMockService.
+	mockService := MockService new.
 	self projectsPresenter updateProjectInfoTabFor: mockService.
 
 	items := self projectsPresenter projectInfoList items.
 	self assert: items notEmpty.
 	self assert: (items anySatisfy: [ :each |
-			 each label = 'Name' and: [ each value = 'MyProject' ] ]).
+			 each column1 = 'Name' and: [ each column2 = 'MyProject' ] ]).
 	self assert: (items anySatisfy: [ :each |
-			 each label = 'SHA' and: [ each value = 'abc123' ] ]).
+			 each column1 = 'SHA' and: [ each column2 = 'abc123' ] ]).
 	self assert: (items anySatisfy: [ :each |
-			 each label = 'Disk SHA' and: [ each value = 'def456' ] ]).
-	self assert: (items anySatisfy: [ :each | each label = 'Packages' ]).
-	self assert:
-		(items anySatisfy: [ :each | each value = 'MockDictionary' ])
+			 each column1 = 'Disk SHA' and: [ each column2 = 'def456' ] ]).
+	self assert: items second column4 equals: 'MockPackageService'.
+	self assert: items second column5 equals: 'MockDictionary'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_projectInfoTabShowsRequiredProjects [
+	"Assume Rowan required projects won't change - big assumption"
+
+	| items headerRow firstRow secondRow |
+	self
+		testsJadeiteForPharoIssue: #issue330
+		title:
+		'Project Browser should provided way of listing/displaying required projects & projects that are required'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/330'.
+
+	self selectRowanDictionaryOrPackage.
+
+	items := self projectsPresenter projectInfoList items.
+	self assert: items notEmpty.
+	headerRow := items first.
+	self assert: headerRow column1 equals: 'Attribute'.
+	self assert: headerRow column2 equals: 'Value'.
+	self assert: headerRow column3 equals: 'Required Projects'.
+	self assert: headerRow column4 equals: 'Packages'.
+	self assert: headerRow column5 equals: 'Package''s Dictionary Name'.
+	firstRow := items second.
+	self assert: firstRow column3 equals: 'Cypress'.
+	secondRow := items third.
+	self assert: secondRow column3 equals: 'STON'
 ]
 
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectInfoTabUnpackaged [
-	
+
 	| unpackagedService items |
 	unpackagedService := self projectsPresenter selectProjectNamed:
 		                     'UnPackaged'.
@@ -1906,12 +1910,12 @@ JadeiteForPharoBrowserTestCase >> test_projectInfoTabUnpackaged [
 	items := self projectsPresenter projectInfoList items.
 	self assert: items notEmpty.
 	self assert: (items anySatisfy: [ :each |
-			 each label = 'Name' and: [ each value = 'UnPackaged' ] ]).
+			 each column1 = 'Name' and: [ each column2 = 'UnPackaged' ] ]).
 	self assert: (items anySatisfy: [ :each |
-			 each label = 'SHA' and: [ each value = '' ] ]). "handles blanks"
+			 each column1 = 'SHA' and: [ each column2 = '' ] ]). "handles blanks"
 	self assert: (items anySatisfy: [ :each |
-			 each label = 'Disk SHA' and: [ each value = '' ] ]).
-	self assert: (items anySatisfy: [ :each | each label = 'Packages' ])
+			 each column1 = 'Disk SHA' and: [ each column2 = '' ] ]).
+	self assert: (items anySatisfy: [ :each | each column4 = 'Packages' ])
 ]
 
 { #category : 'tests' }
