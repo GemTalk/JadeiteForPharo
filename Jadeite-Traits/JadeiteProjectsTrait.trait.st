@@ -425,7 +425,7 @@ JadeiteProjectsTrait >> loadProject [
 	filePath ifNil: [ ^ self ].
 	^ self
 		  installProjectFromPath: filePath
-		  projectsHome: JadePresenter homeEnvVarString
+		  projectsHome: JadePresenter rowanProjectsHomeEnvVarString
 ]
 
 { #category : 'actions' }

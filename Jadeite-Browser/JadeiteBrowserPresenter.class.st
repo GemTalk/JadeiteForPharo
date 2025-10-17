@@ -1690,7 +1690,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 	self initializeCategoryListMenu.
 	variableListPresenter := (JadeiteListPresenter newFor: self)
 		                         beMultipleSelection.
-	packageMethodListPresenter := JadeiteListPresenter new
+	packageMethodListPresenter := (JadeiteListPresenter newFor: self)
 		                              displayBold: [ :categoryString |
 			                              self selectedClass
 				                              ifNil: [ false ]
@@ -3635,6 +3635,13 @@ JadeiteBrowserPresenter >> selectPackage: packageService [
 		self packageListPresenter selection unselectAll.
 		self packageListPresenter selectIndex: index scrollToSelection: true ].
 	^ index
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectPackageFilterTab [
+
+	methodFilterTabs selectPageIndex: 3.
+	methodFilterTabs rebuildLayout "seems to be needed to redraw tabs properly"
 ]
 
 { #category : 'selections' }

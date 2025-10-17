@@ -1853,6 +1853,44 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassInstVa
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_packageFilter [
+
+	| selectedPackage |
+	self
+		testsJadeiteForPharoIssue: #issue331
+		title:
+		'package list is project browser is apparently computed invorrectly'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/331'.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+	self
+		selectServiceNamed: 'Rowan-Services-CoreV2'
+		in: self packageListPresenter.
+	self
+		selectServiceNamed: 'RowanProjectService'
+		in: self projectsPresenter classListPresenter.
+	self projectsPresenter selectPackageFilterTab.
+	self
+		assert: self projectsPresenter packageMethodListPresenter list size
+		equals: 2.
+	self projectsPresenter packageMethodListPresenter selectIndex: 1.
+	selectedPackage := self projectsPresenter packageMethodListPresenter
+		                   selectedItem.
+	self methodListPresenter items do: [ :methodService |
+		self
+			assert: methodService definedPackage
+			equals: selectedPackage ].
+	self projectsPresenter packageMethodListPresenter selectIndex: 2.
+	selectedPackage := self projectsPresenter packageMethodListPresenter
+		                   selectedItem.
+	self methodListPresenter items do: [ :methodService |
+		self
+			assert: methodService definedPackage
+			equals: selectedPackage ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_projectInfoTab [
 	"test a few of the values to ensure the format the gui is expecting doesn't change"
 

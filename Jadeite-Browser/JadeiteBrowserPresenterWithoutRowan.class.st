@@ -239,7 +239,7 @@ JadeiteBrowserPresenterWithoutRowan >> initializeFilterTabs: methodPanedLayout [
 	methodFilterTabs addPage: categoryPage.
 	methodFilterTabs addPage: variablePage.
 	methodPanedLayout add: methodFilterTabs.
-	packageMethodListPresenter := JadeiteListPresenter new.
+	packageMethodListPresenter := JadeiteListPresenter newFor: self.
 	packageMethodListPage := JadeiteNotebookPage new
 ]
 
