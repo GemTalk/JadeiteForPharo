@@ -444,28 +444,6 @@ JadeiteConnectionLauncher >> hostText: anObject [
 ]
 
 { #category : 'connections' }
-JadeiteConnectionLauncher >> importProfileDirectory [
-
-	| directoryRef fileWindow |
-	"confusing not to see files"
-	self possiblyDisconnect ifFalse: [ ^ self ].
-	fileWindow := FileDialogWindow basicNew.
-	fileWindow
-		previewType: nil;
-		initialize;
-		title: 'Select directory containing only connection profiles';
-		answerDirectory.
-	fileWindow fileSelectionBlock: fileWindow defaultFileSelectionBlock.
-	self class lastImportDirectory ifNotNil: [ :dir |
-		fileWindow selectDirectory: dir asFileReference ].
-	directoryRef := fileWindow
-		                openModal;
-		                answer.
-	directoryRef ifNil: [ ^ self ].
-	self basicImportProfileDirectory: directoryRef
-]
-
-{ #category : 'connections' }
 JadeiteConnectionLauncher >> importProfileFile [
 
 	| fileStream fileWindow |
@@ -964,20 +942,6 @@ JadeiteConnectionLauncher >> setFocusOrder [
 		add: connectButton;
 		add: disconnectButton 
 		
-]
-
-{ #category : 'actions' }
-JadeiteConnectionLauncher >> setPath [
-
-	| path |
-	path := UIManager default
-		        chooseDirectory: 'Choose Client Library Directory'
-		        from:
-		        JadeiteGCIConnectionProfile clientLibrariesPath
-			        asFileReference.
-	path ifNil: [ ^ nil ].
-	JadeiteGCIConnectionProfile clientLibrariesPath: path fullName.
-	pathText text: path fullName
 ]
 
 { #category : 'actions' }

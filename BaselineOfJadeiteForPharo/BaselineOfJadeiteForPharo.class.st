@@ -62,6 +62,10 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 			spec
 				baseline: 'PharoGemStoneFFI'
 				with: [ spec repository: self pharoGemStoneFFIUrl ] ];
+		for: #'pharo12.x' do: [
+		spec
+			package: 'JadeiteForPharo-Pharo-12'
+			with: [ spec requires: #( 'Jadeite-Tests' ) ] ];
 		for: #'pharo13.x' do: [
 		spec
 			package: 'JadeiteForPharo-Pharo-13'

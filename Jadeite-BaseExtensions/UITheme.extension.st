@@ -28,24 +28,6 @@ UITheme >> jadeiteChangedTextBackgroundColor [
 ]
 
 { #category : '*Jadeite-BaseExtensions' }
-UITheme >> jadeiteChooseForSaveFileReferenceIn: aThemedMorph title: title extensions: exts filename: path preview: preview [
-
-	| dialog pathFileReference |
-	pathFileReference := path asFileReference.
-	dialog := (FileDialogWindow newWithTheme: aThemedMorph theme)
-		          title: title;
-		          fileNameText: pathFileReference basename;
-		          answerSaveFile.
-	dialog fileSelectionBlock: [ :entry |
-		entry isDirectory
-			ifTrue: [ dialog showDirectoriesInFileList ]
-			ifFalse: [ '*' match: entry basename ] ].
-	exts ifNotNil: [ dialog validExtensions: exts ].
-	path ifNotNil: [ dialog selectPath: path ].
-	^ dialog openModal answer
-]
-
-{ #category : '*Jadeite-BaseExtensions' }
 UITheme >> jadeiteColorErrors [
 
 	^ Color red muchLighter
