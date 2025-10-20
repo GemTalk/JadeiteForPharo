@@ -7,20 +7,20 @@ Class {
 
 { #category : 'private' }
 JadeiteCodeTextStyler >> privateStyle: aText [
+
 	| compiler |
-	true ifTrue:[^super privateStyle: aText]. 
-	aText ifEmpty: [ ^ self ].
+	true ifTrue: [ ^ super privateStyle: aText ].
+	"aText ifEmpty: [ ^ self ].
 	compiler := JadeiteCompiler new
-		source: aText asString;
-		noPattern: self isForWorkspace ;
-		options:  #(+ optionParseErrors + optionSkipSemanticWarnings);
-		requestor: workspace.
+		            source: aText asString;
+		            noPattern: self isForWorkspace;
+		            options:
+			            #( #+ optionParseErrors #+ optionSkipSemanticWarnings );
+		            requestor: workspace.
 
 	self plugins do: [ :each | compiler addParsePlugin: each ].
 
-	^ self
-		style: aText
-		ast: compiler parse
+	^ self style: aText ast: compiler parse"
 ]
 
 { #category : 'visiting' }

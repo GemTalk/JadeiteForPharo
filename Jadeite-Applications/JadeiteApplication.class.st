@@ -33,8 +33,7 @@ JadeiteApplication class >> abortTransactionInSession: session [
 				session: session
 				onCompletion: [
 					JadePresenter trigger: #abortedTransaction.
-					UIManager default inform: 'Abort succeeded'.
-					JadeiteSound informationBeep ] ]
+					UIManager default inform: 'Abort succeeded' ] ]
 ]
 
 { #category : 'actions' }
@@ -52,9 +51,7 @@ JadeiteApplication class >> commitTransactionInSession: session onCompletion: co
 		onCompletion: [ :service |
 			commitResult := service updates first answer. "should only get one update back"
 			commitResult
-				ifTrue: [
-					UIManager default inform: 'Commit succeeded'.
-					JadeiteSound informationBeep ]
+				ifTrue: [ UIManager default inform: 'Commit succeeded' ]
 				ifFalse: [
 					| message |
 					message := 'Commit failure. Abort recommended. '.
@@ -144,8 +141,7 @@ JadeiteApplication >> abortTransaction [
 				session: gciSession
 				onCompletion: [
 					self triggerEvent: #abortedTransaction.
-					UIManager default inform: 'Abort succeeded'.
-					JadeiteSound informationBeep ] ]
+					UIManager default inform: 'Abort succeeded' ] ]
 ]
 
 { #category : 'accessing' }

@@ -7,8 +7,11 @@ Class {
 
 { #category : 'plugins' }
 JadeiteCompiler >> compilationContextClass [
+	"Not used currently, but keeping around for potential code styling future work.
+	Subclass of CompilationContext. See JadeiteCodeTextStyler>>#privateStyle: for commented out reference
+	^ JadeiteCompilationContext"
 
-	^JadeiteCompilationContext
+	
 ]
 
 { #category : 'public access' }
