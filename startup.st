@@ -1,6 +1,7 @@
 
 | directory jfpRepo icePackage sourceDirectory packageDir |
 
+PharoLightTheme beCurrent. 
 (IceRepository repositoryNamed:  'JadeiteForPharo') ifNotNil: [^self].  "do not install the JfP project if it already exists in image"
 
 [(directory := PlatformResolver forCurrentPlatform directoryFromEnvVariableNamed: 'ROWAN_PROJECTS_HOME') isDirectory ifTrue: [directory] ifFalse: [nil] ] on: Error do: [ :ex | nil ].
