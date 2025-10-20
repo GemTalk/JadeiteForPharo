@@ -379,17 +379,19 @@ JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
 	presenter roots isEmpty ifTrue: [
 		classDefinitionPresenter value: String new.
 		^ self ].
-	classDefinitionPresenter value: (presenter selectedItem
-			 ifNil: [ self updateClassDefPresenter ]
-			 ifNotNil: [ :selectedItem |
-				 self selectedClassTab
-					 ifNil: [ selectedItem defaultTemplate ]
-					 ifNotNil: [
-						 self selectedClassTab activePresenter selection selectedItem
-							 ifNil: [ self templateForClassCategory: selectedItem ]
-							 ifNotNil: [
-							 self selectedClassTab activePresenter selectedItem template ] ] ]).
-	self resetClassDefinitionPane
+	presenter selectedItem
+		ifNil: [ self updateClassDefPresenter ]
+		ifNotNil: [ :selectedItem |
+			self selectedClassTab
+				ifNil: [
+				classDefinitionPresenter value: selectedItem defaultTemplate ]
+				ifNotNil: [
+					self selectedClassTab activePresenter selection selectedItem
+						ifNil: [ self templateForClassCategory: selectedItem ]
+						ifNotNil: [
+							classDefinitionPresenter value:
+								self selectedClassTab activePresenter selectedItem template ] ] ].
+	self markClassDefinitionPaneUnmodified
 ]
 
 { #category : 'updates' }
@@ -575,7 +577,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassDefPresenter [
 		classDefinitionPresenter isModified: false.
 		^ self ].
 	self dictionaryListPresenter selectedItem ifNil: [
-		^ self resetClassDefinitionPane ].
+		^ self markClassDefinitionPaneUnmodified ].
 	self templateForClassCategory:
 		self classCategoryPresenter selectedItem
 ]

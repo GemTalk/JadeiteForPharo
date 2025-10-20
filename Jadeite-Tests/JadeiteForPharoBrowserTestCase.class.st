@@ -862,8 +862,8 @@ JadeiteForPharoBrowserTestCase >> test_copyProjectAspect [
 				[ self projectsPresenter copyProjectInfo ]
 					on: ProvideAnswerNotification
 					do: [ :ex |
-					self assert: (selectedItem value , '*' match: ex messageText) ].
-				copyString := selectedItem value.
+					self assert: (selectedItem column2 , '*' match: ex messageText) ].
+				copyString := selectedItem column2.
 				self assert: Clipboard clipboardText equals: copyString ] ]
 ]
 

@@ -295,6 +295,12 @@ JadeiteProjectsBrowserPresenter >> initialize [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteProjectsBrowserPresenter >> markClassDefinitionPaneUnmodified [
+
+	classDefinitionPresenter isModified: false
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> methodCategoryText [
 	^methodCategoryText
 ]
@@ -349,7 +355,7 @@ JadeiteProjectsBrowserPresenter >> postOkToChangeEvent [
 				ifFalse: [classHierarchyPresenter selectionIfNone: [^self]].
 	service ifNil:[^self]. 
 	classDefinitionPresenter value: service template.
-	self resetClassDefinitionPane.
+	self markClassDefinitionPaneUnmodified.
 	self sundryCleanup
 ]
 
@@ -470,12 +476,6 @@ JadeiteProjectsBrowserPresenter >> removeMethods: classServices [
 		issueCommands: classServices
 		session: self gciSession
 		onCompletion: nil
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> resetClassDefinitionPane [
-
-	classDefinitionPresenter isModified: false
 ]
 
 { #category : 'as yet unclassified' }

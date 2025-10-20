@@ -405,7 +405,7 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 				self resetClassTemplate "just emptied the last class in the package" ]
 			ifNotNil: [
 				classDefinitionPresenter value: self selectedClass template.
-				self resetClassDefinitionPane ].
+				self markClassDefinitionPaneUnmodified ].
 		completionBlock value.
 		self updateTabLabel ]
 ]
@@ -484,7 +484,7 @@ JadeiteBrowserPresenter >> basicUpdateClassInfo [
 				 caption: 'Class has unsaved changes!') ifTrue: [
 				classDefinitionPresenter text copyToClipboard ] ] ].
 	classDefinitionPresenter value: service template.
-	self resetClassDefinitionPane.
+	self markClassDefinitionPaneUnmodified.
 	self todo: [
 		self setTestClass: service.
 		self isSunitTabSelected ifFalse: [
@@ -2861,7 +2861,7 @@ JadeiteBrowserPresenter >> recompileMethods [
 	self issueCommand: browserService onCompletion: [
 		wasCompileError ifFalse: [
 			[
-			self resetClassDefinitionPane.
+			self markClassDefinitionPaneUnmodified.
 			self
 				updateClassThenFind: browserService selectedClass
 				onCompletion: [  ] ]
@@ -3323,7 +3323,7 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 							 ifNil: [ presenter selectedItem defaultTemplate ]
 							 ifNotNil: [
 							 self selectedClassTab activePresenter selectedItem template ] ] ]).
-	self resetClassDefinitionPane
+	self markClassDefinitionPaneUnmodified
 ]
 
 { #category : 'initialization' }
@@ -4248,7 +4248,7 @@ JadeiteBrowserPresenter >> updateDictionary [
 		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
 		classDefinitionPresenter value:
 			dictionaryListPresenter selectedItem defaultTemplate.
-		self resetClassDefinitionPane ]
+		self markClassDefinitionPaneUnmodified ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4384,7 +4384,7 @@ JadeiteBrowserPresenter >> updatePackageInfo [
 	| service |
 	self updateTabLabel.
 	service := packageListPresenter selectionIfNone: [^self].
-	self resetClassDefinitionPane.
+	self markClassDefinitionPaneUnmodified.
 	self selectClassDefinitionTab
 ]
 

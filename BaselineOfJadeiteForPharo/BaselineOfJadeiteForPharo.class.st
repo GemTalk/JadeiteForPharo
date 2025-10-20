@@ -9,57 +9,63 @@ Class {
 BaselineOfJadeiteForPharo >> baseline: spec [
 
 	<baseline>
-	spec for: #pharo do: [
+	spec
+		for: #common do: [
+			spec
+				postLoadDoIt: #postload:package:;
+				package: 'Jadeite-Applications';
+				package: 'Jadeite-Traits'
+				with: [ spec requires: 'Jadeite-Applications' ];
+				package: 'Jadeite-TextPanes'
+				with: [ spec requires: 'Jadeite-Traits' ];
+				package: 'Jadeite-SupportClasses'
+				with: [
+					spec requires:
+							#( 'Jadeite-TextPanes' 'RemoteServiceReplication' ) ];
+				package: 'Jadeite-Workspace'
+				with: [ spec requires: 'Jadeite-SupportClasses' ];
+				package: 'Jadeite-BaseExtensions'
+				with: [ spec requires: 'Jadeite-SupportClasses' ];
+				package: 'Jadeite-RowanClientServicesClient'
+				with: [ spec requires: 'Jadeite-SupportClasses' ];
+				package: 'Jadeite-PortedClasses'
+				with: [ spec requires: 'Jadeite-RowanClientServicesClient' ];
+				package: 'Jadeite-Browser'
+				with: [ spec requires: 'Jadeite-PortedClasses' ];
+				package: 'Jadeite-Diffs'
+				with: [ spec requires: 'Jadeite-Connection' ];
+				package: 'Jadeite-Console'
+				with: [ spec requires: 'Jadeite-Browser' ];
+				package: 'Jadeite-Inspector'
+				with: [ spec requires: 'Jadeite-Console' ];
+				package: 'Jadeite-Logger'
+				with: [ spec requires: 'Jadeite-Inspector' ];
+				package: 'Jadeite-MethodBrowser'
+				with: [ spec requires: 'Jadeite-Logger' ];
+				package: 'Jadeite-SUnitBrowser'
+				with: [ spec requires: 'Jadeite-MethodBrowser' ];
+				package: 'Jadeite-FileDialog'
+				with: [ spec requires: 'Jadeite-SUnitBrowser' ];
+				package: 'Jadeite-Debugger'
+				with: [ spec requires: 'Jadeite-FileDialog' ];
+				package: 'Jadeite-Connection'
+				with: [ spec requires: 'Jadeite-Debugger' ];
+				package: 'Jadeite-Help'
+				with: [ spec requires: 'Jadeite-Connection' ];
+				package: 'Jadeite-MiscellaneousBrowsers'
+				with: [ spec requires: 'Jadeite-Connection' ];
+				package: 'Jadeite-Tests'
+				with: [ spec requires: 'Jadeite-Connection' ].
+			spec
+				baseline: 'RemoteServiceReplication'
+				with: [ spec repository: self rsrUrl ].
+			spec
+				baseline: 'PharoGemStoneFFI'
+				with: [ spec repository: self pharoGemStoneFFIUrl ] ];
+		for: #'pharo13.x' do: [
 		spec
-			postLoadDoIt: #postload:package:;
-			package: 'Jadeite-Applications';
-			package: 'Jadeite-Traits'
-			with: [ spec requires: 'Jadeite-Applications' ];
-			package: 'Jadeite-TextPanes'
-			with: [ spec requires: 'Jadeite-Traits' ];
-			package: 'Jadeite-SupportClasses'
-			with: [
-				spec requires: #( 'Jadeite-TextPanes' 'RemoteServiceReplication' ) ];
-			package: 'Jadeite-Workspace'
-			with: [ spec requires: 'Jadeite-SupportClasses' ];
-			package: 'Jadeite-BaseExtensions'
-			with: [ spec requires: 'Jadeite-SupportClasses' ];
-			package: 'Jadeite-RowanClientServicesClient'
-			with: [ spec requires: 'Jadeite-SupportClasses' ];
-			package: 'Jadeite-PortedClasses'
-			with: [ spec requires: 'Jadeite-RowanClientServicesClient' ];
-			package: 'Jadeite-Browser'
-			with: [ spec requires: 'Jadeite-PortedClasses' ];
-			package: 'Jadeite-Diffs'
-			with: [ spec requires: 'Jadeite-Connection' ];
-			package: 'Jadeite-Console'
-			with: [ spec requires: 'Jadeite-Browser' ];
-			package: 'Jadeite-Inspector'
-			with: [ spec requires: 'Jadeite-Console' ];
-			package: 'Jadeite-Logger'
-			with: [ spec requires: 'Jadeite-Inspector' ];
-			package: 'Jadeite-MethodBrowser'
-			with: [ spec requires: 'Jadeite-Logger' ];
-			package: 'Jadeite-SUnitBrowser'
-			with: [ spec requires: 'Jadeite-MethodBrowser' ];
-			package: 'Jadeite-FileDialog'
-			with: [ spec requires: 'Jadeite-SUnitBrowser' ];
-			package: 'Jadeite-Debugger'
-			with: [ spec requires: 'Jadeite-FileDialog' ];
-			package: 'Jadeite-Connection'
-			with: [ spec requires: 'Jadeite-Debugger' ];
-			package: 'Jadeite-Help'
-			with: [ spec requires: 'Jadeite-Connection' ];
-			package: 'Jadeite-MiscellaneousBrowsers'
-			with: [ spec requires: 'Jadeite-Connection' ];
-			package: 'Jadeite-Tests'
-			with: [ spec requires: 'Jadeite-Connection' ].
-		spec
-			baseline: 'RemoteServiceReplication'
-			with: [ spec repository: self rsrUrl ].
-		spec
-			baseline: 'PharoGemStoneFFI'
-			with: [ spec repository: self pharoGemStoneFFIUrl ] ]
+			package: 'JadeiteForPharo-Pharo-13'
+			with: [ spec requires: #( 'Jadeite-Tests' ) ] ]
 ]
 
 { #category : 'actions' }
