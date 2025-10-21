@@ -107,7 +107,7 @@ JadeiteForPharoFileDialogTestCase >> test_pathTextEntry [
 		'/export/gcm/where/gemstone64/releases'.
 	(fileDialogPresenter pathText adapter widget kmDispatcher
 		 directKeymaps keymaps detect: [ :ea |
-		 ea shortcut key name = #RETURN ]) action value. "this heinous piece of code simulates pressing enter in the pathText field. With Pharo made it easy to simulate key presses in tests"
+		 ea shortcut platformCharacter name = #RETURN ]) action value. "this heinous piece of code simulates pressing enter in the pathText field. Wish Pharo made it easy to simulate key presses in tests"
 	names := dirContentsList items collect: [ :ea | ea key ].
 	self assert: (names includes: '1.0.0').
 	self assert: (names includes: '3.7.4')
