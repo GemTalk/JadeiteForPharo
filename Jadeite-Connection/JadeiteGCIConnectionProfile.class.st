@@ -32,7 +32,7 @@ JadeiteGCIConnectionProfile class >> clientLibrariesPath: string [
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile class >> initialize [
 
-	ClientLibrariesPath := String new
+	ClientLibrariesPath := FileSystem workingDirectory pathString
 ]
 
 { #category : 'accessing' }
