@@ -20,7 +20,9 @@ JadeiteConnectionLauncher >> setPath [
 	| path |
 	path := UIManager default
 		        chooseDirectory: 'Choose Client Library Directory'
-		        path: JadeiteGCIConnectionProfile clientLibrariesPath.
+		        from:
+		        JadeiteGCIConnectionProfile clientLibrariesPath
+			        asFileReference.
 	path ifNil: [ ^ nil ].
 	JadeiteGCIConnectionProfile clientLibrariesPath: path fullName.
 	pathText text: path fullName
