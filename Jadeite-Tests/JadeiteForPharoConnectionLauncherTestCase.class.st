@@ -136,12 +136,14 @@ JadeiteForPharoConnectionLauncherTestCase >> setUp [
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 
+	JadeiteConnectionLauncher soleInstance presenter application
+		useBackend: #Morphic.
 	super tearDown.
 	self uiManager restore.
 	clientLibariesPath ifNotNil: [
-		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
-		JadeiteConnectionLauncher soleInstance window close.
-		JadeiteConnectionApplication new start ].
+			JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
+			JadeiteConnectionLauncher soleInstance window close.
+			JadeiteConnectionApplication new start ].
 	JadeiteConnectionProfile connectionProfile disconnect.
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
@@ -283,6 +285,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	self assert: launcher pathText text equals: originalPath.
 	changedPathRef := 'clientLibrariesChanged.txt' asFileReference.
+	launcher application useBackend: #JadeiteTest.
 	[ launcher setPath ]
 		on: ProvideAnswerNotification
 		do: [ :notification | notification resume: changedPathRef ].
