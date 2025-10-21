@@ -79,6 +79,12 @@ JadeiteConnectionLauncher class >> importedConnections: connections [
 	ImportedConnections := connections
 ]
 
+{ #category : 'class initialization' }
+JadeiteConnectionLauncher class >> initialize [
+
+	LastImportDirectory := FileSystem workingDirectory pathString
+]
+
 { #category : 'accessing' }
 JadeiteConnectionLauncher class >> lastImportDirectory [
 
