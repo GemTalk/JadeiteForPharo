@@ -474,7 +474,6 @@ RowanService >> jadeiteNotify: aString [
 
 	| theme dialog |
 	theme := UIManager default theme.
-	SoundTheme useThemeSounds ifTrue: [ theme alertSound play ].
 	dialog := (AlertDialogWindow newWithTheme: UIManager default theme)
 		          textFont: theme textFont;
 		          title: 'Alert' translated;
