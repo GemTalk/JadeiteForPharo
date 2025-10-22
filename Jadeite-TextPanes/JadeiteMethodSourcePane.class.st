@@ -214,7 +214,7 @@ JadeiteMethodSourcePane >> resetText [
 JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory completionBlock: completionBlock [
 
 	| methodSource1 theCategory serverSelector |
-	self text: self adapter widget textArea text. "this should NOT be necessary. Something is broken in the way we set the Jadeite editor in JadeiteMorphicTextAdapter>>buildWidget"
+	"self text: self adapter widget textArea text." "this should NOT be necessary. Something is broken in the way we set the Jadeite editor in JadeiteMorphicTextAdapter>>buildWidget"
 	methodSource1 := self currentMethodSourceFrom: self text.
 	theCategory := jadeiteCategory ifNil: [ 'other' ] ifNotNil: [ :cat |
 		               cat isEmpty
