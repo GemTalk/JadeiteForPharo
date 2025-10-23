@@ -131,7 +131,10 @@ JadeiteMorphicCodeAdapter >> setSyntaxHighlightThemeFor: textArea [
 { #category : 'private' }
 JadeiteMorphicCodeAdapter >> setText: text to: aWidget [
 
-	[ super setText: text to: aWidget ]
+	['JadeiteMorphicCodeAdapter>>#setText:to:' traceCr. 
+		super setText: text to: aWidget.
+		aWidget textArea deselect "<<< work around in Pharo 13 browser methods getting source selected on method change"]
 		on: Error
-		do: [ :ex |  (ex printString, ' in SpMorphicTextAdapter>>#setText:to:') traceCr ]
+		do: [ :ex |
+			(ex printString , ' in SpMorphicTextAdapter>>#setText:to:') traceCr ]
 ]
