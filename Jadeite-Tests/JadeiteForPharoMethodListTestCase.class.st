@@ -131,7 +131,7 @@ JadeiteForPharoMethodListTestCase >> test_browseHierarchyImplementors [
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseHierarchySenders [
 
-	| hierarchyClassNames |
+	| hierarchyClassNames dataSource |
 	self setupProjectBrowser.
 	projectsBrowser findClassNamed: 'ReadStreamPortable'.
 	self
@@ -144,9 +144,11 @@ JadeiteForPharoMethodListTestCase >> test_browseHierarchySenders [
 			 match: methodListBrowser owner title).
 	self selectHierarchyTab.
 	self projectsPresenter expandFullHierarchy.
-	hierarchyClassNames := self projectsPresenter classHierarchyPresenter
-		                       adapter widget dataSource allShownItems
-		                       collect: [ :ea | ea data name ]. "got to be an easier way to get the tree's objects"
+	dataSource := self projectsPresenter classHierarchyPresenter adapter
+		              widget dataSource.
+	dataSource expandAll. 
+	hierarchyClassNames := dataSource allShownItems collect: [ :ea |
+		                       ea data name ]. "got to be an easier way to get the tree's objects"
 	methodListBrowser methodListPresenter items do: [ :methodService |
 		self assert: (hierarchyClassNames includes: methodService className) ]
 ]
