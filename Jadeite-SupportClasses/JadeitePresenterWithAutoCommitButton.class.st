@@ -46,15 +46,23 @@ JadeitePresenterWithAutoCommitButton >> redrawAutoCommitButton [
 { #category : 'autocommit' }
 JadeitePresenterWithAutoCommitButton >> updateAutoCommitButton [
 
-	self gciSession autoCommit value == #failed ifTrue: [
-		autoCommitButton label: 'Auto Commit - failed'.
-		^ autoCommitButton color: Color red ].
-	self gciSession autoCommit value
-		ifTrue: [
-			autoCommitButton color: Color green.
-			autoCommitButton label: 'Auto Commit - true' ]
-		ifFalse: [
-			autoCommitButton color: autoCommitButton defaultColor.
-			autoCommitButton label: 'Auto Commit - false' ].
-	self redrawAutoCommitButton
+	| widget |
+	self uiManager defer: [
+			widget := autoCommitButton withAdapterDo: [ :a | a widget ].
+			self gciSession autoCommit value == #failed
+				ifTrue: [
+						autoCommitButton label: 'Auto Commit - failed'.
+						autoCommitButton color: Color red ]
+				ifFalse: [
+						self gciSession autoCommit value
+							ifTrue: [
+									autoCommitButton color: Color green.
+									autoCommitButton label: 'Auto Commit - true'.
+									widget ifNotNil: [ :w | w labelMorph textColor: Color black ] ]
+							ifFalse: [
+									autoCommitButton color: autoCommitButton defaultColor.
+									autoCommitButton label: 'Auto Commit - false'.
+									PharoDarkTheme isCurrent ifTrue: [
+										widget ifNotNil: [ :w | w labelMorph textColor: Color white ] ] ].
+						self redrawAutoCommitButton ] ]
 ]

@@ -1020,9 +1020,10 @@ JadeiteMethodsTrait >> setCompileErrorColor [
 { #category : 'compiler warning' }
 JadeiteMethodsTrait >> setCompileWarningColor [
 
-	self statusBarText withAdapterDo: [ :theAdapter | 
+	self uiManager defer: [self statusBarText withAdapterDo: [ :theAdapter |
 		theAdapter widgetDo: [ :widget |
-			widget adoptPaneColor: Color yellow ] ]
+			widget adoptPaneColor: Color yellow. 
+			widget submorphsDo: [ :morph | morph color: Color black. ] ] ].]
 ]
 
 { #category : 'updates' }
