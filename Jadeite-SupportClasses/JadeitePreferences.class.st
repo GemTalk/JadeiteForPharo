@@ -43,6 +43,13 @@ JadeitePreferences class >> autocommitEnabled: aBoolean [
 	self current autocommitEnabled: aBoolean
 ]
 
+{ #category : 'settings' }
+JadeitePreferences class >> createShowProgressBarRow [
+
+	^ Smalltalk ui theme newRowIn: self for: {
+			  self stopProgressBarButton }
+]
+
 { #category : 'accessing' }
 JadeitePreferences class >> current [
 	^Current ifNil: [ Current := JadeitePreferences new ]
