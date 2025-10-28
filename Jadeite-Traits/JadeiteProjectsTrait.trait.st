@@ -22,11 +22,6 @@ JadeiteProjectsTrait >> areProjectsInSync: projects [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsTrait >> auditProject [
-	self auditProjectFor: self projectListPresenter selectedItem name
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> auditProjectFor: projectName [
 
 	| answeringService |
@@ -40,6 +35,13 @@ JadeiteProjectsTrait >> auditProjectFor: projectName [
 			self
 				openAuditResultsInWorkspaceUsing: answeringService
 				projectNamed: projectName ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteProjectsTrait >> auditProjects [
+
+	self projectListPresenter selectedItems do: [ :projectService |
+		self auditProjectFor: projectService name ]
 ]
 
 { #category : 'testing' }
@@ -97,15 +99,15 @@ JadeiteProjectsTrait >> basicPostOpen [
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> basicReloadProject [
+JadeiteProjectsTrait >> basicReloadProjects [
 
 	| selections |
 	selections := self projectListPresenter selections.
-	self basicReloadProject: selections
+	self basicReloadProjects: selections
 ]
 
 { #category : 'actions' }
-JadeiteProjectsTrait >> basicReloadProject: selections [
+JadeiteProjectsTrait >> basicReloadProjects: selections [
 
 	RowanBrowserService new
 		reloadProjects: selections
@@ -329,7 +331,7 @@ JadeiteProjectsTrait >> gitCommit: projectName message: message [
 		onCompletion: [
 			MessageBox notify:
 				'Project ' , projectName , ' committed to local repository!'.
-			self basicReloadProject: self projectListPresenter selections.
+			self basicReloadProjects: self projectListPresenter selections.
 			self markProjectContentsNotDirty ]
 ]
 
@@ -544,7 +546,7 @@ JadeiteProjectsTrait >> newProjectMenu [
 				addItem: [ :item |
 						item
 							name: 'Audit';
-							action: [ self auditProject ];
+							action: [ self auditProjects ];
 							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 						item
@@ -731,7 +733,7 @@ JadeiteProjectsTrait >> reloadProject [
 	| selections |
 	selections := self projectListPresenter selections.
 	(self confirmReloadProjects: selections) ifFalse: [ ^ self ].
-	self basicReloadProject: selections
+	self basicReloadProjects: selections
 ]
 
 { #category : 'menus' }

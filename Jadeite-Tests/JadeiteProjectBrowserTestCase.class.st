@@ -622,7 +622,7 @@ JadeiteProjectBrowserTestCase >> test_auditProject [
 	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
 	menu := Menu fromStrings: self projectsPresenter class projectMenuStrings.
 	self
-		denyIsNil: (item := menu items detect: [:menuItem | menuItem command == #auditProject] ifNone: []).
+		denyIsNil: (item := menu items detect: [:menuItem | menuItem command == #auditProjects] ifNone: []).
 	auditWorkspace := item commandDescription performAgainst: self projectsPresenter.
 	
 	[self assert: auditWorkspace isKindOf: JadeiteWorkspace.
