@@ -1908,6 +1908,7 @@ JadeiteBrowserPresenter >> initializePresenters [
 JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 
 	projectListPresenter := (JadeiteListPresenter newFor: self)
+		                        beMultipleSelection
 		                        display: [ :projectService |
 			                        projectService displayName ];
 		                        displayBold: [ :projectService |
@@ -1915,9 +1916,9 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 		                        displayItalic: [ :projectService |
 			                        projectService isDiskDirty == true ];
 		                        displayColor: [ :projectService |
-			                        projectService isSkew
-				                        ifTrue: [ Color red ]
-				                        ifFalse: [ self theme textColor ] ].
+				                        projectService isSkew
+					                        ifTrue: [ Color red ]
+					                        ifFalse: [ self theme textColor ] ].
 	projectListPresenter owner: self.
 	tabs add: projectListPresenter.
 	self initializeProjectListMenu
@@ -4018,14 +4019,15 @@ JadeiteBrowserPresenter >> textTabChanged [
 JadeiteBrowserPresenter >> unloadProjects [
 
 	| projectNames ws |
+	projectListPresenter selectedItem requiredProjectNames.
 	projectNames := projectListPresenter selections collect: [
 		                :projectService | projectService name ].
 	projectNames isEmpty ifTrue: [ ^ self ].
 	ws := WriteStream on: String new.
 	projectNames do: [ :projectName |
-		ws
-			space;
-			nextPutAll: projectName ].
+			ws
+				space;
+				nextPutAll: projectName ].
 	(MessageBox
 		 confirm: 'Really unload project(s) - ' , ws contents
 			 , '?  You will lose any unsaved changes! '

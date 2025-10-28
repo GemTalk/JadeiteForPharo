@@ -82,15 +82,12 @@ JadeitePreferences class >> isRowanAvailable [
 JadeitePreferences class >> isRowanLoaded [
 
 	IsRowanLoaded == #notAvailable ifTrue: [ ^ false ].
-	^ IsRowanLoaded ifNil: [ IsRowanLoaded := true ]
+	^ true
 ]
 
 { #category : 'settings' }
 JadeitePreferences class >> isRowanLoaded: aBoolean [
-	"
-	IsRowanLoaded := true.
-	IsRowanLoaded := false.
-	"
+
 	IsRowanLoaded := aBoolean
 ]
 
@@ -165,28 +162,24 @@ JadeitePreferences class >> settingsOn: aBuilder [
 		description:
 			'Settings applied when Jadeite For Pharo is initially connected to a stone';
 		with: [
-			(aBuilder setting: #autocommitEnabled)
-				label: 'Auto Commit';
-				default: false;
-				description: 'Do a GemStone commit after every server interaction'.
-			(aBuilder setting: #openBrowserOnClass)
-				label: 'Open Browser On Class';
-				default: String new;
-				description:
-					'After connection, open a browser on a class. To disable preference, leave class name blank.'.
-			JadeitePreferences isRowanAvailable ifTrue: [
-				(aBuilder setting: #isRowanLoaded)
-					label: 'Rowan Display Enabled';
-					default: true;
-					description: 'Set to display Rowan information like projects and packages. Default true if Rowan available in server.' ].
-			(aBuilder setting: #current)
-				label: 'Show Progress Bar ';
-				dialog: [ self createShowProgressBarRow ].
-			(aBuilder setting: #showMethodNavigation)
-				label: 'Show Method Navigation In Browser';
-				default: false;
-				description:
-					'Show the list of previously visited methods in a browser. Setting takes effect when browser opened' ]
+				(aBuilder setting: #autocommitEnabled)
+					label: 'Auto Commit';
+					default: false;
+					description:
+						'Do a GemStone commit after every server interaction'.
+				(aBuilder setting: #openBrowserOnClass)
+					label: 'Open Browser On Class';
+					default: String new;
+					description:
+						'After connection, open a browser on a class. To disable preference, leave class name blank.'.
+				(aBuilder setting: #showProgressBar)
+					label: 'Show Progress Bar ';
+					dialog: [ self createShowProgressBarRow ].
+				(aBuilder setting: #showMethodNavigation)
+					label: 'Show Method Navigation In Browser';
+					default: false;
+					description:
+						'Show the list of previously visited methods in a browser. Setting takes effect when browser opened' ]
 ]
 
 { #category : 'settings' }

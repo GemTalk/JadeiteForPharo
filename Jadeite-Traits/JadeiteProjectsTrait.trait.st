@@ -453,109 +453,109 @@ JadeiteProjectsTrait >> newProjectMenu [
 	| menu |
 	menu := JadeiteMenuPresenter new.
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Browse';
-				action: [ self browseProject ];
-				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+			group addItem: [ :item |
+					item
+						name: 'Browse';
+						action: [ self browseProject ];
+						enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
-		group
-			addItem: [ :item |
-				item
-					name: 'New ...';
-					action: [ self createProject ] ];
-			addItem: [ :item |
-				item
-					name: 'Load ...';
-					action: [ self loadProject ] ];
-			addItem: [ :item |
-				item
-					name: 'Reload from Disk';
-					action: [ self reloadProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Unload';
-					action: [ self unloadProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Refresh from Server';
-					action: [ self refreshProjects ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Set Current';
-					action: [ self setCurrentProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Unset Current';
-					action: [ self unsetCurrentProject ] ] ].
+			group
+				addItem: [ :item |
+						item
+							name: 'New ...';
+							action: [ self createProject ] ];
+				addItem: [ :item |
+						item
+							name: 'Load ...';
+							action: [ self loadProject ] ];
+				addItem: [ :item |
+						item
+							name: 'Reload from Disk';
+							action: [ self reloadProject ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Unload ...';
+							action: [ self unloadProject ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Refresh from Server';
+							action: [ self refreshProjects ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Set Current';
+							action: [ self setCurrentProject ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Unset Current';
+							action: [ self unsetCurrentProject ] ] ].
 	menu addGroup: [ :group |
-		group
-			addItem: [ :item |
-				item
-					name: 'Pull from Git';
-					action: [ self pullFromGit ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Commit to Git ...';
-					action: [ [ self gitCommit ] fork ];
-					enabled: [ self allSelectedProjectsDirty ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Push to Git';
-					action: [ self pushToGit ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Git Log';
-					action: [ self gitProjectLog ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+			group
+				addItem: [ :item |
+						item
+							name: 'Pull from Git';
+							action: [ self pullFromGit ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Commit to Git ...';
+							action: [ [ self gitCommit ] fork ];
+							enabled: [ self allSelectedProjectsDirty ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Push to Git';
+							action: [ self pushToGit ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Git Log';
+							action: [ self gitProjectLog ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
-		group
-			addItem: [ :item |
-				item
-					name: 'Changes';
-					action: [ self projectChanges ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Write';
-					action: [ self gitWriteProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Checkout Git Tag ...';
-					action: [ self gitCheckoutTag ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Checkout Git Branch ...';
-					action: [ self gitCheckoutBranch ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+			group
+				addItem: [ :item |
+						item
+							name: 'Changes';
+							action: [ self projectChanges ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Write';
+							action: [ self gitWriteProject ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Checkout Git Tag ...';
+							action: [ self gitCheckoutTag ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Checkout Git Branch ...';
+							action: [ self gitCheckoutBranch ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	menu addGroup: [ :group |
-		group
-			addItem: [ :item |
-				item
-					name: 'Audit';
-					action: [ self auditProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'Copy Project URL';
-					action: [ self copyProjectUrl ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ];
-			addItem: [ :item |
-				item
-					name: 'File Out Project ...';
-					action: [ self fileoutProject ];
-					enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+			group
+				addItem: [ :item |
+						item
+							name: 'Audit';
+							action: [ self auditProject ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'Copy Project URL';
+							action: [ self copyProjectUrl ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+				addItem: [ :item |
+						item
+							name: 'File Out Project ...';
+							action: [ self fileoutProject ];
+							enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]
 
@@ -767,8 +767,21 @@ JadeiteProjectsTrait >> setCurrentProject [
 { #category : 'actions' }
 JadeiteProjectsTrait >> unloadProject [
 
-	(MessageBox confirm: 'Really unload selected projects?') ifFalse: [
-		^ self ].
+	| projectsToBeRemoved ws |
+	projectsToBeRemoved := Set new.
+	self projectListPresenter selectedItems do: [ :projectService |
+			projectsToBeRemoved add: projectService name.
+			projectsToBeRemoved addAll:
+				projectService requiredProjectNames asSet ].
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'This will unload the following projects. Continue?';
+		cr.
+	projectsToBeRemoved do: [ :projectName |
+			ws
+				nextPutAll: projectName;
+				cr ].
+	(self uiManager confirm: ws contents) ifFalse: [ ^ self ].
 	self
 		basicUnloadProjects:
 			(self projectListPresenter selections collect: [ :service |

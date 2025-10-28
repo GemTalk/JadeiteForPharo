@@ -54,7 +54,6 @@ UITheme >> jadeiteExtensionTextColor [
 { #category : '*Jadeite-BaseExtensions' }
 UITheme >> jadeiteTextEditorIn: aThemedMorph text: aStringOrText title: aString entryText: defaultEntryText entryHeight: entryHeight onCompletion: completionBlock [
 
-	self questionSound play.
 	^ ((JadeiteTextEditorDialogWindow newWithTheme: aThemedMorph theme)
 		   textFont: self textFont;
 		   title: aString;

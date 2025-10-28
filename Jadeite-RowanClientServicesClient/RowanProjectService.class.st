@@ -22,7 +22,8 @@ Class {
 		'defaultSymbolDictionaryName',
 		'packageConvention',
 		'diskSha',
-		'isCurrent'
+		'isCurrent',
+		'requiredProjectNames'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -548,6 +549,18 @@ RowanProjectService >> replicateFrom: newService [
 
 	self isProjectService ifTrue: [
 		name ifNotNil: [ super replicateFrom: newService ] ]
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> requiredProjectNames [
+
+	^ requiredProjectNames
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> requiredProjectNames: anObject [
+
+	requiredProjectNames := anObject
 ]
 
 { #category : 'initialization' }

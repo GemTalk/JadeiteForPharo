@@ -480,13 +480,13 @@ JadeiteConsole >> initializeProjectListPresenter: tabs [
 
 	| initialWidths |
 	initialWidths := self class columnWidths.
-	projectListPresenter := JadeiteTablePresenter new.
+	projectListPresenter := JadeiteTablePresenter new beMultipleSelection.
 	projectColumns := self initialProjectDisplayColumns.
 	1 to: projectColumns size do: [ :index |
-		| column |
-		column := projectColumns at: index.
-		column width: (initialWidths at: index).
-		projectListPresenter addColumn: column ].
+			| column |
+			column := projectColumns at: index.
+			column width: (initialWidths at: index).
+			projectListPresenter addColumn: column ].
 	tabs add: projectListPresenter label: 'Projects'.
 	self initializeProjectListMenu
 ]
