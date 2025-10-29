@@ -56,6 +56,14 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> jfpwor_compileClassExpectedClassDe
 ) category: ''Kernel''' replaceCrWithLf
 ]
 
+{ #category : 'private' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> performTest [
+
+	JadeitePreferences isRowanAvailable ifTrue: [
+		^ self skip: 'Rowan is available. Test not run' ].
+	^ super performTest
+]
+
 { #category : 'selection' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> selectRowanAnsweringService [
 
