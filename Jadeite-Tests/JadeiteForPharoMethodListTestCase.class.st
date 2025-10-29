@@ -575,7 +575,7 @@ JadeiteForPharoMethodListTestCase >> test_reset [
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_resetMethodDetails [
 
-	| methodService |
+	| methodService sem |
 	self openMethodListBrowserOfImplementorsOf: 'includes:'.
 	self
 		assert: self methodSourcePresenter text
@@ -583,9 +583,15 @@ JadeiteForPharoMethodListTestCase >> test_resetMethodDetails [
 	methodService := methodListBrowser methodListPresenter selectedItem.
 
 	self methodSourcePresenter hasUnacceptedEdits: true.
-	methodListBrowser setCompileWarningColor.
+	sem := Semaphore new.
+	self uiManager defer: [ "setCompileWarningColor is now deferred to the morphic thread"
+			methodListBrowser setCompileWarningColor.
+			sem signal ].
+	WorldMorph doOneCycle. "allow deferred morphic blocks to run "
+	sem wait.
 	methodService source: 'I am changed!'.
-	self assert: self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
 	self assertIsNil: methodListBrowser statusBarText message.
 	self
 		assert: methodListBrowser statusBarText adapter widget color
@@ -593,7 +599,9 @@ JadeiteForPharoMethodListTestCase >> test_resetMethodDetails [
 	methodListBrowser resetVisibleMethodDetails.
 	self assert: self methodSourcePresenter text equals: 'I am changed!'.
 	self deny: self methodSourcePresenter hasUnacceptedEdits.
-	self assert: methodListBrowser statusBarText message equals: String new. 
+	self
+		assert: methodListBrowser statusBarText message
+		equals: String new.
 	self
 		assert: methodListBrowser statusBarText adapter widget color
 		equals: Color transparent
