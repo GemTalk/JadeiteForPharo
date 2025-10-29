@@ -38,8 +38,11 @@ Just select everything and assert the selection index changed."
 	| projectsPresenter |
 	projectsPresenter := jadeiteShell projectListPresenter.
 	1 to: projectsPresenter items size do: [ :index |
-		projectsPresenter selectIndex: index.
-		self assert: projectsPresenter selection selectedIndex equals: index ]
+			projectsPresenter unselectAll.
+			projectsPresenter selectIndex: index.
+			self
+				assert: projectsPresenter selection selectedIndex
+				equals: index ]
 ]
 
 { #category : 'tests' }

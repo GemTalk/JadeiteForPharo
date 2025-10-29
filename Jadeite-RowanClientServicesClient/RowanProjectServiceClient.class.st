@@ -45,14 +45,14 @@ RowanProjectServiceClient >> inCommand: anObject [
 RowanProjectServiceClient >> indexOfInCommandInstVar [
 	"performance enhancement"
 
-	^32
+	^33
 ]
 
 { #category : 'accessing' }
 RowanProjectServiceClient >> indexOfServiceCompletionBlock [
 	"performance enhancement"
 
-	^33
+	^34
 ]
 
 { #category : 'accessing' }

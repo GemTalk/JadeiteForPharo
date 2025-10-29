@@ -51,36 +51,38 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitFailure [
 		'Autocommit commit conflicts brings up dialog, but ignoring dialog should not allow business as usual'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/249'.
 	self setupProjectBrowser.
-	RowanAnsweringService new setAutoCommit: false for: session.
+	self defer: [
+		RowanAnsweringService new setAutoCommit: false for: session ].
 	self
 		assert: projectsBrowser autoCommitButton color
 		equals: projectsBrowser autoCommitButton defaultColor.
 	self
 		assert: projectsBrowser autoCommitButton label
 		equals: 'Auto Commit - false'.
-	RowanAnsweringService new setAutoCommit: true for: session.
+	self defer: [
+		RowanAnsweringService new setAutoCommit: true for: session ].
 	self
 		assert: projectsBrowser autoCommitButton color
 		equals: Color green.
 	[
-	| service |
-	service := RowanAutoCommitServiceClient new autoCommit: #failed.
-	service autoCommitUpdate: self projectsPresenter.
-	service postUpdateBlock value ]
+		| service |
+		service := RowanAutoCommitServiceClient new autoCommit: #failed.
+		service autoCommitUpdate: self projectsPresenter.
+		service postUpdateBlock value ]
 		on: ProvideAnswerNotification
 		do: [ :notification |
-			self
-				assert: notification messageText
-				equals: RowanAutoCommitServiceClient autoCommitFailureMessage.
-			notification resume: false "this simulates press 'No' on the dialog and auto commit will be turned off" ].
+				self
+					assert: notification messageText
+					equals: RowanAutoCommitServiceClient autoCommitFailureMessage.
+				notification resume: false "this simulates press 'No' on the dialog and auto commit will be turned off" ].
 
 	[
-	(transactionConflictInspector := JadeiteInspector allInstances
-		                                 detect: [ :inspector |
-			                                 ('Transaction Conflicts' match:
-				                                  inspector window title) and: [
-				                                 inspector window isOpen ] ]
-		                                 ifNone: [  ]) isNil ] whileTrue: [
+		(transactionConflictInspector := JadeiteInspector allInstances
+			                                 detect: [ :inspector |
+					                                 ('Transaction Conflicts' match:
+						                                  inspector window title) and: [
+						                                 inspector window isOpen ] ]
+			                                 ifNone: [ ]) isNil ] whileTrue: [
 		(Delay forMilliseconds: 2) wait ].
 
 	[ self denyIsNil: transactionConflictInspector ] ensure: [
@@ -219,30 +221,30 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitUpdatesButtons [
 		testsJadeiteForPharoIssue: #issue20
 		title: 'Could us an autocommit status indication in Console'.
 
-	self setRemoteAutoCommit: false onCompletion: [  ].
+	self setRemoteAutoCommit: false onCompletion: [ ].
 	[
-	session flipAutoCommit.
-	self assert: session autoCommit value.
-
-	self
-		assert: JadeiteConsole currentConsole autoCommitButton label
-		equals: 'Auto Commit - true'.
-	JadeiteBrowser allInstances do: [ :browser |
-		browser window ifNotNil: [ :window |
-			window isOpen ifTrue: [
-				self
-					assert: browser autoCommitButton label
-					equals: 'Auto Commit - true' ] ] ] ] ensure: [
-		session flipAutoCommit.
-		self deny: session autoCommit value.
+		self defer: [ session flipAutoCommit ].
+		self assert: session autoCommit value.
 
 		self
 			assert: JadeiteConsole currentConsole autoCommitButton label
-			equals: 'Auto Commit - false' ].
+			equals: 'Auto Commit - true'.
+		JadeiteBrowser allInstances do: [ :browser |
+				browser window ifNotNil: [ :window |
+						window isOpen ifTrue: [
+								self
+									assert: browser autoCommitButton label
+									equals: 'Auto Commit - true' ] ] ] ] ensure: [
+			self defer: [ session flipAutoCommit ].
+			self deny: session autoCommit value.
+
+			self
+				assert: JadeiteConsole currentConsole autoCommitButton label
+				equals: 'Auto Commit - false' ].
 	JadeiteBrowser allInstances do: [ :browser |
-		browser window ifNotNil: [ :window |
-			window isOpen ifTrue: [
-				self
-					assert: browser autoCommitButton label
-					equals: 'Auto Commit - false' ] ] ]
+			browser window ifNotNil: [ :window |
+					window isOpen ifTrue: [
+							self
+								assert: browser autoCommitButton label
+								equals: 'Auto Commit - false' ] ] ]
 ]

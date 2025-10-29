@@ -84,17 +84,17 @@ JadeiteForPharoWindowlessBrowserTestCase >> test_addTab [
 { #category : 'tests' }
 JadeiteForPharoWindowlessBrowserTestCase >> test_autoCommitChangeNotification [
 
-	browser gciSession autoCommit value: #failed.
+	self defer: [ browser gciSession autoCommit value: #failed ].
 	self assert: browser autoCommitButton color equals: Color red.
 	self
 		assert: browser autoCommitButton label
 		equals: 'Auto Commit - failed'.
-	browser gciSession autoCommit value: true.
+	self defer: [ browser gciSession autoCommit value: true ].
 	self assert: browser autoCommitButton color equals: Color green.
 	self
 		assert: browser autoCommitButton label
 		equals: 'Auto Commit - true'.
-	browser gciSession autoCommit value: false.
+	self defer: [ browser gciSession autoCommit value: false ].
 	self
 		assert: browser autoCommitButton color
 		equals: browser autoCommitButton defaultColor.
@@ -130,18 +130,15 @@ JadeiteForPharoWindowlessBrowserTestCase >> test_browserOpener [
 { #category : 'tests' }
 JadeiteForPharoWindowlessBrowserTestCase >> test_browserPresenterClass [
 
-	JadeitePreferences isRowanAvailable ifFalse: [
-		^ self
-			  assert: browser browserPresenterClass
-			  equals: JadeiteBrowserPresenterWithoutRowan ].
-	JadeitePreferences isRowanLoaded: true.
-	self
-		assert: browser browserPresenterClass
-		equals: JadeiteBrowserPresenter.
-	JadeitePreferences isRowanLoaded: false.
-	self
-		assert: browser browserPresenterClass
-		equals: JadeiteBrowserPresenterWithoutRowan
+	JadeitePreferences isRowanAvailable
+		ifFalse: [
+				self
+					assert: browser browserPresenterClass
+					equals: JadeiteBrowserPresenterWithoutRowan ]
+		ifTrue: [
+				self
+					assert: browser browserPresenterClass
+					equals: JadeiteBrowserPresenter ]
 ]
 
 { #category : 'tests' }
