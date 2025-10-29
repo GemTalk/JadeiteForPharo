@@ -69,8 +69,6 @@ JadeiteForPharoTestCase >> setUp [
 
 	super setUp.
 	savedSettings := JadeitePreferences current copy.
-	JadeitePreferences isRowanAvailable ifTrue: [
-		JadeitePreferences isRowanLoaded: true ]
 ]
 
 { #category : 'support' }

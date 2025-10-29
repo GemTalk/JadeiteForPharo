@@ -93,7 +93,6 @@ JadeiteForPharoBrowserTestCase >> setUp [
 
 	super setUp.
 	JadeitePreferences isRowanAvailable ifFalse: [ ^ self ].
-	JadeitePreferences isRowanLoaded: true.
 	self setupProjectBrowser
 ]
 
