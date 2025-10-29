@@ -84,18 +84,6 @@ JadeiteForPharoGUITestCase >> compileErrorMethodTextShowingCompileError [
 	^coll'
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteForPharoGUITestCase >> defer: zeroArgBlock [
-
-	| sem |
-	sem := Semaphore new.
-	self uiManager defer: [
-			zeroArgBlock value.
-			sem signal ].
-	WorldMorph doOneCycle.
-	sem wait
-]
-
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> dismissPopoverAndPrint [
 

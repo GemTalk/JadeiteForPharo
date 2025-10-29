@@ -224,6 +224,18 @@ JadeiteAbstractTestCase >> createNewTestProjectNamed: projectName [
 	self issueCommand: testService onCompletion: [  ]
 ]
 
+{ #category : 'as yet unclassified' }
+JadeiteAbstractTestCase >> defer: zeroArgBlock [
+
+	| sem |
+	sem := Semaphore new.
+	self uiManager defer: [
+			zeroArgBlock value.
+			sem signal ].
+	WorldMorph doOneCycle.
+	sem wait
+]
+
 { #category : 'asserting' }
 JadeiteAbstractTestCase >> denyIsNil: anArgument [
 
@@ -1235,13 +1247,14 @@ JadeiteAbstractTestCase >> setUp [
 
 	super setUp.
 	user ifNil: [ user := 'SystemUser' ].
-	self forceReconnect. 
+	self forceReconnect.
 	session := self jadeiteTestResourceClass current session.
 	transcript := self jadeiteTestResourceClass current transcript.
-	self setRemoteAutoCommit: false onCompletion: [
-		self ensureRowanSampleClassesLoaded.
-		JadeiteLoginShell allInstances size > 1 ifTrue: [
-			RsrGarbageCollector maximumReclamation ] ]
+	self defer: [
+			self setRemoteAutoCommit: false onCompletion: [
+					self ensureRowanSampleClassesLoaded.
+					JadeiteLoginShell allInstances size > 1 ifTrue: [
+						RsrGarbageCollector maximumReclamation ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
