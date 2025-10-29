@@ -1250,11 +1250,10 @@ JadeiteAbstractTestCase >> setUp [
 	self forceReconnect.
 	session := self jadeiteTestResourceClass current session.
 	transcript := self jadeiteTestResourceClass current transcript.
-	self defer: [
-			self setRemoteAutoCommit: false onCompletion: [
-					self ensureRowanSampleClassesLoaded.
-					JadeiteLoginShell allInstances size > 1 ifTrue: [
-						RsrGarbageCollector maximumReclamation ] ] ]
+	self setRemoteAutoCommit: false onCompletion: [
+		self ensureRowanSampleClassesLoaded.
+		JadeiteLoginShell allInstances size > 1 ifTrue: [
+			RsrGarbageCollector maximumReclamation ] ]
 ]
 
 { #category : 'as yet unclassified' }
