@@ -302,7 +302,8 @@ RowanMethodService >> definedClassName: anObject [
 
 { #category : 'accessing' }
 RowanMethodService >> definedPackage [
-	^definedPackage
+
+	^ definedPackage ifNil: [ String new ]
 ]
 
 { #category : 'displaying' }

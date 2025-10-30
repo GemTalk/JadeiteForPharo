@@ -217,7 +217,7 @@ RowanServiceUpdater >> critical: aBlock [
 	"single thread services - only for limited use"
 
 	singleThreaded := true.
-	aBlock ensure: [ singleThreaded := false ]
+	^aBlock ensure: [ singleThreaded := false ]
 ]
 
 { #category : 'accessing' }

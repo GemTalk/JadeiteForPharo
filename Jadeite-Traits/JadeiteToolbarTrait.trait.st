@@ -229,7 +229,7 @@ JadeiteToolbarTrait >> openProcessBrowser [
 JadeiteToolbarTrait >> openSUnitBrowser [
 
 	| inst |
-	self isConnected
+	^self isConnected
 		ifTrue: [
 			RowanServiceUpdater current critical: [
 				| windowPresenter |
