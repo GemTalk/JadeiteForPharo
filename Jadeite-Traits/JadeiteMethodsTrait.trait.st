@@ -590,15 +590,18 @@ JadeiteMethodsTrait >> displayBreakpoints [
 JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 
 	self methodListPresenter selectedItem ifNil: [ ^ self ].
+	self methodSourcePresenter methodService ifNil: [
+			self methodSourcePresenter methodService:
+				self methodListPresenter selectedItem ].
 	self methodSourcePresenter methodService stepPoints do: [
-		:stepPointAssoc |
-		| range |
-		range := self methodSourcePresenter methodService
-			         stepPointRangeFrom: stepPointAssoc.
+			:stepPointAssoc |
+			| range |
+			range := self methodSourcePresenter methodService
+				         stepPointRangeFrom: stepPointAssoc.
 
-		self methodSourcePresenter addTextSegmentDecoration:
-			((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
-				 interval: range) ]
+			self methodSourcePresenter addTextSegmentDecoration:
+				((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
+					 interval: range) ]
 ]
 
 { #category : 'actions' }

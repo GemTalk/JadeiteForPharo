@@ -2731,6 +2731,7 @@ JadeiteBrowserPresenter >> postUpdateMethodSource [
 
 	| methodService |
 	(methodService := methodListPresenter selectedItem) ifNotNil: [
+		self methodSourcePresenter methodService: methodService. 
 		methodSourcePresenter value: methodService source.
 		methodSourcePresenter isModified: false. 
 		self updateMethodSourceGlyphs.
@@ -4054,43 +4055,50 @@ JadeiteBrowserPresenter >> updateAfterFindClass: classService methodService: met
 	self
 		projectAndPackageServiceFor: classService
 		completionBlock: [ :array |
-			[
-			array
-				ifNil: [
-					UIManager default inform:
-						'Attempt to display class failed. Invalid class name?' ]
-				ifNotNil: [
-					projectService := array first.
-					packageService := array last.
-					self isHierarchyTabSelected ifTrue: [
-						self selectedClass = classService ifFalse: [
-							self selectClassListTab ] ].
-					self selectPackageListTab.
-					self
-						selectClassNamed: classService
-						package: packageService
-						project: projectService
-						completionBlock: [
-							methodListPresenter items: classService methods.
-							methodListPresenter beSorted.
-							classService updateSortedJadeiteCategories:
-								categoryListPresenter.
-							postUpdateClassBlock := [
-							                        methodService ifNotNil: [
-								                        | index |
-								                        self methodListPresenter selection
-									                        unselectAll.
-								                        index := self methodListPresenter
-									                                 items indexOf: methodService.
-								                        self methodListPresenter
-									                        selectIndex: index
-									                        scrollToSelection: true ] ].
-							classService meta = classRadioButton state
-								ifTrue: [
-									postUpdateClassBlock value "if changing sides , block will be executed after class refreshed" ]
-								ifFalse: [ self setAppropriateMeta: classService ].
-							completionBlock value ] ] ] ensure: [
-				self resumeSelectionEvents ] ]
+				[
+					array
+						ifNil: [
+								UIManager default inform:
+									'Attempt to display class failed. Invalid class name?' ]
+						ifNotNil: [
+								projectService := array first.
+								packageService := array last.
+								self isHierarchyTabSelected ifTrue: [
+									self selectedClass = classService ifFalse: [
+										self selectClassListTab ] ].
+								self selectPackageListTab.
+								self
+									selectClassNamed: classService
+									package: packageService
+									project: projectService
+									completionBlock: [
+											methodListPresenter items: classService methods.
+											methodListPresenter beSorted.
+											classService updateSortedJadeiteCategories:
+												categoryListPresenter.
+											postUpdateClassBlock := [
+												                        methodService ifNotNil: [
+														                        | index |
+														                        self methodListPresenter
+															                        selection unselectAll.
+														                        index := self
+															                                 methodListPresenter
+															                                 items indexOf:
+															                                 methodService.
+														                        self methodListPresenter
+															                        selectIndex: index
+															                        scrollToSelection: true.
+														                        self methodListPresenter
+															                        selectedItem replicateFrom:
+															                        methodService.
+														                        self selectMethodSourceTab.
+														                        self postUpdateMethodSource ] ].
+											classService meta = classRadioButton state
+												ifTrue: [
+													postUpdateClassBlock value "if changing sides , block will be executed after class refreshed" ]
+												ifFalse: [ self setAppropriateMeta: classService ].
+											completionBlock value ] ] ] ensure: [
+					self resumeSelectionEvents ] ]
 ]
 
 { #category : 'find' }
