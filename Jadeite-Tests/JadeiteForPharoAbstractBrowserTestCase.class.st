@@ -1544,34 +1544,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_resetClassComment [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_resetClassDefinitionTemplate [
-
-	| classDefinitionTemplate |
-	self
-		testsJadeiteForPharoIssue: #issue290
-		title:
-		'In a method source pane, menu item Cancel and Ctrl-L do different things'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/290'.
-
-	self selectRowanSample1Class.
-	classDefinitionTemplate := self projectsPresenter classDefinitionPresenter text.
-
-	self projectsPresenter classDefinitionPresenter adapter widget
-		setText: 'changed the text!' replaceCrWithLf.
-
-	self projectsPresenter classDefinitionPresenter adapter widget
-		textArea dispatchKeystrokeForEvent: (self
-			 simulatedKeyStrokeFromChar: $l
-			 alt: false
-			 ctrl: true
-			 command: false
-			 shift: false).
-	self
-		assert: self projectsPresenter classDefinitionPresenter text
-		equals: classDefinitionTemplate
-]
-
-{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_resetClassDefinitionTemplate_classSelected [
 
 	self selectRowanSample1Class.

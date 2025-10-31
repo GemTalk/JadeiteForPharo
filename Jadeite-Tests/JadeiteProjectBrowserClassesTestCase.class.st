@@ -598,18 +598,6 @@ JadeiteProjectBrowserClassesTestCase >> test_classSideSelection [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserClassesTestCase >> test_classTemplateWhenNoPackagesSelected [
-	"#resetClassTemplate is not a public method but still test that we
-	don't walkback if no packages are selected when the projects presenter
-	sends it"
-
-	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
-	self projectsPresenter selectClassDefinitionTab.
-	self projectsPresenter resetClassTemplate.
-	self assert: self projectsPresenter classDefinitionPresenter value isEmpty
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_classVersionIncrementedInClassList [
 	self testsIssue: #issue228
 		withTitle: 'lose selected class in project browser when new version created'.

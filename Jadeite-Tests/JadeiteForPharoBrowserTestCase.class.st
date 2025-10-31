@@ -816,6 +816,18 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNo
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_classTemplateWhenNoPackagesSelected [
+	"#resetClassTemplate is not a public method but still test that we
+	don't walkback if no packages are selected when the projects presenter
+	sends it"
+
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self projectsPresenter selectClassDefinitionTab.
+	self projectsPresenter resetClassTemplate.
+	self assert: self projectsPresenter classDefinitionPresenter text isEmpty
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_compileClass [
 
 	self
@@ -2105,6 +2117,50 @@ JadeiteForPharoBrowserTestCase >> test_renameClassWhileSelectedInSUnitBrowser [
 	self
 		assert: self projectsPresenter selectedClass name
 		equals: 'RowanSample1Test2' ] ensure: [ self destroy: sunitBrowser ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate [
+	"selected project only"
+
+	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: String new.
+
+	"selected project and package"
+	self selectServiceNamed: 'Rowan-Core' in: self packageListPresenter.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self assert: ('*Rowan-Core*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+
+	"selected project and class"
+	self
+		selectServiceNamed: 'RwAbstractProject'
+		in: self classListPresenter.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'RwAbstractProject'.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: self classListPresenter selectedItem template.
+
+	"selected project and class in class hierarchy"
+	self selectServiceNamed: 'RwPlatform' in: self classListPresenter.
+	self projectsPresenter selectClassHierarchyTab.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'RwPlatform'.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: self classHierarchyPresenter selectedItem template
 ]
 
 { #category : 'tests' }

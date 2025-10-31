@@ -10,7 +10,6 @@ Class {
 		'packageDictionaryContainer',
 		'packageMethodListPresenter',
 		'projectListContainer',
-		'classContainer',
 		'addPackagePresenter',
 		'projectReadMeTab',
 		'toolbar',
@@ -101,11 +100,6 @@ JadeiteBrowserPresenter class >> openMethodListOn: service selecting: string ses
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter class >> overriddenIcon [
 	^Icon fromId: 'icons\OVERRIDDEN.ICO'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter class >> projectMenu [
-	^Menu fromStrings: self projectMenuStrings
 ]
 
 { #category : 'events' }
@@ -594,11 +588,6 @@ JadeiteBrowserPresenter >> classCommentChanged [
 				yourself]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> classContainer [
-	^classContainer
-]
-
 { #category : 'accessing' }
 JadeiteBrowserPresenter >> classDisplayColor: classService [
 
@@ -681,8 +670,8 @@ JadeiteBrowserPresenter >> clearMethodLists [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> clearProjectTabs [
-	"projectReadMeTab value: String new.
-	projectInfoList list: ListModel new"
+
+	self projectInfoList items: OrderedCollection new
 ]
 
 { #category : 'as yet unclassified' }
@@ -2750,11 +2739,6 @@ JadeiteBrowserPresenter >> projectListUpdated [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> projectMenuCommands [
-	^self class projectMenu items collect: [:item | item command]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> projectReadMeTab [
 	^projectReadMeTab
 ]
@@ -3265,22 +3249,21 @@ JadeiteBrowserPresenter >> resetClassComment [
 { #category : 'actions' }
 JadeiteBrowserPresenter >> resetClassTemplate [
 
-	| presenter |
-	classDefinitionPresenter isModified: false.
-	presenter := packageListPresenter.
-	presenter list isEmpty ifTrue: [
-		classDefinitionPresenter value: String new.
-		^ self ].
-	classDefinitionPresenter value: (presenter selections isEmpty
+	packageListPresenter list isEmpty ifTrue: [
+			classDefinitionPresenter value: String new.
+			self markClassDefinitionPaneUnmodified.
+			^ self ].
+	classDefinitionPresenter value:
+		(packageListPresenter selections isEmpty
 			 ifTrue: [ String new ]
 			 ifFalse: [
-				 self selectedClassTab
-					 ifNil: [ presenter selectedItem defaultTemplate ]
-					 ifNotNil: [
-						 self selectedClassTab activePresenter selection selectedItem
-							 ifNil: [ presenter selectedItem defaultTemplate ]
-							 ifNotNil: [
-							 self selectedClassTab activePresenter selectedItem template ] ] ]).
+					 self selectedClassTab
+						 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
+						 ifNotNil: [
+								 self selectedClassTab activePresenter selection selectedItem
+									 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
+									 ifNotNil: [
+									 self selectedClassTab activePresenter selectedItem template ] ] ]).
 	self markClassDefinitionPaneUnmodified
 ]
 
@@ -3989,7 +3972,9 @@ JadeiteBrowserPresenter >> unloadProjects [
 		 confirm: 'Really unload project(s) - ' , ws contents
 			 , '?  You will lose any unsaved changes! '
 		 caption: 'UNLOAD PROJECTS WARNING!') ifFalse: [ ^ self ].
-	self basicUnloadProjects: projectNames onCompletion: nil
+	self
+		basicUnloadProjects: projectNames
+		onCompletion: [ self updateProjectInfo ]
 ]
 
 { #category : 'initialization' }

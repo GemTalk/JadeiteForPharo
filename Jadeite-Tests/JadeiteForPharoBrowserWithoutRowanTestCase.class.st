@@ -672,6 +672,57 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate [
+	"selected dictionary only"
+
+	self
+		selectServiceNamed: 'RowanKernel'
+		in: self dictionaryListPresenter.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self assert: ('*RowanKernel*' match:
+			 self projectsPresenter classDefinitionPresenter text).
+
+	"selected project and package"
+	self selectClassCategoryNamed: 'GemStone-Interactions-Core'. "Selects GemStone"
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self assert: self projectsPresenter classDefinitionPresenter text replaceLfWithCr equals: '(Object subclass: ''NameOfSubclass''
+	instVarNames: #()
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	inDictionary: RowanKernel
+	options: #()) category:  ''GemStone''
+'.
+
+	"selected project and class"
+	self
+		selectServiceNamed: 'GsInteraction'
+		in: self classListPresenter.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'GsInteraction'.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: self classListPresenter selectedItem template.
+
+	"selected project and class in class hierarchy"
+	self selectServiceNamed: 'GsInteractionRequest' in: self classListPresenter.
+	self projectsPresenter selectClassHierarchyTab.
+	self
+		assert: self classHierarchyPresenter selectedItem name
+		equals: 'GsInteractionRequest'.
+	self projectsPresenter resetClassTemplate.
+	self deny: self projectsPresenter classDefinitionPresenter isModified.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: self classHierarchyPresenter selectedItem template
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate_classCategorySelected [
 
 	self

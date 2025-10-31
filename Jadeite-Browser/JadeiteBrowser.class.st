@@ -487,12 +487,6 @@ JadeiteBrowser >> tabs [
 	^ tabs
 ]
 
-{ #category : 'accessing' }
-JadeiteBrowser >> tabs: anObject [
-
-	tabs := anObject
-]
-
 { #category : 'actions' }
 JadeiteBrowser >> updateAfterFindClassName: className methodSelector: selector meta: meta [
 
