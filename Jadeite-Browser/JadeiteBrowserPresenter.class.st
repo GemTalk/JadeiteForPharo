@@ -108,16 +108,6 @@ JadeiteBrowserPresenter class >> projectMenu [
 	^Menu fromStrings: self projectMenuStrings
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> abortTransaction [
-
-	super abortTransaction.
-	self gciSession autoCommit:
-		(self gciSession autoCommit value == #failed
-			 ifTrue: [ true ]
-			 ifFalse: [ self gciSession autoCommit value ])
-]
-
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
 
@@ -128,14 +118,6 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self updateMethodSource.
 	self resetStatusBarColor.
 	self statusBarText pushMessage: String new
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> aboutToChange: aSelectionChangingEvent [
-	aSelectionChangingEvent value
-		ifTrue: 
-			[aSelectionChangingEvent value: self isOkayToChange.
-			aSelectionChangingEvent value ifTrue: [self resetCategoryText]]
 ]
 
 { #category : 'accessing' }
@@ -202,17 +184,6 @@ JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
 					self isClassSelected and: [ self selectedClass name ~= 'Object' ] ] ] ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> addNoneProject [
-	(projectListPresenter list includes: RowanProjectService noneProject)
-		ifFalse: [projectListPresenter model add: RowanProjectService noneProject]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> addPackagePresenter [
-	^addPackagePresenter
-]
-
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> addStyle: aString [
 
@@ -243,16 +214,6 @@ JadeiteBrowserPresenter >> addSubclass [
 		hasUnacceptedEdits: true
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> addSystemBrowser [
-	| browser position |
-	position := self topShell view position.	"don't let default position takeover when adding tab"
-	browser := self topShell addSystemBrowser.
-	self makeSameSelectionsIn: browser currentCard as: self.
-	self topShell view position: position.
-	^browser
-]
-
 { #category : 'actions' }
 JadeiteBrowserPresenter >> addUnpackagedClassesMessageTo: messageStream using: classService [
 
@@ -268,11 +229,6 @@ JadeiteBrowserPresenter >> addUnpackagedClassesMessageTo: messageStream using: c
 JadeiteBrowserPresenter >> addVariableAccessors [
 	self confirmOverwriteAccessor ifFalse: [^self].
 	self basicAddVariableAccessors
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> additionalAccelerators [
-	^super additionalAccelerators , #(#(#insertIfFalse 'Ctrl+Shift+D') #(#insertIfTrue 'Ctrl+Shift+T'))
 ]
 
 { #category : 'testing' }

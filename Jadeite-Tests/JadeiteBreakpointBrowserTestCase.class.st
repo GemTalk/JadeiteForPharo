@@ -62,16 +62,6 @@ JadeiteBreakpointBrowserTestCase >> test_addedBreakpointAddsMethod [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBreakpointBrowserTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	self openBreakpointBrowser.
-	self assert: breakpointBrowser additionalAccelerators size equals: 1	"should fail if we add a new one"
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBreakpointBrowserTestCase >> test_breakpointAdditionsUpdateAutomatically [
 	| treeModel indicators |
 	self openProjectBrowser.
@@ -230,13 +220,6 @@ JadeiteBreakpointBrowserTestCase >> test_clearMethodPaneWhenBreakpointRemoved2 [
 	self assert: breakpointBrowser methodSourcePresenter value equals: originalSource.
 	breakpointBrowser methodSourcePresenter clearBreakPointAt: 1 in: self projectsPresenter.
 	self assert: breakpointBrowser methodSourcePresenter value equals: String new
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBreakpointBrowserTestCase >> test_globalAdditionalAccelerators [
-	self openBreakpointBrowser.
-	self primaryTestWindow ifNil: [^self].	"not all test classes have a primaryTestWindow"
-	self assert: (self primaryTestWindow additionalAccelerators includes: #(#raiseConsole 'Ctrl+F7'))
 ]
 
 { #category : 'as yet unclassified' }

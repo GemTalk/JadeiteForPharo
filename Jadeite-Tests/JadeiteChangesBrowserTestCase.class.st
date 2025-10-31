@@ -77,21 +77,6 @@ JadeiteChangesBrowserTestCase >> tearDown [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteChangesBrowserTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
-	changesBrowser := self projectListPresenter selection
-		                  changesUsing: session
-		                  onCompletion: nil.
-	self assert: (changesBrowser additionalAccelerators includes:
-			 #( #raiseConsole 'Ctrl+F7' )).
-	self assert: changesBrowser additionalAccelerators size equals: 1 "should fail if we add a new one"
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteChangesBrowserTestCase >> test_browseImplementors [
 
 	| methodListBrowser |

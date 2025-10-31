@@ -687,17 +687,6 @@ coll
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspectorDataCuratorTestCase >> test_globalAdditionalAccelerators [
-	| remoteObject |
-	remoteObject := session
-				executeString: '$X'
-				fromContext: nil
-				environment: 0.
-	inspector := JadeiteInspector showOn: remoteObject session: session.
-	self assert: (self primaryTestWindow additionalAccelerators includes: #(#raiseConsole 'Ctrl+F7'))
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspectorDataCuratorTestCase >> test_inspectAsOopField [
 	"if a non-string object is put into the inspectors text pane, 
 	accessing the pane may break. Make a reasonable (valiant) 

@@ -73,12 +73,6 @@ JadeiteInspector >> addStyle: aString [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteInspector >> additionalAccelerators [
-	^super additionalAccelerators
-		, #(#(#fileSave 'Ctrl+S') #(#selectAll 'Ctrl+A') #(#jadeDebug 'Ctrl+B'))
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteInspector >> basicAddKey: string [
 
 	| addedObject newSelectionIndex |

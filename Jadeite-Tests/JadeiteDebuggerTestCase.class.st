@@ -545,20 +545,6 @@ JadeiteDebuggerTestCase >> test_adHocVariablePaneInspect2 [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteDebuggerTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	self testsIssue: #issue762
-		withTitle: 'Debug-it in debugger / missing menu item, failure on up arrow, and error dialog (3.1pr3)'.
-	self openDebuggerOn: 'self halt'.
-	self assert: (debugger additionalAccelerators includes: #(#reformatSource 'Ctrl+Shift+O')).
-	self assert: (debugger additionalAccelerators includes: #(#jadeDebug 'Ctrl+B')).
-	self assert: debugger additionalAccelerators size equals: 3	"should fail if we add a new one"
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_badCompileInDebugger [
 	| source |
 	self testsIssue: #issue219 withTitle: 'error when saving source with compile error in debugger'.
