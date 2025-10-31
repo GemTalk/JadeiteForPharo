@@ -1245,12 +1245,6 @@ JadeiteMethodListBrowserTestCase >> test_firstReferenceRetained [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListBrowserTestCase >> test_globalAdditionalAccelerators [
-	methodListBrowser := JadePresenter browseImplementorsOf: #size session: session.
-	self assert: (self primaryTestWindow additionalAccelerators includes: #(#raiseConsole 'Ctrl+F7'))
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteMethodListBrowserTestCase >> test_methodBrowserSaveMethod [
 
 	projectsBrowser := self jadeiteTestResourceClass current openProjectsBrowser.

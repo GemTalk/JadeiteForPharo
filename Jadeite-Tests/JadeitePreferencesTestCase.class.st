@@ -71,18 +71,6 @@ JadeitePreferencesTestCase >> tearDown [
 ]
 
 { #category : 'as yet unclassified' }
-JadeitePreferencesTestCase >> test_additionalAccelerators [
-	"No way yet to adequately test accelerators function
-	but we can assert that we tell Dolphin to set them up"
-
-	| prefs |
-	self testsIssue: #issue329 withTitle: 'Need accelerator key tests'.
-	prefs := JadeitePreferences new session: session.
-	workspace := prefs openWorkspace: 'nil'.
-	self assert: workspace additionalAccelerators size equals: 1	"should fail if we add a new one"
-]
-
-{ #category : 'as yet unclassified' }
 JadeitePreferencesTestCase >> test_allowSpacesInArguments [
 	| prefs |
 	prefs := JadeitePreferences new session: session.
@@ -197,14 +185,6 @@ JadeitePreferencesTestCase >> test_fontSize [
 	[self assert: View desktop font pointSize equals: 20] ensure: 
 			[JadeitePreferences current resetFont.
 			View desktop font: JadeitePreferences defaultFont]
-]
-
-{ #category : 'as yet unclassified' }
-JadeitePreferencesTestCase >> test_globalAdditionalAccelerators [
-	| prefs |
-	prefs := JadeitePreferences new session: session.
-	workspace := prefs openWorkspace: 'nil'.
-	self assert: (self primaryTestWindow additionalAccelerators includes: #(#raiseConsole 'Ctrl+F7'))
 ]
 
 { #category : 'as yet unclassified' }

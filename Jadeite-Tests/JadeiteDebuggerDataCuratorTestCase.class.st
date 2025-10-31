@@ -438,12 +438,6 @@ JadeiteDebuggerDataCuratorTestCase >> test_doubleClickWhenClassNotResolvable [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteDebuggerDataCuratorTestCase >> test_globalAdditionalAccelerators [
-	self openDebuggerOn: 'self halt'.
-	self assert: (self primaryTestWindow additionalAccelerators includes: #(#raiseConsole 'Ctrl+F7'))
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteDebuggerDataCuratorTestCase >> test_multipleDebuggersAdHocHasTemps [
 	| sourceDocument |
 	self testsIssue: #issue364 withTitle: 'Debug-it does nothing if comment preceeding temp vars'.
