@@ -24,6 +24,5 @@ JadeiteMethodSourcePane class >> registerSourceActionsWithCommandGroup: commandG
 		register: (JadeiteClearBreakpointCommand
 				 forSpecContext: presenter
 				 lastClickPosition: lastClickPosition);
-		register: JadeiteMethodClearBreakpointsCommand forSpec;
-		yourself
+		register: JadeiteMethodClearBreakpointsCommand forSpec
 ]

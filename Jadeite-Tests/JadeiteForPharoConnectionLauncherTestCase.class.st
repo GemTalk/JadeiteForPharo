@@ -230,6 +230,19 @@ JadeiteForPharoConnectionLauncherTestCase >> test_buttonEnablement [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_cancelMenuPresent [
+
+	| menu |
+	#( #hostText #stoneText #userText #passwordText #versionText
+	   #netldiText #portText ) do: [ :selector |
+			menu := (launcher perform: selector) adapter widget textArea
+				        getMenu: false.
+			self denyIsNil: menu.
+			self assert: menu items size equals: 1.
+			self assert: menu items first contents equals: 'Cancel' ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_changeFieldsResetOnExport [
 
 	| profile |
