@@ -11,35 +11,42 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 
 	menu
 		addGroup: [ :group |
-			group addItem: [ :item |
-					item
-						name: 'Remove ...';
-						action: [ self removeClass ];
-						enabled: [ self isClassSelected ] ] ];
-		addGroup: [ :group |
-			JadeitePreferences isRowanLoaded ifTrue: [
 				group addItem: [ :item |
-					item
-						name: 'Move to Package ...';
-						action: [ self moveClassToPackage ];
-						enabled: [ self isClassSelected ] ] ].
-			group addItem: [ :item |
-				item
-					name: 'Copy ...';
-					action: [ self copyClass ];
-					enabled: [ self isClassSelected ] ].
-			JadeitePreferences isRowanAvailable ifTrue: [
-				group addItem: [ :item |
-					item
-						name: 'Rename ...';
-						action: [ self renameClass ];
-						enabled: [ self isClassSelected ] ] ] ];
+							item
+								name: 'Remove ...';
+								action: [ self removeClass ];
+								enabled: [ self isClassSelected ] ] ];
 		addGroup: [ :group |
-			group addItem: [ :item |
-				item
-					name: 'File Out Class ...';
-					action: [ self fileoutClass ];
-					enabled: [ self isClassSelected ] ] ]
+				JadeitePreferences isRowanLoaded ifTrue: [
+						group
+							addItem: [ :item |
+									item
+										name: 'Move to Package ...';
+										action: [ self moveClassToPackage ];
+										enabled: [ self isClassSelected ] ];
+							addItem: [ :item |
+									item
+										name: 'Move to Current Package';
+										action: [ self moveClassToCurrentPackage ];
+										enabled: [
+											self isClassSelected and: [ self currentPackage notNil ] ] ] ].
+				group addItem: [ :item |
+						item
+							name: 'Copy ...';
+							action: [ self copyClass ];
+							enabled: [ self isClassSelected ] ].
+				JadeitePreferences isRowanAvailable ifTrue: [
+						group addItem: [ :item |
+								item
+									name: 'Rename ...';
+									action: [ self renameClass ];
+									enabled: [ self isClassSelected ] ] ] ];
+		addGroup: [ :group |
+				group addItem: [ :item |
+						item
+							name: 'File Out Class ...';
+							action: [ self fileoutClass ];
+							enabled: [ self isClassSelected ] ] ]
 ]
 
 { #category : 'queries' }
@@ -210,6 +217,13 @@ JadeiteClassTrait >> isClassSelected [
 	^ self selectedClassTab
 		  ifNil: [ false ]
 		  ifNotNil: [ :tab | tab activePresenter selectedItem notNil ]
+]
+
+{ #category : 'actions' }
+JadeiteClassTrait >> moveClassToCurrentPackage [
+
+	self currentPackage ifNotNil: [
+		self moveClassToPackageNamed: self currentPackage name ]
 ]
 
 { #category : 'actions' }

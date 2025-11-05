@@ -1,3 +1,6 @@
+"
+Support for toolbar buttons, methods and menus across JfP
+"
 Trait {
 	#name : 'JadeiteToolbarTrait',
 	#instVars : [

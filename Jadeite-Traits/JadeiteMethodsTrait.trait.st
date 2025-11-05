@@ -653,22 +653,27 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 	menu := self newBrowseMethodListMenu.
 
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Remove Method(s) ...';
-				action: [ self removeMethods ] ] ].
-	JadeitePreferences isRowanLoaded ifTrue: [
-		menu addGroup: [ :group |
 			group addItem: [ :item |
-				item
-					name: 'Move to Package ...';
-					action: [ self moveMethodToPackage ] ] ] ].
+					item
+						name: 'Remove Method(s) ...';
+						action: [ self removeMethods ] ] ].
+	JadeitePreferences isRowanLoaded ifTrue: [
+			menu addGroup: [ :group |
+					group
+						addItem: [ :item |
+								item
+									name: 'Move to Package ...';
+									action: [ self moveMethodToPackage ] ];
+						addItem: [ :item |
+								item
+									name: 'Move to Current Package';
+									action: [ self moveMethodToCurrentPackage ] ] ] ].
 	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'File Out Selected Methods ...';
-				action: [ self fileoutMethods ];
-				enabled: [ self methodListPresenter selections notEmpty ] ] ].
+			group addItem: [ :item |
+					item
+						name: 'File Out Selected Methods ...';
+						action: [ self fileoutMethods ];
+						enabled: [ self methodListPresenter selections notEmpty ] ] ].
 	^ menu
 ]
 
@@ -706,6 +711,13 @@ JadeiteMethodsTrait >> methodSourcePaneClass [
 	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ JadeiteMethodSourcePane ]
 		  ifFalse: [ JadeiteMethodSourcePaneWithoutRowan ]
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> moveMethodToCurrentPackage [
+
+	self currentPackage ifNotNil: [
+		self moveMethodsToPackageNamed: self currentPackage name ]
 ]
 
 { #category : 'actions' }
