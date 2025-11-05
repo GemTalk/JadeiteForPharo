@@ -316,12 +316,18 @@ RowanBrowserService >> turnOffNativeCode: session onCompletion: completionBlock 
 { #category : 'as yet unclassified' }
 RowanBrowserService >> unsetCurrentPackage [
 
+	self unsetCurrentPackageOnCompletion: [ ]
+]
+
+{ #category : 'as yet unclassified' }
+RowanBrowserService >> unsetCurrentPackageOnCompletion: completionBlock [
+
 	command := #unsetCurrentPackage.
-	commandArgs := Array new. 
+	commandArgs := Array new.
 	self
 		issueCommands: (Array with: self)
 		session: GciSession current
-		onCompletion: [  ]
+		onCompletion: completionBlock
 ]
 
 { #category : 'as yet unclassified' }
@@ -333,6 +339,17 @@ RowanBrowserService >> unsetCurrentProject [
 		issueCommands: (Array with: self)
 		session: GciSession current
 		onCompletion: [  ]
+]
+
+{ #category : 'as yet unclassified' }
+RowanBrowserService >> unsetCurrentProjectOnCompletion: completionBlock [
+
+	command := #unsetCurrentProject.
+	commandArgs := Array new.
+	self
+		issueCommands: (Array with: self)
+		session: GciSession current
+		onCompletion: completionBlock
 ]
 
 { #category : 'commands' }

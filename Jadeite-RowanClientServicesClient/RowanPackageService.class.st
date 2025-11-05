@@ -335,12 +335,18 @@ RowanPackageService >> selectedClass: anObject [
 { #category : 'actions' }
 RowanPackageService >> setCurrent [
 
+	self setCurrentOnCompletion: [ ]
+]
+
+{ #category : 'actions' }
+RowanPackageService >> setCurrentOnCompletion: completionBlock [
+
 	command := #setCurrent.
-	commandArgs := Array new. 
+	commandArgs := Array new.
 	self
 		issueCommands: (Array with: self)
 		session: GciSession current
-		onCompletion: [  ]
+		onCompletion: completionBlock
 ]
 
 { #category : 'accessing' }

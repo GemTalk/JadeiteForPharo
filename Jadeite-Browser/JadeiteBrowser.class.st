@@ -166,7 +166,7 @@ JadeiteBrowser >> currentPackage [
 { #category : 'accessing' }
 JadeiteBrowser >> currentProject [
 
-	^ self activePresenter currentPackage
+	^ self activePresenter currentProject
 ]
 
 { #category : 'layout' }

@@ -138,13 +138,18 @@ JadeitePackageTrait >> removePackage [
 { #category : 'actions' }
 JadeitePackageTrait >> setCurrentPackage [
 
-	self packageListPresenter selectedItem setCurrent.
-	WorldMorph doOneCycle
+	self packageListPresenter selectedItem setCurrentOnCompletion: [
+			:packageService |
+			self gciSession
+				announceUpdatedCurrentProject: self currentProject
+				package: packageService ]
 ]
 
 { #category : 'actions' }
 JadeitePackageTrait >> unsetCurrentPackage [
 
-	RowanBrowserService new unsetCurrentPackage.
-	WorldMorph doOneCycle
+	RowanBrowserService new unsetCurrentPackageOnCompletion: [
+			self gciSession
+				announceUpdatedCurrentProject: self currentProject
+				package: nil ]
 ]

@@ -93,9 +93,10 @@ JadeiteProjectsTrait >> basicCreateProject: projectName [
 { #category : 'actions' }
 JadeiteProjectsTrait >> basicPostOpen [
 
+	self updateCurrentProjectPackageInfo.
 	^ self postOpenBlock ifNotNil: [
 		  [ self postOpenBlock cull: self ] ensure: [
-			  self postOpenBlock: [  ] ] ]
+			  self postOpenBlock: [ ] ] ]
 ]
 
 { #category : 'actions' }
@@ -761,9 +762,12 @@ JadeiteProjectsTrait >> selectedProjectName [
 
 { #category : 'actions' }
 JadeiteProjectsTrait >> setCurrentProject [
-	self projectListPresenter selectedItem setCurrent.
-	self refreshFromServer.
-	WorldMorph doOneCycle
+
+	self projectListPresenter selectedItem setCurrentOnCompletion: [
+			:projectService |
+			self gciSession
+				announceUpdatedCurrentProject: projectService
+				package: nil ]
 ]
 
 { #category : 'actions' }
@@ -793,9 +797,9 @@ JadeiteProjectsTrait >> unloadProject [
 
 { #category : 'actions' }
 JadeiteProjectsTrait >> unsetCurrentProject [
-	RowanBrowserService new unsetCurrentProject.
-	self refreshFromServer.
-	WorldMorph doOneCycle
+
+	RowanBrowserService new unsetCurrentProjectOnCompletion: [
+		self gciSession announceUpdatedCurrentProject: nil package: nil ]
 ]
 
 { #category : 'actions' }

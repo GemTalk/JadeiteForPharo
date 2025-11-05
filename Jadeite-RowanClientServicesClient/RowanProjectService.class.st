@@ -587,12 +587,18 @@ RowanProjectService >> rowanProjectsHome [
 { #category : 'actions' }
 RowanProjectService >> setCurrent [
 
+	self setCurrentOnCompletion: [ ]
+]
+
+{ #category : 'actions' }
+RowanProjectService >> setCurrentOnCompletion: completionBlock [
+
 	command := #setCurrent.
 	commandArgs := Array new.
 	self
 		issueCommands: (Array with: self)
 		session: GciSession current
-		onCompletion: [  ]
+		onCompletion: completionBlock
 ]
 
 { #category : 'accessing' }

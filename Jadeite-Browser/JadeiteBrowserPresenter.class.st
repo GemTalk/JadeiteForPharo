@@ -26,7 +26,8 @@ Class {
 		'selectionEventsSuspended',
 		'methodNavigationList',
 		'methodNavigationDropList',
-		'projectInfoListLeft'
+		'projectInfoListLeft',
+		'currentProjectPackageText'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -790,8 +791,8 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectProjectListPresenter.
 	self connectFilterPresenters.
 	methodFilterTabs whenSelectedPageChangedDo: [ :selection |
-		self areSelectionEventsSuspended ifFalse: [
-			self filterTabChanged: selection ] ].
+			self areSelectionEventsSuspended ifFalse: [
+				self filterTabChanged: selection ] ].
 	self connectMethodPresenters.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].
@@ -1347,10 +1348,15 @@ JadeiteBrowserPresenter >> findProjectNamed: projectName [
 { #category : 'accessing' }
 JadeiteBrowserPresenter >> gciSession: aSession [
 	"make sure my subpresenters have the session, too"
+
 	gciSession := aSession.
 	methodSourcePresenter _gciSession: aSession.
-	classDefinitionPresenter _gciSession: aSession. 
-	classCommentPresenter _gciSession: aSession. 
+	classDefinitionPresenter _gciSession: aSession.
+	classCommentPresenter _gciSession: aSession.
+	self gciSession announcer
+		when: JadeiteCurrentProjectPackageUpdated
+		send: #updateCurrentProjectPackageDisplay:
+		to: self
 ]
 
 { #category : 'as yet unclassified' }
@@ -1613,6 +1619,21 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenter >> initializeCurrentProjectPackageText: packageDictionaryColumn [
+
+	currentProjectPackageText := SpTextPresenter new
+		                             beNotEditable;
+		                             withoutScrollBars.
+	currentProjectPackageText addStyle: 'jadeiteTextBackgroundColor'.
+	packageDictionaryColumn
+		add: currentProjectPackageText
+		withConstraints: [ :c |
+				c
+					height: 6.5 * StandardFonts defaultFont pointSize;
+					padding: 5 ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeDefinedMethodPackageText: methodColumn [
 
 	definedMethodPackageText := SpTextPresenter new
@@ -1820,7 +1841,7 @@ JadeiteBrowserPresenter >> initializePresenters [
 	upper box layout. ... Seems unnecessarily complicated. Would be better if 
 	I could just add a resizer between two arbitrary widgets."
 
-	| listPresenters classColumn panedLayout1 filterLayout panedLayout2 panedLayout3 panedLayout4 methodLayout |
+	| listPresenters classColumn panedLayout1 filterLayout panedLayout2 panedLayout3 panedLayout4 methodLayout packageDictionaryColumn |
 	super initializePresenters.
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.
@@ -1852,6 +1873,8 @@ JadeiteBrowserPresenter >> initializePresenters [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 
+	| boxLayout |
+	boxLayout := SpBoxLayout newVertical.
 	projectListPresenter := (JadeiteListPresenter newFor: self)
 		                        beMultipleSelection
 		                        display: [ :projectService |
@@ -1865,7 +1888,9 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 					                        ifTrue: [ Color red ]
 					                        ifFalse: [ self theme textColor ] ].
 	projectListPresenter owner: self.
-	tabs add: projectListPresenter.
+	boxLayout add: projectListPresenter.
+	self initializeCurrentProjectPackageText: boxLayout.
+	tabs add: boxLayout.
 	self initializeProjectListMenu
 ]
 
@@ -4170,6 +4195,37 @@ JadeiteBrowserPresenter >> updateClassesOnCompletion: completionBlock [
 			self
 				updateServices: packageListPresenter selections
 				onCompletion: completionBlock ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateCurrentProjectPackageDisplay: anAnnouncement [
+
+	self uiManager defer: [
+		self packageListPresenter invalidate. 
+		currentProjectPackageText view text: anAnnouncement text ]
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateCurrentProjectPackageInfo [
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'Current Project:';
+		space;
+		nextPutAll: (self currentProject
+				 ifNil: [ String new ]
+				 ifNotNil: [ :proj | proj name ]);
+		cr.
+	ws
+		nextPutAll: 'Current Package:';
+		space;
+		nextPutAll: (self currentPackage
+				 ifNil: [ String new ]
+				 ifNotNil: [ :pkg | pkg name ]).
+
+	self uiManager defer: [ws contents traceCr. 
+		currentProjectPackageText view text: ws contents ]
 ]
 
 { #category : 'updates' }

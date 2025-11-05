@@ -121,6 +121,10 @@ JadeitePresenter >> suspendSelectionEvents [
 	
 ]
 
+{ #category : 'as yet unclassified' }
+JadeitePresenter >> updateCurrentProjectPackageInfo [
+]
+
 { #category : 'initialization' }
 JadeitePresenter >> updatePresenter [
 

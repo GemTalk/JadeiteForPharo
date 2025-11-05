@@ -1,6 +1,6 @@
 Class {
 	#name : 'GciSession',
-	#superclass : 'DolphinClass',
+	#superclass : 'Model',
 	#instVars : [
 		'briefDescription',
 		'clientForwarders',
@@ -45,6 +45,29 @@ GciSession class >> clearCurrent [
 GciSession class >> current [
 
 	^Current ifNil: [ Current := self new ]
+]
+
+{ #category : 'actions' }
+GciSession >> announceUpdatedCurrentProject: projectService package: packageService [
+
+	| ws announcement |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'Current Project:';
+		space;
+		nextPutAll:
+			(projectService
+				 ifNil: [ String new ]
+				 ifNotNil: [ :proj | proj name ]);
+		cr.
+	ws
+		nextPutAll: 'Current Package:';
+		space;
+		nextPutAll:
+			(packageService ifNil: [ String new ] ifNotNil: [ :pkg | pkg name ]).
+	announcement := JadeiteCurrentProjectPackageUpdated new text:
+		                ws contents.
+	self announcer announce: announcement
 ]
 
 { #category : 'accessing' }
