@@ -328,19 +328,18 @@ JadeiteConsole >> flipTranscript [
 	isTranscriptInstalled := isTranscriptInstalled value: isTranscriptInstalled value not
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteConsole >> gciSession: aGciSession [
 	"don't do the force logout. We'll close us ourselves"
 
 	gciSession := aGciSession.
 	gciSession
-		when: #logoutRequested:
-			send: #logoutRequested:
-			to: self;
-		when: #logoutPending
-			send: #exit
-			to: self;
-		yourself.
+		when: #logoutRequested: send: #logoutRequested: to: self;
+		when: #logoutPending send: #exit to: self.
+	self gciSession announcer
+		when: JadeiteCurrentProjectPackageUpdated
+		send: #updateCurrentProjectPackageDisplay:
+		to: self
 ]
 
 { #category : 'actions' }
@@ -769,6 +768,12 @@ JadeiteConsole >> transactionMode: aSymbol [
 JadeiteConsole >> transcriptPresenter [
 
 	^ transcriptPresenter
+]
+
+{ #category : 'updates' }
+JadeiteConsole >> updateCurrentProjectPackageDisplay: anAnnouncement [
+
+	self refreshFromServer
 ]
 
 { #category : 'updates' }
