@@ -944,6 +944,18 @@ JadeiteBrowserPresenter >> currentProject [
 		  ifNone: [  ]
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> currentProjectPackageText [
+
+	^ currentProjectPackageText
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> currentProjectPackageText: anObject [
+
+	currentProjectPackageText := anObject
+]
+
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> debugMethodTests: classOrMethodService [
 

@@ -953,6 +953,42 @@ JadeiteForPharoBrowserTestCase >> test_currentPackageFirstInMoveList [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_currentPackageText [
+
+	self selectRowanAnsweringService.
+	self projectsPresenter setCurrentPackage.
+	self assert: self packageListPresenter selectedItem isCurrent.
+	self defer: [
+			self assert: ('*Current Package: Rowan-Services-Core*' match:
+					 self projectsPresenter currentProjectPackageText text) "gui will not be updated until ui thread can run" ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_currentPackageTextMultipleBrowsers [
+
+	self selectRowanAnsweringService.
+	self projectsPresenter unsetCurrentPackage.
+	self openSecondBrowser.
+	self projectsPresenter setCurrentPackage.
+	self assert: self packageListPresenter selectedItem isCurrent.
+	self defer: [
+			self assert: ('*Current Package: Rowan-Services-Core*' match:
+					 self projectsPresenter currentProjectPackageText text).
+			self assert: ('*Current Package: Rowan-Services-Core*' match:
+					 secondPresenter currentProjectPackageText text) "gui will not be updated until ui thread can run" ].
+	Processor yield.
+	self projectsPresenter unsetCurrentProject.
+	self defer: [
+			self assert: ('Current Project: 
+Current Package: ' match:
+					 self projectsPresenter currentProjectPackageText text).
+			self assert: ('Current Project: 
+Current Package: ' match:
+					 secondPresenter currentProjectPackageText text) ].
+	Processor yield
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_currentProject [
 
 	self
@@ -996,6 +1032,17 @@ JadeiteForPharoBrowserTestCase >> test_currentProject [
 				projectService name = 'RowanSample1' ifFalse: [ "RowanSample1 is no longer on disk"
 					projectService name = 'RowanServicesTestProject' ifFalse: [
 						self assert: projectService displayName = projectService name ] ] ] ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_currentProjectText [
+
+	self selectRowanAnsweringService.
+	self projectsPresenter setCurrentProject.
+	self assert: self projectListPresenter selectedItem isCurrent.
+	self defer: [
+			self assert: ('*Current Project: RowanClientServices*' match:
+					 self projectsPresenter currentProjectPackageText text) "gui will not be updated until ui thread can run" ]
 ]
 
 { #category : 'tests' }
@@ -2601,6 +2648,19 @@ JadeiteForPharoBrowserTestCase >> test_unsetCurrentProject [
 	self projectListPresenter items do: [ :projectService |
 		self deny: (projectService displayName includes: $*).
 		self deny: projectService isCurrent ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_unsetCurrentProjectText [
+
+	self selectRowanAnsweringService.
+	self projectsPresenter setCurrentProject.
+	self assert: self projectListPresenter selectedItem isCurrent.
+	self projectsPresenter unsetCurrentProject.
+	self defer: [
+			self assert: ('Current Project: 
+Current Package: ' match:
+					 self projectsPresenter currentProjectPackageText text) "gui will not be updated until ui thread can run" ]
 ]
 
 { #category : 'support' }
