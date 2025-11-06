@@ -87,7 +87,19 @@ JadeiteToolbarTrait >> existingBrowser [
 { #category : 'actions' }
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
-	^ JadeiteConnectionProfile connectionProfile gitShaWorkspace
+	| workspace ws |
+	workspace := JadeiteConnectionProfile connectionProfile
+		             gitShaWorkspace.
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: '---------------------------------------------';
+		cr;
+		nextPutAll: 'Pharo client information:';
+		cr;
+		cr;
+		nextPutAll: Smalltalk jadeitePharoAbout.
+	workspace text: workspace text , ws contents.
+	workspace hasUnacceptedEdits: false
 ]
 
 { #category : 'initialization' }
