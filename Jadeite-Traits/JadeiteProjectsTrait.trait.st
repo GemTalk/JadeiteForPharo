@@ -420,15 +420,36 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 JadeiteProjectsTrait >> loadProject [
 	"the gui is updated in RowanBrowserService>>projectsUpdate:browser:"
 
-	| filePath |
+	| filePath ws useRowanProjectsHome projectsHomePath |
 	filePath := JadeiteServerFileSelectorDialog
 		            showOnSession: self gciSession
 		            defaultPath: JadePresenter homeEnvVarString
 		            shellName: 'Jadeite Select Load Spec File'.
 	filePath ifNil: [ ^ self ].
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'Loading this spec file will use ''';
+		nextPutAll: JadePresenter rowanProjectsHomeEnvVarString;
+		nextPutAll: ''' as projects home. Continue?';
+		cr;
+		nextPutAll:
+			'(Pressing No will open a dialog to choose an alternate projects home path)'.
+	useRowanProjectsHome := self uiManager confirm: ws contents.
+	projectsHomePath := useRowanProjectsHome
+		                    ifTrue: [
+		                    JadePresenter rowanProjectsHomeEnvVarString ]
+		                    ifFalse: [
+				                    JadeiteServerFileSelectorDialog
+					                    showOnSession: self gciSession
+					                    defaultPath:
+					                    JadePresenter rowanProjectsHomeEnvVarString
+					                    shellName:
+						                    'Jadeite Alternate Projects Home for load of '
+						                    , filePath asFileReference basename ].
+	projectsHomePath ifNil: [ ^ self ].
 	^ self
 		  installProjectFromPath: filePath
-		  projectsHome: JadePresenter rowanProjectsHomeEnvVarString
+		  projectsHome: projectsHomePath
 ]
 
 { #category : 'actions' }
