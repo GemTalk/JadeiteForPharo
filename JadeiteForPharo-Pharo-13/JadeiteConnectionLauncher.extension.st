@@ -1,6 +1,19 @@
 Extension { #name : 'JadeiteConnectionLauncher' }
 
 { #category : '*JadeiteForPharo-Pharo-13' }
+JadeiteConnectionLauncher >> exportProfile [
+
+	| fileRef |
+	fileRef := self uiManager
+		           chooseForSaveFileReference: 'Export Connection File'
+		           extensions: nil
+		           path:
+		           FileSystem workingDirectory / self suggestedExportName.
+	fileRef ifNil: [ ^ self ].
+	self basicExportProfile: fileRef
+]
+
+{ #category : '*JadeiteForPharo-Pharo-13' }
 JadeiteConnectionLauncher >> importProfileDirectory [
 
 	| directoryRef |

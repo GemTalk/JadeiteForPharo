@@ -419,24 +419,6 @@ JadeiteConnectionLauncher >> enableButtons [
 	disconnectButton enabled: self connectionProfile connection notNil
 ]
 
-{ #category : 'connections' }
-JadeiteConnectionLauncher >> exportProfile [
-
-	| fileRef suggestedFileName |
-	suggestedFileName := self suggestedExportName.
-	fileRef := UIManager default theme
-		           jadeiteChooseForSaveFileReferenceIn: Smalltalk ui
-		           title: 'Export Connection File'
-		           extensions: nil
-		           filename: suggestedFileName
-		           preview: nil.
-	fileRef ifNil: [ ^ self ].
-	fileRef exists ifTrue: [
-		(UIManager default confirm: 'Overwrite existing file?') ifFalse: [
-			^ self ] ].
-	self basicExportProfile: fileRef
-]
-
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> hostText [
 
