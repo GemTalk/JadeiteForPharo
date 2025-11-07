@@ -1,6 +1,24 @@
 Extension { #name : 'JadeiteConnectionLauncher' }
 
 { #category : '*JadeiteForPharo-Pharo-12' }
+JadeiteConnectionLauncher >> exportProfile [
+
+	| fileRef suggestedFileName |
+	suggestedFileName := self suggestedExportName.
+	fileRef := UIManager default theme
+		           jadeiteChooseForSaveFileReferenceIn: Smalltalk ui
+		           title: 'Export Connection File'
+		           extensions: nil
+		           filename: suggestedFileName
+		           preview: nil.
+	fileRef ifNil: [ ^ self ].
+	fileRef exists ifTrue: [
+		(UIManager default confirm: 'Overwrite existing file?') ifFalse: [
+			^ self ] ].
+	self basicExportProfile: fileRef
+]
+
+{ #category : '*JadeiteForPharo-Pharo-12' }
 JadeiteConnectionLauncher >> importProfileDirectory [
 
 	| directoryRef |
