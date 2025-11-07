@@ -701,6 +701,10 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassesOnCompletion: completionBloc
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> updateCurrentProjectPackageInfo [
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateHierarchyForClassCategories [
 
 	| classServices browserService |

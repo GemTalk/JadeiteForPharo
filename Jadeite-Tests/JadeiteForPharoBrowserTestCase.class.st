@@ -1636,6 +1636,35 @@ JadeiteForPharoBrowserTestCase >> test_isCurrentProjectAndPackageSet [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_loadProjectDialogDefaults [
+	"We don't have a mechanism for testing a project load from disk yet
+	so at least make sure that the dialogs pass the arguments we expect."
+
+	| expectedMessages resumeValues hitExceptionCount |
+	expectedMessages := OrderedCollection
+		                    with: JadePresenter homeEnvVarString
+		                    with:
+			                    'Loading this spec file will use ''$ROWAN_PROJECTS_HOME'' as projects home. Continue?
+(Pressing No will open a dialog to choose an alternate projects home path)'
+		                    with: '$ROWAN_PROJECTS_HOME'
+		                    with: #( 'specPath' 'projectHomePath' ).
+	resumeValues := OrderedCollection
+		                with: 'specPath'
+		                with: false
+		                with: 'projectHomePath'
+		                with: nil.
+	hitExceptionCount := 0.
+	[ self projectsPresenter loadProject ]
+		on: ProvideAnswerNotification
+		do: [ :ex |
+				hitExceptionCount := hitExceptionCount + 1.
+				self assert: ex messageText equals: expectedMessages removeFirst.
+				hitExceptionCount = 4 ifFalse: [
+					ex resume: resumeValues removeFirst ] ].
+	self assert: hitExceptionCount equals: 4
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.

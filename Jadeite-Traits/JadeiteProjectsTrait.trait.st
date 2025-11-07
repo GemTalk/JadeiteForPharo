@@ -381,13 +381,16 @@ JadeiteProjectsTrait >> initializeProjectListMenu [
 { #category : 'actions' }
 JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomePath [
 
+	(ProvideAnswerNotification signal:
+		 (Array with: path with: projectsHomePath)) ifNotNil: [ :array |
+		^ array ].
 	self
 		installProjectFromPath: path
 		projectsHome: projectsHomePath
 		componentNames: nil
 		attributes: nil
 		resolveStrict: false
-		alias: nil 
+		alias: nil
 ]
 
 { #category : 'actions' }
