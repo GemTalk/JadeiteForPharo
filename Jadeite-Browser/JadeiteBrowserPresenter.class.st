@@ -4217,7 +4217,7 @@ JadeiteBrowserPresenter >> updateCurrentProjectPackageDisplay: anAnnouncement [
 		currentProjectPackageText view text: anAnnouncement text ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateCurrentProjectPackageInfo [
 
 	| ws |
@@ -4236,7 +4236,7 @@ JadeiteBrowserPresenter >> updateCurrentProjectPackageInfo [
 				 ifNil: [ String new ]
 				 ifNotNil: [ :pkg | pkg name ]).
 
-	self uiManager defer: [ws contents traceCr. 
+	self uiManager defer: [
 		currentProjectPackageText view text: ws contents ]
 ]
 
