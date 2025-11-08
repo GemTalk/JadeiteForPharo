@@ -4,8 +4,8 @@ Extension { #name : 'JadeiteConnectionLauncher' }
 JadeiteConnectionLauncher >> exportProfile [
 
 	| fileRef |
-	fileRef := self uiManager
-		           chooseForSaveFileReference: 'Export Connection File'
+	fileRef := self
+		           jadeiteChooseSaveFileReference: 'Export Connection File'
 		           extensions: nil
 		           path:
 		           FileSystem workingDirectory / self suggestedExportName.
@@ -28,6 +28,17 @@ JadeiteConnectionLauncher >> importProfileDirectory [
 
 	directoryRef ifNil: [ ^ self ].
 	self basicImportProfileDirectory: directoryRef
+]
+
+{ #category : '*JadeiteForPharo-Pharo-13' }
+JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: exts path: pathReference [
+
+	(ProvideAnswerNotification signal: 'choose save file reference')
+		ifNotNil: [ :answer | ^ answer ].
+	^ self uiManager
+		  chooseForSaveFileReference: 'Export Connection File'
+		  extensions: exts
+		  path: FileSystem workingDirectory / self suggestedExportName
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }

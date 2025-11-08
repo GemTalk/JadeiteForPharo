@@ -34,7 +34,7 @@ JadeiteForPharoGUIWithoutLoginTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoGUIWithoutLoginTestCase >> test_exportConnection [
+JadeiteForPharoGUIWithoutLoginTestCase >> test_exportConnectionProfile [
 
 	|  profile isConnected exportedProfile |
 	"https://github.com/GemTalk/JadeiteForPharo/issues/67"
