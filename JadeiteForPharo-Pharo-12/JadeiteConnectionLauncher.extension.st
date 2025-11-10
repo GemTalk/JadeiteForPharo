@@ -33,6 +33,26 @@ JadeiteConnectionLauncher >> importProfileDirectory [
 ]
 
 { #category : '*JadeiteForPharo-Pharo-12' }
+JadeiteConnectionLauncher >> importProfileFile [
+
+	| fileStream fileWindow |
+	self possiblyDisconnect ifFalse: [ ^ self ].
+	fileWindow := FileDialogWindow basicNew.
+	fileWindow
+		previewType: nil;
+		initialize;
+		title: 'Select connection profile file to import';
+		answerOpenFile.
+	self class lastImportDirectory ifNotNil: [ :dir |
+		fileWindow selectDirectory: dir asFileReference ].
+	fileStream := fileWindow
+		              openModal;
+		              answer.
+	fileStream ifNil: [ ^ self ].
+	self basicImportProfileFromPath: fileWindow selectedPathName
+]
+
+{ #category : '*JadeiteForPharo-Pharo-12' }
 JadeiteConnectionLauncher >> setPath [
 
 	| path |
