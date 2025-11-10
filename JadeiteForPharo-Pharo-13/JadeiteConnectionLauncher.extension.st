@@ -7,8 +7,8 @@ JadeiteConnectionLauncher >> exportProfile [
 	fileRef := self
 		           jadeiteChooseSaveFileReference: 'Export Connection File'
 		           extensions: nil
-		           path:
-		           FileSystem workingDirectory / self suggestedExportName.
+		           path: self class lastImportDirectory asFileReference
+			           / self suggestedExportName.
 	fileRef ifNil: [ ^ self ].
 	self basicExportProfile: fileRef
 ]
@@ -31,6 +31,20 @@ JadeiteConnectionLauncher >> importProfileDirectory [
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }
+JadeiteConnectionLauncher >> importProfileFile [
+
+	| presenter |
+	self possiblyDisconnect ifFalse: [ ^ self ].
+	presenter := JadeiteOpenFilePresenter new
+		             openFolder:
+			             self class lastImportDirectory asFileReference;
+		             title: 'Select connection profile file to import'.
+	presenter okAction: [ :fileRef |
+		self basicImportProfileFromPath: fileRef pathString ].
+	^ presenter openDialog
+]
+
+{ #category : '*JadeiteForPharo-Pharo-13' }
 JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: exts path: pathReference [
 
 	(ProvideAnswerNotification signal: 'choose save file reference')
@@ -38,7 +52,7 @@ JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: e
 	^ self uiManager
 		  chooseForSaveFileReference: 'Export Connection File'
 		  extensions: exts
-		  path: FileSystem workingDirectory / self suggestedExportName
+		  path: pathReference
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }

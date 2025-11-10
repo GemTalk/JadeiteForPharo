@@ -88,7 +88,8 @@ JadeiteConnectionLauncher class >> initialize [
 { #category : 'accessing' }
 JadeiteConnectionLauncher class >> lastImportDirectory [
 
-	^LastImportDirectory
+	^ LastImportDirectory ifNil: [
+		  LastImportDirectory := FileSystem workingDirectory pathString ]
 ]
 
 { #category : 'accessing' }
@@ -429,26 +430,6 @@ JadeiteConnectionLauncher >> hostText [
 JadeiteConnectionLauncher >> hostText: anObject [
 
 	hostText := anObject
-]
-
-{ #category : 'connections' }
-JadeiteConnectionLauncher >> importProfileFile [
-
-	| fileStream fileWindow |
-	self possiblyDisconnect ifFalse: [ ^ self ].
-	fileWindow := FileDialogWindow basicNew.
-	fileWindow
-		previewType: nil;
-		initialize;
-		title: 'Select connection profile file to import';
-		answerOpenFile.
-	self class lastImportDirectory ifNotNil: [ :dir |
-		fileWindow selectDirectory: dir asFileReference ].
-	fileStream := fileWindow
-		              openModal;
-		              answer.
-	fileStream ifNil: [ ^ self ].
-	self basicImportProfileFromPath: fileWindow selectedPathName
 ]
 
 { #category : 'initialization' }
