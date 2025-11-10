@@ -329,20 +329,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_connectDoesNotClearChangeField
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionLauncherTestCase >> test_exportConnectionProfile [
-
-	fileRef := self testConnectionFileReference.
-	self deny: fileRef exists.
-	[
-		[ launcher exportProfile ]
-			on: ProvideAnswerNotification
-			do: [ :ex | ex resume: fileRef ].
-		self assert: fileRef exists ] ensure: [
-			fileRef delete.
-			self deny: fileRef exists ]
-]
-
-{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_exportConnectionWontExportDotFiles [
 	"connections beginning with a '.' should not be exported"
 

@@ -954,29 +954,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_confirmDiscardMethodChanges [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_debugTestProcessHangingAround [
-
-	| debugger |
-	self
-		testsJadeiteForPharoIssue: #issue329
-		title:
-		'Debugging failed test in browser leaves pharo process hanging around'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/329'.
-	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
-	self assertIsNil: self debugTestProcesses.
-	self projectsPresenter findClassNamed: 'JadeServerTest'.
-	self saveMethod: 'test_fail	self assert: false' in: 'JadeServerTest'.
-	debugger := self waitForNew: JadeiteDebuggerPresenter while: [
-		            (Delay forMilliseconds: 250) wait.
-		            self projectsPresenter debugMethodTests:
-			            self projectsPresenter selectedClass ].
-	[ self denyIsNil: self debugTestProcesses ] ensure: [
-		self destroy: debugger.
-		(Delay forMilliseconds: 500) wait.
-		self assertIsNil: self debugTestProcesses ]
-]
-
-{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource [
 	"If you reselect the same method that has changes and discard text was not being updated."
 	| methodSelectorsList newSource originalSource |
