@@ -162,10 +162,11 @@ JadeiteBrowserPresenterWithoutRowan >> editSaveClass [
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> filterClassesBySelectedClassCategory: theClasses [
 
+	theClasses ifNil: [ ^ Array new ].
 	classCategoryPresenter selectedItem ifNil: [ ^ theClasses ].
 	^ theClasses select: [ :classService |
-		  classCategoryPresenter selectedItem isUnder:
-			  classService classCategory ]
+			  classCategoryPresenter selectedItem isUnder:
+				  classService classCategory ]
 ]
 
 { #category : 'initialization' }

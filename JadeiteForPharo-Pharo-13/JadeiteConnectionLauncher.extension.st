@@ -56,7 +56,7 @@ JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: e
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }
-JadeiteConnectionLauncher >> setPath [
+JadeiteConnectionLauncher >> setClientLibrariesPath [
 
 	| path dialog |
 	dialog := self application newOpenFile

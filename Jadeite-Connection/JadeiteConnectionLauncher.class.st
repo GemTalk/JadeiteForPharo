@@ -13,7 +13,6 @@ Class {
 		'hostText',
 		'connectButton',
 		'disconnectButton',
-		'setPathButton',
 		'lastConnection',
 		'lastImportedFileName',
 		'availableConnectionPresenter',
@@ -21,7 +20,8 @@ Class {
 		'portText',
 		'selectedProfile',
 		'connectionBox',
-		'nonConnectionBox'
+		'nonConnectionBox',
+		'setClientLibrariesPathButton'
 	],
 	#classVars : [
 		'ConnectionProfile',
@@ -288,7 +288,7 @@ JadeiteConnectionLauncher >> connect [
 	| shouldDebug |
 	pathText text isEmpty ifTrue: [
 		UIManager default alert: 'Client Libraries Path must be set'.
-		self setPath ifNil: [ ^ self ] ].
+		self setClientLibrariesPath ifNil: [ ^ self ] ].
 	self populateConnectionProfile.
 	[
 	self connectionProfile connect.
@@ -335,8 +335,10 @@ JadeiteConnectionLauncher >> connectPresenters [
 	super connectPresenters.
 	self connectConnection.
 	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
-		selection selectedIndex = 0 ifFalse: [
-			self installImportedConnection: selection selectedItem ] ]
+			selection selectedIndex = 0 ifFalse: [
+				self installImportedConnection: selection selectedItem ] ].
+	pathText whenSubmitDo: [ :newPath | 
+		JadeiteGCIConnectionProfile clientLibrariesPath: newPath ]
 ]
 
 { #category : 'actions' }
@@ -489,17 +491,22 @@ JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 
 	| pathBox |
 	pathBox := SpBoxLayout newVertical.
-	pathBox add: (self newLabel label: 'Client Libraries Path:').
-	setPathButton := self newButton
-		                 label: 'Set Path';
-		                 icon: (self iconNamed: #smallHome);
-		                 action: [ self setPath ].
+	pathBox add: (self newLabel
+			 label: 'Client Libraries Path:';
+			 help: 'To change client libraries path:
+Enter new path and press Enter or press ''Set Client Libraries Path'' button').
+	setClientLibrariesPathButton := self newButton
+		                                label: 'Set Client Libraries Path';
+		                                icon: (self iconNamed: #smallHome);
+		                                action: [
+			                                self setClientLibrariesPath ].
 
-
-	pathText := self newTextInput beNotEditable.
+	pathText := JadeiteTextInputFieldPresenter new help:
+		            'To change client libraries path:
+Enter new path and press Enter or press ''Set Client Libraries Path'' button'.
 	pathBox add: pathText.
 	pathBox
-		add: setPathButton
+		add: setClientLibrariesPathButton
 		withConstraints: [ :constraints1 | constraints1 padding: 5 ].
 	nonConnectionBox
 		add: pathBox
@@ -907,7 +914,7 @@ JadeiteConnectionLauncher >> setFocusOrder [
 		add: versionText;
 		add: netldiText;
 		add: pathText;
-		add: setPathButton;
+		add: setClientLibrariesPathButton;
 		add: connectButton;
 		add: disconnectButton 
 		

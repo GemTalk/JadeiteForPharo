@@ -1062,6 +1062,34 @@ JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyActionLoadsFu
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_dragDrop [
+	"not testing the actual dragging, just the action that is taken on drop"
+
+	| rowanServiceMethodSelectors answeringService updatedListSelectors rowanService |
+	self selectRowanClassServiceNamed: 'RowanAnsweringService'.
+	self selectHierarchyTab.
+	answeringService := self classHierarchyPresenter selectedItem.
+	self assert: answeringService name equals: 'RowanAnsweringService'.
+	rowanService := RowanClassService new
+		                name: 'RowanService';
+		                meta: false.
+	self classHierarchyPresenter selectItem: rowanService.
+	self methodListPresenter selectAll.
+	rowanServiceMethodSelectors := self methodListPresenter selectedItems
+		                               collect: [ :methodService |
+		                               methodService selector ].
+	self projectsPresenter
+		dropMethods: self methodListPresenter selectedItems
+		onSelectedClass: answeringService.
+	updatedListSelectors := self methodListPresenter selectedItems
+		                        collect: [ :methodService |
+		                        methodService selector ].
+	self classHierarchyPresenter selectItem: answeringService. 
+	rowanServiceMethodSelectors do: [ :sel |
+		self assert: (updatedListSelectors includes: sel) ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_hierarchyDoubleClick [
 
 	| rowanService answeringService rowanServicePath rowanServiceChildren |
