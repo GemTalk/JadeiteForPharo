@@ -1038,20 +1038,22 @@ JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedClass: classSer
 	self
 		updateServices: methodServices
 		onCompletion: [ "method services may not have a source yet if they haven't been displayed so update"
-			classService meta: methodServices first meta.
-			classService compileErrorHandler: [ :ex |
-				UIManager default alert:
-					'Move method(s) to class failed with compile error: '
-					, (ex gsArguments first at: 3) printString.
-				self
-					ensureSelectionAfterDropClass: self selectedClass
-					methods: methodServices "make sure current selections stays selected" ].
-			classService
-				saveMethods: (methodServices collect: [ :ea | ea source ])
-				category: methodServices first category
-				session: GciSession current
-				onCompletion: [ "can't just update the class service here as we're still in the previous command for the class service"
-					self ensureSelectionAfterDropClass: classService methods: methodServices ] ]
+				classService meta: methodServices first meta.
+				classService compileErrorHandler: [ :ex |
+						UIManager default alert:
+							'Move method(s) to class failed with compile error: '
+							, (ex gsArguments first at: 3) printString.
+						self
+							ensureSelectionAfterDropClass: self selectedClass
+							methods: methodServices "make sure current selections stays selected" ].
+				classService
+					saveMethods: (methodServices collect: [ :ea | ea source ])
+					category: methodServices first category
+					session: GciSession current
+					onCompletion: [ "can't just update the class service here as we're still in the previous command for the class service"
+							self
+								ensureSelectionAfterDropClass: classService
+								methods: methodServices ] ]
 ]
 
 { #category : 'drag & drop' }
@@ -1188,6 +1190,7 @@ JadeiteBrowserPresenter >> editSaveReadMe [
 JadeiteBrowserPresenter >> ensureSelectionAfterDropClass: classService methods: methodServices [
 
 	| targetSelectors indexes index |
+	self suspendSelectionEvents. 
 	index := self classListPresenter list indexOf: classService.
 	self classListPresenter selectIndex: index scrollToSelection: true.
 	self categoryListPresenter list:
@@ -1200,7 +1203,8 @@ JadeiteBrowserPresenter >> ensureSelectionAfterDropClass: classService methods: 
 		           self methodListPresenter list indexOf: ea ].
 	self methodListPresenter
 		selectIndexes: indexes
-		scrollToSelection: true
+		scrollToSelection: true.
+	self resumeSelectionEvents. 
 ]
 
 { #category : 'accessing' }
@@ -2344,14 +2348,15 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 	classService displayMethodsOn: methodListPresenter browser: self.
 	methodListPresenter selections isEmpty
 		ifTrue: [
-			self setDefaultMethod.
-			definedMethodPackageText text: String new.
-			self resetCategoryText ]
+				self setDefaultMethod.
+				definedMethodPackageText text: String new.
+				self resetCategoryText ]
 		ifFalse: [
-			methodSourcePresenter withAdapterDo: [ :a |
-				a widgetDo: [ :w | w hasUnacceptedEdits ifTrue: [ ^ self ] ] ].
-			methodSourcePresenter text: methodListPresenter selectedItem source.
-			methodSourcePresenter hasUnacceptedEdits: false ]
+				methodSourcePresenter withAdapterDo: [ :a |
+					a widgetDo: [ :w | w hasUnacceptedEdits ifTrue: [ ^ self ] ] ].
+				methodListPresenter selectedItem source ifNotNil: [ :src | "dragging method can have a nil source until the target method updates"
+						methodSourcePresenter text: src.
+						methodSourcePresenter hasUnacceptedEdits: false ] ]
 ]
 
 { #category : 'as yet unclassified' }
