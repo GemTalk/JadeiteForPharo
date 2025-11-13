@@ -143,7 +143,7 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	clientLibariesPath ifNotNil: [
 		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
 		JadeiteConnectionLauncher soleInstance window close.
-		JadeiteConnectionApplication new start ].
+		JadeiteConnectionApplication singleton start ].
 	JadeiteConnectionProfile connectionProfile disconnect.
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
@@ -294,7 +294,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	originalPath := 'testPath'.
 	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
-	JadeiteConnectionApplication new start.
+	JadeiteConnectionApplication singleton start.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	self assert: launcher pathText text equals: originalPath.
 	changedPathRef := 'clientLibrariesChanged.txt' asFileReference.
@@ -303,7 +303,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 		on: ProvideAnswerNotification
 		do: [ :notification | notification resume: changedPathRef ].
 	launcher window close.
-	JadeiteConnectionApplication new start.
+	JadeiteConnectionApplication singleton start.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	self assert: launcher pathText text equals: changedPathRef fullName
 ]
@@ -323,7 +323,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
 	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	originalPath := 'testPath'.
 	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
-	JadeiteConnectionApplication new start.
+	JadeiteConnectionApplication singleton start.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	self assert: launcher pathText text equals: originalPath.
 

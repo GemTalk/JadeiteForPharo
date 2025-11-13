@@ -69,7 +69,11 @@ JadeiteWindowsBrowser >> connectPresenters [
 	jadeiteWindowsListPresenter whenActivatedDo: [ :selection |
 		self raiseJadeiteWindows ].
 	pharoWindowsListPresenter whenActivatedDo: [ :selection |
-		self raisePharoWindows ]
+		self raisePharoWindows ].
+	SystemAnnouncer uniqueInstance weak
+		when: UIThemeChanged
+		send: #themeChanged
+		to: self
 ]
 
 { #category : 'defaults' }
@@ -327,6 +331,24 @@ JadeiteWindowsBrowser >> startAutoRefresh [
 
 	super startAutoRefresh.
 	autoRefreshProcess name: 'Jadeite Windows Browser Auto Refresh'
+]
+
+{ #category : 'events' }
+JadeiteWindowsBrowser >> themeChanged [
+
+	PharoLightTheme isCurrent
+		ifTrue: [
+				waitIndicator adapter widget color:
+					JadeiteApplication defaultBackgroundColor.
+				layoutBox adapter widget color:
+					JadeiteApplication defaultBackgroundColor.
+				autoRefreshPresenter adapter widget color:
+					JadeiteApplication defaultBackgroundColor ]
+		ifFalse: [
+				waitIndicator adapter widget color: self theme backgroundColor.
+				layoutBox adapter widget color: self theme backgroundColor.
+				autoRefreshPresenter adapter widget color:
+					self theme backgroundColor ]
 ]
 
 { #category : 'constants' }

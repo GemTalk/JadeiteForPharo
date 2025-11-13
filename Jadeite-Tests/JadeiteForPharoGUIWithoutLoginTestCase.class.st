@@ -16,7 +16,7 @@ Class {
 { #category : 'support' }
 JadeiteForPharoGUIWithoutLoginTestCase >> getLauncher [
 	self closeConnectionLaunchers. 
-	launcher := JadeiteConnectionApplication new start
+	launcher := JadeiteConnectionApplication singleton start
 ]
 
 { #category : 'support' }

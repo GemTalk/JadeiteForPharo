@@ -338,7 +338,11 @@ JadeiteConnectionLauncher >> connectPresenters [
 			selection selectedIndex = 0 ifFalse: [
 				self installImportedConnection: selection selectedItem ] ].
 	pathText whenSubmitDo: [ :newPath | 
-		JadeiteGCIConnectionProfile clientLibrariesPath: newPath ]
+		JadeiteGCIConnectionProfile clientLibrariesPath: newPath ].
+	SystemAnnouncer uniqueInstance weak
+		when: UIThemeChanged
+		send: #themeChanged
+		to: self.
 ]
 
 { #category : 'actions' }
@@ -955,6 +959,31 @@ JadeiteConnectionLauncher >> suggestedExportName [
 	^ stoneString , '_' , versionString , '_' , userString , '.txt'
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> textFieldPresenters [
+
+	| oc |
+	oc := OrderedCollection new.
+	oc
+		add: hostText;
+		add: stoneText;
+		add: userText;
+		add: passwordText;
+		add: versionText;
+		add: netldiText;
+		add: portText;
+		add: pathText.
+	^ oc
+]
+
+{ #category : 'events' }
+JadeiteConnectionLauncher >> themeChanged [
+
+	PharoLightTheme isCurrent
+		ifTrue: [ self updateWidgetLightThemeColors ]
+		ifFalse: [ self updateWidgetDarkThemeColors ]
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> toggleFullPathDisplay [
 
@@ -968,6 +997,42 @@ JadeiteConnectionLauncher >> updateCaption [
 	self caption: (self gciSession
 			 ifNil: [ self shellName ]
 			 ifNotNil: [ self gciSession titleBarFor: self shellName ])
+]
+
+{ #category : 'updates' }
+JadeiteConnectionLauncher >> updateWidgetDarkThemeColors [
+	"yuck - why is this necessary?"
+
+	self textFieldPresenters do: [ :text |
+			text adapter widget color: self theme backgroundColor.
+			text adapter widget scrollPane color: self theme backgroundColor.
+			text adapter widget scrollPane textArea color:
+				self theme backgroundColor.
+			text adapter widget changed ].
+	setClientLibrariesPathButton adapter widget labelMorph morph
+		textColor: Color white.
+	setClientLibrariesPathButton adapter widget changed.
+	self window adapter widget borderColor: self theme jadeiteBorderColor.
+	self window adapter widget borderWidth: self theme jadeiteBorderWidth
+]
+
+{ #category : 'updates' }
+JadeiteConnectionLauncher >> updateWidgetLightThemeColors [
+	"yuck - why is this necessary?"
+
+	self textFieldPresenters do: [ :text |
+			text adapter widget color:
+				JadeiteApplication defaultBackgroundColor.
+			text adapter widget scrollPane color:
+				JadeiteApplication defaultBackgroundColor.
+			text adapter widget scrollPane textArea color:
+				JadeiteApplication defaultBackgroundColor.
+			text adapter widget changed ].
+	availableConnectionPresenter adapter widget color:
+		JadeiteApplication defaultBackgroundColor.
+	availableConnectionPresenter adapter widget changed.
+	setClientLibrariesPathButton adapter widget labelMorph morph textColor: Color black.
+	setClientLibrariesPathButton adapter widget changed
 ]
 
 { #category : 'accessing' }

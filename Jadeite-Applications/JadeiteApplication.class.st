@@ -259,6 +259,13 @@ JadeiteApplication >> registerBrowserEventsFor: browserPresenter [
 		to: browserPresenter.
 ]
 
+{ #category : 'initialization' }
+JadeiteApplication >> resetConfiguration [
+
+	super resetConfiguration.
+	self initializeStyleSheet
+]
+
 { #category : 'added manually from Dolphin' }
 JadeiteApplication >> setInTransaction: answeringService session: session onCompletion: completionBlock [
 

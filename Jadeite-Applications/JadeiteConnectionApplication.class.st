@@ -20,7 +20,13 @@ JadeiteConnectionApplication class >> menuCommandOn: aBuilder [
 		parent: #Tools;
 		"see WorldState class>>#libraryWorldMenuOn:"keyText: 'o, j';
 		help: 'Open a Jadeite Connections Launcher';
-		action: [ self new start ]
+		action: [ self singleton start ]
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionApplication class >> singleton [
+
+	^ Singleton ifNil: [ Singleton := self new ]
 ]
 
 { #category : 'actions' }

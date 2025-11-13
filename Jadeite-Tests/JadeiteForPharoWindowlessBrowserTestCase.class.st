@@ -18,7 +18,7 @@ Class {
 JadeiteForPharoWindowlessBrowserTestCase >> ensureLauncherOpened [
 
 	JadeiteConnectionLauncher soleInstance ifNil: [
-		JadeiteConnectionApplication new start ]
+		JadeiteConnectionApplication singleton start ]
 ]
 
 { #category : 'support' }
