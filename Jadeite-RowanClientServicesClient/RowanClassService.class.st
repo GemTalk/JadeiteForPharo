@@ -994,28 +994,31 @@ RowanClassService >> updateCategories: presenter browser: browser [
 
 { #category : 'updates' }
 RowanClassService >> updateMethodListIn: presenter from: visibleMethods [
+
 	| updated theModel toRemove toAdd |
 	theModel := presenter hasSelection
-				ifTrue: 
-					[(visibleMethods includesAnyOf: presenter selections)
-						ifTrue: [presenter model]
-						ifFalse: [presenter model copy]]
-				ifFalse: [presenter model copy].
+		            ifTrue: [
+				            (visibleMethods includesAnyOf: presenter selections)
+					            ifTrue: [ presenter model ]
+					            ifFalse: [ presenter model copy ] ]
+		            ifFalse: [ presenter model copy ].
 	toRemove := OrderedCollection new.
-	presenter list copy do: 
-			[:old |
-			updated := visibleMethods detect: [:new | new = old] ifNone: [].
-			updated ifNil: [toRemove add: old] ifNotNil: [old replicateFrom: updated]].
+	presenter list copy do: [ :old |
+			updated := visibleMethods detect: [ :new | new = old ] ifNone: [ ].
+			updated
+				ifNil: [ toRemove add: old ]
+				ifNotNil: [ old replicateFrom: updated ] ].
 	theModel removeAll: toRemove.
-	toAdd := SortedCollection new sortBlock: [:x :y | x selector < y selector].
-	visibleMethods do: 
-			[:new |
-			updated := theModel detect: [:old | new = old] ifNone: [].
-			updated ifNil: [toAdd add: new]].
+	toAdd := SortedCollection new sortBlock: [ :x :y |
+		         x selector < y selector ].
+	visibleMethods do: [ :new |
+			updated := theModel detect: [ :old | new = old ] ifNone: [ ].
+			updated ifNil: [ toAdd add: new ] ].
 	self addSorted: toAdd to: theModel.
 	(presenter parentPresenter class canUnderstand: #updateSUnitTab)
-		ifTrue: [presenter parentPresenter updateSUnitTab].
-	theModel == presenter model ifFalse: [presenter model: theModel]
+		ifTrue: [ presenter parentPresenter updateSUnitTab ].
+	theModel == presenter model ifFalse: [ presenter model: theModel ].
+	presenter invalidate "to make sure scrollbars update"
 ]
 
 { #category : 'updates' }
