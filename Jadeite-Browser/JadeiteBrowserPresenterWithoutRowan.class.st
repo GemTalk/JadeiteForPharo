@@ -151,7 +151,7 @@ JadeiteBrowserPresenterWithoutRowan >> editSaveClass [
 		browserService selectedClass: classService name ].
 	self issueCommand: browserService onCompletion: [
 		self
-			updateAfterFindClass: browserService selectedClass
+			findClass: browserService selectedClass
 			methodService: nil
 			onCompletion: [
 				classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ].
@@ -167,6 +167,41 @@ JadeiteBrowserPresenterWithoutRowan >> filterClassesBySelectedClassCategory: the
 	^ theClasses select: [ :classService |
 			  classCategoryPresenter selectedItem isUnder:
 				  classService classCategory ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> findClass: classService methodService: methodService onCompletion: completionBlock [
+	"expect all services to be updated"
+
+	self suspendSelectionEvents.
+	[ "might not be a valid class, say in a preference"
+		classService dictionaryName ifNotNil: [
+				self selectDictionaryNamed: classService dictionaryName.
+				self refreshClassCategoriesFrom:
+					self dictionaryListPresenter selectedItem.
+				self setAppropriateMeta: classService.
+				self isHierarchyTabSelected ifTrue: [
+					self selectedClass = classService ifFalse: [
+						self selectClassListTab ] ].
+				self selectClassCategoryFor: classService.
+				self
+					updateClassesForClassCategories:
+					self classCategoryPresenter selectedItems
+					using: self dictionaryListPresenter selectedItem.
+				self selectClass: classService completionBlock: [
+						methodListPresenter items: classService methods.
+						methodListPresenter beSorted.
+						classService updateSortedJadeiteCategories:
+							categoryListPresenter.
+						methodService ifNotNil: [
+								| index |
+								self methodListPresenter selection unselectAll.
+								index := self methodListPresenter items indexOf: methodService.
+								self methodListPresenter
+									selectIndex: index
+									scrollToSelection: true ].
+						completionBlock value.
+						self updateTabLabel ] ] ] ensure: [ self resumeSelectionEvents ]
 ]
 
 { #category : 'initialization' }
