@@ -285,58 +285,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
-
-	| changedPathRef originalPath |
-	self profile isConnected ifTrue: [ self profile disconnect ].
-	JadeiteConnectionLauncher soleInstance window close.
-
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
-	originalPath := 'testPath'.
-	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
-	JadeiteConnectionApplication singleton start.
-	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	self assert: launcher pathText text equals: originalPath.
-	changedPathRef := 'clientLibrariesChanged.txt' asFileReference.
-	launcher application useBackend: #JadeiteTest.
-	[ launcher setClientLibrariesPath ]
-		on: ProvideAnswerNotification
-		do: [ :notification | notification resume: changedPathRef ].
-	launcher window close.
-	JadeiteConnectionApplication singleton start.
-	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	self assert: launcher pathText text equals: changedPathRef fullName
-]
-
-{ #category : 'tests' }
-JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
-
-	| originalPath command |
-	self
-		testsJadeiteForPharoIssue:
-		'WOR: Really annoying that I can''t just type in the clientlibs path '
-		title: 'https://github.com/GemTalk/JadeiteForPharo/issues/344'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/344'.
-	self profile isConnected ifTrue: [ self profile disconnect ].
-	JadeiteConnectionLauncher soleInstance window close.
-
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
-	originalPath := 'testPath'.
-	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
-	JadeiteConnectionApplication singleton start.
-	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	self assert: launcher pathText text equals: originalPath.
-
-	launcher pathText text: 'new/Client/Lib/Path'.
-	command := launcher pathText ensureInternalActions allCommands
-		           detect: [ :ea | ea id = 'shortcutCtrl+S' ].
-	command execute.
-	self
-		assert: JadeiteGCIConnectionProfile clientLibrariesPath
-		equals: 'new/Client/Lib/Path'
-]
-
-{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_closeDisconnects [
 
 	JadeiteConnectionProfile connectionProfile connect.

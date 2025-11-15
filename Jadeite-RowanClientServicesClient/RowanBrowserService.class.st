@@ -80,7 +80,11 @@ RowanBrowserService >> dictionaryListUpdate: presenter [
 
 	presenter list isEmpty ifTrue: [ presenter list: ListModel new ].
 	dictionaries ifNil: [ ^ self ].
-	presenter list: dictionaries.
+	dictionaries = presenter list
+		ifTrue: [
+				1 to: presenter list size do: [ :index |
+					(presenter list at: index) replicateFrom: (dictionaries at: index) ] ]
+		ifFalse: [ presenter list: dictionaries ].
 	presenter invalidate
 ]
 

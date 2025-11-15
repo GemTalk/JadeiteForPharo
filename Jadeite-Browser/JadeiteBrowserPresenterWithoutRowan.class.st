@@ -174,34 +174,34 @@ JadeiteBrowserPresenterWithoutRowan >> findClass: classService methodService: me
 	"expect all services to be updated"
 
 	self suspendSelectionEvents.
-	[ "might not be a valid class, say in a preference"
-		classService dictionaryName ifNotNil: [
-				self selectDictionaryNamed: classService dictionaryName.
-				self refreshClassCategoriesFrom:
-					self dictionaryListPresenter selectedItem.
-				self setAppropriateMeta: classService.
-				self isHierarchyTabSelected ifTrue: [
-					self selectedClass = classService ifFalse: [
-						self selectClassListTab ] ].
-				self selectClassCategoryFor: classService.
-				self
-					updateClassesForClassCategories:
-					self classCategoryPresenter selectedItems
-					using: self dictionaryListPresenter selectedItem.
-				self selectClass: classService completionBlock: [
-						methodListPresenter items: classService methods.
-						methodListPresenter beSorted.
-						classService updateSortedJadeiteCategories:
-							categoryListPresenter.
-						methodService ifNotNil: [
-								| index |
-								self methodListPresenter selection unselectAll.
-								index := self methodListPresenter items indexOf: methodService.
-								self methodListPresenter
-									selectIndex: index
-									scrollToSelection: true ].
-						completionBlock value.
-						self updateTabLabel ] ] ] ensure: [ self resumeSelectionEvents ]
+	[
+		classService dictionaryName ifNil: [ ^ self ]. "invalid class say in a preference"
+		self selectDictionaryNamed: classService dictionaryName.
+		self refreshClassCategoriesFrom:
+			self dictionaryListPresenter selectedItem.
+		self setAppropriateMeta: classService.
+		self isHierarchyTabSelected ifTrue: [
+			self selectedClass = classService ifFalse: [
+				self selectClassListTab ] ].
+		self selectClassCategoryFor: classService.
+		self
+			updateClassesForClassCategories:
+			self classCategoryPresenter selectedItems
+			using: self dictionaryListPresenter selectedItem.
+		self selectClass: classService completionBlock: [
+				classDefinitionPresenter text: classService template.
+				methodListPresenter items: classService methods.
+				methodListPresenter beSorted.
+				classService updateSortedJadeiteCategories: categoryListPresenter.
+				methodService ifNotNil: [
+						| index |
+						self methodListPresenter selection unselectAll.
+						index := self methodListPresenter items indexOf: methodService.
+						self methodListPresenter
+							selectIndex: index
+							scrollToSelection: true ].
+				completionBlock value.
+				self updateTabLabel ] ] ensure: [ self resumeSelectionEvents ]
 ]
 
 { #category : 'initialization' }
@@ -609,9 +609,10 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryServi
 JadeiteBrowserPresenterWithoutRowan >> updateClassDefPresenter [
 
 	self selectedClass ifNotNil: [ :classService |
-		classDefinitionPresenter text: classService template.
-		classDefinitionPresenter isModified: false.
-		^ self ].
+			classDefinitionPresenter text:
+				(classService template ifNil: [ String new ]).
+			classDefinitionPresenter isModified: false.
+			^ self ].
 	self dictionaryListPresenter selectedItem ifNil: [
 		^ self markClassDefinitionPaneUnmodified ].
 	self templateForClassCategory:
