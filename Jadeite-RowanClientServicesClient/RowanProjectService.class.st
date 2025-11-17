@@ -538,10 +538,19 @@ RowanProjectService >> remoteServiceName [
 
 { #category : 'public' }
 RowanProjectService >> removedProject: presenter [
+
 	| removedProject |
-	updateType == #removedProject: ifFalse:[^self].
-	removedProject := presenter list detect: [:projectService | projectService name = name] ifNone: [].
-	removedProject ifNotNil: [presenter model remove: removedProject]
+	updateType == #removedProject: ifFalse: [ ^ self ].
+	removedProject := presenter list
+		                  detect: [ :projectService |
+		                  projectService name = name ]
+		                  ifNone: [ ].
+	removedProject ifNotNil: [
+			(presenter selectedItems includes: removedProject) ifTrue: [
+					| index |
+					index := presenter items indexOf: removedProject.
+					presenter unselectIndex: index ].
+			presenter model remove: removedProject ]
 ]
 
 { #category : 'public' }

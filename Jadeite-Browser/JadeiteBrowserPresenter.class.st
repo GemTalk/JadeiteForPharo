@@ -446,10 +446,8 @@ JadeiteBrowserPresenter >> basicUpdateClassInfo [
 
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
-
 	self updateProjectPackagesOnCompletion: [
 		self updateProjectInfo.
-		self todo: 'projectInfoTab ensureVisible'.
 		self sundryCleanup.
 		completionBlock value ]
 ]
