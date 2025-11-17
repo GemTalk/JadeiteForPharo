@@ -796,10 +796,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 	self connectMethodPresenters.
 	textAreaTabs whenSelectedPageChangedDo: [ :selection |
 		self textTabChanged ].
-	self application
-		when: #abortedTransaction
-		send: #abortedTransaction
-		to: self
+
 ]
 
 { #category : 'initialization' }
@@ -1372,7 +1369,8 @@ JadeiteBrowserPresenter >> gciSession: aSession [
 	self gciSession announcer
 		when: JadeiteCurrentProjectPackageUpdated
 		send: #updateCurrentProjectPackageDisplay:
-		to: self
+		to: self;
+		when: #abortedTransaction send: #abortedTransaction to: self
 ]
 
 { #category : 'as yet unclassified' }

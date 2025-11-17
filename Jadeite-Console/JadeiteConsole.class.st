@@ -223,10 +223,6 @@ JadeiteConsole >> connectPresenters [
 
 	super connectPresenters.
 	self application
-		when: #abortedTransaction
-		send: #abortedTransaction
-		to: self.
-	self application
 		when: #committedTransaction
 		send: #committedTransaction
 		to: self.
@@ -339,7 +335,8 @@ JadeiteConsole >> gciSession: aGciSession [
 	self gciSession announcer
 		when: JadeiteCurrentProjectPackageUpdated
 		send: #updateCurrentProjectPackageDisplay:
-		to: self
+		to: self;
+		when: #abortedTransaction send: #abortedTransaction to: self
 ]
 
 { #category : 'actions' }
@@ -757,11 +754,13 @@ JadeiteConsole >> transactionMode [
 JadeiteConsole >> transactionMode: aSymbol [
 	"It seems Dolphin should have an event like 'aboutToChangeRadioButton' to avoid having to muck with the low level view"
 
-	(MessageBox confirm: 'Switching transaction modes will cause an abort. Continue?')
-		ifTrue: 
-			[self basicTransactionMode: aSymbol.
-			JadePresenter trigger: #abortedTransaction]
-		ifFalse: [self resetTransactionModeRadioButtons]
+	self todo: [
+			(MessageBox confirm:
+				 'Switching transaction modes will cause an abort. Continue?')
+				ifTrue: [
+						self basicTransactionMode: aSymbol
+						"JadePresenter trigger: #abortedTransaction" ]
+				ifFalse: [ self resetTransactionModeRadioButtons ] ]
 ]
 
 { #category : 'actions' }

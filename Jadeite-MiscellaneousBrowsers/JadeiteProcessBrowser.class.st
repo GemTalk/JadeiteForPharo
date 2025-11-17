@@ -76,17 +76,13 @@ JadeiteProcessBrowser >> connectPresenters [
 
 	super connectPresenters.
 	self application
-		when: #abortedTransaction
-		send: #abortedTransaction
-		to: self.
-	self application
 		when: #committedTransaction
 		send: #committedTransaction
 		to: self.
 	SystemAnnouncer uniqueInstance weak
 		when: UIThemeChanged
 		send: #themeChanged
-		to: self.
+		to: self
 ]
 
 { #category : 'actions' }

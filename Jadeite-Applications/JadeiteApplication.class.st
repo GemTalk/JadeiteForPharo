@@ -28,12 +28,12 @@ JadeiteApplication class >> abortTransactionInSession: session [
 		issueCommand: browserService
 		session: session
 		onCompletion: [
-			self
-				setInTransaction: RowanAnsweringServiceClient newForked
-				session: session
-				onCompletion: [
-					JadePresenter trigger: #abortedTransaction.
-					UIManager default inform: 'Abort succeeded' ] ]
+				self
+					setInTransaction: RowanAnsweringServiceClient newForked
+					session: session
+					onCompletion: [
+							session announcer announce: #abortedTransaction.
+							UIManager default inform: 'Abort succeeded' ] ]
 ]
 
 { #category : 'actions' }
@@ -140,7 +140,7 @@ JadeiteApplication >> abortTransaction [
 				setInTransaction: RowanAnsweringServiceClient newForked
 				session: gciSession
 				onCompletion: [
-					self triggerEvent: #abortedTransaction.
+					self gciSession announcer announce: #abortedTransaction.
 					UIManager default inform: 'Abort succeeded' ] ]
 ]
 
@@ -250,13 +250,9 @@ JadeiteApplication >> jadeiteBackgroundColor [
 JadeiteApplication >> registerBrowserEventsFor: browserPresenter [
 
 	self
-		when: #abortedTransaction
-		send: #abortedTransaction
-		to: browserPresenter.
-	self
 		when: #packageAdded:
 		send: #selectNewPackage:
-		to: browserPresenter.
+		to: browserPresenter
 ]
 
 { #category : 'initialization' }

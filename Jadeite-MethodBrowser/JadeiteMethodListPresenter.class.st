@@ -119,13 +119,9 @@ JadeiteMethodListPresenter >> connectPresenters [
 
 	super connectPresenters.
 	methodListPresenter whenSelectionChangedDo: [ :selection |
-		self updateMethodSource.
-		self selectFirstReference: selection selectedItem ].
+			self updateMethodSource.
+			self selectFirstReference: selection selectedItem ].
 	methodSourcePresenter whenSubmitDo: [ :text | self editSave ].
-	self application
-		when: #abortedTransaction
-		send: #abortedTransaction
-		to: self.
 	self registerForMethodPaneAnnouncements
 ]
 
@@ -217,8 +213,13 @@ JadeiteMethodListPresenter >> firstReferenceString: anObject [
 
 { #category : 'as yet unclassified' }
 JadeiteMethodListPresenter >> gciSession: aGciSession [
+
 	gciSession := aGciSession.
 	methodSourcePresenter _gciSession: aGciSession.
+	self gciSession announcer
+		when: #abortedTransaction
+		send: #abortedTransaction
+		to: self
 ]
 
 { #category : 'actions' }
