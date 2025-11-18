@@ -53,7 +53,7 @@ JadeiteConnectionLauncher >> importProfileFile [
 ]
 
 { #category : '*JadeiteForPharo-Pharo-12' }
-JadeiteConnectionLauncher >> setPath [
+JadeiteConnectionLauncher >> setClientLibrariesPath [
 
 	| path |
 	path := UIManager default
