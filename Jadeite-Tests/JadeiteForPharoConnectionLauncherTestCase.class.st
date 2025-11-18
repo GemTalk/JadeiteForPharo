@@ -358,7 +358,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 		^ self skip: 'Rowan not available. Test not run' ].
 	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
 		JadeiteConnectionProfile connectionProfile connect ].
-	workspace := launcher openCommitIdWindow.
+	launcher openCommitIdWindow. "will set workspace variable"
 	[
 	jfpSha := (IceRepository registry detect: [ :ea |
 		           ea name = 'JadeiteForPharo' ]) properties commitish

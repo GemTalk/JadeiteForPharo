@@ -1045,18 +1045,18 @@ JadeiteForPharoAbstractBrowserTestCase >> test_doubleClickHierarchyActionLoadsFu
 		               svc name = 'RowanFileService' ].
 	self
 		assert:
-		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 1 ))
+		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 2 ))
 		equals: fileService.
 
 	self
 		assert:
-		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 2 ))
+		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 1 ))
 		equals: (answeringService subclassServices detect: [ :svc |
 				 svc name = 'RowanAnsweringServiceServer' ]).
 
 	self
 		assert:
-		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 1 1 ))
+		(self classHierarchyPresenter itemAtPath: #( 1 1 1 1 1 1 2 1 ))
 		equals: (fileService subclassServices detect: [ :svc |
 				 svc name = 'RowanFileServiceServer' ])
 ]
