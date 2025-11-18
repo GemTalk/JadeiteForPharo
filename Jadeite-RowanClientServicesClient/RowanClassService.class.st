@@ -702,11 +702,10 @@ RowanClassService >> name: aString [
 ]
 
 { #category : 'updates' }
-RowanClassService >> newClass: presenter browser: browser [
+RowanClassService >> newClassMethodCompilationFailures: presenter browser: browser [
 
-	updateType = #newClass:browser: ifFalse: [ ^ self ].
-	browser newClass: self addedTo: presenter.
-	browser updateService: self. "make sure we have a current view of the class"
+	updateType = #newClassMethodCompilationFailures:browser: ifFalse: [
+		^ self ].
 	methodsFailingRecompilation ifNotEmpty: [
 		self raiseCompileFailsMethodBrowser ]
 ]
