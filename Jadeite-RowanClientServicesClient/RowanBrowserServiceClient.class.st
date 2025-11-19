@@ -11,12 +11,6 @@ Class {
 }
 
 { #category : 'accessing' }
-RowanBrowserServiceClient >> compileErrorHandler [
-
-	^ compileErrorHandler
-]
-
-{ #category : 'accessing' }
 RowanBrowserServiceClient >> compileErrorHandler: anObject [
 
 	compileErrorHandler := anObject

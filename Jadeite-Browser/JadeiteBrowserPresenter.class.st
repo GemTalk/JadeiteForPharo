@@ -2831,26 +2831,30 @@ JadeiteBrowserPresenter >> recompileMethods [
 		command: #recompileMethodsAfterClassCompilation;
 		commandArgs: #(  );
 		compileErrorHandler: [ :ex |
-			| gsArgs |
-			gsArgs := ex gsArguments first.
-			wasCompileError := true.
-			self resetClassTemplate.
-			classDefinitionPresenter isModified: false.
-			self showMethodRecompileCompilationError: gsArgs ].
+				| restOfUpdates |
+				ex gsArguments raiseCompileFailsMethodBrowser. "a class service is passed back in gsArguments"
+				"normally compile errors don't do further updates,
+				but in this case we need to do the rest of the client updates"
+				restOfUpdates := browserService returnedServices
+					                 asOrderedCollection.
+				restOfUpdates removeLast. "compile error service is last"
+				RowanServiceUpdater current applyUpdatesFromReturnedServices:
+						restOfUpdates.
+				browserService serviceCompletionBlock value ].
 
 	self issueCommand: browserService onCompletion: [
-		wasCompileError ifFalse: [
-			[
-			self markClassDefinitionPaneUnmodified.
-			self
-				updateClassThenFind: browserService selectedClass
-				onCompletion: [  ] ]
-				on: GsApplicationError
-				do: [ :ex |
-					('*poolDictionaries not supported yet*' match: ex description)
-						ifTrue: [
-						^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
-					ex pass ] ] ]
+			wasCompileError ifFalse: [
+					[
+						self markClassDefinitionPaneUnmodified.
+						self
+							updateClassThenFind: browserService selectedClass
+							onCompletion: [ ] ]
+						on: GsApplicationError
+						do: [ :ex |
+								('*poolDictionaries not supported yet*' match: ex description)
+									ifTrue: [
+									^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
+								ex pass ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3033,9 +3037,6 @@ JadeiteBrowserPresenter >> registerClassListForUpdates [
 		browser: self;
 		register: classListPresenter
 		selector: #renamedClass:browser:
-		browser: self;
-		register: classListPresenter
-		selector: #newClassMethodCompilationFailures:browser:
 		browser: self
 ]
 
