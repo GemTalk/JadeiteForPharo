@@ -3037,6 +3037,9 @@ JadeiteBrowserPresenter >> registerClassListForUpdates [
 		browser: self;
 		register: classListPresenter
 		selector: #renamedClass:browser:
+		browser: self;
+		register: classListPresenter
+		selector: #newClassMethodCompilationFailures:browser:
 		browser: self
 ]
 

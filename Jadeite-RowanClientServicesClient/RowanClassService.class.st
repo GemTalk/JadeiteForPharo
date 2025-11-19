@@ -707,6 +707,15 @@ RowanClassService >> name: aString [
 	name := aString asString
 ]
 
+{ #category : 'updates' }
+RowanClassService >> newClassMethodCompilationFailures: presenter browser: browser [
+
+	updateType = #newClassMethodCompilationFailures:browser: ifFalse: [
+		^ self ].
+	methodsFailingRecompilation ifNotEmpty: [
+		self raiseCompileFailsMethodBrowser ]
+]
+
 { #category : 'accessing' }
 RowanClassService >> oop [
 	^oop
