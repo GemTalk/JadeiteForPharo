@@ -31,6 +31,18 @@ JadeiteForPharoSUnitBrowserTestCase >> assertPackageInList: name [
 			 ifNone: [  ])
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> createTestClass [
+
+	self
+		saveClass: 'FnoodleTest'
+		superclass: 'TestCase'
+		instVars: #(  )
+		package: nil
+		dictionaryName: 'UserGlobals'
+		classCategory: 'FnoodleTest'.
+]
+
 { #category : 'support' }
 JadeiteForPharoSUnitBrowserTestCase >> denyClassInList: name [
 	self assertIsNil: (sunitBrowser classListPresenter list
@@ -451,6 +463,30 @@ JadeiteForPharoSUnitBrowserTestCase >> test_browseSelectedMethodForNewlyAddedTes
 	self
 		assert: methodListBrowser methodListPresenter selectedItem selector
 		equals: #test_newMethod
+]
+
+{ #category : 'tests' }
+JadeiteForPharoSUnitBrowserTestCase >> test_doesNotClearClasses [
+
+	self
+		testsJadeiteForPharoIssue: #issue341
+		title: 'WOR: classes disappear from SUnit Browser on method accept'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/341'.
+	JadeitePreferences isRowanAvailable ifTrue: [
+			^ self skip:
+				  'Rowan not available. ' , thisContext methodClass name , '>>#'
+				  , thisContext selector , ' not run' ].
+	self openProjectBrowser.
+	self createTestClass.
+	self saveMethod: 'test_fail   self assert: false' in: 'FnoodleTest'.
+	self projectsPresenter selectMethodNamed: 'test_fail'.
+	self sunitPresenter selectDictionaryNamed: 'UserGlobals'.
+	self sunitPresenter selectClassNamed: 'FnoodleTest'.
+	self sunitPresenter selectMethodNamed: 'test_fail'.
+	self saveMethod: 'test_fail   self assert: true' in: 'FnoodleTest'.
+	self assert: self sunitPresenter dictionaryListPresenter selectedItem name equals: 'UserGlobals'. 
+	self assert: self sunitPresenter classListPresenter selectedItem name equals: 'FnoodleTest'. 
+	self assert: self sunitPresenter methodListPresenter selectedItem selector equals: #'test_fail'. 
 ]
 
 { #category : 'tests' }

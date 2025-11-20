@@ -369,19 +369,24 @@ RowanPackageService >> testClasses: anObject [
 
 { #category : 'public' }
 RowanPackageService >> testClasses: presenter browser: browser [
+
 	| additions sortedTests |
+	testClasses ifNil: [ ^ self ].
+	JadeitePreferences isRowanAvailable ifFalse: [ ^ self ].
 	additions := OrderedCollection new.
-	testClasses ifNil: [^self].
-	sortedTests := testClasses asSortedCollection: [ :x :y | x displayString <= y displayString ].
-	presenter model list: sortedTests. 
-	sortedTests do: 
-			[:newClassService |
+	sortedTests := testClasses asSortedCollection: [ :x :y |
+		               x displayString <= y displayString ].
+	presenter model list: sortedTests.
+	sortedTests do: [ :newClassService |
 			| updatedClass |
-			updatedClass := presenter model detect: [:classService | classService = newClassService]
-						ifNone: 
-							[additions add: newClassService.
-							nil].
-			updatedClass ifNotNil: [updatedClass replicateFrom: newClassService]].
+			updatedClass := presenter model
+				                detect: [ :classService |
+				                classService = newClassService ]
+				                ifNone: [
+						                additions add: newClassService.
+						                nil ].
+			updatedClass ifNotNil: [
+				updatedClass replicateFrom: newClassService ] ].
 	browser addUpdatedTestClasses: additions.
 	presenter invalidate
 ]

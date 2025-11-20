@@ -141,7 +141,9 @@ JadeiteConnectionLauncher >> addStyle: style [
 	netldiText addStyle: style.
 	pathText addStyle: style.
 	portText addStyle: style.
-	availableConnectionPresenter addStyle: style
+	availableConnectionPresenter whenBuiltDo: [ "not yet sure why just adding the style was no longer good enough"
+			availableConnectionPresenter adapter widget color:
+				JadeiteApplication defaultBackgroundColor ]
 ]
 
 { #category : 'accessing' }

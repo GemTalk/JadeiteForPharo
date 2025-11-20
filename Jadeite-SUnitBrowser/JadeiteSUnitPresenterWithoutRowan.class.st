@@ -10,18 +10,17 @@ Class {
 
 { #category : 'updates' }
 JadeiteSUnitPresenterWithoutRowan >> addUpdatedTestClasses: classServices [
-	"don't show class unless the package concurs"
+	"don't show class unless the dictionary concurs"
 
 	| inSelectedPackage |
 	inSelectedPackage := OrderedCollection new.
 	dictionaryListPresenter selections do: 
-			[:packageService |
-			packageService classes
+			[:dictionaryService |
+			dictionaryService classes
 				ifNotNil: 
 					[classServices
-						do: [:classService | (packageService classes includes: classService) ifTrue: [inSelectedPackage add: classService]]]].
+						do: [:classService | (dictionaryService classes includes: classService) ifTrue: [inSelectedPackage add: classService]]]].
 	classListPresenter model addAll: inSelectedPackage.
-	methodListPresenter clear
 ]
 
 { #category : 'initialization' }
@@ -111,20 +110,14 @@ JadeiteSUnitPresenterWithoutRowan >> registerPresentersForUpdates [
 ]
 
 { #category : 'selections' }
-JadeiteSUnitPresenterWithoutRowan >> selectDictionaryNamed: packageName [
+JadeiteSUnitPresenterWithoutRowan >> selectDictionaryNamed: dictionaryName [
 
 	| dictionaryService |
 	dictionaryService := dictionaryListPresenter list
 		                     detect: [ :service |
-		                     service name = packageName ]
+		                     service name = dictionaryName ]
 		                     ifNone: [ ^ self ].
 	dictionaryListPresenter selectItem: dictionaryService
-]
-
-{ #category : 'accessing' }
-JadeiteSUnitPresenterWithoutRowan >> selectPackageNamed: dictionaryName [
-
-	^ self selectDictionaryNamed: dictionaryName
 ]
 
 { #category : 'updates' }
@@ -183,4 +176,8 @@ JadeiteSUnitPresenterWithoutRowan >> updatePresenter [
 	super updatePresenter.
 	testCounter := Array with: 0 with: OrderedCollection new.
 	self updateDictionariesOnCompletion: [  ]
+]
+
+{ #category : 'updates' }
+JadeiteSUnitPresenterWithoutRowan >> updateProjectPackagesOnCompletion: completionBlock [
 ]

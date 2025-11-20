@@ -369,17 +369,8 @@ JadeiteSUnitPresenter >> newJadeiteSUnitToolbar [
 { #category : 'events' }
 JadeiteSUnitPresenter >> onClassesChanged [
 
-	self todo: [
-		classListPresenter selections size > 1
-			ifTrue: [ methodListPresenter view columnsList: methodColumns ]
-			ifFalse: [
-				methodListPresenter view columnsList:
-					(Array with: methodColumns second) ] ].
 	self updateMethods.
 	methodListPresenter view resortOnLastColumnClicked.
-	self todo: [
-		status value: nil.
-		status value: self ].
 	self reset
 ]
 

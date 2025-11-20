@@ -255,7 +255,7 @@ JadeiteApplication >> registerBrowserEventsFor: browserPresenter [
 		to: browserPresenter
 ]
 
-{ #category : 'initialization' }
+{ #category : 'nil' }
 JadeiteApplication >> resetConfiguration [
 
 	super resetConfiguration.
