@@ -4375,6 +4375,7 @@ JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 
 	methodSourcePresenter adapter ifNotNil: [ :a |
 		a widget hasUnacceptedEdits ifTrue: [ ^ self ] ].
+	methodSourcePresenter methodService = aMethodService ifTrue: [ ^ self ].
 	methodSourcePresenter methodService: aMethodService.
 	methodSourcePresenter value: aMethodService source.
 	self updateMethodSourceGlyphs
