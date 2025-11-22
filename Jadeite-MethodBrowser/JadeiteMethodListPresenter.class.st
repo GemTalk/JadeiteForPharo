@@ -625,7 +625,9 @@ JadeiteMethodListPresenter >> updateSingleMethodSourceFor: methodService [
 
 	methodSourcePresenter adapter widget hasUnacceptedEdits ifTrue: [
 		^ self ].
-	methodSourcePresenter methodService = methodService ifTrue: [ ^ self ].
+	(methodSourcePresenter methodService = methodService and: [
+		 methodSourcePresenter text = methodService source ]) ifTrue: [
+		^ self ].
 	methodSourcePresenter methodService: methodService.
 	methodSourcePresenter value: methodService source.
 	methodSourcePresenter ensureVisible.
