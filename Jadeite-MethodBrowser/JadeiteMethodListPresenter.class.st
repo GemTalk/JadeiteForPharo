@@ -594,7 +594,7 @@ JadeiteMethodListPresenter >> updateMethodSource [
 	methodListPresenter selections size = 1 ifTrue: [
 		^ self updateSingleMethodSourceFor:
 			  self methodListPresenter selectedItem ].
-	self updateMultiMethodComparison
+	self updateMultiMethodSelectionSource
 ]
 
 { #category : 'as yet unclassified' }
@@ -610,13 +610,9 @@ JadeiteMethodListPresenter >> updateMethodSourceFor: aMethodService [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteMethodListPresenter >> updateMultiMethodComparison [
-	self todo:[self selectComparisonTab.
-	comparisonPresenter
-		beforeTitle: (methodListPresenter selections at: 1) classMethodDisplayString;
-		afterTitle: (methodListPresenter selections at: 2) classMethodDisplayString;
-		compare: (methodListPresenter selections at: 1) source
-			with: (methodListPresenter selections at: 2) source].
+JadeiteMethodListPresenter >> updateMultiMethodSelectionSource [
+
+	self updateSingleMethodSourceFor: methodListPresenter selectedItem
 ]
 
 { #category : 'as yet unclassified' }
