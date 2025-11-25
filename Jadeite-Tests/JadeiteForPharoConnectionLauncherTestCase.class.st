@@ -285,6 +285,22 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPathDoesNotExistUseParent [
+
+	self profile isConnected ifTrue: [ self profile disconnect ].
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	launcher pathText text:
+		JadeiteGCIConnectionProfile clientLibrariesPath , '/defghi'.
+	self
+		assert: launcher pathText adapter widget text
+		equals: launcher pathText text.
+	self
+		assert: launcher validLibPathReference pathString
+		equals: JadeiteGCIConnectionProfile clientLibrariesPath
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_closeDisconnects [
 
 	JadeiteConnectionProfile connectionProfile connect.
