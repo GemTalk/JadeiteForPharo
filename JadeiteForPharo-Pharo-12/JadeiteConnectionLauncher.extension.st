@@ -55,12 +55,13 @@ JadeiteConnectionLauncher >> importProfileFile [
 { #category : '*JadeiteForPharo-Pharo-12' }
 JadeiteConnectionLauncher >> setClientLibrariesPath [
 
-	| path |
+	| path libPathRef |
+	libPathRef := JadeiteGCIConnectionProfile clientLibrariesPath
+		              asFileReference.
+	[ libPathRef exists ] whileFalse: [ libPathRef := libPathRef parent ].
 	path := UIManager default
 		        chooseDirectory: 'Choose Client Library Directory'
-		        from:
-		        JadeiteGCIConnectionProfile clientLibrariesPath
-			        asFileReference.
+		        from: libPathRef.
 	path ifNil: [ ^ nil ].
 	JadeiteGCIConnectionProfile clientLibrariesPath: path fullName.
 	pathText text: path fullName
