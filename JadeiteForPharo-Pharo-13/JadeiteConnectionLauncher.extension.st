@@ -58,12 +58,13 @@ JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: e
 { #category : '*JadeiteForPharo-Pharo-13' }
 JadeiteConnectionLauncher >> setClientLibrariesPath [
 
-	| path dialog |
+	| path dialog libPathRef |
+	libPathRef := JadeiteGCIConnectionProfile clientLibrariesPath
+		              asFileReference.
+	[ libPathRef exists ] whileFalse: [ libPathRef := libPathRef parent ].
 	dialog := self application newOpenFile
 		          title: 'Choose Client Library Directory';
-		          path:
-			          JadeiteGCIConnectionProfile clientLibrariesPath
-				          asFileReference;
+		          path: libPathRef;
 		          beOpenDirectory.
 	path := dialog openModal.
 	path ifNil: [ ^ nil ].
