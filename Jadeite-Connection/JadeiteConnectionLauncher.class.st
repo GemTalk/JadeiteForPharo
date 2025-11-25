@@ -339,12 +339,13 @@ JadeiteConnectionLauncher >> connectPresenters [
 	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
 			selection selectedIndex = 0 ifFalse: [
 				self installImportedConnection: selection selectedItem ] ].
-	pathText whenSubmitDo: [ :newPath | 
-		JadeiteGCIConnectionProfile clientLibrariesPath: newPath ].
+	pathText whenSubmitDo: [ :newPath |
+			JadeiteGCIConnectionProfile clientLibrariesPath: newPath.
+			pathText adapter widget hasUnacceptedEdits: false ].
 	SystemAnnouncer uniqueInstance weak
 		when: UIThemeChanged
 		send: #themeChanged
-		to: self.
+		to: self
 ]
 
 { #category : 'actions' }

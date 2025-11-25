@@ -488,6 +488,29 @@ JadeiteForPharoMethodListTestCase >> test_methodReadsWritesSameInstvar [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoMethodListTestCase >> test_multiSelection [
+	"source not updated on multi-select"
+
+	| first second third |
+	self openMethodListBrowserOfImplementorsOf: 'size'.
+	first := self methodListPresenter list at: 1.
+	second := self methodListPresenter list at: 2.
+	third := self methodListPresenter list at: 3.
+	self methodListPresenter selectIndex: 1.
+	self assert: self methodListPresenter selectedItem equals: first.
+	self assert: self methodListPresenter selectedItems size equals: 1.
+	self assert: self methodSourcePresenter text equals: first source.
+	self methodListPresenter selectIndexes: #( 2 1 ).
+	self assert: self methodListPresenter selectedItem equals: second.
+	self assert: self methodListPresenter selectedItems size equals: 2.
+	self assert: self methodSourcePresenter text equals: second source.
+	self methodListPresenter selectIndexes: #( 3 2 1 ).
+	self assert: self methodListPresenter selectedItem equals: third.
+	self assert: self methodListPresenter selectedItems size equals: 3.
+	self assert: self methodSourcePresenter text equals: third source
+]
+
+{ #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 
 	| newCompiledMethodBrowser originalText |
