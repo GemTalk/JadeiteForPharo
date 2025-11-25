@@ -56,9 +56,7 @@ JadeiteConnectionLauncher >> importProfileFile [
 JadeiteConnectionLauncher >> setClientLibrariesPath [
 
 	| path libPathRef |
-	libPathRef := JadeiteGCIConnectionProfile clientLibrariesPath
-		              asFileReference.
-	[ libPathRef exists ] whileFalse: [ libPathRef := libPathRef parent ].
+	libPathRef := self validLibPathReference.
 	path := UIManager default
 		        chooseDirectory: 'Choose Client Library Directory'
 		        from: libPathRef.
