@@ -1051,6 +1051,16 @@ JadeiteConnectionLauncher >> userText: anObject [
 ]
 
 { #category : 'accessing' }
+JadeiteConnectionLauncher >> validLibPathReference [
+
+	| libPathRef |
+	libPathRef := JadeiteGCIConnectionProfile clientLibrariesPath
+		              asFileReference.
+	[ libPathRef exists ] whileFalse: [ libPathRef := libPathRef parent ].
+	^ libPathRef
+]
+
+{ #category : 'accessing' }
 JadeiteConnectionLauncher >> versionText [
 
 	^ versionText

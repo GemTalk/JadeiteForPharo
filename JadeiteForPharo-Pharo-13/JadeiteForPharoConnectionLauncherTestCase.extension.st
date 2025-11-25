@@ -25,6 +25,22 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }
+JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPathDoesNotExistUseParent [
+
+	self profile isConnected ifTrue: [ self profile disconnect ].
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	launcher pathText text:
+		JadeiteGCIConnectionProfile clientLibrariesPath , '/defghi'.
+	self
+		assert: launcher pathText adapter widget text
+		equals: launcher pathText text.
+	self
+		assert: launcher validLibPathReference pathString
+		equals: JadeiteGCIConnectionProfile clientLibrariesPath
+]
+
+{ #category : '*JadeiteForPharo-Pharo-13' }
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
 
 	| originalPath command |

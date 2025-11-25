@@ -59,9 +59,7 @@ JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: e
 JadeiteConnectionLauncher >> setClientLibrariesPath [
 
 	| path dialog libPathRef |
-	libPathRef := JadeiteGCIConnectionProfile clientLibrariesPath
-		              asFileReference.
-	[ libPathRef exists ] whileFalse: [ libPathRef := libPathRef parent ].
+	libPathRef := self validLibPathReference.
 	dialog := self application newOpenFile
 		          title: 'Choose Client Library Directory';
 		          path: libPathRef;
