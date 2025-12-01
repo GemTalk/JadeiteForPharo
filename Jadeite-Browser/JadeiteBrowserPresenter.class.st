@@ -2723,13 +2723,6 @@ JadeiteBrowserPresenter >> postUpdateMethodSource [
 		methodCategoryText text: 'Category: ' , methodService category ]
 ]
 
-{ #category : 'updates' }
-JadeiteBrowserPresenter >> preUpdate: services [
-
-	services do: [ :service | 
-		service preUpdate: self  ]
-]
-
 { #category : 'selections' }
 JadeiteBrowserPresenter >> projectAndPackageServiceFor: classService completionBlock: completionBlock [
 	"get services in one round trip"

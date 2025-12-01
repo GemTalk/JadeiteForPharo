@@ -476,6 +476,12 @@ JadeiteBrowser >> selectedClassTab [
 	^ (tabs pages at: tabs selectedPageIndex) selectedClassTab
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowser >> selectedPackageServices [
+
+	^ Array new
+]
+
 { #category : 'constants' }
 JadeiteBrowser >> shellName [
 	^'System Browser '
