@@ -413,7 +413,9 @@ JadeiteChangesBrowser >> revert [
 { #category : 'accessing' }
 JadeiteChangesBrowser >> selectedMethodName [
 
-	^self operationsListPresenter jadeiteSelections first selector
+	^ self operationsListPresenter jadeiteSelections
+		  ifEmpty: [ nil ]
+		  ifNotEmpty: [ :selections | selections first selector ]
 ]
 
 { #category : 'as yet unclassified' }

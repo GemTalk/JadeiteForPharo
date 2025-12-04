@@ -1617,6 +1617,13 @@ JadeiteForPharoAbstractBrowserTestCase >> test_saveMethodKeepsAlphabetizedList [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_selectedMethodName [
+
+	self assert: self methodListPresenter selections isEmpty.
+	self assertIsNil: self projectsPresenter selectedMethodName
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 	"senders of optimized selectors were giving walkback"
 

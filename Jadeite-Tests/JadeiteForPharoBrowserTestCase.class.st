@@ -828,7 +828,7 @@ JadeiteForPharoBrowserTestCase >> test_classTemplateWhenNoPackagesSelected [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_compileClass [
+JadeiteForPharoBrowserTestCase >> test_compileClassOtherClass [
 
 	self
 		testsIssue: #issue390
@@ -855,6 +855,175 @@ JadeiteForPharoBrowserTestCase >> test_compileClass [
 	category: ''RowanSample1-Core''
 	options: #()
 ' replaceCrWithLf
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_compileClassSameClass [
+
+	self
+		testsJadeiteForPharoIssue: #issue356
+		title:
+		'sometimes class is deselected when updating a class definition '
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/356'.
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf.
+
+	"the following tests the issue - add inst var and recompile shouldn't deselect class "
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' 'def' )
+		package: 'RowanSample1-Core'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc def)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_compileClassSameClassMethodSelected [
+
+	self
+		testsJadeiteForPharoIssue: #issue356
+		title:
+		'sometimes class is deselected when updating a class definition '
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/356'.
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf.
+	self saveMethod: 'dummyMethod' in: 'TestClass'.
+	self
+		selectMethodsNamed: #( 'dummyMethod' )
+		in: self methodListPresenter.
+	self
+		assert: self projectsPresenter selectedMethodName
+		equals: #dummyMethod.
+
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' 'def' )
+		package: 'RowanSample1-Core'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self
+		assert: self projectsPresenter selectedMethodName
+		equals: #dummyMethod
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_compileClassSameClassMultipleMethodSelected [
+
+	self
+		testsJadeiteForPharoIssue: #issue356
+		title:
+		'sometimes class is deselected when updating a class definition '
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/356'.
+
+	self
+		testsIssue: #issue390
+		withTitle:
+		'Rename instance variable with accessor method is... wonky'.
+
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' )
+		package: 'RowanSample1-Core'.
+
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self
+		assert: self projectsPresenter classDefinitionPresenter text
+		equals: 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf.
+	self saveMethod: 'dummyMethod' in: 'TestClass'.
+	self saveMethod: 'dummyMethod2' in: 'TestClass'.
+	self saveMethod: 'dummyMethod3' in: 'TestClass'.
+	self
+		selectMethodsNamed: #( 'dummyMethod' 'dummyMethod2' 'dummyMethod3' )
+		in: self methodListPresenter.
+	self
+		assert: self projectsPresenter selectedMethodNames asArray
+		equals: #( #dummyMethod #dummyMethod2 #dummyMethod3 ).
+
+	self
+		saveClass: 'TestClass'
+		superclass: 'Object'
+		instVars: #( 'abc' 'def' )
+		package: 'RowanSample1-Core'.
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'TestClass'.
+	self
+		assert: self projectsPresenter selectedMethodNames asArray
+		equals: #( #dummyMethod #dummyMethod2 #dummyMethod3 ).
 ]
 
 { #category : 'tests' }

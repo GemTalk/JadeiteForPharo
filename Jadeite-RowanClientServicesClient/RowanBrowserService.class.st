@@ -261,12 +261,6 @@ RowanBrowserService >> selectedClass: anObject [
 ]
 
 { #category : 'accessing' }
-RowanBrowserService >> sortAspect [
-
-	^name
-]
-
-{ #category : 'accessing' }
 RowanBrowserService >> testCount [
 	^testCount
 ]

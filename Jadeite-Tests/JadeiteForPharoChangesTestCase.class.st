@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteForPharoChangesTestCase',
 	#superclass : 'JadeiteForPharoGUITestCase',
+	#instVars : [
+		'changesBrowser'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
@@ -13,21 +16,39 @@ JadeiteForPharoChangesTestCase >> performTest [
 	^ super performTest
 ]
 
-{ #category : 'tests' }
-JadeiteForPharoChangesTestCase >> test_windowTitle [
+{ #category : 'running' }
+JadeiteForPharoChangesTestCase >> setUp [
 
-	| changesBrowser |
+	super setUp.
 	self openProjectBrowser.
 	self selectRowanAnsweringService.
 	self methodSourcePresenter text: 'foo  ^''instance side'''.
 	self projectsPresenter editSaveMethod.
 	changesBrowser := self
 		                  waitForNew: JadeiteChangesBrowser
-		                  while: [ self projectsPresenter projectChanges ].
-	[
+		                  while: [ self projectsPresenter projectChanges ]
+]
+
+{ #category : 'running' }
+JadeiteForPharoChangesTestCase >> tearDown [
+
+	super tearDown.
+	changesBrowser ifNotNil: [ changesBrowser window close ].
+	self abortTransaction
+]
+
+{ #category : 'tests' }
+JadeiteForPharoChangesTestCase >> test_selectedMethodName [
+
+	self assert:
+		changesBrowser operationsListPresenter selections isEmpty.
+	self assertIsNil: changesBrowser selectedMethodName
+]
+
+{ #category : 'tests' }
+JadeiteForPharoChangesTestCase >> test_windowTitle [
+
 	self assert:
 		(changesBrowser shellName , '*for*' , session stoneName , ' @*[*]'
-			 match: changesBrowser window title) ] ensure: [
-		changesBrowser window close.
-		self abortTransaction ]
+			 match: changesBrowser window title)
 ]

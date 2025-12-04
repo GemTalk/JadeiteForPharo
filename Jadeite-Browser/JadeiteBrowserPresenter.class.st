@@ -1065,14 +1065,6 @@ JadeiteBrowserPresenter >> dropMethods: methodServices onSelectedPackage: packag
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> editDelete [
-
-	View focus clearSelection.
-	self methodValueChanged.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> editRevert [
 	self isOkayToChange
 		ifTrue: 
@@ -1092,12 +1084,9 @@ JadeiteBrowserPresenter >> editSave [
 JadeiteBrowserPresenter >> editSaveClass [
 	"a two stage class compilation is used. First stage compiles
 	the class and stores an anonymous method to be used in 
-	stage  two. If a compile error occurs, it is handled nicely. 
-	If a compile error happens during the method recompilation
-	a debugger is raised as not much information is available 
-	without a stack."
+	stage  two. If a compile error occurs, it is handled nicely."
 
-	| browserService classHierarchyTabSelected |
+	| browserService classHierarchyTabSelected selectedSelectors |
 	classHierarchyTabSelected := self isClassHierarchyTabSelected.
 	browserService := RowanBrowserService new.
 	browserService
@@ -1107,19 +1096,33 @@ JadeiteBrowserPresenter >> editSaveClass [
 			self classDefinitionPresenter reportCompileError: ex gsArguments ].
 	self selectedClass ifNotNil: [ :classService |
 		browserService selectedClass: classService name ].
+	selectedSelectors := self selectedSelectors.
 
-	self issueCommand: browserService onCompletion: [
-		[
-		self recompileMethods.
-		self
-			updateAfterFindClass: self selectedClass
-			methodService: nil
-			onCompletion: [
-				classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ].
-				self updateTabLabel ] ]
-			on: Error
-			do: [ :ex |
-			self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
+	self issueCommand: browserService onCompletion: [ :svc |
+			[
+				self recompileMethodsOnCompletion: [ :svc2 |
+						svc2 selectedClass name
+						=
+						(self selectedClass ifNotNil: [ :classService |
+							 classService name ])
+							ifTrue: [
+									classHierarchyTabSelected ifTrue: [ "temporary to make sure class is updated"
+											self selectClassListTab.
+											self selectClassHierarchyTab ].
+									selectedSelectors ifNotNil: [
+										self selectMethodsNamed: selectedSelectors ] ]
+							ifFalse: [
+									self
+										updateAfterFindClassName: svc2 selectedClass name
+										methodSelector: nil
+										meta: self isClassSideSelected
+										onCompletion: [
+												classHierarchyTabSelected ifTrue: [
+													self selectClassHierarchyTab ].
+												self updateTabLabel ] ] ] ]
+				on: Error
+				do: [ :ex |
+				self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2815,7 +2818,7 @@ JadeiteBrowserPresenter >> protectedDictionaries [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> recompileMethods [
+JadeiteBrowserPresenter >> recompileMethodsOnCompletion: completionBlock [
 
 	| browserService wasCompileError |
 	wasCompileError := false.
@@ -2835,19 +2838,16 @@ JadeiteBrowserPresenter >> recompileMethods [
 						restOfUpdates.
 				browserService serviceCompletionBlock value ].
 
-	self issueCommand: browserService onCompletion: [
+	self issueCommand: browserService onCompletion: [:svc | 
 			wasCompileError ifFalse: [
-					[
-						self markClassDefinitionPaneUnmodified.
-						self
-							updateClassThenFind: browserService selectedClass
-							onCompletion: [ ] ]
+					[ self markClassDefinitionPaneUnmodified ]
 						on: GsApplicationError
 						do: [ :ex |
 								('*poolDictionaries not supported yet*' match: ex description)
 									ifTrue: [
 									^ MessageBox notify: 'Pool Dictionaries not supported yet' ].
-								ex pass ] ] ]
+								ex pass ] ].
+			completionBlock value: svc ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3588,6 +3588,15 @@ JadeiteBrowserPresenter >> selectMethodsFrom: classService [
 ]
 
 { #category : 'selections' }
+JadeiteBrowserPresenter >> selectMethodsNamed: selectors [
+
+	| methodServices |
+	methodServices := methodListPresenter list select: [ :service |
+		                  selectors includes: service selector ].
+	methodListPresenter selections: methodServices
+]
+
+{ #category : 'selections' }
 JadeiteBrowserPresenter >> selectNewPackage: newPackage [
 	| thePackageService | 
 	thePackageService := packageListPresenter list
@@ -3786,6 +3795,13 @@ JadeiteBrowserPresenter >> selectedPackageNames [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectedPackageServices [
 	^packageListPresenter selectedItems
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectedSelectors [
+
+	^ methodListPresenter items collect: [ :methodService |
+		  methodService selector ]
 ]
 
 { #category : 'as yet unclassified' }

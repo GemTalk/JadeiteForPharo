@@ -1007,8 +1007,9 @@ JadeiteMethodsTrait >> selectSymbolFrom: wildcardString titled: listWindowTitle 
 { #category : 'selections' }
 JadeiteMethodsTrait >> selectedMethodName [
 
-	^self methodListPresenter jadeiteSelections first selector
-
+	^ self methodListPresenter jadeiteSelections
+		  ifEmpty: [ nil ]
+		  ifNotEmpty: [ :selections | selections first selector ]
 ]
 
 { #category : 'selections' }
