@@ -17,6 +17,13 @@ JadeiteForPharoChangesTestCase >> performTest [
 ]
 
 { #category : 'running' }
+JadeiteForPharoChangesTestCase >> runCase [
+
+	JadeitePreferences isRowanAvailable ifFalse: [ ^ self ].
+	^ super runCase
+]
+
+{ #category : 'running' }
 JadeiteForPharoChangesTestCase >> setUp [
 
 	super setUp.
