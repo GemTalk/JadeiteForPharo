@@ -8,11 +8,11 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
-{ #category : 'support' }
+{ #category : 'private' }
 JadeiteForPharoChangesTestCase >> performTest [
 
 	JadeitePreferences isRowanAvailable ifFalse: [
-		^ self skip: 'Rowan not available. Test not run' ].
+		^ self skip: 'Rowan is available. Test not run' ].
 	^ super performTest
 ]
 
@@ -51,4 +51,11 @@ JadeiteForPharoChangesTestCase >> test_windowTitle [
 	self assert:
 		(changesBrowser shellName , '*for*' , session stoneName , ' @*[*]'
 			 match: changesBrowser window title)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoChangesTestCase >> toolUsedForCommonTests [
+	"if a test specifies a tool, then use it for common tests"
+
+	^ nil
 ]
