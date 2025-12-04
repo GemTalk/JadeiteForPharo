@@ -2836,9 +2836,9 @@ JadeiteBrowserPresenter >> recompileMethodsOnCompletion: completionBlock [
 				restOfUpdates removeLast. "compile error service is last"
 				RowanServiceUpdater current applyUpdatesFromReturnedServices:
 						restOfUpdates.
-				browserService serviceCompletionBlock value ].
+				browserService serviceCompletionBlock cull: browserService ].
 
-	self issueCommand: browserService onCompletion: [:svc | 
+	self issueCommand: browserService onCompletion: [ :svc |
 			wasCompileError ifFalse: [
 					[ self markClassDefinitionPaneUnmodified ]
 						on: GsApplicationError
