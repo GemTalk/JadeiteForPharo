@@ -81,6 +81,12 @@ RowanClassCategoryService >> initializeSubstringIndex [
 ]
 
 { #category : 'testing' }
+RowanClassCategoryService >> isNilCategory [
+
+	^ self name = self nilCategoryDisplayName
+]
+
+{ #category : 'testing' }
 RowanClassCategoryService >> isUnder: categoryName [
 
 	^ self firstSubstringsToIndex, '*' match: categoryName

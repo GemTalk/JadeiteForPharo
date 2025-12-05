@@ -5,6 +5,10 @@ Class {
 	#package : 'Jadeite-Console'
 }
 
+{ #category : 'events' }
+JadeiteConsoleWithoutRowan >> abortedTransaction [
+]
+
 { #category : 'actions' }
 JadeiteConsoleWithoutRowan >> basicUnloadProjects: projectNames onCompletion: completionBlock [
 

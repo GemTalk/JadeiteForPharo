@@ -19,15 +19,16 @@ JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 	selectedDictionaryService := self dictionaryListPresenter
 		                             selectedItem ifNil: [ ^ self ].
 	selectedClassService := self selectedClass.
-	self updateDictionaries.
-	index := self dictionaryListPresenter list indexOf:
-		         selectedDictionaryService.
-	self dictionaryListPresenter
-		selectIndex: index
-		scrollToSelection: true.
-	selectedClassService ifNotNil: [
-		self selectClassCategoryFor: selectedClassService.
-		self selectClass: selectedClassService completionBlock: [  ] ]
+	self updateDictionariesOnCompletion: [
+			self dictionaryListPresenter unselectAll.
+			index := self dictionaryListPresenter list indexOf:
+				         selectedDictionaryService.
+			self dictionaryListPresenter
+				selectIndex: index
+				scrollToSelection: true.
+			selectedClassService ifNotNil: [
+					self selectClassCategoryFor: selectedClassService.
+					self selectClass: selectedClassService completionBlock: [ ] ] ]
 ]
 
 { #category : 'actions' }
@@ -209,12 +210,17 @@ JadeiteBrowserPresenterWithoutRowan >> initializeClassCategoryTabIn: panedPresen
 
 	| classCategoryPage |
 	classCategoryTabs := self instantiate: JadeiteNotebookPresenter.
-	classCategoryPresenter := (JadeiteClassCategoryTreePresenter new children: [ :service |
-			                           self
-				                           classCategoriesAt:
-					                           service substringIndex + 1
-				                           matching:
-					                           service firstSubstringsToIndex , '*' ])
+	classCategoryPresenter := (JadeiteClassCategoryTreePresenter new
+		                           children: [ :service |
+				                           service isNilCategory
+					                           ifTrue: [ Array new ]
+					                           ifFalse: [
+							                           self
+								                           classCategoriesAt:
+									                           service substringIndex + 1
+								                           matching:
+									                           service firstSubstringsToIndex
+									                           , '*' ] ])
 		                          display: [ :m | m displayString ];
 		                          beMultipleSelection.
 	classCategoryPage := JadeiteNotebookPage
@@ -352,12 +358,7 @@ JadeiteBrowserPresenterWithoutRowan >> newClass: classService addedTo: presenter
 { #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> postOpen [
 
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService command: #updateDictionaries.
-	self
-		issueCommand: browserService
-		onCompletion: [ self basicPostOpen ]
+	self updateDictionariesOnCompletion: [ self basicPostOpen ]
 ]
 
 { #category : 'updates' }
@@ -366,11 +367,10 @@ JadeiteBrowserPresenterWithoutRowan >> refreshClassCategoriesFrom: dictionarySer
 	dictionaryService classCategories
 		ifNil: [ classCategoryPresenter roots: OrderedCollection new ]
 		ifNotNil: [
-			classCategoryServices := self classCategoryServicesFor:
-				                         dictionaryService.
-			classCategoryPresenter roots:
-				(OrderedCollection with:
-					 RowanAllClassCategoryService allClassCategory) ]
+				classCategoryServices := self classCategoryServicesFor:
+					                         dictionaryService.
+				classCategoryPresenter roots: (OrderedCollection with:
+						 RowanAllClassCategoryService allClassCategory) ]
 ]
 
 { #category : 'as yet unclassified' }

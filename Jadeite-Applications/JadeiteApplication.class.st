@@ -121,6 +121,12 @@ JadeiteApplication class >> showOnSession: aConnection [
 
 { #category : 'actions' }
 JadeiteApplication >> abortTransaction [
+
+	self abortTransactionOnCompletion: [ ]
+]
+
+{ #category : 'actions' }
+JadeiteApplication >> abortTransactionOnCompletion: completionBlock [
 	"Even if it takes a windy path, try to make sure
 	all aborts in Jadeite pass through here"
 
@@ -136,12 +142,14 @@ JadeiteApplication >> abortTransaction [
 		issueCommand: browserService
 		session: gciSession
 		onCompletion: [
-			self
-				setInTransaction: RowanAnsweringServiceClient newForked
-				session: gciSession
-				onCompletion: [
-					self gciSession announcer announce: #abortedTransaction.
-					UIManager default inform: 'Abort succeeded' ] ]
+				self
+					setInTransaction: RowanAnsweringServiceClient newForked
+					session: gciSession
+					onCompletion: [
+							self gciSession announcer announce: #abortedTransaction.
+							'announced' traceCr. 
+							completionBlock value.
+							UIManager default inform: 'Abort succeeded' ] ]
 ]
 
 { #category : 'accessing' }

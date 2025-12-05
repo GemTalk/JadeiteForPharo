@@ -195,6 +195,49 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_abortRemovesCategory [
+
+	| className classCategoryService children |
+	true ifTrue: [
+			^ self skip:
+				  'Test hangs. Need better solutions for abort that does not issue commands in abort events on the client' ].
+	className := 'PublishedClass'.
+	self selectServiceNamed: 'Published' in: self dictionaryListPresenter.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #(  )
+		package: nil
+		dictionaryName: 'Published'
+		classCategory: ''.
+	self
+		assert: self classListPresenter selectedItem name
+		equals: className.
+	self
+		assert: self classCategoryPresenter selectedItem name
+		equals: RowanClassCategoryService nilClassCategory name.
+	classCategoryService := self classCategoryPresenter roots first.
+	children := self classCategoryPresenter children value:
+		            classCategoryService.
+	self assert: children size equals: 2.
+	self assert: children first name equals: 'STON-Core'.
+	self
+		assert: children last name
+		equals: RowanClassCategoryService nilClassCategory name.
+	self abortTransaction.
+	self assertIsNil: (self classListPresenter list
+			 detect: [ :classService | classService name = className ]
+			 ifNone: [ ]).
+	self
+		assert: self classCategoryPresenter selectedItem name
+		equals: 'All'.
+	children := self classCategoryPresenter children value:
+		            classCategoryService.
+	self assert: children size equals: 1.
+	self assert: children first name equals: 'STON'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_abstractTestClassesHaveNoRunButton [
 
 	self

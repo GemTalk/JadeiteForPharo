@@ -769,14 +769,18 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 			RowanServiceUpdater current critical: [ self updatePackage ] ];
 		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
-		selectionEventsSuspended ifFalse: [
-			self classListPresenter clear.
-			self resetClassExtras.
-			self classHierarchyPresenter roots: OrderedCollection new.
-			self isDictionaryTabSelected
-				ifTrue: [ self updateDictionaries ]
-				ifFalse: [ self updateProjectOnCompletion: [ self updatePackage ] ].
-			self updateClassesOnCompletion: [ self resetClassExtras ] ] ].
+			selectionEventsSuspended ifFalse: [
+					self classListPresenter clear.
+					self resetClassExtras.
+					self classHierarchyPresenter roots: OrderedCollection new.
+					self isDictionaryTabSelected
+						ifTrue: [
+								self updateDictionariesOnCompletion: [
+									self updateClassesOnCompletion: [ self resetClassExtras ] ] ]
+						ifFalse: [
+								self updateProjectOnCompletion: [
+										self updatePackage.
+										self updateClassesOnCompletion: [ self resetClassExtras ] ] ] ] ].
 	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
 		self updateDictionary ]
 ]
@@ -4255,12 +4259,12 @@ JadeiteBrowserPresenter >> updateCurrentProjectPackageInfo [
 ]
 
 { #category : 'updates' }
-JadeiteBrowserPresenter >> updateDictionaries [
+JadeiteBrowserPresenter >> updateDictionariesOnCompletion: completionBlock [
 
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateDictionaries.
-	self issueCommand: browserService onCompletion: []
+	self issueCommand: browserService onCompletion: completionBlock
 ]
 
 { #category : 'updates' }
@@ -4574,9 +4578,12 @@ JadeiteBrowserPresenter >> updateProjectOnCompletion: completionBlock [
 	classListPresenter clear.
 	self selectClassListTab.
 	self packageListPresenter selectionIfNone: [
-		classListPresenter clear.
-		classHierarchyPresenter clear ].
-	self isDictionaryTabSelected ifTrue: [ self updateDictionaries ].
+			classListPresenter clear.
+			classHierarchyPresenter clear ].
+	self isDictionaryTabSelected ifTrue: [
+			^ self updateDictionariesOnCompletion: [
+					  self updateTabLabel.
+					  classExtraText text: String new ] ].
 	self updateTabLabel.
 	self basicUpdateProjectOnCompletion: completionBlock.
 	classExtraText text: String new
