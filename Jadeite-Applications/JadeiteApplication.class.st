@@ -147,7 +147,6 @@ JadeiteApplication >> abortTransactionOnCompletion: completionBlock [
 					session: gciSession
 					onCompletion: [
 							self gciSession announcer announce: #abortedTransaction.
-							'announced' traceCr. 
 							completionBlock value.
 							UIManager default inform: 'Abort succeeded' ] ]
 ]
