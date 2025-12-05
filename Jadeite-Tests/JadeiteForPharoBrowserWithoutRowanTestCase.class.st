@@ -197,7 +197,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> tearDown [
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_abortRemovesCategory [
 
-	| className classCategoryService children |
+	| className classCategoryService children browserService |
 	true ifTrue: [
 			^ self skip:
 				  'Test hangs. Need better solutions for abort that does not issue commands in abort events on the client' ].
@@ -224,17 +224,25 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_abortRemovesCategory [
 	self
 		assert: children last name
 		equals: RowanClassCategoryService nilClassCategory name.
-	self abortTransaction.
-	self assertIsNil: (self classListPresenter list
-			 detect: [ :classService | classService name = className ]
-			 ifNone: [ ]).
-	self
-		assert: self classCategoryPresenter selectedItem name
-		equals: 'All'.
-	children := self classCategoryPresenter children value:
-		            classCategoryService.
-	self assert: children size equals: 1.
-	self assert: children first name equals: 'STON'
+
+	browserService := RowanBrowserService new
+		                  command: #abortTransactionAndUpdateServices:;
+		                  commandArgs: (Array with: Array new).
+	RowanServiceUpdater current
+		issueCommand: browserService
+		session: session
+		onCompletion: [
+				self projectsPresenter abortedTransaction.
+				self assertIsNil: (self classListPresenter list
+						 detect: [ :classService | classService name = className ]
+						 ifNone: [ ]).
+				self
+					assert: self classCategoryPresenter selectedItem name
+					equals: 'All'.
+				children := self classCategoryPresenter children value:
+					            classCategoryService.
+				self assert: children size equals: 1.
+				self assert: children first name equals: 'STON' ]
 ]
 
 { #category : 'tests' }
