@@ -448,7 +448,7 @@ JadeiteBrowserPresenter >> basicUpdateClassInfo [
 JadeiteBrowserPresenter >> basicUpdateProjectOnCompletion: completionBlock [
 	self updateProjectPackagesOnCompletion: [
 		self updateProjectInfo.
-		self sundryCleanup.
+		self clearStatusBar.
 		completionBlock value ]
 ]
 
@@ -663,7 +663,7 @@ JadeiteBrowserPresenter >> clearMethodLists [
 	self selectedClass ifNil: [ self clearFilterLists ].
 	methodListPresenter clear.
 	methodSourcePresenter value: String new.
-	definedMethodPackageText text: String new.
+	self resetDefinedMethodPackage.
 	self resetCategoryText
 ]
 
@@ -2075,44 +2075,6 @@ JadeiteBrowserPresenter >> isNoneProjectSelected [
 	^self isDictionaryTabSelected
 ]
 
-{ #category : 'testing' }
-JadeiteBrowserPresenter >> isOkayToChange [
-	methodSourcePresenter view isModified
-		ifTrue: [(self isOkayToChangeSource: methodSourcePresenter) ifFalse: [^false]].
-	classDefinitionPresenter view isModified
-		ifTrue: 
-			[classDefinitionPresenter ensureVisible.
-			(JadePresenter unsavedChangesDialogIn: self)
-				ifTrue: 
-					[gciSession isValidSession
-						ifTrue: 
-							[classDefinitionPresenter view isModified: false.
-							^true]
-						ifFalse: 
-							[classDefinitionPresenter
-								selectAll;
-								copySelection]]
-				ifFalse: [^false].
-			classDefinitionPresenter view isModified: false].
-	classCommentPresenter view isModified
-		ifTrue: 
-			[classCommentPresenter ensureVisible.
-			gciSession isValidSession
-				ifTrue: 
-					[(JadePresenter unsavedChangesDialogIn: self
-						text: 'Stay on window with unsaved changes? Class comment has unsaved changes.') ifTrue: [^false]]
-				ifFalse: 
-					[(JadePresenter unsavedChangesDialogIn: self
-						text: 'Copy changes to Clipboard? Class comment has unsaved changes')
-							ifTrue: 
-								[classCommentPresenter
-									selectAll;
-									copySelection]].
-			classCommentPresenter view isModified: false].
-	self postOkToChangeEvent.
-	^true
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> isPackageTabSelected [	
 	
@@ -2300,23 +2262,23 @@ JadeiteBrowserPresenter >> methodSelectionChanged [
 	methodListPresenter selections isEmpty
 		ifTrue: [ self selectClassDefinitionTab ]
 		ifFalse: [
-			methodListPresenter selections size = 1 ifTrue: [
-				self selectMethodSourceTab ].
-			methodListPresenter selections size > 1 ifTrue: [
-				self displayMultipleCategories ].
-			methodListPresenter selectedItem ifNil: [
-				definedMethodPackageText text: String new.
-				self resetCategoryText ].
-			self updateHistory ].
+				methodListPresenter selections size = 1 ifTrue: [
+					self selectMethodSourceTab ].
+				methodListPresenter selections size > 1 ifTrue: [
+					self displayMultipleCategories ].
+				methodListPresenter selectedItem ifNil: [
+						self resetDefinedMethodPackage.
+						self resetCategoryText ].
+				self updateHistory ].
 	self updateMethodSource.
 	methodNavigationList
 		remove: methodListPresenter selectedItem
-		ifAbsent: [  ].
+		ifAbsent: [ ].
 	methodNavigationList remove: nil ifAbsent: [ "why is this there?" ].
 	methodNavigationList addFirst: methodListPresenter selectedItem.
 	methodNavigationDropList ifNotNil: [ :dropList |
-		dropList updateItemsKeepingSelection: methodNavigationList.
-		dropList selectIndex: 0 ]
+			dropList updateItemsKeepingSelection: methodNavigationList.
+			dropList selectIndex: 0 ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2351,8 +2313,8 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 	classService displayMethodsOn: methodListPresenter browser: self.
 	methodListPresenter selections isEmpty
 		ifTrue: [
-				self setDefaultMethod.
-				definedMethodPackageText text: String new.
+				self resetDefaultMethodText.
+				self resetDefinedMethodPackage.
 				self resetCategoryText ]
 		ifFalse: [
 				methodSourcePresenter withAdapterDo: [ :a |
@@ -2874,17 +2836,17 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 
 	| extensions computedCategory |
 	categoryListPresenter selectedItem ifNil: [
-		definedMethodPackageText text: String new.
-		self resetCategoryText.
-		methodListPresenter unselectAll.
-		^ self methodsUpdate: self selectedClass ].
+			self resetDefinedMethodPackage.
+			self resetCategoryText.
+			methodListPresenter unselectAll.
+			^ self methodsUpdate: self selectedClass ].
 	extensions := Array new.
 	computedCategory := selection selectedItems
 		                    detect: [ :category | category isComputed ]
-		                    ifNone: [  ].
+		                    ifNone: [ ].
 	computedCategory ifNotNil: [ "extensions are only displayed if that's the only selection"
-		extensions := self selectedClass methods select: [ :methodService |
-			              methodService isExtension ] ].
+			extensions := self selectedClass methods select: [ :methodService |
+				              methodService isExtension ] ].
 	self refreshMethodsOn: methodListPresenter extensions: extensions.
 	self selectMethodSourceTab.
 	self resetCategoryText
@@ -2966,20 +2928,21 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 		                  browser: self.
 	selections := methodListPresenter selectedItems.
 	(methodListPresenter items difference: visibleMethods) ifEmpty: [
-		(visibleMethods difference: methodListPresenter items) ifEmpty: [
-			^ self ] ].
+			(visibleMethods difference: methodListPresenter items) ifEmpty: [
+				^ self ] ].
 	self updateService: classService onCompletion: [
-		methodListPresenter unselectAll.
-		methodListPresenter selectItems: selections.
-		methodListPresenter list addAll:
-			(extensions reject: [ :svc |
-				 methodListPresenter list includes: svc ]).
-		methodListPresenter selections isEmpty
-			ifTrue: [
-				self resetCategoryText.
-				definedMethodPackageText text: String new ]
-			ifFalse: [ self updateMethodSource ].
-		methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ] ]
+			methodListPresenter unselectAll.
+			methodListPresenter selectItems: selections.
+			methodListPresenter list addAll:
+				(extensions reject: [ :svc |
+					 methodListPresenter list includes: svc ]).
+			methodListPresenter selections isEmpty
+				ifTrue: [
+						self resetCategoryText.
+						self resetDefinedMethodPackage ]
+				ifFalse: [ self updateMethodSource ].
+			methodListPresenter adapter ifNotNil: [ :a |
+				a widget resetPosition ] ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -3328,6 +3291,18 @@ JadeiteBrowserPresenter >> resetCurrentProjectFor: aService [
 	packageListPresenter items do: [ :packageService |
 		packageService isCurrent: false ].
 	WorldMorph doOneCycle
+]
+
+{ #category : 'private' }
+JadeiteBrowserPresenter >> resetDefaultMethodText [
+
+	methodSourcePresenter value: self defaultMethod
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> resetDefinedMethodPackage [
+
+	definedMethodPackageText text: String new
 ]
 
 { #category : 'initialization' }
@@ -3825,12 +3800,6 @@ JadeiteBrowserPresenter >> setClassSide [
 	classRadioButton state: true
 ]
 
-{ #category : 'private' }
-JadeiteBrowserPresenter >> setDefaultMethod [
-
-	methodSourcePresenter value: self defaultMethod
-]
-
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> setInstanceSide [
 
@@ -4182,7 +4151,7 @@ JadeiteBrowserPresenter >> updateClassInfo [
 		nextPutAll: self selectedClass dictionaryName.
 
 	classExtraText view text: ws contents.
-	self sundryCleanup
+	self clearStatusBar
 ]
 
 { #category : 'as yet unclassified' }
@@ -4356,15 +4325,15 @@ JadeiteBrowserPresenter >> updateHistory [
 JadeiteBrowserPresenter >> updateMethodSource [
 
 	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
-	methodSourcePresenter view isModified ifTrue: [ ^ self ].
-	self sundryCleanup.
+	methodSourcePresenter isModified ifTrue: [ ^ self ].
+	self clearStatusBar.
 	(methodListPresenter selections isEmpty or: [
 		 methodListPresenter selections size > 1 ]) ifTrue: [
-		definedMethodPackageText text: String new.
-		self resetCategoryText.
-		^ self setDefaultMethod ].
+			self resetDefinedMethodPackage.
+			self resetCategoryText.
+			^ self resetDefaultMethodText ].
 	methodListPresenter selectedItem isInCommand ifTrue: [
-		^ self postUpdateMethodSource "service already updated"].
+		^ self postUpdateMethodSource "service already updated" ].
 	self
 		updateService: methodListPresenter selectedItem
 		onCompletion: [ self postUpdateMethodSource ]

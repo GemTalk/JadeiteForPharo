@@ -521,7 +521,7 @@ JadeiteMethodsTrait >> canDiscardSelectionEdits [
 JadeiteMethodsTrait >> clearStatusBar [
 
 	self resetStatusBarColor.
-	self statusBarText pushMessage: String new
+	self statusBarText: String new
 ]
 
 { #category : 'actions' }

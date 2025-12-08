@@ -657,7 +657,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassInfo [
 		self resetClassExtras.
 		^ self ].
 	self basicUpdateClassInfo.
-	self sundryCleanup
+	self clearStatusBar
 ]
 
 { #category : 'as yet unclassified' }

@@ -29,11 +29,6 @@ JadeMethodListBrowser >> statusBarText [
 ]
 
 { #category : 'as yet unclassified' }
-JadeMethodListBrowser >> statusBarText: aString [
-	(self view viewNamed: 'statusBarField') model: (ValueHolder with: aString)
-]
-
-{ #category : 'as yet unclassified' }
 JadeMethodListBrowser >> switchToListView [
 
 	JadeMethodListPresenter setListView.

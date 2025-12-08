@@ -348,18 +348,6 @@ JadeiteProjectsBrowserPresenter >> onViewClosed [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> postOkToChangeEvent [
-	| service |
-	service := self isClassListTabSelected
-				ifTrue: [classListPresenter selectionIfNone: [^self]]
-				ifFalse: [classHierarchyPresenter selectionIfNone: [^self]].
-	service ifNil:[^self]. 
-	classDefinitionPresenter value: service template.
-	self markClassDefinitionPaneUnmodified.
-	self sundryCleanup
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> projectListPresenter [
 	^projectListPresenter
 ]
@@ -695,13 +683,6 @@ JadeiteProjectsBrowserPresenter >> showSuperClassComparison [
 				beforeTitle: methodService classMethodDisplayString;
 				afterTitle: 'No super implementation';
 				compare: methodService source with: String new]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> sundryCleanup [
-	self statusBarText: String new.
-	methodListPresenter selections notEmpty ifFalse: [self cleanupComparisonBrowser].
-	self resetSunitTestList
 ]
 
 { #category : 'as yet unclassified' }
