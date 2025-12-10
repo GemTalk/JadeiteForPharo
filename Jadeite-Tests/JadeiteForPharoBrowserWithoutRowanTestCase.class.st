@@ -688,7 +688,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_jfpworFindClass [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserWithoutRowanTestCase >> test_moveMethodToCategories [
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_moveMethodToCategoriesWithUnusedTemp [
 
 	| selectedNames selectedCategories |
 	self
@@ -699,8 +699,8 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_moveMethodToCategories [
 	self selectRowanSample1Class.
 	self projectsPresenter basicAddMethodCategory: 'targetCategory'.
 	self selectCategoryNamed: 'accessing'.
-	self saveMethod: 'abc   ^#abc' in: 'RowanSample1'.
-	self saveMethod: 'def   ^#def' in: 'RowanSample1'.
+	self saveMethod: 'abc  | unused |  ^#abc' in: 'RowanSample1'.
+	self saveMethod: 'def  | unused |  ^#def' in: 'RowanSample1'.
 	self selectCategoryNamed: 'dontCare'.
 	self selectMethodsNamed: #( abc def ).
 	self projectsPresenter

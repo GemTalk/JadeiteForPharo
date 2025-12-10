@@ -2337,12 +2337,13 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 		commandArgs:
 			(Array with: methodServices with: targetCategory categoryName).
 	self issueCommand: classService onCompletion: [
-			| index |
+			| indexes |
 			categoryListPresenter unselectAll.
 			categoryListPresenter selectItem: targetCategory.
 			self methodsUpdate: classService.
-			index := methodListPresenter items indexOf: methodServices first.
-			methodListPresenter selectIndex: index scrollToSelection: true ]
+			indexes := methodListPresenter items collect: [ :methodService |
+				           methodListPresenter items indexOf: methodService ].
+			methodListPresenter selectIndexes: indexes scrollToSelection: true ]
 ]
 
 { #category : 'actions' }
