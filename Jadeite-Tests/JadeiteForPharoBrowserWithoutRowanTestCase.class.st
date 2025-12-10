@@ -688,6 +688,39 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_jfpworFindClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_moveMethodToCategories [
+
+	| selectedNames selectedCategories |
+	self
+		testsJadeiteForPharoIssue: #issue357
+		title:
+		'WOR: unused temp variables may results in walkback "Instances of ClassOrganizer do not support replication"'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/357'.
+	self selectRowanSample1Class.
+	self projectsPresenter basicAddMethodCategory: 'targetCategory'.
+	self selectCategoryNamed: 'accessing'.
+	self saveMethod: 'abc   ^#abc' in: 'RowanSample1'.
+	self saveMethod: 'def   ^#def' in: 'RowanSample1'.
+	self selectCategoryNamed: 'dontCare'.
+	self selectMethodsNamed: #( abc def ).
+	self projectsPresenter
+		moveMethods: self methodListPresenter selectedItems
+		toCategory: (JadeiteCategory named: 'targetCategory').
+	self
+		assert: self categoryListPresenter selectedItem categoryName
+		equals: 'targetCategory'.
+	selectedNames := self methodListPresenter selectedItems collect: [
+		                 :methodService | methodService selector ].
+	self assert: selectedNames equals: #( abc def ) asOrderedCollection.
+	selectedCategories := self methodListPresenter selectedItems
+		                      collect: [ :methodService |
+		                      methodService category ].
+	self
+		assert: selectedCategories
+		equals: #( 'targetCategory' 'targetCategory' ) asOrderedCollection
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_nilClassCategory [
 	"When selecting a class, don't reset the class category
 	selection to the full class category path."

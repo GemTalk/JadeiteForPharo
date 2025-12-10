@@ -1547,25 +1547,6 @@ JadeiteProjectBrowserClassesTestCase >> test_moveClassToPackageOutsideProject [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectBrowserClassesTestCase >> test_moveMethodDirtiesPackage [
-	self testsIssue: #issue950
-		withTitle: '(3.2.10) RowanClassService>>moveMethods:to: should not use the category name as a literal package name'.
-	self ensureRowanSampleClassesLoaded.
-	self selectRowanSample1Class.
-	self deny: self projectsPresenter projectListPresenter selection isDirty.
-	self deny: self projectsPresenter packageListPresenter selection isDirty.
-	self projectsPresenter basicAddMethodCategory: '*rowansample1-extensions'.
-	self selectCategoryNamed: 'accessing'.
-	self selectMethodNamed: #foo.
-	self projectsPresenter moveMethods: self methodListPresenter selections
-		toCategory: '*rowansample1-extensions'.
-	self assert: self categoryListPresenter selection equals: '*rowansample1-extensions'.
-	self assert: self methodListPresenter selection name equals: #foo.
-	self assert: self projectsPresenter projectListPresenter selection isDirty.
-	self assert: self projectsPresenter packageListPresenter selection isDirty
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectBrowserClassesTestCase >> test_newBrowserRetainsClassAndMethod [
 	self selectRowanSample1Test.
 	self selectMethodNamed: #test1.

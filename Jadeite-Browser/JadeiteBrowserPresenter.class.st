@@ -2337,12 +2337,12 @@ JadeiteBrowserPresenter >> moveMethods: methodServices toCategory: targetCategor
 		commandArgs:
 			(Array with: methodServices with: targetCategory categoryName).
 	self issueCommand: classService onCompletion: [
-		| index |
-		categoryListPresenter unselectAll.
-		categoryListPresenter selectItem: targetCategory.
-		self methodsUpdate: classService.
-		index := methodListPresenter items indexOf: methodServices first.
-		methodListPresenter selectIndex: index scrollToSelection: true ]
+			| index |
+			categoryListPresenter unselectAll.
+			categoryListPresenter selectItem: targetCategory.
+			self methodsUpdate: classService.
+			index := methodListPresenter items indexOf: methodServices first.
+			methodListPresenter selectIndex: index scrollToSelection: true ]
 ]
 
 { #category : 'actions' }
@@ -2555,14 +2555,6 @@ JadeiteBrowserPresenter >> onDropMethodsOnPackageList: packageServiceOrName sess
 						ifFalse: [packageServiceOrName])].
 	MessageBox notify: 'Sorry, we are not yet prepared to handle ' , aSession printString , '!'.
 	SessionManager current pause
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> onDropOnMethodCategory: aSession [
-	| methodServices targetCategory |
-	methodServices := aSession dragObjects collect: [:each | each format: #method].
-	targetCategory := aSession suggestedTarget trimBlanks.
-	self moveMethods: methodServices toCategory: targetCategory
 ]
 
 { #category : 'as yet unclassified' }
@@ -2926,7 +2918,12 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 	visibleMethods := classService
 		                  computeVisibleMethods: methodListPresenter
 		                  browser: self.
-	selections := methodListPresenter selectedItems.
+	methodListPresenter items: visibleMethods.
+	methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ]
+	
+	"Is it really safe to get rid of this code?"
+	
+	"selections := methodListPresenter selectedItems.
 	(methodListPresenter items difference: visibleMethods) ifEmpty: [
 			(visibleMethods difference: methodListPresenter items) ifEmpty: [
 				^ self ] ].
@@ -2942,7 +2939,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 						self resetDefinedMethodPackage ]
 				ifFalse: [ self updateMethodSource ].
 			methodListPresenter adapter ifNotNil: [ :a |
-				a widget resetPosition ] ]
+				a widget resetPosition ] ]"
 ]
 
 { #category : 'as yet unclassified' }

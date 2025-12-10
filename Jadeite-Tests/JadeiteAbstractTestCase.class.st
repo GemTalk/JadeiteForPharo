@@ -965,7 +965,8 @@ JadeiteAbstractTestCase >> saveSampleMethod [
 		| aaa | 
 		aaa := 123. 
 		^aaa'.
-	self methodSourcePresenter value: source.
+	self methodSourcePresenter text: source.
+	self projectsPresenter selectMethodSourceTab. 
 	self projectsPresenter
 		editSaveMethod: self classListPresenter selectedItem 
 		onCompletion: nil

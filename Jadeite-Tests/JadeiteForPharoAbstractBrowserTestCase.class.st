@@ -66,27 +66,6 @@ JadeiteForPharoAbstractBrowserTestCase >> morphicMethodSourceHasUnacceptedEdits 
 	^self methodSourcePresenter withAdapterDo: [ :adapter | adapter widgetDo:[:widget | widget hasUnacceptedEdits ] ]
 ]
 
-{ #category : 'not working tests' }
-JadeiteForPharoAbstractBrowserTestCase >> moveMethodToCategory [
-	"not sure why the code works but the test just won't pass"
-	self selectRowanSample1Class.
-	self projectsPresenter basicAddMethodCategory: 'foo'.
-	self saveSampleMethod.
-	self selectMethodNamed: 'sampleMethod'.
-	self
-		assert: self methodListPresenter selectedItem category
-		equals: 'foo'.
-	self projectsPresenter
-		moveMethods: (Array with: self methodListPresenter selectedItem)
-		toCategory: (JadeiteCategory named: 'accessing').
-	self
-		assert: self methodListPresenter selectedItem category
-		equals: 'accessing'.
-	self
-		assert: self categoryListPresenter selectedItem categoryName
-		equals: 'accessing'
-]
-
 { #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> newBrowser [
 
@@ -1497,6 +1476,30 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 	self projectsPresenter resetSource. 
 	self assert: self methodSourcePresenter text = 'foo  ^''instance side'''. 
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
+]
+
+{ #category : 'not working tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_moveMethodToCategory [
+
+	self selectRowanSample1Class.
+	self projectsPresenter basicAddMethodCategory: 'foo'.
+	self saveSampleMethod.
+	self projectsPresenter
+		updateAfterFindClassName: 'RowanSample1'
+		methodSelector: 'sampleMethod'
+		meta: false.
+	self
+		assert: self methodListPresenter selectedItem category
+		equals: 'foo'.
+	self projectsPresenter
+		moveMethods: (Array with: self methodListPresenter selectedItem)
+		toCategory: (JadeiteCategory named: 'accessing').
+	self
+		assert: self methodListPresenter selectedItem category
+		equals: 'accessing'.
+	self
+		assert: self categoryListPresenter selectedItem categoryName
+		equals: 'accessing'
 ]
 
 { #category : 'tests' }
