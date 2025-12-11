@@ -339,9 +339,8 @@ JadeiteConnectionLauncher >> connectPresenters [
 	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
 			selection selectedIndex = 0 ifFalse: [
 				self installImportedConnection: selection selectedItem ] ].
-	pathText whenSubmitDo: [ :newPath |
-			JadeiteGCIConnectionProfile clientLibrariesPath: newPath.
-			pathText adapter widget hasUnacceptedEdits: false ].
+	pathText whenTextChangedDo: [ :newPath |
+			JadeiteGCIConnectionProfile clientLibrariesPath: newPath. ].
 	SystemAnnouncer uniqueInstance weak
 		when: UIThemeChanged
 		send: #themeChanged
@@ -508,9 +507,7 @@ Enter new path and press Enter or press ''Set Client Libraries Path'' button').
 		                                action: [
 			                                self setClientLibrariesPath ].
 
-	pathText := JadeiteTextInputFieldPresenter new help:
-		            'To change client libraries path:
-Enter new path and press Enter or press ''Set Client Libraries Path'' button'.
+	pathText := JadeiteTextInputFieldPresenter new.
 	pathBox add: pathText.
 	pathBox
 		add: setClientLibrariesPathButton
@@ -731,9 +728,11 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 		menu: self initializeMenubar;
 		centered.
 	self updateCaption.
-	aWindowPresenter whenClosedDo: [
-		self clearConnectionSubscriptions.
-		self class soleInstance: nil ].
+	aWindowPresenter
+		whenOpenedDo: [ pathText adapter widget autoAccept: true ];
+		whenClosedDo: [
+				self clearConnectionSubscriptions.
+				self class soleInstance: nil ].
 	self class soleInstance: aWindowPresenter
 ]
 

@@ -29,27 +29,27 @@ WorldState >> runLocalStepMethodsIn: aWorld [
 	ActiveWorld := aWorld.
 	self triggerAlarmsBefore: now.
 	stepList isEmpty ifTrue: [
-		ActiveWorld := priorWorld.
-		^ self ].
+			ActiveWorld := priorWorld.
+			^ self ].
 	(now < lastStepTime or: [ now - lastStepTime > 5000 ]) ifTrue: [
 		self adjustWakeupTimes: now ]. "clock slipped"
-	[
-	stepList isEmpty not and: [
-		stepList
-			ifNil: [ "<<<<<< JfP override. stepList can be nil apparently."
-			^ self ]
-			ifNotNil: [ stepList first scheduledTime < now ] ] ] whileTrue: [
-		lastStepMessage := stepList removeFirst.
-		lastStepMessage ifNil: [ ^ self ]. "<<<<<< JfP override."
-		morphToStep := lastStepMessage receiver.
-		(morphToStep shouldGetStepsFrom: aWorld) ifTrue: [
-			lastStepMessage value: now.
-			lastStepMessage ifNotNil: [
-				stepTime := lastStepMessage stepTime ifNil: [
-					            morphToStep stepTime ].
-				lastStepMessage scheduledTime: now + (stepTime max: 1).
-				stepList add: lastStepMessage ] ].
-		lastStepMessage := nil ].
+	[ stepList isEmpty not and: [ stepList first scheduledTime < now ] ]
+		whileTrue: [
+				[
+					lastStepMessage := stepList removeFirst.
+					morphToStep := lastStepMessage receiver.
+					(morphToStep shouldGetStepsFrom: aWorld) ifTrue: [
+							lastStepMessage value: now.
+							lastStepMessage ifNotNil: [
+									stepTime := lastStepMessage stepTime ifNil: [
+										            morphToStep stepTime ].
+									lastStepMessage scheduledTime: now + (stepTime max: 1).
+									stepList add: lastStepMessage ] ].
+					lastStepMessage := nil ]
+					on: Error
+					do: [ :ex | "JfP override. Morphic drawing can fail. Note it and resume to let the next drawing event cleanup."
+							'Error in WorldState>>#runLocalStepMethodsIn: ' , ex traceCr.
+							^ self ] ].
 	lastStepTime := now.
 	ActiveWorld := priorWorld
 ]
