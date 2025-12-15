@@ -46,7 +46,8 @@ icePackage := jfpRepo packageNamed: 'BaselineOfJadeiteForPharo'.
 			policy := self chooseConflictPolicyFor: e.
 			policy ifNotNil: [ e perform: policy ] ];
 		load: #().
-		
+
+(Smalltalk at: #JadeiteGCIConnectionProfile) clientLibrariesPath: (OSEnvironment current at: #JFP_CLIENT_LIBPATH ifAbsent: []).
 (Smalltalk at: #JadeiteConnectionApplication ) new start. 
 
 RealEstateAgent usedStrategy: #cursorPointFor:initialExtent:world:
