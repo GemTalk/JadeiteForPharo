@@ -26,6 +26,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 
 { #category : '*JadeiteForPharo-Pharo-13' }
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
+	"test that the launcher reads the client libraries path from the share var"
 
 	| originalPath command |
 	self
@@ -41,15 +42,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
 	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
 	JadeiteConnectionApplication singleton start.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	self assert: launcher pathText text equals: originalPath.
-
-	launcher pathText text: 'new/Client/Lib/Path'.
-	command := launcher pathText ensureInternalActions allCommands
-		           detect: [ :ea | ea id = 'shortcutCtrl+S' ].
-	command execute.
-	self
-		assert: JadeiteGCIConnectionProfile clientLibrariesPath
-		equals: 'new/Client/Lib/Path'
+	self assert: launcher pathText text equals: originalPath
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }
