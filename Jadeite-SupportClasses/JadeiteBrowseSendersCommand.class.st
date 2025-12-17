@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'defaults' }
+JadeiteBrowseSendersCommand class >> defaultShortcutKey [
+
+	^ $n command mac | $n control win | $n control unix
+]
+
 { #category : 'execution' }
 JadeiteBrowseSendersCommand >> execute [
 

@@ -5,6 +5,14 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'defaults' }
+JadeiteBrowseClassReferencesCommand class >> defaultShortcutKey [
+
+	^ $n shift command mac 
+		| $n shift control win
+		| $n shift control unix
+]
+
 { #category : 'execution' }
 JadeiteBrowseClassReferencesCommand >> execute [
 

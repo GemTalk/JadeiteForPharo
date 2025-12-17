@@ -5,6 +5,14 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'defaults' }
+JadeiteBrowseMethodsContainingStringCommand class >> defaultShortcutKey [
+
+	^ $e shift command mac 
+		| $e shift control win
+		| $e shift control unix
+]
+
 { #category : 'execution' }
 JadeiteBrowseMethodsContainingStringCommand >> execute [
 

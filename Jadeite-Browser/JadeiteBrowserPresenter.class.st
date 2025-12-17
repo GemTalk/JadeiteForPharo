@@ -2039,8 +2039,9 @@ JadeiteBrowserPresenter >> isComparisonTabSelected [
 { #category : 'testing' }
 JadeiteBrowserPresenter >> isDictionaryTabSelected [
 
-	^packageDictionaryTabs selectedPage title = 'Dictionary'
-
+	^ packageDictionaryTabs selectedPage
+		  ifNil: [ false ]
+		  ifNotNil: [ :page | page title = 'Dictionary' ]
 ]
 
 { #category : 'testing' }
