@@ -288,28 +288,30 @@ JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 JadeiteConnectionLauncher >> connect [
 
 	| shouldDebug |
-	pathText text isEmpty ifTrue: [
-		UIManager default alert: 'Client Libraries Path must be set'.
-		self setClientLibrariesPath ifNil: [ ^ self ] ].
+	pathText adapter widget text isEmpty ifTrue: [
+			UIManager default alert: 'Client Libraries Path must be set'.
+			self setClientLibrariesPath ifNil: [ ^ self ] ].
+	JadeiteGCIConnectionProfile clientLibrariesPath: pathText text.
+
 	self populateConnectionProfile.
 	[
-	self connectionProfile connect.
-	self gciSession: GciSession current.
-	self updateCaption ]
+		self connectionProfile connect.
+		self gciSession: GciSession current.
+		self updateCaption ]
 		on: Error
 		do: [ :ex |
-			| ws |
-			ws := WriteStream on: String new.
-			ws
-				nextPutAll: ex description;
-				cr;
-				nextPutAll: 'Debug?'.
-			shouldDebug := self uiManager
-				               questionWithoutCancel: ws contents
-				               title: 'Jadeite Connection Error'.
-			shouldDebug
-				ifTrue: [ ex pass ]
-				ifFalse: [ ^ self ] ].
+				| ws |
+				ws := WriteStream on: String new.
+				ws
+					nextPutAll: ex description;
+					cr;
+					nextPutAll: 'Debug?'.
+				shouldDebug := self uiManager
+					               questionWithoutCancel: ws contents
+					               title: 'Jadeite Connection Error'.
+				shouldDebug
+					ifTrue: [ ex pass ]
+					ifFalse: [ ^ self ] ]
 ]
 
 { #category : 'accessing' }
@@ -339,8 +341,8 @@ JadeiteConnectionLauncher >> connectPresenters [
 	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
 			selection selectedIndex = 0 ifFalse: [
 				self installImportedConnection: selection selectedItem ] ].
-	pathText whenTextChangedDo: [ :newPath |
-			JadeiteGCIConnectionProfile clientLibrariesPath: newPath. ].
+	pathText whenSubmitDo: [ :newPath |
+		pathText adapter widget hasUnacceptedEdits: false ].
 	SystemAnnouncer uniqueInstance weak
 		when: UIThemeChanged
 		send: #themeChanged
@@ -460,14 +462,17 @@ JadeiteConnectionLauncher >> initializeAboutMenu [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 
-	nonConnectionBox add:
-		(self newLabel label: 'Imported Connections List:') height: 30.
+	nonConnectionBox
+		add: (self newLabel
+				 displayBold: [ true ];
+				 label: 'Imported Connections List:')
+		height: 30.
 	availableConnectionPresenter := JadeiteListPresenter new
 		                                display: [ :filePath |
-			                                displayFullPath value
-				                                ifTrue: [ filePath ]
-				                                ifFalse: [
-					                                self shortPathFor: filePath ] ];
+				                                displayFullPath value
+					                                ifTrue: [ filePath ]
+					                                ifFalse: [
+						                                self shortPathFor: filePath ] ];
 		                                contextMenu:
 			                                self initializeConnectionsMenu.
 	nonConnectionBox add: availableConnectionPresenter.
@@ -497,10 +502,7 @@ JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 
 	| pathBox |
 	pathBox := SpBoxLayout newVertical.
-	pathBox add: (self newLabel
-			 label: 'Client Libraries Path:';
-			 help: 'To change client libraries path:
-Enter new path and press Enter or press ''Set Client Libraries Path'' button').
+	pathBox add: (self newLabel label: 'Client Libraries Path:').
 	setClientLibrariesPathButton := self newButton
 		                                label: 'Set Client Libraries Path';
 		                                icon: (self iconNamed: #smallHome);
@@ -645,7 +647,7 @@ JadeiteConnectionLauncher >> initializePresenters [
 	connectionLabelBox := SpBoxLayout newHorizontal hAlignCenter.
 	label := self newLabel
 		         displayBold: [ true ];
-		         label: 'Connection';
+		         label: 'Client Connection';
 		         help:
 			         'The values in the left column can be exported to disk'.
 	connectionLabelBox add: label.
@@ -665,7 +667,7 @@ JadeiteConnectionLauncher >> initializePresenters [
 	nonConnectionLabelBox := SpBoxLayout newHorizontal hAlignCenter.
 	label := self newLabel
 		         displayBold: [ true ];
-		         label: 'Non Connection';
+		         label: 'Server Connection';
 		         help: 'The values in the right column are not exported'.
 	nonConnectionLabelBox add: label.
 	nonConnectionBox add: nonConnectionLabelBox height: 30.
@@ -728,11 +730,9 @@ JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 		menu: self initializeMenubar;
 		centered.
 	self updateCaption.
-	aWindowPresenter
-		whenOpenedDo: [ pathText adapter widget autoAccept: true ];
-		whenClosedDo: [
-				self clearConnectionSubscriptions.
-				self class soleInstance: nil ].
+	aWindowPresenter whenClosedDo: [
+			self clearConnectionSubscriptions.
+			self class soleInstance: nil ].
 	self class soleInstance: aWindowPresenter
 ]
 

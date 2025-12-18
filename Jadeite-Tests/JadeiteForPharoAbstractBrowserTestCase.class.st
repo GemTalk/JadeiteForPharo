@@ -1484,10 +1484,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_moveMethodToCategory [
 	self selectRowanSample1Class.
 	self projectsPresenter basicAddMethodCategory: 'foo'.
 	self saveSampleMethod.
-	self projectsPresenter
-		updateAfterFindClassName: 'RowanSample1'
-		methodSelector: 'sampleMethod'
-		meta: false.
 	self
 		assert: self methodListPresenter selectedItem category
 		equals: 'foo'.

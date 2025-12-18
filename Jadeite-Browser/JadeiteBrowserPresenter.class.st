@@ -2921,10 +2921,12 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 		                  computeVisibleMethods: methodListPresenter
 		                  browser: self.
 	methodListPresenter items: visibleMethods.
-	methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ]
-	
-	"Is it really safe to get rid of this code?"
-	
+	methodListPresenter list addAll:
+		(extensions reject: [ :svc | methodListPresenter list includes: svc ]).
+	methodListPresenter adapter ifNotNil: [ :a | 
+		a widget resetPosition ]
+		
+		 "Is it really safe to get rid of this code?" 
 	"selections := methodListPresenter selectedItems.
 	(methodListPresenter items difference: visibleMethods) ifEmpty: [
 			(visibleMethods difference: methodListPresenter items) ifEmpty: [
@@ -2942,6 +2944,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 				ifFalse: [ self updateMethodSource ].
 			methodListPresenter adapter ifNotNil: [ :a |
 				a widget resetPosition ] ]"
+
 ]
 
 { #category : 'as yet unclassified' }
