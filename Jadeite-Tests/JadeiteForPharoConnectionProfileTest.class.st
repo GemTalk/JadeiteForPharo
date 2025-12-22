@@ -75,14 +75,8 @@ JadeiteForPharoConnectionProfileTest >> test_connectHandlesGciErrorGracefully [
 { #category : 'tests' }
 JadeiteForPharoConnectionProfileTest >> test_pathReturnsClientLibrariesPath [
 
-	| clientLibrariesPath |
-	clientLibrariesPath := JadeiteGCIConnectionProfile
-		                       clientLibrariesPath.
 	JadeiteGCIConnectionProfile clientLibrariesPath: '/usr/lib/gemstone'.
-	[ self assert: testProfile path equals: '/usr/lib/gemstone' ]
-		ensure: [
-			JadeiteGCIConnectionProfile clientLibrariesPath:
-				clientLibrariesPath ]
+	self assert: testProfile path equals: '/usr/lib/gemstone'
 ]
 
 { #category : 'tests' }

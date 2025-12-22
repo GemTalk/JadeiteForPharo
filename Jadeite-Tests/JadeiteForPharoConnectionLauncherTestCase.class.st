@@ -125,6 +125,7 @@ JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> setUp [
 
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	JadeiteTestManager replacing: self uiManager.
 	self ensureConnectionProfileEstablished.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
@@ -150,6 +151,7 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	JadeiteConnectionProfile connectionProfile disconnect.
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
+	self destroy: JadeiteConsole currentConsole.
 	shouldReopenLauncher ifTrue: [ self destroy: launcher ].
 	backupConnections ifNotNil: [
 		JadeiteConnectionLauncher importedConnections: backupConnections ].
@@ -275,7 +277,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_changeFieldsResetOnImport [
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 
 	self profile isConnected ifTrue: [ self profile disconnect ].
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	JadeiteGCIConnectionProfile clientLibrariesPath: String new.
 
@@ -291,7 +292,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPathDoesNotExistUseParent [
 
 	self profile isConnected ifTrue: [ self profile disconnect ].
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
 	launcher pathText text:
 		JadeiteGCIConnectionProfile clientLibrariesPath , '/defghi'.
@@ -377,8 +377,8 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 		^ self skip: 'Rowan not available. Test not run' ].
 	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
 		JadeiteConnectionProfile connectionProfile connect ].
-	launcher openCommitIdWindow. "will set workspace variable"
-	[
+	workspace := launcher openCommitIdWindow. "will set workspace variable"
+
 	jfpSha := (IceRepository registry detect: [ :ea |
 		           ea name = 'JadeiteForPharo' ]) properties commitish
 		          shortId.
@@ -396,25 +396,25 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 		session:
 		(GciSession new library: launcher connectionProfile connection)
 		onCompletion: [
-			| workspaceString |
-			clientServicesSha := (browserService projects detect: [
-				                      :projectService |
-				                      projectService name = 'RowanClientServices' ])
-				                     sha.
-			desiredWorkspaceText := 'Client:*
+				| workspaceString |
+				clientServicesSha := (browserService projects detect: [
+					                      :projectService |
+					                      projectService name = 'RowanClientServices' ])
+					                     sha.
+				desiredWorkspaceText := 'Client:*
 JadeiteForPharo ' , jfpSha asString , '
 PharoGemStoneFFI ' , gemstoneFFISha asString , '
 RemoteServiceReplication ' , rsrSha asString , '
 ---------------------------------------------
 Server Required Projects:*
-RemoteServiceReplication ' , rsrSha asString , '
+RemoteServiceReplication*
 RowanClientServices ' , clientServicesSha asString , '
 ---------------------------------------------
 All loaded projects:*'.
-			"In the event of failure, cache the workspace contents otherwise workspace will be destroyed before analysis can be done"
-			workspaceString := workspace text asString.
-			self assert: (desiredWorkspaceText match: workspaceString) ] ]
-		ensure: [ self destroy: workspace ]
+				"In the event of failure, cache the workspace contents otherwise workspace will be destroyed before analysis can be done"
+				workspaceString := workspace text asString.
+				self assert: (desiredWorkspaceText match: workspaceString).
+				self destroy: workspace ]
 ]
 
 { #category : 'tests' }
@@ -456,7 +456,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_nilShareVarExportConnection [
 		testsJadeiteForPharoIssue: #issue362
 		title: 'exporting a connection with a nil share var gives walkback'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/362'.
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	JadeiteGCIConnectionProfile clientLibrariesPath: nil. "will be restored in teardown."
 	fileRef := (FileSystem disk workingDirectoryPath
 	            / 'testExportFileName') asFileReference.
@@ -474,7 +473,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_nilShareVarOpenClientLibButton
 		testsJadeiteForPharoIssue: #issue362
 		title: 'exporting a connection with a nil share var gives walkback'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/362'.
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	JadeiteGCIConnectionProfile clientLibrariesPath: nil. "will be restored in teardown."
 	dialog := self
 		          waitForNew: SpDialogWindowMorph

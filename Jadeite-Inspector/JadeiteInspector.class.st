@@ -926,11 +926,16 @@ JadeiteInspector >> printInstVar [
 		  RowanServiceUpdater current
 			  issueCommand: answeringService
 			  session: gciSession
-			  onCompletion: [
+			  onCompletion: [ :service |
+					  | sem |
+					  sem := Semaphore new.
 					  self uiManager defer: [
-							  codePane
-								  text: answeringService answer;
-								  hasUnacceptedEdits: false ] ].
+							  service answer ifNotNil: [
+									  codePane
+										  text: service answer;
+										  hasUnacceptedEdits: false ].
+							  sem signal ].
+					  sem waitTimeoutMilliseconds: 500 ].
 		  answeringService answer ]
 		  on: Error
 		  do: [ :ex |

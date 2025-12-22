@@ -99,7 +99,8 @@ JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 		cr;
 		nextPutAll: Smalltalk jadeitePharoAbout.
 	workspace text: workspace text , ws contents.
-	workspace hasUnacceptedEdits: false
+	workspace hasUnacceptedEdits: false.
+	^ workspace
 ]
 
 { #category : 'initialization' }

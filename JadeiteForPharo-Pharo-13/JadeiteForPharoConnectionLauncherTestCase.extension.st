@@ -6,8 +6,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 	| changedPathRef originalPath |
 	self profile isConnected ifTrue: [ self profile disconnect ].
 	JadeiteConnectionLauncher soleInstance window close.
-
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	originalPath := 'testPath'.
 	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
 	JadeiteConnectionApplication singleton start.
@@ -37,7 +35,6 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
 	self profile isConnected ifTrue: [ self profile disconnect ].
 	JadeiteConnectionLauncher soleInstance window close.
 
-	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	originalPath := 'testPath'.
 	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
 	JadeiteConnectionApplication singleton start.
