@@ -67,12 +67,6 @@ RowanTestService >> remoteServiceClassNamesOop: session [
 	^answeringService answer value "key is whether result compiled" 
 ]
 
-{ #category : 'accessing' }
-RowanTestService >> sortAspect [
-
-	^name
-]
-
 { #category : 'updates' }
 RowanTestService >> testServiceUpdate: anOrderedCollection [
 

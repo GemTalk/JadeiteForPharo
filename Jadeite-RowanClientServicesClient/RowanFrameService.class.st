@@ -207,12 +207,6 @@ RowanFrameService >> printVarsOn: aStream [
 	self printVariables: sortedTempsAndParms on: aStream
 ]
 
-{ #category : 'accessing' }
-RowanFrameService >> sortAspect [
-
-	^name
-]
-
 { #category : 'public' }
 RowanFrameService >> source [
 

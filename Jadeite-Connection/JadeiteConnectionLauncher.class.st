@@ -836,7 +836,7 @@ JadeiteConnectionLauncher >> populateTextFields [
 	passwordText text: selectedProfile password.
 	versionText text: selectedProfile version.
 	netldiText text: selectedProfile netldi.
-	pathText text: selectedProfile path.
+	pathText text: JadeiteGCIConnectionProfile clientLibrariesPath.
 	selectedProfile port
 		ifNil: [ portText text: String new ]
 		ifNotNil: [ portText text: selectedProfile port ]
@@ -907,6 +907,18 @@ JadeiteConnectionLauncher >> resetChangedTextFields [
 	self netldiText adapter widget hasUnacceptedEdits: false.
 	self portText adapter widget accept.
 	self portText adapter widget hasUnacceptedEdits: false
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> setClientLibrariesPathButton [
+
+	^ setClientLibrariesPathButton
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> setClientLibrariesPathButton: anObject [
+
+	setClientLibrariesPathButton := anObject
 ]
 
 { #category : 'initialization' }

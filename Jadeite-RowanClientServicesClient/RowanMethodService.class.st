@@ -754,12 +754,6 @@ RowanMethodService >> setPassed [
 ]
 
 { #category : 'accessing' }
-RowanMethodService >> sortAspect [
-
-	^selector
-]
-
-{ #category : 'accessing' }
 RowanMethodService >> source [
 	^source
 ]

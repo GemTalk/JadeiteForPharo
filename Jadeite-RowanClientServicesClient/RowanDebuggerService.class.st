@@ -53,9 +53,3 @@ RowanDebuggerService >> processListUpdate: aPresenter [
 RowanDebuggerService >> processes [
 	^processes
 ]
-
-{ #category : 'accessing' }
-RowanDebuggerService >> sortAspect [
-
-	^name
-]

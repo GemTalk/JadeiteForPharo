@@ -44,6 +44,12 @@ JadeiteAbstractTestCase class >> resources [
 	^IdentitySet with: self jadeiteTestResourceClass
 ]
 
+{ #category : 'factory' }
+JadeiteAbstractTestCase class >> suiteClass [
+
+	^ JadeiteTestSuite
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> abortTransaction [
 	transcript abortTransaction

@@ -621,12 +621,6 @@ RowanProjectService >> sha: anObject [
 ]
 
 { #category : 'accessing' }
-RowanProjectService >> sortAspect [
-
-	^name
-]
-
-{ #category : 'accessing' }
 RowanProjectService >> specService [
 	^specService
 ]

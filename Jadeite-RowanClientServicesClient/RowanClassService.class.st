@@ -936,12 +936,6 @@ RowanClassService >> shouldReplicateInstVarAtIndex: index newService: newService
 	^true
 ]
 
-{ #category : 'accessing' }
-RowanClassService >> sortAspect [
-
-	^name
-]
-
 { #category : 'public' }
 RowanClassService >> sunitMethodsUpdate: presenter browser: browser [
 	| selections oldClassService |

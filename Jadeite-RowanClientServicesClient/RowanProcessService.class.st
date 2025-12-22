@@ -171,12 +171,6 @@ RowanProcessService >> serverPrintString: anObject [
 	serverPrintString := anObject
 ]
 
-{ #category : 'accessing' }
-RowanProcessService >> sortAspect [
-
-	^name
-]
-
 { #category : 'public' }
 RowanProcessService >> stack [
 	^frames ifNil: [Array new] ifNotNil: [frames collect: [:each | each printString]]

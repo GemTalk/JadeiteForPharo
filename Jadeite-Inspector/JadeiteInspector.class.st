@@ -320,29 +320,32 @@ JadeiteInspector >> displayMore: stop [
 
 { #category : 'displaying' }
 JadeiteInspector >> displayObjectSelecting: selectionIndex [
+
 	| contents reachedMax |
-	contents := model objects copy.	"otherwise the presenter list will notice it's the same object and not update the view"
-	(contents isEmpty or: [contents first ~= model myself])
-		ifTrue: 
-			[contents addFirst: (Array with: '-.asOop' with: model oop printString).
-			contents addFirst: model myself].
+	contents := model objects copy. "otherwise the presenter list will notice it's the same object and not update the view"
+	(contents isEmpty or: [ contents first ~= model myself ]) ifTrue: [
+			contents addFirst:
+				(Array with: '-.asOop' with: model oop printString).
+			contents addFirst: model myself ].
 	instVarListPresenter list: (ListModel on: contents).
-	instVarListPresenter selectIndex: (selectionIndex ifNil: [1] ifNotNil: [selectionIndex]).
+	instVarListPresenter selectIndex:
+		(selectionIndex ifNil: [ 1 ] ifNotNil: [ selectionIndex ]).
 	reachedMax := model visibleIndices = self maxVariables
-				ifTrue: [' (max displayable)']
-				ifFalse: [String new].
+		              ifTrue: [ ' (max displayable)' ]
+		              ifFalse: [ String new ].
 	model statusText
-		ifNil: 
-			[model indexedSize > 0
-				ifTrue: 
-					[statusTextPresenter
-						value: 'Displaying ' , model visibleIndices printString , reachedMax , ' of '
-								, model indexedSize printString
-									, (model isDictionary ifTrue: [' keys'] ifFalse: [' variable inst vars'])]
-				ifFalse: [statusTextPresenter value: nil]]
-		ifNotNil: [statusTextPresenter value: model statusText].
-	className := model className.
-	"documentPresenter view isModified: false"
+		ifNil: [
+				model indexedSize > 0
+					ifTrue: [
+							statusTextPresenter value:
+								'Displaying ' , model visibleIndices printString , reachedMax
+								, ' of ' , model indexedSize printString
+								, (model isDictionary
+										 ifTrue: [ ' keys' ]
+										 ifFalse: [ ' variable inst vars' ]) ]
+					ifFalse: [ statusTextPresenter value: nil ] ]
+		ifNotNil: [ statusTextPresenter value: model statusText ].
+	className := model className
 ]
 
 { #category : 'inspecting' }
@@ -906,32 +909,33 @@ JadeiteInspector >> oopsCollection: anObject [
 	oopsCollection := anObject
 ]
 
-{ #category : 'printing' }
+{ #category : 'displaying' }
 JadeiteInspector >> printInstVar [
 
 	| answeringService oop theValue |
 	^ [
-	  answeringService := RowanAnsweringServiceClient new registerWith:
-		                      gciSession connection.
-	  theValue := instVarListPresenter selectedItems first last. "oop or Array"
-	  oop := (theValue isKindOf: Array)
-		         ifTrue: [ theValue at: 2 ]
-		         ifFalse: [ theValue ].
-	  answeringService
-		  command: #printStringOf:toMaxSize:;
-		  commandArgs: (Array with: oop with: self maxPrintStringSize).
-	  RowanServiceUpdater current
-		  issueCommand: answeringService
-		  session: gciSession
-		  onCompletion: [
-			  codePane
-				  text: answeringService answer;
-				  hasUnacceptedEdits: false ].
-	  answeringService answer ]
+		  answeringService := RowanAnsweringServiceClient new registerWith:
+			                      gciSession connection.
+		  theValue := instVarListPresenter selectedItems first last. "oop or Array"
+		  oop := (theValue isKindOf: Array)
+			         ifTrue: [ theValue at: 2 ]
+			         ifFalse: [ theValue ].
+		  answeringService
+			  command: #printStringOf:toMaxSize:;
+			  commandArgs: (Array with: oop with: self maxPrintStringSize).
+		  RowanServiceUpdater current
+			  issueCommand: answeringService
+			  session: gciSession
+			  onCompletion: [
+					  self uiManager defer: [
+							  codePane
+								  text: answeringService answer;
+								  hasUnacceptedEdits: false ] ].
+		  answeringService answer ]
 		  on: Error
 		  do: [ :ex |
-			  codePane text: 'Error printing object ' , ex printString.
-			  codePane hasUnacceptedEdits: false ]
+				  codePane text: 'Error printing object ' , ex printString.
+				  codePane hasUnacceptedEdits: false ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1117,7 +1121,7 @@ JadeiteInspector >> selectedDynamicInstVars [
 		thenCollect: [:sel | (sel key copyFrom: 3 to: sel key size) asSymbol]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'events' }
 JadeiteInspector >> selectedInstVar [
 
 	| key |

@@ -51,9 +51,3 @@ RowanAutoCommitService >> logReceivedOn: aStream [
 		space;
 		nextPutAll: autoCommit printString
 ]
-
-{ #category : 'accessing' }
-RowanAutoCommitService >> sortAspect [
-	"don't think this is used"
-	^self printString 
-]

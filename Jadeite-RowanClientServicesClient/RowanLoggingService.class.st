@@ -331,12 +331,6 @@ RowanLoggingService >> services [
 ]
 
 { #category : 'accessing' }
-RowanLoggingService >> sortAspect [
-
-	^name
-]
-
-{ #category : 'accessing' }
 RowanLoggingService >> time [
 	^time
 ]

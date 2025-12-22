@@ -95,9 +95,3 @@ RowanQueryServiceClient >> serviceCompletionBlock: anObject [
 
 	serviceCompletionBlock := anObject
 ]
-
-{ #category : 'accessing' }
-RowanQueryServiceClient >> sortAspect [
-
-	^name
-]

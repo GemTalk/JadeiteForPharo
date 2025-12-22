@@ -397,12 +397,6 @@ RowanInspectorService >> selectionOop [
 ]
 
 { #category : 'accessing' }
-RowanInspectorService >> sortAspect [
-
-	^name
-]
-
-{ #category : 'accessing' }
 RowanInspectorService >> statusText [
 	^statusText
 ]

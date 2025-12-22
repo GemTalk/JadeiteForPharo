@@ -350,12 +350,6 @@ RowanPackageService >> setCurrentOnCompletion: completionBlock [
 ]
 
 { #category : 'accessing' }
-RowanPackageService >> sortAspect [
-
-	^name
-]
-
-{ #category : 'accessing' }
 RowanPackageService >> testClasses [
 
 	^ testClasses

@@ -128,6 +128,8 @@ JadeiteForPharoConnectionLauncherTestCase >> setUp [
 	JadeiteTestManager replacing: self uiManager.
 	self ensureConnectionProfileEstablished.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	launcher pathText text:
+		JadeiteGCIConnectionProfile clientLibrariesPath.
 	backupConnections := launcher class importedConnections copy. "backup"
 	backupLastDirectory := launcher class lastImportDirectory.
 	shouldReopenLauncher := true
@@ -141,9 +143,10 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	super tearDown.
 	self uiManager restore.
 	clientLibariesPath ifNotNil: [
-		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
-		JadeiteConnectionLauncher soleInstance window close.
-		JadeiteConnectionApplication singleton start ].
+			JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath.
+			JadeiteConnectionLauncher soleInstance ifNotNil: [
+				JadeiteConnectionLauncher soleInstance window close ].
+			JadeiteConnectionApplication singleton start ].
 	JadeiteConnectionProfile connectionProfile disconnect.
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
@@ -444,6 +447,41 @@ JadeiteForPharoConnectionLauncherTestCase >> test_importFromDirectory [
 	launcher basicImportProfileDirectory:
 		self connectionDirName asFileReference asAbsolute.
 	self verifyTestConnectionsImported
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_nilShareVarExportConnection [
+
+	self
+		testsJadeiteForPharoIssue: #issue362
+		title: 'exporting a connection with a nil share var gives walkback'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/362'.
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
+	JadeiteGCIConnectionProfile clientLibrariesPath: nil. "will be restored in teardown."
+	fileRef := (FileSystem disk workingDirectoryPath
+	            / 'testExportFileName') asFileReference.
+	fileRef exists ifTrue: [ fileRef delete ].
+	[ launcher basicExportProfile: fileRef ] ensure: [
+		self assert: fileRef exists ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_nilShareVarOpenClientLibButton [
+	" make sure the dialog will open if our share var is nil "
+
+	| dialog |
+	self
+		testsJadeiteForPharoIssue: #issue362
+		title: 'exporting a connection with a nil share var gives walkback'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/362'.
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
+	JadeiteGCIConnectionProfile clientLibrariesPath: nil. "will be restored in teardown."
+	dialog := self
+		          waitForNew: SpDialogWindowMorph
+		          while: [
+		          launcher setClientLibrariesPathButton performAction ].
+	[ self assert: (dialog isKindOf: SpDialogWindowMorph) ] ensure: [
+		dialog close ]
 ]
 
 { #category : 'tests' }

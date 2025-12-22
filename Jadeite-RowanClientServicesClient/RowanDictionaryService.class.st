@@ -244,12 +244,6 @@ RowanDictionaryService >> selectPackageOrDictionaryService: service in: presente
 	
 ]
 
-{ #category : 'accessing' }
-RowanDictionaryService >> sortAspect [
-
-	^name
-]
-
 { #category : 'updates' }
 RowanDictionaryService >> testClasses: presenter browser: browser [
 	| additions sortedTests |

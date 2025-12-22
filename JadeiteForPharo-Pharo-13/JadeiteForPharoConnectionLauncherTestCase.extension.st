@@ -28,7 +28,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPath [
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
 	"test that the launcher reads the client libraries path from the share var"
 
-	| originalPath command |
+	| originalPath |
 	self
 		testsJadeiteForPharoIssue:
 		'WOR: Really annoying that I can''t just type in the clientlibs path '
@@ -42,7 +42,8 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesTextField [
 	JadeiteGCIConnectionProfile clientLibrariesPath: originalPath.
 	JadeiteConnectionApplication singleton start.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	self assert: launcher pathText text equals: originalPath
+	self assert: launcher pathText text equals: originalPath.
+	self destroy: launcher
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }

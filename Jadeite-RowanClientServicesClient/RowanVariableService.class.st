@@ -99,12 +99,6 @@ RowanVariableService >> printOn: aStream [
 		nextPutAll: ' )'
 ]
 
-{ #category : 'accessing' }
-RowanVariableService >> sortAspect [
-
-	^name
-]
-
 { #category : 'public' }
 RowanVariableService >> updateVariable: listPresenter debugger: debugger [
 	listPresenter list

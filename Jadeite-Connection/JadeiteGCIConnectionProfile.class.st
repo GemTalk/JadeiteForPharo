@@ -20,7 +20,9 @@ Class {
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile class >> clientLibrariesPath [
 
-	^ClientLibrariesPath
+	ClientLibrariesPath ifNil: [
+		^ FileSystem disk workingDirectoryPath pathString ].
+	^ ClientLibrariesPath
 ]
 
 { #category : 'accessing' }
