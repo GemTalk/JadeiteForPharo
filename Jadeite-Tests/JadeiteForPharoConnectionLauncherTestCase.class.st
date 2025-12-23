@@ -140,7 +140,7 @@ JadeiteForPharoConnectionLauncherTestCase >> setUp [
 JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 
 	JadeiteConnectionLauncher soleInstance ifNotNil: [ :l |
-		l presenter application useBackend: #Morphic ].
+		l presenter application useBackend: #JadeiteBackend ].
 	super tearDown.
 	self uiManager restore.
 	clientLibariesPath ifNotNil: [
