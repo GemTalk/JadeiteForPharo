@@ -152,7 +152,9 @@ JadeiteForPharoConnectionLauncherTestCase >> tearDown [
 	fileRef ifNotNil: [ fileRef exists ifTrue: [ fileRef delete ] ].
 	self removeConnectionProfileDirectory.
 	self destroy: JadeiteConsole currentConsole.
-	shouldReopenLauncher ifTrue: [ self destroy: launcher ].
+	shouldReopenLauncher
+		ifTrue: [ self destroy: launcher ]
+		ifFalse: [ launcher pathText text: clientLibariesPath ].
 	backupConnections ifNotNil: [
 		JadeiteConnectionLauncher importedConnections: backupConnections ].
 	backupLastDirectory ifNotNil: [

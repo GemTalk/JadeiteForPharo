@@ -7,7 +7,8 @@ Class {
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
 		'currentProfile',
-		'testProfile'
+		'testProfile',
+		'clientLibariesPath'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -23,6 +24,7 @@ JadeiteForPharoConnectionProfileTest class >> codeCoverageClasses [
 
 { #category : 'support' }
 JadeiteForPharoConnectionProfileTest >> setUp [
+	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.
 	currentProfile := JadeiteGCIConnectionProfile connectionProfile. "restore at end of test"
 	testProfile := JadeiteGCIConnectionProfile new.
 	JadeiteTestManager replacing: self uiManager
@@ -32,7 +34,9 @@ JadeiteForPharoConnectionProfileTest >> setUp [
 JadeiteForPharoConnectionProfileTest >> tearDown [
 
 	JadeiteGCIConnectionProfile connectionProfile: currentProfile.
-	self uiManager restore
+	self uiManager restore.
+	clientLibariesPath ifNotNil: [
+		JadeiteGCIConnectionProfile clientLibrariesPath: clientLibariesPath ]
 ]
 
 { #category : 'tests' }

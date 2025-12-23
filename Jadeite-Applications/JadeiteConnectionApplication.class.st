@@ -8,6 +8,12 @@ Class {
 	#package : 'Jadeite-Applications'
 }
 
+{ #category : 'accessing' }
+JadeiteConnectionApplication class >> defaultBackendName [
+
+	^ #JadeiteBackend 
+]
+
 { #category : 'world menu' }
 JadeiteConnectionApplication class >> menuCommandOn: aBuilder [
 	"Add a custom menu item to the world menu"
