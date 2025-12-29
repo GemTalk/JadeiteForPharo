@@ -54,7 +54,7 @@ RowanProcessServiceClient >> inCommand: anObject [
 { #category : 'debugger' }
 RowanProcessServiceClient >> openDebugger [
 
-	| activeProcess debuggerApplication |
+	| activeProcess debuggerApplication sem |
 	RowanServiceUpdater current stopProgressBar.
 	activeProcess := Processor activeProcess.
 	debuggerApplication := JadeiteDebuggerApplication new gciSession:
@@ -67,18 +67,21 @@ RowanProcessServiceClient >> openDebugger [
 	debugger
 		addStyle: 'jadeiteTextBackgroundColor';
 		gciSession: GciSession current.
-	debugger errorMessagePresenter text: errorMessage.
-	1 to: frames size do: [ :index | (frames at: index) index: index ].
-	debugger frameListPresenter items: frames.
-	debugger selectInitialFrame.
-	self class debuggedProcessServices add: self.
-	UIManager default defer: [
-		| windowPresenter |
-		windowPresenter := debugger open.
-		debugger application
-			addBorderStyleTo: windowPresenter
-			presenter: debugger ].
-	WorldMorph doOneCycle. "make sure tests get a gui cycle"
+	sem := Semaphore new.
+	self uiManager defer: [
+			| windowPresenter |
+			debugger errorMessagePresenter text: errorMessage.
+			1 to: frames size do: [ :index | (frames at: index) index: index ].
+			debugger frameListPresenter items: frames.
+			debugger selectInitialFrame.
+			self class debuggedProcessServices add: self.
+			windowPresenter := debugger open.
+			debugger application
+				addBorderStyleTo: windowPresenter
+				presenter: debugger.
+			sem signal ].
+	sem wait.
+	"WorldMorph doOneCycle." "still needed? make sure tests get a gui cycle"
 	activeProcess suspend.
 	^ debugger answer
 ]
@@ -98,14 +101,16 @@ RowanProcessServiceClient >> serviceCompletionBlock: anObject [
 { #category : 'debugger' }
 RowanProcessServiceClient >> updateClient [
 
-	| activeProcess |
+	| activeProcess sem |
 	activeProcess := Processor activeProcess.
 	debugger suspendedProcess: activeProcess.
-	1 to: frames size do: [ :index | 
-		(frames at: index) index: index
-		].
-	debugger frameListPresenter items: frames.
-	debugger selectInitialFrame.
+	1 to: frames size do: [ :index | (frames at: index) index: index ].
+	sem := Semaphore new.
+	self uiManager defer: [ 
+			debugger frameListPresenter items: frames.
+			debugger selectInitialFrame.
+			sem signal ].
+	sem wait.
 	activeProcess suspend.
 	^ debugger answer
 ]

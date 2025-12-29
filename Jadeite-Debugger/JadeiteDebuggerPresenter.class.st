@@ -189,30 +189,31 @@ JadeiteDebuggerPresenter >> defaultLayout [
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> displayBreakpoints [
-	| methodService | 
-	methodService := self frameListPresenter selectedItem method. 
-	methodService breakPoints do: [ :breakPoint |
-		| range stepPointAssoc |
-		stepPointAssoc := methodService stepPoints
-			                  at: breakPoint.
-		range := methodService stepPointRangeFrom:
-			         stepPointAssoc.
-		self methodSourcePresenter addTextSegmentDecoration:
-			((SpTextPresenterDecorator new highlightColor: Color lightCyan)
-				 interval: range) ]
+
+	| methodService |
+	self uiManager defer: [
+			methodService := self frameListPresenter selectedItem method.
+			methodService breakPoints do: [ :breakPoint |
+					| range stepPointAssoc |
+					stepPointAssoc := methodService stepPoints at: breakPoint.
+					range := methodService stepPointRangeFrom: stepPointAssoc.
+					self methodSourcePresenter addTextSegmentDecoration:
+						((SpTextPresenterDecorator new highlightColor: Color lightCyan)
+							 interval: range) ] ]
 ]
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> displayMethodSourceStepPoints [
 
 	| methodService |
-	methodService := self frameListPresenter selectedItem method.
-	methodService stepPoints do: [ :stepPointAssoc |
-		| range |
-		range := methodService stepPointRangeFrom: stepPointAssoc.
-		self methodSourcePresenter addTextSegmentDecoration:
-			((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
-				 interval: range) ]
+	self uiManager defer: [
+			methodService := self frameListPresenter selectedItem method.
+			methodService stepPoints do: [ :stepPointAssoc |
+					| range |
+					range := methodService stepPointRangeFrom: stepPointAssoc.
+					self methodSourcePresenter addTextSegmentDecoration:
+						((SpTextPresenterDecorator new underlineColor:
+							  Color veryLightGray) interval: range) ] ]
 ]
 
 { #category : 'actions' }
@@ -269,7 +270,7 @@ JadeiteDebuggerPresenter >> editSave [
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> editSaveMethod [
-
+	"this does not work yet. The new source is not put on the top of the stack"
 	| source |
 	source := codePane text asString.
 	frameListPresenter selectedItem ifNotNil: [ :selection |
@@ -325,12 +326,6 @@ JadeiteDebuggerPresenter >> errorMessagePresenter: anObject [
 JadeiteDebuggerPresenter >> frameListPresenter [
 
 	^ frameListPresenter
-]
-
-{ #category : 'accessing' }
-JadeiteDebuggerPresenter >> frameListPresenter: anObject [
-
-	frameListPresenter := anObject
 ]
 
 { #category : 'accessing' }
@@ -579,9 +574,10 @@ JadeiteDebuggerPresenter >> registerPresentersForUpdates [
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> resetSource [
 
-	self methodSourcePresenter text:
-		self methodSourcePresenter methodService source.
-	self methodSourcePresenter isModified: false
+	self uiManager defer: [
+			self methodSourcePresenter text:
+				self methodSourcePresenter methodService source.
+			self methodSourcePresenter isModified: false ]
 ]
 
 { #category : 'actions' }
@@ -705,10 +701,11 @@ JadeiteDebuggerPresenter >> trimStack [
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> updateMethodSource [
-
 	"to get rid of breakpoint highlights, resetting the source appears to be necessary"
-	codePane value: frameListPresenter selectedItem source. 
-	self updateMethodSourceGlyphs
+
+	self uiManager defer: [
+			codePane value: frameListPresenter selectedItem source.
+			self updateMethodSourceGlyphs ]
 ]
 
 { #category : 'actions' }
@@ -719,12 +716,11 @@ JadeiteDebuggerPresenter >> updateMethodSource: anAnnouncement [
 
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
-
-	codePane context: frameListPresenter selectedItem oop.
-	codePane methodService: selection selectedItem method.
-	codePane value: selection selectedItem source.
-	self updateMethodSourceGlyphs.
-	codePane showStepPoint: frameListPresenter selectedItem stepPoint.
+	self uiManager defer: [codePane context: frameListPresenter selectedItem oop.
+codePane methodService: selection selectedItem method.
+codePane value: selection selectedItem source.
+self updateMethodSourceGlyphs.
+codePane showStepPoint: frameListPresenter selectedItem stepPoint]
 ]
 
 { #category : 'accessing' }

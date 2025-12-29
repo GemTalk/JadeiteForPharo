@@ -42,14 +42,17 @@ JadeiteForPharoGUITestCase >> assertTextPaneResetFor: presenter [
 			 ctrl: true
 			 command: false
 			 shift: false).
+	WorldMorph doOneCycle.
 	self assert: presenter text equals: text.
 	presenter adapter widget setText: 'changed the text with menu item!'.
+	WorldMorph doOneCycle.
 	self
 		assert: presenter adapter widget text
 		equals: 'changed the text with menu item!'.
 
 	"cancel using menu item"
 	(SpCancelChangesCommand forContext: presenter) execute.
+	WorldMorph doOneCycle.
 	self assert: presenter text equals: text
 ]
 
