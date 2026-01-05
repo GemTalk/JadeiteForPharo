@@ -188,6 +188,54 @@ JadeiteForPharoWorkspaceTestCase >> test_serverFileDialogSaveAs [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_statusBar [
+
+	| filePath |
+	filePath := '$HOME/test_statusBar.txt'.
+
+	self saveTestFileTo: filePath.
+	[
+		workspace := (JadeiteWorkspace showOnSession: session) caption:
+			             'Jade Workspace - test_statusBar'.
+		[ workspace openServerFile ]
+			on: ProvideAnswerNotification
+			do: [ :notification | notification resume: filePath ].
+		self assert: workspace codePane text equals: 'testFile'.
+		self assert: ('Filename: "test_statusBar.txt" @*' match:
+				 workspace owner statusBarText message).
+		workspace codePane text: 'some new content'.
+		workspace saveServerFile.
+		self assert: ('Filename: "test_statusBar.txt" @*' match:
+				 workspace owner statusBarText message) ] ensure: [
+		self removeTestFile: filePath ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoWorkspaceTestCase >> test_statusBarSaveAs [
+
+	| filePath saveAsPath |
+	filePath := '$HOME/test_statusBar.txt'.
+
+	self saveTestFileTo: filePath.
+	[
+		workspace := (JadeiteWorkspace showOnSession: session) caption:
+			             'Jade Workspace - test_statusBar'.
+		[ workspace openServerFile ]
+			on: ProvideAnswerNotification
+			do: [ :notification | notification resume: filePath ].
+		self assert: workspace codePane text equals: 'testFile'.
+		self assert: ('Filename: "test_statusBar.txt" @*' match:
+				 workspace owner statusBarText message).
+		workspace codePane text: 'some new content'.
+		saveAsPath := '$HOME/test_statusBarAAA.txt'.
+		workspace writeDocumentTo: saveAsPath.
+		self assert: ('Filename: "test_statusBarAAA.txt" @*' match:
+				 workspace owner statusBarText message) ] ensure: [
+			self removeTestFile: filePath.
+			self removeTestFile: saveAsPath ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoWorkspaceTestCase >> test_workspaceAdHocDisplayUnicodeCharacters [
 	self testsIssue: #issue678
 		withTitle: 'Print-it for out of range characters is... peculiar (3.0.92.3)'.

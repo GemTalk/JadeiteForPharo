@@ -199,15 +199,23 @@ JadeiteWorkspace >> setEnvironment: anInteger [
 
 { #category : 'private' }
 JadeiteWorkspace >> updateCaption [
+	"we update the status bar, too, since the file name changed"
 
 	| string |
-	string := self filename isNil
-		ifTrue: ['Jadeite Workspace']
-		ifFalse: [self filename].
+	string := self filename
+		          ifNil: [ 'Jadeite Workspace' ]
+		          ifNotNil: [ self filename ].
 	string := gciSession titleBarFor: string.
-	environment ~~ 0 ifTrue: [string := string , ' @env' , environment printString].
+	environment ~~ 0 ifTrue: [
+		string := string , ' @env' , environment printString ].
 	self caption: string.
+	self updateStatusBar
+]
 
+{ #category : 'private' }
+JadeiteWorkspace >> updateStatusBar [
+
+	self owner updateStatusBar: filePathString
 ]
 
 { #category : 'accessing' }

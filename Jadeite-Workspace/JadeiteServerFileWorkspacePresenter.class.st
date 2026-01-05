@@ -16,8 +16,8 @@ JadeiteServerFileWorkspacePresenter >> path: aString [
 { #category : 'actions' }
 JadeiteServerFileWorkspacePresenter >> updateCaption [
 
-	self caption:
-		(gciSession titleBarFor: 'File contents of: ' , workspace path)
+	self caption: (gciSession titleBarFor: workspace path).
+	self updateStatusBar: workspace path
 ]
 
 { #category : 'accessing' }

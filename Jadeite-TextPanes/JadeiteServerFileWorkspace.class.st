@@ -83,7 +83,9 @@ JadeiteServerFileWorkspace >> saveDocumentAs [
 
 { #category : 'actions' }
 JadeiteServerFileWorkspace >> updateCaption [
-	self caption: (gciSession titleBarFor: 'File contents of: ' , path)
+
+	self caption: (gciSession titleBarFor: path).
+	self updateStatusBar
 ]
 
 { #category : 'actions' }

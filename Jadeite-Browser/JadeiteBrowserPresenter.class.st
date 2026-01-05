@@ -1860,7 +1860,7 @@ JadeiteBrowserPresenter >> initializePresenters [
 	upper box layout. ... Seems unnecessarily complicated. Would be better if 
 	I could just add a resizer between two arbitrary widgets."
 
-	| listPresenters classColumn panedLayout1 filterLayout panedLayout2 panedLayout3 panedLayout4 methodLayout packageDictionaryColumn |
+	| listPresenters classColumn panedLayout1 filterLayout panedLayout2 panedLayout3 panedLayout4 methodLayout |
 	super initializePresenters.
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.

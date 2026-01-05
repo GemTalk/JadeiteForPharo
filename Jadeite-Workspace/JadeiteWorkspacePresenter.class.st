@@ -4,7 +4,8 @@ Class {
 	#traits : 'JadeiteToolbarTrait',
 	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
-		'workspace'
+		'workspace',
+		'statusBarText'
 	],
 	#category : 'Jadeite-Workspace',
 	#package : 'Jadeite-Workspace'
@@ -83,7 +84,9 @@ JadeiteWorkspacePresenter >> initializePresenters [
 	self layout add: waitBox expand: false.
 	self showNotWait.
 	workspace := self workspaceClass new.
-	self layout add: workspace
+	self layout add: workspace.
+	statusBarText := self newStatusBar.
+	self layout add: statusBarText height: 20.
 ]
 
 { #category : 'initialization' }
@@ -105,6 +108,12 @@ JadeiteWorkspacePresenter >> setCaption: string [
 	self caption: theString
 ]
 
+{ #category : 'accessing' }
+JadeiteWorkspacePresenter >> statusBarText [
+
+	^ statusBarText
+]
+
 { #category : 'initialization' }
 JadeiteWorkspacePresenter >> updateCaption [
 
@@ -114,6 +123,32 @@ JadeiteWorkspacePresenter >> updateCaption [
 		          ifNil: [ title ]
 		          ifNotNil: [ gciSession titleBarFor: title ].
 	self caption: string
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspacePresenter >> updateStatusBar [
+	
+	
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspacePresenter >> updateStatusBar: filePath [
+
+	| filename ws |
+	filePath ifNil: [ ^ statusBarText pushMessage: String new ].
+	ws := WriteStream on: String new.
+	filename := filePath asFileReference basename.
+	ws
+		nextPutAll: 'Filename:';
+		space;
+		nextPut: $";
+		nextPutAll: filename;
+		nextPut: $";
+		space;
+		nextPut: $@;
+		space;
+		nextPutAll: self gciSession library specification host.
+	statusBarText pushMessage: ws contents
 ]
 
 { #category : 'accessing' }

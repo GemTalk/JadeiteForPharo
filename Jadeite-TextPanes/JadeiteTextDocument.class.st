@@ -863,22 +863,6 @@ JadeiteTextDocument >> updatePresenter [
 	
 ]
 
-{ #category : 'private' }
-JadeiteTextDocument >> updateStatusBar [
-
-]
-
-{ #category : 'private' }
-JadeiteTextDocument >> updateStatusBarItem: aString with: anObject [
-
-	| item |
-	item := self view 
-		viewNamed: aString
-		ifNone: [self error: 'statusBar item ' , aString printString , ' not found'].
-	item model: (ValueHolder with: anObject).
-
-]
-
 { #category : 'accessing' }
 JadeiteTextDocument >> value [
 	"this may need to be '^self text'"
