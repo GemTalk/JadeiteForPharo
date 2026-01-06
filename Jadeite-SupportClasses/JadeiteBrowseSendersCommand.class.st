@@ -14,6 +14,7 @@ JadeiteBrowseSendersCommand class >> defaultShortcutKey [
 { #category : 'execution' }
 JadeiteBrowseSendersCommand >> execute [
 
+	super execute.
 	self context doBrowseSenders: fullSelector
 ]
 

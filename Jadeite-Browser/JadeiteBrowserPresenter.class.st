@@ -2231,12 +2231,6 @@ JadeiteBrowserPresenter >> maxAutoCompleteListSize [
 	^50
 ]
 
-{ #category : 'accessing' }
-JadeiteBrowserPresenter >> methodListCommands [
-
-	^#(#JadeiteRemoveMethodCommand #JadeiteBrowseImplementorsCommand)
-]
-
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> methodMenu: aMenu [
 	self methodMenuBreak: aMenu

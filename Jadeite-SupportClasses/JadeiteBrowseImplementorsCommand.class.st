@@ -14,6 +14,7 @@ JadeiteBrowseImplementorsCommand class >> defaultShortcutKey [
 { #category : 'execution' }
 JadeiteBrowseImplementorsCommand >> execute [
 
+	super execute.
 	self context doBrowseImplementors: fullSelector
 ]
 
