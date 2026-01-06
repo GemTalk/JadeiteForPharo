@@ -99,20 +99,32 @@ JadeitePresenter >> shellName [
 { #category : 'waiting' }
 JadeitePresenter >> showNotWait [
 
-	waitIndicator ifNotNil: [ :indicator |
-		indicator fixedAt: 0.5.
-		indicator hide ].
-	stopWaitButton ifNotNil: [ :button | button hide ]
+	[
+		waitIndicator ifNotNil: [ :indicator |
+				indicator fixedAt: 0.5.
+
+				indicator hide ].
+		stopWaitButton ifNotNil: [ :button | button hide ] ]
+		on: Error
+		do: [ :ex |
+				'ignored progress bar error when hiding progress - ' trace.
+				ex traceCr ]
 ]
 
 { #category : 'waiting' }
 JadeitePresenter >> showWait [
 
 	JadeitePreferences showProgressBar ifFalse: [ ^ self ].
-	waitIndicator ifNotNil: [ :indicator |
-		indicator indeterminate.
-		indicator show ].
-	stopWaitButton ifNotNil: [ :button | button show ]
+	[
+		waitIndicator ifNotNil: [ :indicator |
+				indicator indeterminate.
+				indicator show ].
+		stopWaitButton ifNotNil: [ :button | button show ] ]
+		on: Error
+		do: [ :ex |
+				self showNotWait.
+				'ignored progress bar error when showing progress - ' trace.
+				ex traceCr ]
 ]
 
 { #category : 'find' }
