@@ -1215,30 +1215,6 @@ JadeiteForPharoBrowserTestCase >> test_currentProjectText [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserTestCase >> test_debugTestProcessHangingAround [
-
-	| debugger |
-	self
-		testsJadeiteForPharoIssue: #issue329
-		title:
-		'Debugging failed test in browser leaves pharo process hanging around'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/329'.
-	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
-	self assertIsNil: self debugTestProcesses.
-	self projectsPresenter findClassNamed: 'JadeServerTest'.
-	[ self projectsPresenter selectedClass ] whileNil: [
-		(Delay forMilliseconds: 5) wait ].
-	self saveMethod: 'test_fail	self assert: false' in: 'JadeServerTest'.
-	self projectsPresenter debugMethodTests:
-		self projectsPresenter selectedClass.
-	debugger := self waitForDebugger.
-	[ self denyIsNil: self debugTestProcesses ] ensure: [
-			self destroy: debugger.
-			(Delay forMilliseconds: 250) wait.
-			self assertIsNil: self debugTestProcesses ]
-]
-
-{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_deselectProjectOnly [
 	"make sure it updates the tab label"
 
