@@ -297,12 +297,13 @@ JadeiteForPharoGUITestCase >> waitForCloseDialog [
 	| dialogs count |
 	count := 0.
 	[
-	(dialogs := self currentWorld windowsSatisfying: [ :each |
-		            each isKindOf: QuestionWithoutCancelDialogWindow ])
-		isEmpty and: [ count < 10 ] ] whileTrue: [
-		count := count + 1.
-		(Delay forMilliseconds: 10) wait ].
+		(dialogs := self currentWorld windowsSatisfying: [ :each |
+			            each isKindOf: QuestionWithoutCancelDialogWindow ])
+			isEmpty and: [ count < 10 ] ] whileTrue: [
+			count := count + 1.
+			(Delay forMilliseconds: 10) wait ].
 	self assert: dialogs size equals: 1.
+	Processor yield. "presumably, the dialog was opened in a forked thread, we want to let it finish activating before continuing. "
 	^ dialogs first
 ]
 

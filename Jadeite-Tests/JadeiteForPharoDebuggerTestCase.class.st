@@ -25,6 +25,14 @@ JadeiteForPharoDebuggerTestCase class >> jadeiteTestResourceClass [
 ]
 
 { #category : 'support' }
+JadeiteForPharoDebuggerTestCase >> debugTestProcesses [
+
+	^ (Process allInstances collect: [ :ea | ea printString ])
+		  detect: [ :ea | '*#debugTest:inClassName:*' match: ea ]
+		  ifNone: [  ]
+]
+
+{ #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> setUp [
 	"Debuggers should be closed before debugger test is run.
 	Don't call super setUp as we don't want to use the JadeiteTestResource for this test class"

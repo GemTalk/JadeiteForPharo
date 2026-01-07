@@ -1429,3 +1429,17 @@ JadeiteAbstractTestCase >> verifyWindowClosed: presenter [
 			(Delay forMilliseconds: 10) wait].
 	self deny: presenter isOpen
 ]
+
+{ #category : 'support' }
+JadeiteAbstractTestCase >> waitForDebugger [
+
+	| debuggedProcesses debugger |
+	debuggedProcesses := RowanProcessServiceClient
+		                     debuggedProcessServices.
+	[ debuggedProcesses isEmpty ] whileTrue: [
+			(Delay forMilliseconds: 1) wait.
+			WorldMorph doOneCycle ].
+	debugger := debuggedProcesses first debugger.
+	(Delay forMilliseconds: 250) wait. "wait for widget to be built"
+	^ debugger
+]

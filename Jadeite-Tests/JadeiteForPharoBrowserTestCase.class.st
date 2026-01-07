@@ -1226,15 +1226,16 @@ JadeiteForPharoBrowserTestCase >> test_debugTestProcessHangingAround [
 	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
 	self assertIsNil: self debugTestProcesses.
 	self projectsPresenter findClassNamed: 'JadeServerTest'.
+	[ self projectsPresenter selectedClass ] whileNil: [
+		(Delay forMilliseconds: 5) wait ].
 	self saveMethod: 'test_fail	self assert: false' in: 'JadeServerTest'.
-	debugger := self waitForNew: JadeiteDebuggerPresenter while: [
-		            (Delay forMilliseconds: 250) wait.
-		            self projectsPresenter debugMethodTests:
-			            self projectsPresenter selectedClass ].
+	self projectsPresenter debugMethodTests:
+		self projectsPresenter selectedClass.
+	debugger := self waitForDebugger.
 	[ self denyIsNil: self debugTestProcesses ] ensure: [
-		self destroy: debugger.
-		(Delay forMilliseconds: 500) wait.
-		self assertIsNil: self debugTestProcesses ]
+			self destroy: debugger.
+			(Delay forMilliseconds: 250) wait.
+			self assertIsNil: self debugTestProcesses ]
 ]
 
 { #category : 'tests' }

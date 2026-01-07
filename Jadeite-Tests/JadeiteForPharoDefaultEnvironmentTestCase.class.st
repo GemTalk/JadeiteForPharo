@@ -35,7 +35,6 @@ JadeiteForPharoDefaultEnvironmentTestCase >> test_close [
 
 	[ jadeiteShell window close ] fork.
 	dialog := self waitForCloseDialog.
-	Processor yield.
 	dialog yes.
 	(Delay forMilliseconds: 500) wait. "must give windows time to close"
 	self assert: projectsBrowser window isClosed.
