@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteSUnitPresenter',
 	#superclass : 'JadeiteSUnitAbstractPresenter',
-	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait + JadeiteClassTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait + JadeiteClassTrait + JadeiteFindClassTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait',
 	#instVars : [
 		'packageListPresenter',
 		'classListPresenter',

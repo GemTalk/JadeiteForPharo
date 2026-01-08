@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteMethodSourcePane',
 	#superclass : 'JadeiteTextDocument',
-	#traits : 'JadeiteMethodsTrait + JadeiteClassTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteClassTrait + JadeiteFindClassTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait',
 	#instVars : [
 		'methodService'
 	],

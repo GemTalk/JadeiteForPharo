@@ -85,12 +85,6 @@ JadeiteSUnitInClassPresenter >> editSave [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteSUnitInClassPresenter >> findClass [
-
-	^parentPresenter findClass
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteSUnitInClassPresenter >> findMethod [
 
 	^parentPresenter findMethod

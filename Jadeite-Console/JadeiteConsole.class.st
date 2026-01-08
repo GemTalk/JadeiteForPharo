@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteConsole',
 	#superclass : 'JadeitePresenterWithAutoCommitButton',
-	#traits : 'JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteMethodsTrait + JadeiteClassTrait',
-	#classTraits : 'JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait',
+	#traits : 'JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteMethodsTrait + JadeiteFindClassTrait',
+	#classTraits : 'JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait + JadeiteFindClassTrait classTrait',
 	#instVars : [
 		'projectListPresenter',
 		'isTranscriptInstalled',

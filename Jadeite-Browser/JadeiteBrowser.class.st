@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteBrowser',
 	#superclass : 'JadeitePresenterWithAutoCommitButton',
-	#traits : 'JadeiteMethodsTrait + JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteClassTrait + JadeiteFilterTrait + JadeitePackageTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFilterTrait classTrait + JadeitePackageTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteProjectsTrait + JadeiteToolbarTrait + JadeiteClassTrait + JadeiteFindClassTrait + JadeiteFilterTrait + JadeitePackageTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteProjectsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait + JadeiteFilterTrait classTrait + JadeitePackageTrait classTrait',
 	#instVars : [
 		'tabs',
 		'toolbar',

@@ -324,12 +324,6 @@ JadeiteGCIConnectionProfile >> port: anObject [
 	port := anObject
 ]
 
-{ #category : 'actions' }
-JadeiteGCIConnectionProfile >> reconnectIfNecessary [
-
-	self isConnected ifFalse: [ self connect ]
-]
-
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 	"must be logged out.

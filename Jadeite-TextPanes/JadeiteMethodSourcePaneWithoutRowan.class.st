@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteMethodSourcePaneWithoutRowan',
 	#superclass : 'JadeiteMethodSourcePane',
-	#traits : 'JadeiteMethodsTrait + JadeiteClassTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteClassTrait + JadeiteFindClassTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait',
 	#category : 'Jadeite-TextPanes',
 	#package : 'Jadeite-TextPanes'
 }

@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteBrowserPresenter',
 	#superclass : 'JadeiteProjectsBrowserPresenter',
-	#traits : 'JadeiteMethodsTrait + JadeiteProjectsTrait + JadeiteFilterTrait + JadeiteClassTrait + JadeitePackageTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteProjectsTrait classTrait + JadeiteFilterTrait classTrait + JadeiteClassTrait classTrait + JadeitePackageTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteProjectsTrait + JadeiteFilterTrait + JadeiteClassTrait + JadeiteFindClassTrait + JadeitePackageTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteProjectsTrait classTrait + JadeiteFilterTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait + JadeitePackageTrait classTrait',
 	#instVars : [
 		'packageDictionaryCards',
 		'globalsTab',

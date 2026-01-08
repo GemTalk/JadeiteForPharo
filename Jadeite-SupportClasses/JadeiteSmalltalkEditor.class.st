@@ -4,8 +4,8 @@ Redirect Morphic menu items to a GemStone equivalent
 Class {
 	#name : 'JadeiteSmalltalkEditor',
 	#superclass : 'RubSmalltalkEditor',
-	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait + JadeiteClassTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait + JadeiteClassTrait + JadeiteFindClassTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait',
 	#instVars : [
 		'gciSession'
 	],
