@@ -31,6 +31,21 @@ JadeiteForPharoConsoleTestCase >> projectListPresenter [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_abortTransaction [
+	"assumption RowanSample1 is always loaded in the test resource"
+
+	| sampleProject |
+	sampleProject := jadeiteShell projectListPresenter list collection detect: [
+		                 :projectService |
+		                 projectService name = 'RowanSample1' ].
+	self assert:
+		(jadeiteShell projectListPresenter list includes: sampleProject).
+	jadeiteShell abortTransaction.
+	self deny:
+		(jadeiteShell projectListPresenter list includes: sampleProject)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_basicSelect [
 	"bug found just selecting projects - was trying to disconnect.
 Just select everything and assert the selection index changed."
@@ -43,6 +58,17 @@ Just select everything and assert the selection index changed."
 			self
 				assert: projectsPresenter selection selectedIndex
 				equals: index ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_browseClassReferences [
+
+	methodListBrowser := self
+		                     waitForNew: JadeiteMethodListPresenter
+		                     while: [
+		                     jadeiteShell browseClassReferences:
+			                     'RowanCommandResult' ].
+	self assert: methodListBrowser isKindOf: JadeiteMethodListPresenter
 ]
 
 { #category : 'tests' }
