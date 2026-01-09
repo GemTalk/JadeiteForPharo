@@ -124,21 +124,6 @@ JadeiteConsole >> basicOpenServerFile: filePath [
 		  path: filePath
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> browseBreakpointList [
-	^JadePresenter browseBreakpointsIn: self gciSession
-]
-
-{ #category : 'queries' }
-JadeiteConsole >> browseClass [
-	^JadePresenter browseClassIn: self gciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> browseJadeiteLogs [
-	^JadeiteLoggerShell showOnSession: self gciSession
-]
-
 { #category : 'actions' }
 JadeiteConsole >> browseJadeitePrefs [
 	^JadeitePreferencesWorkspace browseJadeitePrefs: self gciSession
@@ -234,17 +219,6 @@ JadeiteConsole >> connectPresenters [
 		when: JadeiteCancelAnnouncement
 		send: #clearTranscript
 		to: self
-]
-
-{ #category : 'accessing' }
-JadeiteConsole >> connection [
-
-	^self gciSession library
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> createNewProject [
-	^projectListPresenter createNewProject
 ]
 
 { #category : 'defaults' }

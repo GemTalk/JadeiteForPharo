@@ -46,6 +46,13 @@ JadeiteForPharoConsoleTestCase >> test_abortTransaction [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_alwaysDiscard [
+	"console should never return true to canDiscardEdits as there are no edits to make"
+
+	self assert: jadeiteShell canDiscardEdits
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_basicSelect [
 	"bug found just selecting projects - was trying to disconnect.
 Just select everything and assert the selection index changed."

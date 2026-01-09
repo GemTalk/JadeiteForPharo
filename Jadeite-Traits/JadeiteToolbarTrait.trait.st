@@ -276,28 +276,6 @@ JadeiteToolbarTrait >> openWorkspace [
 		ifFalse: [ UIManager default alert: 'Jadeite Not Connected ' ]
 ]
 
-{ #category : 'actions' }
-JadeiteToolbarTrait >> serverCommitIdDescription: ws onCompletion: completionBlock [
-
-	| browserService |
-	browserService := RowanBrowserService new.
-	browserService command: #updateProjects.
-	RowanServiceUpdater current
-		issueCommand: browserService
-		session: (GciSession new library: self connection)
-		onCompletion: [
-			self jadeiteServerGitRepositories do: [ :projectName |
-				| project |
-				project := browserService projects detect: [ :projectService |
-					           projectService name = projectName ].
-				ws
-					nextPutAll: projectName;
-					space;
-					nextPutAll: project sha;
-					cr ].
-			completionBlock value ]
-]
-
 { #category : 'menus' }
 JadeiteToolbarTrait >> sunitBrowserAction [
 
