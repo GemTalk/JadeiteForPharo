@@ -66,14 +66,6 @@ JadeiteConsole class >> setColumnWidths [
 			(console projectColumns collect: [ :column | column width ]) ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole class >> showOnSession: aGciSession [
-	| theConsole |
-	theConsole := super showOnSession: aGciSession.
-	theConsole setTransactionModeFromServer.
-	^theConsole
-]
-
 { #category : 'events' }
 JadeiteConsole >> abortedTransaction [
 
@@ -514,30 +506,10 @@ JadeiteConsole >> isTranscriptInstalled [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteConsole >> isTranscriptInstalledValueHolder [
-	^isTranscriptInstalled
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteConsole >> jadeiteHelpFileCSSExtension [
 	"for testing"
 
 	^'.css'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> jadeiteHelpFileExtension [
-	^'.html'
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> jadeiteHelpFileName [
-	^self jadeiteHelpFileNameRoot , self jadeiteHelpFileExtension
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> jadeiteHelpFileNameRoot [
-	^'JadeiteHelp'
 ]
 
 { #category : 'as yet unclassified' }

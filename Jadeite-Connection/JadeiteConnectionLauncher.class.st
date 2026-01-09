@@ -37,8 +37,9 @@ Class {
 JadeiteConnectionLauncher class >> addImportedConnection: filePath [
 
 	(self importedConnections includes: filePath) ifTrue: [ ^ self ].
-	self importedConnections add: filePath.
-	self importedConnections collection reSort
+	self importedConnections
+		add: filePath;
+		reSort
 ]
 
 { #category : 'connections' }
@@ -59,17 +60,9 @@ JadeiteConnectionLauncher class >> defaultConnectionSortBlock [
 { #category : 'accessing' }
 JadeiteConnectionLauncher class >> importedConnections [
 
-	ImportedConnections
-		ifNil: [ ImportedConnections := self newImportedConnections ]
-		ifNotNil: [
-			(ImportedConnections collection isKindOf: SortedCollection)
-				ifFalse: [
-					| new |
-					ImportedConnections ifNotNil: [
-						new := self newImportedConnections.
-						new addAll: ImportedConnections.
-						ImportedConnections := new ] ] ].
-	^ ImportedConnections
+	^ ImportedConnections ifNil: [
+			  ImportedConnections := SortedCollection sortBlock:
+				                         self defaultConnectionSortBlock ]
 ]
 
 { #category : 'accessing' }
@@ -96,12 +89,6 @@ JadeiteConnectionLauncher class >> lastImportDirectory [
 JadeiteConnectionLauncher class >> lastImportDirectory: pathString [
 
 	LastImportDirectory := pathString
-]
-
-{ #category : 'connections' }
-JadeiteConnectionLauncher class >> newImportedConnections [
-
-	^ ListModel newSorted: self defaultConnectionSortBlock
 ]
 
 { #category : 'connections' }
@@ -269,8 +256,12 @@ JadeiteConnectionLauncher >> canDiscardSelectionEdits [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 
-	^ (self connectionProfile observablePropertyNamed: #connection)
-		  subscriptions: OrderedCollection new
+	| observable |
+	observable := self connectionProfile observablePropertyNamed:
+		              #connection.
+	observable subscriptions do: [ :subscription |
+		observable unsubscribe: subscription ].
+	^ observable subscriptions: OrderedCollection new
 ]
 
 { #category : 'actions' }
@@ -476,7 +467,10 @@ JadeiteConnectionLauncher >> initializeAvailableConnectionPresenter [
 		                                contextMenu:
 			                                self initializeConnectionsMenu.
 	nonConnectionBox add: availableConnectionPresenter.
-	availableConnectionPresenter model: self class importedConnections
+	availableConnectionPresenter model:
+		((ListModel newSorted: self class defaultConnectionSortBlock)
+			 addAll: self class importedConnections;
+			 yourself)
 ]
 
 { #category : 'initialization' }

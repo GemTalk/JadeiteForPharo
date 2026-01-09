@@ -452,6 +452,15 @@ JadeiteForPharoConnectionLauncherTestCase >> test_importFromDirectory [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_importedConnectionsJustACollection [
+	"was a ListModel before but that got us into trouble
+	with connections presenter announcers hanging onto launchers forever.
+	Now, we create and throw away ListModel's as they are created."
+
+	launcher class importedConnections isKindOf: SortedCollection
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_refreshFromImportDirectory [
 
 	self createMockConnectionProfileDirectory.

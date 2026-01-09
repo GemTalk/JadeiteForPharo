@@ -53,6 +53,19 @@ JadeiteForPharoConsoleTestCase >> test_alwaysDiscard [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_auditProjects [
+
+	| auditResults |
+	jadeiteShell projectListPresenter selectIndex: 1.
+	auditResults := self
+		                waitForNew: JadeiteWorkspace
+		                while: [ jadeiteShell auditProjects ].
+	self assert: auditResults window isOpen.
+	self assert: auditResults isKindOf: JadeiteWorkspace.
+	self destroy: auditResults
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_basicSelect [
 	"bug found just selecting projects - was trying to disconnect.
 Just select everything and assert the selection index changed."
@@ -130,6 +143,16 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_jadeiteHelp [
+
+	| helpBrowser |
+	helpBrowser := jadeiteShell openJadeiteHelpFile.
+	self assert: helpBrowser isOpen.
+	self assert: helpBrowser presenter isKindOf: JadeiteHelpPresenter.
+	self destroy: helpBrowser
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_openHelp [
 	"open the Jadeite Help File and make sure it's contents match the .md file prescribed"
 
@@ -184,6 +207,19 @@ JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
 	self console unsetCurrentProject.
 	self assert: rowanProjectService displayName equals: 'Rowan'.
 	self deny: rowanProjectService isCurrent
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_themeChanged [
+	"not sure what to test here. I guess just switch
+	themes and back and make sure there are no errors? "
+
+	PharoLightTheme beCurrent. "should already be current as that's only what's supported"
+	self assert: PharoLightTheme isCurrent.
+	PharoDarkTheme beCurrent.
+	self assert: PharoDarkTheme isCurrent.
+	PharoLightTheme beCurrent.
+	self assert: PharoLightTheme isCurrent
 ]
 
 { #category : 'tests' }
