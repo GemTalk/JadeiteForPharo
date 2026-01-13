@@ -18,7 +18,7 @@ JadeiteClickOnlyButtonMorph class >> buildPluggableButtonShortcutsOn: aBuilder [
 		default:
 		Character space asKeyCombination | Character cr asKeyCombination
 		do: [ :target :morph :event |
-			event isKeyboard ifFalse: [ morph performAction ] ]
+			event isKeyboard ifFalse: [ morph performAction: event ] ]
 ]
 
 { #category : 'keyboard' }
@@ -31,4 +31,18 @@ JadeiteClickOnlyButtonMorph >> keyDown: event [
 { #category : 'keyboard' }
 JadeiteClickOnlyButtonMorph >> keyStroke: event [
 	"mouse clicks only"
+]
+
+{ #category : 'accessing' }
+JadeiteClickOnlyButtonMorph >> performAction [
+
+	"we ignore the actions from PluggableToggleButtonMorph
+	and rely on our own actions that come through performAction:
+	This way we can filter out keyboard events"
+]
+
+{ #category : 'accessing' }
+JadeiteClickOnlyButtonMorph >> performAction: event [
+
+	event isKeyboard ifFalse: [ ^ super performAction: event ]
 ]
