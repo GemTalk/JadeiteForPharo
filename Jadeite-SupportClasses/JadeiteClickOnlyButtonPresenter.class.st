@@ -13,3 +13,12 @@ JadeiteClickOnlyButtonPresenter class >> adapterName [
 
 	^ #JadeiteClickOnlyButtonAdapter
 ]
+
+{ #category : 'accessing' }
+JadeiteClickOnlyButtonPresenter >> performAction: event [
+
+	event isKeyboard ifTrue: [ ^ self ].
+	self action value.
+	" Here I set a dummy value just to make the holder raise an event"
+	actionPerformed := nil
+]
