@@ -25,7 +25,7 @@ JadeitePresenterWithAutoCommitButton >> flipAutoCommit [
 JadeitePresenterWithAutoCommitButton >> initializeAutoCommitPresenter [
 
 	autoCommitBox := SpBoxLayout newHorizontal.
-	autoCommitButton := SpButtonPresenter new.
+	autoCommitButton := JadeiteClickOnlyButtonPresenter new.
 	autoCommitButton action: [ self flipAutoCommit ].
 	autoCommitBox
 		add: autoCommitButton

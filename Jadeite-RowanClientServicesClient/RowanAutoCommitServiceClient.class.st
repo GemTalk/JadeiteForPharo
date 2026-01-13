@@ -28,18 +28,19 @@ RowanAutoCommitServiceClient >> autoCommitUpdate: browser [
 
 	| shouldAbort |
 	autoCommit == #failed ifTrue: [
-		postUpdateBlock := [
-		                   shouldAbort := MessageBox confirm:
-			                                  self autoCommitFailureMessage.
-		                   shouldAbort
-			                   ifTrue: [
-			                   JadePresenter abortTransactionInSession:
-				                   browser gciSession ]
-			                   ifFalse: [
-				                   RowanAnsweringService new
-					                   setAutoCommit: false
-					                   for: GciSession current.
-				                   self displayTransactionConflicts: browser ] ] ].
+			postUpdateBlock := [
+				                   self uiManager defer: [
+						                   shouldAbort := MessageBox confirm:
+							                                  self autoCommitFailureMessage.
+						                   shouldAbort
+							                   ifTrue: [
+							                   JadePresenter abortTransactionInSession:
+								                   browser gciSession ]
+							                   ifFalse: [
+									                   RowanAnsweringService new
+										                   setAutoCommit: false
+										                   for: GciSession current.
+									                   self displayTransactionConflicts: browser ] ] ] ].
 	browser autoCommit: autoCommit.
 	browser updateAutoCommitButton.
 	^ postUpdateBlock

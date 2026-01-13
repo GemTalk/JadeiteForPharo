@@ -317,11 +317,6 @@ JadeiteConsole >> gotoRowanGitHubProject [
 	WebBrowser openOn: 'https://github.com/GemTalk/Rowan'
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> hidePackageList [
-	^JadePresenter hidePackageList
-]
-
 { #category : 'initialization' }
 JadeiteConsole >> initialProjectDisplayColumns [
 
@@ -527,16 +522,6 @@ JadeiteConsole >> okToChangeSelections [
 JadeiteConsole >> okToClose [
 
 	^true
-]
-
-{ #category : 'actions' }
-JadeiteConsole >> openGitHubJadeiteProject [
-	^JadePresenter openGitHubJadeiteProject
-]
-
-{ #category : 'actions' }
-JadeiteConsole >> openGitHubRowanProject [
-	^JadePresenter openGitHubRowanProject
 ]
 
 { #category : 'actions' }
