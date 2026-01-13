@@ -25,6 +25,41 @@ JadeiteForPharoAutoCommitTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAutoCommitTestCase >> test_autoCommitButtonsDoNotActOnKeystroke [
+
+	| console |
+	self
+		testsJadeiteForPharoIssue: #issue363
+		title:
+		'IN Console after clicking on AutoCommit button ... the AutoCommit button retains focus across activations and subsequent CR in Console pane switchs autoCommit state'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/363'.
+
+	self setRemoteAutoCommit: false onCompletion: [ ].
+	console := JadeiteConsole currentConsole.
+
+	console autoCommitButton adapter widget simulateKeyStroke:
+		Character space.
+	self deny: session autoCommit value.
+	self
+		assert: console autoCommitButton label
+		equals: 'Auto Commit - false'.
+
+	console autoCommitButton adapter widget simulateKeyStroke:
+		Character cr.
+	self deny: session autoCommit value.
+	self
+		assert: console autoCommitButton label
+		equals: 'Auto Commit - false'.
+
+	console autoCommitButton adapter widget simulateClick.
+	self assert: session autoCommit value.
+	WorldMorph doOneCycle. "Must update the gui manually since the morphic thread is blocked during the test"
+	self
+		assert: console autoCommitButton label
+		equals: 'Auto Commit - true'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAutoCommitTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpeningBrowser [
 	"Not a very good test but the last service logged should not be an #updateAutoCommit command which was the bug"
 
