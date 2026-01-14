@@ -67,12 +67,6 @@ JadeiteBrowserPresenter class >> browseSendersOf: string session: session [
 	^ shell
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter class >> downArrowIcon [
-	^Icon fromFile: 'icons\DownArrow.ico'
-
-]
-
 { #category : 'utility' }
 JadeiteBrowserPresenter class >> issueCommand: service session: gciSession [
 
@@ -96,11 +90,6 @@ JadeiteBrowserPresenter class >> openMethodListOn: service selecting: string ses
 		openOn: service
 		selecting: selectionString
 		session: session
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter class >> overriddenIcon [
-	^Icon fromId: 'icons\OVERRIDDEN.ICO'
 ]
 
 { #category : 'events' }
