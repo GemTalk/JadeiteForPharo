@@ -419,6 +419,14 @@ JadeiteProjectsTrait >> installProjectFromPath: path projectsHome: projectsHomeP
 	self issueCommand: projectService onCompletion: [  ]
 ]
 
+{ #category : 'testing' }
+JadeiteProjectsTrait >> isWriteableProject [
+
+	| projectService |
+	projectService := self projectListPresenter selectionOrNil.
+	^ projectService notNil and: [ projectService canBeWritten ]
+]
+
 { #category : 'actions' }
 JadeiteProjectsTrait >> loadProject [
 	"the gui is updated in RowanBrowserService>>projectsUpdate:browser:"
@@ -499,13 +507,12 @@ JadeiteProjectsTrait >> newProjectMenu [
 						item
 							name: 'Reload from Disk';
 							action: [ self reloadProject ];
-							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+							enabled: [ self isWriteableProject ] ];
 				addItem: [ :item |
 						item
 							name: 'Unload ...';
 							action: [ self unloadProject ];
-							enabled: [ self projectListPresenter selectionOrNil notNil ];
-							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
+							enabled: [ self isWriteableProject ] ];
 				addItem: [ :item |
 						item
 							name: 'Refresh from Server';
@@ -515,7 +522,6 @@ JadeiteProjectsTrait >> newProjectMenu [
 						item
 							name: 'Set Current';
 							action: [ self setCurrentProject ];
-							enabled: [ self projectListPresenter selectionOrNil notNil ];
 							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |
 						item

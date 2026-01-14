@@ -622,7 +622,7 @@ JadeiteBrowserPresenter >> classSelected: classService [
 		self methodListPresenter selectIndex: 0 scrollToSelection: true ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> cleanupProjectInfoTab [
 	self projectListPresenter selectionIfNone: 
 			[projectInfoTab
@@ -833,7 +833,7 @@ JadeiteBrowserPresenter >> copyClass [
 	self basicCopyClass: oldClassService to: newClassName
 ]
 
-{ #category : 'copying' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> copyDictionaryName [
 
 	| copyString |
@@ -854,7 +854,7 @@ JadeiteBrowserPresenter >> copyInfo [
 	
 ]
 
-{ #category : 'copying' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> copyPackageName [
 
 	| copyString |
@@ -869,7 +869,7 @@ JadeiteBrowserPresenter >> copyPackageName [
 	UIManager default inform: copyString , ' copied to clipboard'
 ]
 
-{ #category : 'copying' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> copyProjectInfo [
 
 	| copyString |
@@ -882,7 +882,7 @@ JadeiteBrowserPresenter >> copyProjectInfo [
 	UIManager default inform: copyString , ' copied to clipboard'
 ]
 
-{ #category : 'copying' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> copyRequiredProject [
 
 	| copyString |
@@ -1913,7 +1913,7 @@ JadeiteBrowserPresenter >> initializeProjectListPresenterIn: tabs [
 	self initializeProjectListMenu
 ]
 
-{ #category : 'initialization' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> initializeProjectTab [
 
 	| column1 column2 column3 column4 column5 |
@@ -2447,7 +2447,7 @@ JadeiteBrowserPresenter >> newProjectNamed: projectName [
 		windowHandle: self view handle value
 ]
 
-{ #category : 'updates' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> nextDictionaryNameAndRemoveFrom: packageServices [
 
 	| service |
@@ -2456,14 +2456,14 @@ JadeiteBrowserPresenter >> nextDictionaryNameAndRemoveFrom: packageServices [
 	^ service dictionaryName
 ]
 
-{ #category : 'updates' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> nextPackageNameFrom: packageServices [
 
 	packageServices ifEmpty: [ ^ String new ].
 	^ packageServices first name
 ]
 
-{ #category : 'updates' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> nextRequiredProjectFrom: requiredProjectNames [
 
 	requiredProjectNames ifEmpty: [ ^ String new ].
@@ -2706,12 +2706,12 @@ JadeiteBrowserPresenter >> projectInfoLabelDisplay: array [
 	^ array last normalizeCamelCase capitalized
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> projectInfoList [
 	^projectInfoListLeft
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> projectInfoTab [
 	^projectInfoTab
 ]
@@ -3175,7 +3175,7 @@ JadeiteBrowserPresenter >> removePackages [
 	self issueCommand: projectService onCompletion: [  ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> removeProjectTabs [
 	| projectInfoView projectReadMeView |
 	projectInfoView := self view viewNamed: 'projectInfoTab' ifNone: [nil].
@@ -3676,7 +3676,7 @@ JadeiteBrowserPresenter >> selectProject: projectService [
 	^ index
 ]
 
-{ #category : 'selections' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> selectProjectInfoTab [
 
 	textAreaTabs selectPage: projectInfoTab 
@@ -3966,7 +3966,7 @@ JadeiteBrowserPresenter >> testMethodResultIconFor: methodService [
 		  ifFalse: [ nil ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> textTabChanged [
 	textAreaTabs ifNil: [ ^self ].
 	self todo:[textAreaTabs currentCard name = 'projectInfo' ifTrue: [projectInfoTab ensureVisible].
@@ -4405,131 +4405,151 @@ JadeiteBrowserPresenter >> updatePackageMenu: menu [
 	menu addItem: gotoPackageDictionaryItem
 ]
 
-{ #category : 'updates' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> updateProjectInfo [
 
 	| service |
-	self todo: [
-		self removeAppropriateTab.
-		self isNoneProjectSelected ifTrue: [ ^ self buildGlobalsTab ].
-		projectInfoTab ifNil: [
-			self buildProjectTab.
-			self buildProjectReadMeTab ].
-		
-		self updateTabLabel.
-		self updateProjectReadMe.
-		addPackagePresenter view enable ].
 	service := projectListPresenter selectionIfNone: [
 			           self clearProjectTabs.
 			           ^ self ].
 	self updateProjectInfoTabFor: service
 ]
 
-{ #category : 'updates' }
+{ #category : 'project info tab' }
 JadeiteBrowserPresenter >> updateProjectInfoTabFor: service [
 
-	| rows requiredProjectNames packageServices answeringService |
+	| rows requiredProjectNames packageServices answeringService ownerString canBeWrittenString |
 	self todo: 'Display is a little funky. Improve it someday'.
 	requiredProjectNames := OrderedCollection new.
 	answeringService := RowanAnsweringService new
 		                    command: #requiredProjectNamesFor:;
 		                    commandArgs: (Array with: service name).
 	self issueCommand: answeringService onCompletion: [
-		requiredProjectNames := answeringService answer asSortedCollection.
-		packageServices := service packageServices asOrderedCollection copy.
-		rows := OrderedCollection new.
-		service wasUpdated ifTrue: [
-			rows add: (ProjectInfoRow new
-					 column1: 'Attribute';
-					 column2: 'Value';
-					 column3: 'Required Projects';
-					 column4: 'Packages';
-					 column5: 'Package''s Dictionary Name';
-					 bold: true;
-					 header: true;
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Name';
-					 column2: service name;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'SHA';
-					 column2: service sha;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Disk SHA';
-					 column2: service diskSha;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Branch';
-					 column2: service branch;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Is Skew';
-					 column2: service isSkew printString;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Is Dirty';
-					 column2: service toolTip;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Project URL';
-					 column2: service projectUrl;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'Package Convention';
-					 column2: service packageConvention;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows add: (ProjectInfoRow new
-					 column1: 'RowanProjectsHome';
-					 column2: service rowanProjectsHome;
-					 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-					 column4: (self nextPackageNameFrom: packageServices);
-					 column5: (self nextDictionaryNameAndRemoveFrom: packageServices);
-					 yourself).
-			rows addAll: (service packageServices collect: [ :packageService |
-					 ProjectInfoRow new
-						 column1: String new;
-						 column2: String new;
-						 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-						 column4: (self nextPackageNameFrom: packageServices);
-						 column5:
-							 (self nextDictionaryNameAndRemoveFrom: packageServices);
-						 yourself ]).
-			rows addAll: (requiredProjectNames copy collect: [ :name |
-					 ProjectInfoRow new
-						 column1: String new;
-						 column2: String new;
-						 column3: (self nextRequiredProjectFrom: requiredProjectNames);
-						 column4: (self nextPackageNameFrom: packageServices);
-						 column5:
-							 (self nextDictionaryNameAndRemoveFrom: packageServices);
-						 yourself ]) ].
-		projectInfoListLeft items: rows ]
+			| ownerStringStream |
+			requiredProjectNames := answeringService answer asSortedCollection.
+			packageServices := service packageServices asOrderedCollection copy.
+			ownerStringStream := WriteStream on: String new.
+			ownerStringStream
+				nextPutAll: service owner;
+				nextPut: Character space.
+			canBeWrittenString := service canBeWritten
+				                      ifTrue: [ '(can be written)' ]
+				                      ifFalse: [ '(cannot be written)' ].
+			ownerStringStream nextPutAll: canBeWrittenString.
+			ownerString := ownerStringStream contents.
+			rows := OrderedCollection new.
+			service wasUpdated ifTrue: [
+					rows add: (ProjectInfoRow new
+							 column1: 'Attribute';
+							 column2: 'Value';
+							 column3: 'Required Projects';
+							 column4: 'Packages';
+							 column5: 'Package''s Dictionary Name';
+							 bold: true;
+							 header: true;
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Name';
+							 column2: service name;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'SHA';
+							 column2: service sha;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Disk SHA';
+							 column2: service diskSha;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Branch';
+							 column2: service branch;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Is Skew';
+							 column2: service isSkew printString;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Is Dirty';
+							 column2: service toolTip;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Project URL';
+							 column2: service projectUrl;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Package Convention';
+							 column2: service packageConvention;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'RowanProjectsHome';
+							 column2: service rowanProjectsHome;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows add: (ProjectInfoRow new
+							 column1: 'Owner';
+							 column2: ownerString;
+							 column3: (self nextRequiredProjectFrom: requiredProjectNames);
+							 column4: (self nextPackageNameFrom: packageServices);
+							 column5:
+								 (self nextDictionaryNameAndRemoveFrom: packageServices);
+							 yourself).
+					rows addAll:
+						(service packageServices collect: [ :packageService |
+								 ProjectInfoRow new
+									 column1: String new;
+									 column2: String new;
+									 column3:
+										 (self nextRequiredProjectFrom: requiredProjectNames);
+									 column4: (self nextPackageNameFrom: packageServices);
+									 column5:
+										 (self nextDictionaryNameAndRemoveFrom: packageServices);
+									 yourself ]).
+					rows addAll: (requiredProjectNames copy collect: [ :name |
+								 ProjectInfoRow new
+									 column1: String new;
+									 column2: String new;
+									 column3:
+										 (self nextRequiredProjectFrom: requiredProjectNames);
+									 column4: (self nextPackageNameFrom: packageServices);
+									 column5:
+										 (self nextDictionaryNameAndRemoveFrom: packageServices);
+									 yourself ]) ].
+			projectInfoListLeft items: rows ]
 ]
 
 { #category : 'updates' }

@@ -23,7 +23,9 @@ Class {
 		'packageConvention',
 		'diskSha',
 		'isCurrent',
-		'requiredProjectNames'
+		'requiredProjectNames',
+		'owner',
+		'canBeWritten'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -160,6 +162,18 @@ RowanProjectService >> branch [
 { #category : 'accessing' }
 RowanProjectService >> branch: anObject [
 	branch := anObject
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> canBeWritten [
+
+	^ canBeWritten
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> canBeWritten: anObject [
+
+	canBeWritten := anObject
 ]
 
 { #category : 'presenter support' }
@@ -311,6 +325,7 @@ RowanProjectService >> initialize [
 	isSkew := false.
 	sha := 'not a project'.
 	isDiskDirty := false. 
+	canBeWritten := true. "updated when projects are refreshed"
 ]
 
 { #category : 'accessing' }
@@ -417,6 +432,18 @@ RowanProjectService >> newTextView: session using: parentPresenter [
 		alignment: #center;
 		contextMenu: parentPresenter view contextMenu.
 	^edit
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> owner [
+
+	^ owner
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> owner: anObject [
+
+	owner := anObject
 ]
 
 { #category : 'accessing' }
