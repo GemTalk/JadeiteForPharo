@@ -2150,9 +2150,9 @@ JadeiteForPharoBrowserTestCase >> test_packageFilter [
 JadeiteForPharoBrowserTestCase >> test_projectInfoTab [
 	"test a few of the values to ensure the format the gui is expecting doesn't change"
 
-	| mockService items |
-	mockService := MockService new.
-	self projectsPresenter updateProjectInfoTabFor: mockService.
+	| mockProjectService items |
+	mockProjectService := MockProjectService new.
+	self projectsPresenter updateProjectInfoTabFor: mockProjectService.
 
 	items := self projectsPresenter projectInfoList items.
 	self assert: items notEmpty.
@@ -2162,6 +2162,17 @@ JadeiteForPharoBrowserTestCase >> test_projectInfoTab [
 			 each column1 = 'SHA' and: [ each column2 = 'abc123' ] ]).
 	self assert: (items anySatisfy: [ :each |
 			 each column1 = 'Disk SHA' and: [ each column2 = 'def456' ] ]).
+	self assert: mockProjectService owner equals: 'SystemUser'.
+	mockProjectService canBeWritten: true.
+	self assert: (items anySatisfy: [ :each |
+				 each column1 = 'Owner' and: [
+					 each column2 = 'SystemUser (can be written)' ] ]).
+	mockProjectService canBeWritten: false.
+	self projectsPresenter updateProjectInfoTabFor: mockProjectService.
+	items := self projectsPresenter projectInfoList items.
+	self assert: (items anySatisfy: [ :each |
+				 each column1 = 'Owner' and: [
+					 each column2 = 'SystemUser (cannot be written)' ] ]).
 	self assert: items second column4 equals: 'MockPackageService'.
 	self assert: items second column5 equals: 'MockDictionary'
 ]
