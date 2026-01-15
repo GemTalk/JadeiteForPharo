@@ -80,6 +80,8 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitDoesNotMakeRoundTripWhenOpen
 JadeiteForPharoAutoCommitTestCase >> test_autoCommitFailure [
 
 	| transactionConflictInspector |
+	self uiManager restore.
+	JadeiteNoDeferTestManager replacing: self uiManager. "don't defer the dialog as we can't catch it in the test otherwise"
 	self
 		testsJadeiteForPharoIssue: #issue249
 		title:
@@ -110,7 +112,7 @@ JadeiteForPharoAutoCommitTestCase >> test_autoCommitFailure [
 					assert: notification messageText
 					equals: RowanAutoCommitServiceClient autoCommitFailureMessage.
 				notification resume: false "this simulates press 'No' on the dialog and auto commit will be turned off" ].
-
+	Processor yield.
 	[
 		(transactionConflictInspector := JadeiteInspector allInstances
 			                                 detect: [ :inspector |
