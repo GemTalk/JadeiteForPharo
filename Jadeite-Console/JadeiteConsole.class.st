@@ -703,7 +703,17 @@ JadeiteConsole >> transcriptPresenter [
 { #category : 'updates' }
 JadeiteConsole >> updateCurrentProjectPackageDisplay: anAnnouncement [
 
-	self refreshFromServer
+	| projectService |
+	anAnnouncement projectService
+		ifNil: [
+		self projectListPresenter list do: [ :svc | svc isCurrent: false ] ]
+		ifNotNil: [
+				projectService := self projectListPresenter list
+					                  detect: [ :svc |
+					                  svc = anAnnouncement projectService ]
+					                  ifNone: [ ^ self ].
+				projectService replicateFrom: anAnnouncement projectService ].
+	self projectListPresenter invalidate
 ]
 
 { #category : 'updates' }

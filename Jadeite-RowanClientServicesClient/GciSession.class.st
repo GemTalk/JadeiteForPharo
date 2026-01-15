@@ -67,6 +67,9 @@ GciSession >> announceUpdatedCurrentProject: projectService package: packageServ
 			(packageService ifNil: [ String new ] ifNotNil: [ :pkg | pkg name ]).
 	announcement := JadeiteCurrentProjectPackageUpdated new text:
 		                ws contents.
+	announcement
+		projectService: projectService;
+		packageService: packageService.
 	self announcer announce: announcement
 ]
 
