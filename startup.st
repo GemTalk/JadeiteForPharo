@@ -1,8 +1,9 @@
 
 | directory jfpRepo icePackage sourceDirectory packageDir |
 
-PharoLightTheme beCurrent. 
 (IceRepository repositoryNamed:  'JadeiteForPharo') ifNotNil: [^self].  "do not install the JfP project if it already exists in image"
+
+PharoLightTheme beCurrent. 
 
 [(directory := PlatformResolver forCurrentPlatform directoryFromEnvVariableNamed: 'ROWAN_PROJECTS_HOME') isDirectory ifTrue: [directory] ifFalse: [nil] ] on: Error do: [ :ex | nil ].
 
@@ -46,8 +47,9 @@ icePackage := jfpRepo packageNamed: 'BaselineOfJadeiteForPharo'.
 			policy := self chooseConflictPolicyFor: e.
 			policy ifNotNil: [ e perform: policy ] ];
 		load: #().
-
-(Smalltalk at: #JadeiteGCIConnectionProfile) clientLibrariesPath: (OSEnvironment current at: #JFP_CLIENT_LIBPATH ifAbsent: []).
+		
 (Smalltalk at: #JadeiteConnectionApplication ) new start. 
 
-RealEstateAgent usedStrategy: #cursorPointFor:initialExtent:world:
+RealEstateAgent usedStrategy: #cursorPointFor:initialExtent:world:.
+
+KMRepository reset  "So Ctrl-O-J launcher shortcut works" 
