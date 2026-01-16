@@ -2360,10 +2360,12 @@ JadeiteForPharoBrowserTestCase >> test_renameClassWhileSelectedInSUnitBrowser [
 	[
 		sem := Semaphore new.
 		[
-		[ sunitBrowser notNil ] whileTrue: [
-			(Delay forMilliseconds: 10) wait ] ] fork.
+			[ sunitBrowser isNil ] whileTrue: [
+					Processor yield.
+					WorldMorph doOneCycle ].
+			sem signal ] fork.
 		timeout := sem waitTimeoutMilliseconds: 1000.
-		self assert: timeout.
+		self deny: timeout.
 		self
 			selectServiceNamed: 'RowanSample1-Tests'
 			in: sunitBrowser packageListPresenter.
