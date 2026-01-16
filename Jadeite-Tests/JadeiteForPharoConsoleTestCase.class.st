@@ -215,13 +215,10 @@ JadeiteForPharoConsoleTestCase >> test_themeChanged [
 	themes and back and make sure there are no errors? "
 
 	PharoLightTheme beCurrent. "should already be current as that's only what's supported"
-	PharoLightTheme isCurrent ifFalse: [ self halt ].
 	self assert: PharoLightTheme isCurrent.
 	PharoDarkTheme beCurrent.
-	PharoDarkTheme isCurrent ifFalse: [ self halt ].
 	self assert: PharoDarkTheme isCurrent.
 	PharoLightTheme beCurrent.
-	PharoLightTheme isCurrent ifFalse: [ self halt ].
 	self assert: PharoLightTheme isCurrent
 ]
 

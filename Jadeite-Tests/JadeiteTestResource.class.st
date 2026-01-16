@@ -113,11 +113,10 @@ JadeiteTestResource >> cloneRowanSample1 [
 JadeiteTestResource >> closeConnectionLaunchers [
 
 	JadeiteConnectionLauncher allInstances do: [ :launcher |
-		| profile |
-		profile := launcher connectionProfile.
-		profile isConnected ifTrue: [ profile disconnect ].
-		self destroy: launcher.
-		launcher become: String new "they won't go away otherwise. Someday may find culprit. " ]
+			| profile |
+			profile := launcher connectionProfile.
+			profile isConnected ifTrue: [ profile disconnect ].
+			self destroy: launcher ]
 ]
 
 { #category : 'support' }
