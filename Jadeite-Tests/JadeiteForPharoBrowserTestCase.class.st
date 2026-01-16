@@ -2344,7 +2344,7 @@ JadeiteForPharoBrowserTestCase >> test_removeProject [
 { #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_renameClassWhileSelectedInSUnitBrowser [
 
-	| sunitBrowser |
+	| sunitBrowser sem timeout |
 	self
 		testsJadeiteForPharoIssue: #issue328
 		title:
@@ -2358,21 +2358,27 @@ JadeiteForPharoBrowserTestCase >> test_renameClassWhileSelectedInSUnitBrowser [
 		waitForNew: JadeiteSUnitPresenter
 		while: [ sunitBrowser := self openSUnitBrowser ].
 	[
-	self
-		selectServiceNamed: 'RowanSample1-Tests'
-		in: sunitBrowser packageListPresenter.
-	self
-		selectServiceNamed: 'RowanSample1Test'
-		in: sunitBrowser classListPresenter.
-	self projectsPresenter
-		basicRenameClass: self projectsPresenter selectedClass
-		to: 'RowanSample1Test2'.
-	self
-		assert: sunitBrowser classListPresenter selectedItem name
-		equals: 'RowanSample1Test2'.
-	self
-		assert: self projectsPresenter selectedClass name
-		equals: 'RowanSample1Test2' ] ensure: [ self destroy: sunitBrowser ]
+		sem := Semaphore new.
+		[
+		[ sunitBrowser notNil ] whileTrue: [
+			(Delay forMilliseconds: 10) wait ] ] fork.
+		timeout := sem waitTimeoutMilliseconds: 1000.
+		self assert: timeout.
+		self
+			selectServiceNamed: 'RowanSample1-Tests'
+			in: sunitBrowser packageListPresenter.
+		self
+			selectServiceNamed: 'RowanSample1Test'
+			in: sunitBrowser classListPresenter.
+		self projectsPresenter
+			basicRenameClass: self projectsPresenter selectedClass
+			to: 'RowanSample1Test2'.
+		self
+			assert: sunitBrowser classListPresenter selectedItem name
+			equals: 'RowanSample1Test2'.
+		self
+			assert: self projectsPresenter selectedClass name
+			equals: 'RowanSample1Test2' ] ensure: [ self destroy: sunitBrowser ]
 ]
 
 { #category : 'tests' }
