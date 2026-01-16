@@ -282,7 +282,8 @@ JadeiteConnectionLauncher >> connect [
 	pathText adapter widget text isEmpty ifTrue: [
 			UIManager default alert: 'Client Libraries Path must be set'.
 			self setClientLibrariesPath ifNil: [ ^ self ] ].
-	JadeiteGCIConnectionProfile clientLibrariesPath: pathText text.
+	JadeiteGCIConnectionProfile clientLibrariesPath:
+		pathText adapter widget text asString.  "spec doesn't respect typed changes sometimes so go to morphic"
 
 	self populateConnectionProfile.
 	[
