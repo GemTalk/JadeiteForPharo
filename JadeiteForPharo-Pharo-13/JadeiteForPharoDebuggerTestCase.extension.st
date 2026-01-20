@@ -8,6 +8,10 @@ JadeiteForPharoDebuggerTestCase >> test_debugTestProcessHangingAround [
 		title:
 		'Debugging failed test in browser leaves pharo process hanging around'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/329'.
+		
+	JadeitePreferences isRowanAvailable ifFalse: [
+		self skip: 'server tests not yet present in rowan stub image' ].
+
 	projectsBrowser := JadeiteConsole currentConsole openBrowser.
 	session := GciSession current.
 	RowanServiceUpdater uninstallTestUpdater. "this forces commands to be forked which manifests the problem"
