@@ -35,8 +35,10 @@ JadeiteForPharoConsoleTestCase >> test_abortTransaction [
 	"assumption RowanSample1 is always loaded in the test resource"
 
 	| sampleProject |
-	sampleProject := jadeiteShell projectListPresenter list collection detect: [
-		                 :projectService |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'no projects unless rowan present' ].
+	sampleProject := jadeiteShell projectListPresenter list collection
+		                 detect: [ :projectService |
 		                 projectService name = 'RowanSample1' ].
 	self assert:
 		(jadeiteShell projectListPresenter list includes: sampleProject).
@@ -56,6 +58,8 @@ JadeiteForPharoConsoleTestCase >> test_alwaysDiscard [
 JadeiteForPharoConsoleTestCase >> test_auditProjects [
 
 	| auditResults |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'no projects unless rowan present' ].
 	jadeiteShell projectListPresenter selectIndex: 1.
 	auditResults := self
 		                waitForNew: JadeiteWorkspace
