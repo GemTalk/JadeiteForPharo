@@ -268,6 +268,45 @@ JadeiteForPharoBrowserTestCase >> test_addDuplicatePackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_addPackageDefaultDictionary [
+
+	| modalWindow |
+	self
+		testsJadeiteForPharoIssue: #issue372
+		title: 'Create project and package are prone to user error'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/372'.
+
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	modalWindow := JadeiteAddPackageDialog
+		               newModalWindowOn: session
+		               projectService:
+		               self projectListPresenter selectedItem.
+	self
+		assert: modalWindow presenter symbolDictionaryName
+		equals: 'UserGlobals'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_addPackageMenuItemEnablement [
+
+	| menuItem |
+	self
+		testsJadeiteForPharoIssue: #issue372
+		title: 'Create project and package are prone to user error'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/372'.
+
+	menuItem := self packageListPresenter contextMenu menuGroups first
+		            menuItems detect: [ :item | item name = 'Add Package' ].
+	self deny: menuItem isEnabled value.
+	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.
+	self assert: menuItem isEnabled value.
+	self
+		selectServicesNamed: #( 'Rowan' 'RowanSample1' )
+		in: self projectListPresenter.
+	self deny: menuItem isEnabled value
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_browseClass [
 	"project browser opened in setup"
 
@@ -1062,6 +1101,33 @@ JadeiteForPharoBrowserTestCase >> test_createProject [
 	[
 	self denyIsNil: (self projectNamed: projectName).
 	self denyIsNil: (self projectInConsoleNamed: projectName).
+	self
+		assert: self projectListPresenter selectedItem name
+		equals: projectName.
+	self assert: self packageListPresenter items isEmpty ] ensure: [
+		self unloadProjectAndDeleteOnDisk: self projectListPresenter selectedItem name.
+		self assertIsNil: (self projectNamed: projectName) ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_createdProjectIsOnlyProjectSelected [
+
+	| projectName |
+	self
+		testsJadeiteForPharoIssue: #issue372
+		title: 'Create project and package are prone to user error'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/372'.
+	projectName := 'TestProject'.
+	self assertIsNil: (self projectNamed: projectName).
+	self assertIsNil: (self projectInConsoleNamed: projectName).
+	self projectsPresenter selectProjectNamed: 'RowanClientServices'.
+	self projectsPresenter selectProjectNamed: 'Rowan'.
+	self assert: self projectListPresenter selectedItems size equals: 2.	 
+	self projectsPresenter basicCreateProject: projectName.
+	[
+	self denyIsNil: (self projectNamed: projectName).
+	self denyIsNil: (self projectInConsoleNamed: projectName).
+	self assert: self projectListPresenter selections size equals: 1.	
 	self
 		assert: self projectListPresenter selectedItem name
 		equals: projectName.

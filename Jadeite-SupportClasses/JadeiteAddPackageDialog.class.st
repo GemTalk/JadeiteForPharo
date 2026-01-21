@@ -113,7 +113,11 @@ JadeiteAddPackageDialog >> initializeSymbolDictionaries [
 	RowanAnsweringService new
 		symbolDictionaryNames: self gciSession
 		onCompletion: [ :service |
-		symbolDictionaryNamePresenter items: service answer ]
+				| dictionaryNames |
+				dictionaryNames := service answer.
+				dictionaryNames remove: 'UserGlobals' ifAbsent: [  ].
+				dictionaryNames addFirst: 'UserGlobals'.
+				symbolDictionaryNamePresenter items: dictionaryNames ]
 ]
 
 { #category : 'initialization' }

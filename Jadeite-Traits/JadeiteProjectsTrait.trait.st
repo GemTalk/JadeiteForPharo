@@ -82,12 +82,13 @@ JadeiteProjectsTrait >> basicCreateProject: projectName [
 		                  command: #newProjectNamed:;
 		                  commandArgs: { projectName }.
 	self issueCommand: browserService onCompletion: [
-		| projectService |
-		projectService := self projectListPresenter items
-			                  detect: [ :service | service name = projectName ]
-			                  ifNone: [  ].
-		projectService ifNotNil: [
-			self projectListPresenter selectItem: projectService ] ]
+			| projectService |
+			projectService := self projectListPresenter items
+				                  detect: [ :service | service name = projectName ]
+				                  ifNone: [ ].
+			projectService ifNotNil: [
+					self projectListPresenter unselectAll.
+					self projectListPresenter selectItem: projectService ] ]
 ]
 
 { #category : 'actions' }

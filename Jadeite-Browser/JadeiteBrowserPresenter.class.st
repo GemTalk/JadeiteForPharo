@@ -2098,6 +2098,12 @@ JadeiteBrowserPresenter >> isRowanProjectSelected [
 ]
 
 { #category : 'testing' }
+JadeiteBrowserPresenter >> isSingleProjectSelected [
+
+	^ projectListPresenter selections size = 1
+]
+
+{ #category : 'testing' }
 JadeiteBrowserPresenter >> isSourceTabSelected [
 
 	^textAreaTabs currentCard name = 'methodSource'.

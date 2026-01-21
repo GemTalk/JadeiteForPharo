@@ -87,7 +87,7 @@ JadeitePackageTrait >> newPackageMenu [
 					  item
 						  name: 'Add Package';
 						  action: [ self addPackage ];
-						  enabled: [ self isRowanProjectSelected ] ];
+						  enabled: [ self isSingleProjectSelected ] ];
 				  addItem: [ :item |
 					  item
 						  name: 'Remove Package';
