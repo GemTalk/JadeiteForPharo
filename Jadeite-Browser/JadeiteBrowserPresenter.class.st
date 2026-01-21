@@ -1094,25 +1094,29 @@ JadeiteBrowserPresenter >> editSaveClass [
 	self issueCommand: browserService onCompletion: [ :svc |
 			[
 				self recompileMethodsOnCompletion: [ :svc2 |
-						svc2 selectedClass name
-						=
-						(self selectedClass ifNotNil: [ :classService |
-							 classService name ])
-							ifTrue: [
-									classHierarchyTabSelected ifTrue: [ "temporary to make sure class is updated"
-											self selectClassListTab.
-											self selectClassHierarchyTab ].
-									selectedSelectors ifNotNil: [
-										self selectMethodsNamed: selectedSelectors ] ]
-							ifFalse: [
-									self
-										updateAfterFindClassName: svc2 selectedClass name
-										methodSelector: nil
-										meta: self isClassSideSelected
-										onCompletion: [
-												classHierarchyTabSelected ifTrue: [
-													self selectClassHierarchyTab ].
-												self updateTabLabel ] ] ] ]
+						svc2 selectedClass
+							ifNil: [
+							self classDefinitionPresenter hasUnacceptedEdits: true ]
+							ifNotNil: [ "nil means an error was thrown earlier"
+									svc2 selectedClass name
+									=
+									(self selectedClass ifNotNil: [ :classService |
+										 classService name ])
+										ifTrue: [
+												classHierarchyTabSelected ifTrue: [ "temporary to make sure class is updated"
+														self selectClassListTab.
+														self selectClassHierarchyTab ].
+												selectedSelectors ifNotNil: [
+													self selectMethodsNamed: selectedSelectors ] ]
+										ifFalse: [
+												self
+													updateAfterFindClassName: svc2 selectedClass name
+													methodSelector: nil
+													meta: self isClassSideSelected
+													onCompletion: [
+															classHierarchyTabSelected ifTrue: [
+																self selectClassHierarchyTab ].
+															self updateTabLabel ] ] ] ] ]
 				on: Error
 				do: [ :ex |
 				self statusBarText pushMessage: 'ERROR: ' , ex messageText ] ]
