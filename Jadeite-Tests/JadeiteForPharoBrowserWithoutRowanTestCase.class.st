@@ -588,6 +588,25 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassSelectedCategoryVisible [
+
+	| index |
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'ExampleSetTest')
+		methodService: nil
+		onCompletion: [ ].
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'ExampleSetTest'.
+	index := self classCategoryPresenter adapter widget selectedIndex.
+	"the hierarchy should be long enough that we can kind of tell it scrolled"
+	self assert:
+		(self classCategoryPresenter adapter widget isIndexVisible: index).
+	self deny:
+		(self classCategoryPresenter adapter widget isIndexVisible: 1)
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_findClassWithNilClassCategory [
 	"When selecting a class, don't reset the class category
 	selection to the full class category path."

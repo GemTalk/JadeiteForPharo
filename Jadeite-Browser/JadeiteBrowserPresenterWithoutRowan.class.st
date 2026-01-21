@@ -476,13 +476,15 @@ JadeiteBrowserPresenterWithoutRowan >> selectClassCategoryFor: classService [
 		                        ifTrue: [
 		                        RowanClassCategoryService nilClassCategory ]
 		                        ifFalse: [
-			                        RowanClassCategoryService new
-				                        name: classService classCategory;
-				                        substringIndex: index;
-				                        yourself ].
+				                        RowanClassCategoryService new
+					                        name: classService classCategory;
+					                        substringIndex: index;
+					                        yourself ].
 	self classCategoryPresenter selectedItem = classCategoryService
 		ifFalse: [
-		self classCategoryPresenter selectItem: classCategoryService ]
+		self classCategoryPresenter selectItem: classCategoryService ].
+	self classCategoryPresenter adapter widget
+		ensureVisibleFirstSelection
 ]
 
 { #category : 'acccessing' }
