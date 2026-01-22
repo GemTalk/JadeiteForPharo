@@ -576,7 +576,7 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesAndSelectAllFor: dic
 				              (dictionaryService classes asSortedCollection: [ :x :y |
 					               x name < y name ]) asArray ].
 		self selectClassListTab.
-		classCategoryPresenter expandPath: #(1).
+		classCategoryPresenter expandAll. 
 		self suspendSelectionEvents.
 		[ classCategoryPresenter selectPath: #( 1 ) "All category" ]
 			ensure: [ self resumeSelectionEvents ].
