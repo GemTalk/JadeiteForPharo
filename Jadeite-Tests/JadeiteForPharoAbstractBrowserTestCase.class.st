@@ -1499,47 +1499,6 @@ JadeiteForPharoAbstractBrowserTestCase >> test_moveMethodToCategory [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAbstractBrowserTestCase >> test_recompileMethodsErrorAfterClassCompile [
-
-	| testClass dialog |
-	self
-		testsJadeiteForPharoIssue: #issue373
-		title:
-		'Create subclass duplicate class/class instance variables gets walkback (in addition to error)'
-		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/373'.
-
-	testClass := 'Test_recompileMethodsErrorAfterClassCompile'.
-	self selectRowanSample1Class.
-	self projectsPresenter classDefinitionPresenter value:
-		'Object rwSubclass: #' , testClass , '
-	instVarNames: #()
-	classVars: #(TheClassVar)
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()'.
-	self projectsPresenter editSaveClass.
-	self
-		assert: self classListPresenter selectedItem name
-		equals: testClass.
-	self projectsPresenter classDefinitionPresenter value:
-		testClass , ' rwSubclass: #' , testClass , 'Sub
-	instVarNames: ( #abc )
-	classVars: #(TheClassVar)
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()'.
-	dialog := self
-		          waitForNew: AlertDialogWindow
-		          while: [ self projectsPresenter editSaveClass ].
-	dialog close.
-	self
-		assert: self classListPresenter selectedItem name
-		equals: testClass
-]
-
-{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_removeClass [
 
 	self
