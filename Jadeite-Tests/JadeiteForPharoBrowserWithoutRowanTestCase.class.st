@@ -332,6 +332,29 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_changeClassCategoryWhenHierar
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_classCategorySingleExpansion [
+	"class category tree only expanded to level 1 after dictionary selection"
+
+	| itemCount |
+	self
+		testsJadeiteForPharoIssue: #issue374
+		title:
+		'JfPwoR ... "dictionary view" ... when you click on a dictionary, the Categories are opened fully expanded'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/374'.
+
+	self projectsPresenter selectDictionaryNamed: 'Globals'.
+	itemCount := 0.
+	self classCategoryPresenter traverseTreeDo: [ :item :path |
+			itemCount := itemCount + 1.
+			path = #( 1 )
+				ifTrue: [
+				self assert: (self classCategoryPresenter isExpanded: #( 1 )) ]
+				ifFalse: [
+				self deny: (self classCategoryPresenter isExpanded: path) ] ].
+	self assert: itemCount > 100 "better be big or something weird has happened to the test"
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_classDefUpdatesOnClassCategoryChange [
 
 	JadeitePreferences isRowanAvailable ifFalse: [
