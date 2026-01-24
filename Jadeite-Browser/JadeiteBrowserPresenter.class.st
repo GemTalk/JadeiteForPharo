@@ -27,7 +27,8 @@ Class {
 		'methodNavigationList',
 		'methodNavigationDropList',
 		'projectInfoListLeft',
-		'currentProjectPackageText'
+		'currentProjectPackageText',
+		'sunitPage'
 	],
 	#pools : [
 		'ScintillaConstants'
@@ -608,7 +609,8 @@ JadeiteBrowserPresenter >> classSelected: classService [
 		self refreshClassUsing: methodListPresenter selectedItem.
 		self updateTabLabel.
 		self selectCategoryTab.
-		self methodListPresenter selectIndex: 0 scrollToSelection: true ]
+		self methodListPresenter selectIndex: 0 scrollToSelection: true.
+		self updateSUnitTab ]
 ]
 
 { #category : 'project info tab' }
@@ -1710,6 +1712,7 @@ JadeiteBrowserPresenter >> initializeLowerTabs [
 	self initializeClassCommentTab.
 	self initializeMethodSourceTab.
 	self initializeProjectTab.
+	self initializeSUnitTab.
 	box add: textAreaTabs.
 	statusBarText := self newStatusBar.
 	box add: statusBarText height: 20.
@@ -1941,6 +1944,19 @@ JadeiteBrowserPresenter >> initializeProjectTab [
 		                  icon: nil
 		                  provider: [ projectInfoListLeft ].
 	textAreaTabs addPage: projectInfoTab
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenter >> initializeSUnitTab [
+
+	sunitPresenter := JadeiteSUnitBrowserPresenter new.
+	sunitPresenter application: self application.
+
+	sunitPage := JadeiteNotebookPage
+		             title: 'SUnit'
+		             icon: nil
+		             provider: [ sunitPresenter ].
+	textAreaTabs addPage: sunitPage
 ]
 
 { #category : 'as yet unclassified' }
@@ -2650,7 +2666,8 @@ JadeiteBrowserPresenter >> populateFilterList [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> postOpen [
 
-	self updateProjectsOnCompletion: [  ] "this will run the postOpen block afterwards"
+	self updateProjectsOnCompletion: [ "this will run the postOpen block afterwards"
+		sunitPresenter gciSession: self gciSession ]
 ]
 
 { #category : 'accessing' }
@@ -2844,7 +2861,8 @@ JadeiteBrowserPresenter >> refreshClassAndMethodPresenters [
 
 	classListPresenter refresh.
 	classHierarchyPresenter refresh.
-	^ methodListPresenter refresh
+	sunitPresenter invalidate. 
+	methodListPresenter refresh
 ]
 
 { #category : 'updates' }
@@ -3807,6 +3825,14 @@ JadeiteBrowserPresenter >> setStatusBarDefault [
 ]
 
 { #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> setTestClass: service [
+
+	sunitPresenter testClassService: (service isTestCase
+			 ifTrue: [ service ]
+			 ifFalse: [ nil ])
+]
+
+{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> shouldShowNoneTabLabel [
 	^dictionaryListPresenter list isEmpty
 		or: [dictionaryListPresenter selections isEmpty or: [dictionaryListPresenter selections size > 1]]
@@ -4591,6 +4617,14 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 		           path: self projectReadmePath.
 	self issueCommand: service onCompletion: [  ].
 	projectReadMeTab value: service answer
+]
+
+{ #category : 'as yet unclassified' }
+JadeiteBrowserPresenter >> updateSUnitTab [
+
+	self selectedClass
+		ifNil: [ sunitPresenter testClassService: nil ]
+		ifNotNil: [ :service | self setTestClass: service ]
 ]
 
 { #category : 'tab labels' }

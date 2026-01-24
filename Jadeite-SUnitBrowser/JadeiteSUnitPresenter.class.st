@@ -9,8 +9,7 @@ Class {
 		'status',
 		'testCounter',
 		'methodColumns',
-		'toolbar',
-		'testSemaphore'
+		'toolbar'
 	],
 	#category : 'Jadeite-SUnitBrowser',
 	#package : 'Jadeite-SUnitBrowser'
@@ -443,20 +442,6 @@ JadeiteSUnitPresenter >> registerPresentersForUpdates [
 		register: methodListPresenter
 		selector: #testResultUpdate:browser:
 		browser: self
-]
-
-{ #category : 'actions' }
-JadeiteSUnitPresenter >> runAll [
-
-	testSemaphore := Semaphore new.
-	self basicRunAll
-]
-
-{ #category : 'actions' }
-JadeiteSUnitPresenter >> runSelected [
-	
-	testSemaphore := Semaphore new. 
-	self basicRunSelected
 ]
 
 { #category : 'as yet unclassified' }
