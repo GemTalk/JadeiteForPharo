@@ -1,6 +1,8 @@
 Class {
 	#name : 'JadeiteSUnitAbstractPresenter',
 	#superclass : 'JadeiteSessionPresenter',
+	#traits : 'JadeiteToolbarTrait',
+	#classTraits : 'JadeiteToolbarTrait classTrait',
 	#instVars : [
 		'methodListPresenter',
 		'textResultPresenter',
@@ -37,6 +39,18 @@ JadeiteSUnitAbstractPresenter >> canDiscardEdits [
 ]
 
 { #category : 'actions' }
+JadeiteSUnitAbstractPresenter >> debug [
+
+	self subclassResponsibility
+]
+
+{ #category : 'actions' }
+JadeiteSUnitAbstractPresenter >> debugAll [
+
+	self subclassResponsibility
+]
+
+{ #category : 'actions' }
 JadeiteSUnitAbstractPresenter >> debugTestAsFailureMethodServices: methodServices className: className [
 	| jadeResult |
 	methodServices isEmpty ifTrue: [^self].
@@ -68,7 +82,7 @@ JadeiteSUnitAbstractPresenter >> editSelectAll [
 	methodListPresenter selections: methodListPresenter list. 
 ]
 
-{ #category : 'initialize' }
+{ #category : 'initialization' }
 JadeiteSUnitAbstractPresenter >> initialize [
 	super initialize.
 	shouldStopTestRun := false
@@ -82,6 +96,39 @@ JadeiteSUnitAbstractPresenter >> methodListPresenter [
 { #category : 'accessing' }
 JadeiteSUnitAbstractPresenter >> methodListPresenter: anObject [
 	methodListPresenter := anObject
+]
+
+{ #category : 'initialization' }
+JadeiteSUnitAbstractPresenter >> newJadeiteSUnitToolbar [
+
+	| theToolbar |
+	theToolbar := self newJadeiteToolbar.
+	theToolbar
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Run All';
+				 icon: (self iconNamed: #glamorousSpawn);
+				 help: 'run all tests in the selected classes';
+				 action: [ self runAll ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Run Selected';
+				 icon: (self iconNamed: #glamorousGo);
+				 help: 'run selected tests';
+				 action: [ self runSelected ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Debug All';
+				 icon: (self iconNamed: #glamorousSpawn);
+				 help: 'debug all tests in the selected classes';
+				 action: [ self debugAll ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Debug Selected';
+				 icon: (self iconNamed: #glamorousGo);
+				 help: 'debug selected tests';
+				 action: [ self debug ];
+				 yourself).
+	^ theToolbar
 ]
 
 { #category : 'actions' }

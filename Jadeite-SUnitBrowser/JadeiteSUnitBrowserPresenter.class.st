@@ -16,16 +16,28 @@ JadeiteSUnitBrowserPresenter >> addStyle: aString [
 	testCaseListPresenter addStyle: aString
 ]
 
+{ #category : 'initialization' }
+JadeiteSUnitBrowserPresenter >> addToolsToMenuGroup: group [
+
+	^ self newJadeiteSUnitToolbar items do: [ :toolbarItem |
+		  group addItem: [ :item |
+			  item
+				  name: toolbarItem label;
+				  description: toolbarItem label;
+				  icon: toolbarItem icon;
+				  action: toolbarItem action ] ]
+]
+
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> basicRunAll [
 
 	testProcess := [
+		               self reset.
+		               testCaseListPresenter resetSelection.
 		               [
-			               self reset.
-			               testCaseListPresenter resetSelection.
-			               testResults := self
-				                              runTests: testCaseListPresenter list
-				                              in: testClassService name ] ensure: [
+		               self
+			               runTests: testCaseListPresenter list
+			               in: testClassService name ] ensure: [
 				               testSemaphore signal.
 				               testProcess := nil.
 				               shouldStopTestRun := false ] ] fork
@@ -35,23 +47,27 @@ JadeiteSUnitBrowserPresenter >> basicRunAll [
 JadeiteSUnitBrowserPresenter >> basicRunSelected [
 
 	testProcess := [
-		               [
-			               self reset.
-			               testCaseListPresenter resetSelection.
-			               testResults := self
+		               testResults := [
+			                              self reset.
+			                              self
 				                              runTests:
 				                              testCaseListPresenter selectedItems
 				                              in: testClassService name ] ensure: [
-				               testSemaphore signal.
-				               testProcess := nil.
-				               shouldStopTestRun := false ] ] fork
+				                              testSemaphore signal.
+				                              testProcess := nil.
+				                              shouldStopTestRun := false ] ] fork
 ]
 
 { #category : 'initialization' }
 JadeiteSUnitBrowserPresenter >> connectPresenters [
 
-	self testCaseListPresenter whenSelectionChangedDo: [ :selection |
-		selection traceCr ]
+	
+]
+
+{ #category : 'initialization' }
+JadeiteSUnitBrowserPresenter >> debug [
+
+	self debugSelected
 ]
 
 { #category : 'actions' }
@@ -61,6 +77,7 @@ JadeiteSUnitBrowserPresenter >> debugAll [
 	testClassService ifNil: [ ^ self ].
 	testProcess := [
 		               [
+			               self reset.
 			               self debugTests: testCaseListPresenter list.
 			               testCaseListPresenter invalidate ] ensure: [
 				               testSemaphore signal.
@@ -75,6 +92,7 @@ JadeiteSUnitBrowserPresenter >> debugSelected [
 	testClassService ifNil: [ ^ self ].
 	testProcess := [
 		               [
+			               self reset.
 			               self debugTests: testCaseListPresenter selectedItems.
 			               testCaseListPresenter invalidate ] ensure: [
 				               testSemaphore signal.
@@ -121,10 +139,24 @@ JadeiteSUnitBrowserPresenter >> initialize [
 ]
 
 { #category : 'initialization' }
+JadeiteSUnitBrowserPresenter >> initializeButtons [
+
+	| menuBar |
+	toolbar := self newJadeiteSUnitToolbar.
+
+	menuBar := self newMenuBar addGroup: [ :group |
+		           self addToolsToMenuGroup: group ].
+
+	self layout
+		add: menuBar
+		withConstraints: [ :constraints | constraints height: 25 ]
+]
+
+{ #category : 'initialization' }
 JadeiteSUnitBrowserPresenter >> initializePresenters [
 
+	self initializeButtons.
 	testCaseListPresenter := JadeiteListPresenter newNameSortedList
-		                         headerTitle: 'Test Cases';
 		                         beMultipleSelection.
 	testCaseListPresenter
 		addStyle: 'jadeiteTextBackgroundColor';
@@ -166,6 +198,40 @@ JadeiteSUnitBrowserPresenter >> invalidate [
 	testCaseListPresenter invalidate
 ]
 
+{ #category : 'initialization' }
+JadeiteSUnitBrowserPresenter >> newJadeiteSUnitToolbar [
+
+	| theToolbar |
+	theToolbar := JadeiteToolbarPresenter new.
+	theToolbar displayMode: JadeiteToolbarDisplayMode modeIconAndLabel.
+	theToolbar
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Run All';
+				 icon: (self iconNamed: #glamorousSpawn);
+				 help: 'run all tests in the selected classes';
+				 action: [ self runAll ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Run Selected';
+				 icon: (self iconNamed: #glamorousGo);
+				 help: 'run selected tests';
+				 action: [ self runSelected ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Debug All';
+				 icon: (self iconNamed: #glamorousSpawn);
+				 help: 'debug all tests in the selected classes';
+				 action: [ self debugAll ];
+				 yourself);
+		addItem: (SpToolbarButtonPresenter new
+				 label: 'Debug Selected';
+				 icon: (self iconNamed: #glamorousGo);
+				 help: 'debug selected tests';
+				 action: [ self debug ];
+				 yourself).
+	^ theToolbar
+]
+
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> refreshView [
 	self uiManager defer: [ testCaseListPresenter refresh ]
@@ -175,13 +241,23 @@ JadeiteSUnitBrowserPresenter >> refreshView [
 JadeiteSUnitBrowserPresenter >> reset [
 
 	testCaseListPresenter model do: [ :each | each testResult: nil ].
-	testCaseListPresenter invalidate
+	testCaseListPresenter invalidate.
+	self owner owner statusBarText: String new.
+	self setStatusColorTo: Color transparent
 ]
 
 { #category : 'actions' }
-JadeiteSUnitBrowserPresenter >> setColorFor: jadeiteResult [
+JadeiteSUnitBrowserPresenter >> setColorFor: aJadeTestResult [
 
-	
+	self owner owner statusBarText: aJadeTestResult summary.
+	self setStatusColorTo: aJadeTestResult backgroundColor
+]
+
+{ #category : 'actions' }
+JadeiteSUnitBrowserPresenter >> setStatusColorTo: aColor [
+
+	self owner owner statusBarText withAdapterDo: [ :theAdapter |
+		theAdapter widgetDo: [ :widget | widget color: aColor ] ]
 ]
 
 { #category : 'accessing' }

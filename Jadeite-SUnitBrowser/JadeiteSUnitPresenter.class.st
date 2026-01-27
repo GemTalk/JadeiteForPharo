@@ -1,15 +1,14 @@
 Class {
 	#name : 'JadeiteSUnitPresenter',
 	#superclass : 'JadeiteSUnitAbstractPresenter',
-	#traits : 'JadeiteMethodsTrait + JadeiteToolbarTrait + JadeiteClassTrait + JadeiteFindClassTrait',
-	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteToolbarTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait',
+	#traits : 'JadeiteMethodsTrait + JadeiteClassTrait + JadeiteFindClassTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait + JadeiteClassTrait classTrait + JadeiteFindClassTrait classTrait',
 	#instVars : [
 		'packageListPresenter',
 		'classListPresenter',
 		'status',
 		'testCounter',
-		'methodColumns',
-		'toolbar'
+		'methodColumns'
 	],
 	#category : 'Jadeite-SUnitBrowser',
 	#package : 'Jadeite-SUnitBrowser'
@@ -332,39 +331,6 @@ JadeiteSUnitPresenter >> methodListPresenter [
 	^methodListPresenter
 ]
 
-{ #category : 'initialization' }
-JadeiteSUnitPresenter >> newJadeiteSUnitToolbar [
-
-	| theToolbar |
-	theToolbar := self newJadeiteToolbar.
-	theToolbar
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Run All';
-				 icon: (self iconNamed: #glamorousSpawn);
-				 help: 'run all tests in the selected classes';
-				 action: [ self runAll ];
-				 yourself);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Run Selected';
-				 icon: (self iconNamed: #glamorousGo);
-				 help: 'run selected tests';
-				 action: [ self runSelected ];
-				 yourself);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Debug All';
-				 icon: (self iconNamed: #glamorousSpawn);
-				 help: 'debug all tests in the selected classes';
-				 action: [ self debugAll ];
-				 yourself);
-		addItem: (SpToolbarButtonPresenter new
-				 label: 'Debug Selected';
-				 icon: (self iconNamed: #glamorousGo);
-				 help: 'debug selected tests';
-				 action: [ self debug ];
-				 yourself).
-	^ theToolbar
-]
-
 { #category : 'events' }
 JadeiteSUnitPresenter >> onClassesChanged [
 
@@ -446,10 +412,13 @@ JadeiteSUnitPresenter >> registerPresentersForUpdates [
 
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> runTestMethodServices: methodServices className: className [
+
 	| jadeResult |
-	jadeResult := super runTestMethodServices: methodServices className: className.
-	self todo: [self methodListPresenter view ensureSelectionVisible].
-	^jadeResult
+	jadeResult := super
+		              runTestMethodServices: methodServices
+		              className: className.
+
+	^ jadeResult
 ]
 
 { #category : 'as yet unclassified' }

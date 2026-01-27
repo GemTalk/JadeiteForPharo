@@ -169,6 +169,13 @@ JadeiteBrowserPresenter >> addHierarchySpecificMenuItemsTo: menu [
 					self isClassSelected and: [ self selectedClass name ~= 'Object' ] ] ] ]
 ]
 
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> addSUnitTab [
+
+	(textAreaTabs hasPageNamed: self sunitPage title) ifFalse: [
+		textAreaTabs addPage: self sunitPage ]
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> addStyle: aString [
 
@@ -758,7 +765,9 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 	packageListPresenter
 		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
 			RowanServiceUpdater current critical: [ self updatePackage ] ];
-		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ].
+		whenNoneSelectedAndEventsNotSuspendedDo: [
+				self updateSUnitTab.
+				self clearMethodLists ].
 	packageDictionaryTabs whenSelectedPageChangedDo: [ :selection |
 			selectionEventsSuspended ifFalse: [
 					self classListPresenter clear.
@@ -771,7 +780,8 @@ JadeiteBrowserPresenter >> connectPackageDictionaryPresenters [
 						ifFalse: [
 								self updateProjectOnCompletion: [
 										self updatePackage.
-										self updateClassesOnCompletion: [ self resetClassExtras ] ] ] ] ].
+										self updateClassesOnCompletion: [ self resetClassExtras ] ] ].
+					self updateSUnitTab ] ].
 	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
 		self updateDictionary ]
 ]
@@ -787,9 +797,7 @@ JadeiteBrowserPresenter >> connectPresenters [
 			self areSelectionEventsSuspended ifFalse: [
 				self filterTabChanged: selection ] ].
 	self connectMethodPresenters.
-	textAreaTabs whenSelectedPageChangedDo: [ :selection |
-		self textTabChanged ].
-
+	textAreaTabs whenSelectedPageChangedDo: [ self textTabChanged ]
 ]
 
 { #category : 'initialization' }
@@ -797,8 +805,10 @@ JadeiteBrowserPresenter >> connectProjectListPresenter [
 
 	projectListPresenter
 		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
-			self updateProjectOnCompletion: [  ] ];
-		whenNoneSelectedAndEventsNotSuspendedDo: [ self clearMethodLists ]
+			self updateProjectOnCompletion: [ self updateSUnitTab ] ];
+		whenNoneSelectedAndEventsNotSuspendedDo: [
+				self updateSUnitTab.
+				self clearMethodLists ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2118,6 +2128,12 @@ JadeiteBrowserPresenter >> isRowanProjectSelected [
 ]
 
 { #category : 'testing' }
+JadeiteBrowserPresenter >> isSUnitTabSelected [
+
+	^ textAreaTabs currentCard title = 'SUnit'
+]
+
+{ #category : 'testing' }
 JadeiteBrowserPresenter >> isSingleProjectSelected [
 
 	^ projectListPresenter selections size = 1
@@ -3203,6 +3219,14 @@ JadeiteBrowserPresenter >> removeProjectTabs [
 	projectReadMeTab := nil
 ]
 
+{ #category : 'sunit support' }
+JadeiteBrowserPresenter >> removeSUnitTab [
+
+	sunitPresenter testClassService: nil.
+	(textAreaTabs hasPageNamed: self sunitPage title) ifTrue: [
+		textAreaTabs removePage: self sunitPage ]
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> renameClass [
 	| oldClassService newClassName |
@@ -3894,6 +3918,18 @@ JadeiteBrowserPresenter >> statusBarText: string [
 	statusBarText pushMessage: string
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> sunitPage [
+
+	^ sunitPage
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> sunitPage: anObject [
+
+	sunitPage := anObject
+]
+
 { #category : 'find' }
 JadeiteBrowserPresenter >> suspendSelectionEvents [
 
@@ -3991,13 +4027,12 @@ JadeiteBrowserPresenter >> testMethodResultIconFor: methodService [
 		  ifFalse: [ nil ]
 ]
 
-{ #category : 'project info tab' }
+{ #category : 'events' }
 JadeiteBrowserPresenter >> textTabChanged [
-	textAreaTabs ifNil: [ ^self ].
-	self todo:[textAreaTabs currentCard name = 'projectInfo' ifTrue: [projectInfoTab ensureVisible].
-	textAreaTabs currentCard name = 'sunit'
-		ifTrue: [sunitPresenter methodListPresenter setFocus	"to ensure sunit bar is enabled"].
-	self updateMenuBar]
+
+	textAreaTabs ifNil: [ ^ self ].
+	self isSUnitTabSelected ifTrue: [
+		self sunitPresenter updateTestCases ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4267,13 +4302,14 @@ JadeiteBrowserPresenter >> updateDictionary [
 	self isPackageListTabSelected ifTrue: [ ^ self ].
 	classListPresenter model: ListModel new.
 	self updateClassesOnCompletion: [
-		self isClassListTabSelected ifFalse: [ self updateHierarchy ].
-		self updateTabLabel.
-		self todo: [ self updateGlobalsTab ].
-		dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
-		classDefinitionPresenter value:
-			dictionaryListPresenter selectedItem defaultTemplate.
-		self markClassDefinitionPaneUnmodified ]
+			self isClassListTabSelected ifFalse: [ self updateHierarchy ].
+			self updateTabLabel.
+			self todo: [ self updateGlobalsTab ].
+			dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
+			classDefinitionPresenter value:
+				dictionaryListPresenter selectedItem defaultTemplate.
+			self markClassDefinitionPaneUnmodified.
+			self updateSUnitTab ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4398,13 +4434,14 @@ JadeiteBrowserPresenter >> updatePackage [
 	classListPresenter model: ListModel new.
 	classHierarchyPresenter clear.
 	self updateClassesOnCompletion: [ :answeringService |
-		self isClassHierarchyTabSelected ifFalse: [
-			packageListPresenter selectedItem classes ifNotNil: [
-				classListPresenter model collection:
-					packageListPresenter selectedItem sortedClasses ] ].
-		self updatePackageInfo.
-		self resetSunitTestList.
-		classExtraText text: String new ]
+			self isClassHierarchyTabSelected ifFalse: [
+					packageListPresenter selectedItem classes ifNotNil: [
+							classListPresenter model collection:
+								packageListPresenter selectedItem sortedClasses ] ].
+			self updatePackageInfo.
+			self resetSunitTestList.
+			classExtraText text: String new.
+			self updateSUnitTab ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4619,12 +4656,17 @@ JadeiteBrowserPresenter >> updateProjectReadMe [
 	projectReadMeTab value: service answer
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateSUnitTab [
 
 	self selectedClass
-		ifNil: [ sunitPresenter testClassService: nil ]
-		ifNotNil: [ :service | self setTestClass: service ]
+		ifNil: [ self removeSUnitTab ]
+		ifNotNil: [ :service |
+				self selectedClass isTestCase
+					ifTrue: [
+							self addSUnitTab.
+							self setTestClass: service ]
+					ifFalse: [ self removeSUnitTab ] ]
 ]
 
 { #category : 'tab labels' }
