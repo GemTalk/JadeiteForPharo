@@ -1014,8 +1014,6 @@ RowanClassService >> updateMethodListIn: presenter from: visibleMethods [
 			updated := theModel detect: [ :old | new = old ] ifNone: [ ].
 			updated ifNil: [ toAdd add: new ] ].
 	self addSorted: toAdd to: theModel.
-	(presenter parentPresenter class canUnderstand: #updateSUnitTab)
-		ifTrue: [ presenter parentPresenter updateSUnitTab ].
 	theModel == presenter model ifFalse: [ presenter model: theModel ].
 	presenter invalidate "to make sure scrollbars update"
 ]

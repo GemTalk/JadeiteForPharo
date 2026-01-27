@@ -647,11 +647,6 @@ JadeiteProjectsBrowserPresenter >> setMethodFilterFor: presenter [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> setTestClass: service [
-	self todo:[sunitPresenter testClassService: (service isTestCase ifTrue: [service] ifFalse: [nil])]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> setterMethodSourceFor: variable [
 	| sourceStream |
 	sourceStream := WriteStream on: String new.
@@ -784,13 +779,6 @@ JadeiteProjectsBrowserPresenter >> updatePresenter: presenter selections: select
 			(presenter list detect: [:service | service name = selection name] ifNone: [])
 				ifNotNil: [:newSelection | newSelections add: newSelection]].
 	presenter selections: newSelections
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> updateSUnitTab [
-	self todo:[self selectedClass
-		ifNil: [sunitPresenter testClassService: nil]
-		ifNotNil: [:service | self setTestClass: service]]
 ]
 
 { #category : 'as yet unclassified' }
