@@ -1959,7 +1959,8 @@ JadeiteBrowserPresenter >> initializeProjectTab [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> initializeSUnitTab [
 
-	sunitPresenter := JadeiteSUnitBrowserPresenter new.
+	sunitPresenter := JadeiteSUnitBrowserPresenter new browserPresenter:
+		                  self.
 	sunitPresenter application: self application.
 
 	sunitPage := JadeiteNotebookPage
@@ -4032,7 +4033,7 @@ JadeiteBrowserPresenter >> textTabChanged [
 
 	textAreaTabs ifNil: [ ^ self ].
 	self isSUnitTabSelected ifTrue: [
-		self sunitPresenter updateTestCases ]
+		self sunitPresenter updateContents ]
 ]
 
 { #category : 'as yet unclassified' }
