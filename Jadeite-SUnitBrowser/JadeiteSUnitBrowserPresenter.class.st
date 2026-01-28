@@ -86,7 +86,8 @@ JadeiteSUnitBrowserPresenter >> connectPresenters [
 
 	self testCaseListPresenter whenSelectionChangedDo: [ :selection |
 		self updateMethodSourceFrom: selection ].
-	methodSourcePresenter whenSubmitDo: [ :text | self editSaveMethod ]
+	methodSourcePresenter whenSubmitDo: [ :text | self editSaveMethod ].
+	self registerForMethodPaneAnnouncements.
 ]
 
 { #category : 'initialization' }
@@ -146,11 +147,11 @@ JadeiteSUnitBrowserPresenter >> displayBreakpoints [
 	self methodSourcePresenter methodService breakPoints do: [
 			:breakPoint |
 			| range stepPointAssoc |
-			stepPointAssoc := self methodService stepPoints
-				                  at: breakPoint
-				                  ifAbsent: [ ].
+			stepPointAssoc := self methodSourcePresenter methodService
+				                  stepPoints at: breakPoint ifAbsent: [ ].
 			stepPointAssoc ifNotNil: [
-					range := self methodService stepPointRangeFrom: stepPointAssoc.
+					range := self methodSourcePresenter methodService
+						         stepPointRangeFrom: stepPointAssoc.
 					self methodSourcePresenter addTextSegmentDecoration:
 						((SpTextPresenterDecorator new highlightColor: Color lightCyan)
 							 interval: range) ] ]
@@ -294,7 +295,12 @@ JadeiteSUnitBrowserPresenter >> initializeTestMenu [
 							addItem: [ :item |
 									item
 										name: 'Run Selected';
-										action: [ self runSelected ] ] ] ]
+										action: [ self runSelected ] ] ];
+				addGroup: [ :group |
+						group addItem: [ :item |
+								item
+									name: 'Reset';
+									action: [ self reset ] ] ] ]
 ]
 
 { #category : 'accessing' }
@@ -361,6 +367,17 @@ JadeiteSUnitBrowserPresenter >> reset [
 	testCaseListPresenter invalidate.
 	self owner owner statusBarText: String new.
 	self setStatusColorTo: Color transparent
+]
+
+{ #category : 'actions' }
+JadeiteSUnitBrowserPresenter >> resetSource [
+
+	self methodSourcePresenter methodService
+		ifNil: [ methodSourcePresenter text: String new ]
+		ifNotNil: [ :service | methodSourcePresenter text: service source ].
+	self clearStatusBar.
+	methodSourcePresenter hasUnacceptedEdits: false.
+	self updateMethodSourceGlyphs
 ]
 
 { #category : 'compiler warning' }
@@ -440,6 +457,19 @@ JadeiteSUnitBrowserPresenter >> updateContents [
 						self setMethodSourceTo: String new ] ]
 ]
 
+{ #category : 'initialization' }
+JadeiteSUnitBrowserPresenter >> updateMethodSource: anAnnouncement [
+
+	| text |
+	text := self methodSourcePresenter text.
+	self methodSourcePresenter withAdapterDo: [ :a |
+		a widgetDo: [ :w |
+			w textArea scrollPane
+				vScrollbarValue: anAnnouncement scrollOffset y;
+				updateScrollbars ] ].
+	self updateMethodSourceGlyphs 
+]
+
 { #category : 'updates' }
 JadeiteSUnitBrowserPresenter >> updateMethodSourceFrom: selection [
 
@@ -451,6 +481,13 @@ JadeiteSUnitBrowserPresenter >> updateMethodSourceFrom: selection [
 					self methodSourcePresenter methodService: methodService.
 					self setMethodSourceTo: methodService source.
 					self updateMethodSourceGlyphs ] ]
+]
+
+{ #category : 'actions' }
+JadeiteSUnitBrowserPresenter >> updateStepPointStatus: anAnnouncement [
+
+	self browserPresenter statusBarText pushMessage:
+		anAnnouncement message
 ]
 
 { #category : 'initialization' }
