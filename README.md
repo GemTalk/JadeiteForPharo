@@ -18,13 +18,13 @@ Jadeite For Pharo is only tested for use with GemStone 3.7.2.
 - Set the env variable $ROWAN_PROJECTS_HOME to the directory in which you will clone the github projects. 
 - Clone these git projects to $ROWAN_PROJECTS_HOME on your local server disk:
 	* RemoteServiceReplication, branch main-v2, `git clone -b main-v2 https://github.com/GemTalk/RemoteServiceReplication`
- 	* RowanClientServices, branch JfpAlpha372, `git clone -b JfpAlpha372 https://github.com/GemTalk/RowanClientServices`
+ 	* RowanClientServices, branch JfpAlpha372, `git clone -b JfpAlpha372 https://github.com/GemTalk/RowanClientServices RowanClientServicesV3`
 	* Announcements, `git clone https://github.com/GemTalk/Announcements`
 
 - Setup a .topazini file for SystemUser with your Stone's login parameters 
 - Connect to the latest RowanClientServices code by running the followings scripts from a directory with above topazini file
 	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RemoteServiceReplication/rowan/specs/RemoteServiceReplication.ston --projectsHome=$ROWAN_PROJECTS_HOME`
-	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RowanClientServices/rowan/specs/RowanClientServices.ston --projectsHome=$ROWAN_PROJECTS_HOME`
+	* `$GEMSTONE/rowan3/bin/installProject.stone file:$ROWAN_PROJECTS_HOME/RowanClientServicesV3/rowan/specs/RowanClientServices.ston --projectsHome=$ROWAN_PROJECTS_HOME`
 
 ## To load JadeiteForPharo into a Pharo image:
 
