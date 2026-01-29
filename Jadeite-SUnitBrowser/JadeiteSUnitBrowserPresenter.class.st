@@ -160,6 +160,7 @@ JadeiteSUnitBrowserPresenter >> displayBreakpoints [
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> displayMethodSourceStepPoints [
 
+	self testCaseListPresenter hasSelection ifFalse: [ ^ true ].
 	self methodSourcePresenter methodService ifNil: [
 			self methodSourcePresenter methodService:
 				self testCaseListPresenter selectedItem ].
@@ -177,17 +178,26 @@ JadeiteSUnitBrowserPresenter >> displayMethodSourceStepPoints [
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> editSaveMethod [
 
+	| category priorTestMethods |
 	self testClassService ifNil: [ ^ self ].
 	self testClassService meta: false.
+	category := self testCaseListPresenter hasSelection
+		            ifTrue: [
+		            self testCaseListPresenter selectedItem category ]
+		            ifFalse: [ 'tests' ].
+	priorTestMethods := self testClassService testMethods copy.
 	self
 		editSaveMethod: testClassService
 		in: methodSourcePresenter
-		category: self testCaseListPresenter selectedItem category
+		category: category
 		onCompletion: [ "might have created a new method"
 				| sel |
-				sel := testCaseListPresenter selectedItem.
+				sel := self testCaseListPresenter selectedItem.
 				testCaseListPresenter list: self testClassService testMethods.
-				testCaseListPresenter selectItem: sel.
+				(self testClassService testMethods difference: priorTestMethods)
+					ifEmpty: [ testCaseListPresenter selectItem: sel ]
+					ifNotEmpty: [ :difference |
+					testCaseListPresenter selectItem: difference first ].
 				methodSourcePresenter hasUnacceptedEdits: false ]
 ]
 
@@ -481,6 +491,15 @@ JadeiteSUnitBrowserPresenter >> updateMethodSourceFrom: selection [
 					self methodSourcePresenter methodService: methodService.
 					self setMethodSourceTo: methodService source.
 					self updateMethodSourceGlyphs ] ]
+]
+
+{ #category : 'updates' }
+JadeiteSUnitBrowserPresenter >> updateMethodSourceGlyphs [
+
+	self testCaseListPresenter selectedItem ifNil: [ ^ self ].
+	self methodSourcePresenter removeAllTextSegmentDecorations.
+	self displayMethodSourceStepPoints.
+	self displayBreakpoints
 ]
 
 { #category : 'actions' }

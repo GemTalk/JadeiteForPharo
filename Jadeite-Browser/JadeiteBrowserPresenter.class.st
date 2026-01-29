@@ -102,7 +102,8 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self resetClassComment.
 	self updateMethodSource.
 	self resetStatusBarColor.
-	self statusBarText pushMessage: String new
+	self statusBarText pushMessage: String new.
+	self updateSUnitTab. 
 ]
 
 { #category : 'accessing' }
@@ -3749,6 +3750,11 @@ JadeiteBrowserPresenter >> selectProjectService: projectService [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectProjectTab [
 	self selectSourceTabNamed: 'projectInfoTab'
+]
+
+{ #category : 'selections' }
+JadeiteBrowserPresenter >> selectSUnitTab [
+	textAreaTabs selectPage: sunitPage 
 ]
 
 { #category : 'selections' }
