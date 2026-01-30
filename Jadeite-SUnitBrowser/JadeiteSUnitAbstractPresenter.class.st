@@ -185,7 +185,7 @@ JadeiteSUnitAbstractPresenter >> runTestCommand: command methods: methodServices
 					 with: methodService selector
 					 with: (className ifNil: [ methodService className ]));
 			testResult: nil;
-			catchBlock: [
+			catchBlock: [:error | 
 				| testRunTime |
 				testRunTime := Time millisecondClockValue - ms.
 				jadeResult addMs: testRunTime.

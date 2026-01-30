@@ -241,17 +241,7 @@ JadeiteMethodListPresenter >> handleMethodNotInListIn: classService statusBarTex
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> initializeFirstTwoColumns [
 
-	JadeitePreferences isRowanLoaded ifTrue: [ 
-		methodListPresenter
-			addColumn: (SpStringTableColumn
-					 title: 'Project'
-					 evaluated: [ :service | service projectName ]) beSortable;
-			addColumn: (SpStringTableColumn
-					 title: 'Package'
-					 evaluated: [ :service | service packageName ]) beSortable ]
-				
-			"JadeitePreferences isRowanLoaded
-		ifTrue: [
+	JadeitePreferences isRowanLoaded ifTrue: [
 			methodListPresenter
 				addColumn: (SpStringTableColumn
 						 title: 'Project'
@@ -259,14 +249,6 @@ JadeiteMethodListPresenter >> initializeFirstTwoColumns [
 				addColumn: (SpStringTableColumn
 						 title: 'Package'
 						 evaluated: [ :service | service packageName ]) beSortable ]
-		ifFalse: [
-			methodListPresenter
-				addColumn: (SpStringTableColumn
-						 title: 'Dictionary'
-						 evaluated: [ :service | service dictionary ]) beSortable;
-				addColumn: (SpStringTableColumn
-						 title: 'Class Category'
-						 evaluated: [ :service | service packageName ]) beSortable ]"
 ]
 
 { #category : 'initialization' }

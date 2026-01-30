@@ -157,10 +157,18 @@ JadeiteSUnitBrowserPresenter >> displayBreakpoints [
 							 interval: range) ] ]
 ]
 
+{ #category : 'printing' }
+JadeiteSUnitBrowserPresenter >> displayClassFrom: service [
+
+	^ service className = browserPresenter selectedClassName
+		  ifTrue: [ String new ]
+		  ifFalse: [ service className ]
+]
+
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> displayMethodSourceStepPoints [
 
-	self testCaseListPresenter hasSelection ifFalse: [ ^ true ].
+	self testCaseListPresenter selectionOrNil ifNil: [ ^ self ].
 	self methodSourcePresenter methodService ifNil: [
 			self methodSourcePresenter methodService:
 				self testCaseListPresenter selectedItem ].
@@ -175,26 +183,45 @@ JadeiteSUnitBrowserPresenter >> displayMethodSourceStepPoints [
 					 interval: range) ]
 ]
 
+{ #category : 'printing' }
+JadeiteSUnitBrowserPresenter >> displayStringFrom: methodService [
+
+	| ws selectedClass |
+	ws := WriteStream on: String new.
+	ws nextPutAll: methodService selector.
+	selectedClass := self browserPresenter selectedClass.
+	selectedClass ifNil: [ ^ ws contents ].
+	selectedClass name = methodService className ifFalse: [
+			ws
+				space;
+				nextPut: $(;
+				nextPutAll: methodService className;
+				nextPut: $) ].
+	^ ws contents
+]
+
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> editSaveMethod [
 
-	| category priorTestMethods |
+	| category priorTestMethods classService |
 	self testClassService ifNil: [ ^ self ].
 	self testClassService meta: false.
-	category := self testCaseListPresenter hasSelection
-		            ifTrue: [
-		            self testCaseListPresenter selectedItem category ]
-		            ifFalse: [ 'tests' ].
-	priorTestMethods := self testClassService testMethods copy.
+	category := self testCaseListPresenter selectionOrNil
+		            ifNil: [ 'tests' ]
+		            ifNotNil: [
+		            self testCaseListPresenter selectedItem category ].
+	priorTestMethods := self testClassService visibleTests copy.
+	classService := RowanClassService new name:
+		                methodSourcePresenter methodService className.
 	self
-		editSaveMethod: testClassService
+		editSaveMethod: classService
 		in: methodSourcePresenter
 		category: category
 		onCompletion: [ "might have created a new method"
 				| sel |
 				sel := self testCaseListPresenter selectedItem.
-				testCaseListPresenter list: self testClassService testMethods.
-				(self testClassService testMethods difference: priorTestMethods)
+				testCaseListPresenter list list: classService visibleTests.
+				(classService visibleTests difference: priorTestMethods)
 					ifEmpty: [ testCaseListPresenter selectItem: sel ]
 					ifNotEmpty: [ :difference |
 					testCaseListPresenter selectItem: difference first ].
@@ -273,11 +300,24 @@ JadeiteSUnitBrowserPresenter >> initializePresenters [
 { #category : 'initialization' }
 JadeiteSUnitBrowserPresenter >> initializeTestCaseListIn: testCaseBox [
 
-	testCaseListPresenter := JadeiteListPresenter newNameSortedList
+	| column1 column2 column3 |
+	testCaseListPresenter := JadeiteTablePresenter new
 		                         beMultipleSelection.
+	column1 := (SpImageTableColumn evaluated: [ :service |
+		            service testResultIconForBrowser: self ]) width: 20.
+	column2 := (SpStringTableColumn
+		            title: 'Test Selector'
+		            evaluated: [ :service | service selector ]) beSortable.
+	column3 := (SpStringTableColumn
+		            title: 'Class'
+		            evaluated: [ :service | self displayClassFrom: service ])
+		           beSortable.
 	testCaseListPresenter
-		addStyle: 'jadeiteTextBackgroundColor';
-		displayIcon: [ :item | item testResultIconForBrowser: self ].
+		addColumn: column1;
+		addColumn: column2;
+		addColumn: column3;
+		addStyle: 'jadeiteTextBackgroundColor'.
+
 	testCaseBox add: testCaseListPresenter
 ]
 
@@ -463,7 +503,7 @@ JadeiteSUnitBrowserPresenter >> updateContents [
 						self testClassService
 							ifNil: [ testCaseListPresenter list: OrderedCollection new ]
 							ifNotNil: [
-							testCaseListPresenter list: self testClassService testMethods ].
+							testCaseListPresenter list: self testClassService visibleTests ].
 						self setMethodSourceTo: String new ] ]
 ]
 
