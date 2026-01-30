@@ -211,21 +211,18 @@ JadeiteSUnitBrowserPresenter >> editSaveMethod [
 		            ifNotNil: [
 		            self testCaseListPresenter selectedItem category ].
 	priorTestMethods := self testClassService visibleTests copy.
-	classService := RowanClassService new name:
-		                methodSourcePresenter methodService className.
+	classService := methodSourcePresenter methodService
+		                ifNil: [ self testClassService ]
+		                ifNotNil: [
+				                RowanClassService new name:
+					                methodSourcePresenter methodService className ].
 	self
 		editSaveMethod: classService
 		in: methodSourcePresenter
 		category: category
-		onCompletion: [ "might have created a new method"
-				| sel |
-				sel := self testCaseListPresenter selectedItem.
-				testCaseListPresenter list list: classService visibleTests.
-				(classService visibleTests difference: priorTestMethods)
-					ifEmpty: [ testCaseListPresenter selectItem: sel ]
-					ifNotEmpty: [ :difference |
-					testCaseListPresenter selectItem: difference first ].
-				methodSourcePresenter hasUnacceptedEdits: false ]
+		onCompletion: [
+				self uiManager defer: [
+					self postSaveMethodIn: classService with: priorTestMethods ] ]
 ]
 
 { #category : 'actions' }
@@ -302,7 +299,8 @@ JadeiteSUnitBrowserPresenter >> initializeTestCaseListIn: testCaseBox [
 
 	| column1 column2 column3 |
 	testCaseListPresenter := JadeiteTablePresenter new
-		                         beMultipleSelection.
+		                         beMultipleSelection items:
+		                         OrderedCollection new.
 	column1 := (SpImageTableColumn evaluated: [ :service |
 		            service testResultIconForBrowser: self ]) width: 20.
 	column2 := (SpStringTableColumn
@@ -406,6 +404,21 @@ JadeiteSUnitBrowserPresenter >> newJadeiteSUnitToolbar [
 ]
 
 { #category : 'actions' }
+JadeiteSUnitBrowserPresenter >> postSaveMethodIn: classService with: priorTestMethods [
+
+	| sel |
+	self updateService: self testClassService onCompletion: [
+			sel := self testCaseListPresenter selectedItem.
+			testCaseListPresenter items: self testClassService visibleTests.
+			(self testClassService visibleTests difference: priorTestMethods)
+				ifEmpty: [ testCaseListPresenter selectItem: sel ]
+				ifNotEmpty: [ :difference |
+						testCaseListPresenter unselectAll.
+						testCaseListPresenter selectItem: difference first ].
+			methodSourcePresenter hasUnacceptedEdits: false ]
+]
+
+{ #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> refreshView [
 	self uiManager defer: [ testCaseListPresenter refresh ]
 ]
@@ -497,13 +510,13 @@ JadeiteSUnitBrowserPresenter >> testClassService: anObject [
 JadeiteSUnitBrowserPresenter >> updateContents [
 
 	self testClassService
-		ifNil: [ testCaseListPresenter list: OrderedCollection new ]
+		ifNil: [ testCaseListPresenter items: OrderedCollection new ]
 		ifNotNil: [
 				self uiManager defer: [
 						self testClassService
-							ifNil: [ testCaseListPresenter list: OrderedCollection new ]
+							ifNil: [ testCaseListPresenter items: OrderedCollection new ]
 							ifNotNil: [
-							testCaseListPresenter list: self testClassService visibleTests ].
+							testCaseListPresenter items: self testClassService visibleTests ].
 						self setMethodSourceTo: String new ] ]
 ]
 
@@ -525,7 +538,10 @@ JadeiteSUnitBrowserPresenter >> updateMethodSourceFrom: selection [
 
 	| methodService |
 	methodService := selection selectedItem.
-	methodService ifNil: [ ^ self ].
+	methodService ifNil: [
+			self methodSourcePresenter text: String new.
+			self methodSourcePresenter hasUnacceptedEdits: false.
+			^ self ].
 	self updateService: methodService onCompletion: [
 			self uiManager defer: [
 					self methodSourcePresenter methodService: methodService.

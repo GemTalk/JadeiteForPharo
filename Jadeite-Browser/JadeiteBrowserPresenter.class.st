@@ -3858,9 +3858,9 @@ JadeiteBrowserPresenter >> setStatusBarDefault [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> setTestClass: service [
 
-	sunitPresenter testClassService: (service isTestCase
-			 ifTrue: [ service ]
-			 ifFalse: [ nil ])
+	sunitPresenter testClassService:
+		(service isTestCase ifTrue: [ service ]).
+	sunitPresenter updateContents
 ]
 
 { #category : 'as yet unclassified' }

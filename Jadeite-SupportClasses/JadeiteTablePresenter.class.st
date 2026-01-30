@@ -28,6 +28,12 @@ JadeiteTablePresenter >> canDiscardSelectionEdits [
 	^self owner canDiscardSelectionEdits
 ]
 
+{ #category : 'testing' }
+JadeiteTablePresenter >> hasSelection [
+
+	^ self selectionOrNil notNil
+]
+
 { #category : 'displaying' }
 JadeiteTablePresenter >> invalidate [
 	self refresh.	
