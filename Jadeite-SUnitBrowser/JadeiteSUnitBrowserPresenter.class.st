@@ -419,6 +419,12 @@ JadeiteSUnitBrowserPresenter >> postSaveMethodIn: classService with: priorTestMe
 ]
 
 { #category : 'actions' }
+JadeiteSUnitBrowserPresenter >> refresh [
+
+	self refreshView
+]
+
+{ #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> refreshView [
 	self uiManager defer: [ testCaseListPresenter refresh ]
 ]

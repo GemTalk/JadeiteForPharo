@@ -966,23 +966,28 @@ JadeiteBrowserPresenter >> debugMethodTests: classOrMethodService [
 		ifFalse: [ methodListPresenter selectItem: classOrMethodService ].
 	(Delay forMilliseconds: 500) wait.
 	[
-	self clearMethodListTestResultIn: classOrMethodService visibleTests.
-	self refreshClassAndMethodPresenters.
-	sem := Semaphore new.
+		self selectSUnitTab.
+		self clearMethodListTestResultIn: classOrMethodService visibleTests.
+		self refreshClassAndMethodPresenters.
+		sem := Semaphore new.
 
-	classOrMethodService visibleTests do: [ :methodService |
-		| process |
-		process := Processor activeProcess.
-		methodService
-			command: #debugTest:inClassName:;
-			commandArgs:
-				(Array with: methodService selector with: methodService className);
-			catchBlock: [ process terminate ].
-		self
-			issueCommand: methodService
-			onCompletion: [
-			[ self refreshClassAndMethodPresenters ] ensure: [ sem signal ] ].
-		sem wait ] ] fork
+		classOrMethodService visibleTests do: [ :methodService |
+				| process |
+				process := Processor activeProcess.
+				methodService
+					command: #debugTest:inClassName:;
+					commandArgs:
+						(Array
+							 with: methodService selector
+							 with: methodService className);
+					catchBlock: [ process terminate ].
+				self
+					issueCommand: methodService
+					onCompletion: [
+					[ self refreshClassAndMethodPresenters ] ensure: [ sem signal ] ].
+				sem wait.
+				self updateSUnitTabMethods. 
+					 ] ] fork
 ]
 
 { #category : 'initialization' }
@@ -2877,10 +2882,11 @@ JadeiteBrowserPresenter >> refreshCategoryListWithSelection: selection [
 { #category : 'sunit support' }
 JadeiteBrowserPresenter >> refreshClassAndMethodPresenters [
 
-	classListPresenter refresh.
-	classHierarchyPresenter refresh.
-	sunitPresenter invalidate. 
-	methodListPresenter refresh
+	self uiManager defer: [
+			classListPresenter refresh.
+			classHierarchyPresenter refresh.
+			sunitPresenter refresh.
+			methodListPresenter refresh ]
 ]
 
 { #category : 'updates' }
@@ -4674,6 +4680,17 @@ JadeiteBrowserPresenter >> updateSUnitTab [
 							self addSUnitTab.
 							self setTestClass: service ]
 					ifFalse: [ self removeSUnitTab ] ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenter >> updateSUnitTabMethods [
+
+	self selectedMethods do: [ :methodService |
+			| sunitMethod |
+			sunitMethod := self sunitPresenter testCaseListPresenter items
+				               detect: [ :sunitTabMethod |
+				               sunitTabMethod selector = methodService selector ].
+			sunitMethod testResult: methodService testResult ]
 ]
 
 { #category : 'tab labels' }
