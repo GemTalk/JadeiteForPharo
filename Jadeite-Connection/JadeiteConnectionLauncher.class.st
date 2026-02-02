@@ -280,14 +280,14 @@ JadeiteConnectionLauncher >> connect [
 
 	| shouldDebug |
 	pathText adapter widget text isEmpty ifTrue: [
-			UIManager default alert: 'Client Libraries Path must be set'.
+			self uiManager alert: 'Client Libraries Path must be set'.
 			self setClientLibrariesPath ifNil: [ ^ self ] ].
 	JadeiteGCIConnectionProfile clientLibrariesPath:
-		pathText adapter widget text asString.  "spec doesn't respect typed changes sometimes so go to morphic"
+		pathText adapter widget text asString. "spec doesn't respect typed changes sometimes so go to morphic"
 
 	self populateConnectionProfile.
 	[
-		self connectionProfile connect.
+		self connectionProfile connect ifFalse: [ ^ self ].
 		self gciSession: GciSession current.
 		self updateCaption ]
 		on: Error

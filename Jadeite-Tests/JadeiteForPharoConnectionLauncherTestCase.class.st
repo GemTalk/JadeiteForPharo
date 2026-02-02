@@ -280,14 +280,14 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 
 	self profile isConnected ifTrue: [ self profile disconnect ].
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	JadeiteGCIConnectionProfile clientLibrariesPath: String new.
+	launcher pathText adapter widget setText: String new.
 
 	[ launcher connect ]
 		on: ProvideAnswerNotification
 		do: [ :notification |
-			self assert:
-				('Client library could not be found. Error message:*' match:
-					 notification messageText) ]
+				self
+					assert: 'Client Libraries Path must be set'
+					equals: notification messageText ]
 ]
 
 { #category : 'tests' }

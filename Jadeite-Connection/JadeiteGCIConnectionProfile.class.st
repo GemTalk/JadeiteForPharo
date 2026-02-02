@@ -163,18 +163,20 @@ JadeiteGCIConnectionProfile >> connect [
 
 	GciInterface libraryDirectory: self path.
 	[
-	session := GsSession
-		           newForGsVersion: version
-		           threadSafe: true
-		           stone: stone
-		           host: host
-		           netldi: netldi ]
+		session := GsSession
+			           newForGsVersion: version
+			           threadSafe: true
+			           stone: stone
+			           host: host
+			           netldi: netldi ]
 		on: FileDoesNotExistException
 		do: [ :ex |
-			^ UIManager default alert:
-				  'Client library could not be found. Error message: '
-				  , ex messageText ].
-	self basicConnect
+				self uiManager alert:
+					'Client library could not be found. Error message: '
+					, ex messageText.
+				^ false ].
+	self basicConnect.
+	^ true
 ]
 
 { #category : 'actions' }
