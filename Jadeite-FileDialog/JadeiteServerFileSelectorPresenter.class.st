@@ -29,16 +29,17 @@ JadeiteServerFileSelectorPresenter >> activationAction [
 { #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> basicDive: service [
 
-	service answer
-		ifTrue: [
-				| directoryName |
-				directoryName := directoryContentsList selectedItem key.
-				directoryName = '.' ifFalse: [
-						pathText text:
-							pathText text , '/' , directoryContentsList selectedItem key ].
-				fileService path: pathText text.
-				self showDirectoryContents ]
-		ifFalse: [ self window triggerOkAction ].
+	self uiManager defer: [
+			service answer
+				ifTrue: [
+						| directoryName |
+						directoryName := directoryContentsList selectedItem key.
+						directoryName = '.' ifFalse: [
+								pathText text:
+									pathText text , '/' , directoryContentsList selectedItem key ].
+						fileService path: pathText text.
+						self showDirectoryContents ]
+				ifFalse: [ self window triggerOkAction ] ].
 	self gciSession announcer announce: JadeiteFileOperationCompleted new
 ]
 

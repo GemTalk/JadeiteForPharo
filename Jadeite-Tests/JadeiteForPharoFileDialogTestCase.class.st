@@ -79,7 +79,8 @@ JadeiteForPharoFileDialogTestCase >> setUp [
 JadeiteForPharoFileDialogTestCase >> tearDown [
 
 	super tearDown.
-	self destroy: fileDialog
+	self destroy: fileDialog.
+	GciSession current announcer unsubscribe: self
 ]
 
 { #category : 'tests' }
@@ -98,16 +99,14 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 	keys := self fileAndDirectoryNames.
 	self deny: (keys includes: 'Jadeite-Browser').
 	fileDialogPresenter dive.
-	WorldMorph doOneCycle.
-	fileOperationSemaphore wait.
+	self waitForFileOperationSemaphore.
 	self
 		assert: fileDialogPresenter pathText text
 		equals: '$ROWAN_PROJECTS_HOME/JadeiteForPharo'.
 	keys := self fileAndDirectoryNames.
 	self assert: (keys includes: 'Jadeite-Browser').
 	fileDialogPresenter pop.
-	WorldMorph doOneCycle.
-	fileOperationSemaphore wait.
+	self waitForFileOperationSemaphore.
 	keys := self fileAndDirectoryNames.
 	self deny: (keys includes: 'Jadeite-Browser').
 	item := dirContentsList list detect: [ :assoc |
@@ -115,6 +114,7 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 	fileDialogPresenter directoryContentsList selectItem: item.
 	fileDialogPresenter directoryContentsList doActivateAtIndex:
 		fileDialogPresenter directoryContentsList selection selectedIndex.
+	self waitForFileOperationSemaphore.
 	keys := self fileAndDirectoryNames.
 	self assert: (keys includes: 'Jadeite-Browser')
 ]
@@ -167,8 +167,7 @@ JadeiteForPharoFileDialogTestCase >> test_pop1 [
 
 	directoryContentsList doActivateAtIndex:
 		directoryContentsList selection selectedIndex. "pop by clicking .."
-	WorldMorph doOneCycle. 
-	fileOperationSemaphore wait.
+	self waitForFileOperationSemaphore.
 	self assert: parentPath equals: fileDialogPresenter pathText text.
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self deny: (keys includes: 'JadeiteForPharo')
@@ -187,8 +186,7 @@ JadeiteForPharoFileDialogTestCase >> test_pop2 [
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self assert: (keys includes: 'JadeiteForPharo').
 	fileDialogPresenter pop.
-	WorldMorph doOneCycle.
-	fileOperationSemaphore wait.
+	self waitForFileOperationSemaphore.
 	self assert: parentPath equals: fileDialogPresenter pathText text.
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self deny: (keys includes: 'JadeiteForPharo')
@@ -229,4 +227,11 @@ JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose 
 	self assert: ref contents equals: 'some content'.
 
 	ref delete
+]
+
+{ #category : 'support' }
+JadeiteForPharoFileDialogTestCase >> waitForFileOperationSemaphore [
+
+	WorldMorph doOneCycle.
+	fileOperationSemaphore wait
 ]
