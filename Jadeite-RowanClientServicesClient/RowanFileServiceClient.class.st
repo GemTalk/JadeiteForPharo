@@ -5,7 +5,8 @@ Class {
 		'session',
 		'inCommand',
 		'serviceCompletionBlock',
-		'alwaysForked'
+		'alwaysForked',
+		'catchBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -33,6 +34,18 @@ RowanFileServiceClient >> alwaysForked [
 RowanFileServiceClient >> alwaysForked: anObject [
 
 	alwaysForked := anObject
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> catchBlock [
+
+	^ catchBlock ifNil: [ super catchBlock ]
+]
+
+{ #category : 'accessing' }
+RowanFileServiceClient >> catchBlock: aBlock [
+
+	catchBlock := aBlock
 ]
 
 { #category : 'commands' }
@@ -256,21 +269,22 @@ RowanFileServiceClient >> pop [
 	command := #pop.
 	commandArgs := Array new.
 	self issueFileServiceCommandOnCompletion: [
-		answer ifNotNil: [ self shortNames ] ]
+			answer ifNotNil: [ self shortNames ].
+			self session announcer announce: JadeiteFileOperationCompleted new ]
 ]
 
 { #category : 'commands' }
 RowanFileServiceClient >> popWith: directoryContentsList with: pathText [
 
-	| sem |
 	command := #pop.
 	commandArgs := Array new.
-	sem := Semaphore new.
-	self issueFileServiceCommandOnCompletion: [ sem signal ].
-	sem wait.
-	answer ifNotNil: [
-		directoryContentsList list: self shortNames.
-		pathText text: path ]
+	self issueFileServiceCommandOnCompletion: [
+			answer ifNotNil: [
+					self uiManager defer: [
+							directoryContentsList list: self shortNames.
+							pathText text: path.
+							self session announcer announce:
+								JadeiteFileOperationCompleted new ] ] ]
 ]
 
 { #category : 'commands' }

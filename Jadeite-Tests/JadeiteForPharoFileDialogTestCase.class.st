@@ -3,7 +3,8 @@ Class {
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
 		'fileDialog',
-		'fileDialogPresenter'
+		'fileDialogPresenter',
+		'fileOperationSemaphore'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -16,10 +17,28 @@ JadeiteForPharoFileDialogTestCase >> fileAndDirectoryNames [
 		  assoc key ]
 ]
 
-{ #category : 'tests' }
+{ #category : 'support' }
 JadeiteForPharoFileDialogTestCase >> fileName [
 
 	^ 'workspace.txt'
+]
+
+{ #category : 'support' }
+JadeiteForPharoFileDialogTestCase >> fileOperationComplete [
+
+	fileOperationSemaphore signal
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoFileDialogTestCase >> fileOperationSemaphore [
+
+	^ fileOperationSemaphore
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoFileDialogTestCase >> fileOperationSemaphore: anObject [
+
+	fileOperationSemaphore := anObject
 ]
 
 { #category : 'support' }
@@ -35,6 +54,15 @@ JadeiteForPharoFileDialogTestCase >> fullPath: path [
 ]
 
 { #category : 'support' }
+JadeiteForPharoFileDialogTestCase >> registerForFileOperationAnnouncements [
+
+	GciSession current announcer
+		when: JadeiteFileOperationCompleted
+		send: #fileOperationComplete
+		to: self
+]
+
+{ #category : 'support' }
 JadeiteForPharoFileDialogTestCase >> setUp [
 
 	super setUp.
@@ -42,7 +70,9 @@ JadeiteForPharoFileDialogTestCase >> setUp [
 		              _showOnSession: GciSession current
 		              defaultPath:
 		              JadePresenter rowanProjectsHomeEnvVarString
-		              shellName: nil
+		              shellName: nil.
+	fileOperationSemaphore := RowanSemaphore new.
+	self registerForFileOperationAnnouncements
 ]
 
 { #category : 'support' }
@@ -59,7 +89,8 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 	| item keys dirContentsList |
 	fileDialogPresenter := fileDialog fileSelectorPresenter.
 	dirContentsList := fileDialogPresenter directoryContentsList.
-	item := dirContentsList list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
+	item := dirContentsList list detect: [ :assoc |
+		        assoc key = 'JadeiteForPharo' ].
 	fileDialogPresenter directoryContentsList selectItem: item.
 	self
 		assert: fileDialogPresenter pathText text
@@ -67,15 +98,20 @@ JadeiteForPharoFileDialogTestCase >> test_dive [
 	keys := self fileAndDirectoryNames.
 	self deny: (keys includes: 'Jadeite-Browser').
 	fileDialogPresenter dive.
+	WorldMorph doOneCycle.
+	fileOperationSemaphore wait.
 	self
 		assert: fileDialogPresenter pathText text
 		equals: '$ROWAN_PROJECTS_HOME/JadeiteForPharo'.
 	keys := self fileAndDirectoryNames.
 	self assert: (keys includes: 'Jadeite-Browser').
 	fileDialogPresenter pop.
+	WorldMorph doOneCycle.
+	fileOperationSemaphore wait.
 	keys := self fileAndDirectoryNames.
 	self deny: (keys includes: 'Jadeite-Browser').
-	item := dirContentsList list detect: [ :assoc | assoc key = 'JadeiteForPharo' ].
+	item := dirContentsList list detect: [ :assoc |
+		        assoc key = 'JadeiteForPharo' ].
 	fileDialogPresenter directoryContentsList selectItem: item.
 	fileDialogPresenter directoryContentsList doActivateAtIndex:
 		fileDialogPresenter directoryContentsList selection selectedIndex.
@@ -128,8 +164,11 @@ JadeiteForPharoFileDialogTestCase >> test_pop1 [
 		equals: '$ROWAN_PROJECTS_HOME'. "no change"
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self assert: (keys includes: 'JadeiteForPharo').
+
 	directoryContentsList doActivateAtIndex:
 		directoryContentsList selection selectedIndex. "pop by clicking .."
+	WorldMorph doOneCycle. 
+	fileOperationSemaphore wait.
 	self assert: parentPath equals: fileDialogPresenter pathText text.
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self deny: (keys includes: 'JadeiteForPharo')
@@ -147,7 +186,9 @@ JadeiteForPharoFileDialogTestCase >> test_pop2 [
 		equals: '$ROWAN_PROJECTS_HOME'. "no change"
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self assert: (keys includes: 'JadeiteForPharo').
-	fileDialogPresenter pop. 
+	fileDialogPresenter pop.
+	WorldMorph doOneCycle.
+	fileOperationSemaphore wait.
 	self assert: parentPath equals: fileDialogPresenter pathText text.
 	keys := directoryContentsList list collect: [ :assoc | assoc key ].
 	self deny: (keys includes: 'JadeiteForPharo')
