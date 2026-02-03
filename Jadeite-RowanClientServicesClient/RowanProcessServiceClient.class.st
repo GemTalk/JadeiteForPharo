@@ -81,7 +81,6 @@ RowanProcessServiceClient >> openDebugger [
 				presenter: debugger.
 			sem signal ].
 	sem wait.
-	"WorldMorph doOneCycle." "still needed? make sure tests get a gui cycle"
 	activeProcess suspend.
 	^ debugger answer
 ]

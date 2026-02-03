@@ -29,16 +29,18 @@ JadeiteServerFileSelectorPresenter >> activationAction [
 { #category : 'actions' }
 JadeiteServerFileSelectorPresenter >> basicDive: service [
 
-	service answer
-		ifTrue: [
-			| directoryName |
-			directoryName := directoryContentsList selectedItem key.
-			directoryName = '.' ifFalse: [
-				pathText text:
-					pathText text , '/' , directoryContentsList selectedItem key ].
-			fileService path: pathText text.
-			self showDirectoryContents ]
-		ifFalse: [ self window triggerOkAction ]
+	self uiManager defer: [
+			service answer
+				ifTrue: [
+						| directoryName |
+						directoryName := directoryContentsList selectedItem key.
+						directoryName = '.' ifFalse: [
+								pathText text:
+									pathText text , '/' , directoryContentsList selectedItem key ].
+						fileService path: pathText text.
+						self showDirectoryContents ]
+				ifFalse: [ self window triggerOkAction ] ].
+	self gciSession announcer announce: JadeiteFileOperationCompleted new
 ]
 
 { #category : 'initialization' }
@@ -64,15 +66,12 @@ JadeiteServerFileSelectorPresenter >> directoryContentsList [
 { #category : 'as yet unclassified' }
 JadeiteServerFileSelectorPresenter >> dive [
 
-	| sem directoryName |
+	| directoryName |
 	directoryName := directoryContentsList selectedItem key.
 	directoryName = '..' ifTrue: [ ^ self pop ].
-	sem := Semaphore new.
 	fileService
 		isDirectory: directoryContentsList selectedItem key
-		onCompletion: [ :service | sem signal ].
-	sem wait.
-	self basicDive: fileService
+		onCompletion: [ :service | self basicDive: fileService ]
 ]
 
 { #category : 'accessing' }
