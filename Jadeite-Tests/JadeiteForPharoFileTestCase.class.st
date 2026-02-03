@@ -96,7 +96,8 @@ JadeiteForPharoFileTestCase >> setUp [
 	super setUp.
 	JadeiteTestManager replacing: self uiManager.
 	self deleteInaccessibleFileAndDirectory.
-	self createInaccessibleFileAndDirectory
+	self createInaccessibleFileAndDirectory.
+	self registerForFileOperationAnnouncements
 ]
 
 { #category : 'support' }
@@ -104,7 +105,8 @@ JadeiteForPharoFileTestCase >> tearDown [
 
 	self uiManager restore.
 	self deleteInaccessibleFileAndDirectory.
-	self deleteTempFiles
+	self deleteTempFiles.
+	GciSession current announcer unsubscribe: self
 ]
 
 { #category : 'constants' }
@@ -141,41 +143,42 @@ JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 		              waitForNew: JadeiteServerFileSelectorDialog
 		              while: [ self console openServerFile ].
 	[
-	fileSelector := fileDialog fileSelectorPresenter.
-	sem := Semaphore new.
-	[
-	[ fileSelector directoryContentsList list isEmpty ] whileTrue: [
-		(Delay forMilliseconds: 5) wait ].
-	sem signal ] fork.
-	sem waitTimeoutSeconds: 1.
-	self assert:
-		((fileSelector directoryContentsList list collect: [ :assoc |
-			  assoc key ]) includes: self inaccessibleDirectoryName).
-	inaccessibleDir := fileSelector directoryContentsList list detect: [
-		                   :assoc |
-		                   assoc key = self inaccessibleDirectoryName ].
-	fileSelector directoryContentsList selectItem: inaccessibleDir.
-	fileSelector dive.
-	self assert:
-		((fileSelector directoryContentsList list collect: [ :assoc |
-			  assoc key ]) includes: self inaccessibleFileName).
+		fileSelector := fileDialog fileSelectorPresenter.
+		sem := Semaphore new.
+		[
+			[ fileSelector directoryContentsList list isEmpty ] whileTrue: [
+				(Delay forMilliseconds: 5) wait ].
+			sem signal ] fork.
+		sem waitTimeoutSeconds: 1.
+		self assert:
+			((fileSelector directoryContentsList list collect: [ :assoc |
+				  assoc key ]) includes: self inaccessibleDirectoryName).
+		inaccessibleDir := fileSelector directoryContentsList list detect: [
+			                   :assoc |
+			                   assoc key = self inaccessibleDirectoryName ].
+		fileSelector directoryContentsList selectItem: inaccessibleDir.
+		fileSelector dive.
+		self waitForFileOperationSemaphore.
+		self assert:
+			((fileSelector directoryContentsList list collect: [ :assoc |
+				  assoc key ]) includes: self inaccessibleFileName).
 
-	inaccessibleFile := fileSelector directoryContentsList list detect: [
-		                    :assoc | assoc key = self inaccessibleFileName ].
-	fileSelector directoryContentsList selectItem: inaccessibleFile.
-	alert := self waitForNew: AlertDialogWindow while: [
-		         fileDialog window
-			         beOk;
-			         triggerOkAction ].
-	self assert:
-		('Error accessing*notAccessibleDirectory/notAccessibleFile*' match:
-			 alert textMorph text).
-	alert ok ] ensure: [
-		JadePresenter lastFilePath: backupPath.
-		fileDialog window isOpen ifTrue: [
-			fileDialog window
-				beCancel;
-				triggerCancelAction ] ]
+		inaccessibleFile := fileSelector directoryContentsList list detect: [
+			                    :assoc | assoc key = self inaccessibleFileName ].
+		fileSelector directoryContentsList selectItem: inaccessibleFile.
+		alert := self waitForNew: AlertDialogWindow while: [
+				         fileDialog window
+					         beOk;
+					         triggerOkAction ].
+		self assert:
+			('Error accessing*notAccessibleDirectory/notAccessibleFile*'
+				 match: alert textMorph text).
+		alert ok ] ensure: [
+			JadePresenter lastFilePath: backupPath.
+			fileDialog window isOpen ifTrue: [
+					fileDialog window
+						beCancel;
+						triggerCancelAction ] ]
 ]
 
 { #category : 'tests' }
@@ -323,6 +326,7 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
 	fileDialog fileSelectorPresenter directoryContentsList selectItem:
 		tempDir.
 	fileDialog fileSelectorPresenter dive.
+	self waitForFileOperationSemaphore.
 	dirRef := fileDialog pathText text asFileReference.
 	tempFile := fileDialog fileSelectorPresenter directoryContentsList
 		            list detect: [ :assoc | assoc key = self tempFileName1 ].
@@ -368,6 +372,7 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSelect [
 	fileDialog fileSelectorPresenter directoryContentsList selectItem:
 		tempDir.
 	fileDialog fileSelectorPresenter dive.
+	self waitForFileOperationSemaphore.
 	dirRef := fileDialog pathText text asFileReference.
 	tempFile := fileDialog fileSelectorPresenter directoryContentsList
 		            list detect: [ :assoc | assoc key = self tempFileName1 ].

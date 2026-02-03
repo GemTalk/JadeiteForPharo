@@ -365,6 +365,12 @@ JadeiteBrowser >> isRowanProjectSelected [
 	^self activePresenter isRowanProjectSelected
 ]
 
+{ #category : 'testing' }
+JadeiteBrowser >> isSingleProjectSelected [
+
+	^ self activePresenter isSingleProjectSelected
+]
+
 { #category : 'accessing' }
 JadeiteBrowser >> methodListPresenter [
 

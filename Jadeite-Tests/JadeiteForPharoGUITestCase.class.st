@@ -9,7 +9,8 @@ Class {
 	#instVars : [
 		'workspace',
 		'methodListBrowser',
-		'progressBarState'
+		'progressBarState',
+		'fileOperationSemaphore'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -128,6 +129,12 @@ JadeiteForPharoGUITestCase >> ensureLauncherOpened [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> fileOperationComplete [
+
+	fileOperationSemaphore signal
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> jfpwor_classDefinitionFor: className superclass: superName instVars: instVars category: aString [
 
 	self
@@ -136,6 +143,16 @@ JadeiteForPharoGUITestCase >> jfpwor_classDefinitionFor: className superclass: s
 		instVars: aString
 		package: superName.
 	^ self projectsPresenter editSaveClass
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> registerForFileOperationAnnouncements [
+
+	fileOperationSemaphore := RowanSemaphore new.
+	GciSession current announcer
+		when: JadeiteFileOperationCompleted
+		send: #fileOperationComplete
+		to: self
 ]
 
 { #category : 'support' }
@@ -305,6 +322,13 @@ JadeiteForPharoGUITestCase >> waitForCloseDialog [
 	self assert: dialogs size equals: 1.
 	Processor yield. "presumably, the dialog was opened in a forked thread, we want to let it finish activating before continuing. "
 	^ dialogs first
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForFileOperationSemaphore [
+
+	WorldMorph doOneCycle.
+	fileOperationSemaphore wait
 ]
 
 { #category : 'support' }

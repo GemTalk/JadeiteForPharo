@@ -3,8 +3,7 @@ Class {
 	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
 		'fileDialog',
-		'fileDialogPresenter',
-		'fileOperationSemaphore'
+		'fileDialogPresenter'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -21,12 +20,6 @@ JadeiteForPharoFileDialogTestCase >> fileAndDirectoryNames [
 JadeiteForPharoFileDialogTestCase >> fileName [
 
 	^ 'workspace.txt'
-]
-
-{ #category : 'support' }
-JadeiteForPharoFileDialogTestCase >> fileOperationComplete [
-
-	fileOperationSemaphore signal
 ]
 
 { #category : 'accessing' }
@@ -54,15 +47,6 @@ JadeiteForPharoFileDialogTestCase >> fullPath: path [
 ]
 
 { #category : 'support' }
-JadeiteForPharoFileDialogTestCase >> registerForFileOperationAnnouncements [
-
-	GciSession current announcer
-		when: JadeiteFileOperationCompleted
-		send: #fileOperationComplete
-		to: self
-]
-
-{ #category : 'support' }
 JadeiteForPharoFileDialogTestCase >> setUp [
 
 	super setUp.
@@ -71,7 +55,6 @@ JadeiteForPharoFileDialogTestCase >> setUp [
 		              defaultPath:
 		              JadePresenter rowanProjectsHomeEnvVarString
 		              shellName: nil.
-	fileOperationSemaphore := RowanSemaphore new.
 	self registerForFileOperationAnnouncements
 ]
 
@@ -227,11 +210,4 @@ JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose 
 	self assert: ref contents equals: 'some content'.
 
 	ref delete
-]
-
-{ #category : 'support' }
-JadeiteForPharoFileDialogTestCase >> waitForFileOperationSemaphore [
-
-	WorldMorph doOneCycle.
-	fileOperationSemaphore wait
 ]
