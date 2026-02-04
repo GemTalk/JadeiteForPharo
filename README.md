@@ -25,7 +25,7 @@ To setup a GemStone Rowan server:
 ## Client setup - Pharo and Jadeite
 ### Make git clones
 
-- select or create a directory for your git clones. It is recommended, but not required, to define the environment variable $ROWAN_PROJECTS_HOME to refer to this directory. 
+- Select or create a directory for your git clones. It is recommended, but not required, to define the environment variable $ROWAN_PROJECTS_HOME to refer to this directory. 
 - On the client, clone the required projects, or update checkouts to the latest on the correct branch. The required projects are:
     * JadeiteForPharo, branch main375 
     * RemoteServiceReplication, branch main-v2
@@ -131,5 +131,6 @@ The Jadeite Connection Launcher can be opened using the Library/Jadeite Launcher
 In the launcher, fill in the required fields and connect.
 
 Without Rowan, the System Browser displayes classes organized by SymbolDictionary and Class Category.
+
 
 
