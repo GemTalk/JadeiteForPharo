@@ -67,7 +67,7 @@ Upon successful completion of startup.st, a Jadeite Connection Launcher window w
 The Jadeite Connection Launcher can be opened using the Library/Jadeite Launcher menu item.
 In the launcher, fill in the required fields and connect.
 
-With Rowan, the Project Browser displayes classes organized by Project and Package or SymbolDictionary.
+With Rowan, the System Browser displayes classes organized by Project and Package or SymbolDictionary.
 
 
 ----------------------------------------------------------------------
@@ -83,7 +83,7 @@ management system.
  -   Set the GEMSTONE environment variable and path to this install.
  -   Start stone and netldi
  -   Define a .topazini file with the login parameters for this stone as SystemUser.
- -  In the same directory as the .topazini, execute:   
+ -   In the same directory as the .topazini, execute:   
      `   os> $GEMSTONE/examples/jadeite/bin/installRowanStub_topaz.sh`
 
 ## Client setup - Pharo and Jadeite
@@ -130,5 +130,6 @@ Upon successful completion of startup.st, a Jadeite Connection Launcher window w
 The Jadeite Connection Launcher can be opened using the Library/Jadeite Launcher menu item.
 In the launcher, fill in the required fields and connect.
 
-Without Rowan, the Project Browser displayes classes organized by SymbolDictionary and Class Category.
+Without Rowan, the System Browser displayes classes organized by SymbolDictionary and Class Category.
+
 
