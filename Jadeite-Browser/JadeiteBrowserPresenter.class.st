@@ -3145,25 +3145,27 @@ JadeiteBrowserPresenter >> removeClassConfirm: confirmBoolean [
 		command: #classHasSubclasses:;
 		commandArgs: (Array with: classService oop).
 	self issueCommand: answeringService onCompletion: [
-		answeringService answer ifTrue: [
-			^ MessageBox notify: 'Cannot remove class with subclasses' ].
-		(self selectedDictionaryOrPackage
-			 confirmClassRemoval: classService
-			 presenter: self
-			 shouldConfirm: confirmBoolean) ifTrue: [
-			self
-				basicBrowseClassReferences: classService name
-				session: self gciSession
-				completionBlock: [ :queryService |
-					queryService hasResults ifTrue: [
-						classReferenceBrowser := self browseClassReferences:
-							                         classService name ].
-					self updateTabLabel.
-					self basicRemoveClass: classService onCompletion: [
-						queryService hasResults ifTrue: [
-							MessageBox notify: classService name
-								,
-								' was removed. You will need to remove references to the class or your code may not load in the future.' ] ] ] ] ]
+			answeringService answer
+				ifTrue: [
+				self uiManager alert: 'Cannot remove class with subclasses' ]
+				ifFalse: [
+						(self selectedDictionaryOrPackage
+							 confirmClassRemoval: classService
+							 presenter: self
+							 shouldConfirm: confirmBoolean) ifTrue: [
+								self
+									basicBrowseClassReferences: classService name
+									session: self gciSession
+									completionBlock: [ :queryService |
+											queryService hasResults ifTrue: [
+												classReferenceBrowser := self browseClassReferences:
+													                         classService name ].
+											self updateTabLabel.
+											self basicRemoveClass: classService onCompletion: [
+													queryService hasResults ifTrue: [
+															MessageBox notify: classService name
+																,
+																' was removed. You will need to remove references to the class or your code may not load in the future.' ] ] ] ] ] ]
 ]
 
 { #category : 'as yet unclassified' }
