@@ -1529,6 +1529,49 @@ JadeiteForPharoBrowserTestCase >> test_fileoutPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_fileoutProjectWithInaccessibleDirectory [
+
+	| path dirRef permissions alert fileRef |
+	Smalltalk os isWindows ifTrue: [
+			^ self skip:
+				  'JadeiteForPharoBrowserTestCase>>#test_fileoutProject only runs on linux pharo client (currently)' ].
+
+	self
+		testsJadeiteForPharoIssue: #issue260
+		title:
+		'fileout package creates two files and an extra extension .gs.gs'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/260'.
+
+	dirRef := FileSystem disk workingDirectory / 'test_fileoutProject'.
+	dirRef deleteIfAbsent: [ ].
+	self deny: dirRef exists.
+	dirRef createDirectory.
+
+	path := dirRef pathString.
+	fileRef := dirRef / 'RowanClientServices.gs'.
+	fileRef ensureCreateFile.
+	permissions := FileSystemPermission posixPermissions: 8r444.
+	fileRef permissions: permissions.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+
+	alert := self waitForNew: AlertDialogWindow while: [
+			         self projectsPresenter
+				         basicFileoutProject:
+				         self projectListPresenter selectedItem
+				         to: fileRef pathString ].
+	[
+		self
+			assert: 'File is not writable. Permissions problem?'
+			equals: alert textMorph text asString.
+		alert ok.
+		self assert: fileRef contents isEmpty ] ensure: [
+			fileRef deleteIfAbsent: [ ].
+			dirRef deleteIfAbsent: [ ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_findClass [
 
 	self projectsPresenter
