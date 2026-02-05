@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteGitShaWorkspacePresenter',
 	#superclass : 'JadeiteWorkspacePresenter',
+	#instVars : [
+		'copyToClipboardButton'
+	],
 	#category : 'Jadeite-Workspace',
 	#package : 'Jadeite-Workspace'
 }
@@ -37,6 +40,18 @@ JadeiteGitShaWorkspacePresenter >> copyMarkdownToClipboard: inputString [
 	markdownStream contents asText copyToClipboard
 ]
 
+{ #category : 'accessing' }
+JadeiteGitShaWorkspacePresenter >> copyToClipboardButton [
+
+	^ copyToClipboardButton
+]
+
+{ #category : 'accessing' }
+JadeiteGitShaWorkspacePresenter >> copyToClipboardButton: anObject [
+
+	copyToClipboardButton := anObject
+]
+
 { #category : 'initialization' }
 JadeiteGitShaWorkspacePresenter >> firstColumnFrom: rs [
 
@@ -50,17 +65,19 @@ JadeiteGitShaWorkspacePresenter >> firstColumnFrom: rs [
 { #category : 'initialization' }
 JadeiteGitShaWorkspacePresenter >> initializeCopyToMarkdownButton [
 
-	| button box |
+	| box |
 	box := SpBoxLayout newHorizontal.
-	button := self newButton.
-	button
-		label: 'Copy Markdown to Clipboard';
+	copyToClipboardButton := self newButton.
+	copyToClipboardButton
+		label: 'Copy to Clipboard in Markdown format';
 		help:
 			'Copy Git Commit Ids in Markdown format to clipboard for pasting into GitHub issue';
 		action: [ self copyMarkdownToClipboard: workspace text ].
-	box
-		add: button
-		withConstraints: [ :constraints | constraints width: 200 ].
+	box add: copyToClipboardButton withConstraints: [ :constraints |
+			constraints
+				width: copyToClipboardButton label size / 2
+					* StandardFonts defaultFont pointSize;
+				height: 2.5 * StandardFonts defaultFont pointSize ].
 	^ box
 ]
 
@@ -76,7 +93,9 @@ JadeiteGitShaWorkspacePresenter >> initializePresenters [
 	buttonBox := self initializeCopyToMarkdownButton.
 	self layout add: buttonBox expand: false.
 	statusBarText := self newStatusBar.
-	self layout add: statusBarText height: 20
+	self layout
+		add: statusBarText
+		height: 2 * StandardFonts defaultFont pointSize
 ]
 
 { #category : 'initialization' }
