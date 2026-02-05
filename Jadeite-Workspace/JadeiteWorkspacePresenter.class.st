@@ -118,7 +118,7 @@ JadeiteWorkspacePresenter >> statusBarText [
 JadeiteWorkspacePresenter >> updateCaption [
 
 	| string title |
-	title := 'Jadeite Workspace'.
+	title := self workspaceTitle.
 	string := gciSession
 		          ifNil: [ title ]
 		          ifNotNil: [ gciSession titleBarFor: title ].
@@ -167,4 +167,10 @@ JadeiteWorkspacePresenter >> workspace: anObject [
 JadeiteWorkspacePresenter >> workspaceClass [
 
 	^ JadeiteWorkspace
+]
+
+{ #category : 'initialization' }
+JadeiteWorkspacePresenter >> workspaceTitle [
+
+	^ 'Jadeite Workspace'
 ]

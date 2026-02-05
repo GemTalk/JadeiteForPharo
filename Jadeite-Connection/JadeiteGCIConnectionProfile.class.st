@@ -8,7 +8,8 @@ Class {
 		'user',
 		'password',
 		'port',
-		'session'
+		'session',
+		'toolbarServerVersion'
 	],
 	#classVars : [
 		'ClientLibrariesPath'
@@ -144,6 +145,12 @@ sortedLoadedProjects do:[:proj |
 ws contents'
 ]
 
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> commitIdServerInfoCode [
+
+	^ 'System gemVersionReportString'
+]
+
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 
@@ -214,10 +221,13 @@ JadeiteGCIConnectionProfile >> fromSton: stonReader [
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> gciCommitIds [
 
+	self toolbarServerVersion:
+		(session gciInterface executeStringAndFetchResultString:
+			 self commitIdServerInfoCode).
 	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [
-			  session gciInterface executeStringAndFetchResultString:
-				  self commitIdServerCode ]
+				  session gciInterface executeStringAndFetchResultString:
+					  self commitIdServerCode ]
 		  ifFalse: [ 'Rowan not available' ]
 ]
 
@@ -246,7 +256,6 @@ JadeiteGCIConnectionProfile >> gitShaWorkspace: workspacePresenter using: server
 	ws nextPutAll: serverCommitIds.
 	workspace text: ws contents.
 	workspace hasUnacceptedEdits: false.
-	workspacePresenter window title: 'Jadeite Git Commit Ids'.
 	^ workspace
 ]
 
@@ -343,43 +352,55 @@ JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
 		           netldi: netldi.
 	loggedIn := false.
 	proc := [
-	        [
-	        session loginWithGsUser: user password: password.
-	        loggedIn := true.
-	        sem signal ]
-		        on: GciError
-		        do: [ :ex |
-			        errorMessage := ex messageText.
-			        sem signal ] ] fork.
+		        [
+			        session loginWithGsUser: user password: password.
+			        loggedIn := true.
+			        sem signal ]
+			        on: GciError
+			        do: [ :ex |
+					        errorMessage := ex messageText.
+					        sem signal ] ] fork.
 	(sem waitTimeoutSeconds: 5) ifTrue: [ proc terminate ].
-	loggedIn
-		ifTrue: [ commitIdString := self gciCommitIds ]
-		ifFalse: [ commitIdString := self loginErrorMessage: errorMessage ].
+	commitIdString := loggedIn
+		                  ifTrue: [ self gciCommitIds ]
+		                  ifFalse: [ self loginErrorMessage: errorMessage ].
 	session logoutNbNoError.
 	session := nil.
 	^ self
-		  gitShaWorkspace: JadeiteWorkspaceApplication show
+		  gitShaWorkspace: JadeiteGitShaWorkspaceApplication show
 		  using: commitIdString
 ]
 
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> serverCommitIdsUsingServices [
 
-	| answeringService workspacePresenter |
-	workspacePresenter := JadeiteWorkspaceApplication show.
+	| answeringService workspacePresenter withoutQuotes sem |
+	workspacePresenter := JadeiteGitShaWorkspaceApplication show.
 	self class connectionProfile isConnected ifFalse: [
-		self
-			gitShaWorkspace: workspacePresenter
-			using: (self loginErrorMessage: 'No Error Message Available').
-		^ workspacePresenter workspace ].
-	answeringService := RowanAnsweringServiceClient new.
-	answeringService
-		exec: self commitIdServerCode
-		in: GciSession current
-		onCompletion: [
-			| withoutQuotes |
-			withoutQuotes := answeringService answer copyWithout: $'.
-			self gitShaWorkspace: workspacePresenter using: withoutQuotes ].
+			self
+				gitShaWorkspace: workspacePresenter
+				using: (self loginErrorMessage: 'No Error Message Available').
+			^ workspacePresenter workspace ].
+	sem := Semaphore new.
+	[
+		answeringService := RowanAnsweringServiceClient new.
+		answeringService
+			exec: self commitIdServerCode
+			in: GciSession current
+			onCompletion: [
+					withoutQuotes := answeringService answer copyWithout: $'.
+					self gitShaWorkspace: workspacePresenter using: withoutQuotes.
+					sem signal ] ] fork.
+	sem wait.
+	[
+		answeringService
+			exec: self commitIdServerInfoCode
+			in: GciSession current
+			onCompletion: [
+					withoutQuotes := answeringService answer copyWithout: $'.
+					self toolbarServerVersion: withoutQuotes.
+					sem signal ] ] fork.
+	sem wait.
 	^ workspacePresenter workspace
 ]
 
@@ -468,6 +489,18 @@ JadeiteGCIConnectionProfile >> stone [
 JadeiteGCIConnectionProfile >> stone: anObject [
 
 	stone := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> toolbarServerVersion [
+
+	^ toolbarServerVersion ifNil: [ toolbarServerVersion := String new ]
+]
+
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> toolbarServerVersion: anObject [
+
+	^ toolbarServerVersion := anObject
 ]
 
 { #category : 'accessing' }

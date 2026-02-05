@@ -1900,6 +1900,27 @@ JadeiteForPharoBrowserTestCase >> test_loadProjectDialogDefaults [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_menuItemEnablementsDoNotError [
+	"open the browsers top row menus. If an enablement selector does not exist, we should get a walkback"
+
+	projectsBrowser window menu menuGroups first menuItems do: [
+			:menuItem |
+			| menuMorph |
+			menuItem subMenu ifNotNil: [
+					menuMorph := menuItem subMenu adapter widget
+						             popUpAt: self currentHand position
+						             forHand: self currentWorld primaryHand
+						             in: self currentWorld
+						             allowKeyboard: true.
+					[
+					menuMorph stayUp: true "for debugging - keep the window active until we delete it" ]
+						ensure: [
+								self assert: menuMorph isMenuMorph.
+								self assert: menuMorph visible.
+								menuMorph delete ] ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 
 	self selectServiceNamed: 'RowanSample1' in: self projectListPresenter.

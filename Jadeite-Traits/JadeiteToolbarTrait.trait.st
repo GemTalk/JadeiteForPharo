@@ -18,6 +18,39 @@ JadeiteToolbarTrait classSide >> toolbarCommands [
 		  JadeiteCommitCommand }
 ]
 
+{ #category : 'actions' }
+JadeiteToolbarTrait >> addPharoClientInformationTo: workspace [
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: '---------------------------------------------';
+		cr;
+		nextPutAll: 'Pharo client information:';
+		cr;
+		cr;
+		nextPutAll: Smalltalk jadeitePharoAbout.
+	workspace text: workspace text , ws contents
+]
+
+{ #category : 'actions' }
+JadeiteToolbarTrait >> addServerVersionInformationTo: workspace [
+
+	| ws |
+	GciSession current isValidSession ifTrue: [ ].
+	ws := WriteStream on: String new.
+	ws
+		cr;
+		nextPutAll: '---------------------------------------------';
+		cr;
+		nextPutAll: 'GemStone server information:';
+		cr;
+		cr;
+		nextPutAll:
+			JadeiteGCIConnectionProfile connectionProfile toolbarServerVersion.
+	workspace text: workspace text , ws contents
+]
+
 { #category : 'initialization' }
 JadeiteToolbarTrait >> addToolbarCommandsTo: aGroup [
 
@@ -87,18 +120,11 @@ JadeiteToolbarTrait >> existingBrowser [
 { #category : 'actions' }
 JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
-	| workspace ws |
+	| workspace |
 	workspace := JadeiteConnectionProfile connectionProfile
 		             gitShaWorkspace.
-	ws := WriteStream on: String new.
-	ws
-		nextPutAll: '---------------------------------------------';
-		cr;
-		nextPutAll: 'Pharo client information:';
-		cr;
-		cr;
-		nextPutAll: Smalltalk jadeitePharoAbout.
-	workspace text: workspace text , ws contents.
+	self addPharoClientInformationTo: workspace.
+	self addServerVersionInformationTo: workspace.
 	workspace hasUnacceptedEdits: false.
 	^ workspace
 ]
