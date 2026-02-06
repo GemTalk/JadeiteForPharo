@@ -326,6 +326,28 @@ JadeiteForPharoConnectionLauncherTestCase >> test_connectDoesNotClearChangeField
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_exportConnectionUsesSelectedItemName [
+
+	| dialog |
+	self
+		testsJadeiteForPharoIssue: #issue385
+		title:
+		'The filename used to save a connection to disk is not preserved when you'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/385'.
+	launcher availableConnectionPresenter selectIndex: 1. "presume it's not empty"
+	fileRef := (FileSystem disk workingDirectoryPath
+	            / launcher availableConnectionPresenter selectedItem)
+		           asFileReference.
+	dialog := self
+		          waitForNew: SpDialogWindowMorph
+		          while: [ launcher exportProfile ].
+	[
+		self
+			assert: dialog model presenter nameText asString
+			equals: fileRef basename ] ensure: [ dialog cancel ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_exportConnectionWontExportDotFiles [
 	"connections beginning with a '.' should not be exported"
 

@@ -144,15 +144,15 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 
 	| profileCopy ws |
 	fileRef basename first = $. ifTrue: [
-		UIManager default alert:
-			'Cannot export profile to file starting with ''.'''.
-		^ self ].
+			UIManager default alert:
+				'Cannot export profile to file starting with ''.'''.
+			^ self ].
 	ws := fileRef writeStream.
 	[
-	profileCopy := JadeiteGCIConnectionProfile new.
-	self populate: profileCopy. "don't want to export the connection"
-	ws nextPutAll: (STON toString: profileCopy).
-	ws flush ] ensure: [ ws close ].
+		profileCopy := JadeiteGCIConnectionProfile new.
+		self populate: profileCopy. "don't want to export the connection"
+		ws nextPutAll: (STON toString: profileCopy).
+		ws flush ] ensure: [ ws close ].
 	self resetChangedTextFields.
 	self basicImportProfileFromFileReference: fileRef
 ]
@@ -959,9 +959,12 @@ JadeiteConnectionLauncher >> stoneText: anObject [
 
 { #category : 'connections' }
 JadeiteConnectionLauncher >> suggestedExportName [
-	"go to the widget which will pickup unsaved changes"
+	"note that we use the underlying morphic widget
+	as the spec presenter won't have unsaved changes"
 
 	| stoneString versionString userString |
+	availableConnectionPresenter selectedItem ifNotNil: [ :sel |
+		^ sel asFileReference basename ].
 	stoneString := stoneText adapter widget text asString.
 	versionString := versionText adapter widget text asString.
 	userString := userText adapter widget text asString.
