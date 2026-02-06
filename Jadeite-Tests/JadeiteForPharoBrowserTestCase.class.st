@@ -1529,6 +1529,49 @@ JadeiteForPharoBrowserTestCase >> test_fileoutPackage [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_fileoutProjectWithInaccessibleDirectory [
+
+	| path dirRef permissions alert fileRef |
+	Smalltalk os isWindows ifTrue: [
+			^ self skip:
+				  'JadeiteForPharoBrowserTestCase>>#test_fileoutProject only runs on linux pharo client (currently)' ].
+
+	self
+		testsJadeiteForPharoIssue: #issue260
+		title:
+		'fileout package creates two files and an extra extension .gs.gs'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/260'.
+
+	dirRef := FileSystem disk workingDirectory / 'test_fileoutProject'.
+	dirRef deleteIfAbsent: [ ].
+	self deny: dirRef exists.
+	dirRef createDirectory.
+
+	path := dirRef pathString.
+	fileRef := dirRef / 'RowanClientServices.gs'.
+	fileRef ensureCreateFile.
+	permissions := FileSystemPermission posixPermissions: 8r444.
+	fileRef permissions: permissions.
+	self
+		selectServiceNamed: 'RowanClientServices'
+		in: self projectListPresenter.
+
+	alert := self waitForNew: AlertDialogWindow while: [
+			         self projectsPresenter
+				         basicFileoutProject:
+				         self projectListPresenter selectedItem
+				         to: fileRef pathString ].
+	[
+		self
+			assert: 'File is not writable. Permissions problem?'
+			equals: alert textMorph text asString.
+		alert ok.
+		self assert: fileRef contents isEmpty ] ensure: [
+			fileRef deleteIfAbsent: [ ].
+			dirRef deleteIfAbsent: [ ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserTestCase >> test_findClass [
 
 	self projectsPresenter
@@ -1897,6 +1940,27 @@ JadeiteForPharoBrowserTestCase >> test_loadProjectDialogDefaults [
 				hitExceptionCount = 4 ifFalse: [
 					ex resume: resumeValues removeFirst ] ].
 	self assert: hitExceptionCount equals: 4
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserTestCase >> test_menuItemEnablementsDoNotError [
+	"open the browsers top row menus. If an enablement selector does not exist, we should get a walkback"
+
+	projectsBrowser window menu menuGroups first menuItems do: [
+			:menuItem |
+			| menuMorph |
+			menuItem subMenu ifNotNil: [
+					menuMorph := menuItem subMenu adapter widget
+						             popUpAt: self currentHand position
+						             forHand: self currentWorld primaryHand
+						             in: self currentWorld
+						             allowKeyboard: true.
+					[
+					menuMorph stayUp: true "for debugging - keep the window active until we delete it" ]
+						ensure: [
+								self assert: menuMorph isMenuMorph.
+								self assert: menuMorph visible.
+								menuMorph delete ] ] ]
 ]
 
 { #category : 'tests' }

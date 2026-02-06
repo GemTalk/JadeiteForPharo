@@ -92,6 +92,19 @@ JadeiteProjectsTrait >> basicCreateProject: projectName [
 ]
 
 { #category : 'actions' }
+JadeiteProjectsTrait >> basicFileoutProject: service to: filePath [
+
+	filePath ifNotNil: [
+			service
+				command: #exportTopazFormatTo:;
+				commandArgs: (Array with: filePath).
+			RowanServiceUpdater current
+				issueCommand: service
+				session: self gciSession
+				onCompletion: [ ] ]
+]
+
+{ #category : 'actions' }
 JadeiteProjectsTrait >> basicPostOpen [
 
 	self updateCurrentProjectPackageInfo.
@@ -219,14 +232,7 @@ JadeiteProjectsTrait >> fileoutProject [
 	| service filePath |
 	service := self projectListPresenter selectedItem.
 	filePath := self fileoutFileSelection: service name , '.gs'.
-	filePath ifNotNil: [
-		service
-			command: #exportTopazFormatTo:;
-			commandArgs: (Array with: filePath).
-		RowanServiceUpdater current
-			issueCommand: service
-			session: self gciSession
-			onCompletion: [  ] ]
+	self basicFileoutProject: service to: filePath
 ]
 
 { #category : 'actions' }
