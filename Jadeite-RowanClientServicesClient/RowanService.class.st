@@ -223,6 +223,17 @@ RowanService >> debugPrintString [
 	^ws contents
 ]
 
+{ #category : 'rsr' }
+RowanService >> displayRSRError: rsrReason [
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'RSR Error in server execution - ';
+		nextPutAll: rsrReason description.
+	self uiManager defer: [ self uiManager alert: ws contents ]
+]
+
 { #category : 'commands' }
 RowanService >> editInSession: aSession window: handle [
 	"api for opening an editor window on a service and putting the oop in the export set for the life of the window"
@@ -250,14 +261,16 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 	promise
 		when: [ :arg | theCompletionBlock value: arg ]
 		catch: [ :value |
-			[
-			RowanServiceUpdater current isLogging ifTrue: [ value traceCr ].
-			(value class canUnderstand: #tag) ifTrue: [
-				value tag = 'rsrProcessTerminated' ifTrue: [
-					RowanServiceUpdater current logComment: 'rsrProcessTerminated' ] ].
-			self terminate: process error: value.
-			self raiseCompileErrorIfNeeded.
-			self catchBlock cull: value ] ensure: [ self inCommand signal ] ]
+				[
+					RowanServiceUpdater current isLogging ifTrue: [ value traceCr ].
+					(value class canUnderstand: #tag) ifTrue: [
+							value tag = 'rsrProcessTerminated'
+								ifTrue: [
+								RowanServiceUpdater current logComment: 'rsrProcessTerminated' ]
+								ifFalse: [ self displayRSRError: value ] ].
+					self terminate: process error: value.
+					self raiseCompileErrorIfNeeded.
+					self catchBlock cull: value ] ensure: [ self inCommand signal ] ]
 ]
 
 { #category : 'rsr' }
