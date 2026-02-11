@@ -31,14 +31,16 @@ JadeiteConsoleApplication >> start [
 
 	| inst windowPresenter |
 	RowanServiceUpdater current critical: [
-		inst := self new: self class jadeiteConsoleClass.
-		inst
-			gciSession: gciSession;
-			installTranscript;
-			updateProjectsOnCompletion: [  ];
-			initializeAutoCommit.
-		self class jadeiteConsoleClass currentConsole: inst.
-		windowPresenter := inst open.
-		self addBorderStyleTo: windowPresenter presenter: inst.
-		inst addStyle: 'jadeiteTextBackgroundColor' ]
+			inst := self new: self class jadeiteConsoleClass.
+			inst
+				gciSession: gciSession;
+				installTranscript;
+				updateProjectsOnCompletion: [ ]
+				catchBlock: [
+					JadeiteConnectionProfile connectionProfile disconnect ];
+				initializeAutoCommit.
+			self class jadeiteConsoleClass currentConsole: inst.
+			windowPresenter := inst open.
+			self addBorderStyleTo: windowPresenter presenter: inst.
+			inst addStyle: 'jadeiteTextBackgroundColor' ]
 ]

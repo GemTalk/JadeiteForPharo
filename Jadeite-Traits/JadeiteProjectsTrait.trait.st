@@ -842,17 +842,24 @@ JadeiteProjectsTrait >> unsetCurrentProject [
 { #category : 'actions' }
 JadeiteProjectsTrait >> updateProjectsOnCompletion: completionBlock [
 
+	self updateProjectsOnCompletion: completionBlock catchBlock: [ ]
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> updateProjectsOnCompletion: completionBlock catchBlock: catchBlock [
+
 	| browserService |
 	browserService := RowanBrowserService new.
 	browserService command: #updateProjects.
+	browserService catchBlock: catchBlock.
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session: self gciSession
 		onCompletion: [
-			(self areProjectsInSync: browserService projects) ifFalse: [
-				self projectListPresenter items:
-					(self sortedFrom: browserService projects).
-				self projectListUpdated ].
-			self basicPostOpen.
-			completionBlock value ]
+				(self areProjectsInSync: browserService projects) ifFalse: [
+						self projectListPresenter items:
+							(self sortedFrom: browserService projects).
+						self projectListUpdated ].
+				self basicPostOpen.
+				completionBlock value ]
 ]

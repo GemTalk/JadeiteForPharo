@@ -4,11 +4,24 @@ Class {
 	#instVars : [
 		'inCommand',
 		'serviceCompletionBlock',
-		'compileErrorHandler'
+		'compileErrorHandler',
+		'catchBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanBrowserServiceClient >> catchBlock [
+
+	^ catchBlock ifNil: [ super catchBlock ]
+]
+
+{ #category : 'accessing' }
+RowanBrowserServiceClient >> catchBlock: anObject [
+
+	catchBlock := anObject
+]
 
 { #category : 'accessing' }
 RowanBrowserServiceClient >> compileErrorHandler: anObject [

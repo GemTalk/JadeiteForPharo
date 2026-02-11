@@ -287,9 +287,9 @@ JadeiteConnectionLauncher >> connect [
 
 	self populateConnectionProfile.
 	[
-		self connectionProfile connect ifFalse: [ ^ self ].
-		self gciSession: GciSession current.
-		self updateCaption ]
+		self connectionProfile connectWithPostConnect: [
+				self gciSession: GciSession current.
+				self updateCaption ] ]
 		on: Error
 		do: [ :ex |
 				| ws |
