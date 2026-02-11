@@ -339,7 +339,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_exportConnectionUsesSelectedIt
 	            / launcher availableConnectionPresenter selectedItem)
 		           asFileReference.
 	dialog := self
-		          waitForNew: SpDialogWindowMorph
+		          waitForNewPresenter: SpDialogWindowMorph
 		          while: [ launcher exportProfile ].
 	[
 		self
@@ -480,6 +480,18 @@ JadeiteForPharoConnectionLauncherTestCase >> test_importedConnectionsJustACollec
 	Now, we create and throw away ListModel's as they are created."
 
 	launcher class importedConnections isKindOf: SortedCollection
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_loginFailsProjectServiceOutOfSync [
+	"create a scenario where the inst vars of RowanProjectService in the client don't match the server.
+	If this fails, make sure to restore RowanProjectService's structure otherwise all subsequent logins will fail"
+
+	RowanProjectService removeInstVarNamed: 'canBeWritten'.
+	[
+		[ JadeiteConnectionLauncher soleInstance presenter connect ] fork.
+		self assertAlertDialogProvideAnswerTextMatches: '*RSR Error*' ]
+		ensure: [ RowanProjectService addInstVarNamed: 'canBeWritten' ]
 ]
 
 { #category : 'tests' }

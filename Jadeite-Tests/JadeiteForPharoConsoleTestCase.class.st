@@ -62,7 +62,7 @@ JadeiteForPharoConsoleTestCase >> test_auditProjects [
 		^ self skip: 'no projects unless rowan present' ].
 	jadeiteShell projectListPresenter selectIndex: 1.
 	auditResults := self
-		                waitForNew: JadeiteWorkspace
+		                waitForNewPresenter: JadeiteWorkspace
 		                while: [ jadeiteShell auditProjects ].
 	self assert: auditResults window isOpen.
 	self assert: auditResults isKindOf: JadeiteWorkspace.
@@ -88,7 +88,7 @@ Just select everything and assert the selection index changed."
 JadeiteForPharoConsoleTestCase >> test_browseClassReferences [
 
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [
 		                     jadeiteShell browseClassReferences:
 			                     'RowanCommandResult' ].
@@ -123,7 +123,7 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 	RowanServiceUpdater uninstallTestUpdater.
 
 	projectsPresenter := self
-		                   waitForNew: JadeiteBrowser browserPresenterClass
+		                   waitForNewPresenter: JadeiteBrowser browserPresenterClass
 		                   while: [ jadeiteShell findClassNamed: 'Object' ].
 	projectsBrowser := projectsPresenter parentPresenter.
 	sem := Semaphore new.

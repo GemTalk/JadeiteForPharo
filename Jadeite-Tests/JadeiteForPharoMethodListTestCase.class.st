@@ -527,7 +527,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 	self methodSourcePresenter text: 'answer3
 ^#answer3'.
 	newCompiledMethodBrowser := self
-		                            waitForNew: JadeiteMethodListPresenter
+		                            waitForNewPresenter: JadeiteMethodListPresenter
 		                            while: [
 		                            methodListBrowser editSaveMethod ].
 	[
@@ -566,7 +566,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 ^#answer3'.
 	self methodSourcePresenter text: newMethodSource.
 	newCompiledMethodBrowser := self
-		                            waitForNew: JadeiteMethodListPresenter
+		                            waitForNewPresenter: JadeiteMethodListPresenter
 		                            while: [
 		                            methodListBrowser editSaveMethod ].
 	[

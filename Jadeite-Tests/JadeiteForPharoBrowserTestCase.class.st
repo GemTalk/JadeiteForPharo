@@ -1558,7 +1558,7 @@ JadeiteForPharoBrowserTestCase >> test_fileoutProjectWithInaccessibleDirectory [
 		selectServiceNamed: 'RowanClientServices'
 		in: self projectListPresenter.
 
-	alert := self waitForNew: AlertDialogWindow while: [
+	alert := self waitForNewPresenter: AlertDialogWindow while: [
 			         self projectsPresenter
 				         basicFileoutProject:
 				         self projectListPresenter selectedItem
@@ -1741,7 +1741,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
 	editor := widget scrollPane textArea editor.
 	self methodSourcePresenter adapter widget selectFrom: 82 to: 82. "On RowanCommandResult"
 	secondPresenter := self
-		                   waitForNew: JadeiteBrowser
+		                   waitForNewPresenter: JadeiteBrowser
 		                   while: [ editor browseIt: nil ].
 	sem := Semaphore new.
 	[
@@ -1773,7 +1773,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyImplementors [
 	editor := widget scrollPane textArea editor.
 	self methodSourcePresenter adapter widget selectFrom: 69 to: 69. "On update message"
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [ editor implementorsOfIt: nil ].
 	self
 		assert: methodListBrowser methodListPresenter selectedItem selector
@@ -1803,7 +1803,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingClass [
 	editor := widget scrollPane textArea editor.
 	self methodSourcePresenter adapter widget selectFrom: 67 to: 67.
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [ editor methodStringsContainingIt: nil ].
 	self assert: ('*Methods Containing ''SortedCollection'' for*' match:
 			 methodListBrowser window title)
@@ -1830,7 +1830,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingMessage [
 	editor := widget scrollPane textArea editor.
 	self methodSourcePresenter adapter widget selectFrom: 100 to: 100.
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [ editor methodStringsContainingIt: nil ].
 	self assert: ('*Methods Containing ''userWithId:'' for*' match:
 			 methodListBrowser window title)
@@ -1857,7 +1857,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingSymbol [
 	editor := widget scrollPane textArea editor.
 	self methodSourcePresenter adapter widget selectFrom: 113 to: 113.
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [ editor methodStringsContainingIt: nil ].
 	self assert: ('*Methods Containing ''SymbolUser'' for*' match:
 			 methodListBrowser window title)
@@ -1881,7 +1881,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeySenders [
 	editor := widget scrollPane textArea editor.
 	self methodSourcePresenter adapter widget selectFrom: 69 to: 69. "On update message"
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [ editor sendersOfIt: nil ].
 	self assert:
 		('*Senders of ''update'' for*' match: methodListBrowser window title)
@@ -2038,7 +2038,7 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 		equals: 'methodWithoutVar'.
 	self assert: self classListPresenter selectedItem version equals: 1.
 	failedMethodPresenter := self
-		                         waitForNew:
+		                         waitForNewPresenter:
 		                         JadeiteFailedCompileMethodListPresenter
 		                         while: [
 			                         self
@@ -2095,7 +2095,7 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarRemoved [
 		equals: 'abc:'.
 	self assert: self classListPresenter selectedItem version equals: 1.
 	failedMethodPresenter := self
-		                         waitForNew:
+		                         waitForNewPresenter:
 		                         JadeiteFailedCompileMethodListPresenter
 		                         while: [
 			                         self
@@ -2167,7 +2167,7 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassInstVa
 	self assert: self classListPresenter selectedItem version equals: 1.
 	self projectsPresenter selectClassNamed: superclassName.
 	failedMethodPresenter := self
-		                         waitForNew:
+		                         waitForNewPresenter:
 		                         JadeiteFailedCompileMethodListPresenter
 		                         while: [
 			                         self
@@ -2232,7 +2232,7 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationSuperClassInstVa
 	self assert: self classListPresenter selectedItem version equals: 1.
 	self projectsPresenter selectClassNamed: superclassName.
 	failedMethodPresenter := self
-		                         waitForNew:
+		                         waitForNewPresenter:
 		                         JadeiteFailedCompileMethodListPresenter
 		                         while: [
 			                         self
@@ -2492,7 +2492,7 @@ JadeiteForPharoBrowserTestCase >> test_recompileMethodsErrorAfterClassCompile [
 	category: ''RowanSample1-Core''
 	options: #()'.
 	dialog := self
-		          waitForNew: AlertDialogWindow
+		          waitForNewPresenter: AlertDialogWindow
 		          while: [ self projectsPresenter editSaveClass ].
 	dialog close.
 	self
@@ -2549,7 +2549,7 @@ JadeiteForPharoBrowserTestCase >> test_renameClassWhileSelectedInSUnitBrowser [
 		assert: self projectsPresenter selectedClass name
 		equals: 'RowanSample1Test'.
 	self
-		waitForNew: JadeiteSUnitPresenter
+		waitForNewPresenter: JadeiteSUnitPresenter
 		while: [ sunitBrowser := self openSUnitBrowser ].
 	[
 		sem := Semaphore new.

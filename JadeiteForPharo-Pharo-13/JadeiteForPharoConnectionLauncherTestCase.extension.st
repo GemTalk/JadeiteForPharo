@@ -110,7 +110,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_nilShareVarOpenClientLibButton
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/362'.
 	JadeiteGCIConnectionProfile clientLibrariesPath: nil. "will be restored in teardown."
 	dialog := self
-		          waitForNew: SpDialogWindowMorph
+		          waitForNewPresenter: SpDialogWindowMorph
 		          while: [
 		          launcher setClientLibrariesPathButton performAction ].
 	[ self assert: (dialog isKindOf: SpDialogWindowMorph) ] ensure: [

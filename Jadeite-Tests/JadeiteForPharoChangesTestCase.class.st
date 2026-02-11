@@ -32,7 +32,7 @@ JadeiteForPharoChangesTestCase >> setUp [
 	self methodSourcePresenter text: 'foo  ^''instance side'''.
 	self projectsPresenter editSaveMethod.
 	changesBrowser := self
-		                  waitForNew: JadeiteChangesBrowser
+		                  waitForNewPresenter: JadeiteChangesBrowser
 		                  while: [ self projectsPresenter projectChanges ]
 ]
 
