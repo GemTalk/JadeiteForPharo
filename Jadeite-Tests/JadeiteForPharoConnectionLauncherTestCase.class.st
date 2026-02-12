@@ -400,7 +400,8 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 	JadeitePreferences isRowanAvailable ifFalse: [
 		^ self skip: 'Rowan not available. Test not run' ].
 	JadeiteConnectionProfile connectionProfile isConnected ifFalse: [
-		JadeiteConnectionProfile connectionProfile connect ].
+		JadeiteConnectionProfile connectionProfile connectWithPostConnect: [
+			 ] ].
 	workspace := launcher openCommitIdWindow. "will set workspace variable"
 
 	jfpSha := (IceRepository registry detect: [ :ea |
@@ -439,6 +440,90 @@ All loaded projects:*'.
 				workspaceString := workspace text asString.
 				self assert: (desiredWorkspaceText match: workspaceString).
 				self destroy: workspace ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayInvalidLogin [
+
+	| contents |
+	self
+		testsJadeiteForPharoIssue: #issue389
+		title:
+		'Getting shas when disconnected fails if gci can''t establish a session'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/389'.
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan not available. Test not run' ].
+
+	launcher stoneText adapter widget setText: 'nonExistantStone'.
+	workspace := launcher openCommitIdWindow.
+	contents := workspace text.
+	[
+		self assert:
+			('*<Unable to login to gemstone. Cannot get server information>*'
+				 match: contents).
+		self assert:
+			('*GemStone server information:*<not logged in>*' match: contents) ]
+		ensure: [ self destroy: workspace ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayNoClientLibs [
+
+	| contents |
+	self
+		testsJadeiteForPharoIssue: #issue389
+		title:
+		'Getting shas when disconnected fails if gci can''t establish a session'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/389'.
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan not available. Test not run' ].
+
+	launcher pathText adapter widget setText: 'notavaliddirectory'.
+	workspace := launcher openCommitIdWindow.
+	contents := workspace text.
+	[
+		self assert:
+			('*<Unable to login to gemstone. Cannot get server information>
+Error Message: <FileDoesNotExistException ''notavaliddirectory*'
+				 match: contents).
+		self assert:
+			('*GemStone server information:*<not logged in>*' match: contents) ]
+		ensure: [ self destroy: workspace ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayValidLoginAfterInvalidLogin [
+
+	| contents stone |
+	self
+		testsJadeiteForPharoIssue: #issue389
+		title:
+		'Getting shas when disconnected fails if gci can''t establish a session'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/389'.
+
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'Rowan not available. Test not run' ].
+	stone := launcher stoneText adapter widget text asString copy.
+	launcher stoneText adapter widget setText: 'nonExistantStone'.
+	workspace := launcher openCommitIdWindow.
+	contents := workspace text.
+	[
+		self assert:
+			('*<Unable to login to gemstone. Cannot get server information>*'
+				 match: contents).
+		self assert:
+			('*GemStone server information:*<not logged in>*' match: contents).
+		self destroy: workspace.
+		launcher stoneText adapter widget setText: stone.
+		launcher connect.
+		launcher disconnect.
+		workspace := launcher openCommitIdWindow.
+		contents := workspace text.
+			self assert: ('*RowanClientServices*' match: contents). 
+			self assert: ('*All loaded projects:*' match: contents).
+			self assert: ('*GemStone server information:*nodeName*osName*processId*' match: contents).  ] ensure: [ self destroy: workspace ]
 ]
 
 { #category : 'tests' }
@@ -554,7 +639,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_switchConnectionsWhileConnecte
 
 	| selectedConnection |
 	launcher connectionProfile isConnected ifFalse: [
-		launcher connect "assume launcher has correct connection" ].
+		RowanServiceUpdater current critical: [ launcher connect ] ].
 	self deny: launcher connectButton isEnabled.
 	self assert: launcher disconnectButton isEnabled.
 	self denyIsNil: JadeiteConsole currentConsole.
@@ -579,13 +664,13 @@ JadeiteForPharoConnectionLauncherTestCase >> test_switchConnectionsWhileConnecte
 
 	"Disconnecting should still work even if the connection list has a different selection "
 	[
-	launcher disconnect.
-	self assert: launcher connectButton isEnabled.
-	self deny: launcher disconnectButton isEnabled.
-	self assertIsNil: JadeiteConsole currentConsole ] ensure: [
-		self deleteTestConnectionFile.
-		launcher availableConnectionPresenter model remove:
-			selectedConnection ]
+		launcher disconnect.
+		self assert: launcher connectButton isEnabled.
+		self deny: launcher disconnectButton isEnabled.
+		self assertIsNil: JadeiteConsole currentConsole ] ensure: [
+			self deleteTestConnectionFile.
+			launcher availableConnectionPresenter model remove:
+				selectedConnection ]
 ]
 
 { #category : 'tests' }

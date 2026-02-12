@@ -177,6 +177,14 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 ]
 
 { #category : 'actions' }
+JadeiteGCIConnectionProfile >> connect [
+	"tests only"
+
+	RowanServiceUpdater current critical: [
+		self connectWithPostConnect: [ ] ]
+]
+
+{ #category : 'actions' }
 JadeiteGCIConnectionProfile >> connectWithPostConnect: postConnectBlock [
 	"initialize gci library"
 
