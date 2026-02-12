@@ -238,14 +238,6 @@ JadeiteGCIConnectionProfile >> gciCommitIds [
 ]
 
 { #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> gitShaWorkspace [
-
-	^ session
-		  ifNil: [ self serverCommitIdsUsingGci ]
-		  ifNotNil: [ self serverCommitIdsUsingServices ]
-]
-
-{ #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> gitShaWorkspace: workspacePresenter using: serverCommitIds [
 	"need to be able to open a git commit id workspace
 	with gci and services. Services requires it be done
@@ -263,6 +255,14 @@ JadeiteGCIConnectionProfile >> gitShaWorkspace: workspacePresenter using: server
 	workspace text: ws contents.
 	workspace hasUnacceptedEdits: false.
 	^ workspace
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> gitShaWorkspaceUsing: launcher [
+
+	^ session
+		  ifNil: [ self serverCommitIdsUsingGciUsing: launcher ]
+		  ifNotNil: [ self serverCommitIdsUsingServices ]
 ]
 
 { #category : 'testing' }
@@ -289,13 +289,13 @@ JadeiteGCIConnectionProfile >> loginErrorMessage: errorMessage [
 	| ws |
 	ws := WriteStream on: String new.
 	ws
-		nextPutAll: '<Unable to login to stone ';
-		nextPutAll: stone;
-		nextPutAll: '. Cannot get server project commitIds>';
+		nextPutAll:
+			'<Unable to login to gemstone. Cannot get server information>';
 		cr;
 		nextPutAll: 'Error Message: <';
 		nextPutAll: errorMessage;
-		nextPut: $>.
+		nextPut: $>;
+		cr.
 	^ ws contents
 ]
 
@@ -342,36 +342,47 @@ JadeiteGCIConnectionProfile >> port: anObject [
 ]
 
 { #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
+JadeiteGCIConnectionProfile >> serverCommitIdsUsingGciUsing: launcherWindow [
+	"commit ids"
+
 	"must be logged out.
 	Try to handle the gci hanging or getting an error during login
 	and give the user a reasonable error message. "
 
-	| commitIdString sem proc loggedIn errorMessage |
+	| commitIdString sem proc loggedIn errorMessage launcher |
+	launcher := launcherWindow presenter.
 	sem := Semaphore new.
-	GciInterface libraryDirectory: self path.
-	session := GsSession
-		           newForGsVersion: version
-		           threadSafe: true
-		           stone: stone
-		           host: host
-		           netldi: netldi.
+	GciInterface clearLibraryDirectory.
+	SessionManager default unregisterClassNamed: 'GsSession'.
+	GciInterface libraryDirectory: launcher unsavedPath.
+
 	loggedIn := false.
 	proc := [
 		        [
-			        session loginWithGsUser: user password: password.
+			        session := GsSession
+				                   newForGsVersion: launcher unsavedVersion
+				                   threadSafe: true
+				                   stone: launcher unsavedStone
+				                   host: launcher unsavedHost
+				                   netldi: launcher unsavedNetldi.
+			        session
+				        loginWithGsUser: launcher unsavedUser
+				        password: launcher unsavedPassword.
 			        loggedIn := true.
 			        sem signal ]
-			        on: GciError
+			        on: Error
 			        do: [ :ex |
-					        errorMessage := ex messageText.
+					        errorMessage := ex class name , ' ' , ex messageText.
 					        sem signal ] ] fork.
-	(sem waitTimeoutSeconds: 5) ifTrue: [ proc terminate ].
-	commitIdString := loggedIn
-		                  ifTrue: [ self gciCommitIds ]
-		                  ifFalse: [ self loginErrorMessage: errorMessage ].
-	session logoutNbNoError.
-	session := nil.
+	(sem waitTimeoutSeconds: 3) ifTrue: [ proc terminate ].
+
+	loggedIn
+		ifTrue: [
+				commitIdString := self gciCommitIds.
+				session logoutNbNoError.
+				session := nil ]
+		ifFalse: [ commitIdString := self loginErrorMessage: errorMessage ].
+
 	^ self
 		  gitShaWorkspace: JadeiteGitShaWorkspaceApplication show
 		  using: commitIdString
@@ -501,7 +512,7 @@ JadeiteGCIConnectionProfile >> stone: anObject [
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile >> toolbarServerVersion [
 
-	^ toolbarServerVersion ifNil: [ toolbarServerVersion := String new ]
+	^ toolbarServerVersion
 ]
 
 { #category : 'accessing' }

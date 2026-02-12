@@ -1003,6 +1003,48 @@ JadeiteConnectionLauncher >> toggleFullPathDisplay [
 	availableConnectionPresenter invalidate. 
 ]
 
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedHost [
+
+	^ hostText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedNetldi [
+
+	^ netldiText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedPassword [
+
+	^ passwordText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedPath [
+
+	^ pathText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedStone [
+
+	^ stoneText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedUser [
+
+	^ userText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedVersion [
+
+	^ versionText adapter widget text asString
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> updateCaption [
 
