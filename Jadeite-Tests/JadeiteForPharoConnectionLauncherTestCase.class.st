@@ -443,6 +443,38 @@ All loaded projects:*'.
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayError [
+	"rig up a failure getting shas and make sure we gracefully handle it"
+
+	| contents originalSource senders senderSelectors |
+	self
+		testsJadeiteForPharoIssue: #issue389
+		title:
+		'Getting shas when disconnected fails if gci can''t establish a session'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/389'.
+
+	senders := SystemNavigation default allSendersOf:
+		           #commitIdServerInfoCode.
+	senderSelectors := senders collect: [ :method | method selector ].
+	self assert: (senderSelectors includes: #gciCommitIds).
+	originalSource := JadeiteGCIConnectionProfile sourceCodeAt:
+		                  #commitIdServerInfoCode.
+	JadeiteGCIConnectionProfile compile: 'commitIdServerInfoCode
+
+	^  self jfpSendBadMessage  "sent from gciCommitIds - #test_gitVersionDisplayError compiled this code"'.
+
+	workspace := launcher openCommitIdWindow.
+	contents := workspace text.
+	[
+		self assert: ('*<Error getting server information through gci>
+Error Message: <Message not understood: JadeiteGCIConnectionProfile >> #jfpSendBadMessage>*'
+				 match: contents).
+		self destroy: workspace ] ensure: [
+			self destroy: workspace.
+			JadeiteGCIConnectionProfile compile: originalSource ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayInvalidLogin [
 
 	| contents |

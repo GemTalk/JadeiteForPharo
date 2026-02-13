@@ -235,14 +235,25 @@ JadeiteGCIConnectionProfile >> fromSton: stonReader [
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> gciCommitIds [
 
-	self toolbarServerVersion:
-		(session gciInterface executeStringAndFetchResultString:
-			 self commitIdServerInfoCode).
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [
-				  session gciInterface executeStringAndFetchResultString:
-					  self commitIdServerCode ]
-		  ifFalse: [ 'Rowan not available' ]
+	[
+		self toolbarServerVersion:
+			(session gciInterface executeStringAndFetchResultString:
+				 self commitIdServerInfoCode).
+		^ JadeitePreferences isRowanLoaded
+			  ifTrue: [
+					  session gciInterface executeStringAndFetchResultString:
+						  self commitIdServerCode ]
+			  ifFalse: [ 'Rowan not available' ] ]
+		on: Error
+		do: [ :ex |
+				| errorStream |
+				errorStream := WriteStream on: String new.
+				errorStream
+					nextPutAll: '<Error getting server information through gci>';
+					cr;
+					nextPutAll: 'Error Message: <' , ex messageText , '>';
+					cr.
+				^ errorStream contents ]
 ]
 
 { #category : 'commit ids' }
