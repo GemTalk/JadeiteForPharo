@@ -553,8 +553,9 @@ JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 		equals: Smalltalk ui theme jadeiteBackgroundColor.
 	self assertIsNil: sunitBrowser testResults.
 	sunitBrowser testSemaphore: Semaphore new.
-	sunitBrowser basicRunSelected.
+	[sunitBrowser basicRunSelected] fork. 
 	sunitBrowser testSemaphore waitTimeoutMilliseconds: 750.
+	WorldMorph doOneCycle. 
 	self assert:
 		('1 run, 1 passed, 0 failures, 0 errors, *seconds' match:
 			 sunitBrowser textResultPresenter text).
