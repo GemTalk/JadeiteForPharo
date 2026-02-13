@@ -459,7 +459,7 @@ JadeiteSUnitBrowserPresenter >> resetStatusBarColor [
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> setColorFor: aJadeTestResult [
 
-	self owner owner statusBarText: aJadeTestResult summary.
+	self browserPresenter statusBarText: aJadeTestResult summary.
 	self setStatusColorTo: aJadeTestResult backgroundColor
 ]
 

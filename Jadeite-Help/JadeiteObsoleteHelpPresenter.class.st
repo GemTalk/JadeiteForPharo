@@ -1,9 +1,9 @@
 "
-Not functional yet.
-To continue development - JadeiteHelpBrowser new open
+Obsolete presenter that displayed the jadeitehelp.md file. 
+Superseded by a link to web help. 
 "
 Class {
-	#name : 'JadeiteHelpPresenter',
+	#name : 'JadeiteObsoleteHelpPresenter',
 	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'contentsPresenter'
@@ -13,57 +13,57 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteHelpPresenter >> contentsPresenter [
+JadeiteObsoleteHelpPresenter >> contentsPresenter [
 
 	^ contentsPresenter
 ]
 
 { #category : 'accessing' }
-JadeiteHelpPresenter >> contentsPresenter: anObject [
+JadeiteObsoleteHelpPresenter >> contentsPresenter: anObject [
 
 	contentsPresenter := anObject
 ]
 
 { #category : 'constants' }
-JadeiteHelpPresenter >> defaultHelpCssFile [
+JadeiteObsoleteHelpPresenter >> defaultHelpCssFile [
 
 	^ 'jadeitehelp.css'
 ]
 
 { #category : 'constants' }
-JadeiteHelpPresenter >> defaultHelpHtmlFile [
+JadeiteObsoleteHelpPresenter >> defaultHelpHtmlFile [
 
 	^ 'jadeitehelp.md'
 ]
 
 { #category : 'constants' }
-JadeiteHelpPresenter >> defaultHelpMarkdownFile [
+JadeiteObsoleteHelpPresenter >> defaultHelpMarkdownFile [
 
 	^ 'jadeitehelp.md'
 ]
 
 { #category : 'defaults' }
-JadeiteHelpPresenter >> defaultLayout [ 
+JadeiteObsoleteHelpPresenter >> defaultLayout [ 
 
 	^SpBoxLayout newVertical
 ]
 
 { #category : 'actions' }
-JadeiteHelpPresenter >> displayCssFileMissingMessage [
+JadeiteObsoleteHelpPresenter >> displayCssFileMissingMessage [
 
 	MessageBox notify:
 		'jadeitehelp.css file not found in pharo working directory. Help displayed in plain text'
 ]
 
 { #category : 'actions' }
-JadeiteHelpPresenter >> displayHtmlFileMissingMessage [
+JadeiteObsoleteHelpPresenter >> displayHtmlFileMissingMessage [
 
 	contentsPresenter documentFromString:
 		'jadeitehelp.html file not found in pharo working directory'
 ]
 
 { #category : 'initialization' }
-JadeiteHelpPresenter >> initializePresenters [
+JadeiteObsoleteHelpPresenter >> initializePresenters [
 
 	| box |
 	super initializePresenters.
@@ -74,7 +74,7 @@ JadeiteHelpPresenter >> initializePresenters [
 ]
 
 { #category : 'initialization' }
-JadeiteHelpPresenter >> initializeWindow: aWindowPresenter [
+JadeiteObsoleteHelpPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter initialExtent:
@@ -83,13 +83,13 @@ JadeiteHelpPresenter >> initializeWindow: aWindowPresenter [
 ]
 
 { #category : 'constants' }
-JadeiteHelpPresenter >> shellName [
+JadeiteObsoleteHelpPresenter >> shellName [
 
 	^ 'Jadeite Help Browser'
 ]
 
 { #category : 'initialization' }
-JadeiteHelpPresenter >> updatePresenter [
+JadeiteObsoleteHelpPresenter >> updatePresenter [
 
 	| md |
 	super updatePresenter.

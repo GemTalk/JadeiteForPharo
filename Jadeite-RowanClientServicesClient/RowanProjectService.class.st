@@ -167,7 +167,7 @@ RowanProjectService >> branch: anObject [
 { #category : 'accessing' }
 RowanProjectService >> canBeWritten [
 
-	^ canBeWritten
+	^ canBeWritten ifNil: [ canBeWritten := false ]
 ]
 
 { #category : 'accessing' }

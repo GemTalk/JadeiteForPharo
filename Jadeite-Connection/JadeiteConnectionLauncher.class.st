@@ -144,15 +144,15 @@ JadeiteConnectionLauncher >> basicExportProfile: fileRef [
 
 	| profileCopy ws |
 	fileRef basename first = $. ifTrue: [
-		UIManager default alert:
-			'Cannot export profile to file starting with ''.'''.
-		^ self ].
+			UIManager default alert:
+				'Cannot export profile to file starting with ''.'''.
+			^ self ].
 	ws := fileRef writeStream.
 	[
-	profileCopy := JadeiteGCIConnectionProfile new.
-	self populate: profileCopy. "don't want to export the connection"
-	ws nextPutAll: (STON toString: profileCopy).
-	ws flush ] ensure: [ ws close ].
+		profileCopy := JadeiteGCIConnectionProfile new.
+		self populate: profileCopy. "don't want to export the connection"
+		ws nextPutAll: (STON toString: profileCopy).
+		ws flush ] ensure: [ ws close ].
 	self resetChangedTextFields.
 	self basicImportProfileFromFileReference: fileRef
 ]
@@ -287,9 +287,9 @@ JadeiteConnectionLauncher >> connect [
 
 	self populateConnectionProfile.
 	[
-		self connectionProfile connect ifFalse: [ ^ self ].
-		self gciSession: GciSession current.
-		self updateCaption ]
+		self connectionProfile connectWithPostConnect: [
+				self gciSession: GciSession current.
+				self updateCaption ] ]
 		on: Error
 		do: [ :ex |
 				| ws |
@@ -697,7 +697,7 @@ JadeiteConnectionLauncher >> initializeToolsMenu [
 			  group addItem: [ :item |
 				  item
 					  name: 'Jadeite Help';
-					  action: [ self openJadeiteHelpFile ] ] ] yourself
+					  action: [ self openJadeiteHelpWebPage ] ] ] yourself
 ]
 
 { #category : 'initialization' }
@@ -959,9 +959,12 @@ JadeiteConnectionLauncher >> stoneText: anObject [
 
 { #category : 'connections' }
 JadeiteConnectionLauncher >> suggestedExportName [
-	"go to the widget which will pickup unsaved changes"
+	"note that we use the underlying morphic widget
+	as the spec presenter won't have unsaved changes"
 
 	| stoneString versionString userString |
+	availableConnectionPresenter selectedItem ifNotNil: [ :sel |
+		^ sel asFileReference basename ].
 	stoneString := stoneText adapter widget text asString.
 	versionString := versionText adapter widget text asString.
 	userString := userText adapter widget text asString.
@@ -998,6 +1001,48 @@ JadeiteConnectionLauncher >> toggleFullPathDisplay [
 
 	displayFullPath := displayFullPath not.
 	availableConnectionPresenter invalidate. 
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedHost [
+
+	^ hostText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedNetldi [
+
+	^ netldiText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedPassword [
+
+	^ passwordText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedPath [
+
+	^ pathText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedStone [
+
+	^ stoneText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedUser [
+
+	^ userText adapter widget text asString
+]
+
+{ #category : 'morphic widget texts' }
+JadeiteConnectionLauncher >> unsavedVersion [
+
+	^ versionText adapter widget text asString
 ]
 
 { #category : 'actions' }

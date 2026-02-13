@@ -140,7 +140,7 @@ JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 	backupPath := JadePresenter lastFilePath.
 	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSelectorDialog
+		              waitForNewPresenter: JadeiteServerFileSelectorDialog
 		              while: [ self console openServerFile ].
 	[
 		fileSelector := fileDialog fileSelectorPresenter.
@@ -166,7 +166,7 @@ JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 		inaccessibleFile := fileSelector directoryContentsList list detect: [
 			                    :assoc | assoc key = self inaccessibleFileName ].
 		fileSelector directoryContentsList selectItem: inaccessibleFile.
-		alert := self waitForNew: AlertDialogWindow while: [
+		alert := self waitForNewPresenter: AlertDialogWindow while: [
 				         fileDialog window
 					         beOk;
 					         triggerOkAction ].
@@ -222,7 +222,7 @@ testingFileinIssuePleaseIgnore
 	[
 	self assert: fileRef exists.
 	alertDialog := self
-		               waitForNew: AlertDialogWindow
+		               waitForNewPresenter: AlertDialogWindow
 		               while: [
 		               projectsBrowser basicFileInServerFile: fileName ].
 	self assert:
@@ -245,7 +245,7 @@ JadeiteForPharoFileTestCase >> test_fileSaveInitialPath [
 		             'Jade Workspace - Test Initial Save Path'.
 	[
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSaveDialog
+		              waitForNewPresenter: JadeiteServerFileSaveDialog
 		              while: [ workspace saveServerFileAs ].
 	self
 		assert: fileDialog fileSelectorPresenter pathText text
@@ -258,7 +258,7 @@ JadeiteForPharoFileTestCase >> test_fileSaveInitialPath [
 
 	JadePresenter lastFilePath: FileLocator home pathString.
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSaveDialog
+		              waitForNewPresenter: JadeiteServerFileSaveDialog
 		              while: [ workspace saveServerFileAs ].
 	self
 		assert: fileDialog fileSelectorPresenter pathText text
@@ -279,7 +279,7 @@ JadeiteForPharoFileTestCase >> test_fileSelectInitialPath [
 	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
 	[
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSelectorDialog
+		              waitForNewPresenter: JadeiteServerFileSelectorDialog
 		              while: [ self console openServerFile ].
 	self
 		assert: fileDialog fileSelectorPresenter pathText text
@@ -291,7 +291,7 @@ JadeiteForPharoFileTestCase >> test_fileSelectInitialPath [
 
 	JadePresenter lastFilePath: FileLocator home pathString.
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSelectorDialog
+		              waitForNewPresenter: JadeiteServerFileSelectorDialog
 		              while: [ self console openServerFile ].
 	self
 		assert: fileDialog fileSelectorPresenter pathText text
@@ -319,7 +319,7 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
 	workspace := (JadeiteWorkspace showOnSession: session) caption:
 		             'Jade Workspace - test_lastFilePathOnSave'.
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSaveDialog
+		              waitForNewPresenter: JadeiteServerFileSaveDialog
 		              while: [ workspace saveServerFile ].
 	tempDir := fileDialog fileSelectorPresenter directoryContentsList
 		           list detect: [ :assoc | assoc key = self tempDirName ].
@@ -365,7 +365,7 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSelect [
 	workspace := (JadeiteWorkspace showOnSession: session) caption:
 		             'Jade Workspace - lastFilePathOnSelect'.
 	fileDialog := self
-		              waitForNew: JadeiteServerFileSelectorDialog
+		              waitForNewPresenter: JadeiteServerFileSelectorDialog
 		              while: [ workspace openServerFile ].
 	tempDir := fileDialog fileSelectorPresenter directoryContentsList
 		           list detect: [ :assoc | assoc key = self tempDirName ].

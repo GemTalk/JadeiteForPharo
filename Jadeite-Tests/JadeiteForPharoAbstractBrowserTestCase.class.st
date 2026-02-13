@@ -410,7 +410,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowser [
 	self newBrowser.
 	self assert: projectsBrowser tabs pages size equals: 1.
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [
 		                     self projectsPresenter browseImplementorsOf:
 			                     #size: ].

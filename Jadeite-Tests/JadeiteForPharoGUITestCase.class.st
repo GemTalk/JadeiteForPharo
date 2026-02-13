@@ -22,6 +22,28 @@ JadeiteForPharoGUITestCase class >> isAbstract [
 ]
 
 { #category : 'support' }
+JadeiteForPharoGUITestCase >> assertAlertDialogProvideAnswerTextMatches: aString [
+	"alert dialogs can be modal and raised in the morphic gui thread
+	making testing a problem.  The JadeiteTestManager provides a 
+	ProvideAnswerNotification that we can handle to verify if the 
+	message that would have been presented in the dialog is more
+	or less what we expect"
+
+	| dialogs count |
+	count := 0.
+	[
+		(dialogs := self currentWorld windowsSatisfying: [ :each |
+			            each isKindOf: AlertDialogWindow ]) isEmpty and: [
+			count < 10 ] ] whileTrue: [
+			count := count + 1.
+			(Delay forMilliseconds: 10) wait.
+			[ WorldMorph doOneCycle ]
+				on: ProvideAnswerNotification
+				do: [ :ex | ^ self assert: ('*RSR Error*' match: ex messageText) ] ].
+	self error: 'ProvideAnswerNotification not signaled'
+]
+
+{ #category : 'support' }
 JadeiteForPharoGUITestCase >> assertTextPaneResetFor: presenter [
 
 	| text |
@@ -335,12 +357,20 @@ JadeiteForPharoGUITestCase >> waitForFileOperationSemaphore [
 JadeiteForPharoGUITestCase >> waitForMethodListBrowserWhile: aBlock [
 
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: aBlock
 ]
 
 { #category : 'support' }
-JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
+JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
+
+	projectsBrowser := self
+		                   waitForNewPresenter: JadeiteBrowser browserClass
+		                   while: aBlock
+]
+
+{ #category : 'support' }
+JadeiteForPharoGUITestCase >> waitForNewPresenter: presenterClass while: aBlock [
 
 	| existing new count |
 	RsrGarbageCollector maximumReclamation.
@@ -360,14 +390,6 @@ JadeiteForPharoGUITestCase >> waitForNew: presenterClass while: aBlock [
 		description: presenterClass printString , ' was not opened!'.
 	new isEmpty ifTrue: [ ^ nil ].
 	^ new first
-]
-
-{ #category : 'support' }
-JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
-
-	projectsBrowser := self
-		                   waitForNew: JadeiteBrowser browserClass
-		                   while: aBlock
 ]
 
 { #category : 'support' }

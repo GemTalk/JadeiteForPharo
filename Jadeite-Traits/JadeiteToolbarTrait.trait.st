@@ -37,7 +37,6 @@ JadeiteToolbarTrait >> addPharoClientInformationTo: workspace [
 JadeiteToolbarTrait >> addServerVersionInformationTo: workspace [
 
 	| ws |
-	GciSession current isValidSession ifTrue: [ ].
 	ws := WriteStream on: String new.
 	ws
 		cr;
@@ -45,9 +44,16 @@ JadeiteToolbarTrait >> addServerVersionInformationTo: workspace [
 		cr;
 		nextPutAll: 'GemStone server information:';
 		cr;
-		cr;
-		nextPutAll:
-			JadeiteGCIConnectionProfile connectionProfile toolbarServerVersion.
+		cr.
+
+	JadeiteGCIConnectionProfile connectionProfile toolbarServerVersion
+		ifNotNil: [
+				ws nextPutAll:
+					JadeiteGCIConnectionProfile connectionProfile
+						toolbarServerVersion.
+				JadeiteGCIConnectionProfile connectionProfile
+					toolbarServerVersion: nil ]
+		ifNil: [ ws nextPutAll: '<not logged in>' ].
 	workspace text: workspace text , ws contents
 ]
 
@@ -122,7 +128,8 @@ JadeiteToolbarTrait >> gitShaWorkspaceClientAndServer [
 
 	| workspace |
 	workspace := JadeiteConnectionProfile connectionProfile
-		             gitShaWorkspace.
+		             gitShaWorkspaceUsing:
+		             JadeiteConnectionLauncher soleInstance.
 	self addPharoClientInformationTo: workspace.
 	self addServerVersionInformationTo: workspace.
 	workspace hasUnacceptedEdits: false.
@@ -226,7 +233,7 @@ JadeiteToolbarTrait >> newToolsMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Jadeite Help';
-						  action: [ self openJadeiteHelpFile ] ] ];
+						  action: [ self openJadeiteHelpWebPage ] ] ];
 		  yourself
 ]
 
@@ -250,11 +257,10 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 ]
 
 { #category : 'actions' }
-JadeiteToolbarTrait >> openJadeiteHelpFile [
+JadeiteToolbarTrait >> openJadeiteHelpWebPage [
 
-	| browser |
-	browser := JadeiteHelpPresenter new gciSession: GciSession current.
-	^ browser open
+	WebBrowser openOn:
+		'http://docs.gemtalksystems.com/current/JadeiteHelp'
 ]
 
 { #category : 'actions' }

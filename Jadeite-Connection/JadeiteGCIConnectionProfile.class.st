@@ -54,15 +54,15 @@ JadeiteGCIConnectionProfile >> applyPreferences [
 ]
 
 { #category : 'actions' }
-JadeiteGCIConnectionProfile >> basicConnect [
+JadeiteGCIConnectionProfile >> basicConnectWithPostConnect: postConnectBlock [
 
-	| theConnection sem |
+	| theConnection |
 	[
 	session loginWithGsUser: user password: password "need to analyze result b4 proceeding" ]
 		on: GciError
 		do: [ :ex |
-			session := nil.
-			^ GciError signal: ex message ].
+				session := nil.
+				^ GciError signal: ex message ].
 	GciSession current
 		stoneName: stone;
 		userID: user.
@@ -70,17 +70,34 @@ JadeiteGCIConnectionProfile >> basicConnect [
 	session logoutNbNoError.
 	session := nil.
 	GciSession current library: theConnection.
-	sem := Semaphore new.
-	self setIsRowanAvailableOnCompletion: [
-		connection := theConnection. "don't trigger events until isRowanAvailable is set"
-		self applyPreferences.
-		sem signal
-		"Uncomment following three lines to enable RSR tracing""	
+	postConnectBlock value.
+	self
+		setIsRowanAvailableOnCompletion: [
+				connection := theConnection. "don't trigger events until isRowanAvailable is set"
+				self applyPreferences
+				"Uncomment following three lines to enable RSR tracing""	
 		connection log addSink: (RsrCustomSink action: [ :message |
 		RowanServiceUpdater current logComment: message ]).
 	connection log verbosity: connection log levelTrace.""Uncomment following two lines to enable jadeite tracing""RowanServiceUpdater current isLogging: true.
-	RowanServiceUpdater current logComment: 'Connection established!'." ].
-	sem wait
+	RowanServiceUpdater current logComment: 'Connection established!'." ]
+		catchBlock: [ self basicDisconnect: theConnection ]
+]
+
+{ #category : 'actions' }
+JadeiteGCIConnectionProfile >> basicDisconnect: aConnection [
+	"can be called before the connection inst var is set so pass in aConnection"
+
+	aConnection close.
+	aConnection channel sink isProcessActive ifTrue: [
+			UIManager default alert:
+				'aConnection not properly closed. Channel sink process is still active.' ].
+	aConnection channel source isProcessActive ifTrue: [
+			UIManager default alert:
+				'aConnection not properly closed. Channel source process is still active.' ].
+	(Delay forMilliseconds: 100) wait. "let RSR aConnection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
+	GciSession clearCurrent.
+	RowanServiceUpdater clearCurrent.
+	self class connectionProfile connection: nil
 ]
 
 { #category : 'commit ids' }
@@ -161,6 +178,14 @@ JadeiteGCIConnectionProfile >> confirmAllWindowsCanClose [
 
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> connect [
+	"tests only"
+
+	RowanServiceUpdater current critical: [
+		self connectWithPostConnect: [ ] ]
+]
+
+{ #category : 'actions' }
+JadeiteGCIConnectionProfile >> connectWithPostConnect: postConnectBlock [
 	"initialize gci library"
 
 	"need to analyze result b4 proceeding""Uncomment following three lines to enable RSR tracing""	connection log addSink: (RsrCustomSink action: [ :message |
@@ -181,9 +206,8 @@ JadeiteGCIConnectionProfile >> connect [
 				self uiManager alert:
 					'Client library could not be found. Error message: '
 					, ex messageText.
-				^ false ].
-	self basicConnect.
-	^ true
+				^ self ].
+	self basicConnectWithPostConnect: postConnectBlock
 ]
 
 { #category : 'actions' }
@@ -194,18 +218,8 @@ JadeiteGCIConnectionProfile >> disconnect [
 
 	connection ifNil: [ ^ self ].
 	self confirmAllWindowsCanClose ifFalse: [ ^ self ].
-	connection close.
-	connection channel sink isProcessActive ifTrue: [
-		UIManager default alert:
-			'Connection not properly closed. Channel sink process is still active.' ].
-	connection channel source isProcessActive ifTrue: [
-		UIManager default alert:
-			'Connection not properly closed. Channel source process is still active.' ].
-	(Delay forMilliseconds: 100) wait. "let RSR connection close completely before closing gci library. A non-blocking logout, when available through GemStone FFI, may eliminate the need for this delay."
-	GciSession clearCurrent.
-	connection := nil.
-	self notifyPropertyChanged: #connection.
-	RowanServiceUpdater clearCurrent.
+	self basicDisconnect: connection.
+	self notifyPropertyChanged: #connection
 ]
 
 { #category : 'instance creation' }
@@ -221,22 +235,25 @@ JadeiteGCIConnectionProfile >> fromSton: stonReader [
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> gciCommitIds [
 
-	self toolbarServerVersion:
-		(session gciInterface executeStringAndFetchResultString:
-			 self commitIdServerInfoCode).
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [
-				  session gciInterface executeStringAndFetchResultString:
-					  self commitIdServerCode ]
-		  ifFalse: [ 'Rowan not available' ]
-]
-
-{ #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> gitShaWorkspace [
-
-	^ session
-		  ifNil: [ self serverCommitIdsUsingGci ]
-		  ifNotNil: [ self serverCommitIdsUsingServices ]
+	[
+		self toolbarServerVersion:
+			(session gciInterface executeStringAndFetchResultString:
+				 self commitIdServerInfoCode).
+		^ JadeitePreferences isRowanLoaded
+			  ifTrue: [
+					  session gciInterface executeStringAndFetchResultString:
+						  self commitIdServerCode ]
+			  ifFalse: [ 'Rowan not available' ] ]
+		on: Error
+		do: [ :ex |
+				| errorStream |
+				errorStream := WriteStream on: String new.
+				errorStream
+					nextPutAll: '<Error getting server information through gci>';
+					cr;
+					nextPutAll: 'Error Message: <' , ex messageText , '>';
+					cr.
+				^ errorStream contents ]
 ]
 
 { #category : 'commit ids' }
@@ -257,6 +274,14 @@ JadeiteGCIConnectionProfile >> gitShaWorkspace: workspacePresenter using: server
 	workspace text: ws contents.
 	workspace hasUnacceptedEdits: false.
 	^ workspace
+]
+
+{ #category : 'commit ids' }
+JadeiteGCIConnectionProfile >> gitShaWorkspaceUsing: launcher [
+
+	^ session
+		  ifNil: [ self serverCommitIdsUsingGciUsing: launcher ]
+		  ifNotNil: [ self serverCommitIdsUsingServices ]
 ]
 
 { #category : 'testing' }
@@ -283,13 +308,13 @@ JadeiteGCIConnectionProfile >> loginErrorMessage: errorMessage [
 	| ws |
 	ws := WriteStream on: String new.
 	ws
-		nextPutAll: '<Unable to login to stone ';
-		nextPutAll: stone;
-		nextPutAll: '. Cannot get server project commitIds>';
+		nextPutAll:
+			'<Unable to login to gemstone. Cannot get server information>';
 		cr;
 		nextPutAll: 'Error Message: <';
 		nextPutAll: errorMessage;
-		nextPut: $>.
+		nextPut: $>;
+		cr.
 	^ ws contents
 ]
 
@@ -336,36 +361,47 @@ JadeiteGCIConnectionProfile >> port: anObject [
 ]
 
 { #category : 'commit ids' }
-JadeiteGCIConnectionProfile >> serverCommitIdsUsingGci [
+JadeiteGCIConnectionProfile >> serverCommitIdsUsingGciUsing: launcherWindow [
+	"commit ids"
+
 	"must be logged out.
 	Try to handle the gci hanging or getting an error during login
 	and give the user a reasonable error message. "
 
-	| commitIdString sem proc loggedIn errorMessage |
+	| commitIdString sem proc loggedIn errorMessage launcher |
+	launcher := launcherWindow presenter.
 	sem := Semaphore new.
-	GciInterface libraryDirectory: self path.
-	session := GsSession
-		           newForGsVersion: version
-		           threadSafe: true
-		           stone: stone
-		           host: host
-		           netldi: netldi.
+	GciInterface clearLibraryDirectory.
+	SessionManager default unregisterClassNamed: 'GsSession'.
+	GciInterface libraryDirectory: launcher unsavedPath.
+
 	loggedIn := false.
 	proc := [
 		        [
-			        session loginWithGsUser: user password: password.
+			        session := GsSession
+				                   newForGsVersion: launcher unsavedVersion
+				                   threadSafe: true
+				                   stone: launcher unsavedStone
+				                   host: launcher unsavedHost
+				                   netldi: launcher unsavedNetldi.
+			        session
+				        loginWithGsUser: launcher unsavedUser
+				        password: launcher unsavedPassword.
 			        loggedIn := true.
 			        sem signal ]
-			        on: GciError
+			        on: Error
 			        do: [ :ex |
-					        errorMessage := ex messageText.
+					        errorMessage := ex class name , ' ' , ex messageText.
 					        sem signal ] ] fork.
-	(sem waitTimeoutSeconds: 5) ifTrue: [ proc terminate ].
-	commitIdString := loggedIn
-		                  ifTrue: [ self gciCommitIds ]
-		                  ifFalse: [ self loginErrorMessage: errorMessage ].
-	session logoutNbNoError.
-	session := nil.
+	(sem waitTimeoutSeconds: 3) ifTrue: [ proc terminate ].
+
+	loggedIn
+		ifTrue: [
+				commitIdString := self gciCommitIds.
+				session logoutNbNoError.
+				session := nil ]
+		ifFalse: [ commitIdString := self loginErrorMessage: errorMessage ].
+
 	^ self
 		  gitShaWorkspace: JadeiteGitShaWorkspaceApplication show
 		  using: commitIdString
@@ -411,11 +447,12 @@ JadeiteGCIConnectionProfile >> session [
 ]
 
 { #category : 'actions' }
-JadeiteGCIConnectionProfile >> setIsRowanAvailableOnCompletion: completionBlock [
+JadeiteGCIConnectionProfile >> setIsRowanAvailableOnCompletion: completionBlock catchBlock: catchBlock [
 
 	| answeringService |
 	answeringService := RowanAnsweringService new command:
 		                    #isRowanAvailable.
+	answeringService catchBlock: catchBlock. 
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: GciSession current
@@ -494,7 +531,7 @@ JadeiteGCIConnectionProfile >> stone: anObject [
 { #category : 'accessing' }
 JadeiteGCIConnectionProfile >> toolbarServerVersion [
 
-	^ toolbarServerVersion ifNil: [ toolbarServerVersion := String new ]
+	^ toolbarServerVersion
 ]
 
 { #category : 'accessing' }

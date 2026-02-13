@@ -52,7 +52,7 @@ JadeiteConnectionLauncher >> jadeiteChooseSaveFileReference: title extensions: e
 	^ self uiManager
 		  chooseForSaveFileReference: 'Export Connection File'
 		  extensions: exts
-		  path: pathReference
+		  path: pathReference asJadeiteFileReference
 ]
 
 { #category : '*JadeiteForPharo-Pharo-13' }

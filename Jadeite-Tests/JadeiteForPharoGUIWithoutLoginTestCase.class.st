@@ -103,5 +103,6 @@ JadeiteForPharoGUIWithoutLoginTestCase >> test_importConnection [
 	self assert: launcher pathText text equals: profile path.
 	self assert: launcher portText text equals: profile port.
 	launcher connect.
+	(Delay forMilliseconds: 250) wait. 
 	self assert: launcher connectionProfile isConnected
 ]

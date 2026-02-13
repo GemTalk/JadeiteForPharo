@@ -62,7 +62,7 @@ JadeiteForPharoConsoleTestCase >> test_auditProjects [
 		^ self skip: 'no projects unless rowan present' ].
 	jadeiteShell projectListPresenter selectIndex: 1.
 	auditResults := self
-		                waitForNew: JadeiteWorkspace
+		                waitForNewPresenter: JadeiteWorkspace
 		                while: [ jadeiteShell auditProjects ].
 	self assert: auditResults window isOpen.
 	self assert: auditResults isKindOf: JadeiteWorkspace.
@@ -88,7 +88,7 @@ Just select everything and assert the selection index changed."
 JadeiteForPharoConsoleTestCase >> test_browseClassReferences [
 
 	methodListBrowser := self
-		                     waitForNew: JadeiteMethodListPresenter
+		                     waitForNewPresenter: JadeiteMethodListPresenter
 		                     while: [
 		                     jadeiteShell browseClassReferences:
 			                     'RowanCommandResult' ].
@@ -123,7 +123,7 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 	RowanServiceUpdater uninstallTestUpdater.
 
 	projectsPresenter := self
-		                   waitForNew: JadeiteBrowser browserPresenterClass
+		                   waitForNewPresenter: JadeiteBrowser browserPresenterClass
 		                   while: [ jadeiteShell findClassNamed: 'Object' ].
 	projectsBrowser := projectsPresenter parentPresenter.
 	sem := Semaphore new.
@@ -144,32 +144,6 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 	self
 		assert: projectsPresenter parentPresenter tabs selectedPage title
 		equals: '1 Object'
-]
-
-{ #category : 'tests' }
-JadeiteForPharoConsoleTestCase >> test_jadeiteHelp [
-
-	| helpBrowser |
-	helpBrowser := jadeiteShell openJadeiteHelpFile.
-	self assert: helpBrowser isOpen.
-	self assert: helpBrowser presenter isKindOf: JadeiteHelpPresenter.
-	self destroy: helpBrowser
-]
-
-{ #category : 'tests' }
-JadeiteForPharoConsoleTestCase >> test_openHelp [
-	"open the Jadeite Help File and make sure it's contents match the .md file prescribed"
-
-	| helpPresenter helpFileName fileReference |
-	helpPresenter := jadeiteShell openJadeiteHelpFile presenter.
-	helpFileName := helpPresenter defaultHelpMarkdownFile.
-	fileReference := FileSystem workingDirectory resolveString:
-		                 helpFileName.
-	self assert: fileReference exists.
-	self
-		assert: helpPresenter contentsPresenter text asString
-		equals: (helpPresenter contentsPresenter documentFromString: fileReference contents) text asString.
-	self destroy: helpPresenter
 ]
 
 { #category : 'tests' }

@@ -503,18 +503,19 @@ JadeiteSUnitPresenter >> selectedPackageServices [
 { #category : 'as yet unclassified' }
 JadeiteSUnitPresenter >> setColorFor: aJadeTestResult [
 
-	textResultPresenter value: aJadeTestResult summary.
-	aJadeTestResult failures do: [ :eachSymbol | 
-		methodListPresenter model do: [ :eachTest | 
-			eachTest selector = eachSymbol ifTrue: [ eachTest setFailure ] ] ].
-	aJadeTestResult errors do: [ :eachSymbol | 
-		methodListPresenter model do: [ :eachTest | 
-			eachTest selector = eachSymbol ifTrue: [ eachTest setError ] ] ].
-	aJadeTestResult passed do: [ :eachSymbol | 
-		methodListPresenter model do: [ :eachTest | 
-			eachTest selector = eachSymbol ifTrue: [ eachTest setPassed ] ] ].
-	methodListPresenter view invalidate.
-	self setResultsPaneColor: aJadeTestResult backgroundColor
+	aJadeTestResult failures do: [ :eachSymbol |
+			methodListPresenter model do: [ :eachTest |
+				eachTest selector = eachSymbol ifTrue: [ eachTest setFailure ] ] ].
+	aJadeTestResult errors do: [ :eachSymbol |
+			methodListPresenter model do: [ :eachTest |
+				eachTest selector = eachSymbol ifTrue: [ eachTest setError ] ] ].
+	aJadeTestResult passed do: [ :eachSymbol |
+			methodListPresenter model do: [ :eachTest |
+				eachTest selector = eachSymbol ifTrue: [ eachTest setPassed ] ] ].
+	self uiManager defer: [
+			textResultPresenter value: aJadeTestResult summary.
+			methodListPresenter view invalidate.
+			self setResultsPaneColor: aJadeTestResult backgroundColor ]
 ]
 
 { #category : 'constants' }
