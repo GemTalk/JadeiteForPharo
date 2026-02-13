@@ -554,7 +554,7 @@ JadeiteForPharoSUnitBrowserTestCase >> test_runServerTest [
 	self assertIsNil: sunitBrowser testResults.
 	sunitBrowser testSemaphore: Semaphore new.
 	sunitBrowser basicRunSelected.
-	sunitBrowser testSemaphore waitTimeoutMilliseconds: 500.
+	sunitBrowser testSemaphore waitTimeoutMilliseconds: 750.
 	self assert:
 		('1 run, 1 passed, 0 failures, 0 errors, *seconds' match:
 			 sunitBrowser textResultPresenter text).

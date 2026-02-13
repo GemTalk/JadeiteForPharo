@@ -697,7 +697,7 @@ JadeiteConnectionLauncher >> initializeToolsMenu [
 			  group addItem: [ :item |
 				  item
 					  name: 'Jadeite Help';
-					  action: [ self openJadeiteHelpFile ] ] ] yourself
+					  action: [ self openJadeiteHelpWebPage ] ] ] yourself
 ]
 
 { #category : 'initialization' }

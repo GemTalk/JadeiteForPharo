@@ -147,21 +147,11 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConsoleTestCase >> test_jadeiteHelp [
-
-	| helpBrowser |
-	helpBrowser := jadeiteShell openJadeiteHelpFile.
-	self assert: helpBrowser isOpen.
-	self assert: helpBrowser presenter isKindOf: JadeiteHelpPresenter.
-	self destroy: helpBrowser
-]
-
-{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_openHelp [
 	"open the Jadeite Help File and make sure it's contents match the .md file prescribed"
 
 	| helpPresenter helpFileName fileReference |
-	helpPresenter := jadeiteShell openJadeiteHelpFile presenter.
+	helpPresenter := jadeiteShell openJadeiteHelpWebPage presenter.
 	helpFileName := helpPresenter defaultHelpMarkdownFile.
 	fileReference := FileSystem workingDirectory resolveString:
 		                 helpFileName.

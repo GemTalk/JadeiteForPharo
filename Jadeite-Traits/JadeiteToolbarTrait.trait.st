@@ -233,7 +233,7 @@ JadeiteToolbarTrait >> newToolsMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Jadeite Help';
-						  action: [ self openJadeiteHelpFile ] ] ];
+						  action: [ self openJadeiteHelpWebPage ] ] ];
 		  yourself
 ]
 
@@ -257,11 +257,10 @@ JadeiteToolbarTrait >> openCommitIdWindow [
 ]
 
 { #category : 'actions' }
-JadeiteToolbarTrait >> openJadeiteHelpFile [
+JadeiteToolbarTrait >> openJadeiteHelpWebPage [
 
-	| browser |
-	browser := JadeiteHelpPresenter new gciSession: GciSession current.
-	^ browser open
+	WebBrowser openOn:
+		'http://docs.gemtalksystems.com/current/JadeiteHelp'
 ]
 
 { #category : 'actions' }
