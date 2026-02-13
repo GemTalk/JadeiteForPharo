@@ -123,7 +123,6 @@ BaselineOfJadeiteForPharo >> postload: loader package: packageSpec [
 		               description.
 	path := description withoutPrefix: 'gitlocal://'.
 
-	self copyFile: 'jadeitehelp.md' path: path.
 	JadeiteRubEditingArea defaultFindReplaceServiceClass: SpRubFindReplaceService.
 
 ]
