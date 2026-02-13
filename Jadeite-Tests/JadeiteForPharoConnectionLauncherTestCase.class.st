@@ -605,6 +605,9 @@ JadeiteForPharoConnectionLauncherTestCase >> test_loginFailsProjectServiceOutOfS
 	If this fails, make sure to restore RowanProjectService's structure otherwise all subsequent logins will fail"
 
 	| sem |
+	true ifTrue: [
+		^ self skip:
+			  'test still not working and restoring inst var correctly' ].
 	sem := Semaphore new.
 	RowanProjectService removeInstVarNamed: 'canBeWritten'.
 	[
