@@ -3,5 +3,13 @@ Extension { #name : 'RsrRemoteException' }
 { #category : '*Jadeite-BaseExtensions' }
 RsrRemoteException >> description [
 
-	^ self messageText
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPut: $(;
+		nextPutAll: super description;
+		nextPut: $);
+		space;
+		nextPutAll: messageText.
+	^ ws contents
 ]
