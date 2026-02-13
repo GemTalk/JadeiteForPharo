@@ -604,11 +604,16 @@ JadeiteForPharoConnectionLauncherTestCase >> test_loginFailsProjectServiceOutOfS
 	"create a scenario where the inst vars of RowanProjectService in the client don't match the server.
 	If this fails, make sure to restore RowanProjectService's structure otherwise all subsequent logins will fail"
 
+	| sem |
+	sem := Semaphore new.
 	RowanProjectService removeInstVarNamed: 'canBeWritten'.
 	[
 		[ JadeiteConnectionLauncher soleInstance presenter connect ] fork.
 		self assertAlertDialogProvideAnswerTextMatches: '*RSR Error*' ]
-		ensure: [ RowanProjectService addInstVarNamed: 'canBeWritten' ]
+		ensure: [
+				RowanProjectService addInstVarNamed: 'canBeWritten'.
+				sem signal ].
+	sem wait
 ]
 
 { #category : 'tests' }
