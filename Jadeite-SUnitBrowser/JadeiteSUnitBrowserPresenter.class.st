@@ -126,7 +126,7 @@ JadeiteSUnitBrowserPresenter >> debugSelected [
 				               shouldStopTestRun := false ] ] fork
 ]
 
-{ #category : 'nil' }
+{ #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> debugTests: methodServices [
 
 	[
