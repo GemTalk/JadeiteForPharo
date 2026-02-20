@@ -15,6 +15,12 @@ JadeiteMethodSourcePaneWithoutRowan class >> registerFormatSourceCommandWith: co
 	
 ]
 
+{ #category : 'private' }
+JadeiteMethodSourcePaneWithoutRowan >> findClassService: classService [
+
+	^self owner findClassService: classService
+]
+
 { #category : 'initialization' }
 JadeiteMethodSourcePaneWithoutRowan >> initializePresenters [
 	"When RBParser is available again in a rowan-stubbed server, remove this method"

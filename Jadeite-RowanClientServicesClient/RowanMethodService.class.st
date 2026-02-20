@@ -797,26 +797,8 @@ RowanMethodService >> stepPointRangeFrom: stepPointAssoc [
 
 { #category : 'public' }
 RowanMethodService >> stepPoints [
-	self todo:[
-	(stepPoints notEmpty and: [stepPoints first key isInteger])
-		ifTrue: 
-			[stepPoints := stepPoints collect: 
-							[:each |
-							| range start char length |
-							self todo:[start := source indexOfNth: each key "handle unicode"] inTheMeanTime: [start := each key].
-							self todo:[char := [source codePointAt: start] on: BoundsError do:[:ex | source last]] inTheMeanTime: [char := source at: start].
-							length := (char isAlphaNumeric or: [char = $_])
-										ifTrue: 
-											[(source copyFrom: start + 1 to: source size)
-												findFirst: [:eachChar | (eachChar isAlphaNumeric or: [eachChar = $_ or: [eachChar = $:]]) not]]
-										ifFalse: [2].
-							length = 0 ifTrue: [length := source size - start + 1].
-							[2 < length and: [(source at: start) = $_]] whileTrue: 
-									[start := start + 1.
-									length := length - 1].
-							range := Interval from: start to: start + length - 1.
-							range -> each value]]].
-	^stepPoints
+
+	^ stepPoints
 ]
 
 { #category : 'displaying' }
@@ -909,26 +891,4 @@ RowanMethodService >> unimplementedSelectors [
 { #category : 'public' }
 RowanMethodService >> updateBreakPoints: presenter browser: browser [
 	presenter view invalidate
-]
-
-{ #category : 'private' }
-RowanMethodService >> updateSelectorFromCompiledMethod: aString [
-
-	| stream | 
-	stream := ReadStream on: aString. 
-	stream skipWhile:[:char | char isDigit].
-	selector := stream upToEnd. 
-
-
-
-]
-
-{ #category : 'accessing' }
-RowanMethodService >> user [
-	^user
-]
-
-{ #category : 'accessing' }
-RowanMethodService >> user: anObject [
-	user := anObject
 ]

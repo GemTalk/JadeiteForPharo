@@ -106,13 +106,6 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self updateSUnitTab. 
 ]
 
-{ #category : 'accessing' }
-JadeiteBrowserPresenter >> activePresenter [
-	"some trait methods are shared between the browser presenter and browser. 
-	We are the activePresenter"
-	^self
-]
-
 { #category : 'menus' }
 JadeiteBrowserPresenter >> addBrowseClassItemTo: group [
 
@@ -2946,7 +2939,7 @@ JadeiteBrowserPresenter >> refreshFromServer [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 
-	| classService visibleMethods selections |
+	| classService visibleMethods |
 	classService := self selectedClass ifNil: [ ^ self ].
 	classService meta: self isClassSideSelected.
 	classService filters: self selectedFilters.
@@ -2958,28 +2951,7 @@ JadeiteBrowserPresenter >> refreshMethodsOn: presenter extensions: extensions [
 	methodListPresenter items: visibleMethods.
 	methodListPresenter list addAll:
 		(extensions reject: [ :svc | methodListPresenter list includes: svc ]).
-	methodListPresenter adapter ifNotNil: [ :a | 
-		a widget resetPosition ]
-		
-		 "Is it really safe to get rid of this code?" 
-	"selections := methodListPresenter selectedItems.
-	(methodListPresenter items difference: visibleMethods) ifEmpty: [
-			(visibleMethods difference: methodListPresenter items) ifEmpty: [
-				^ self ] ].
-	self updateService: classService onCompletion: [
-			methodListPresenter unselectAll.
-			methodListPresenter selectItems: selections.
-			methodListPresenter list addAll:
-				(extensions reject: [ :svc |
-					 methodListPresenter list includes: svc ]).
-			methodListPresenter selections isEmpty
-				ifTrue: [
-						self resetCategoryText.
-						self resetDefinedMethodPackage ]
-				ifFalse: [ self updateMethodSource ].
-			methodListPresenter adapter ifNotNil: [ :a |
-				a widget resetPosition ] ]"
-
+	methodListPresenter adapter ifNotNil: [ :a | a widget resetPosition ]
 ]
 
 { #category : 'as yet unclassified' }

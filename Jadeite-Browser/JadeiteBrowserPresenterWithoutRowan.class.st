@@ -31,6 +31,12 @@ JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 					self selectClass: selectedClassService completionBlock: [ ] ] ]
 ]
 
+{ #category : 'acccessing' }
+JadeiteBrowserPresenterWithoutRowan >> activePresenter [
+
+	^self
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenterWithoutRowan >> addClassCategory: classCategory [
 

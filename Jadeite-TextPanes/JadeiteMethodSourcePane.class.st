@@ -110,18 +110,6 @@ JadeiteMethodSourcePane >> ensureVisible [
 	self todo:'may need to implement this'
 ]
 
-{ #category : 'private' }
-JadeiteMethodSourcePane >> findClassService: classService [
-
-	classService ifNil: [ ^ self ].
-	(self owner owner class canUnderstand:
-		 #updateAfterFindClass:methodService:onCompletion:) ifTrue: [
-		self owner owner "ick"
-			updateAfterFindClass: classService
-			methodService: nil
-			onCompletion: [  ] ]
-]
-
 { #category : 'actions' }
 JadeiteMethodSourcePane >> formatSource [
 

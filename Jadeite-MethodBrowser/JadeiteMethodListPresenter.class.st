@@ -199,6 +199,10 @@ JadeiteMethodListPresenter >> fileSave [
 	self halt. 
 ]
 
+{ #category : 'private' }
+JadeiteMethodListPresenter >> findClassService: classService [
+]
+
 { #category : 'accessing' }
 JadeiteMethodListPresenter >> firstReferenceString [
 
