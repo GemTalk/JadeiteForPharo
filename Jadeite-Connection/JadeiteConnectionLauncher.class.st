@@ -264,6 +264,14 @@ JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 	^ observable subscriptions: OrderedCollection new
 ]
 
+{ #category : 'constants' }
+JadeiteConnectionLauncher >> clientLibraryHelpMessage [
+
+	^ 'The Client Libraries Path must point to a directory on the client in which the GemStone server shared libraries are located. Jadeite expects a directory structure with the shared libraries under clientLibsDir/version/64bit/. 
+Clientlibs can be downloaded from the GemTalk website; the zip contains a folder with the version number, which can be copied into your clientlibs directory.
+The path text may be manually entered or set using a file dialog by pressing ''Set Client Libraries Path''.'
+]
+
 { #category : 'actions' }
 JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 
@@ -366,6 +374,18 @@ JadeiteConnectionLauncher >> copyConnection [
 	Clipboard clipboardText:
 		(STON toString: JadeiteConnectionProfile connectionProfile).
 	UIManager default inform: 'Jadeite connection copied'
+]
+
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> defaultExportName [
+	"note that we use the underlying morphic widget
+	as the spec presenter won't have unsaved changes"
+
+	| userString stoneString versionString |
+	stoneString := stoneText adapter widget text asString.
+	versionString := versionText adapter widget text asString.
+	userString := userText adapter widget text asString.
+	^ stoneString , '_' , versionString , '_' , userString , '.txt'
 ]
 
 { #category : 'defaults' }
@@ -495,22 +515,33 @@ JadeiteConnectionLauncher >> initializeButtons [
 { #category : 'initialization' }
 JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 
-	| pathBox |
-	pathBox := SpBoxLayout newVertical.
-	pathBox add: (self newLabel label: 'Client Libraries Path:').
+	| clientLibsBox pathBox |
+	clientLibsBox := SpBoxLayout newVertical.
+	clientLibsBox add: (self newLabel label: 'Client Libraries Path:').
+
+	pathBox := SpBoxLayout newHorizontal.
+	pathText := JadeiteTextInputFieldPresenter new.
+	pathBox add: pathText.
+	pathBox
+		add: (self newButton
+				 icon: (self iconNamed: #smallQuestion);
+				 action: [
+						 self uiManager
+							 alert: self clientLibraryHelpMessage
+							 title: 'Jadeite Client Library Help' ])
+		withConstraints: [ :constraints | constraints width: 25 ].
+	clientLibsBox add: pathBox.
+
 	setClientLibrariesPathButton := self newButton
 		                                label: 'Set Client Libraries Path';
 		                                icon: (self iconNamed: #smallHome);
 		                                action: [
 			                                self setClientLibrariesPath ].
-
-	pathText := JadeiteTextInputFieldPresenter new.
-	pathBox add: pathText.
-	pathBox
+	clientLibsBox
 		add: setClientLibrariesPathButton
 		withConstraints: [ :constraints1 | constraints1 padding: 5 ].
 	nonConnectionBox
-		add: pathBox
+		add: clientLibsBox
 		withConstraints: [ :constraints | constraints height: 90 ]
 ]
 
@@ -959,16 +990,10 @@ JadeiteConnectionLauncher >> stoneText: anObject [
 
 { #category : 'connections' }
 JadeiteConnectionLauncher >> suggestedExportName [
-	"note that we use the underlying morphic widget
-	as the spec presenter won't have unsaved changes"
 
-	| stoneString versionString userString |
 	availableConnectionPresenter selectedItem ifNotNil: [ :sel |
 		^ sel asFileReference basename ].
-	stoneString := stoneText adapter widget text asString.
-	versionString := versionText adapter widget text asString.
-	userString := userText adapter widget text asString.
-	^ stoneString , '_' , versionString , '_' , userString , '.txt'
+	^ self defaultExportName
 ]
 
 { #category : 'accessing' }
