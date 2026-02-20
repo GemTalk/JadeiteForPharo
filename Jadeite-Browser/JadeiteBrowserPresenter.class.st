@@ -106,6 +106,12 @@ JadeiteBrowserPresenter >> abortedTransaction [
 	self updateSUnitTab. 
 ]
 
+{ #category : 'acccessing' }
+JadeiteBrowserPresenter >> activePresenter [
+
+	^self
+]
+
 { #category : 'menus' }
 JadeiteBrowserPresenter >> addBrowseClassItemTo: group [
 
