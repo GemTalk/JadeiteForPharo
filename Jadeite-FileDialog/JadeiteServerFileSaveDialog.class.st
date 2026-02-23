@@ -40,7 +40,7 @@ JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultPath: def
 	service path: inst pathText text.
 	service / inst fileNamePresenter text.
 	newFilePath := service answer.
-	JadePresenter lastFilePath: inst pathText text.
+	self setLastPath: inst pathText text.
 	^ newFilePath
 ]
 

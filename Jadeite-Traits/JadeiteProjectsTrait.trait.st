@@ -438,10 +438,12 @@ JadeiteProjectsTrait >> isWriteableProject [
 JadeiteProjectsTrait >> loadProject [
 	"the gui is updated in RowanBrowserService>>projectsUpdate:browser:"
 
-	| filePath ws useRowanProjectsHome projectsHomePath |
-	filePath := JadeiteServerFileSelectorDialog
+	| filePath ws useRowanProjectsHome projectsHomePath defaultPath |
+	defaultPath := JadePresenter lastLoadProjectPath ifNil: [
+		               self setDefaultLastLoadProjectPath ].
+	filePath := JadeiteLoadProjectDialog
 		            showOnSession: self gciSession
-		            defaultPath: JadePresenter homeEnvVarString
+		            defaultPath: defaultPath
 		            shellName: 'Jadeite Select Load Spec File'.
 	filePath ifNil: [ ^ self ].
 	ws := WriteStream on: String new.
@@ -805,6 +807,18 @@ JadeiteProjectsTrait >> setCurrentProject [
 			self gciSession
 				announceUpdatedCurrentProject: projectService
 				package: nil ]
+]
+
+{ #category : 'actions' }
+JadeiteProjectsTrait >> setDefaultLastLoadProjectPath [
+
+	| fileService |
+	fileService := RowanFileServiceClient new
+		               path: JadePresenter rowanProjectsHomeEnvVarString;
+		               session: self gciSession.
+	^ JadePresenter lastLoadProjectPath: (fileService exists
+			   ifTrue: [ JadePresenter rowanProjectsHomeEnvVarString ]
+			   ifFalse: [ JadePresenter homeEnvVarString ])
 ]
 
 { #category : 'actions' }

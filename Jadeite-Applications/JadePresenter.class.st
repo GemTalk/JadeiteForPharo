@@ -8,8 +8,8 @@ Class {
 	#name : 'JadePresenter',
 	#superclass : 'JadeiteApplication',
 	#classVars : [
-		'ExpandedRowanProjectsHome',
 		'LastFilePath',
+		'LastLoadProjectPath',
 		'PackageGroupsVisible',
 		'PackageListVisible',
 		'SigAbortProcessInterval',
@@ -60,20 +60,30 @@ JadePresenter class >> isCommitEnabled [
 		or: [self transactionMode == #manualBegin and: [self inTransaction]]
 ]
 
-{ #category : 'constants' }
+{ #category : 'accessing' }
 JadePresenter class >> lastFilePath [
-	"when writing fileouts, etc save the last path saved for convenience"
 
-	LastFilePath ifNil: [
-		LastFilePath := self homeEnvVarString ].
+	LastFilePath ifNil: [ LastFilePath := self homeEnvVarString ].
 	^ LastFilePath
 ]
 
-{ #category : 'constants' }
+{ #category : 'accessing' }
 JadePresenter class >> lastFilePath: filePath [
 	"when writing fileouts, etc save the last path saved for convenience"
 
 	LastFilePath := filePath
+]
+
+{ #category : 'accessing' }
+JadePresenter class >> lastLoadProjectPath [
+
+	^ LastLoadProjectPath
+]
+
+{ #category : 'accessing' }
+JadePresenter class >> lastLoadProjectPath: filePath [
+
+	LastLoadProjectPath := filePath
 ]
 
 { #category : 'constants' }

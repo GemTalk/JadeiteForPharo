@@ -23,6 +23,21 @@ JadeiteServerFileSelectorDialog class >> _showOnSession: aGciSession defaultPath
 ]
 
 { #category : 'instance creation' }
+JadeiteServerFileSelectorDialog class >> basicShowOnSession: aGciSession defaultPath: path shellName: shellName [
+
+	| modal inst answer |
+	inst := self createDialogOn: aGciSession path: path.
+	inst shellName: shellName.
+	inst application: JadeiteSpApplication new.
+	modal := inst asModalWindow.
+	inst initializeWith: path.
+	answer := modal open.
+	answer cancelled ifTrue: [ ^ nil ].
+	self setLastPath: inst pathText text.
+	^ inst selectedFileOrDirectory
+]
+
+{ #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path [
 
 	| service inst |
@@ -32,6 +47,12 @@ JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path 
 	inst := self new gciSession: aGciSession.
 	inst fileSelectorPresenter pathText text: service answer.
 	^ inst
+]
+
+{ #category : 'instance creation' }
+JadeiteServerFileSelectorDialog class >> setLastPath: aString [
+
+	JadePresenter lastFilePath: aString
 ]
 
 { #category : 'instance creation' }
@@ -50,21 +71,16 @@ JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath:
 { #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> showOnSession: aGciSession defaultPath: defaultPath shellName: shellName [
 
-	| inst modal answer path |
+	| path |
 	(ProvideAnswerNotification signal: defaultPath) ifNotNil: [
 		:theAnswer | ^ theAnswer ].
 	path := JadePresenter lastFilePath
 		        ifNil: [ defaultPath ]
 		        ifNotNil: [ :thePath | thePath ].
-	inst := self createDialogOn: aGciSession path: defaultPath.
-	inst shellName: shellName.
-	inst application: JadeiteSpApplication new.
-	modal := inst asModalWindow.
-	inst initializeWith: path.
-	answer := modal open.
-	answer cancelled ifTrue: [ ^ nil ].
-	JadePresenter lastFilePath: inst pathText text.
-	^ inst selectedFileOrDirectory
+	^ self
+		  basicShowOnSession: aGciSession
+		  defaultPath: path
+		  shellName: shellName
 ]
 
 { #category : 'actions' }
