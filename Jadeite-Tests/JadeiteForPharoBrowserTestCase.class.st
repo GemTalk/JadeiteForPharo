@@ -1922,7 +1922,8 @@ JadeiteForPharoBrowserTestCase >> test_loadProjectDialogDefaults [
 
 	| expectedMessages resumeValues hitExceptionCount |
 	expectedMessages := OrderedCollection
-		                    with: JadePresenter homeEnvVarString
+		                    with:
+		                    JadePresenter rowanProjectsHomeEnvVarString
 		                    with:
 			                    'Loading this spec file will use ''$ROWAN_PROJECTS_HOME'' as projects home. Continue?
 (Pressing No will open a dialog to choose an alternate projects home path)'
