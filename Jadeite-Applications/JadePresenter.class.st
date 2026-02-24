@@ -21,6 +21,13 @@ Class {
 	#package : 'Jadeite-Applications'
 }
 
+{ #category : 'private' }
+JadePresenter class >> _lastLoadProjectPath: filePath [
+	"tests only"
+
+	LastLoadProjectPath := filePath
+]
+
 { #category : 'public' }
 JadePresenter class >> areAbortCommitEnabled [
 	^self transactionMode == #autoBegin
@@ -80,12 +87,6 @@ JadePresenter class >> lastLoadProjectPath [
 	^ LastLoadProjectPath
 ]
 
-{ #category : 'accessing' }
-JadePresenter class >> lastLoadProjectPath: filePath [
-
-	LastLoadProjectPath := filePath
-]
-
 { #category : 'constants' }
 JadePresenter class >> maxPrintStringSize [
 	^100000
@@ -109,6 +110,15 @@ JadePresenter class >> packageListVisible [
 { #category : 'preferences' }
 JadePresenter class >> packageListVisible: aBoolean [
 	PackageListVisible := aBoolean
+]
+
+{ #category : 'accessing' }
+JadePresenter class >> possiblySetLastLoadProjectPath: filePath [
+	"If $ROWAN_PROJECTS_HOME is available, always use that"
+
+	LastLoadProjectPath = self rowanProjectsHomeEnvVarString ifTrue: [
+		^ self ].
+	LastLoadProjectPath := filePath
 ]
 
 { #category : 'public' }

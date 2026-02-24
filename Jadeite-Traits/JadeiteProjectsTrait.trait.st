@@ -816,7 +816,7 @@ JadeiteProjectsTrait >> setDefaultLastLoadProjectPath [
 	fileService := RowanFileServiceClient new
 		               path: JadePresenter rowanProjectsHomeEnvVarString;
 		               session: self gciSession.
-	^ JadePresenter lastLoadProjectPath: (fileService exists
+	^ JadePresenter possiblySetLastLoadProjectPath: (fileService exists
 			   ifTrue: [ JadePresenter rowanProjectsHomeEnvVarString ]
 			   ifFalse: [ JadePresenter homeEnvVarString ])
 ]

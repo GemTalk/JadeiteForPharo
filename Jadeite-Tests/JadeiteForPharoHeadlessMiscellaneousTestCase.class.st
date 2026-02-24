@@ -177,6 +177,23 @@ JadeiteForPharoHeadlessMiscellaneousTestCase >> test_serviceUpdater [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoHeadlessMiscellaneousTestCase >> test_settingLastProjectLoadPath [
+
+	JadePresenter _lastLoadProjectPath: nil.
+	JadePresenter possiblySetLastLoadProjectPath: 'foo'.
+	self assert: JadePresenter lastLoadProjectPath equals: 'foo'.
+	JadePresenter possiblySetLastLoadProjectPath:
+		JadePresenter rowanProjectsHomeEnvVarString.
+	self
+		assert: JadePresenter lastLoadProjectPath
+		equals: JadePresenter rowanProjectsHomeEnvVarString.
+	JadePresenter possiblySetLastLoadProjectPath: 'foo'.
+	self deny: JadePresenter lastLoadProjectPath equals: 'foo'.
+	JadePresenter _lastLoadProjectPath: 'foo'.
+	self assert: JadePresenter lastLoadProjectPath equals: 'foo'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoHeadlessMiscellaneousTestCase >> test_updates [
 	"updates should be added to the service. Those updates are other 
 	services which will update the gui. For instance, a query service 

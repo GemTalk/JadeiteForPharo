@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-FileDialog'
 }
 
+{ #category : 'initialization' }
+JadeiteLoadProjectDialog class >> setLastPath: aString [
+
+	JadePresenter possiblySetLastLoadProjectPath: aString
+]
+
 { #category : 'instance creation' }
 JadeiteLoadProjectDialog class >> showOnSession: aGciSession defaultPath: defaultPath shellName: shellName [
 
@@ -14,10 +20,4 @@ JadeiteLoadProjectDialog class >> showOnSession: aGciSession defaultPath: defaul
 		  basicShowOnSession: aGciSession
 		  defaultPath: defaultPath
 		  shellName: shellName
-]
-
-{ #category : 'initialization' }
-JadeiteLoadProjectDialog >> setLastPath: aString [
-
-	JadePresenter lastLoadProjectPath: aString
 ]
