@@ -179,18 +179,22 @@ JadeiteForPharoHeadlessMiscellaneousTestCase >> test_serviceUpdater [
 { #category : 'tests' }
 JadeiteForPharoHeadlessMiscellaneousTestCase >> test_settingLastProjectLoadPath [
 
-	JadePresenter _lastLoadProjectPath: nil.
-	JadePresenter possiblySetLastLoadProjectPath: 'foo'.
-	self assert: JadePresenter lastLoadProjectPath equals: 'foo'.
-	JadePresenter possiblySetLastLoadProjectPath:
-		JadePresenter rowanProjectsHomeEnvVarString.
-	self
-		assert: JadePresenter lastLoadProjectPath
-		equals: JadePresenter rowanProjectsHomeEnvVarString.
-	JadePresenter possiblySetLastLoadProjectPath: 'foo'.
-	self deny: JadePresenter lastLoadProjectPath equals: 'foo'.
-	JadePresenter _lastLoadProjectPath: 'foo'.
-	self assert: JadePresenter lastLoadProjectPath equals: 'foo'
+	| savePath |
+	savePath := JadePresenter lastLoadProjectPath.
+	[
+		JadePresenter _lastLoadProjectPath: nil.
+		JadePresenter possiblySetLastLoadProjectPath: 'foo'.
+		self assert: JadePresenter lastLoadProjectPath equals: 'foo'.
+		JadePresenter possiblySetLastLoadProjectPath:
+			JadePresenter rowanProjectsHomeEnvVarString.
+		self
+			assert: JadePresenter lastLoadProjectPath
+			equals: JadePresenter rowanProjectsHomeEnvVarString.
+		JadePresenter possiblySetLastLoadProjectPath: 'foo'.
+		self deny: JadePresenter lastLoadProjectPath equals: 'foo'.
+		JadePresenter _lastLoadProjectPath: 'foo'.
+		self assert: JadePresenter lastLoadProjectPath equals: 'foo' ]
+		ensure: [ JadePresenter _lastLoadProjectPath: savePath ]
 ]
 
 { #category : 'tests' }
