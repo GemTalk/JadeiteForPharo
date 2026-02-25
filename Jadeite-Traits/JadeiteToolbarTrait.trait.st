@@ -89,6 +89,7 @@ JadeiteToolbarTrait >> basicOpenBrowser: browser [
 	windowPresenter := browser open.
 	browser addStyle: 'jadeWorkspace'.
 	self application addBorderStyleTo: windowPresenter presenter: browser.
+	browser postOpenBlock: [ ].
 	^ browser
 ]
 

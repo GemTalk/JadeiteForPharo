@@ -119,23 +119,8 @@ JadeiteForPharoConsoleTestCase >> test_browseProject [
 { #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 
-	| projectsPresenter sem |
-	RowanServiceUpdater uninstallTestUpdater.
-
-	projectsPresenter := self
-		                   waitForNewPresenter: JadeiteBrowser browserPresenterClass
-		                   while: [ jadeiteShell findClassNamed: 'Object' ].
-	projectsBrowser := projectsPresenter parentPresenter.
-	sem := Semaphore new.
-	[
-	[
-	projectsPresenter selectedClass
-		ifNil: [ false ]
-		ifNotNil: [ :classService | classService name = 'Object' ] ]
-		whileFalse: [ (Delay forMilliseconds: 10) wait ].
-	sem signal ] fork.
-
-	sem waitTimeoutSeconds: 2.
+	| projectsPresenter |
+	projectsPresenter := self openBrowserOn: 'Object'.
 	self assert: projectsPresenter selectedClass name equals: 'Object'.
 	self
 		assert: projectsPresenter parentPresenter

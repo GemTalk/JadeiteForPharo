@@ -370,29 +370,6 @@ JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
 ]
 
 { #category : 'support' }
-JadeiteForPharoGUITestCase >> waitForNewPresenter: presenterClass while: aBlock [
-
-	| existing new count |
-	RsrGarbageCollector maximumReclamation.
-	existing := presenterClass allInstances.
-	aBlock forkAt: Processor activePriority + 1.
-	count := 0.
-	[
-	count > 50 or: [
-		(new := presenterClass allInstances asOrderedCollection) size
-		> existing size ] ] whileFalse: [
-		WorldMorph doOneCycle.
-		count := count + 1.
-		(Delay forMilliseconds: 50) wait ].
-	new removeAll: existing.
-	self
-		deny: new isEmpty
-		description: presenterClass printString , ' was not opened!'.
-	new isEmpty ifTrue: [ ^ nil ].
-	^ new first
-]
-
-{ #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForSaveDialog [
 
 	| dialogs count |

@@ -42,6 +42,31 @@ JadeiteForPharoTestCase >> closeConnectionLaunchers [
 	self jadeiteTestResourceClass current closeConnectionLaunchers
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoTestCase >> openBrowserOn: className [
+
+	| sem projectsPresenter |
+	RowanServiceUpdater uninstallTestUpdater.
+	self destroy: projectsBrowser.
+	projectsPresenter := self
+		                     waitForNewPresenter:
+		                     JadeiteBrowser browserPresenterClass
+		                     while: [
+		                     jadeiteShell findClassNamed: className ].
+	projectsBrowser := projectsPresenter parentPresenter.
+	sem := Semaphore new.
+	[
+		[
+			projectsPresenter selectedClass
+				ifNil: [ false ]
+				ifNotNil: [ :classService | classService name = className ] ]
+			whileFalse: [ (Delay forMilliseconds: 10) wait ].
+		sem signal ] fork.
+
+	sem waitTimeoutSeconds: 2.
+	^ projectsPresenter
+]
+
 { #category : 'running' }
 JadeiteForPharoTestCase >> runCaseManaged [
 	"In order to preserve RSR connections across test boundaries
@@ -76,4 +101,27 @@ JadeiteForPharoTestCase >> tearDown [
 
 	savedSettings ifNotNil: [ JadeitePreferences current: savedSettings ].
 	super tearDown
+]
+
+{ #category : 'support' }
+JadeiteForPharoTestCase >> waitForNewPresenter: presenterClass while: aBlock [
+
+	| existing new count |
+	RsrGarbageCollector maximumReclamation.
+	existing := presenterClass allInstances.
+	aBlock forkAt: Processor activePriority + 1.
+	count := 0.
+	[
+	count > 50 or: [
+		(new := presenterClass allInstances asOrderedCollection) size
+		> existing size ] ] whileFalse: [
+		WorldMorph doOneCycle.
+		count := count + 1.
+		(Delay forMilliseconds: 50) wait ].
+	new removeAll: existing.
+	self
+		deny: new isEmpty
+		description: presenterClass printString , ' was not opened!'.
+	new isEmpty ifTrue: [ ^ nil ].
+	^ new first
 ]

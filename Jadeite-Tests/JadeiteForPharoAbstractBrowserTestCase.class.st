@@ -445,6 +445,37 @@ JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowser [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserBadPostOpenBlock [
+
+	| tabCount projectsPresenter |
+	self
+		testsJadeiteForPharoIssue: #issue401
+		title: 'Browse In Existing Browser sometimes doesn''t find method'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/401'.
+
+	projectsPresenter := self openBrowserOn: 'SortedCollection'.
+
+	projectsBrowser := projectsPresenter parentPresenter.
+	tabCount := 1.
+	self assert: projectsBrowser tabs pages size equals: tabCount.
+	self selectMethodNamed: #add:.
+	self waitForMethodListBrowserWhile: [
+		projectsBrowser browseImplementorsOf: #add: ].
+	methodListBrowser methodListPresenter items do: [ :methodService |
+			methodListBrowser methodListPresenter unselectAll.
+			methodListBrowser methodListPresenter selectItem: methodService.
+			methodListBrowser browseMethodClassInExistingBrowser.
+			tabCount := tabCount + 1.
+			self assert: projectsBrowser tabs pages size equals: tabCount.
+			[ self methodListPresenter selectedItem ] whileNil: [
+				(Delay forMilliseconds: 2) wait ].
+			WorldMorph doOneCycle.
+			self
+				assert: self methodListPresenter selectedItem selector
+				equals: #add: ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_browseInExistingBrowserTabLabel [
 
 	self

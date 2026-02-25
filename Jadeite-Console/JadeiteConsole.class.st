@@ -236,7 +236,8 @@ JadeiteConsole >> findClassNamed: className [
 	| browser |
 	browser := JadeiteBrowser new owner: self.
 	browser postOpenBlock: [ browser findClassNamed: className ].
-	self basicOpenBrowser: browser
+	self basicOpenBrowser: browser.
+	^browser
 ]
 
 { #category : 'actions' }
