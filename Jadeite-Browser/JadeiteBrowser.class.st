@@ -409,6 +409,7 @@ JadeiteBrowser >> openNewBrowserPresenter [
 		owner: self.
 	self application registerBrowserEventsFor: browserPresenter.
 	browserPresenter postOpen.
+	postOpenBlock := [ ].
 	^ browserPresenter
 ]
 
