@@ -131,7 +131,7 @@ JadeiteGCIConnectionProfile >> commitIdServerCode [
 
 	^ '| ws sortedLoadedProjects rsrProj rcsProj |
 rsrProj := Rowan image loadedProjectNamed: ''RemoteServiceReplication'' ifAbsent: []. 
-rcsProj := Rowan image loadedProjectNamed: ''RowanClientServices'' ifAbsent: []. 
+rcsProj := (((AllUsers userWithId: ''SystemUser'') objectNamed: #Rowan) image _loadedProjectRegistryForUserId: ''SystemUser'') at: ''RowanClientServices'' ifAbsent: [ ].
 ws := WriteStream on: String new. 
 ws nextPutAll: ''Server Required Projects:'';
 	cr;
@@ -165,7 +165,13 @@ ws contents'
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> commitIdServerInfoCode [
 
-	^ 'System gemVersionReportString'
+	^ '| ws | 
+	ws := WriteStream on: String new.
+	ws nextPutAll: System gemVersionReportString. 
+	ws cr.
+	ws nextPutAll: ''User id: ''; 
+	nextPutAll: System myUserProfile userId.
+	ws contents'
 ]
 
 { #category : 'actions' }
