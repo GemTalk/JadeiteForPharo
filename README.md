@@ -21,7 +21,14 @@ These instructions provide installation into GemStone/S 64 Bit v3.7.5, which is 
 
 This branch of Jadeite is only expected to work with Pharo 13. 
 
+## Updated versions of Jadeite
+
+To use a new version of Jadeite, you usually need to do updates on Rowan or Rowan Stub code in the GemStone server before installing the new version of Jadeite 
+* [Rowan updates for a new version of Jadeite using Rowan](UpdateWithRowan.md)
+* [RowanStubForJadeite for a new version of Jadeite without Rowan](UpdateWithoutRowan.md)
+  
 ## Reporting Issues
 
 Issue reports are welcome. Please include the git shas (Abort > Git Commit Ids), as well as screen shots and/or stack traces. 
+
 
