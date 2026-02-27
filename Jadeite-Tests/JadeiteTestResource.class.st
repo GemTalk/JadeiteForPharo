@@ -144,6 +144,31 @@ JadeiteTestResource >> connect [
 ]
 
 { #category : 'support' }
+JadeiteTestResource >> connectAs: userName [
+
+	| profile |
+	profile := JadeiteConnectionProfile connectionProfile.
+	(profile user = userName and: [ profile isConnected ]) ifTrue: [
+		^ self ].
+	profile isConnected ifTrue: [ profile disconnect ].
+	profile user: userName.
+	JadeiteConnectionLauncher soleInstance presenter basicImportProfile: profile.
+	self connect
+]
+
+{ #category : 'support' }
+JadeiteTestResource >> connectAsDataCurator [
+
+	self connectAs: 'DataCurator'
+]
+
+{ #category : 'support' }
+JadeiteTestResource >> connectAsSystemUser [
+
+	self connectAs: 'SystemUser'
+]
+
+{ #category : 'support' }
 JadeiteTestResource >> connectIfNecessary [
 
 	| profile |

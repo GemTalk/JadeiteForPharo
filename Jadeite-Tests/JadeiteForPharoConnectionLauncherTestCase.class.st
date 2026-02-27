@@ -116,6 +116,25 @@ JadeiteForPharoConnectionLauncherTestCase >> profile [
 	^ JadeiteGCIConnectionProfile connectionProfile
 ]
 
+{ #category : 'accessing' }
+JadeiteForPharoConnectionLauncherTestCase >> rcsSha [
+	"make sure the test gets the sha in a way that works for both DataCurator which has no RCS projects visible and SystemUser"
+
+	| sem answeringService waitResult |
+	sem := Semaphore new.
+	answeringService := RowanAnsweringServiceClient new.
+	[
+		answeringService
+			exec: ' | rcsProj | 
+			rcsProj := (((AllUsers userWithId: ''SystemUser'') objectNamed: #Rowan) image _loadedProjectRegistryForUserId: ''SystemUser'') at: ''RowanClientServices'' ifAbsent: [ ].
+			rcsProj ifNil: [String new] ifNotNil: [rcsProj loadedCommitId]'
+			in: GciSession current
+			onCompletion: [ sem signal ] ] fork.
+	waitResult := sem waitTimeoutMilliseconds: 500.
+	waitResult ifTrue: [ self fail: 'Timeout getting RCS sha exceeded' ].
+	^ answeringService answer withoutQuoting
+]
+
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> removeConnectionProfileDirectory [
 
@@ -415,17 +434,13 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplay [
 		          commitish shortId.
 	browserService := RowanBrowserService new.
 	browserService command: #updateProjects.
-	browserService command: #updateProjects.
 	RowanServiceUpdater current
 		issueCommand: browserService
 		session:
 		(GciSession new library: launcher connectionProfile connection)
 		onCompletion: [
 				| workspaceString |
-				clientServicesSha := (browserService projects detect: [
-					                      :projectService |
-					                      projectService name = 'RowanClientServices' ])
-					                     sha.
+				clientServicesSha := self rcsSha.
 				desiredWorkspaceText := 'Client:*
 JadeiteForPharo ' , jfpSha asString , '
 PharoGemStoneFFI ' , gemstoneFFISha asString , '
@@ -537,6 +552,7 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayValidLoginAft
 
 	JadeitePreferences isRowanAvailable ifFalse: [
 		^ self skip: 'Rowan not available. Test not run' ].
+	launcher disconnect.
 	stone := launcher stoneText adapter widget text asString copy.
 	launcher stoneText adapter widget setText: 'nonExistantStone'.
 	workspace := launcher openCommitIdWindow.
@@ -553,9 +569,11 @@ JadeiteForPharoConnectionLauncherTestCase >> test_gitVersionDisplayValidLoginAft
 		launcher disconnect.
 		workspace := launcher openCommitIdWindow.
 		contents := workspace text.
-			self assert: ('*RowanClientServices*' match: contents). 
-			self assert: ('*All loaded projects:*' match: contents).
-			self assert: ('*GemStone server information:*nodeName*osName*processId*' match: contents).  ] ensure: [ self destroy: workspace ]
+		self assert: ('*RowanClientServices*' match: contents).
+		self assert: ('*All loaded projects:*' match: contents).
+		self assert:
+			('*GemStone server information:*nodeName*osName*processId*' match:
+				 contents) ] ensure: [ self destroy: workspace ]
 ]
 
 { #category : 'tests' }

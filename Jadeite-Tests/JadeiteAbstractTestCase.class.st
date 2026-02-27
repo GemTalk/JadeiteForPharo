@@ -12,6 +12,12 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'asserting' }
+JadeiteAbstractTestCase class >> classForTestResult [
+
+	^ JadeiteTestResult
+]
+
 { #category : 'coverage' }
 JadeiteAbstractTestCase class >> codeCoverageClasses [
 
@@ -228,6 +234,12 @@ JadeiteAbstractTestCase >> createNewTestProjectNamed: projectName [
 		               command: #createNewTestProjectNamed:
 		               withArgs: (Array with: projectName).
 	self issueCommand: testService onCompletion: [  ]
+]
+
+{ #category : 'accessing' }
+JadeiteAbstractTestCase >> currentResource [
+	"assume only one resource currently"
+	^ self resources anyOne current
 ]
 
 { #category : 'as yet unclassified' }
