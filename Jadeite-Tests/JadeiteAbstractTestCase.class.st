@@ -34,7 +34,7 @@ JadeiteAbstractTestCase class >> codeCoverageMethods [
 			  coll asOrderedCollection ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteAbstractTestCase class >> isAbstract [
 	^self == JadeiteAbstractTestCase
 ]
@@ -45,9 +45,19 @@ JadeiteAbstractTestCase class >> jadeiteTestResourceClass [
 	^JadeiteTestResource
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 JadeiteAbstractTestCase class >> resources [
 	^IdentitySet with: self jadeiteTestResourceClass
+]
+
+{ #category : 'testing' }
+JadeiteAbstractTestCase class >> runAsDataCurator [
+	"If the test class is expected to pass while
+	logged in with DataCurator, override this 
+	method to return true. The test runner will
+	run each test as both SystemUser and DataCurator."
+
+	^ false
 ]
 
 { #category : 'factory' }

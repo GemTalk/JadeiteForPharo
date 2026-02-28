@@ -26,6 +26,16 @@ JadeiteForPharoConnectionLauncherTestCase class >> codeCoverageClasses [
 		  JadeiteGCIConnectionProfile } asOrderedCollection
 ]
 
+{ #category : 'testing' }
+JadeiteForPharoConnectionLauncherTestCase class >> runAsDataCurator [
+	"If the test class is expected to pass while
+	logged in with DataCurator, override this 
+	method to return true. The test runner will
+	run each test as both SystemUser and DataCurator."
+
+	^ true
+]
+
 { #category : 'support' }
 JadeiteForPharoConnectionLauncherTestCase >> changeAllLauncherFields [
 
@@ -125,14 +135,33 @@ JadeiteForPharoConnectionLauncherTestCase >> rcsSha [
 	answeringService := RowanAnsweringServiceClient new.
 	[
 		answeringService
-			exec: ' | rcsProj | 
-			rcsProj := (((AllUsers userWithId: ''SystemUser'') objectNamed: #Rowan) image _loadedProjectRegistryForUserId: ''SystemUser'') at: ''RowanClientServices'' ifAbsent: [ ].
-			rcsProj ifNil: [String new] ifNotNil: [rcsProj loadedCommitId]'
+			exec: self rcsShaServerCode
 			in: GciSession current
 			onCompletion: [ sem signal ] ] fork.
 	waitResult := sem waitTimeoutMilliseconds: 500.
 	waitResult ifTrue: [ self fail: 'Timeout getting RCS sha exceeded' ].
 	^ answeringService answer withoutQuoting
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoConnectionLauncherTestCase >> rcsShaServerCode [
+
+	^ '| aUserId userId userProfile userPlatformDict registry rcsProj |
+	aUserId := ''SystemUser''.
+	userProfile := AllUsers userWithId: aUserId.
+	(userProfile defaultObjectSecurityPolicy ifNil: [true] ifNotNil: [:x |x currentUserCanRead])
+		ifFalse: [
+			"do not have permissions to read objects created by <aUserId>"
+			^ nil ].
+	userPlatformDict := (AllUsers userWithId: aUserId) objectNamed: ''UserGlobals''.
+	registry := userPlatformDict
+		at: #''RwGsLoadedProjectRegistry''
+		ifAbsent: [ 
+			(self currentUserId = aUserId)
+				ifFalse: [ ^ nil ].
+			userPlatformDict at: #''|RwGsLoadedProjectRegistry|'' put: StringKeyValueDictionary new ].
+	rcsProj := registry at: ''RowanClientServices'' ifAbsent: [ ].
+	rcsProj ifNil: [String new] ifNotNil: [rcsProj loadedCommitId] '
 ]
 
 { #category : 'support' }
@@ -751,19 +780,26 @@ JadeiteForPharoConnectionLauncherTestCase >> test_textFieldsShowChangeIndication
 { #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_titleChangesOnConnect [
 
+	| sem connectResult |
+	sem := Semaphore new.
+	launcher connectionProfile announcer
+		when: JadeiteConnectedAnnouncement
+		send: #signal
+		to: sem.
 	launcher connectionProfile isConnected ifTrue: [ launcher disconnect ].
 	self
 		assert: launcher window title
 		equals: 'Jadeite Connection Launcher'.
 	launcher connect.
+	connectResult := sem waitTimeoutSeconds: 1.
+	connectResult ifTrue: [ ^ self fail: 'connection took too long' ].
 	self
 		assert: launcher window title
 		equals: (launcher gciSession titleBarFor: launcher shellName).
-	launcher disconnect. 
+	launcher disconnect.
 	self
 		assert: launcher window title
-		equals: 'Jadeite Connection Launcher'.
-	
+		equals: 'Jadeite Connection Launcher'
 ]
 
 { #category : 'support' }

@@ -10,8 +10,9 @@ JadeiteTestResult >> runCase: aTestCase [
 
 	aTestCase currentResource connectAsSystemUser.
 	super runCase: aTestCase.
-	aTestCase currentResource connectAsDataCurator.
-	super runCase: aTestCase.
+	aTestCase class runAsDataCurator ifTrue: [
+			aTestCase currentResource connectAsDataCurator.
+			super runCase: aTestCase ].
 	aTestCase currentResource connectAsSystemUser
 ]
 
@@ -20,7 +21,8 @@ JadeiteTestResult >> runCaseForDebug: aTestCase [
 
 	aTestCase currentResource connectAsSystemUser.
 	super runCaseForDebug: aTestCase.
-	aTestCase currentResource connectAsDataCurator.
-	super runCaseForDebug: aTestCase.
-	aTestCase currentResource connectAsSystemUser.
+	aTestCase class runAsDataCurator ifTrue: [
+			aTestCase currentResource connectAsDataCurator.
+			super runCase: aTestCase ].
+	aTestCase currentResource connectAsSystemUser
 ]

@@ -9,7 +9,8 @@ Class {
 		'password',
 		'port',
 		'session',
-		'toolbarServerVersion'
+		'toolbarServerVersion',
+		'announcer'
 	],
 	#classVars : [
 		'ClientLibrariesPath'
@@ -45,6 +46,19 @@ JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 	^ super stonAllInstVarNames copyWithout: #session
 ]
 
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> announcer [
+
+	announcer ifNil: [ announcer := Announcer new ].
+	^ announcer
+]
+
+{ #category : 'accessing' }
+JadeiteGCIConnectionProfile >> announcer: anObject [
+
+	announcer := anObject
+]
+
 { #category : 'actions' }
 JadeiteGCIConnectionProfile >> applyPreferences [
 
@@ -66,15 +80,16 @@ JadeiteGCIConnectionProfile >> basicConnectWithPostConnect: postConnectBlock [
 	GciSession current
 		stoneName: stone;
 		userID: user.
-	theConnection := self setupRSRConnection.
-	session logoutNbNoError.
-	session := nil.
+	[ theConnection := self setupRSRConnection ] ensure: [
+			session logoutNbNoError.
+			session := nil ].
 	GciSession current library: theConnection.
 	postConnectBlock value.
 	self
 		setIsRowanAvailableOnCompletion: [
 				connection := theConnection. "don't trigger events until isRowanAvailable is set"
-				self applyPreferences
+				self applyPreferences.
+				self announcer announce: JadeiteConnectedAnnouncement new
 				"Uncomment following three lines to enable RSR tracing""	
 		connection log addSink: (RsrCustomSink action: [ :message |
 		RowanServiceUpdater current logComment: message ]).
@@ -129,9 +144,22 @@ JadeiteGCIConnectionProfile >> clientCommitIdDescriptionOn: ws [
 { #category : 'commit ids' }
 JadeiteGCIConnectionProfile >> commitIdServerCode [
 
-	^ '| ws sortedLoadedProjects rsrProj rcsProj |
+	^ '| ws sortedLoadedProjects rsrProj rcsProj aUserId userId userProfile userPlatformDict registry |
 rsrProj := Rowan image loadedProjectNamed: ''RemoteServiceReplication'' ifAbsent: []. 
-rcsProj := (((AllUsers userWithId: ''SystemUser'') objectNamed: #Rowan) image _loadedProjectRegistryForUserId: ''SystemUser'') at: ''RowanClientServices'' ifAbsent: [ ].
+aUserId := ''SystemUser''.
+	userProfile := AllUsers userWithId: aUserId.
+	(userProfile defaultObjectSecurityPolicy ifNil: [true] ifNotNil: [:x |x currentUserCanRead])
+		ifFalse: [
+			"do not have permissions to read objects created by <aUserId>"
+			^ nil ].
+	userPlatformDict := (AllUsers userWithId: aUserId) objectNamed: ''UserGlobals''.
+	registry := userPlatformDict
+		at: #''RwGsLoadedProjectRegistry''
+		ifAbsent: [ 
+			(self currentUserId = aUserId)
+				ifFalse: [ ^ nil ].
+			userPlatformDict at: #''RwGsLoadedProjectRegistry'' put: StringKeyValueDictionary new ].
+rcsProj := registry at: ''RowanClientServices'' ifAbsent: [ ].
 ws := WriteStream on: String new. 
 ws nextPutAll: ''Server Required Projects:'';
 	cr;

@@ -311,7 +311,7 @@ JadeiteConnectionLauncher >> connect [
 					               title: 'Jadeite Connection Error'.
 				shouldDebug
 					ifTrue: [ ex pass ]
-					ifFalse: [ ^ self ] ]
+					ifFalse: [ ex return ] ]
 ]
 
 { #category : 'accessing' }
