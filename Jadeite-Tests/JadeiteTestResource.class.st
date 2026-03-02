@@ -307,6 +307,12 @@ JadeiteTestResource >> isAvailable [
 	^ self session notNil and: [ self testConnectionProfile notNil ]
 ]
 
+{ #category : 'testing' }
+JadeiteTestResource >> isJadeiteTestResource [
+
+	^true 
+]
+
 { #category : 'support' }
 JadeiteTestResource >> issueCommand: service onCompletion: completionBlock [
 
