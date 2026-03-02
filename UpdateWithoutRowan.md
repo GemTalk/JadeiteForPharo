@@ -1,13 +1,13 @@
 ## Updating to a New Jadeite Version (without Rowan)
 
-New versions of Jadeite, provided outside of a GemStone server release, require additional updates to the GemStone server, in order to get corresponding updated versions of the server code that Jadeite depends on.
+Jadeite on the client operates by invoking server operations that are implemented in the RowanStubForJadeite that is 
+loaded into the GemStone server. New versions of Jadeite, provided outside of a GemStone server release, usually 
+require additional updates to the GemStone server to get corresponding server changes. A Jadeite/RowanStubForJadeite 
+mismatch may make Jadeite unusable.
 
-Jadeite on the client operates by invoking GemStone server operations that are supported by RowanStubForJadeite in the non-Rowan base extent GemStone repository. While some changes in Jadeite do not require changes in RCS, and vice versa, often bug fixes in Jadeite require a corresponding change in RCS and you would see unexpected errors if you do not upgrade both Jadeite and RCS. 
-
-The RowanStubForJadeite install process normally disallows reinstallation. If an updated version of the RowanStubForJadeite 
-is to be installed, or if you are upgrading to a later version of GemStone with a later version of the
-RowanStubForJadeite (for example, after a release such as 3.7.6), setting several environment variables allows reinstalling 
-the Rowan Stub.
+If an updated version of the RowanStubForJadeite is to be installed, or if you are upgrading to a later version of GemStone 
+with a later version of the RowanStubForJadeite (for example, after a release such as 3.7.6), setting several environment 
+variables allows reinstalling the code for the Rowan Stub.
 
 ### Installing an updated version of the RowanStubForJadeite
 
@@ -46,5 +46,12 @@ To install the version of RowanStubForJadeite that is included in the upgraded v
    $GEMSTONE/examples/jadeite/bin/installRowanStub_topaz.sh -L
    ```
 
+###Updating Jadeite
 
+Minor changes in Jadeite may not require changes in the Rowan Stub, and vice versa, but often bug fixes in Jadeite require a corresponding change in the Rowan Stub, and you would see unexpected errors if you do not upgrade both Jadeite and the Rowan Stub.
+
+To get a new version of jadeite, it is recommended to update the server as needed, then on the client, update the git clones, create a new Pharo image, and install Jadeite. A link to Instructions are in the [README][2].
+
+Jadeite updates may be done within the running Pharo image, using Pharo tools. However, if the jadeite changes break the interface to the server, this risks making jadeite unusable in this Pharo image.
   
+[2]: README.md
