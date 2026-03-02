@@ -152,8 +152,9 @@ JadeiteTestResource >> connectAs: userName [
 		^ self ].
 	profile isConnected ifTrue: [ profile disconnect ].
 	profile user: userName.
-	JadeiteConnectionLauncher soleInstance presenter basicImportProfile: profile.
-	self connect
+	self connect.
+	JadeiteConnectionLauncher soleInstance ifNotNil: [ :launcher |
+		launcher presenter basicImportProfile: profile ]
 ]
 
 { #category : 'support' }
