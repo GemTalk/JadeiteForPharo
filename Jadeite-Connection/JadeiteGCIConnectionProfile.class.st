@@ -9,8 +9,7 @@ Class {
 		'password',
 		'port',
 		'session',
-		'toolbarServerVersion',
-		'announcer'
+		'toolbarServerVersion'
 	],
 	#classVars : [
 		'ClientLibrariesPath'
@@ -44,19 +43,6 @@ JadeiteGCIConnectionProfile class >> initialize [
 JadeiteGCIConnectionProfile class >> stonAllInstVarNames [
 
 	^ super stonAllInstVarNames copyWithout: #session
-]
-
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> announcer [
-
-	announcer ifNil: [ announcer := Announcer new ].
-	^ announcer
-]
-
-{ #category : 'accessing' }
-JadeiteGCIConnectionProfile >> announcer: anObject [
-
-	announcer := anObject
 ]
 
 { #category : 'actions' }

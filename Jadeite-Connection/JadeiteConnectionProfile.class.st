@@ -6,7 +6,8 @@ Class {
 	#instVars : [
 		'#host => ObservableSlot',
 		'#connection => ObservableSlot',
-		'#jadeiteWindows'
+		'#jadeiteWindows',
+		'#announcer'
 	],
 	#classVars : [
 		'#ConnectionProfile'
@@ -33,6 +34,19 @@ JadeiteConnectionProfile class >> connectionProfile: anObject [
 JadeiteConnectionProfile >> addJadeiteWindow: jadeiteWindow [
 
 	jadeiteWindows add: jadeiteWindow
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile >> announcer [
+
+	announcer ifNil: [ announcer := Announcer new ].
+	^ announcer
+]
+
+{ #category : 'accessing' }
+JadeiteConnectionProfile >> announcer: anObject [
+
+	announcer := anObject
 ]
 
 { #category : 'accessing' }
