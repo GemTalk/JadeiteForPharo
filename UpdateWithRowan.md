@@ -33,9 +33,9 @@ The target name, RowanClientServicesV3, must match the name of the project withi
 Minor changes in Jadeite may not require changes in RCS, and vice versa, but often bug fixes in Jadeite require a corresponding 
 change in RCS, and you would see unexpected errors if you do not upgrade both Jadeite and RCS. 
 
-To get a new version of jadeite, it is recommended to update the server as needed, then on the client, update the git clones, 
-create a new Pharo image, and install Jadeite. 
+To get a new version of jadeite, it is recommended to update the server as needed, then on the client, update the git clones, create a new Pharo image, and install Jadeite. A link to Instructions are in the [README][2].
 
 Jadeite updates may be done within the running Pharo image, using Pharo tools. However, if the jadeite changes break the 
 interface to the server, this risks making jadeite unusable in this Pharo image. 
-
+ 
+[2]: README.md
