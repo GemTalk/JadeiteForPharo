@@ -12,6 +12,18 @@ JadeiteBrowserWithoutRowan class >> new [
 ]
 
 { #category : 'actions' }
+JadeiteBrowserWithoutRowan >> basicFileInServerFile: filePath [
+
+	| service |
+	service := RowanFileServiceClient new
+		           path: filePath;
+		           session: self gciSession.
+	^ service fileInOnCompletion: [ :svc |
+			  self activePresenter ifNotNil: [ :presenter |
+				  presenter updateDictionariesOnCompletion: [ ] ] ]
+]
+
+{ #category : 'actions' }
 JadeiteBrowserWithoutRowan >> fileInServerFile [
 
 	| filePath |

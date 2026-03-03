@@ -268,7 +268,8 @@ RowanService >> executeCommandOnCompletion: completionBlock [
 								ifTrue: [
 								RowanServiceUpdater current logComment: 'rsrProcessTerminated' ]
 								ifFalse: [ self displayRSRError: value ] ].
-					self terminate: process error: value.
+					process name = 'Morphic UI Process' ifFalse: [
+						self terminate: process error: value ].
 					self raiseCompileErrorIfNeeded.
 					self catchBlock cull: value ] ensure: [ self inCommand signal ] ]
 ]

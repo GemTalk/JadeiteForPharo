@@ -2401,30 +2401,34 @@ JadeiteBrowserPresenter >> newDictionaryMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-			  group
-				  addItem: [ :item |
-					  item
-						  name: 'Add Dictionary ...';
-						  action: [ self addDictionary]
-						   ];
-				  addItem: [ :item |
-					  item
-						  name: 'Remove Dictionary ...';
-						  action: [ self removeDictionary ];
-						  enabled: [
-							  [ self dictionaryListPresenter selectedItem notNil ]
-								  on: Error
-								  do: [ :ex |
-									  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
-				  addItem: [ :item |
-					  item
-						  name: 'File Out Dictionary ...';
-						  action: [ self fileoutDictionary ];
-						  enabled: [
-							  [ self dictionaryListPresenter selectedItem notNil ]
-								  on: Error
-								  do: [ :ex |
-									  false "Spec2 lists are broken and can have the wrong selection" ] ] ] ];
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Add Dictionary ...';
+								  action: [ self addDictionary ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Remove Dictionary ...';
+								  action: [ self removeDictionary ];
+								  enabled: [
+										  [ self dictionaryListPresenter selectedItem notNil ]
+											  on: Error
+											  do: [ :ex |
+												  false "Spec2 lists are broken and can have the wrong selection" ] ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'File Out Dictionary ...';
+								  action: [ self fileoutDictionary ];
+								  enabled: [
+										  [ self dictionaryListPresenter selectedItem notNil ]
+											  on: Error
+											  do: [ :ex |
+												  false "Spec2 lists are broken and can have the wrong selection" ] ] ] ];
+		  addGroup: [ :group |
+				  group addItem: [ :item |
+						  item
+							  name: 'Refresh from Server';
+							  action: [ self updateDictionariesOnCompletion: [ ] ] ] ];
 		  yourself
 ]
 

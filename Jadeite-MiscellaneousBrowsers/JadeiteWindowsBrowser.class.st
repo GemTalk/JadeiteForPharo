@@ -293,19 +293,25 @@ JadeiteWindowsBrowser >> raiseJadeiteWindows [
 	"kind of weird pharo code, but it seems that we have to collapse
 	the window first, then do a `minimizeOrRestore`"
 
-	jadeiteWindowsListPresenter selectedItems do: [ :presenter |
-		presenter window
-			collapse;
-			minimizeOrRestore ]
+	[
+		jadeiteWindowsListPresenter selectedItems do: [ :presenter |
+				presenter window
+					collapse;
+					minimizeOrRestore ] ]
+		on: Error
+		do: [ :ex | "no action. User can double click again" ]
 ]
 
 { #category : 'actions' }
 JadeiteWindowsBrowser >> raisePharoWindows [
 
-	pharoWindowsListPresenter selectedItems do: [ :presenter |
-		presenter window
-			collapse;
-			minimizeOrRestore ]
+	[
+		pharoWindowsListPresenter selectedItems do: [ :presenter |
+				presenter window
+					collapse;
+					minimizeOrRestore ] ]
+		on: Error
+		do: [ :ex | "no action. User can double click again" ]
 ]
 
 { #category : 'actions' }
