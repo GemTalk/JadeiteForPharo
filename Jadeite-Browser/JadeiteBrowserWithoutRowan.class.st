@@ -64,5 +64,7 @@ JadeiteBrowserWithoutRowan >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter initialExtent:
-		150 @ 80 * StandardFonts defaultFont pointSize
+		150 @ 80 * StandardFonts defaultFont pointSize.
+	aWindowPresenter whenOpenedDo: [
+		self activePresenter ifNotNil: [ :pres | pres updateSUnitTab ] ]
 ]

@@ -105,6 +105,31 @@ JadeiteDebuggerPresenter >> browseFrameMethod [
 ]
 
 { #category : 'actions' }
+JadeiteDebuggerPresenter >> browseFrameMethodInExistingBrowser [
+
+	| className selector browser browserPresenter classService methodService |
+	frameListPresenter selectedItem ifNil: [ ^ self ].
+	className := frameListPresenter selectedItem homeMethodClassName.
+	className ifNil: [ ^ self ].
+	(className includes: Character space) ifTrue: [
+		className := (ReadStream on: className) upTo: Character space ].
+	selector := frameListPresenter selectedItem homeMethodSelector.
+
+	browser := self existingBrowser.
+	browser window activate.
+	browserPresenter := browser openNewBrowserTab.
+	classService := (RowanClassService new name: className) meta:
+		                frameListPresenter selectedItem method meta.
+	methodService := RowanMethodService new
+		                 selector: selector;
+		                 className: className.
+	^ browserPresenter
+		  updateAfterFindClass: classService
+		  methodService: methodService
+		  onCompletion: [ browserPresenter updateSUnitTab ]
+]
+
+{ #category : 'actions' }
 JadeiteDebuggerPresenter >> browseFrameMethodInMethodList [
 
 	| className selector methodService shell |
@@ -444,6 +469,15 @@ JadeiteDebuggerPresenter >> initializeStackMenu [
 					  item
 						  name: 'Browse';
 						  action: [ self browseFrameMethod ];
+						  enabled: [
+							  frameListPresenter selectedItem
+								  ifNil: [ false ]
+								  ifNotNil: [ :frameService |
+									  frameService homeMethodClassName notNil ] ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Browse in Existing Browser';
+						  action: [ self browseFrameMethodInExistingBrowser ];
 						  enabled: [
 							  frameListPresenter selectedItem
 								  ifNil: [ false ]

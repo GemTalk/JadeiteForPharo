@@ -63,7 +63,7 @@ JadeiteFindClassTrait >> findClassNamed: className [
 	self activePresenter
 		updateAfterFindClass: classService
 		methodService: nil
-		onCompletion: [  ]
+		onCompletion: [ self updateSUnitTab ]
 ]
 
 { #category : 'private' }

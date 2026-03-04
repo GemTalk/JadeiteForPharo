@@ -383,7 +383,7 @@ JadeiteMethodsTrait >> browseMethodClass [
 { #category : 'queries' }
 JadeiteMethodsTrait >> browseMethodClassInExistingBrowser [
 
-	| classService methodService browser browserPresenter|
+	| classService methodService browser browserPresenter |
 	methodService := self methodListPresenter jadeiteSelections first.
 	classService := RowanClassService new name: methodService className.
 	classService meta: methodService meta.
@@ -391,9 +391,9 @@ JadeiteMethodsTrait >> browseMethodClassInExistingBrowser [
 	browser window activate.
 	browserPresenter := browser openNewBrowserTab.
 	browserPresenter
-			updateAfterFindClass: classService
-			methodService: methodService
-			onCompletion: [  ].
+		updateAfterFindClass: classService
+		methodService: methodService
+		onCompletion: [ browser activePresenter updateSUnitTab ]
 ]
 
 { #category : 'actions' }

@@ -719,20 +719,6 @@ JadeiteDebuggerTestCase >> test_browseFrameClassMethod [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteDebuggerTestCase >> test_browseFrameMethod [
-	| browser |
-	self saveMethodWithHalt.
-	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
-	self selectFirstFrameStartingWith: 'Array'.	"#halt sent to Array but actually implemented by Object, hence the test for Object later"
-	browser := debugger browseFrameMethod.
-	
-	[self assert: browser isKindOf: JadeiteBrowser.
-	self assert: browser currentCard classListPresenter selection name equals: 'Object'.
-	self assert: browser currentCard methodListPresenter selection selector equals: #halt]
-			ensure: [browser view close]
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteDebuggerTestCase >> test_browseFrameMethodInBlock [
 	| browser source |
 	self testsIssue: #issue287
@@ -766,22 +752,6 @@ JadeiteDebuggerTestCase >> test_browseFrameMethodInBlock [
 	self assert: browser currentCard classListPresenter selection name equals: 'RowanSample1Test'.
 	self assert: browser currentCard methodListPresenter selection selector equals: #testBlockMenuItems]
 			ensure: [browser view close]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteDebuggerTestCase >> test_browseFrameMethodInExistingBrowser [
-	| browser |
-	browser := JadeiteBrowser showOnSession: session.
-	
-	[self assert: browser cardsPresenter subPresenters size = 1.
-	self saveMethodWithHalt.
-	self openDebuggerOn: 'RowanSample1 new sampleMethodWithHalt'.
-	self selectFirstFrameStartingWith: 'Array'.	"#halt sent to Array but actually implemented by Object, hence the test for Object later"
-	debugger browseFrameMethodInExistingBrowser.
-	self assert: browser cardsPresenter subPresenters size = 2.
-	self assert: browser currentCard classListPresenter selection name equals: 'Object'.
-	self assert: browser currentCard methodListPresenter selection selector equals: #halt]
-			ensure: [self destroy: browser]
 ]
 
 { #category : 'as yet unclassified' }

@@ -247,11 +247,11 @@ JadeiteConsole >> findClassService: classService [
 	classService ifNil: [ ^ self ].
 	browser := JadeiteBrowser new owner: self.
 	browser postOpenBlock: [
-		browser ifNotNil: [
-			browser activePresenter
-				updateAfterFindClass: classService
-				methodService: nil
-				onCompletion: [  ] ] ].
+			browser ifNotNil: [
+					browser activePresenter
+						updateAfterFindClass: classService
+						methodService: nil
+						onCompletion: [ browser updateSUnitTab ] ] ].
 	browserPresenter := self basicOpenBrowser: browser
 ]
 

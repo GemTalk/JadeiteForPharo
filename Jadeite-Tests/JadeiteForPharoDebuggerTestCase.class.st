@@ -87,6 +87,36 @@ JadeiteForPharoDebuggerTestCase >> test_browseFrameMethod [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoDebuggerTestCase >> test_browseFrameMethodInExistingBrowser [
+
+	| service count |
+	service := RowanAnsweringServiceClient newForked.
+	service exec: '$abc' in: GciSession current onCompletion: [  ].
+	self waitForDebugger.
+	debugger frameListPresenter selectIndex: 1.
+
+	projectsBrowser := debugger browseFrameMethodInExistingBrowser owner owner.
+	count := 0.
+	[ self projectsPresenter selectedClass isNil and: [ count < 2000 ] ]
+		whileTrue: [
+			count := count + 1.
+			(Delay forMilliseconds: 1) wait ].
+	self
+		assert: self projectsPresenter selectedClass name
+		equals: 'ProcessorScheduler'.
+	count := 0.
+	[
+	self projectsPresenter methodListPresenter selectedItem isNil and: [
+		count < 2000 ] ] whileTrue: [
+		count := count + 1.
+		(Delay forMilliseconds: 1) wait ].
+	self
+		assert:
+		self projectsPresenter methodListPresenter selectedItem selector
+		equals: #_switchFrom:to:
+]
+
+{ #category : 'tests' }
 JadeiteForPharoDebuggerTestCase >> test_browseFrameMethodInMethodList [
 
 	| service |

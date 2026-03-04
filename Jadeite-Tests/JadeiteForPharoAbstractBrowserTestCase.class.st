@@ -52,6 +52,14 @@ JadeiteForPharoAbstractBrowserTestCase >> hierarchyVisibleItems [
 ]
 
 { #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> lastTextTabName [
+
+	| tabCount |
+	tabCount := self projectsPresenter textAreaTabs pages size.
+	^ (self projectsPresenter textAreaTabs pages at: tabCount) name
+]
+
+{ #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> methodMenuItemNamed: aString [
 
 	self methodListPresenter contextMenu menuGroups do: [ :group |
@@ -1682,6 +1690,28 @@ JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 	self
 		assert: methodListBrowser methodSourcePresenter selection
 		equals: '_isNumber'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_sunitTabBuiltAfterBrowseInExistingBrowser [
+
+	self
+		testsJadeiteForPharoIssue: #issue411
+		title:
+		'Browse In Existing Browser for a test class does not build SUnit tab'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/411'.
+	self newBrowser.
+	self deny: self lastTextTabName equals: 'SUnit'.
+	self projectsPresenter findClassNamed: 'Announcement'.
+	self deny: self lastTextTabName equals: 'SUnit'.
+	methodListBrowser := self
+		                     waitForNewPresenter: JadeiteMethodListPresenter
+		                     while: [
+		                     self projectsPresenter browseImplementorsOf:
+			                     #testAnnounceClass ].
+	self assert: methodListBrowser window adapter widget isActive.
+	methodListBrowser browseMethodClassInExistingBrowser.
+	self assert: self lastTextTabName equals: 'SUnit'
 ]
 
 { #category : 'support' }

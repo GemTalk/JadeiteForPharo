@@ -4025,6 +4025,12 @@ JadeiteBrowserPresenter >> testMethodResultIconFor: methodService [
 ]
 
 { #category : 'events' }
+JadeiteBrowserPresenter >> textAreaTabs [
+
+	^textAreaTabs
+]
+
+{ #category : 'events' }
 JadeiteBrowserPresenter >> textTabChanged [
 
 	textAreaTabs ifNil: [ ^ self ].

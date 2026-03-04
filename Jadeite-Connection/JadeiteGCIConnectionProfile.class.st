@@ -263,7 +263,13 @@ JadeiteGCIConnectionProfile >> gciCommitIds [
 			  ifTrue: [
 					  session gciInterface executeStringAndFetchResultString:
 						  self commitIdServerCode ]
-			  ifFalse: [ 'Rowan not available' ] ]
+			  ifFalse: [
+					  | ws |
+					  ws := WriteStream on: String new.
+					  ws
+						  nextPutAll: 'Rowan not available';
+						  lf;
+						  contents ] ]
 		on: Error
 		do: [ :ex |
 				| errorStream |
