@@ -8,7 +8,7 @@ Class {
 	#package : 'Jadeite-Workspace'
 }
 
-{ #category : 'initialization' }
+{ #category : 'actions' }
 JadeiteGitShaWorkspacePresenter >> copyMarkdownToClipboard: inputString [
 
 	| lines markdownStream |
@@ -20,7 +20,7 @@ JadeiteGitShaWorkspacePresenter >> copyMarkdownToClipboard: inputString [
 	markdownStream
 		nextPutAll: '<details>';
 		cr;
-		nextPutAll: '<summary>View Version Information</summary>';
+		nextPutAll: '<summary>Version Information</summary>';
 		cr;
 		cr.
 
@@ -63,21 +63,22 @@ JadeiteGitShaWorkspacePresenter >> firstColumnFrom: rs [
 ]
 
 { #category : 'initialization' }
-JadeiteGitShaWorkspacePresenter >> initializeCopyToMarkdownButton [
+JadeiteGitShaWorkspacePresenter >> initializeButton [
 
 	| box |
 	box := SpBoxLayout newHorizontal.
 	copyToClipboardButton := self newButton.
 	copyToClipboardButton
-		label: 'Copy to Clipboard in Markdown format';
+		label: 'Copy to Clipboard';
 		help:
-			'Copy Git Commit Ids in Markdown format to clipboard for pasting into GitHub issue';
+			'Copy Git Commit Ids to clipboard in a more readable format when reporting a GitHub issue';
 		action: [ self copyMarkdownToClipboard: workspace text ].
 	box add: copyToClipboardButton withConstraints: [ :constraints |
 			constraints
-				width: copyToClipboardButton label size / 2
+				width: copyToClipboardButton label size / 1.5
 					* StandardFonts defaultFont pointSize;
 				height: 2.5 * StandardFonts defaultFont pointSize ].
+
 	^ box
 ]
 
@@ -90,7 +91,7 @@ JadeiteGitShaWorkspacePresenter >> initializePresenters [
 	self showNotWait.
 	workspace := self workspaceClass new.
 	self layout add: workspace.
-	buttonBox := self initializeCopyToMarkdownButton.
+	buttonBox := self initializeButton.
 	self layout add: buttonBox expand: false.
 	statusBarText := self newStatusBar.
 	self layout
@@ -103,16 +104,10 @@ JadeiteGitShaWorkspacePresenter >> markdownHeaderRowFrom: string [
 
 	| ws |
 	ws := WriteStream on: String new.
-
 	ws
-		nextPutAll: '## ';
+		nextPutAll: '#### ';
 		nextPutAll: string;
 		cr.
-	ws
-		nextPutAll:
-			'| Details                       | Information         |';
-		cr;
-		nextPutAll: '|-------------------------------|------------|'.
 	^ ws contents
 ]
 
@@ -120,12 +115,12 @@ JadeiteGitShaWorkspacePresenter >> markdownHeaderRowFrom: string [
 JadeiteGitShaWorkspacePresenter >> markdownRowFrom: string [
 	"most rows will be of the format first <space> rest of line"
 
-	| markdownRow restOfLine first rs |
+	| row restOfLine first rs |
 	rs := ReadStream on: string.
 	first := self firstColumnFrom: rs.
 	restOfLine := rs upToEnd trimBlanks.
-	markdownRow := ' **' , first , '**' , ' | ' , restOfLine.
-	^ '| ' , markdownRow , ' |'
+	row := first , ': ' , restOfLine.
+	^ row
 ]
 
 { #category : 'initialization' }

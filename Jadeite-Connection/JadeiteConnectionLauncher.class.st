@@ -649,7 +649,7 @@ JadeiteConnectionLauncher >> initializePasswordPresenter [
 JadeiteConnectionLauncher >> initializePortNumber [
 
 	connectionBox add:
-		(self newLabel label: 'Fixed Port (leave blank for wildcard port)').
+		(self newLabel label: 'RSR Listening Port (leave blank for wildcard port)').
 	portText := JadeiteTextInputFieldPresenter new.
 	connectionBox add: portText
 ]
