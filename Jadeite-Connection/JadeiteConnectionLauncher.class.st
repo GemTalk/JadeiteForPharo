@@ -919,20 +919,27 @@ JadeiteConnectionLauncher >> removeSelectedConnection [
 { #category : 'actions' }
 JadeiteConnectionLauncher >> resetChangedTextFields [
 
-	self hostText adapter widget accept.
-	self hostText adapter widget hasUnacceptedEdits: false.
-	self versionText adapter widget accept.
-	self versionText adapter widget hasUnacceptedEdits: false.
-	self stoneText adapter widget accept.
-	self stoneText adapter widget hasUnacceptedEdits: false.
-	self userText adapter widget accept.
-	self userText adapter widget hasUnacceptedEdits: false.
-	self passwordText adapter widget accept.
-	self passwordText adapter widget hasUnacceptedEdits: false.
-	self netldiText adapter widget accept.
-	self netldiText adapter widget hasUnacceptedEdits: false.
-	self portText adapter widget accept.
-	self portText adapter widget hasUnacceptedEdits: false
+	self hostText adapter ifNotNil: [ :a | a widget accept ].
+	self hostText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ].
+	self versionText adapter ifNotNil: [ :a | a widget accept ].
+	self versionText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ].
+	self stoneText adapter ifNotNil: [ :a | a widget accept ].
+	self stoneText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ].
+	self userText adapter ifNotNil: [ :a | a widget accept ].
+	self userText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ].
+	self passwordText adapter ifNotNil: [ :a | a widget accept ].
+	self passwordText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ].
+	self netldiText adapter ifNotNil: [ :a | a widget accept ].
+	self netldiText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ].
+	self portText adapter ifNotNil: [ :a | a widget accept ].
+	self portText adapter ifNotNil: [ :a |
+		a widget hasUnacceptedEdits: false ]
 ]
 
 { #category : 'accessing' }
@@ -1083,16 +1090,19 @@ JadeiteConnectionLauncher >> updateWidgetDarkThemeColors [
 	"yuck - why is this necessary?"
 
 	self textFieldPresenters do: [ :text |
-			text adapter widget color: self theme backgroundColor.
-			text adapter widget scrollPane color: self theme backgroundColor.
-			text adapter widget scrollPane textArea color:
-				self theme backgroundColor.
-			text adapter widget changed ].
-	setClientLibrariesPathButton adapter widget labelMorph morph
-		textColor: Color white.
-	setClientLibrariesPathButton adapter widget changed.
-	self window adapter widget borderColor: self theme jadeiteBorderColor.
-	self window adapter widget borderWidth: self theme jadeiteBorderWidth
+			text adapter ifNotNil: [ :a |
+					a widget color: self theme backgroundColor.
+					a widget scrollPane color: self theme backgroundColor.
+					a widget scrollPane textArea color: self theme backgroundColor.
+					a widget changed ] ].
+	setClientLibrariesPathButton adapter ifNotNil: [ :a |
+		a widget labelMorph morph textColor: Color white ].
+	setClientLibrariesPathButton adapter ifNotNil: [ :a |
+		a widget changed ].
+	self window adapter ifNotNil: [ :a |
+		a widget borderColor: self theme jadeiteBorderColor ].
+	self window adapter ifNotNil: [ :a |
+		a widget borderWidth: self theme jadeiteBorderWidth ]
 ]
 
 { #category : 'updates' }
@@ -1100,18 +1110,21 @@ JadeiteConnectionLauncher >> updateWidgetLightThemeColors [
 	"yuck - why is this necessary?"
 
 	self textFieldPresenters do: [ :text |
-			text adapter widget color:
-				JadeiteApplication defaultBackgroundColor.
-			text adapter widget scrollPane color:
-				JadeiteApplication defaultBackgroundColor.
-			text adapter widget scrollPane textArea color:
-				JadeiteApplication defaultBackgroundColor.
-			text adapter widget changed ].
-	availableConnectionPresenter adapter widget color:
-		JadeiteApplication defaultBackgroundColor.
-	availableConnectionPresenter adapter widget changed.
-	setClientLibrariesPathButton adapter widget labelMorph morph textColor: Color black.
-	setClientLibrariesPathButton adapter widget changed
+			text adapter ifNotNil: [ :a |
+					a widget color: JadeiteApplication defaultBackgroundColor.
+					a widget scrollPane color:
+						JadeiteApplication defaultBackgroundColor.
+					a widget scrollPane textArea color:
+						JadeiteApplication defaultBackgroundColor.
+					a widget changed ] ].
+	availableConnectionPresenter adapter ifNotNil: [ :a |
+		a widget color: JadeiteApplication defaultBackgroundColor ].
+	availableConnectionPresenter adapter ifNotNil: [ :a |
+		a widget changed ].
+	setClientLibrariesPathButton adapter ifNotNil: [ :a |
+		a widget labelMorph morph textColor: Color black ].
+	setClientLibrariesPathButton adapter ifNotNil: [ :a |
+		a widget changed ]
 ]
 
 { #category : 'accessing' }

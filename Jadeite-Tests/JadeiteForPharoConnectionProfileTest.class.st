@@ -22,6 +22,16 @@ JadeiteForPharoConnectionProfileTest class >> codeCoverageClasses [
 	^ { JadeiteGCIConnectionProfile } asOrderedCollection
 ]
 
+{ #category : 'testing' }
+JadeiteForPharoConnectionProfileTest class >> runAsDataCurator [
+	"If the test class is expected to pass while
+	logged in with DataCurator, override this 
+	method to return true. The test runner will
+	run each test as both SystemUser and DataCurator."
+
+	^ true
+]
+
 { #category : 'support' }
 JadeiteForPharoConnectionProfileTest >> setUp [
 	clientLibariesPath := JadeiteGCIConnectionProfile clientLibrariesPath.

@@ -17,6 +17,16 @@ JadeiteForPharoConsoleTestCase class >> codeCoverageClasses [
 		  JadeiteConsoleTableColumn } asOrderedCollection
 ]
 
+{ #category : 'testing' }
+JadeiteForPharoConsoleTestCase class >> runAsDataCurator [
+	"If the test class is expected to pass while
+	logged in with DataCurator, override this 
+	method to return true. The test runner will
+	run each test as both SystemUser and DataCurator."
+
+	^ true
+]
+
 { #category : 'support' }
 JadeiteForPharoConsoleTestCase >> console [
 	"transcript is from the JfD days"
@@ -28,6 +38,13 @@ JadeiteForPharoConsoleTestCase >> console [
 JadeiteForPharoConsoleTestCase >> projectListPresenter [
 
 	^ self console projectListPresenter
+]
+
+{ #category : 'support' }
+JadeiteForPharoConsoleTestCase >> tearDown [ 
+
+	super tearDown. 
+	self class failureLog contents traceCr. 
 ]
 
 { #category : 'tests' }
@@ -142,17 +159,17 @@ JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
 	self console unsetCurrentProject.
 	self assert: self projectListPresenter list notEmpty.
 	self
-		selectServiceNamed: 'RowanClientServices'
+		selectServiceNamed: 'Announcements'
 		in: self projectListPresenter.
 	servicesProjectService := self projectListPresenter selectedItem.
 	self
 		assert: servicesProjectService displayName
-		equals: 'RowanClientServices'.
+		equals: 'Announcements'.
 	self deny: servicesProjectService isCurrent.
 	self transcript setCurrentProject.
 	self
 		assert: servicesProjectService displayName
-		equals: '*RowanClientServices'.
+		equals: '*Announcements'.
 	self assert: servicesProjectService isCurrent.
 
 	self selectServiceNamed: 'Rowan' in: self projectListPresenter.
@@ -164,7 +181,7 @@ JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
 	self assert: rowanProjectService isCurrent.
 	self
 		assert: servicesProjectService displayName
-		equals: 'RowanClientServices'.
+		equals: 'Announcements'.
 	self deny: servicesProjectService isCurrent.
 
 	self console unsetCurrentProject.
@@ -205,18 +222,18 @@ JadeiteForPharoConsoleTestCase >> test_unsetCurrentProject [
 		self deny: (projectService displayName includes: $*).
 		self deny: projectService isCurrent ].
 	self
-		selectServiceNamed: 'RowanClientServices'
+		selectServiceNamed: 'Announcements'
 		in: self projectListPresenter.
 	servicesProjectService := self projectListPresenter selectedItem.
 	self
 		assert: servicesProjectService displayName
-		equals: 'RowanClientServices'.
+		equals: 'Announcements'.
 	self deny: servicesProjectService isCurrent.
 
 	self console setCurrentProject.
 	self
 		assert: servicesProjectService displayName
-		equals: '*RowanClientServices'.
+		equals: '*Announcements'.
 	self assert: servicesProjectService isCurrent.
 
 	self console unsetCurrentProject.
