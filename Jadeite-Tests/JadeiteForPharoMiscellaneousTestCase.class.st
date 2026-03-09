@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'testing' }
+JadeiteForPharoMiscellaneousTestCase class >> runAsDataCurator [
+
+	^ true
+]
+
 { #category : 'support' }
 JadeiteForPharoMiscellaneousTestCase >> focusWidgetText [
 
