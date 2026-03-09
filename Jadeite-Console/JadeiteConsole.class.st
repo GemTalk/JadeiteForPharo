@@ -251,7 +251,7 @@ JadeiteConsole >> findClassService: classService [
 					browser activePresenter
 						updateAfterFindClass: classService
 						methodService: nil
-						onCompletion: [ browser updateSUnitTab ] ] ].
+						onCompletion: [ browser activePresenter updateSUnitTab ] ] ].
 	browserPresenter := self basicOpenBrowser: browser
 ]
 

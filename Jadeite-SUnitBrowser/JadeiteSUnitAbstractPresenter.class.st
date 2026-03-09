@@ -269,6 +269,18 @@ JadeiteSUnitAbstractPresenter >> testProcess: anObject [
 ]
 
 { #category : 'accessing' }
+JadeiteSUnitAbstractPresenter >> testSemaphore [
+
+	^ testSemaphore
+]
+
+{ #category : 'accessing' }
+JadeiteSUnitAbstractPresenter >> testSemaphore: anObject [
+
+	testSemaphore := anObject
+]
+
+{ #category : 'accessing' }
 JadeiteSUnitAbstractPresenter >> textResultPresenter [
 	^textResultPresenter
 ]

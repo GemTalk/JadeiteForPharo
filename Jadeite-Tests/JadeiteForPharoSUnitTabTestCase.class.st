@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'testing' }
+JadeiteForPharoSUnitTabTestCase class >> runAsDataCurator [
+
+	^ true
+]
+
 { #category : 'support' }
 JadeiteForPharoSUnitTabTestCase >> methodNamed: selector [
 
@@ -25,14 +31,6 @@ JadeiteForPharoSUnitTabTestCase >> methods [
 
 	^ self methodListPresenter list collect: [ :methodService |
 		  methodService selector ]
-]
-
-{ #category : 'support' }
-JadeiteForPharoSUnitTabTestCase >> performTest [
-
-	JadeitePreferences isRowanAvailable ifFalse: [
-		^ self skip: 'Rowan not available. Test not run' ].
-	^ super performTest
 ]
 
 { #category : 'support' }
@@ -73,15 +71,8 @@ JadeiteForPharoSUnitTabTestCase >> testNamed: selector [
 JadeiteForPharoSUnitTabTestCase >> test_abortClearsSelection [
 	"should be able to save a new test without a method being selected"
 
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'RowanAnsweringServiceTest'
-		in: self classListPresenter.
+	self isDataCurator ifTrue: [ ^ self ].
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
 	self deny: (self theTestSelectors includes: #test_foo).
 	self methodSourcePresenter text: 'test_foo'.
@@ -96,9 +87,26 @@ JadeiteForPharoSUnitTabTestCase >> test_abortClearsSelection [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoSUnitTabTestCase >> test_allTestsDisplayed [
+
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
+	self projectsPresenter selectSUnitTab.
+	self waitUntil: [ self theTestCasePresenter list notEmpty ].
+	self assert:
+		self classListPresenter selectedItem testMethodSelectors notEmpty.
+	self classListPresenter selectedItem testMethodSelectors do: [ :sel |
+			| methodService |
+			methodService := self theTestCases
+				                 detect: [ :svc | svc selector = sel ]
+				                 ifNone: [ ].
+			self denyIsNil: methodService.
+			self assert: methodService selector equals: sel ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoSUnitTabTestCase >> test_deselectClass [
 
-	self selectRowanSample1Test.
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
 	self waitUntil: [ self theTestCasePresenter list notEmpty ].
 	self theTestCasePresenter selectIndex: 1.
@@ -117,7 +125,8 @@ JadeiteForPharoSUnitTabTestCase >> test_deselectClass [
 JadeiteForPharoSUnitTabTestCase >> test_methodAcceptedWithoutTestSelected [
 	"should be able to save a new test without a method being selected"
 
-	self selectRowanSample1Test.
+	self isDataCurator ifTrue: [ ^ self ].
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
 	self deny: self theTestCasePresenter hasSelection.
 	self deny: (self theTestSelectors includes: #test_foo).
@@ -133,7 +142,8 @@ JadeiteForPharoSUnitTabTestCase >> test_methodAcceptedWithoutTestSelected [
 { #category : 'tests' }
 JadeiteForPharoSUnitTabTestCase >> test_methodSelectedAfterSave [
 
-	self selectRowanSample1Test.
+	self isDataCurator ifTrue: [ ^ self ].
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
 	self deny: self theTestCasePresenter hasSelection.
 	self methodSourcePresenter text: 'test_foo'.
@@ -148,61 +158,70 @@ JadeiteForPharoSUnitTabTestCase >> test_methodSelectedAfterSave [
 { #category : 'tests' }
 JadeiteForPharoSUnitTabTestCase >> test_runAllTests [
 
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'RowanAnsweringServiceTest'
-		in: self classListPresenter.
+	| sunitTab semTimeout |
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
-	self waitUntil: [ self theTestSelectors includes: #test_isAbstract ].
-	self selectTestNamed: #test_isAbstract.
-	self
-		assert: self theTestCasePresenter selectedItem selector
-		equals: #test_isAbstract.
-	self
-		assert: self theTestCasePresenter selectedItem className
-		equals: 'RowanServicesTest'.
+	self waitUntil: [ self projectsPresenter isSUnitTabSelected ].
+	sunitTab := self projectsPresenter sunitPage.
 	self waitUntil: [
-		'test_isAbstract*' match: self methodSourcePresenter text ].
-	self methodSourcePresenter text: 'test_foo'.
-	self sunitPresenter editSaveMethod.
-	self waitUntil: [ self theTestSelectors includes: #test_foo ].
-	self assert: (self theTestSelectors includes: #test_foo).
-	self
-		assert: self theTestCasePresenter selectedItem selector
-		equals: #test_foo.
-	self
-		assert: self theTestCasePresenter selectedItem className
-		equals: 'RowanServicesTest'
+		sunitTab activePresenter testCaseListPresenter list notEmpty ].
+	self deny:
+		('* run, * passed, * failures, * errors, * seconds' match:
+			 self projectsPresenter statusBarText message).
+	sunitTab activePresenter runAll.
+	semTimeout := sunitTab activePresenter testSemaphore
+		              waitTimeoutSeconds: 2.
+	WorldMorph doOneCycle.
+	self deny: semTimeout.
+	self assert:
+		('* run, * passed, * failures, * errors, * seconds' match:
+			 self projectsPresenter statusBarText message)
+]
+
+{ #category : 'tests' }
+JadeiteForPharoSUnitTabTestCase >> test_runSelectedTests [
+	"assumes announcer tests pass. Big assumption."
+
+	| sunitTab semTimeout |
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
+	self projectsPresenter selectSUnitTab.
+	self waitUntil: [ self projectsPresenter isSUnitTabSelected ].
+	sunitTab := self projectsPresenter sunitPage.
+	self waitUntil: [
+		sunitTab activePresenter testCaseListPresenter list notEmpty ].
+	sunitTab activePresenter testCaseListPresenter selectIndex: 1.
+	self waitUntil: [
+			sunitTab activePresenter methodSourcePresenter text notNil and: [
+				sunitTab activePresenter methodSourcePresenter text notEmpty ] ].
+	self deny:
+		('1 run, 1 passed, 0 failures, 0 errors, * seconds' match:
+			 self projectsPresenter statusBarText message).
+	sunitTab activePresenter runSelected.
+	semTimeout := sunitTab activePresenter testSemaphore
+		              waitTimeoutSeconds: 2.
+	WorldMorph doOneCycle.
+	self deny: semTimeout.
+	self assert:
+		('1 run, 1 passed, 0 failures, 0 errors, * seconds' match:
+			 self projectsPresenter statusBarText message)
 ]
 
 { #category : 'tests' }
 JadeiteForPharoSUnitTabTestCase >> test_saveMethodInSuperclass [
 
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'RowanAnsweringServiceTest'
-		in: self classListPresenter.
+	self isDataCurator ifTrue: [ ^ self ].
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
-	self waitUntil: [ self theTestSelectors includes: #test_isAbstract ].
-	self selectTestNamed: #test_isAbstract.
+	self waitUntil: [ self theTestSelectors includes: #testAnnounceClass ].
+	self selectTestNamed: #testAnnounceClass.
 	self
 		assert: self theTestCasePresenter selectedItem selector
-		equals: #test_isAbstract.
+		equals: #testAnnounceClass.
 	self
 		assert: self theTestCasePresenter selectedItem className
-		equals: 'RowanServicesTest'.
+		equals: 'AnnouncerTest'.
 	self waitUntil: [
-		'test_isAbstract*' match: self methodSourcePresenter text ].
+		'testAnnounceClass*' match: self methodSourcePresenter text ].
 	self methodSourcePresenter text: 'test_foo'.
 	self sunitPresenter editSaveMethod.
 	self waitUntil: [ self theTestSelectors includes: #test_foo ].
@@ -212,42 +231,34 @@ JadeiteForPharoSUnitTabTestCase >> test_saveMethodInSuperclass [
 		equals: #test_foo.
 	self
 		assert: self theTestCasePresenter selectedItem className
-		equals: 'RowanServicesTest'
+		equals: 'AnnouncerTest'
 ]
 
 { #category : 'tests' }
 JadeiteForPharoSUnitTabTestCase >> test_selectDifferentTestClass [
 
-	| answeringServiceTests browserServiceTests |
-	self
-		selectServiceNamed: 'RowanClientServices'
-		in: self projectListPresenter.
-	self
-		selectServiceNamed: 'Rowan-Services-Tests'
-		in: self packageListPresenter.
-	self
-		selectServiceNamed: 'RowanAnsweringServiceTest'
-		in: self classListPresenter.
+	| announcerTests weakAnnouncerTests |
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
 	self waitUntil: [ self theTestSelectors notEmpty ].
-	answeringServiceTests := self theTestSelectors.
-	self assert: answeringServiceTests notEmpty.
+	announcerTests := self theTestSelectors.
+	self assert: announcerTests notEmpty.
 	self
-		selectServiceNamed: 'RowanBrowserServiceTest'
+		selectServiceNamed: 'WeakAnnouncerTest'
 		in: self classListPresenter.
 	self projectsPresenter selectSUnitTab.
 	self waitUntil: [
-			self theTestCasePresenter items first className
-			= 'RowanBrowserServiceTest' ].
-	browserServiceTests := self theTestSelectors.
-	self assert: browserServiceTests notEmpty.
-	self deny: answeringServiceTests equals: browserServiceTests
+		self theTestCasePresenter items first className
+		= 'WeakAnnouncerTest' ].
+	weakAnnouncerTests := self theTestSelectors.
+	self assert: weakAnnouncerTests notEmpty.
+	self deny: announcerTests equals: weakAnnouncerTests
 ]
 
 { #category : 'tests' }
 JadeiteForPharoSUnitTabTestCase >> test_selection [
 
-	self selectRowanSample1Test.
+	self projectsPresenter findClassNamed: 'AnnouncerTest'.
 	self projectsPresenter selectSUnitTab.
 	self waitUntil: [ self theTestCasePresenter list notEmpty ].
 	self theTestCasePresenter selectIndex: 1.
@@ -257,22 +268,6 @@ JadeiteForPharoSUnitTabTestCase >> test_selection [
 	self
 		assert: self methodSourcePresenter text
 		equals: self theTestCasePresenter selectedItem source
-]
-
-{ #category : 'tests' }
-JadeiteForPharoSUnitTabTestCase >> test_testsDisplayed [
-	"should be able to save a new test without a method being selected"
-
-	self selectRowanSample1Test.
-	self projectsPresenter selectSUnitTab.
-	self waitUntil: [ self theTestCasePresenter list notEmpty ].
-	#( test1 test2 testError testFailure ) do: [ :sel |
-			| methodService |
-			methodService := self theTestCases
-				                 detect: [ :svc | svc selector = sel ]
-				                 ifNone: [ ].
-			self denyIsNil: methodService.
-			self assert: methodService selector equals: sel ]
 ]
 
 { #category : 'support' }
