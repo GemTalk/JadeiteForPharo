@@ -679,6 +679,40 @@ JadeiteForPharoConnectionLauncherTestCase >> test_refreshFromImportDirectory [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_removeAllConnections [
+	"connections backed up in setUp and restored in tearDown"
+
+	self
+		testsJadeiteForPharoIssue: #issue415
+		title: 'Launcher does not remove connections correctly'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/415'.
+
+	launcher basicRemoveAllConnections.
+	self assert: launcher availableConnectionPresenter list isEmpty.
+	self assert: JadeiteConnectionLauncher importedConnections isEmpty
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_removeConnection [
+	"connections backed up in setUp and restored in tearDown"
+
+	| removed |
+	self
+		testsJadeiteForPharoIssue: #issue415
+		title: 'Launcher does not remove connections correctly'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/415'.
+
+	removed := launcher availableConnectionPresenter selectIndex: 1.
+	launcher basicRemoveSelectedConnection.
+	self assertIsNil: (launcher availableConnectionPresenter list
+			 detect: [ :conn | conn == removed ]
+			 ifNone: [ ]).
+	self assertIsNil: (JadeiteConnectionLauncher importedConnections
+			 detect: [ :conn | conn == removed ]
+			 ifNone: [ ])
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_soleInstance [
 
 	| launchers launcherSingleton |

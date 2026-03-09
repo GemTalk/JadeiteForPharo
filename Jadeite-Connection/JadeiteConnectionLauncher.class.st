@@ -238,7 +238,17 @@ JadeiteConnectionLauncher >> basicNewConnection [
 { #category : 'connections' }
 JadeiteConnectionLauncher >> basicRemoveAllConnections [
 
-	availableConnectionPresenter model removeAll
+	availableConnectionPresenter model removeAll.
+	self class importedConnections removeAll. 
+]
+
+{ #category : 'connections' }
+JadeiteConnectionLauncher >> basicRemoveSelectedConnection [
+
+	self class importedConnections remove:
+		availableConnectionPresenter selectedItem.
+	availableConnectionPresenter remove:
+		availableConnectionPresenter selectedItem
 ]
 
 { #category : 'testing' }
@@ -912,8 +922,7 @@ JadeiteConnectionLauncher >> removeSelectedConnection [
 
 	(UIManager default confirm: 'Really remove imported connection?')
 		ifFalse: [ ^ self ].
-	availableConnectionPresenter remove:
-		availableConnectionPresenter selectedItem
+	self basicRemoveSelectedConnection
 ]
 
 { #category : 'actions' }
