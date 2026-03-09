@@ -651,6 +651,12 @@ RowanClassService >> methodPackages [
 	^(methods collect: [:methodService | methodService definedPackage]) asSet asSortedCollection asOrderedCollection
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> methodSelectors [
+
+	^ self methods collect: [ :methodService | methodService selector ]
+]
+
 { #category : 'public' }
 RowanClassService >> methodUpdate: presenter browser: anObject [
 
@@ -965,6 +971,13 @@ RowanClassService >> template [
 { #category : 'accessing' }
 RowanClassService >> template: anObject [
 	template := anObject
+]
+
+{ #category : 'accessing' }
+RowanClassService >> testMethodSelectors [
+
+	^ self visibleTests collect: [ :methodService |
+		  methodService selector ]
 ]
 
 { #category : 'public' }

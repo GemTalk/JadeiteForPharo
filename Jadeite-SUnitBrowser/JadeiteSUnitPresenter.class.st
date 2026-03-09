@@ -553,18 +553,6 @@ JadeiteSUnitPresenter >> testResults: anObject [
 	^testResults := anObject
 ]
 
-{ #category : 'accessing' }
-JadeiteSUnitPresenter >> testSemaphore [
-
-	^ testSemaphore
-]
-
-{ #category : 'accessing' }
-JadeiteSUnitPresenter >> testSemaphore: anObject [
-
-	testSemaphore := anObject
-]
-
 { #category : 'updates' }
 JadeiteSUnitPresenter >> update: newMethods orRemove: removals [
 	| listModel |

@@ -463,6 +463,12 @@ JadeiteAbstractTestCase >> interestingLoopMethodSource [
 	^result'
 ]
 
+{ #category : 'tests' }
+JadeiteAbstractTestCase >> isDataCurator [
+
+	^ session userID = 'DataCurator'
+]
+
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> isSampleProject1Loaded [
 	^(transcript projectListPresenter projectListPresenter list
