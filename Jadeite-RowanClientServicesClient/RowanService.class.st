@@ -103,6 +103,12 @@ RowanService >> _handleServiceCompletionBlock [
 		self serviceCompletionBlock: nil ]
 ]
 
+{ #category : 'converting' }
+RowanService >> asString [
+
+	^self name
+]
+
 { #category : 'replication' }
 RowanService >> basicPrepareForReplication [
 	"don't call anything potentially recursive here"
