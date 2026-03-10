@@ -248,8 +248,9 @@ JadeiteForPharoSUnitTabTestCase >> test_selectDifferentTestClass [
 		in: self classListPresenter.
 	self projectsPresenter selectSUnitTab.
 	self waitUntil: [
-		self theTestCasePresenter items first className
-		= 'WeakAnnouncerTest' ].
+			self theTestCasePresenter items
+				ifEmpty: [ false ]
+				ifNotEmpty: [ :coll | coll first className = 'WeakAnnouncerTest' ] ].
 	weakAnnouncerTests := self theTestSelectors.
 	self assert: weakAnnouncerTests notEmpty.
 	self deny: announcerTests equals: weakAnnouncerTests

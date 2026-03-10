@@ -96,14 +96,14 @@ JadeiteBrowserPresenter class >> openMethodListOn: service selecting: string ses
 { #category : 'events' }
 JadeiteBrowserPresenter >> abortedTransaction [
 
-	self updateProjectsOnCompletion: [  ].
-	self projectListPresenter invalidate.
-	self resetClassTemplate.
-	self resetClassComment.
-	self updateMethodSource.
-	self resetStatusBarColor.
-	self statusBarText pushMessage: String new.
-	self updateSUnitTab. 
+	self updateProjectsOnCompletion: [
+			self projectListPresenter invalidate.
+			self resetClassTemplate.
+			self resetClassComment.
+			self updateMethodSource.
+			self resetStatusBarColor.
+			self statusBarText pushMessage: String new.
+			self updateSUnitTab ]
 ]
 
 { #category : 'acccessing' }
@@ -1381,6 +1381,7 @@ JadeiteBrowserPresenter >> gciSession: aSession [
 	methodSourcePresenter _gciSession: aSession.
 	classDefinitionPresenter _gciSession: aSession.
 	classCommentPresenter _gciSession: aSession.
+	sunitPresenter gciSession: aSession.
 	self gciSession announcer
 		when: JadeiteCurrentProjectPackageUpdated
 		send: #updateCurrentProjectPackageDisplay:
@@ -1990,13 +1991,6 @@ JadeiteBrowserPresenter >> insertIfFalse [
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> insertIfTrue [
 	^self insertIfTrue: methodSourcePresenter
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> inspectGlobal [
-	| selection |
-	selection := globalsTab selectionIfNone: [^self].
-	^JadeInspector showOn: (OopType32 fromInteger: (selection at: 3)) session: gciSession
 ]
 
 { #category : 'as yet unclassified' }
@@ -4035,7 +4029,9 @@ JadeiteBrowserPresenter >> textTabChanged [
 
 	textAreaTabs ifNil: [ ^ self ].
 	self isSUnitTabSelected ifTrue: [
-		self sunitPresenter updateContents ]
+			self
+				updateService: self selectedClass
+				onCompletion: [ self sunitPresenter updateContents ] ]
 ]
 
 { #category : 'as yet unclassified' }

@@ -15,20 +15,14 @@ Class {
 { #category : 'events' }
 JadeiteBrowserPresenterWithoutRowan >> abortedTransaction [
 
-	| selectedDictionaryService selectedClassService index |
-	selectedDictionaryService := self dictionaryListPresenter
-		                             selectedItem ifNil: [ ^ self ].
-	selectedClassService := self selectedClass.
 	self updateDictionariesOnCompletion: [
-			self dictionaryListPresenter unselectAll.
-			index := self dictionaryListPresenter list indexOf:
-				         selectedDictionaryService.
-			self dictionaryListPresenter
-				selectIndex: index
-				scrollToSelection: true.
-			selectedClassService ifNotNil: [
-					self selectClassCategoryFor: selectedClassService.
-					self selectClass: selectedClassService completionBlock: [ ] ] ]
+			self dictionaryListPresenter invalidate.
+			self resetClassTemplate.
+			self resetClassComment.
+			self updateMethodSource.
+			self resetStatusBarColor.
+			self statusBarText pushMessage: String new.
+			self updateSUnitTab ]
 ]
 
 { #category : 'actions' }
