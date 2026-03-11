@@ -62,6 +62,31 @@ RowanBrowserServiceClient >> indexOfServiceCompletionBlock [
 	^22
 ]
 
+{ #category : 'commands' }
+RowanBrowserServiceClient >> reloadProjects: selectedProjectServices presenter: presenter onCompletion: completionBlock [
+
+	| selectedServices |
+	selectedServices := RowanServiceUpdater current selectedServices
+		                    asSet asOrderedCollection.
+	self
+		command: #reloadProjects:andUpdateServices:;
+		commandArgs: (Array
+				 with: selectedProjectServices asSet asArray
+				 with: selectedServices).
+	self compileErrorHandler: [ :ex |
+			| ws |
+			ws := WriteStream on: String new.
+			ws
+				nextPutAll: 'Compile Error during project load. Load cancelled.';
+				cr;
+				nextPutAll: ex messageText.
+			UIManager default alert: ws contents ].
+	RowanServiceUpdater current
+		issueCommand: self
+		session: presenter gciSession
+		onCompletion: completionBlock
+]
+
 { #category : 'accessing' }
 RowanBrowserServiceClient >> serviceCompletionBlock [
 
