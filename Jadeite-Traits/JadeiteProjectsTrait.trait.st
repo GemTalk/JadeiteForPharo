@@ -546,7 +546,7 @@ JadeiteProjectsTrait >> newProjectMenu [
 				addItem: [ :item |
 						item
 							name: 'Commit to Git ...';
-							action: [ [ self gitCommit ] fork ];
+							action: [ self gitCommit ];
 							enabled: [ self allSelectedProjectsDirty ];
 							enabled: [ self projectListPresenter selectionOrNil notNil ] ];
 				addItem: [ :item |

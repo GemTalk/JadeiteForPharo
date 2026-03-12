@@ -34,20 +34,24 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> compileClassExpectedClassDefinitio
 { #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> createFileInFileToDisk [
 
-	workspace := JadeiteServerFileWorkspace
-		             showOnSession: session
-		             path: self testFileInWorkingDirectory.
-	workspace text: self fileInCode.
-	workspace writeDocumentTo: self fileInFilePath.
-	self destroy: workspace
+	| fileService |
+	fileService := RowanFileServiceClient new
+		               command: #write:;
+		               commandArgs:
+			               (Array with: self fileInCode replaceCrLfWithLf);
+		               path: self fileInFilePath.
+
+	self issueCommand: fileService onCompletion: [ ]
 ]
 
 { #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> deleteFileInFileToDisk [
 
-	| fileRef |
-	fileRef := self fileInFilePath asFileReference.
-	fileRef deleteIfAbsent: [ ]
+	| service |
+	service := RowanFileServiceClient new
+		           path: self fileInFilePath;
+		           session: session. 
+	service remove
 ]
 
 { #category : 'constants' }
@@ -2640,12 +2644,6 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> tearDown [
 	super tearDown
 ]
 
-{ #category : 'constants' }
-JadeiteForPharoBrowserWithoutRowanTestCase >> testFileInWorkingDirectory [
-
-	^ 'FileSystem disk workingDirectory'
-]
-
 { #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_abortRemovesCategory [
 
@@ -3039,11 +3037,11 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_fileInShowsAddedDictionary [
 			                   :dictionaryService | dictionaryService name ].
 		newDictionaryName := 'UseSpace'.
 		self deny: (dictionaryNames includes: newDictionaryName).
-		projectsBrowser basicFileInServerFile: self testFileInWorkingDirectory. 
+		projectsBrowser basicFileInServerFile: self fileInFilePath. 
 		dictionaryNames := self dictionaryListPresenter list collect: [
 			                   :dictionaryService | dictionaryService name ].
 		self assert: (dictionaryNames includes: newDictionaryName) ]
-		ensure: [ "self deleteFileInFileToDisk" ]
+		ensure: [ self deleteFileInFileToDisk ]
 ]
 
 { #category : 'tests' }
