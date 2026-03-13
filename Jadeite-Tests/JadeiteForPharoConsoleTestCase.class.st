@@ -149,6 +149,38 @@ JadeiteForPharoConsoleTestCase >> test_findClassUpdatesLabel [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConsoleTestCase >> test_lastLoadProjectPath [
+
+	| lastLoadPath |
+	JadeitePreferences isRowanAvailable ifFalse: [
+		^ self skip: 'no projects unless rowan present' ].
+
+	self
+		testsJadeiteForPharoIssue: #issue417
+		title:
+		'WR: Fresh image, try to open load dialog from console, get pharo walkback'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/417'.
+
+	lastLoadPath := JadePresenter lastLoadProjectPath.
+	[
+		JadePresenter lastLoadProjectPath:
+			JadePresenter rowanProjectsHomeEnvVarString.
+		self
+			assert: (JadePresenter possiblySetLastLoadProjectPath: 'fnoodle')
+			equals: JadePresenter rowanProjectsHomeEnvVarString.
+		self
+			assert: JadePresenter lastLoadProjectPath
+			equals: JadePresenter rowanProjectsHomeEnvVarString.
+
+		JadePresenter lastLoadProjectPath: nil.
+		self
+			assert: (JadePresenter possiblySetLastLoadProjectPath: 'fnoodle')
+			equals: 'fnoodle'.
+		self assert: JadePresenter lastLoadProjectPath equals: 'fnoodle' ]
+		ensure: [ JadePresenter lastLoadProjectPath: lastLoadPath ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConsoleTestCase >> test_setCurrentProject [
 
 	| servicesProjectService rowanProjectService |

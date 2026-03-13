@@ -1693,6 +1693,30 @@ JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_setSessionToNil [
+
+	self
+		testsJadeiteForPharoIssue: #issue395
+		title: 'WOR: open git sha windows, break browsers '
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/395'.
+
+	self projectsPresenter gciSession: nil. "if error present, this would have given a walkback"
+	self assert: self projectsPresenter gciSession equals: nil.
+	self
+		assert: self projectsPresenter methodSourcePresenter gciSession
+		equals: nil.
+	self
+		assert: self projectsPresenter classDefinitionPresenter gciSession
+		equals: nil.
+	self
+		assert: self projectsPresenter classCommentPresenter gciSession
+		equals: nil.
+	self
+		assert: self projectsPresenter sunitPresenter gciSession
+		equals: nil
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_sunitTabBuiltAfterBrowseInExistingBrowser [
 
 	self

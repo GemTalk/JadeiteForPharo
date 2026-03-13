@@ -1382,11 +1382,12 @@ JadeiteBrowserPresenter >> gciSession: aSession [
 	classDefinitionPresenter _gciSession: aSession.
 	classCommentPresenter _gciSession: aSession.
 	sunitPresenter gciSession: aSession.
-	self gciSession announcer
-		when: JadeiteCurrentProjectPackageUpdated
-		send: #updateCurrentProjectPackageDisplay:
-		to: self;
-		when: #abortedTransaction send: #abortedTransaction to: self
+	aSession ifNotNil: [ :sess |
+			sess announcer
+				when: JadeiteCurrentProjectPackageUpdated
+				send: #updateCurrentProjectPackageDisplay:
+				to: self;
+				when: #abortedTransaction send: #abortedTransaction to: self ]
 ]
 
 { #category : 'as yet unclassified' }

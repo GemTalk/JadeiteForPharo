@@ -87,6 +87,12 @@ JadePresenter class >> lastLoadProjectPath [
 	^ LastLoadProjectPath
 ]
 
+{ #category : 'accessing' }
+JadePresenter class >> lastLoadProjectPath: aString [
+
+	LastLoadProjectPath := aString
+]
+
 { #category : 'constants' }
 JadePresenter class >> maxPrintStringSize [
 	^100000
@@ -117,8 +123,9 @@ JadePresenter class >> possiblySetLastLoadProjectPath: filePath [
 	"If $ROWAN_PROJECTS_HOME is available, always use that"
 
 	LastLoadProjectPath = self rowanProjectsHomeEnvVarString ifTrue: [
-		^ self ].
-	LastLoadProjectPath := filePath
+		^ LastLoadProjectPath ].
+	LastLoadProjectPath := filePath.
+	^ LastLoadProjectPath
 ]
 
 { #category : 'public' }
