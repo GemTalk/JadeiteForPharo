@@ -1022,7 +1022,7 @@ RowanClassService >> updateMethodListIn: presenter from: visibleMethods [
 				ifNotNil: [ old replicateFrom: updated ] ].
 	theModel removeAll: toRemove.
 	toAdd := SortedCollection new sortBlock: [ :x :y |
-		         x selector < y selector ].
+		         x selector caseInsensitiveLessOrEqual: y selector ].
 	visibleMethods do: [ :new |
 			updated := theModel detect: [ :old | new = old ] ifNone: [ ].
 			updated ifNil: [ toAdd add: new ] ].
@@ -1043,7 +1043,8 @@ RowanClassService >> updateSortedJadeiteCategories: presenter [
 
 	presenter model collection:
 		(self jadeiteCategories asSortedCollection: [ :x :y |
-			 x categoryName < y categoryName ]) asOrderedCollection
+			 x categoryName caseInsensitiveLessOrEqual: y categoryName ])
+			asOrderedCollection
 ]
 
 { #category : 'updates' }

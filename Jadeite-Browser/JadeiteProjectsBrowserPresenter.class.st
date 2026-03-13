@@ -47,7 +47,9 @@ JadeiteProjectsBrowserPresenter >> allClasses [
 
 { #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> autoCommit: boolean [
-	gciSession autoCommit contents: boolean
+
+	self gciSession ifNotNil: [ :sess |
+		sess autoCommit contents: boolean ]
 ]
 
 { #category : 'as yet unclassified' }

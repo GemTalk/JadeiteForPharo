@@ -1717,6 +1717,28 @@ JadeiteForPharoAbstractBrowserTestCase >> test_setSessionToNil [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_sortedMethodCategories [
+	"should be sorted in alphabetical, case insensitive order"
+
+	| categories |
+	categories := #( 'bbb' 'aaa' 'BBB' 'AAA' ).
+	self
+		saveClass: 'NewTestClass'
+		withInstVars: #(  )
+		package: 'RowanSample1-Core'.
+	self assert: self categoryListPresenter list isEmpty.
+	self
+		assert: self projectsPresenter selectedClassName
+		equals: 'NewTestClass'.
+	categories do: [ :cat |
+		self projectsPresenter basicAddMethodCategory: cat ].
+	self
+		assert: (self categoryListPresenter list collect: [ :jadeiteCat |
+				 jadeiteCat categoryName ]) asArray
+		equals: #( 'AAA' 'aaa' 'BBB' 'bbb' )
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_sunitTabBuiltAfterBrowseInExistingBrowser [
 
 	self

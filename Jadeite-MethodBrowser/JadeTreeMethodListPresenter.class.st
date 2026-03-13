@@ -12,23 +12,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-JadeTreeMethodListPresenter >> addList [
-	| node |
-
-	node := Prompter prompt: 'Enter List Name'.
-	node ifNil: [^self].
-	node isEmpty ifTrue: [].
-
-	treeMethodsPresenter model add: node asChildOf: treeMethodsPresenter selectionOrNil.
-
-	treeMethodsPresenter expand: treeMethodsPresenter selectionOrNil.
-
-	treeMethodsMap at: node put: SortedCollection new.
-
-	^node
-]
-
-{ #category : 'as yet unclassified' }
 JadeTreeMethodListPresenter >> addTreeListRoot: methodName type: browseType [
 	| node |
 
