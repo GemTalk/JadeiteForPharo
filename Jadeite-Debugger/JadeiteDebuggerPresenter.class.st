@@ -537,17 +537,18 @@ JadeiteDebuggerPresenter >> initializeVariablePanesIn: framesAndVariables [
 JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialPosition: 5 @ 25; "upper left"
-		initialExtent: 105 @ 120 * StandardFonts defaultFont pointSize.
+	aWindowPresenter initialPosition: 5 @ 25. "upper left"
+	aWindowPresenter initialExtent ifNil: [
+			aWindowPresenter initialExtent:
+				105 @ 120 * StandardFonts defaultFont pointSize ].
 	self updateCaption.
 	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [
-		self gciSession isValidSession
-			ifTrue: [
-				answer ifNil: [ answer := #terminate ].
-				[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
-			ifFalse: [ self gsProcess cleanUpClient ] ]
+			self gciSession isValidSession
+				ifTrue: [
+						answer ifNil: [ answer := #terminate ].
+						[ suspendedProcess resume ] forkAt: Processor activePriority - 1 ]
+				ifFalse: [ self gsProcess cleanUpClient ] ]
 ]
 
 { #category : 'menus' }

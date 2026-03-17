@@ -8,9 +8,6 @@ Class {
 		'toolbar',
 		'postOpenBlock'
 	],
-	#classVars : [
-		'LastWindowSize'
-	],
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }
@@ -29,17 +26,6 @@ JadeiteBrowser class >> browserPresenterClass [
 	^ JadeitePreferences isRowanLoaded
 		  ifTrue: [ JadeiteBrowserPresenter ]
 		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
-]
-
-{ #category : 'accessing' }
-JadeiteBrowser class >> lastWindowSize [
-
-	^LastWindowSize
-]
-
-{ #category : 'accessing' }
-JadeiteBrowser class >> lastWindowSize: anExtent [
-	LastWindowSize := anExtent
 ]
 
 { #category : 'instance creation' }
@@ -321,24 +307,20 @@ JadeiteBrowser >> initializeWindow: aWindowPresenter [
 	"keep font & row computations for investigation but comment out for now."
 
 	| initialExtent |
-	initialExtent := self class lastWindowSize
-		                 ifNil: [
-		                 140 @ 110 * StandardFonts defaultFont pointSize ]
-		                 ifNotNil: [ LastWindowSize ].
+	initialExtent := aWindowPresenter initialExtent ifNil: [
+		                 140 @ 110 * StandardFonts defaultFont pointSize ].
+
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		initialExtent: initialExtent;
 		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
 	aWindowPresenter whenClosedDo: [
-		self cards do: [ :notebookPage |
-			notebookPage ifNotNil: [ :page | "presenter may be nil if the presenter could not open"
-				page activePresenter ifNotNil: [ :presenter |
-					presenter unsubcribePresenters ] ] ] ].
-	self updateCaption.
-	aWindowPresenter whenResizingDo: [ :ann |
-		ann window isCollapsed ifFalse: [
-			self class lastWindowSize: ann newSize ] ]
+			self cards do: [ :notebookPage |
+					notebookPage ifNotNil: [ :page | "presenter may be nil if the presenter could not open"
+							page activePresenter ifNotNil: [ :presenter |
+								presenter unsubcribePresenters ] ] ] ].
+	self updateCaption
 ]
 
 { #category : 'testing' }

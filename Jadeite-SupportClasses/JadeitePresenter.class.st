@@ -5,9 +5,25 @@ Class {
 		'waitIndicator',
 		'stopWaitButton'
 	],
+	#classVars : [
+		'LastWindowSizes'
+	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
+
+{ #category : 'accessing' }
+JadeitePresenter class >> lastWindowSize [
+
+	LastWindowSizes ifNil: [ LastWindowSizes := Dictionary new ].
+	^ LastWindowSizes at: self ifAbsentPut: [ nil ]
+]
+
+{ #category : 'accessing' }
+JadeitePresenter class >> lastWindowSize: aPoint [
+
+	LastWindowSizes at: self put: aPoint
+]
 
 { #category : 'actions' }
 JadeitePresenter >> abortTransaction [
@@ -65,6 +81,16 @@ JadeitePresenter >> initializeWaitPresenter [
 			height: 3 * StandardFonts defaultFont pointSize;
 			width: 25 ].
 	^ horizontalBox
+]
+
+{ #category : 'initialization' }
+JadeitePresenter >> initializeWindow: aWindowPresenter [
+
+	super initializeWindow: aWindowPresenter.
+	aWindowPresenter initialExtent: self class lastWindowSize.
+	aWindowPresenter whenResizingDo: [ :ann |
+			ann window isCollapsed ifFalse: [
+				self class lastWindowSize: ann newSize ] ]
 ]
 
 { #category : 'actions' }
