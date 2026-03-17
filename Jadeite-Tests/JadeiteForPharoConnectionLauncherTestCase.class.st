@@ -177,7 +177,7 @@ JadeiteForPharoConnectionLauncherTestCase >> setUp [
 	JadeiteTestManager replacing: self uiManager.
 	self ensureConnectionProfileEstablished.
 	launcher := JadeiteConnectionLauncher soleInstance presenter.
-	launcher pathText text:
+	launcher clientLibrariesPath:
 		JadeiteGCIConnectionProfile clientLibrariesPath.
 	backupConnections := launcher class importedConnections copy. "backup"
 	backupLastDirectory := launcher class lastImportDirectory.
@@ -261,16 +261,14 @@ JadeiteForPharoConnectionLauncherTestCase >> test_basicFileImport [
 	launcher netldiText text: String new.
 	launcher userText text: String new.
 	launcher passwordText text: String new.
-	launcher pathText text: String new.
-	
+
 	launcher basicImportProfileFromFileReference: fileRef.
-	
+
 	self assert: launcher versionText text equals: profile version.
 	self assert: launcher stoneText text equals: profile stone.
 	self assert: launcher netldiText text equals: profile netldi.
 	self assert: launcher userText text equals: profile user.
-	self assert: launcher passwordText text equals: profile password.
-	self assert: launcher pathText text equals: profile path
+	self assert: launcher passwordText text equals: profile password
 ]
 
 { #category : 'tests' }

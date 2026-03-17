@@ -45,6 +45,8 @@ JadeiteConnectionApplication >> start [
 	inst addStyle: 'jadeiteTextBackgroundColor'.
 	windowPresenter := inst open.
 	self addBorderStyleTo: windowPresenter presenter: inst.
+	inst clientLibrariesPath:
+		JadeiteGCIConnectionProfile clientLibrariesPath.
 	^ inst
 ]
 

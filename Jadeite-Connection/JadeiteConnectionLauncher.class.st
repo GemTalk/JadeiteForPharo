@@ -274,6 +274,12 @@ JadeiteConnectionLauncher >> clearConnectionSubscriptions [
 	^ observable subscriptions: OrderedCollection new
 ]
 
+{ #category : 'accessing' }
+JadeiteConnectionLauncher >> clientLibrariesPath: aString [
+
+	clientLibPathText text: aString
+]
+
 { #category : 'constants' }
 JadeiteConnectionLauncher >> clientLibraryHelpMessage [
 
