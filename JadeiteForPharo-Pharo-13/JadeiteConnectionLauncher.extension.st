@@ -67,5 +67,5 @@ JadeiteConnectionLauncher >> setClientLibrariesPath [
 	path := dialog openModal.
 	path ifNil: [ ^ nil ].
 	JadeiteGCIConnectionProfile clientLibrariesPath: path fullName.
-	pathText text: path fullName
+	clientLibPathText text: path fullName
 ]

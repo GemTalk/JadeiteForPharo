@@ -339,6 +339,25 @@ JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesMissing [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesNotChangedByConnectionSelection [
+
+	| nonSensicalPath |
+	nonSensicalPath := 'nonSensiscal/path/does/not/change'.
+	self profile isConnected ifTrue: [ self profile disconnect ].
+	launcher := JadeiteConnectionLauncher soleInstance presenter.
+	self
+		assert: clientLibariesPath
+		equals: launcher pathText adapter widget text asString.
+	launcher pathText adapter widget setText: nonSensicalPath.
+
+	launcher availableConnectionPresenter list do: [ :conn |
+			launcher availableConnectionPresenter selectItem: conn.
+			self
+				assert: launcher pathText adapter widget text
+				equals: nonSensicalPath ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoConnectionLauncherTestCase >> test_clientLibrariesPathDoesNotExistUseParent [
 
 	self profile isConnected ifTrue: [ self profile disconnect ].

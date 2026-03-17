@@ -7,7 +7,6 @@ Class {
 		'versionText',
 		'netldiText',
 		'stoneText',
-		'pathText',
 		'userText',
 		'passwordText',
 		'hostText',
@@ -21,7 +20,8 @@ Class {
 		'selectedProfile',
 		'connectionBox',
 		'nonConnectionBox',
-		'setClientLibrariesPathButton'
+		'setClientLibrariesPathButton',
+		'clientLibPathText'
 	],
 	#classVars : [
 		'ConnectionProfile',
@@ -126,7 +126,7 @@ JadeiteConnectionLauncher >> addStyle: style [
 	passwordText addStyle: style.
 	versionText addStyle: style.
 	netldiText addStyle: style.
-	pathText addStyle: style.
+	clientLibPathText addStyle: style.
 	portText addStyle: style.
 	availableConnectionPresenter whenBuiltDo: [ "not yet sure why just adding the style was no longer good enough"
 			availableConnectionPresenter adapter widget color:
@@ -297,11 +297,11 @@ JadeiteConnectionLauncher >> closeWindowsForConnection: theConnection [
 JadeiteConnectionLauncher >> connect [
 
 	| shouldDebug |
-	pathText adapter widget text isEmpty ifTrue: [
+	clientLibPathText adapter widget text isEmpty ifTrue: [
 			self uiManager alert: 'Client Libraries Path must be set'.
 			self setClientLibrariesPath ifNil: [ ^ self ] ].
 	JadeiteGCIConnectionProfile clientLibrariesPath:
-		pathText adapter widget text asString. "spec doesn't respect typed changes sometimes so go to morphic"
+		clientLibPathText adapter widget text asString. "spec doesn't respect typed changes sometimes so go to morphic"
 
 	self populateConnectionProfile.
 	[
@@ -351,8 +351,8 @@ JadeiteConnectionLauncher >> connectPresenters [
 	availableConnectionPresenter whenSelectionChangedDo: [ :selection |
 			selection selectedIndex = 0 ifFalse: [
 				self installImportedConnection: selection selectedItem ] ].
-	pathText whenSubmitDo: [ :newPath |
-		pathText adapter widget hasUnacceptedEdits: false ].
+	clientLibPathText whenSubmitDo: [ :newPath |
+		clientLibPathText adapter widget hasUnacceptedEdits: false ].
 	SystemAnnouncer uniqueInstance weak
 		when: UIThemeChanged
 		send: #themeChanged
@@ -530,8 +530,8 @@ JadeiteConnectionLauncher >> initializeClientLibPathPresenter [
 	clientLibsBox add: (self newLabel label: 'Client Libraries Path:').
 
 	pathBox := SpBoxLayout newHorizontal.
-	pathText := JadeiteTextInputFieldPresenter new.
-	pathBox add: pathText.
+	clientLibPathText := JadeiteTextInputFieldPresenter new.
+	pathBox add: clientLibPathText.
 	pathBox
 		add: (self newButton
 				 icon: (self iconNamed: #smallQuestion);
@@ -834,13 +834,7 @@ JadeiteConnectionLauncher >> passwordText: anObject [
 { #category : 'accessing' }
 JadeiteConnectionLauncher >> pathText [
 
-	^ pathText
-]
-
-{ #category : 'accessing' }
-JadeiteConnectionLauncher >> pathText: anObject [
-
-	pathText := anObject
+	^ clientLibPathText
 ]
 
 { #category : 'actions' }
@@ -872,7 +866,6 @@ JadeiteConnectionLauncher >> populateTextFields [
 	passwordText text: selectedProfile password.
 	versionText text: selectedProfile version.
 	netldiText text: selectedProfile netldi.
-	pathText text: JadeiteGCIConnectionProfile clientLibrariesPath.
 	selectedProfile port
 		ifNil: [ portText text: String new ]
 		ifNotNil: [ portText text: selectedProfile port ]
@@ -973,7 +966,7 @@ JadeiteConnectionLauncher >> setFocusOrder [
 		add: passwordText;
 		add: versionText;
 		add: netldiText;
-		add: pathText;
+		add: clientLibPathText;
 		add: setClientLibrariesPathButton;
 		add: connectButton;
 		add: disconnectButton 
@@ -1025,7 +1018,7 @@ JadeiteConnectionLauncher >> textFieldPresenters [
 		add: versionText;
 		add: netldiText;
 		add: portText;
-		add: pathText.
+		add: clientLibPathText.
 	^ oc
 ]
 
@@ -1065,7 +1058,7 @@ JadeiteConnectionLauncher >> unsavedPassword [
 { #category : 'morphic widget texts' }
 JadeiteConnectionLauncher >> unsavedPath [
 
-	^ pathText adapter widget text asString
+	^ clientLibPathText adapter widget text asString
 ]
 
 { #category : 'morphic widget texts' }
