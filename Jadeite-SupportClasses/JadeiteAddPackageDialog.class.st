@@ -11,6 +11,12 @@ Class {
 	#package : 'Jadeite-SupportClasses'
 }
 
+{ #category : 'constants' }
+JadeiteAddPackageDialog class >> defaultPreferredExtent [
+
+	^ 40 @ 30
+]
+
 { #category : 'instance creation' }
 JadeiteAddPackageDialog class >> newModalWindowOn: aGciSession projectService: theProjectService [
 
@@ -70,12 +76,12 @@ JadeiteAddPackageDialog >> componentName [
 JadeiteAddPackageDialog >> defaultLayout [
 
 	^ SpGridLayout new
-		  add: 'Package Name:' at: 1 @ 1;
-		  add: packageNamePresenter at: 2 @ 1 span: 2 @ 1;
-		  add: 'Component Name:' at: 1 @ 2;
-		  add: componentNamePresenter at: 2 @ 2 span: 2 @ 1;
-		  add: 'Symbol Dictionary:' at: 1 @ 3;
-		  add: symbolDictionaryNamePresenter at: 2 @ 3 span: 2 @ 1;
+		  add: 'Package Name:' atPoint: 1 @ 1;
+		  add: packageNamePresenter atPoint: 2 @ 1 span: 2 @ 1;
+		  add: 'Component Name:' atPoint: 1 @ 2;
+		  add: componentNamePresenter atPoint: 2 @ 2 span: 2 @ 1;
+		  add: 'Symbol Dictionary:' atPoint: 1 @ 3;
+		  add: symbolDictionaryNamePresenter atPoint: 2 @ 3 span: 2 @ 1;
 		  beColumnNotHomogeneous
 ]
 
@@ -118,14 +124,6 @@ JadeiteAddPackageDialog >> initializeSymbolDictionaries [
 				dictionaryNames remove: 'UserGlobals' ifAbsent: [  ].
 				dictionaryNames addFirst: 'UserGlobals'.
 				symbolDictionaryNamePresenter items: dictionaryNames ]
-]
-
-{ #category : 'initialization' }
-JadeiteAddPackageDialog >> initializeWindow: aWindowPresenter [
-
-	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: 400 @ 300.
-	self updateCaption
 ]
 
 { #category : 'accessing' }

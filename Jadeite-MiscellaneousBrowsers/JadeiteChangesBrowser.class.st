@@ -19,6 +19,12 @@ Class {
 	#package : 'Jadeite-MiscellaneousBrowsers'
 }
 
+{ #category : 'constants' }
+JadeiteChangesBrowser class >> defaultPreferredExtent [
+
+	^ 100 @ 100
+]
+
 { #category : 'as yet unclassified' }
 JadeiteChangesBrowser class >> showOn: aRowanPatch name: aString application: application [
 
@@ -265,16 +271,6 @@ JadeiteChangesBrowser >> initializeToolbar [
 		expand: false
 		fill: false
 		padding: 0
-]
-
-{ #category : 'initialization' }
-JadeiteChangesBrowser >> initializeWindow: aWindowPresenter [
-
-	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 100 @ 100 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
-	self updateCaption
 ]
 
 { #category : 'as yet unclassified' }

@@ -28,6 +28,12 @@ JadeiteDiffBrowser class >> compare: methodService1 to: methodService2 applicati
 	^ diffBrowser
 ]
 
+{ #category : 'constants' }
+JadeiteDiffBrowser class >> defaultPreferredExtent [
+
+	^ 100 @ 50
+]
+
 { #category : 'api' }
 JadeiteDiffBrowser >> addStyle: aString [
 
@@ -66,8 +72,6 @@ JadeiteDiffBrowser >> initializePresenters [
 JadeiteDiffBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 100 @ 50 * StandardFonts defaultFont pointSize.
 	self updateCaption
 ]
 

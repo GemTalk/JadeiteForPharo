@@ -24,6 +24,12 @@ JadeiteForPharoBrowserTestCase class >> codeCoverageClasses [
 		  JadeiteBrowserPresenter } asOrderedCollection
 ]
 
+{ #category : 'coverage' }
+JadeiteForPharoBrowserTestCase class >> primaryTestClass [
+
+	^ JadeiteBrowser
+]
+
 { #category : 'accessing' }
 JadeiteForPharoBrowserTestCase >> application [
 	"Spec2 needs this to open a browser via preferences"
@@ -104,9 +110,9 @@ JadeiteForPharoBrowserTestCase >> tearDown [
 	self destroy: failedMethodPresenter.
 	secondPresenter ifNotNil: [ self destroy: secondPresenter owner ].
 	dictionary ifNotNil: [
-		[ self projectsPresenter removeDictionary ]
-			on: ProvideAnswerNotification
-			do: [ :not | not resume: true ] ].
+			[ self projectsPresenter removeDictionary ]
+				on: ProvideAnswerNotification
+				do: [ :not | not resume: true ] ].
 	super tearDown
 ]
 

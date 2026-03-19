@@ -16,6 +16,12 @@ JadeiteForPharoAbstractBrowserTestCase class >> isAbstract [
 	^ self name = #JadeiteForPharoAbstractBrowserTestCase
 ]
 
+{ #category : 'coverage' }
+JadeiteForPharoAbstractBrowserTestCase class >> primaryTestClass [
+
+	^ self subclassResponsibility
+]
+
 { #category : 'factory' }
 JadeiteForPharoAbstractBrowserTestCase class >> suiteClass [
 	^JadeiteTestSuite
@@ -127,6 +133,14 @@ JadeiteForPharoAbstractBrowserTestCase >> selectRowanClassServiceNamed: classNam
 ]
 
 { #category : 'support' }
+JadeiteForPharoAbstractBrowserTestCase >> setUp [
+
+	super setUp.
+	preferredExtent := self class primaryTestClass preferredExtent.
+	self class primaryTestClass preferredExtent: nil
+]
+
+{ #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> setupMultipleReferencesToString [
 
 	| source |
@@ -173,16 +187,17 @@ array add: ''blerf''.
 JadeiteForPharoAbstractBrowserTestCase >> tearDown [
 
 	super tearDown.
+	self class primaryTestClass preferredExtent: preferredExtent.
 	(session isNotNil and: [ session isValidSession ]) ifTrue: [
-		transcriptWritesWereEnabled == true ifTrue: [
-			transcript flipTranscript ] ].
+			transcriptWritesWereEnabled == true ifTrue: [
+				transcript flipTranscript ] ].
 	methodListBrowser ifNotNil: [
-		self destroy: methodListBrowser.
-		methodListBrowser := nil ].
+			self destroy: methodListBrowser.
+			methodListBrowser := nil ].
 	secondBrowser ifNotNil: [ :two |
-		two tabs selectedPage ifNotNil: [
-			two activePresenter methodSourcePresenter adapter ifNotNil: [ :a |
-				a widget hasUnacceptedEdits: false ] ] ].
+			two tabs selectedPage ifNotNil: [
+					two activePresenter methodSourcePresenter adapter ifNotNil: [ :a |
+						a widget hasUnacceptedEdits: false ] ] ].
 	self destroy: secondBrowser
 ]
 
@@ -1758,6 +1773,45 @@ JadeiteForPharoAbstractBrowserTestCase >> test_sunitTabBuiltAfterBrowseInExistin
 	self assert: methodListBrowser window adapter widget isActive.
 	methodListBrowser browseMethodClassInExistingBrowser.
 	self assert: self lastTextTabName equals: 'SUnit'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_windowDefaultSizeRetained [
+	"preferredExtent reset in setup. 
+	no resizing so preferredExtent doesn't change from default"
+
+	self
+		testsJadeiteForPharoIssue: #issue237
+		title: 'Location when opening non-dialog windows'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/237'.
+
+	self
+		assert: JadeiteBrowser preferredExtent
+		equals: JadeiteBrowser defaultPreferredExtent
+			* StandardFonts defaultFont pointSize.
+	self destroy: projectsBrowser.
+	self
+		assert: JadeiteBrowser preferredExtent
+		equals: JadeiteBrowser defaultPreferredExtent
+			* StandardFonts defaultFont pointSize
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAbstractBrowserTestCase >> test_windowResizingRetained [
+
+	self
+		testsJadeiteForPharoIssue: #issue237
+		title: 'Location when opening non-dialog windows'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/237'.
+	self destroy: projectsBrowser.
+	JadeiteBrowser preferredExtent: 800 @ 500.
+	self setupProjectBrowser.
+	self assert: 800 @ 500 equals: projectsBrowser extent.
+	projectsBrowser window resize: 1600 @ 1000.
+	self assert: 1600 @ 1000 equals: projectsBrowser extent.
+	self destroy: projectsBrowser.
+	self setupProjectBrowser.
+	self assert: 1600 @ 1000 equals: projectsBrowser extent
 ]
 
 { #category : 'support' }

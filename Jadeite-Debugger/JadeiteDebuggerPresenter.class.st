@@ -29,6 +29,12 @@ Class {
 	#package : 'Jadeite-Debugger'
 }
 
+{ #category : 'constants' }
+JadeiteDebuggerPresenter class >> defaultPreferredExtent [
+
+	^ 105 @ 120
+]
+
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> addDebuggerActionsTo: group [
 
@@ -538,10 +544,6 @@ JadeiteDebuggerPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter initialPosition: 5 @ 25. "upper left"
-	aWindowPresenter initialExtent ifNil: [
-			aWindowPresenter initialExtent:
-				105 @ 120 * StandardFonts defaultFont pointSize ].
-	self updateCaption.
 	aWindowPresenter menu: self initializeMenubar.
 	aWindowPresenter whenClosedDo: [
 			self gciSession isValidSession

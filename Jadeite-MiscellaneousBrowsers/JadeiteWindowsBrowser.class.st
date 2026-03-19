@@ -23,6 +23,12 @@ JadeiteWindowsBrowser class >> currentApplication [
 	^JadeiteApplication new 
 ]
 
+{ #category : 'constants' }
+JadeiteWindowsBrowser class >> defaultPreferredExtent [
+
+	^ 90 @ 30
+]
+
 { #category : 'instance creation' }
 JadeiteWindowsBrowser class >> show [
 
@@ -121,11 +127,7 @@ JadeiteWindowsBrowser >> initializePresenters [
 JadeiteWindowsBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 90 @ 30 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
-	self updateCaption.
-	autoRefreshPresenter state: true 
+	autoRefreshPresenter state: true
 ]
 
 { #category : 'initialization' }

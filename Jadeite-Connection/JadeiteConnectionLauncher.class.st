@@ -57,6 +57,12 @@ JadeiteConnectionLauncher class >> defaultConnectionSortBlock [
 	^ [ :x :y | (self shortPathFor: x) < (self shortPathFor: y) ]
 ]
 
+{ #category : 'constants' }
+JadeiteConnectionLauncher class >> defaultPreferredExtent [
+
+	^ 70 @ 40
+]
+
 { #category : 'accessing' }
 JadeiteConnectionLauncher class >> importedConnections [
 
@@ -767,11 +773,7 @@ JadeiteConnectionLauncher >> initializeVersionPresenter [
 JadeiteConnectionLauncher >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 70 @ 40 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar;
-		centered.
-	self updateCaption.
+	aWindowPresenter centered.
 	aWindowPresenter whenClosedDo: [
 			self clearConnectionSubscriptions.
 			self class soleInstance: nil ].

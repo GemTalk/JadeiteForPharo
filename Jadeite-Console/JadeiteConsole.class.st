@@ -58,6 +58,12 @@ JadeiteConsole class >> defaultColumnWidths [
 	^ { 200. 100. 100. nil }
 ]
 
+{ #category : 'constants' }
+JadeiteConsole class >> defaultPreferredExtent [
+
+	^ 120 @ 50
+]
+
 { #category : 'actions' }
 JadeiteConsole class >> setColumnWidths [
 
@@ -468,11 +474,7 @@ JadeiteConsole >> initializeTranscriptPresenter: tabs [
 JadeiteConsole >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 120 @ 50 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
-	self updateCaption.
 	aWindowPresenter whenClosedDo: [ self class currentConsole: nil ]
 ]
 

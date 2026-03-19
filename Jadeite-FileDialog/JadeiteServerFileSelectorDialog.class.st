@@ -49,6 +49,12 @@ JadeiteServerFileSelectorDialog class >> createDialogOn: aGciSession path: path 
 	^ inst
 ]
 
+{ #category : 'constants' }
+JadeiteServerFileSelectorDialog class >> defaultPreferredExtent [
+
+	^ 80 @ 60
+]
+
 { #category : 'instance creation' }
 JadeiteServerFileSelectorDialog class >> setLastPath: aString [
 
@@ -121,13 +127,6 @@ JadeiteServerFileSelectorDialog >> initializePresenters [
 	fileSelectorPresenter := JadeiteServerFileSelectorPresenter new
 		                         gciSession: gciSession.
 	self layout add: fileSelectorPresenter
-]
-
-{ #category : 'initialization' }
-JadeiteServerFileSelectorDialog >> initializeWindow: aWindowPresenter [
-
-	aWindowPresenter initialExtent:
-		80 @ 60 * StandardFonts defaultFont pointSize
 ]
 
 { #category : 'initialization' }

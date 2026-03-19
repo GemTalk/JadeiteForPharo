@@ -13,6 +13,12 @@ Class {
 	#package : 'Jadeite-MiscellaneousBrowsers'
 }
 
+{ #category : 'constants' }
+JadeiteProcessBrowser class >> defaultPreferredExtent [
+
+	^ 80 @ 30
+]
+
 { #category : 'instance creation' }
 JadeiteProcessBrowser class >> showOnSession: aGciSession [
 
@@ -175,9 +181,7 @@ JadeiteProcessBrowser >> initializeProcessListPresenterTo: box [
 JadeiteProcessBrowser >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 80 @ 30 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
+	aWindowPresenter menu: self initializeMenubar.
 	self updateCaption
 ]
 

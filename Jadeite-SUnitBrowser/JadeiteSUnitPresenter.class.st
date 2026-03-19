@@ -14,6 +14,12 @@ Class {
 	#package : 'Jadeite-SUnitBrowser'
 }
 
+{ #category : 'constants' }
+JadeiteSUnitPresenter class >> defaultPreferredExtent [
+
+	^ 100 @ 60
+]
+
 { #category : 'accessing' }
 JadeiteSUnitPresenter >> activePresenter [
 	"only presenter is myself"
@@ -238,7 +244,7 @@ JadeiteSUnitPresenter >> initializeClassList [
 ]
 
 { #category : 'initialization' }
-JadeiteSUnitPresenter >> initializeMenuBar [
+JadeiteSUnitPresenter >> initializeMenubar [
 
 	^ self newMenuBar addGroup: [ :group |
 		  self addToolsToMenuGroup: group ]
@@ -278,16 +284,6 @@ JadeiteSUnitPresenter >> initializePresenters [
 	self initializeBrowseMethodListMenu.
 	self addSUnitMethodListMenuItems.
 	listPresenters add: methodListPresenter
-]
-
-{ #category : 'initialization' }
-JadeiteSUnitPresenter >> initializeWindow: aWindowPresenter [
-
-	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent:
-		100 @ 60 * StandardFonts defaultFont pointSize.
-	self updateCaption.
-	aWindowPresenter menu: self initializeMenuBar
 ]
 
 { #category : 'testing' }

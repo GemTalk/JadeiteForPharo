@@ -12,6 +12,12 @@ Class {
 	#package : 'Jadeite-MiscellaneousBrowsers'
 }
 
+{ #category : 'constants' }
+JadeiteHistoryBrowser class >> defaultPreferredExtent [
+
+	^ 100 @ 75
+]
+
 { #category : 'instance creation' }
 JadeiteHistoryBrowser class >> showOn: methodService application: application [
 
@@ -128,16 +134,6 @@ JadeiteHistoryBrowser >> initializeVersionsListContextMenu [
 				enabled: [ versionListPresenter selections size = 1 ] ] ].
 
 	versionListPresenter contextMenu: menu
-]
-
-{ #category : 'initialization' }
-JadeiteHistoryBrowser >> initializeWindow: aWindowPresenter [
-
-	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 100 @ 75 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
-	self updateCaption
 ]
 
 { #category : 'accessing' }

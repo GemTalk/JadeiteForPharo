@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-Browser'
 }
 
+{ #category : 'constants' }
+JadeiteBrowserWithoutRowan class >> defaultPreferredExtent [
+
+	^ 150 @ 80
+]
+
 { #category : 'instance creation' }
 JadeiteBrowserWithoutRowan class >> new [
 
@@ -63,8 +69,6 @@ JadeiteBrowserWithoutRowan >> initializeMenubar [
 JadeiteBrowserWithoutRowan >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent:
-		150 @ 80 * StandardFonts defaultFont pointSize.
 	aWindowPresenter whenOpenedDo: [
 		self activePresenter ifNotNil: [ :pres | pres updateSUnitTab ] ]
 ]

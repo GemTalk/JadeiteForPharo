@@ -28,6 +28,12 @@ JadeiteBrowser class >> browserPresenterClass [
 		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
 ]
 
+{ #category : 'constants' }
+JadeiteBrowser class >> defaultPreferredExtent [
+
+	^ 140 @ 110
+]
+
 { #category : 'instance creation' }
 JadeiteBrowser class >> new [
 
@@ -306,14 +312,8 @@ JadeiteBrowser >> initializePresenters [
 JadeiteBrowser >> initializeWindow: aWindowPresenter [
 	"keep font & row computations for investigation but comment out for now."
 
-	| initialExtent |
-	initialExtent := aWindowPresenter initialExtent ifNil: [
-		                 140 @ 110 * StandardFonts defaultFont pointSize ].
-
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: initialExtent;
-		menu: self initializeMenubar.
+	aWindowPresenter menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
 	aWindowPresenter whenClosedDo: [
 			self cards do: [ :notebookPage |

@@ -5,24 +5,17 @@ Class {
 		'waitIndicator',
 		'stopWaitButton'
 	],
-	#classVars : [
-		'LastWindowSizes'
-	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
 
 { #category : 'accessing' }
-JadeitePresenter class >> lastWindowSize [
+JadeitePresenter class >> preferredExtent [
+	"Jadeite windows try to adjust the default window size of the window
+	based on the pointSize of the font"
 
-	LastWindowSizes ifNil: [ LastWindowSizes := Dictionary new ].
-	^ LastWindowSizes at: self ifAbsentPut: [ nil ]
-]
-
-{ #category : 'accessing' }
-JadeitePresenter class >> lastWindowSize: aPoint [
-
-	LastWindowSizes at: self put: aPoint
+	^ customExtent ifNil: [
+		  self defaultPreferredExtent * StandardFonts defaultFont pointSize ]
 ]
 
 { #category : 'actions' }
@@ -59,6 +52,12 @@ JadeitePresenter >> commitTransaction [
 ]
 
 { #category : 'initialization' }
+JadeitePresenter >> initializeMenubar [
+
+	^ self newMenuBar
+]
+
+{ #category : 'initialization' }
 JadeitePresenter >> initializeWaitPresenter [
 	"for whatever reason, the progress bar won't stretch to full width unless it's in it's own vertical box. Weird."
 
@@ -87,10 +86,11 @@ JadeitePresenter >> initializeWaitPresenter [
 JadeitePresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter initialExtent: self class lastWindowSize.
+	aWindowPresenter menu: self initializeMenubar.
+	self updateCaption.
 	aWindowPresenter whenResizingDo: [ :ann |
 			ann window isCollapsed ifFalse: [
-				self class lastWindowSize: ann newSize ] ]
+				self class preferredExtent: ann newSize ] ]
 ]
 
 { #category : 'actions' }
@@ -157,6 +157,10 @@ JadeitePresenter >> showWait [
 JadeitePresenter >> suspendSelectionEvents [
 
 	
+]
+
+{ #category : 'initialization' }
+JadeitePresenter >> updateCaption [
 ]
 
 { #category : 'as yet unclassified' }

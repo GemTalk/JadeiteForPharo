@@ -10,7 +10,8 @@ Class {
 		'workspace',
 		'methodListBrowser',
 		'progressBarState',
-		'fileOperationSemaphore'
+		'fileOperationSemaphore',
+		'preferredExtent'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -165,6 +166,18 @@ JadeiteForPharoGUITestCase >> jfpwor_classDefinitionFor: className superclass: s
 		instVars: aString
 		package: superName.
 	^ self projectsPresenter editSaveClass
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoGUITestCase >> preferredExtent [
+
+	^ preferredExtent
+]
+
+{ #category : 'accessing' }
+JadeiteForPharoGUITestCase >> preferredExtent: anObject [
+
+	preferredExtent := anObject
 ]
 
 { #category : 'support' }

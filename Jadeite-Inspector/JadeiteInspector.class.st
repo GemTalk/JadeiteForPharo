@@ -21,6 +21,12 @@ Class {
 	#package : 'Jadeite-Inspector'
 }
 
+{ #category : 'constants' }
+JadeiteInspector class >> defaultPreferredExtent [
+
+	^ 80 @ 50
+]
+
 { #category : 'as yet unclassified' }
 JadeiteInspector class >> showOn: oop session: aGciSession [
 	| inspector |
@@ -591,11 +597,7 @@ JadeiteInspector >> initializeToolbar [
 JadeiteInspector >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 80 @ 50 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
 	self initializeKeyBindings: aWindowPresenter.
-	self updateCaption
 ]
 
 { #category : 'inspecting' }

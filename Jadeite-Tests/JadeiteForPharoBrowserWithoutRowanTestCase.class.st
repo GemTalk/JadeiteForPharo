@@ -16,6 +16,12 @@ JadeiteForPharoBrowserWithoutRowanTestCase class >> codeCoverageClasses [
 		  JadeiteBrowserPresenterWithoutRowan } asOrderedCollection
 ]
 
+{ #category : 'coverage' }
+JadeiteForPharoBrowserWithoutRowanTestCase class >> primaryTestClass [
+
+	^ JadeiteBrowserWithoutRowan
+]
+
 { #category : 'support' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> classHierarchyServices [
 
@@ -2635,12 +2641,10 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> setUp [
 JadeiteForPharoBrowserWithoutRowanTestCase >> tearDown [
 
 	GciSession current isValidSession ifTrue: [
-		JadeitePreferences isRowanAvailable
-		"	ifTrue: [ self unloadSampleProject1 ]"
-			ifFalse: [
-				JadeiteBrowserPresenter
-					basicRemoveDictionaryNamed: self rowanSampleDictionaryName
-					onCompletion: [  ] ] ].
+			JadeitePreferences isRowanAvailable ifFalse: [ "	ifTrue: [ self unloadSampleProject1 ]"
+					JadeiteBrowserPresenter
+						basicRemoveDictionaryNamed: self rowanSampleDictionaryName
+						onCompletion: [ ] ] ].
 	super tearDown
 ]
 

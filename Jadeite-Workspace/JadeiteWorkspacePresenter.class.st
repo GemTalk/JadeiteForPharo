@@ -11,6 +11,12 @@ Class {
 	#package : 'Jadeite-Workspace'
 }
 
+{ #category : 'constants' }
+JadeiteWorkspacePresenter class >> defaultPreferredExtent [
+
+	^ 80 @ 50
+]
+
 { #category : 'api' }
 JadeiteWorkspacePresenter >> addStyle: aStyle [
 
@@ -93,11 +99,7 @@ JadeiteWorkspacePresenter >> initializePresenters [
 JadeiteWorkspacePresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	self updateCaption. 
-	self initializeKeyBindings.
-	aWindowPresenter
-		initialExtent: 80 @ 50 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar
+	self initializeKeyBindings
 ]
 
 { #category : 'actions' }

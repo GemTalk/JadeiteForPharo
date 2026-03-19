@@ -19,6 +19,12 @@ Class {
 	#package : 'Jadeite-MethodBrowser'
 }
 
+{ #category : 'constants' }
+JadeiteMethodListPresenter class >> defaultPreferredExtent [
+
+	^ 100 @ 80
+]
+
 { #category : 'actions' }
 JadeiteMethodListPresenter >> abortTransaction [
 
@@ -331,16 +337,6 @@ JadeiteMethodListPresenter >> initializePresenters [
 	self layout
 		add: statusBarText
 		withConstraints: [ :constraints | constraints height: 20 ]
-]
-
-{ #category : 'initialization' }
-JadeiteMethodListPresenter >> initializeWindow: aWindowPresenter [
-
-	super initializeWindow: aWindowPresenter.
-	aWindowPresenter
-		initialExtent: 100 @ 80 * StandardFonts defaultFont pointSize;
-		menu: self initializeMenubar.
-	self updateCaption
 ]
 
 { #category : 'as yet unclassified' }
