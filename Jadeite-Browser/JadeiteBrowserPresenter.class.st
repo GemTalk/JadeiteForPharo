@@ -821,16 +821,20 @@ JadeiteBrowserPresenter >> copyClass [
 
 	| oldClassService newClassName validClassName |
 	oldClassService := self selectedClass ifNil: [
-		                   ^ MessageBox notify: 'Class must be selected' ].
+		                   ^ self uiManager alert: 'Class must be selected' ].
 	validClassName := false.
 	[ validClassName ] whileFalse: [
-		newClassName := (UIManager default
-			                 textEntry: 'Copy ' , oldClassService name , ' to:'
-			                 title: 'Copy class') ifNil: [ ^ self ].
-		self symbolExists: newClassName onCompletion: [ :service |
-			validClassName := service answer not.
-			validClassName ifFalse: [
-				UIManager default alert: 'Symbol exists. Please retry.' ] ] ].
+			newClassName := (UIManager default
+				                 textEntry:
+				                 'Copy ' , oldClassService name , ' to:'
+				                 title: 'Copy class') ifNil: [ ^ self ].
+			newClassName ifEmpty: [
+					self uiManager alert: 'Class name cannot be blank'.
+					^ self ].
+			self symbolExists: newClassName onCompletion: [ :service |
+					validClassName := service answer not.
+					validClassName ifFalse: [
+						UIManager default alert: 'Symbol exists. Please retry.' ] ] ].
 	self basicCopyClass: oldClassService to: newClassName
 ]
 
@@ -1000,6 +1004,18 @@ JadeiteBrowserPresenter >> defaultMethod [
 	^JadePresenter defaultMethodTemplate
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> dictionaryListPresenter [
+
+	^ dictionaryListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenter >> dictionaryListPresenter: anObject [
+
+	dictionaryListPresenter := anObject
+]
+
 { #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> dictionaryMenu [
 	^Menu fromStrings: self dictionaryMenuStrings
@@ -1035,6 +1051,12 @@ JadeiteBrowserPresenter >> displayVariable: displayThing [
 			(selectedClass instVarNames includes: displayThing item asSymbol)
 				ifTrue: [displayThing font beBold]].
 	^displayThing
+]
+
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> dropClasses: classServices onDictionary: dictionaryService [
+
+	self moveClasses: classServices toDictionary: dictionaryService
 ]
 
 { #category : 'drag & drop' }
@@ -1545,7 +1567,7 @@ JadeiteBrowserPresenter >> initializeCategoryListPresenter [
 					  jadeiteCategory isComputed
 						  ifTrue: [ self theme jadeiteExtensionTextColor ]
 						  ifFalse: [ self theme textColor ] ] ];
-		  wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
+		  wantsDrop: [ :transfer | self jadeiteClassWantsDrop: transfer ];
 		  acceptDrop: [ :transfer |
 			  transfer index = 0 ifFalse: [
 					  self
@@ -1603,10 +1625,11 @@ JadeiteBrowserPresenter >> initializeClassHierarchy [
 		                           displayColor: [ :classService |
 			                           self classDisplayColor: classService ];
 		                           children: [ :service |
-			                           service subclassServices ].
+			                           service subclassServices ];
+		                           dragEnabled: true.
 	classHierarchyPresenter
 		isActiveOnDoubleClick;
-		wantsDrop: [ :transfer | self jadeiteWantsDrop: transfer ];
+		wantsDrop: [ :transfer | self jadeiteClassWantsDrop: transfer ];
 		acceptDrop: [ :transfer |
 			self
 				dropMethods: transfer passenger
@@ -1626,16 +1649,17 @@ JadeiteBrowserPresenter >> initializeClassTabs: listPresenters [
 	classListPresenter := (JadeiteListPresenter newNameSortedListFor:
 			                       self)
 		                      wantsDrop: [ :transfer |
-			                      self jadeiteWantsDrop: transfer ];
+			                      self jadeiteClassWantsDrop: transfer ];
 		                      displayIcon: [ :classService |
 			                      self testClassResultIconFor: classService ];
 		                      acceptDrop: [ :transfer |
-			                      transfer index = 0 ifFalse: [
-					                      self
-						                      dropMethods: transfer passenger
-						                      onSelectedClass:
-							                      (self classListPresenter items at:
-									                       transfer index) ] ].
+				                      transfer index = 0 ifFalse: [
+							                      self
+								                      dropMethods: transfer passenger
+								                      onSelectedClass:
+									                      (self classListPresenter items at:
+											                       transfer index) ] ];
+		                      dragEnabled: true.
 	classListPresenter beSingleSelection.
 	classListPresenter displayColor: [ :classService |
 		self classDisplayColor: classService ].
@@ -1695,7 +1719,7 @@ JadeiteBrowserPresenter >> initializeFilterTabs: methodPanedLayout [
 					                              classService definedPackageName
 					                              = categoryString ] ];
 		                              wantsDrop: [ :transfer |
-			                              self jadeiteWantsDrop: transfer ];
+			                              self jadeiteClassWantsDrop: transfer ];
 		                              acceptDrop: [ :transfer |
 			                              self
 				                              moveMethodsToPackageFilterUsing:
@@ -1839,7 +1863,7 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 	packageListPresenter := (JadeiteListPresenter newNameSortedListFor:
 			                         self)
 		                        wantsDrop: [ :transfer |
-			                        self jadeiteWantsDrop: transfer ];
+			                        self jadeiteClassWantsDrop: transfer ];
 		                        display: [ :packageService |
 			                        packageService displayName ];
 		                        displayBold: [ :packageService |
@@ -1857,6 +1881,9 @@ JadeiteBrowserPresenter >> initializePackageDictionaryTabsIn: panedPresenter [
 	dictionaryListPresenter := (JadeiteListPresenter
 		                            newNameSortedListFor: self)
 		                           contextMenu: self newDictionaryMenu.
+	dictionaryListPresenter
+		wantsDrop: [ :transfer | self jadeiteDictionaryWantsDrop: transfer ];
+		acceptDrop: [ :transfer | self prepareToDropClass: transfer ].
 	dictionaryListPage := JadeiteNotebookPage
 		                      title: 'Dictionary'
 		                      icon: nil
@@ -2188,12 +2215,20 @@ JadeiteBrowserPresenter >> jadeiteCategoriesFor: aCollection [
 			  ifTrue: [ JadeiteCategory named: categoryOrString ] ]
 ]
 
-{ #category : 'testing' }
-JadeiteBrowserPresenter >> jadeiteWantsDrop: transfer [
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> jadeiteClassWantsDrop: transfer [
 
-	^ (transfer passenger class canUnderstand: #allSatisfy:)
-		  ifTrue: [ transfer passenger allSatisfy: #isMethodService ]
-		  ifFalse: [ false ]
+	^ (transfer passenger class canUnderstand: #allSatisfy:) and: [
+			  (transfer passenger allSatisfy: #isService) and: [
+				  transfer passenger allSatisfy: #isMethodService ] ]
+]
+
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> jadeiteDictionaryWantsDrop: transfer [
+
+	^ (transfer passenger class canUnderstand: #allSatisfy:) and: [
+			  (transfer passenger allSatisfy: #isService) and: [
+				  transfer passenger allSatisfy: #isClassService ] ]
 ]
 
 { #category : 'history' }
@@ -2349,6 +2384,46 @@ JadeiteBrowserPresenter >> methodsUpdate: classService [
 				methodListPresenter selectedItem source ifNotNil: [ :src | "dragging method can have a nil source until the target method updates"
 						methodSourcePresenter text: src.
 						methodSourcePresenter hasUnacceptedEdits: false ] ]
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> moveClassToDictionary [
+
+	| selectedDictionaryService dialogWindow |
+	dialogWindow := JadeiteSearchDialogWindow new
+		                getList: [ :rxMatcher |
+				                self dictionaryListPresenter list select: [
+							                :service |
+							                rxMatcher isString
+								                ifTrue: [ rxMatcher , '*' match: service name ]
+								                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+									                rxMatcher matchesPrefix: service name ] ] ];
+		                displayBlock: [ :e | e name ];
+		                doubleClickOk;
+		                title: 'Jadeite Regex Find ' , 'Dictionary';
+		                yourself.
+
+	selectedDictionaryService := dialogWindow chooseFromOwner:
+		                             self currentWorld.
+	selectedDictionaryService ifNil: [ ^ self ].
+	self
+		moveClasses: (Array with: self selectedClass)
+		toDictionary: selectedDictionaryService
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenter >> moveClasses: classServices toDictionary: dictionaryService [
+
+	| classNames |
+	classNames := classServices collect: [ :classService |
+		              classService name ].
+	dictionaryService
+		command: #addClassesNamed:;
+		commandArgs: (Array with: classNames).
+	RowanServiceUpdater current
+		issueCommand: dictionaryService
+		session: self gciSession
+		onCompletion: [ self findClassNamed: classNames first ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -2715,6 +2790,16 @@ JadeiteBrowserPresenter >> postUpdateMethodSource [
 		definedMethodPackageText text:
 			'Defined Package: ' , methodService definedPackage.
 		methodCategoryText text: 'Category: ' , methodService category ]
+]
+
+{ #category : 'drag & drop' }
+JadeiteBrowserPresenter >> prepareToDropClass: transfer [
+
+	transfer index = 0 ifFalse: [
+			self
+				dropClasses: transfer passenger
+				onDictionary:
+				(self dictionaryListPresenter items at: transfer index) ]
 ]
 
 { #category : 'selections' }

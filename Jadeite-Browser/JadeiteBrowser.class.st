@@ -167,6 +167,12 @@ JadeiteBrowser >> defaultLayout [
 	^SpBoxLayout newVertical
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowser >> dictionaryListPresenter [
+
+	^ self activePresenter dictionaryListPresenter
+]
+
 { #category : 'actions' }
 JadeiteBrowser >> fileInServerFile [
 

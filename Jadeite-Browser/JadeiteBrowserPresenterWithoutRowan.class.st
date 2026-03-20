@@ -246,6 +246,9 @@ JadeiteBrowserPresenterWithoutRowan >> initializeDictionaryTabIn: panedPresenter
 	dictionaryListPresenter := (JadeiteListPresenter
 		                            newNameSortedListFor: self)
 		                           contextMenu: self newDictionaryMenu.
+	dictionaryListPresenter
+		wantsDrop: [ :transfer | self jadeiteDictionaryWantsDrop: transfer ];
+		acceptDrop: [ :transfer | self prepareToDropClass: transfer ].
 	dictionaryListPage := JadeiteNotebookPage
 		                      title: 'Dictionary'
 		                      icon: nil

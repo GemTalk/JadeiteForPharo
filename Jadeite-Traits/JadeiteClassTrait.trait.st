@@ -17,19 +17,26 @@ JadeiteClassTrait >> addModifyClassMenuItemsTo: menu [
 								action: [ self removeClass ];
 								enabled: [ self isClassSelected ] ] ];
 		addGroup: [ :group |
-				JadeitePreferences isRowanLoaded ifTrue: [
-						group
-							addItem: [ :item |
+				JadeitePreferences isRowanLoaded
+					ifTrue: [
+							group
+								addItem: [ :item |
+										item
+											name: 'Move to Package ...';
+											action: [ self moveClassToPackage ];
+											enabled: [ self isClassSelected ] ];
+								addItem: [ :item |
+										item
+											name: 'Move to Current Package';
+											action: [ self moveClassToCurrentPackage ];
+											enabled: [
+												self isClassSelected and: [ self currentPackage notNil ] ] ] ]
+					ifFalse: [
+							group addItem: [ :item |
 									item
-										name: 'Move to Package ...';
-										action: [ self moveClassToPackage ];
-										enabled: [ self isClassSelected ] ];
-							addItem: [ :item |
-									item
-										name: 'Move to Current Package';
-										action: [ self moveClassToCurrentPackage ];
-										enabled: [
-											self isClassSelected and: [ self currentPackage notNil ] ] ] ].
+										name: 'Move to Dictionary ...';
+										action: [self moveClassToDictionary];
+										enabled: [ self isClassSelected ] ] ].
 				group addItem: [ :item |
 						item
 							name: 'Copy ...';
@@ -69,6 +76,22 @@ JadeiteClassTrait >> browseClassReferences [
 		             ifTrue: [ self classHierarchyPresenter ]
 		             ifFalse: [ self classListPresenter ].
 	^ self browseClassReferences: presenter selectedItem className
+]
+
+{ #category : 'menus' }
+JadeiteClassTrait >> dictionarySubmenu [
+
+	| menu |
+	menu := SpMenuPresenter new.
+	self dictionaryListPresenter list do: [ :dictionaryService |
+			menu addItem: [ :item |
+					item
+						name: dictionaryService name;
+						action: [
+								self
+									moveClasses: (Array with: self selectedClass name)
+									toDictionary: dictionaryService ] ] ].
+	^ menu
 ]
 
 { #category : 'menus' }
