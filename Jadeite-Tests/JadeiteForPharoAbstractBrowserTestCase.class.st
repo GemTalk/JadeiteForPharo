@@ -1786,13 +1786,13 @@ JadeiteForPharoAbstractBrowserTestCase >> test_windowDefaultSizeRetained [
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/237'.
 
 	self
-		assert: JadeiteBrowser preferredExtent
-		equals: JadeiteBrowser defaultPreferredExtent
+		assert: self class primaryTestClass preferredExtent
+		equals: self class primaryTestClass defaultPreferredExtent
 			* StandardFonts defaultFont pointSize.
 	self destroy: projectsBrowser.
 	self
-		assert: JadeiteBrowser preferredExtent
-		equals: JadeiteBrowser defaultPreferredExtent
+		assert: self class primaryTestClass preferredExtent
+		equals: self class primaryTestClass defaultPreferredExtent
 			* StandardFonts defaultFont pointSize
 ]
 
@@ -1804,7 +1804,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_windowResizingRetained [
 		title: 'Location when opening non-dialog windows'
 		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/237'.
 	self destroy: projectsBrowser.
-	JadeiteBrowser preferredExtent: 800 @ 500.
+	self class primaryTestClass preferredExtent: 800 @ 500.
 	self setupProjectBrowser.
 	self assert: 800 @ 500 equals: projectsBrowser extent.
 	projectsBrowser window resize: 1600 @ 1000.

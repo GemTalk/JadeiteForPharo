@@ -24,6 +24,24 @@ JadeiteForPharoDebuggerTestCase class >> jadeiteTestResourceClass [
 	^TestResource
 ]
 
+{ #category : 'coverage' }
+JadeiteForPharoDebuggerTestCase class >> primaryTestClass [
+
+	^ JadeiteDebuggerPresenter
+]
+
+{ #category : 'support' }
+JadeiteForPharoDebuggerTestCase >> assertDebuggerOpenedWithExtent: expectedExtent [
+
+	self assert: debugger isKindOf: self class primaryTestClass.
+	self assert: expectedExtent equals: debugger extent.
+	self destroy: debugger.
+	self assert: debugger window isClosed.
+	debugger := nil.
+	[ RowanProcessServiceClient debuggedProcessServices isEmpty ]
+		whileFalse: [ (Delay forMilliseconds: 1) wait ]
+]
+
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> debugTestProcesses [
 
@@ -41,16 +59,19 @@ JadeiteForPharoDebuggerTestCase >> setUp [
 	JadeiteConnectionProfile connectionProfile disconnect.
 	JadeiteConnectionProfile connectionProfile connect.
 	RowanProcessServiceClient debuggedProcessServices:
-		OrderedCollection new
+		OrderedCollection new.
+	preferredExtent := self class primaryTestClass preferredExtent.
+	self class primaryTestClass preferredExtent: nil
 ]
 
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> tearDown [
 
+	self class primaryTestClass preferredExtent: preferredExtent.
 	projectsBrowser ifNotNil: [
-		self projectsPresenter ifNotNil: [ :presenter |
-			presenter methodSourcePresenter adapter ifNotNil: [ :a |
-				a widget hasUnacceptedEdits: false ] ] ].
+			self projectsPresenter ifNotNil: [ :presenter |
+					presenter methodSourcePresenter adapter ifNotNil: [ :a |
+						a widget hasUnacceptedEdits: false ] ] ].
 	self destroy: projectsBrowser.
 	self destroy: debugger.
 	JadeiteConnectionProfile connectionProfile disconnect
@@ -198,6 +219,30 @@ JadeiteForPharoDebuggerTestCase >> test_selectDebuggerVariable [
 	self assert: debugger variableDataPresenter text equals: String new
 ]
 
+{ #category : 'tests' }
+JadeiteForPharoDebuggerTestCase >> test_windowResizingRetained [
+
+	| service expectedExtent |
+	self
+		testsJadeiteForPharoIssue: #issue237
+		title: 'Location when opening non-dialog windows'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/237'.
+
+	expectedExtent := 800 @ 500.
+	self class primaryTestClass preferredExtent: expectedExtent.
+	service := RowanAnsweringServiceClient newForked.
+	service exec: '$abc' in: GciSession current onCompletion: [ ].
+	self waitForDebugger.
+	self assertDebuggerOpenedWithExtent: expectedExtent.
+
+	expectedExtent := 1600 @ 1000.
+	self class primaryTestClass preferredExtent: expectedExtent.
+	service := RowanAnsweringServiceClient newForked.
+	service exec: '$abc' in: GciSession current onCompletion: [ ].
+	self waitForDebugger.
+	self assertDebuggerOpenedWithExtent: expectedExtent
+]
+
 { #category : 'support' }
 JadeiteForPharoDebuggerTestCase >> toolUsedForCommonTests [
 
@@ -215,9 +260,13 @@ JadeiteForPharoDebuggerTestCase >> waitForDebugger [
 	debuggedProcesses := RowanProcessServiceClient
 		                     debuggedProcessServices.
 	[ debuggedProcesses isEmpty ] whileTrue: [
-		(Delay forMilliseconds: 1) wait.
-		WorldMorph doOneCycle ].
+			(Delay forMilliseconds: 1) wait.
+			WorldMorph doOneCycle ].
 	debugger := debuggedProcesses first debugger.
-	(Delay forMilliseconds: 250) wait. "wait for widget to be built"
+	(Delay forMilliseconds: 250) wait.
+	[ debugger window isOpen ] whileFalse: [
+			(Delay forMilliseconds: 1) wait.
+			WorldMorph doOneCycle ].
+
 	^ debugger
 ]
