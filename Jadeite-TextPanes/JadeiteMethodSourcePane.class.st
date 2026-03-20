@@ -278,12 +278,17 @@ JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 
 { #category : 'actions' }
 JadeiteMethodSourcePane >> showStepPoint: anInteger [
-	| stepPoint stringToHighlight |
-	anInteger ifNil: [ ^self ].
-	methodService ifNil:[^self]. 
-	stepPoint := methodService  stepPoints at: anInteger ifAbsent: [^self]. 
-	stringToHighlight := (ReadStream on: stepPoint last) upTo: $:. 
-	stringToHighlight isEmpty ifTrue:[
-		self selectMessageAt: stepPoint first]
- 	ifFalse:[ self selectionInterval: (stepPoint first to: (stepPoint first + stringToHighlight size - 1))]. 
+
+	| stepPoint stringToHighlight | 
+	anInteger ifNil: [ ^ self ].
+	methodService ifNil: [ ^ self ].
+	stepPoint := methodService stepPoints
+		             at: anInteger
+		             ifAbsent: [ ^ self ].
+	stringToHighlight := (ReadStream on: stepPoint last) upTo: $:.
+	stringToHighlight isEmpty
+		ifTrue: [ self selectMessageAt: stepPoint first ]
+		ifFalse: [
+				self adapter widget textArea editor hoverHighlightInterval:
+					(stepPoint first to: stepPoint first + stringToHighlight size - 1) ]
 ]

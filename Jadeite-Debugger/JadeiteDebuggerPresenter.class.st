@@ -32,7 +32,7 @@ Class {
 { #category : 'constants' }
 JadeiteDebuggerPresenter class >> defaultPreferredExtent [
 
-	^ 105 @ 120
+	^ 75 @ 90
 ]
 
 { #category : 'initialization' }
@@ -609,6 +609,12 @@ JadeiteDebuggerPresenter >> registerPresentersForUpdates [
 ]
 
 { #category : 'actions' }
+JadeiteDebuggerPresenter >> removeHoverHighlight [
+
+	codePane adapter widget textArea removeHoverHighlightSegment
+]
+
+{ #category : 'actions' }
 JadeiteDebuggerPresenter >> resetSource [
 
 	self uiManager defer: [
@@ -700,14 +706,16 @@ JadeiteDebuggerPresenter >> statusBarText: anObject [
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> stepInto [
 
+	self removeHoverHighlight.
 	answer := Array
 		          with: #setStepIntoBreaksAtLevel:
-		          with: frameListPresenter selection selectedIndex 
+		          with: frameListPresenter selection selectedIndex
 ]
 
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> stepOver [
 
+	self removeHoverHighlight.
 	answer := Array
 		          with: #setStepOverBreaksAtLevel:breakpointLevel:
 		          with: frameListPresenter selection selectedIndex
@@ -717,9 +725,10 @@ JadeiteDebuggerPresenter >> stepOver [
 { #category : 'actions' }
 JadeiteDebuggerPresenter >> stepThrough [
 
+	self removeHoverHighlight.
 	answer := Array
 		          with: #setStepThroughBreaksAtLevel:
-		          with: frameListPresenter selection selectedIndex 
+		          with: frameListPresenter selection selectedIndex
 ]
 
 { #category : 'accessing' }
@@ -753,11 +762,13 @@ JadeiteDebuggerPresenter >> updateMethodSource: anAnnouncement [
 
 { #category : 'initialization' }
 JadeiteDebuggerPresenter >> updateSourcePaneWith: selection [
-	self uiManager defer: [codePane context: frameListPresenter selectedItem oop.
-codePane methodService: selection selectedItem method.
-codePane value: selection selectedItem source.
-self updateMethodSourceGlyphs.
-codePane showStepPoint: frameListPresenter selectedItem stepPoint]
+
+	self uiManager defer: [
+			codePane context: frameListPresenter selectedItem oop.
+			codePane methodService: selection selectedItem method.
+			codePane value: selection selectedItem source.
+			self updateMethodSourceGlyphs.
+			codePane showStepPoint: frameListPresenter selectedItem stepPoint ]
 ]
 
 { #category : 'accessing' }
