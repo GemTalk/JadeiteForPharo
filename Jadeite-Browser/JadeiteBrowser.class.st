@@ -377,6 +377,12 @@ JadeiteBrowser >> methodsListPresenter [
 	^ (tabs pages at: tabs selectedPageIndex) methodListPresenter
 ]
 
+{ #category : 'actions' }
+JadeiteBrowser >> moveClassToDictionary [
+
+	^self activePresenter moveClassToDictionary 
+]
+
 { #category : 'testing' }
 JadeiteBrowser >> okToClose [
 
