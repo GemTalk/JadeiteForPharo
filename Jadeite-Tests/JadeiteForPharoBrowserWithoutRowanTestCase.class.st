@@ -3202,6 +3202,67 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_jfpworFindClass [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserWithoutRowanTestCase >> test_moveClasstoDictionary [
+
+	| className |
+	self
+		testsJadeiteForPharoIssue: #issue420
+		title: 'WOR: Cannot move a class to a different SymbolDictionary'
+		url: 'https://github.com/GemTalk/JadeiteForPharo/issues/420'.
+
+	className := 'TestMoveClassToDictionary'.
+	self
+		saveClass: className
+		superclass: 'Object'
+		instVars: #(  )
+		package: nil
+		dictionaryName: 'Published'
+		classCategory: ''.
+
+	self
+		assert: self projectsPresenter selectedClassName
+		equals: className.
+	self
+		assert: self projectsPresenter selectedDictionaryNames size
+		equals: 1.
+	self
+		assert: self projectsPresenter selectedDictionaryNames first
+		equals: 'Published'.
+
+	self projectsPresenter
+		moveClasses: (Array with: self projectsPresenter selectedClass)
+		toDictionary:
+			(self projectsPresenter dictionaryListPresenter list detect: [ :ea |
+				 ea name = 'UserGlobals' ]).
+
+	self
+		assert: self projectsPresenter selectedClassName
+		equals: className.
+	self
+		assert: self projectsPresenter selectedDictionaryNames size
+		equals: 1.
+	self
+		assert: self projectsPresenter selectedDictionaryNames first
+		equals: 'UserGlobals'.
+
+	self projectsPresenter
+		moveClasses: (Array with: self projectsPresenter selectedClass)
+		toDictionary:
+			(self projectsPresenter dictionaryListPresenter list detect: [ :ea |
+				 ea name = 'Published' ]).
+
+	self
+		assert: self projectsPresenter selectedClassName
+		equals: className.
+	self
+		assert: self projectsPresenter selectedDictionaryNames size
+		equals: 1.
+	self
+		assert: self projectsPresenter selectedDictionaryNames first
+		equals: 'Published'
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserWithoutRowanTestCase >> test_moveMethodToCategoriesWithUnusedTemp [
 
 	| selectedNames selectedCategories |

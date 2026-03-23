@@ -849,7 +849,7 @@ JadeiteAbstractTestCase >> saveClass: className superclass: superName instVars: 
 				jfpwor_saveClass: className
 				superclass: superName
 				instVars: instVars
-				package: packageName
+				package: nil
 				dictionaryName: dictionaryName
 				classCategory: classCategoryName ].
 	^ self projectsPresenter editSaveClass

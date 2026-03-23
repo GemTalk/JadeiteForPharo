@@ -92,12 +92,6 @@ RowanSystemBrowserPresenter >> methodListSelection [
 ]
 
 { #category : 'as yet unclassified' }
-RowanSystemBrowserPresenter >> onViewClosed [
-	super onViewClosed.
-	subPresenters do: [:presenter | RowanServiceUpdater current removeEventsTriggeredFor: presenter]
-]
-
-{ #category : 'as yet unclassified' }
 RowanSystemBrowserPresenter >> registerTabPresentersForUpdates [
 	RowanServiceUpdater current register: self methodFilterListPresenter selector: #methodFilterUpdate:
 ]

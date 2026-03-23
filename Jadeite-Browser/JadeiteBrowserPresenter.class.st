@@ -302,13 +302,13 @@ JadeiteBrowserPresenter >> basicCopyClass: oldClassService to: newClassName [
 		command: #copyClassTo:;
 		commandArgs: (Array with: newClassName).
 	self issueCommand: oldClassService onCompletion: [
-		| service |
-		service := RowanClassService new name: newClassName.
-		self updateService: service onCompletion: [
+			| service |
+			service := RowanClassService new name: newClassName.
+
 			self
 				updateAfterFindClass: service
 				methodService: nil
-				onCompletion: [  ] ] ]
+				onCompletion: [ ] ]
 ]
 
 { #category : 'tab labels' }
@@ -2411,7 +2411,7 @@ JadeiteBrowserPresenter >> moveClassToDictionary [
 		toDictionary: selectedDictionaryService
 ]
 
-{ #category : 'actions' }
+{ #category : 'drag & drop' }
 JadeiteBrowserPresenter >> moveClasses: classServices toDictionary: dictionaryService [
 
 	| classNames |
@@ -2423,7 +2423,9 @@ JadeiteBrowserPresenter >> moveClasses: classServices toDictionary: dictionarySe
 	RowanServiceUpdater current
 		issueCommand: dictionaryService
 		session: self gciSession
-		onCompletion: [ self findClassNamed: classNames first ]
+		onCompletion: [
+				self unselectDictionaries.
+				self findClassNamed: classNames first ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -4140,6 +4142,12 @@ JadeiteBrowserPresenter >> unloadProjects [
 	self
 		basicUnloadProjects: projectNames
 		onCompletion: [ self updateProjectInfo ]
+]
+
+{ #category : 'selecting' }
+JadeiteBrowserPresenter >> unselectDictionaries [
+
+	self dictionaryListPresenter unselectAll
 ]
 
 { #category : 'initialization' }

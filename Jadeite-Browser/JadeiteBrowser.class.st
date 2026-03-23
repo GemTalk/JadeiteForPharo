@@ -143,6 +143,12 @@ JadeiteBrowser >> connectPresenters [
 		tabs pages do: [ :tab | tab updateTitle ] ]
 ]
 
+{ #category : 'actions' }
+JadeiteBrowser >> copyClass [
+
+	^self activePresenter copyClass 
+]
+
 { #category : 'accessing' }
 JadeiteBrowser >> currentCard [ 
 	"for ported test support (only?)"
