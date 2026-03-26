@@ -4476,17 +4476,22 @@ JadeiteBrowserPresenter >> updateMethodSource [
 
 	RowanServiceUpdater current isApplyingUpdates ifTrue: [ ^ self ].
 	methodSourcePresenter isModified ifTrue: [ ^ self ].
-	self clearStatusBar.
-	(methodListPresenter selections isEmpty or: [
-		 methodListPresenter selections size > 1 ]) ifTrue: [
-			self resetDefinedMethodPackage.
-			self resetCategoryText.
-			^ self resetDefaultMethodText ].
-	methodListPresenter selectedItem isInCommand ifTrue: [
-		^ self postUpdateMethodSource "service already updated" ].
-	self
-		updateService: methodListPresenter selectedItem
-		onCompletion: [ self postUpdateMethodSource ]
+	self uiManager defer: [
+			self clearStatusBar.
+			(methodListPresenter selections isEmpty or: [
+				 methodListPresenter selections size > 1 ])
+				ifTrue: [
+						self resetDefinedMethodPackage.
+						self resetCategoryText.
+						self resetDefaultMethodText ]
+				ifFalse: [
+						methodListPresenter selectedItem isInCommand
+							ifTrue: [
+							self postUpdateMethodSource "service already updated" ]
+							ifFalse: [
+									self
+										updateService: methodListPresenter selectedItem
+										onCompletion: [ self postUpdateMethodSource ] ] ] ]
 ]
 
 { #category : 'updates' }
