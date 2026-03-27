@@ -3,11 +3,24 @@ Class {
 	#superclass : 'RowanMonticelloService',
 	#instVars : [
 		'inCommand',
-		'serviceCompletionBlock'
+		'serviceCompletionBlock',
+		'catchBlock'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
 }
+
+{ #category : 'accessing' }
+RowanMonticelloServiceClient >> catchBlock [
+
+	^ catchBlock
+]
+
+{ #category : 'accessing' }
+RowanMonticelloServiceClient >> catchBlock: anObject [
+
+	catchBlock := anObject
+]
 
 { #category : 'inCommand' }
 RowanMonticelloServiceClient >> inCommand [

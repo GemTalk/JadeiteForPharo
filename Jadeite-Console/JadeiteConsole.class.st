@@ -431,7 +431,7 @@ JadeiteConsole >> initializePresenters [
 	waitBox := self initializeWaitPresenter.
 	layoutBox add: waitBox expand: false.
 	consoleTabs := SpTabLayout new.
-	self initializeProjectListPresenter: consoleTabs.
+	self initializePrimaryListPresenter: consoleTabs.
 	self initializeTranscriptPresenter: consoleTabs.
 	layoutBox add: consoleTabs.
 	self initializeAutoCommitPresenter.
@@ -440,7 +440,7 @@ JadeiteConsole >> initializePresenters [
 ]
 
 { #category : 'initialization' }
-JadeiteConsole >> initializeProjectListPresenter: tabs [
+JadeiteConsole >> initializePrimaryListPresenter: tabs [
 
 	| initialWidths |
 	initialWidths := self class columnWidths.

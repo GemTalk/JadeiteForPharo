@@ -29,7 +29,8 @@ RowanInspectorServiceClient >> executeThenInspect: string context: anOop session
 		command: #executeThenInspect:context:inWindow:;
 		commandArgs: (Array with: string with: anOop with: handle);
 		catchBlock: [ :error |
-			UIManager default alert: 'Unable to inspect object - Error: ' , error messageText ].
+				UIManager default alert: 'Unable to inspect object - Error: '
+						, (error messageText ifNil: [ String new ]) ].
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session

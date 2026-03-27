@@ -8,9 +8,10 @@ Class {
 { #category : 'accessing' }
 JadeiteConsoleApplication class >> jadeiteConsoleClass [
 
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [ JadeiteConsole ]
-		  ifFalse: [ JadeiteConsoleWithoutRowan ]
+	JadeitePreferences rowanOption = #rowan ifTrue: [ ^ JadeiteConsole ].
+	JadeitePreferences rowanOption = #seaside ifTrue: [
+		^ JadeiteConsoleSeaside ].
+	^ JadeiteConsoleWithoutRowan
 ]
 
 { #category : 'accessing' }

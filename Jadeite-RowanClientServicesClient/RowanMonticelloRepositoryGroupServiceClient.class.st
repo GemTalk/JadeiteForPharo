@@ -1,5 +1,5 @@
 Class {
-	#name : 'RowanMonticelloRepositoryGroupServiceServer',
+	#name : 'RowanMonticelloRepositoryGroupServiceClient',
 	#superclass : 'RowanMonticelloRepositoryGroupService',
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'

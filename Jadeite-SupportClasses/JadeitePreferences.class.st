@@ -24,6 +24,7 @@ Class {
 		'DefaultFont',
 		'DefaultTextFont',
 		'IsRowanLoaded',
+		'RowanOption',
 		'ShowMethodNavigation',
 		'ShowProgressBar'
 	],
@@ -74,7 +75,7 @@ JadeitePreferences class >> defaultTextFont [
 { #category : 'settings' }
 JadeitePreferences class >> isRowanAvailable [
 
-	^ (IsRowanLoaded == #notAvailable) not
+	^ RowanOption = #rowan
 ]
 
 { #category : 'settings' }
@@ -150,6 +151,19 @@ JadeitePreferences class >> preferencesPath [
 
 	^ FileSystem disk workingDirectoryPath pathString , '/'
 	  , self preferencesFile
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> rowanOption [
+
+	^ RowanOption
+]
+
+{ #category : 'settings' }
+JadeitePreferences class >> rowanOption: aSymbol [
+	"#rowan #woRowan #seaside"
+
+	RowanOption := aSymbol
 ]
 
 { #category : 'settings' }

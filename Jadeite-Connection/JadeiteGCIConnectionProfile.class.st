@@ -72,7 +72,7 @@ JadeiteGCIConnectionProfile >> basicConnectWithPostConnect: postConnectBlock [
 	GciSession current library: theConnection.
 	postConnectBlock value.
 	self
-		setIsRowanAvailableOnCompletion: [
+		setIsRowanOptionOnCompletion: [
 				connection := theConnection. "don't trigger events until isRowanAvailable is set"
 				self applyPreferences.
 				self announcer announce: JadeiteConnectedAnnouncement new
@@ -473,21 +473,18 @@ JadeiteGCIConnectionProfile >> session [
 ]
 
 { #category : 'actions' }
-JadeiteGCIConnectionProfile >> setIsRowanAvailableOnCompletion: completionBlock catchBlock: catchBlock [
+JadeiteGCIConnectionProfile >> setIsRowanOptionOnCompletion: completionBlock catchBlock: catchBlock [
 
 	| answeringService |
-	answeringService := RowanAnsweringService new command:
-		                    #isRowanAvailable.
-	answeringService catchBlock: catchBlock. 
+	answeringService := RowanAnsweringService new command: #rowanOption.
+	answeringService catchBlock: catchBlock.
 	RowanServiceUpdater current
 		issueCommand: answeringService
 		session: GciSession current
 		onCompletion: [
-			answeringService answer
-				ifTrue: [
-				JadeitePreferences isRowanLoaded: answeringService answer ]
-				ifFalse: [ JadeitePreferences isRowanLoaded: #notAvailable ].
-			completionBlock value ]
+				JadeitePreferences rowanOption:
+					(answeringService answer ifNil: [ #notAvailable ]).
+				completionBlock value ]
 ]
 
 { #category : 'actions' }

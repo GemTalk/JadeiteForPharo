@@ -16,7 +16,7 @@ JadeiteConsoleWithoutRowan >> basicUnloadProjects: projectNames onCompletion: co
 ]
 
 { #category : 'initialization' }
-JadeiteConsoleWithoutRowan >> initializeProjectListPresenter: tabs [
+JadeiteConsoleWithoutRowan >> initializePrimaryListPresenter: tabs [
 
 	projectListPresenter := JadeiteTablePresenter new
 ]
