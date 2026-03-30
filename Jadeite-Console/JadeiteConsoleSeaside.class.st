@@ -2,42 +2,99 @@ Class {
 	#name : 'JadeiteConsoleSeaside',
 	#superclass : 'JadeiteConsoleWithoutRowan',
 	#instVars : [
-		'monticelloPackageListPresenter',
-		'monticelloRepositoryListPresenter'
+		'monticelloPackageListPresenter'
 	],
 	#category : 'Jadeite-Console',
 	#package : 'Jadeite-Console'
 }
 
+{ #category : 'actions' }
+JadeiteConsoleSeaside >> browseMonticelloPackage [
+
+	| monticelloPackageService |
+	self monticelloPackageListPresenter selectedItems size = 1 ifFalse: [
+		^ self ].
+	monticelloPackageService := self monticelloPackageListPresenter
+		                            selectedItem.
+	self
+		updateServices: monticelloPackageService repositories
+		onCompletion: [
+				JadeiteMonticelloBrowser
+					showOn: monticelloPackageService
+					application: self application ]
+]
+
 { #category : 'initialization' }
 JadeiteConsoleSeaside >> connectPresenters [
+	"initialization"
 
 	super connectPresenters.
 	monticelloPackageListPresenter whenSelectionChangedDo: [ :selection |
-			monticelloRepositoryListPresenter list: (selection selectedItem
-					 ifNil: [ OrderedCollection new ]
-					 ifNotNil: [ selection selectedItem repositoryDescriptions ]) ]
+			monticelloPackageListPresenter help:
+				(self repositoryListFor: selection selectedItem) ]
 ]
 
 { #category : 'menus' }
 JadeiteConsoleSeaside >> initializeMonticelloPackageListMenu [
+
+	self monticelloPackageListPresenter contextMenu: self newMonticelloPackageMenu
 ]
 
 { #category : 'initialization' }
 JadeiteConsoleSeaside >> initializePrimaryListPresenter: tabs [
 
-	| box |
+	| box column1 column2 |
+	column1 := JadeiteConsoleTableColumn
+		           title: 'Package'
+		           evaluated: [ :monticelloPackageService |
+		           monticelloPackageService description ].
+	column2 := JadeiteConsoleTableColumn
+		           title: 'Loaded Repository'
+		           evaluated: [ :monticelloPackageService |
+			           monticelloPackageService repositoryGroups
+				           repositoryDescriptions last ].
 	box := SpBoxLayout newHorizontal.
-	monticelloPackageListPresenter := JadeiteListPresenter new display:
-		                                  #description.
+	monticelloPackageListPresenter := JadeiteTablePresenter new
+		                                  addColumn: column1;
+		                                  addColumn: column2.
 	box add: monticelloPackageListPresenter.
-	monticelloRepositoryListPresenter := JadeiteListPresenter new.
-	box add: monticelloRepositoryListPresenter.
 	tabs add: box label: 'Loaded Packages'.
 	self initializeMonticelloPackageListMenu
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
+JadeiteConsoleSeaside >> monticelloPackageListPresenter [
+
+	^ monticelloPackageListPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteConsoleSeaside >> monticelloPackageListPresenter: anObject [
+
+	monticelloPackageListPresenter := anObject
+]
+
+{ #category : 'menus' }
+JadeiteConsoleSeaside >> newMonticelloPackageMenu [
+
+	^ JadeiteMenuPresenter new addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Browse Monticello Package';
+						  action: [ self browseMonticelloPackage ];
+						  enabled: [
+							  self monticelloPackageListPresenter selections size = 1 ] ] ]
+]
+
+{ #category : 'accessing' }
+JadeiteConsoleSeaside >> repositoryListFor: monticelloPackageService [
+
+	^ monticelloPackageService
+		  ifNil: [ String new ]
+		  ifNotNil: [ :svc | svc repositoryDescriptions ]
+]
+
+{ #category : 'updates' }
 JadeiteConsoleSeaside >> updateMonticelloPackagesOnCompletion: completionBlock catchBlock: catchBlock [
 
 	| monticelloService |
@@ -48,11 +105,11 @@ JadeiteConsoleSeaside >> updateMonticelloPackagesOnCompletion: completionBlock c
 		issueCommand: monticelloService
 		session: self gciSession
 		onCompletion: [
-				monticelloPackageListPresenter list: monticelloService packages.
+				monticelloPackageListPresenter items: monticelloService packages.
 				completionBlock value ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updates' }
 JadeiteConsoleSeaside >> updateProjectsOnCompletion: completionBlock catchBlock: catchBlock [
 	"we don't deal with rowan projects in seaside"
 

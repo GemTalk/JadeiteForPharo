@@ -14,9 +14,21 @@ RowanMonticelloRepositoryGroupService class >> templateClassName [
 	^#RowanMonticelloRepositoryGroupService
 ]
 
+{ #category : 'accessing' }
+RowanMonticelloRepositoryGroupService >> repositories [
+
+	^ repositories
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryGroupService >> repositories: anObject [
+
+	repositories := anObject
+]
+
 { #category : 'loading' }
 RowanMonticelloRepositoryGroupService >> repositoryDescriptions [
 
-	^ repositories collect: [ :repositoryService |
+	^ self repositories collect: [ :repositoryService |
 		  repositoryService description ]
 ]

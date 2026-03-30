@@ -41,6 +41,12 @@ RowanMonticelloPackageService >> name: anObject [
 ]
 
 { #category : 'loading' }
+RowanMonticelloPackageService >> repositories [
+
+	^ repositoryGroups repositories
+]
+
+{ #category : 'loading' }
 RowanMonticelloPackageService >> repositoryDescriptions [
 
 	^ repositoryGroups repositoryDescriptions

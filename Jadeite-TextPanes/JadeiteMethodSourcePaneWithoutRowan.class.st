@@ -18,7 +18,9 @@ JadeiteMethodSourcePaneWithoutRowan class >> registerFormatSourceCommandWith: co
 { #category : 'private' }
 JadeiteMethodSourcePaneWithoutRowan >> findClassService: classService [
 
-	^self owner findClassService: classService
+	(self owner class canUnderstand: #findClassService:)
+		ifTrue: [ ^ self owner findClassService: classService ]
+		ifFalse: [ self owner owner findClassService: classService ]
 ]
 
 { #category : 'initialization' }

@@ -2,7 +2,9 @@ Class {
 	#name : 'RowanMonticelloRepositoryService',
 	#superclass : 'RowanService',
 	#instVars : [
-		'description'
+		'description',
+		'repositoryPackages',
+		'repositoryOop'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -24,4 +26,28 @@ RowanMonticelloRepositoryService >> description [
 RowanMonticelloRepositoryService >> description: anObject [
 
 	description := anObject
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryOop [
+
+	^ repositoryOop
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryOop: anObject [
+
+	repositoryOop := anObject
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryPackages [
+
+	^ repositoryPackages
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryPackages: anObject [
+
+	repositoryPackages := anObject
 ]
