@@ -12,6 +12,12 @@ Class {
 	#package : 'Jadeite-MiscellaneousBrowsers'
 }
 
+{ #category : 'accessing' }
+JadeiteMonticelloBrowser class >> defaultPreferredExtent [
+
+	^ 120 @ 50
+]
+
 { #category : 'instance creation' }
 JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: application [
 
@@ -19,10 +25,23 @@ JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: applica
 	monticelloPackageBrowser := self new monticelloPackageService: monticelloPackage.
 	monticelloPackageBrowser gciSession: application gciSession.
 	windowPresenter := monticelloPackageBrowser open.
+	monticelloPackageBrowser updateRepositories.
 	monticelloPackageBrowser owner application: application.
 	application
 		addBorderStyleTo: windowPresenter
 		presenter: monticelloPackageBrowser
+]
+
+{ #category : 'initialization' }
+JadeiteMonticelloBrowser >> connectPresenters [
+
+	super connectPresenters.
+	repositoriesPresenter whenSelectionChangedDo: [ :selection |
+			packagesPresenter items: (selection selectedItem
+					 ifNil: [ Array new ]
+					 ifNotNil: [ :repositoryService |
+							 repositoryService repositoryPackages asSortedCollection: [ :x :y |
+								 x description < y description ] ]) ]
 ]
 
 { #category : 'initialization' }
@@ -32,14 +51,24 @@ JadeiteMonticelloBrowser >> defaultLayout [
 ]
 
 { #category : 'initialization' }
+JadeiteMonticelloBrowser >> initializeMenubar [
+
+	^ self newMenuBar
+		  addGroup: [ :group | self addToolsToMenuGroup: group ];
+		  yourself
+]
+
+{ #category : 'initialization' }
 JadeiteMonticelloBrowser >> initializePresenters [
 
 	| box |
 	box := SpBoxLayout newHorizontal.
 	repositoriesPresenter := JadeiteListPresenter new display:
 		                         #description.
+	repositoriesPresenter headerTitle: 'Repositories'.
 	box add: repositoriesPresenter.
 	packagesPresenter := JadeiteListPresenter new display: #description.
+	packagesPresenter headerTitle: 'Available Packages'.
 	box add: packagesPresenter.
 	self layout add: box
 ]
@@ -78,4 +107,17 @@ JadeiteMonticelloBrowser >> repositoriesPresenter [
 JadeiteMonticelloBrowser >> repositoriesPresenter: anObject [
 
 	repositoriesPresenter := anObject
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloBrowser >> shellName [
+
+	^ 'Jadeite Monticello Browser for '
+	  , monticelloPackageService description
+]
+
+{ #category : 'updates' }
+JadeiteMonticelloBrowser >> updateRepositories [
+
+	repositoriesPresenter items: monticelloPackageService repositories. 
 ]

@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'name',
 		'description',
-		'repositoryGroups'
+		'repositoryGroups',
+		'hasChanges'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'

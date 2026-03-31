@@ -88,7 +88,7 @@ JadeiteConsole >> addStyle: aString [
 	layoutBox ifNotNil: [ layoutBox adapter addStyle: aString ].
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteConsole >> areBreakpointsEnabled [
 	^areBreakpointsEnabled
 ]
@@ -127,12 +127,6 @@ JadeiteConsole >> browseJadeitePrefs [
 	^JadeitePreferencesWorkspace browseJadeitePrefs: self gciSession
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> browseUsers [
-	^AllUsersShell showOnSession: gciSession.
-
-]
-
 { #category : 'accessing' }
 JadeiteConsole >> browserOpener [
 	"dumb name but tool that opens the browser"
@@ -158,27 +152,6 @@ JadeiteConsole >> clearTranscript [
 	transcriptPresenter
 		clearContent;
 		hasUnacceptedEdits: false
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> colorForCompileError [
-	| newColor |
-	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForNoEdits.
-	newColor ifNotNil: [JadeiteTextStyles default colorForCompileError: newColor]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> colorForNoEdits [
-	| newColor |
-	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForNoEdits.
-	newColor ifNotNil: [JadeiteTextStyles default colorForNoEdits: newColor]
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> colorForUnsavedEdits [
-	| newColor |
-	newColor := ColorDialog showModalOn: JadeiteTextStyles default colorForUnsavedEdits.
-	newColor ifNotNil: [JadeiteTextStyles default colorForUnsavedEdits: newColor]
 ]
 
 { #category : 'accessing' }
@@ -231,11 +204,6 @@ JadeiteConsole >> defaultWindowPresenterClass [
 	^ JadeiteGlobalWindowPresenter
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> editLoadSpecFromFile [
-	^JadeiteLoadSpecEditor editLoadSpecFromFileInSession: gciSession
-]
-
 { #category : 'actions' }
 JadeiteConsole >> findClassNamed: className [
 
@@ -275,13 +243,6 @@ JadeiteConsole >> flipBreakpointsEnabled [
 	| answeringService | 
 	answeringService := RowanAnsweringService new.
 	answeringService setBreakpointsEnabled: areBreakpointsEnabled value not session: self gciSession
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteConsole >> flipDebugger [
-	JadeiteDebugger debuggerClass == JadeiteDebugger
-		ifTrue: [JadeiteDebugger debuggerClass: JadeDebugger]
-		ifFalse: [JadeiteDebugger debuggerClass: JadeiteDebugger]
 ]
 
 { #category : 'as yet unclassified' }
@@ -488,17 +449,17 @@ JadeiteConsole >> installTranscript [
 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteConsole >> isBeginTransactionEnabled [
 	^self parentPresenter isBeginTransactionEnabled
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteConsole >> isCommitEnabled [
 	^self parentPresenter isCommitEnabled
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'testing' }
 JadeiteConsole >> isTranscriptInstalled [
 	^isTranscriptInstalled value
 ]

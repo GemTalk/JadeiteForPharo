@@ -9,7 +9,7 @@ Class {
 }
 
 { #category : 'actions' }
-JadeiteConsoleSeaside >> browseMonticelloPackage [
+JadeiteConsoleSeaside >> browsePackageRepositories [
 
 	| monticelloPackageService |
 	self monticelloPackageListPresenter selectedItems size = 1 ifFalse: [
@@ -37,7 +37,7 @@ JadeiteConsoleSeaside >> connectPresenters [
 { #category : 'menus' }
 JadeiteConsoleSeaside >> initializeMonticelloPackageListMenu [
 
-	self monticelloPackageListPresenter contextMenu: self newMonticelloPackageMenu
+	self monticelloPackageListPresenter contextMenu: self newMonticelloMenu
 ]
 
 { #category : 'initialization' }
@@ -49,10 +49,11 @@ JadeiteConsoleSeaside >> initializePrimaryListPresenter: tabs [
 		           evaluated: [ :monticelloPackageService |
 		           monticelloPackageService description ].
 	column2 := JadeiteConsoleTableColumn
-		           title: 'Loaded Repository'
+		           title: 'Repository Loaded From'
 		           evaluated: [ :monticelloPackageService |
 			           monticelloPackageService repositoryGroups
 				           repositoryDescriptions last ].
+	projectColumns := OrderedCollection with: column1 with: column2.
 	box := SpBoxLayout newHorizontal.
 	monticelloPackageListPresenter := JadeiteTablePresenter new
 		                                  addColumn: column1;
@@ -75,13 +76,13 @@ JadeiteConsoleSeaside >> monticelloPackageListPresenter: anObject [
 ]
 
 { #category : 'menus' }
-JadeiteConsoleSeaside >> newMonticelloPackageMenu [
+JadeiteConsoleSeaside >> newMonticelloMenu [
 
 	^ JadeiteMenuPresenter new addGroup: [ :group |
 			  group addItem: [ :item |
 					  item
-						  name: 'Browse Monticello Package';
-						  action: [ self browseMonticelloPackage ];
+						  name: 'Browse Package Repositories';
+						  action: [ self browsePackageRepositories ];
 						  enabled: [
 							  self monticelloPackageListPresenter selections size = 1 ] ] ]
 ]
