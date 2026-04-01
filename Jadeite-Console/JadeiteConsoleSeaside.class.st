@@ -29,9 +29,8 @@ JadeiteConsoleSeaside >> connectPresenters [
 	"initialization"
 
 	super connectPresenters.
-	monticelloPackageListPresenter whenSelectionChangedDo: [ :selection |
-			monticelloPackageListPresenter help:
-				(self repositoryListFor: selection selectedItem) ]
+	monticelloPackageListPresenter whenActivatedDo: [ :selection |
+		self browsePackageRepositories ]
 ]
 
 { #category : 'menus' }
@@ -48,11 +47,15 @@ JadeiteConsoleSeaside >> initializePrimaryListPresenter: tabs [
 		           title: 'Package'
 		           evaluated: [ :monticelloPackageService |
 		           monticelloPackageService description ].
+	column1 displayBold: [ :monticelloPackageService |
+		monticelloPackageService hasChanges ].
 	column2 := JadeiteConsoleTableColumn
 		           title: 'Repository Loaded From'
 		           evaluated: [ :monticelloPackageService |
 			           monticelloPackageService repositoryGroups
 				           repositoryDescriptions last ].
+	column2 displayBold: [ :monticelloPackageService |
+		monticelloPackageService hasChanges ].
 	projectColumns := OrderedCollection with: column1 with: column2.
 	box := SpBoxLayout newHorizontal.
 	monticelloPackageListPresenter := JadeiteTablePresenter new

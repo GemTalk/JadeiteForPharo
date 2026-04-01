@@ -99,13 +99,14 @@ JadeiteFindClassTrait >> findClassService: classService [
 JadeiteFindClassTrait >> openClassSelectionDialogOn: classNames [
 
 	| dialogWindow |
+	RowanServiceUpdater current stopProgressBar.
 	dialogWindow := JadeiteSearchDialogWindow new
 		                getList: [ :rxMatcher |
-			                classNames select: [ :substring |
-					                rxMatcher isString
-						                ifTrue: [ rxMatcher , '*' match: substring ]
-						                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
-							                rxMatcher matchesPrefix: substring ] ] ];
+				                classNames select: [ :substring |
+							                rxMatcher isString
+								                ifTrue: [ rxMatcher , '*' match: substring ]
+								                ifFalse: [ "If the expression entered isn't valid regex an error occurs and the string is passed into block not an RxMatcher"
+									                rxMatcher matchesPrefix: substring ] ] ];
 		                displayBlock: [ :e | e ];
 		                doubleClickOk;
 		                title: 'Jadeite Regex Find ' , 'Class';

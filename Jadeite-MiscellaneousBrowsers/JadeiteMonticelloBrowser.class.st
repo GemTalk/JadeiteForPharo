@@ -22,14 +22,19 @@ JadeiteMonticelloBrowser class >> defaultPreferredExtent [
 JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: application [
 
 	| monticelloPackageBrowser windowPresenter |
-	monticelloPackageBrowser := self new monticelloPackageService: monticelloPackage.
+	monticelloPackageBrowser := self new monticelloPackageService:
+		                            monticelloPackage.
 	monticelloPackageBrowser gciSession: application gciSession.
 	windowPresenter := monticelloPackageBrowser open.
-	monticelloPackageBrowser updateRepositories.
+	monticelloPackageBrowser
+		updateRepositories;
+		selectLastRepository.
 	monticelloPackageBrowser owner application: application.
 	application
 		addBorderStyleTo: windowPresenter
-		presenter: monticelloPackageBrowser
+		presenter: monticelloPackageBrowser.
+	monticelloPackageBrowser
+		addStyle: 'jadeiteTextBackgroundColor'
 ]
 
 { #category : 'initialization' }
@@ -37,11 +42,7 @@ JadeiteMonticelloBrowser >> connectPresenters [
 
 	super connectPresenters.
 	repositoriesPresenter whenSelectionChangedDo: [ :selection |
-			packagesPresenter items: (selection selectedItem
-					 ifNil: [ Array new ]
-					 ifNotNil: [ :repositoryService |
-							 repositoryService repositoryPackages asSortedCollection: [ :x :y |
-								 x description < y description ] ]) ]
+		self updatePackagePresenterFor: selection ].
 ]
 
 { #category : 'initialization' }
@@ -109,11 +110,34 @@ JadeiteMonticelloBrowser >> repositoriesPresenter: anObject [
 	repositoriesPresenter := anObject
 ]
 
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> selectLastRepository [
+
+	self repositoriesPresenter selectIndex:
+		self repositoriesPresenter list size
+]
+
 { #category : 'accessing' }
 JadeiteMonticelloBrowser >> shellName [
 
 	^ 'Jadeite Monticello Browser for '
 	  , monticelloPackageService description
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloBrowser >> sortedPackagesFor: monticelloPackageServices [
+
+	^ monticelloPackageServices asSortedCollection: [ :x :y |
+		  x description < y description ]
+]
+
+{ #category : 'updates' }
+JadeiteMonticelloBrowser >> updatePackagePresenterFor: selection [
+
+	^ packagesPresenter items: (selection selectedItem
+			   ifNil: [ Array new ]
+			   ifNotNil: [ :repositoryService |
+				   self sortedPackagesFor: repositoryService repositoryPackages ])
 ]
 
 { #category : 'updates' }

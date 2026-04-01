@@ -186,10 +186,8 @@ RowanServiceUpdater >> breakpointsEnabled: anObject [
 { #category : 'progress indication' }
 RowanServiceUpdater >> commandCompleted: service [
 
-	self commandsStarted remove: service ifAbsent: [  ].
-	self commandsStarted ifEmpty: [
-		JadeiteConnectionProfile connectionProfile jadeiteWindows do: [
-			:window | window presenter showNotWait ] ]
+	self commandsStarted remove: service ifAbsent: [ ].
+	self commandsStarted ifEmpty: [ self stopProgressBar ]
 ]
 
 { #category : 'accessing' }

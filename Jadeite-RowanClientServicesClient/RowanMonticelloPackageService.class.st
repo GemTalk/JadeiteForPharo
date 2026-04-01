@@ -30,6 +30,18 @@ RowanMonticelloPackageService >> description: anObject [
 ]
 
 { #category : 'accessing' }
+RowanMonticelloPackageService >> hasChanges [
+
+	^ hasChanges
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> hasChanges: anObject [
+
+	hasChanges := anObject
+]
+
+{ #category : 'accessing' }
 RowanMonticelloPackageService >> name [
 
 	^ name

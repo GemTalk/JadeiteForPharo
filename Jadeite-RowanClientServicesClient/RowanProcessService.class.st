@@ -54,9 +54,10 @@ RowanProcessService >> displayName [
 { #category : 'printing' }
 RowanProcessService >> dumpStackOn: aStream [
 
-	aStream
-		nextPutAll: errorMessage;
-		nextPutAll: self lineDelimiter.
+	errorMessage ifNotNil: [
+			aStream
+				nextPutAll: errorMessage;
+				nextPutAll: self lineDelimiter ].
 	self printShortStackOn: aStream.
 	aStream
 		nextPutAll: self lineDelimiter;

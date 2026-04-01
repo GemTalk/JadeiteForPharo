@@ -44,15 +44,16 @@ RowanFileService >> shortNames [
 ]
 
 { #category : 'accessing' }
-RowanFileService >> shortNamesFrom: anObject [ 
-	^anObject collect: 
-			[:assoc |
-			| readStream string |
-			readStream := ReadStream on: assoc key.
-			
-			[string := readStream upTo: $/.
-			readStream atEnd] whileFalse: [].
-			string -> assoc value]
+RowanFileService >> shortNamesFrom: anObject [
+
+	^ anObject collect: [ :assoc |
+			  | readStream string |
+			  readStream := ReadStream on: assoc key.
+
+			  [
+				  string := readStream upTo: $/.
+				  readStream atEnd ] whileFalse: [ ].
+			  JadeiteAssociation fromAssociation: string -> assoc value ]
 ]
 
 { #category : 'public' }
