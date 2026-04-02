@@ -2,7 +2,7 @@
 Announcement when current project or package was set or unset. 
 "
 Class {
-	#name : 'JadeiteCurrentProjectPackageUpdated',
+	#name : 'JadeiteCurrentProjectPackageUpdatedAnnouncement',
 	#superclass : 'Announcement',
 	#instVars : [
 		'text',
@@ -14,37 +14,37 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteCurrentProjectPackageUpdated >> packageService [
+JadeiteCurrentProjectPackageUpdatedAnnouncement >> packageService [
 
 	^ packageService
 ]
 
 { #category : 'accessing' }
-JadeiteCurrentProjectPackageUpdated >> packageService: anObject [
+JadeiteCurrentProjectPackageUpdatedAnnouncement >> packageService: anObject [
 
 	packageService := anObject
 ]
 
 { #category : 'accessing' }
-JadeiteCurrentProjectPackageUpdated >> projectService [
+JadeiteCurrentProjectPackageUpdatedAnnouncement >> projectService [
 
 	^ projectService
 ]
 
 { #category : 'accessing' }
-JadeiteCurrentProjectPackageUpdated >> projectService: anObject [
+JadeiteCurrentProjectPackageUpdatedAnnouncement >> projectService: anObject [
 
 	projectService := anObject
 ]
 
 { #category : 'accessing' }
-JadeiteCurrentProjectPackageUpdated >> text [
+JadeiteCurrentProjectPackageUpdatedAnnouncement >> text [
 
 	^ text
 ]
 
 { #category : 'accessing' }
-JadeiteCurrentProjectPackageUpdated >> text: anObject [
+JadeiteCurrentProjectPackageUpdatedAnnouncement >> text: anObject [
 
 	text := anObject
 ]

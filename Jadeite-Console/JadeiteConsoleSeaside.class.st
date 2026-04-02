@@ -33,6 +33,17 @@ JadeiteConsoleSeaside >> connectPresenters [
 		self browsePackageRepositories ]
 ]
 
+{ #category : 'accessing' }
+JadeiteConsoleSeaside >> gciSession: aSession [
+
+	super gciSession: aSession.
+	aSession ifNotNil: [ :sess |
+			sess announcer
+				when: JadeiteMethodCompiledAnnouncement
+				send: #updateMonticelloPackages:
+				to: self ]
+]
+
 { #category : 'menus' }
 JadeiteConsoleSeaside >> initializeMonticelloPackageListMenu [
 
@@ -50,7 +61,7 @@ JadeiteConsoleSeaside >> initializePrimaryListPresenter: tabs [
 	column1 displayBold: [ :monticelloPackageService |
 		monticelloPackageService hasChanges ].
 	column2 := JadeiteConsoleTableColumn
-		           title: 'Repository Loaded From'
+		           title: 'Source Repository'
 		           evaluated: [ :monticelloPackageService |
 			           monticelloPackageService repositoryGroups
 				           repositoryDescriptions last ].
@@ -96,6 +107,12 @@ JadeiteConsoleSeaside >> repositoryListFor: monticelloPackageService [
 	^ monticelloPackageService
 		  ifNil: [ String new ]
 		  ifNotNil: [ :svc | svc repositoryDescriptions ]
+]
+
+{ #category : 'updates' }
+JadeiteConsoleSeaside >> updateMonticelloPackages: anAnnouncement [
+
+	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
 ]
 
 { #category : 'updates' }

@@ -267,7 +267,7 @@ JadeiteConsole >> gciSession: aGciSession [
 		when: #logoutRequested: send: #logoutRequested: to: self;
 		when: #logoutPending send: #exit to: self.
 	self gciSession announcer
-		when: JadeiteCurrentProjectPackageUpdated
+		when: JadeiteCurrentProjectPackageUpdatedAnnouncement
 		send: #updateCurrentProjectPackageDisplay:
 		to: self;
 		when: #abortedTransaction send: #abortedTransaction to: self

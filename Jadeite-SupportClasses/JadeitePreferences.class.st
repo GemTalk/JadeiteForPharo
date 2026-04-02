@@ -72,7 +72,7 @@ JadeitePreferences class >> defaultTextFont [
 	^DefaultTextFont
 ]
 
-{ #category : 'settings' }
+{ #category : 'testing' }
 JadeitePreferences class >> isRowanAvailable [
 
 	^ RowanOption = #rowan
@@ -89,6 +89,12 @@ JadeitePreferences class >> isRowanLoaded [
 JadeitePreferences class >> isRowanLoaded: aBoolean [
 
 	IsRowanLoaded := aBoolean
+]
+
+{ #category : 'testing' }
+JadeitePreferences class >> isSeaside [
+
+	^ RowanOption = #seaside
 ]
 
 { #category : 'instance creation' }

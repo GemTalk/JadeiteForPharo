@@ -48,6 +48,15 @@ GciSession class >> current [
 ]
 
 { #category : 'actions' }
+GciSession >> announceMethodCompiled: methodService [
+
+	| announcement |
+	announcement := JadeiteMethodCompiledAnnouncement new methodService:
+		                methodService.
+	self announcer announce: announcement
+]
+
+{ #category : 'actions' }
 GciSession >> announceUpdatedCurrentProject: projectService package: packageService [
 
 	| ws announcement |
@@ -65,7 +74,7 @@ GciSession >> announceUpdatedCurrentProject: projectService package: packageServ
 		space;
 		nextPutAll:
 			(packageService ifNil: [ String new ] ifNotNil: [ :pkg | pkg name ]).
-	announcement := JadeiteCurrentProjectPackageUpdated new text:
+	announcement := JadeiteCurrentProjectPackageUpdatedAnnouncement new text:
 		                ws contents.
 	announcement
 		projectService: projectService;

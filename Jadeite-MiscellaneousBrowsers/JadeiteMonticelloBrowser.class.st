@@ -15,7 +15,7 @@ Class {
 { #category : 'accessing' }
 JadeiteMonticelloBrowser class >> defaultPreferredExtent [
 
-	^ 120 @ 50
+	^ 90 @ 50
 ]
 
 { #category : 'instance creation' }

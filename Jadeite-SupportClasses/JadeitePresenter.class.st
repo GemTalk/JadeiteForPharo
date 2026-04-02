@@ -18,6 +18,17 @@ JadeitePresenter class >> preferredExtent [
 		  self defaultPreferredExtent * StandardFonts defaultFont pointSize ]
 ]
 
+{ #category : 'accessing' }
+JadeitePresenter class >> resetExtent [
+	"not sent. Jadeite windows extent is 
+	retained when resized. This will reset
+	a window back to its default size when opened
+	
+	self resetExtent"
+
+	customExtent := nil
+]
+
 { #category : 'actions' }
 JadeitePresenter >> abortTransaction [
 

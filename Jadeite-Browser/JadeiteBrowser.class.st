@@ -15,17 +15,15 @@ Class {
 { #category : 'instance creation' }
 JadeiteBrowser class >> browserClass [
 
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [ self ]
-		  ifFalse: [ JadeiteBrowserWithoutRowan ]
+	^ JadeitePreferences isRowanLoaded ifTrue: [ ^ JadeiteBrowser ].
+	JadeitePreferences isSeaside ifTrue: [ ^ JadeiteBrowserSeaside ].
+	^ JadeiteBrowserWithoutRowan
 ]
 
 { #category : 'accessing' }
 JadeiteBrowser class >> browserPresenterClass [
 
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [ JadeiteBrowserPresenter ]
-		  ifFalse: [ JadeiteBrowserPresenterWithoutRowan ]
+	^ JadeiteBrowserPresenter
 ]
 
 { #category : 'constants' }
@@ -37,9 +35,9 @@ JadeiteBrowser class >> defaultPreferredExtent [
 { #category : 'instance creation' }
 JadeiteBrowser class >> new [
 
-	^ JadeitePreferences isRowanLoaded
-		  ifTrue: [ super new ]
-		  ifFalse: [ JadeiteBrowserWithoutRowan new ]
+	JadeitePreferences isRowanLoaded ifTrue: [ ^ super new ].
+	JadeitePreferences isSeaside ifTrue: [ ^ JadeiteBrowserSeaside new ].
+	^ JadeiteBrowserWithoutRowan new
 ]
 
 { #category : 'instance creation' }

@@ -5,6 +5,12 @@ Class {
 	#package : 'Jadeite-Browser'
 }
 
+{ #category : 'accessing' }
+JadeiteBrowserWithoutRowan class >> browserPresenterClass [
+
+	^ JadeiteBrowserPresenterWithoutRowan
+]
+
 { #category : 'constants' }
 JadeiteBrowserWithoutRowan class >> defaultPreferredExtent [
 

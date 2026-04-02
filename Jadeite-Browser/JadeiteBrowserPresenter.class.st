@@ -1183,9 +1183,10 @@ JadeiteBrowserPresenter >> editSaveMethod [
 	selection ifNil: [ ^ self ].
 	selection meta: self isClassSideSelected.
 	self editSaveMethod: selection onCompletion: [
-		self updateSUnitTab.
-		self redrawAllViews.
-		self updateSystemTab. ]
+			self updateSUnitTab.
+			self redrawAllViews.
+			self updateSystemTab.
+			self gciSession announceMethodCompiled: selection ]
 ]
 
 { #category : 'actions' }
@@ -1406,7 +1407,7 @@ JadeiteBrowserPresenter >> gciSession: aSession [
 	sunitPresenter gciSession: aSession.
 	aSession ifNotNil: [ :sess |
 			sess announcer
-				when: JadeiteCurrentProjectPackageUpdated
+				when: JadeiteCurrentProjectPackageUpdatedAnnouncement
 				send: #updateCurrentProjectPackageDisplay:
 				to: self;
 				when: #abortedTransaction send: #abortedTransaction to: self ]
@@ -4515,9 +4516,10 @@ JadeiteBrowserPresenter >> updateMethodSourceFor: aMethodService [
 	(methodSourcePresenter methodService = aMethodService and: [
 		 methodSourcePresenter text = aMethodService source ]) ifTrue: [
 		^ self ].
-	methodSourcePresenter methodService: aMethodService.
-	methodSourcePresenter value: aMethodService source.
-	self updateMethodSourceGlyphs
+	self uiManager defer: [
+			methodSourcePresenter methodService: aMethodService.
+			methodSourcePresenter value: aMethodService source.
+			self updateMethodSourceGlyphs ]
 ]
 
 { #category : 'updates' }
