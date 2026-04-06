@@ -118,7 +118,7 @@ JadeiteMonticelloBrowser >> selectLastRepository [
 { #category : 'accessing' }
 JadeiteMonticelloBrowser >> shellName [
 
-	^ 'Jadeite Monticello Browser for '
+	^ 'Jadeite Monticello Package Browser for '
 	  , monticelloPackageService description
 ]
 

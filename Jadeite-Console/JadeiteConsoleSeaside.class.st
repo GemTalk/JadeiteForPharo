@@ -24,6 +24,33 @@ JadeiteConsoleSeaside >> browsePackageRepositories [
 					application: self application ]
 ]
 
+{ #category : 'actions' }
+JadeiteConsoleSeaside >> changes [
+
+	| packageService repositoryService |
+	packageService := monticelloPackageListPresenter selectedItem.
+	repositoryService := packageService repositoryGroups repositories
+		                     last.
+	packageService
+		command: #changesAgainst:;
+		commandArgs: (Array with: repositoryService repositoryOop).
+	RowanServiceUpdater current
+		issueCommand: packageService
+		session: self gciSession
+		onCompletion: [ :svc |
+				svc changes isEmpty
+					ifTrue: [ self uiManager alert: 'No changes!' ]
+					ifFalse: [
+							| changesBrowser |
+							changesBrowser := JadeiteChangesBrowser
+								                  showOn:
+								                  (RowanPatch
+									                   fromString: svc changes
+									                   session: self gciSession)
+								                  name: packageService description
+								                  application: self application ] ]
+]
+
 { #category : 'initialization' }
 JadeiteConsoleSeaside >> connectPresenters [
 	"initialization"
@@ -94,10 +121,17 @@ JadeiteConsoleSeaside >> newMonticelloMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-				  group addItem: [ :item |
+				  group
+					  addItem: [ :item |
 							  item
 								  name: 'Browse Package Repositories';
 								  action: [ self browsePackageRepositories ];
+								  enabled: [
+									  self monticelloPackageListPresenter selections size = 1 ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Changes';
+								  action: [ self changes ];
 								  enabled: [
 									  self monticelloPackageListPresenter selections size = 1 ] ] ];
 		  addGroup: [ :group |
@@ -125,7 +159,7 @@ JadeiteConsoleSeaside >> updateMonticelloPackages [
 
 { #category : 'updates' }
 JadeiteConsoleSeaside >> updateMonticelloPackages: anAnnouncement [
-
+	"pass the announcement if and when needed"
 	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
 ]
 

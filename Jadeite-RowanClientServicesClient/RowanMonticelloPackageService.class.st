@@ -5,6 +5,7 @@ Class {
 		'name',
 		'description',
 		'repositoryGroups',
+		'packageOop',
 		'hasChanges',
 		'changes'
 	],

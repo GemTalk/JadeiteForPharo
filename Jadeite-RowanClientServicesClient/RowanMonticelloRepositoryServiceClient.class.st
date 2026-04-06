@@ -13,7 +13,7 @@ Class {
 { #category : 'accessing' }
 RowanMonticelloRepositoryServiceClient >> catchBlock [
 
-	^ catchBlock
+	^ catchBlock ifNil: [ super catchBlock ]
 ]
 
 { #category : 'accessing' }
@@ -25,7 +25,7 @@ RowanMonticelloRepositoryServiceClient >> catchBlock: anObject [
 { #category : 'accessing' }
 RowanMonticelloRepositoryServiceClient >> inCommand [
 
-	^ inCommand
+	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]
 ]
 
 { #category : 'accessing' }
