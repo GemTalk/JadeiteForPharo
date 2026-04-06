@@ -5,7 +5,8 @@ Class {
 		'name',
 		'description',
 		'repositoryGroups',
-		'hasChanges'
+		'hasChanges',
+		'changes'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -15,6 +16,18 @@ Class {
 RowanMonticelloPackageService class >> templateClassName [ 
 
 	^#RowanMonticelloPackageService
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> changes [
+
+	^ changes
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> changes: anObject [
+
+	changes := anObject
 ]
 
 { #category : 'accessing' }

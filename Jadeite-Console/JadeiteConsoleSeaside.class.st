@@ -92,13 +92,21 @@ JadeiteConsoleSeaside >> monticelloPackageListPresenter: anObject [
 { #category : 'menus' }
 JadeiteConsoleSeaside >> newMonticelloMenu [
 
-	^ JadeiteMenuPresenter new addGroup: [ :group |
-			  group addItem: [ :item |
-					  item
-						  name: 'Browse Package Repositories';
-						  action: [ self browsePackageRepositories ];
-						  enabled: [
-							  self monticelloPackageListPresenter selections size = 1 ] ] ]
+	^ JadeiteMenuPresenter new
+		  addGroup: [ :group |
+				  group addItem: [ :item |
+							  item
+								  name: 'Browse Package Repositories';
+								  action: [ self browsePackageRepositories ];
+								  enabled: [
+									  self monticelloPackageListPresenter selections size = 1 ] ] ];
+		  addGroup: [ :group |
+				  group addItem: [ :item |
+						  item
+							  name: 'Refresh from Server';
+							  action: [ self updateMonticelloPackages ];
+							  enabled: [
+								  self monticelloPackageListPresenter selections size = 1 ] ] ]
 ]
 
 { #category : 'accessing' }
@@ -107,6 +115,12 @@ JadeiteConsoleSeaside >> repositoryListFor: monticelloPackageService [
 	^ monticelloPackageService
 		  ifNil: [ String new ]
 		  ifNotNil: [ :svc | svc repositoryDescriptions ]
+]
+
+{ #category : 'updates' }
+JadeiteConsoleSeaside >> updateMonticelloPackages [
+
+	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
 ]
 
 { #category : 'updates' }

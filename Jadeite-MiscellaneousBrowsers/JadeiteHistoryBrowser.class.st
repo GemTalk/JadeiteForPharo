@@ -1,8 +1,8 @@
 Class {
 	#name : 'JadeiteHistoryBrowser',
-	#superclass : 'JadeiteSessionPresenter',
-	#traits : 'JadeiteToolbarTrait + JadeiteMethodsTrait',
-	#classTraits : 'JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait',
+	#superclass : 'JadeiteMiscellaneousBrowser',
+	#traits : 'JadeiteMethodsTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait',
 	#instVars : [
 		'diffsPresenter',
 		'methodService',

@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeMethodListPresenter',
-	#superclass : 'JadeBrowserPresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'methodListPresenter',
 		'methodSourcePresenter',

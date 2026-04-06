@@ -1,8 +1,6 @@
 Class {
 	#name : 'JadeiteMonticelloBrowser',
-	#superclass : 'JadeiteSessionPresenter',
-	#traits : 'JadeiteToolbarTrait',
-	#classTraits : 'JadeiteToolbarTrait classTrait',
+	#superclass : 'JadeiteMiscellaneousBrowser',
 	#instVars : [
 		'repositoriesPresenter',
 		'packagesPresenter',

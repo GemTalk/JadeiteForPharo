@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteServerFileSelectorDialog',
-	#superclass : 'Dialog',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'fileSelectorPresenter',
 		'shellName'

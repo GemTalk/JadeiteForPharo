@@ -2601,11 +2601,6 @@ JadeiteBrowserPresenter >> noProjectInfoToCopyAlert [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> onDragClass: aSession [
-	^self onDragClass: aSession className: self selectedClass
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> onDragMethod: aSession [
 	| list |
 	list := methodListPresenter selections collect: 

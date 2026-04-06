@@ -1,13 +1,12 @@
 Class {
 	#name : 'JadeiteChangesBrowser',
-	#superclass : 'JadeiteSessionPresenter',
-	#traits : 'JadeiteToolbarTrait + JadeiteMethodsTrait',
-	#classTraits : 'JadeiteToolbarTrait classTrait + JadeiteMethodsTrait classTrait',
+	#superclass : 'JadeiteMiscellaneousBrowser',
+	#traits : 'JadeiteMethodsTrait',
+	#classTraits : 'JadeiteMethodsTrait classTrait',
 	#instVars : [
 		'name',
 		'diffsPresenter',
 		'patch',
-		'toolbar',
 		'operationsListPresenter',
 		'leftTextPresenter',
 		'leftMemoPresenter',

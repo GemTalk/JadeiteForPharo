@@ -16,6 +16,12 @@ RowanMonticelloRepositoryService class >> templateClassName [
 	^#RowanMonticelloRepositoryService
 ]
 
+{ #category : 'converting' }
+RowanMonticelloRepositoryService >> asString [
+
+	^ self description
+]
+
 { #category : 'accessing' }
 RowanMonticelloRepositoryService >> description [
 

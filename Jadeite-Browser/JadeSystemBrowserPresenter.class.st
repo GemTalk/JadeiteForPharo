@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeSystemBrowserPresenter',
-	#superclass : 'JadeBrowserPresenter',
+	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'ancestorListPresenter',
 		'breakPoints',
@@ -793,13 +793,6 @@ JadeSystemBrowserPresenter >> methodsIdentifier [
 	methodListPresenter selections do: [:each | stream tab; nextPutAll: each first].
 	^stream contents.
 
-]
-
-{ #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> onDragClassHierarchy: aSession [
-	| className |
-	className := classHierarchyPresenter selection last.
-	^super onDragClass: aSession className: className
 ]
 
 { #category : 'as yet unclassified' }
