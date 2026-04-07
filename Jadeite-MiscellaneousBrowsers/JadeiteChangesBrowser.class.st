@@ -310,18 +310,6 @@ JadeiteChangesBrowser >> operationSelected [
 		rightText: operation diffToSource. 
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteChangesBrowser >> operationsList [
-
-	| list |
-	list := operationListPresenter list. 
-	includeIdenticalPresenter value ifFalse: [
-		list := list reject: [:each | each hasEquivalentText].
-	].
-	^list asSortedCollection asArray.
-
-]
-
 { #category : 'accessing' }
 JadeiteChangesBrowser >> operationsListPresenter [
 
@@ -332,32 +320,6 @@ JadeiteChangesBrowser >> operationsListPresenter [
 JadeiteChangesBrowser >> operationsListPresenter: anObject [
 
 	operationsListPresenter := anObject
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteChangesBrowser >> queryCommand: aCommandQuery [
-	| command |
-	command := aCommandQuery command.
-	command = #flipIdenticalSource
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			aCommandQuery isChecked: includeIdenticalPresenter value.
-			^true].
-	(#(#refresh) includes: command)
-		ifTrue: 
-			[aCommandQuery isEnabled: true.
-			^true].
-	operationListPresenter selections isEmpty
-		ifTrue: 
-			[aCommandQuery isEnabled: false.
-			^true].
-	#revert = command
-		ifTrue: 
-			[| selection |
-			selection := operationListPresenter selection.
-			aCommandQuery isEnabled: selection canBeReverted.
-			^true].
-	^super queryCommand: aCommandQuery
 ]
 
 { #category : 'actions' }
@@ -378,14 +340,6 @@ JadeiteChangesBrowser >> refresh [
 				              operations asSortedCollection ]
 ]
 
-{ #category : 'as yet unclassified' }
-JadeiteChangesBrowser >> refreshIdenticalSource [
-	operationListPresenter
-		resetSelection;
-		list: self operationsList;
-		yourself
-]
-
 { #category : 'actions' }
 JadeiteChangesBrowser >> revert [
 
@@ -393,16 +347,12 @@ JadeiteChangesBrowser >> revert [
 	operation := operationsListPresenter selectedItem.
 	revertedSource := diffsPresenter leftText.
 	operation isClassPatch ifTrue: [
-		MessageBox notify:
-			'Class definition changes cannot be reverted yet. Make changes in browser.'.
-		^ self browseMethodClass ].
+			MessageBox notify:
+				'Class definition changes cannot be reverted yet. Make changes in browser.'.
+			^ self browseMethodClass ].
 	operation revert: gciSession onCompletion: [
-		diffsPresenter rightText: revertedSource.
-		operationsListPresenter invalidate.
-		self todo: [
-			self
-				on: Error
-				do: [ :ex | MessageBox notify: 'Not able to revert this item yet' ] ] ]
+			diffsPresenter rightText: revertedSource.
+			operationsListPresenter invalidate ]
 ]
 
 { #category : 'accessing' }

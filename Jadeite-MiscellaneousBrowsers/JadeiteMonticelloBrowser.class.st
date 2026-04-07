@@ -35,6 +35,12 @@ JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: applica
 		addStyle: 'jadeiteTextBackgroundColor'
 ]
 
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> addRepository [
+
+	self uiManager alert: 'add respository not implemented yet!'
+]
+
 { #category : 'initialization' }
 JadeiteMonticelloBrowser >> connectPresenters [
 
@@ -69,7 +75,20 @@ JadeiteMonticelloBrowser >> initializePresenters [
 	packagesPresenter := JadeiteListPresenter new display: #description.
 	packagesPresenter headerTitle: 'Available Packages'.
 	box add: packagesPresenter.
+	packagesPresenter contextMenu: self newPackageMenu.
+	repositoriesPresenter contextMenu: self newRepositoryMenu.
 	self layout add: box
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> loadSelectedPackage [
+
+	| confirmation |
+	confirmation := self uiManager confirm:
+		                'Load selected package '
+		                , packagesPresenter selectedItem name , '?'.
+	confirmation ifFalse: [ ^ self ].
+	self uiManager alert: 'load package not implemented yet!'
 ]
 
 { #category : 'accessing' }
@@ -82,6 +101,30 @@ JadeiteMonticelloBrowser >> monticelloPackageService [
 JadeiteMonticelloBrowser >> monticelloPackageService: anObject [
 
 	monticelloPackageService := anObject
+]
+
+{ #category : 'menus' }
+JadeiteMonticelloBrowser >> newPackageMenu [
+
+	^ JadeiteMenuPresenter new
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Load Selected Package';
+								  action: [ self loadSelectedPackage ]; 
+								  enabled: [
+									  self repositoriesPresenter selections size = 1 ] ]]
+]
+
+{ #category : 'menus' }
+JadeiteMonticelloBrowser >> newRepositoryMenu [
+
+	^ JadeiteMenuPresenter new addGroup: [ :group |
+			  group addItem: [ :item |
+					  item
+						  name: 'Add Repository';
+						  action: [ self addRepository ] ] ]
 ]
 
 { #category : 'accessing' }
