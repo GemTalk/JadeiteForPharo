@@ -2,7 +2,8 @@ Class {
 	#name : 'JadeiteListPresenter',
 	#superclass : 'SpListPresenter',
 	#instVars : [
-		'browser'
+		'browser',
+		'searchSelector'
 	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
@@ -195,6 +196,26 @@ JadeiteListPresenter >> resortOnLastColumnClicked [
 JadeiteListPresenter >> retrievePresenter [
 
 	^self
+]
+
+{ #category : 'accessing' }
+JadeiteListPresenter >> searchSelector [
+
+	^ searchSelector
+]
+
+{ #category : 'accessing' }
+JadeiteListPresenter >> searchSelector: anObject [
+
+	searchSelector := anObject
+]
+
+{ #category : 'private' }
+JadeiteListPresenter >> searchValueOf: item [
+
+	^ searchSelector
+		  ifNil: [ super searchValueOf: item ]
+		  ifNotNil: [ :sel | item perform: sel ]
 ]
 
 { #category : 'testing' }

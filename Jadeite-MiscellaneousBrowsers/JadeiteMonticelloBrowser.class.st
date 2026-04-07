@@ -26,7 +26,7 @@ JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: applica
 	windowPresenter := monticelloPackageBrowser open.
 	monticelloPackageBrowser
 		updateRepositories;
-		selectLastRepository.
+		selectLoaded.
 	monticelloPackageBrowser owner application: application.
 	application
 		addBorderStyleTo: windowPresenter
@@ -109,10 +109,24 @@ JadeiteMonticelloBrowser >> repositoriesPresenter: anObject [
 ]
 
 { #category : 'actions' }
-JadeiteMonticelloBrowser >> selectLastRepository [
+JadeiteMonticelloBrowser >> selectLoaded [
 
 	self repositoriesPresenter selectIndex:
-		self repositoriesPresenter list size
+		self repositoriesPresenter list size.
+	self selectLoadedPackage
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> selectLoadedPackage [
+
+	| index package |
+	package := self packagesPresenter list
+		           detect: [ :availablePackage |
+				           '*' , availablePackage description , '*' match:
+					           monticelloPackageService description ]
+		           ifNone: [ ^ self ].
+	index := self packagesPresenter list indexOf: package.
+	self packagesPresenter selectIndex: index scrollToSelection: true
 ]
 
 { #category : 'accessing' }

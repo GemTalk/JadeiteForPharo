@@ -1,6 +1,9 @@
 Class {
 	#name : 'JadeiteTablePresenter',
 	#superclass : 'SpTablePresenter',
+	#instVars : [
+		'searchSelector'
+	],
 	#category : 'Jadeite-SupportClasses',
 	#package : 'Jadeite-SupportClasses'
 }
@@ -78,6 +81,26 @@ JadeiteTablePresenter >> removeAll: removals [
 { #category : 'api - selection' }
 JadeiteTablePresenter >> resetSelection [ 
 	self unselectAll
+]
+
+{ #category : 'accessing' }
+JadeiteTablePresenter >> searchSelector [
+
+	^ searchSelector
+]
+
+{ #category : 'accessing' }
+JadeiteTablePresenter >> searchSelector: anObject [
+
+	searchSelector := anObject
+]
+
+{ #category : 'private' }
+JadeiteTablePresenter >> searchValueOf: item [
+
+	^ searchSelector
+		  ifNil: [ super searchValueOf: item ]
+		  ifNotNil: [ :sel | item perform: sel ]
 ]
 
 { #category : 'api - selection' }

@@ -1768,13 +1768,14 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	methodsBox := SpBoxLayout newVertical.
 	self initializeMethodListHeader: methodsBox.
 	methodListPresenter := (JadeiteListPresenter newFor: self)
+		                       searchSelector: #selector;
 		                       display: #selector;
 		                       beMultipleSelection;
 		                       displayColor: [ :methodService |
-			                       methodService isExtension
-				                       ifTrue: [
-					                       self theme jadeiteExtensionTextColor ]
-				                       ifFalse: [ self theme textColor ] ];
+				                       methodService isExtension
+					                       ifTrue: [
+						                       self theme jadeiteExtensionTextColor ]
+					                       ifFalse: [ self theme textColor ] ];
 		                       displayUnderline: [ :methodService |
 			                       methodService isExtension and: [
 					                       methodService inSelectedPackage ] ];
@@ -1809,18 +1810,18 @@ JadeiteBrowserPresenter >> initializeMethodList: methodPanedPresenter [
 	methodsBox add: radioButtonBox withConstraints: [ :constraints |
 		constraints height: 3 * StandardFonts defaultFont pointSize ].
 	JadeitePreferences showMethodNavigation ifTrue: [
-		methodNavigationDropList := self newDropList
-			                            help:
-				                            'Navigate to recently selected methods in this browser tab';
-			                            display: [ :each |
-				                            each
-					                            ifNil: [ String new ]
-					                            ifNotNil: [
-						                            each selectorsDisplayString ] ];
-			                            yourself.
-		methodsBox
-			add: methodNavigationDropList
-			withConstraints: [ :constraints | constraints height: 30 ] ].
+			methodNavigationDropList := self newDropList
+				                            help:
+					                            'Navigate to recently selected methods in this browser tab';
+				                            display: [ :each |
+					                            each
+						                            ifNil: [ String new ]
+						                            ifNotNil: [
+							                            each selectorsDisplayString ] ];
+				                            yourself.
+			methodsBox
+				add: methodNavigationDropList
+				withConstraints: [ :constraints | constraints height: 30 ] ].
 	self initializeDefinedMethodPackageText: methodsBox.
 	methodPanedPresenter add: methodsBox.
 	self initializeFullMethodListMenu

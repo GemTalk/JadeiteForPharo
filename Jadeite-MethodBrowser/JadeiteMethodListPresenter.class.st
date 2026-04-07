@@ -278,6 +278,7 @@ JadeiteMethodListPresenter >> initializeMenubar [
 JadeiteMethodListPresenter >> initializeMethodListTableOn: panedLayout [
 
 	methodListPresenter := JadeiteTablePresenter new beMultipleSelection.
+	methodListPresenter searchSelector: #className.
 	self initializeFirstTwoColumns.
 	methodListPresenter
 		addColumn: (SpStringTableColumn
@@ -290,8 +291,8 @@ JadeiteMethodListPresenter >> initializeMethodListTableOn: panedLayout [
 				 title: 'Method'
 				 evaluated: [ :service | service selector ]) beSortable;
 		wantsDrop: [ :transfer | "#canUnderstand: used in case nefarious objects are dropped"
-			(transfer passenger class canUnderstand: #allSatisfy:) ifTrue: [
-					transfer passenger allSatisfy: #isMethodService ] ];
+				(transfer passenger class canUnderstand: #allSatisfy:) ifTrue: [
+						transfer passenger allSatisfy: #isMethodService ] ];
 		acceptDrop: [ :transfer | self dropMethods: transfer passenger ].
 	panedLayout add: methodListPresenter
 ]
