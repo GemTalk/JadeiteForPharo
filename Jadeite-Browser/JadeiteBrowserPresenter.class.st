@@ -2780,15 +2780,16 @@ JadeiteBrowserPresenter >> postOpenBlock: anObject [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> postUpdateMethodSource [
 
-	| methodService |
-	(methodService := methodListPresenter selectedItem) ifNotNil: [
-		self methodSourcePresenter methodService: methodService. 
-		methodSourcePresenter value: methodService source.
-		methodSourcePresenter isModified: false. 
-		self updateMethodSourceGlyphs.
-		definedMethodPackageText text:
-			'Defined Package: ' , methodService definedPackage.
-		methodCategoryText text: 'Category: ' , methodService category ]
+	self uiManager defer: [
+			| methodService |
+			(methodService := methodListPresenter selectedItem) ifNotNil: [
+					self methodSourcePresenter methodService: methodService.
+					methodSourcePresenter value: methodService source.
+					methodSourcePresenter isModified: false.
+					self updateMethodSourceGlyphs.
+					definedMethodPackageText text:
+						'Defined Package: ' , methodService definedPackage.
+					methodCategoryText text: 'Category: ' , methodService category ] ]
 ]
 
 { #category : 'drag & drop' }
@@ -3416,12 +3417,13 @@ JadeiteBrowserPresenter >> resetDefinedMethodPackage [
 { #category : 'initialization' }
 JadeiteBrowserPresenter >> resetSource [
 
-	methodSourcePresenter methodService
-		ifNil: [ methodSourcePresenter text: self defaultMethod ]
-		ifNotNil: [ :service | methodSourcePresenter text: service source ].
-	self clearStatusBar. 
-	methodSourcePresenter isModified: false.
-	self updateMethodSourceGlyphs
+	self uiManager defer: [
+			methodSourcePresenter methodService
+				ifNil: [ methodSourcePresenter text: self defaultMethod ]
+				ifNotNil: [ :service | methodSourcePresenter text: service source ].
+			self clearStatusBar.
+			methodSourcePresenter isModified: false.
+			self updateMethodSourceGlyphs ]
 ]
 
 { #category : 'find' }
@@ -4494,14 +4496,15 @@ JadeiteBrowserPresenter >> updateMethodSource [
 { #category : 'updates' }
 JadeiteBrowserPresenter >> updateMethodSource: anAnnouncement [
 
-	| text |
-	text := self methodSourcePresenter text.
-	self methodSelectionChanged.
-	self methodSourcePresenter withAdapterDo: [ :a |
-		a widgetDo: [ :w |
-			w textArea scrollPane
-				vScrollbarValue: anAnnouncement scrollOffset y;
-				updateScrollbars ] ]
+	self uiManager defer: [
+			| text |
+			text := self methodSourcePresenter text.
+			self methodSelectionChanged.
+			self methodSourcePresenter withAdapterDo: [ :a |
+					a widgetDo: [ :w |
+							w textArea scrollPane
+								vScrollbarValue: anAnnouncement scrollOffset y;
+								updateScrollbars ] ] ]
 ]
 
 { #category : 'updates' }

@@ -1,6 +1,8 @@
 Class {
 	#name : 'JadeiteConsoleSeaside',
 	#superclass : 'JadeiteConsoleWithoutRowan',
+	#traits : 'JadeiteMonticelloTrait',
+	#classTraits : 'JadeiteMonticelloTrait classTrait',
 	#instVars : [
 		'monticelloPackageListPresenter'
 	],
@@ -31,24 +33,21 @@ JadeiteConsoleSeaside >> changes [
 	packageService := monticelloPackageListPresenter selectedItem.
 	repositoryService := packageService repositoryGroups repositories
 		                     last.
-	packageService
-		command: #changesAgainst:;
-		commandArgs: (Array with: repositoryService repositoryOop).
-	RowanServiceUpdater current
-		issueCommand: packageService
-		session: self gciSession
+	self
+		changesFor: packageService
+		against: repositoryService
 		onCompletion: [ :svc |
-				svc changes isEmpty
-					ifTrue: [ self uiManager alert: 'No changes!' ]
-					ifFalse: [
-							| changesBrowser |
-							changesBrowser := JadeiteChangesBrowser
-								                  showOn:
-								                  (RowanPatch
-									                   fromString: svc changes
-									                   session: self gciSession)
-								                  name: packageService description
-								                  application: self application ] ]
+				| changesBrowser |
+				changesBrowser := JadeiteMonticelloChangesBrowser
+					                  showOn:
+					                  (RowanPatch
+						                   fromString: svc changes
+						                   session: self gciSession)
+					                  name: svc description
+					                  application: self application.
+				changesBrowser
+					packageService: svc;
+					repositoryService: repositoryService ]
 ]
 
 { #category : 'initialization' }

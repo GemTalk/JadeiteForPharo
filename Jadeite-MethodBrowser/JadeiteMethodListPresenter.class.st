@@ -425,11 +425,12 @@ JadeiteMethodListPresenter >> removeComparisonTab [
 { #category : 'initialization' }
 JadeiteMethodListPresenter >> resetSource [
 
-	self clearStatusBar.
-	methodSourcePresenter text:
-		methodSourcePresenter methodService source.
-	methodSourcePresenter isModified: false.
-	^ self updateMethodSourceGlyphs
+	self uiManager defer: [
+			self clearStatusBar.
+			methodSourcePresenter text:
+				methodSourcePresenter methodService source.
+			methodSourcePresenter isModified: false.
+			self updateMethodSourceGlyphs ]
 ]
 
 { #category : 'actions' }
@@ -607,10 +608,11 @@ JadeiteMethodListPresenter >> updateSingleMethodSourceFor: methodService [
 	(methodSourcePresenter methodService = methodService and: [
 		 methodSourcePresenter text = methodService source ]) ifTrue: [
 		^ self ].
-	methodSourcePresenter methodService: methodService.
-	methodSourcePresenter value: methodService source.
-	methodSourcePresenter ensureVisible.
-	self updateMethodSourceGlyphs.
-	methodService firstReference ifNotNil: [ :index |
-		methodSourcePresenter value ifNotNil: [ self selecting: index ] ]
+	self uiManager defer: [
+			methodSourcePresenter methodService: methodService.
+			methodSourcePresenter value: methodService source.
+			methodSourcePresenter ensureVisible.
+			self updateMethodSourceGlyphs.
+			methodService firstReference ifNotNil: [ :index |
+				methodSourcePresenter value ifNotNil: [ self selecting: index ] ] ]
 ]

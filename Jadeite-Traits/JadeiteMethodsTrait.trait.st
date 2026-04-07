@@ -612,19 +612,20 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 		saveMethodIn: classService
 		category: category
 		completionBlock: [
-			classService selectedMethods isEmpty ifFalse: [
-				index := self methodListPresenter selectionMode indexOfItem:
-					         classService selectedMethods first.
-				self methodListPresenter
-					selectIndex: index
-					scrollToSelection: true ].
-			(self compilationWarningFrom: classService selectedMethods)
-				ifNil: [ self clearStatusBar ]
-				ifNotNil: [ :warning |
-					self setCompileWarningColor.
-					self statusBarText pushMessage: warning ].
-			self updateMethodSourceGlyphs.
-			completionBlock value ]
+				self uiManager defer: [
+						classService selectedMethods isEmpty ifFalse: [
+								index := self methodListPresenter selectionMode indexOfItem:
+									         classService selectedMethods first.
+								self methodListPresenter
+									selectIndex: index
+									scrollToSelection: true ].
+						(self compilationWarningFrom: classService selectedMethods)
+							ifNil: [ self clearStatusBar ]
+							ifNotNil: [ :warning |
+									self setCompileWarningColor.
+									self statusBarText pushMessage: warning ].
+						self updateMethodSourceGlyphs.
+						completionBlock value ] ]
 ]
 
 { #category : 'actions' }

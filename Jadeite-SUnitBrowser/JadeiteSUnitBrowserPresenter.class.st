@@ -232,13 +232,14 @@ JadeiteSUnitBrowserPresenter >> editSaveMethod: classService in: thePresenter ca
 		saveMethodIn: classService
 		category: category
 		completionBlock: [
-				(self compilationWarningFrom: classService selectedMethods)
-					ifNil: [ self clearStatusBar ]
-					ifNotNil: [ :warning |
-							self setCompileWarningColor.
-							browserPresenter statusBarText: warning ].
-				self updateMethodSourceGlyphs.
-				completionBlock value ]
+				self uiManager defer: [
+						(self compilationWarningFrom: classService selectedMethods)
+							ifNil: [ self clearStatusBar ]
+							ifNotNil: [ :warning |
+									self setCompileWarningColor.
+									browserPresenter statusBarText: warning ].
+						self updateMethodSourceGlyphs.
+						completionBlock value ] ]
 ]
 
 { #category : 'accessing' }
@@ -441,12 +442,13 @@ JadeiteSUnitBrowserPresenter >> reset [
 { #category : 'actions' }
 JadeiteSUnitBrowserPresenter >> resetSource [
 
-	self methodSourcePresenter methodService
-		ifNil: [ methodSourcePresenter text: String new ]
-		ifNotNil: [ :service | methodSourcePresenter text: service source ].
-	self clearStatusBar.
-	methodSourcePresenter hasUnacceptedEdits: false.
-	self updateMethodSourceGlyphs
+	self uiManager defer: [
+			self methodSourcePresenter methodService
+				ifNil: [ methodSourcePresenter text: String new ]
+				ifNotNil: [ :service | methodSourcePresenter text: service source ].
+			self clearStatusBar.
+			methodSourcePresenter hasUnacceptedEdits: false.
+			self updateMethodSourceGlyphs ]
 ]
 
 { #category : 'compiler warning' }
@@ -529,14 +531,15 @@ JadeiteSUnitBrowserPresenter >> updateContents [
 { #category : 'initialization' }
 JadeiteSUnitBrowserPresenter >> updateMethodSource: anAnnouncement [
 
-	| text |
-	text := self methodSourcePresenter text.
-	self methodSourcePresenter withAdapterDo: [ :a |
-		a widgetDo: [ :w |
-			w textArea scrollPane
-				vScrollbarValue: anAnnouncement scrollOffset y;
-				updateScrollbars ] ].
-	self updateMethodSourceGlyphs 
+	self uiManager defer: [
+			| text |
+			text := self methodSourcePresenter text.
+			self methodSourcePresenter withAdapterDo: [ :a |
+					a widgetDo: [ :w |
+							w textArea scrollPane
+								vScrollbarValue: anAnnouncement scrollOffset y;
+								updateScrollbars ] ].
+			self updateMethodSourceGlyphs ]
 ]
 
 { #category : 'updates' }
