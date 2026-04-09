@@ -10,6 +10,18 @@ Class {
 	#package : 'Jadeite-Browser'
 }
 
+{ #category : 'events' }
+JadeiteBrowserPresenterMonticello >> abortedTransaction [
+	self todo: 'should update monticello package list'.
+	self updateDictionariesOnCompletion: [
+			self resetClassTemplate.
+			self resetClassComment.
+			self updateMethodSource.
+			self resetStatusBarColor.
+			self statusBarText pushMessage: String new.
+			self updateSUnitTab ]
+]
+
 { #category : 'actions' }
 JadeiteBrowserPresenterMonticello >> addMonticelloPackage [
 
@@ -17,26 +29,16 @@ JadeiteBrowserPresenterMonticello >> addMonticelloPackage [
 ]
 
 { #category : 'initialization' }
-JadeiteBrowserPresenterMonticello >> connectDictionaryAndClassCategoryPresenters [
-
-	"do nothing in monticello browser "
-	
-	super connectDictionaryAndClassCategoryPresenters
-]
-
-{ #category : 'initialization' }
 JadeiteBrowserPresenterMonticello >> connectPresenters [
-	super connectPresenters. 
-"	monticelloPackageListPresenter
-		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |  ]"
+
+	monticelloPackageListPresenter
+		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |  ]
 ]
 
 { #category : 'initialization' }
 JadeiteBrowserPresenterMonticello >> initializeFirstColumns: panedLayout [
 
-	self initializeDictionaryTabIn: panedLayout.
-	self initializeClassCategoryTabIn: panedLayout
-		"self	initializeMonticelloPackageListIn: panedLayout "
+	self initializeMonticelloPackageListIn: panedLayout.
 ]
 
 { #category : 'initialization' }
@@ -47,7 +49,8 @@ JadeiteBrowserPresenterMonticello >> initializeMonticelloPackageListIn: panedPre
 	monticelloPackageListPresenter := (JadeiteListPresenter
 		                                   newNameSortedListFor: self)
 		                                  contextMenu:
-		                                  self newMonticelloPackageMenu.
+			                                  self newMonticelloPackageMenu;
+		                                  display: #description.
 	self todo: [
 			self monticelloPackageListPresenter
 				wantsDrop: [ :transfer |
@@ -59,6 +62,37 @@ JadeiteBrowserPresenterMonticello >> initializeMonticelloPackageListIn: panedPre
 		                         provider: [ monticelloPackageListPresenter ].
 	monticelloPackageTab addPage: monticelloPackagePage.
 	panedPresenter add: monticelloPackageTab
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterMonticello >> initializePresenters [
+
+	| listPresenters classColumn filterLayout panedLayout1 panedLayout2 panedLayout3 panedLayout4 methodLayout |
+	listPresenters := SpBoxLayout newLeftToRight.
+	listPresenters spacing: 10.
+	self layout add: listPresenters.
+	panedLayout1 := SpPanedLayout newHorizontal positionOfSlider: 0.99.
+	self initializeMonticelloPackageListIn: panedLayout1.
+	classColumn := SpBoxLayout newVertical.
+	self initializeClassTabs: classColumn.
+	self initializeClassExtraText: classColumn.
+	panedLayout2 := SpPanedLayout newHorizontal positionOfSlider: 0.66.
+	panedLayout2 add: panedLayout1.
+	panedLayout2 add: classColumn.
+	filterLayout := SpBoxLayout newHorizontal.
+	self initializeFilterTabs: filterLayout.
+	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.7.
+	panedLayout3 add: panedLayout2.
+	panedLayout3 add: filterLayout.
+	panedLayout4 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
+	methodLayout := SpBoxLayout newHorizontal.
+	self initializeMethodList: methodLayout.
+	panedLayout4 add: panedLayout3.
+	panedLayout4 add: methodLayout.
+	listPresenters add: panedLayout4.
+	self initializeLowerTabs.
+	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ].
+	projectListPresenter := JadeiteListPresenter new
 ]
 
 { #category : 'accessing' }
@@ -100,18 +134,12 @@ JadeiteBrowserPresenterMonticello >> newMonticelloPackageMenu [
 		  yourself
 ]
 
-{ #category : 'registration' }
-JadeiteBrowserPresenterMonticello >> registerMonticelloPackagesForUpdates [
+{ #category : 'initialization' }
+JadeiteBrowserPresenterMonticello >> postOpen [
 
-	RowanServiceUpdater current
-		register: monticelloPackageListPresenter
-		selector: #monticelloPackageListUpdate:
-]
-
-{ #category : 'registration' }
-JadeiteBrowserPresenterMonticello >> registerPackageDictionaryListsForUpdates [
-
-	self registerMonticelloPackagesForUpdates
+	self
+		updateMonticelloPackagesOnCompletion: [ :svc | self basicPostOpen ]
+		catchBlock: [ ]
 ]
 
 { #category : 'actions' }

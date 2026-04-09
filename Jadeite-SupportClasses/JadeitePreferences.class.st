@@ -81,14 +81,7 @@ JadeitePreferences class >> isRowanAvailable [
 { #category : 'settings' }
 JadeitePreferences class >> isRowanLoaded [
 
-	IsRowanLoaded == #notAvailable ifTrue: [ ^ false ].
-	^ true
-]
-
-{ #category : 'settings' }
-JadeitePreferences class >> isRowanLoaded: aBoolean [
-
-	IsRowanLoaded := aBoolean
+	^ self rowanOption == #rowan
 ]
 
 { #category : 'testing' }

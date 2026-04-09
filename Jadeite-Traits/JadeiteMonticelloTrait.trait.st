@@ -17,6 +17,18 @@ JadeiteMonticelloTrait >> changesFor: package against: repository onCompletion: 
 ]
 
 { #category : 'updates' }
+JadeiteMonticelloTrait >> updateMonticelloPackages [
+
+	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
+]
+
+{ #category : 'updates' }
+JadeiteMonticelloTrait >> updateMonticelloPackages: anAnnouncement [
+	"pass the announcement if and when needed"
+	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
+]
+
+{ #category : 'updates' }
 JadeiteMonticelloTrait >> updateMonticelloPackagesOnCompletion: completionBlock catchBlock: catchBlock [
 
 	| monticelloService |
@@ -29,5 +41,5 @@ JadeiteMonticelloTrait >> updateMonticelloPackagesOnCompletion: completionBlock 
 		onCompletion: [
 				self monticelloPackageListPresenter items:
 					monticelloService packages.
-				completionBlock value ]
+				completionBlock cull: monticelloService ]
 ]

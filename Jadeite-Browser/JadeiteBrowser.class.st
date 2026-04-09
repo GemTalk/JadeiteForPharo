@@ -14,9 +14,8 @@ Class {
 
 { #category : 'instance creation' }
 JadeiteBrowser class >> browserClass [
-
 	^ JadeitePreferences isRowanLoaded ifTrue: [ ^ JadeiteBrowser ].
-	JadeitePreferences isSeaside ifTrue: [ ^ JadeiteBrowserSeaside ].
+	JadeitePreferences isSeaside ifTrue: [ ^ JadeiteBrowserMonticello ].
 	^ JadeiteBrowserWithoutRowan
 ]
 

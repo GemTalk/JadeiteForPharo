@@ -163,18 +163,6 @@ JadeiteConsoleMonticello >> savePackage [
 ]
 
 { #category : 'updates' }
-JadeiteConsoleMonticello >> updateMonticelloPackages [
-
-	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
-]
-
-{ #category : 'updates' }
-JadeiteConsoleMonticello >> updateMonticelloPackages: anAnnouncement [
-	"pass the announcement if and when needed"
-	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
-]
-
-{ #category : 'updates' }
 JadeiteConsoleMonticello >> updateProjectsOnCompletion: completionBlock catchBlock: catchBlock [
 	"we don't deal with rowan projects in seaside"
 
