@@ -1,12 +1,12 @@
 Class {
-	#name : 'JadeiteBrowserSeaside',
+	#name : 'JadeiteBrowserMonticello',
 	#superclass : 'JadeiteBrowserWithoutRowan',
 	#category : 'Jadeite-Browser',
 	#package : 'Jadeite-Browser'
 }
 
 { #category : 'accessing' }
-JadeiteBrowserSeaside class >> browserPresenterClass [
+JadeiteBrowserMonticello class >> browserPresenterClass [
 
-	^ JadeiteBrowserPresenterSeaside
+	^ JadeiteBrowserPresenterMonticello
 ]

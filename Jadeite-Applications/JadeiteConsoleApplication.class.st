@@ -10,7 +10,7 @@ JadeiteConsoleApplication class >> jadeiteConsoleClass [
 
 	JadeitePreferences rowanOption = #rowan ifTrue: [ ^ JadeiteConsole ].
 	JadeitePreferences rowanOption = #seaside ifTrue: [
-		^ JadeiteConsoleSeaside ].
+		^ JadeiteConsoleMonticello ].
 	^ JadeiteConsoleWithoutRowan
 ]
 

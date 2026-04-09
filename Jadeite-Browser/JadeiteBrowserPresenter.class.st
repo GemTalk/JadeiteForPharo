@@ -9,7 +9,6 @@ Class {
 		'componentPackageContainer',
 		'packageDictionaryContainer',
 		'packageMethodListPresenter',
-		'projectListContainer',
 		'addPackagePresenter',
 		'projectReadMeTab',
 		'toolbar',
@@ -197,13 +196,14 @@ JadeiteBrowserPresenter >> addSubclass [
 	classService
 		command: #subclassCreationTemplate;
 		commandArgs: Array new.
-	self issueCommand: classService onCompletion: [].
+	self issueCommand: classService onCompletion: [ ].
 	answeringService := RowanServiceUpdater current updates detect: [ :ea |
 		                    ea isAnsweringService ].
 	self selectClassDefinitionTab.
-	classDefinitionPresenter
-		value: answeringService answer;
-		hasUnacceptedEdits: true
+	self uiManager defer: [
+			classDefinitionPresenter
+				value: answeringService answer;
+				hasUnacceptedEdits: true ]
 ]
 
 { #category : 'actions' }
@@ -338,24 +338,25 @@ JadeiteBrowserPresenter >> basicRemoveClass: theClassService onCompletion: compl
 
 	| service |
 	self isHierarchyTabSelected ifTrue: [
-		| path newPath |
-		path := classHierarchyPresenter selection selectedPath.
-		newPath := path copyFrom: 1 to: path size - 1.
-		classHierarchyPresenter selection selectPath: newPath ].
+			| path newPath |
+			path := classHierarchyPresenter selection selectedPath.
+			newPath := path copyFrom: 1 to: path size - 1.
+			classHierarchyPresenter selection selectPath: newPath ].
 	service := self selectedDictionaryOrPackage.
 	service
 		command: self removeClassSelector;
 		commandArgs: (Array with: theClassService);
 		shouldUpdate: true.
 	self issueCommand: service onCompletion: [
-		self selectedClass
-			ifNil: [
-				self resetClassTemplate "just emptied the last class in the package" ]
-			ifNotNil: [
-				classDefinitionPresenter value: self selectedClass template.
-				self markClassDefinitionPaneUnmodified ].
-		completionBlock value.
-		self updateTabLabel ]
+			self selectedClass
+				ifNil: [
+					self resetClassTemplate "just emptied the last class in the package" ]
+				ifNotNil: [
+						self uiManager defer: [
+								classDefinitionPresenter value: self selectedClass template.
+								self markClassDefinitionPaneUnmodified ] ].
+			completionBlock value.
+			self updateTabLabel ]
 ]
 
 { #category : 'actions' }
@@ -425,20 +426,15 @@ JadeiteBrowserPresenter >> basicUpdateClassInfo [
 	service := self selectedClass.
 	classCommentPresenter value: service comment.
 	classDefinitionPresenter view isModified ifTrue: [
-		service template = classDefinition ifTrue: [ ^ self ].
-		classDefinition ifNotNil: [
-			(MessageBox
-				 confirm: 'Copy changes to clipboard?'
-				 caption: 'Class has unsaved changes!') ifTrue: [
-				classDefinitionPresenter text copyToClipboard ] ] ].
-	classDefinitionPresenter value: service template.
-	self markClassDefinitionPaneUnmodified.
-	self todo: [
-		self setTestClass: service.
-		self isSunitTabSelected ifFalse: [
-			classDefinitionPresenter ensureVisible ].
-		self updateClassMenu: nil.
-		self updateSUnitTab ]
+			service template = classDefinition ifTrue: [ ^ self ].
+			classDefinition ifNotNil: [
+					(MessageBox
+						 confirm: 'Copy changes to clipboard?'
+						 caption: 'Class has unsaved changes!') ifTrue: [
+						classDefinitionPresenter text copyToClipboard ] ] ].
+	self uiManager defer: [
+			classDefinitionPresenter value: service template.
+			self markClassDefinitionPaneUnmodified ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -528,25 +524,6 @@ JadeiteBrowserPresenter >> buildProjectInfoTab: infoTab [
 						iv = 'isDirty' ifTrue: [service toolTip] ifFalse: [service instVarNamed: iv]]].
 	infoTabView getImageBlock: nil.
 	^infoTabView
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> buildProjectReadMeTab [
-	| cardLabel |
-	projectReadMeTab := TextPresenter new.
-	(projectReadMeTab
-		parentPresenter: self textAreaTabs presenter;
-		createView: 'Scintilla view';
-		view)
-		wordWrap: true;
-		backcolor: JadeiteTextStyles default colorForNoEdits.
-	self selectedProjectName ifNotNil: [self updateProjectReadMe].
-	cardLabel := CardLabel text: 'ReadMe'.
-	cardLabel iconBlock: nil.
-	projectReadMeTab view
-		arrangement: cardLabel;
-		name: 'projectReadMeTab'.
-	projectReadMeTab view contextMenu: classDefinitionPresenter view contextMenu
 ]
 
 { #category : 'accessing' }
@@ -1125,7 +1102,8 @@ JadeiteBrowserPresenter >> editSaveClass [
 		command: #compileClass:;
 		commandArgs: (Array with: classDefinitionPresenter text asString);
 		compileErrorHandler: [ :ex |
-			self classDefinitionPresenter reportCompileError: ex gsArguments ].
+				self uiManager defer: [
+						self classDefinitionPresenter reportCompileError: ex gsArguments ] ].
 	self selectedClass ifNotNil: [ :classService |
 		browserService selectedClass: classService name ].
 	selectedSelectors := self selectedSelectors.
@@ -2678,18 +2656,6 @@ JadeiteBrowserPresenter >> openBrowser [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteBrowserPresenter >> openSourceStyler [
-	| textStyles |
-	textStyles := methodSourcePresenter view editStyles textStyles.
-	JadeiteTextStyles default textStyles: textStyles.
-	classDefinitionPresenter view textStyles: textStyles.
-	originalSourcePresenter view textStyles: textStyles.
-	classCommentPresenter view textStyles: textStyles.
-	comparisonPresenter afterPresenter view textStyles: textStyles.
-	comparisonPresenter beforePresenter view textStyles: textStyles
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteBrowserPresenter >> packageDictionaryCards [
 	"for testing"
 
@@ -3361,21 +3327,26 @@ JadeiteBrowserPresenter >> resetClassComment [
 JadeiteBrowserPresenter >> resetClassTemplate [
 
 	packageListPresenter list isEmpty ifTrue: [
-			classDefinitionPresenter value: String new.
-			self markClassDefinitionPaneUnmodified.
+			self uiManager defer: [
+					classDefinitionPresenter value: String new.
+					self markClassDefinitionPaneUnmodified ].
 			^ self ].
-	classDefinitionPresenter value:
-		(packageListPresenter selections isEmpty
-			 ifTrue: [ String new ]
-			 ifFalse: [
-					 self selectedClassTab
-						 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
-						 ifNotNil: [
-								 self selectedClassTab activePresenter selection selectedItem
-									 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
-									 ifNotNil: [
-									 self selectedClassTab activePresenter selectedItem template ] ] ]).
-	self markClassDefinitionPaneUnmodified
+	self uiManager defer: [
+			classDefinitionPresenter value:
+				(packageListPresenter selections isEmpty
+					 ifTrue: [ String new ]
+					 ifFalse: [
+							 self selectedClassTab
+								 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
+								 ifNotNil: [
+										 self selectedClassTab activePresenter selection
+											 selectedItem
+											 ifNil: [
+											 packageListPresenter selectedItem defaultTemplate ]
+											 ifNotNil: [
+											 self selectedClassTab activePresenter selectedItem
+												 template ] ] ]).
+			self markClassDefinitionPaneUnmodified ]
 ]
 
 { #category : 'initialization' }
@@ -4396,12 +4367,12 @@ JadeiteBrowserPresenter >> updateDictionary [
 	self updateClassesOnCompletion: [
 			self isClassListTabSelected ifFalse: [ self updateHierarchy ].
 			self updateTabLabel.
-			self todo: [ self updateGlobalsTab ].
 			dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ].
-			classDefinitionPresenter value:
-				dictionaryListPresenter selectedItem defaultTemplate.
-			self markClassDefinitionPaneUnmodified.
-			self updateSUnitTab ]
+			self uiManager defer: [
+					classDefinitionPresenter value:
+						dictionaryListPresenter selectedItem defaultTemplate.
+					self markClassDefinitionPaneUnmodified.
+					self updateSUnitTab ] ]
 ]
 
 { #category : 'as yet unclassified' }

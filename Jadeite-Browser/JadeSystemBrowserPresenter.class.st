@@ -25,7 +25,6 @@ Class {
 		'methodCategory',
 		'methodFilterTabs',
 		'methodListPresenter',
-		'methodSource',
 		'methodSourcePresenter',
 		'originalSourceLabel',
 		'originalSourcePresenter',

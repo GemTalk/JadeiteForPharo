@@ -661,11 +661,6 @@ JadeiteProjectsBrowserPresenter >> setterMethodSourceFor: variable [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> setupPackageMenu [
-	packageListPresenter view contextMenu: (Menu fromStrings: self pkgsMenuStrings)
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteProjectsBrowserPresenter >> showSuperClassComparison [
 	| methodService |
 	methodService := methodListPresenter jaditeSelection.
@@ -702,11 +697,6 @@ JadeiteProjectsBrowserPresenter >> targetCategory [
 JadeiteProjectsBrowserPresenter >> textAreaTabs [
 	"for testing"
 	^textAreaTabs
-]
-
-{ #category : 'as yet unclassified' }
-JadeiteProjectsBrowserPresenter >> textTabs [
-	^(textAreaTabs subViews detect: [:each | each class == TabViewXP]) model
 ]
 
 { #category : 'as yet unclassified' }

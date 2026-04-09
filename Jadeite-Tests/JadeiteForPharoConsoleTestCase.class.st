@@ -14,7 +14,7 @@ JadeiteForPharoConsoleTestCase class >> codeCoverageClasses [
 		  JadeiteConsoleApplication.
 		  JadeiteConsole.
 		  JadeiteConsoleWithoutRowan.
-		  JadeiteConsoleSeaside.
+		  JadeiteConsoleMonticello.
 		  JadeiteConsoleTableColumn } asOrderedCollection
 ]
 

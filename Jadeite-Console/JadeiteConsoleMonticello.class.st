@@ -1,5 +1,5 @@
 Class {
-	#name : 'JadeiteConsoleSeaside',
+	#name : 'JadeiteConsoleMonticello',
 	#superclass : 'JadeiteConsoleWithoutRowan',
 	#traits : 'JadeiteMonticelloTrait',
 	#classTraits : 'JadeiteMonticelloTrait classTrait',
@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : 'actions' }
-JadeiteConsoleSeaside >> browsePackageRepositories [
+JadeiteConsoleMonticello >> browsePackageRepositories [
 
 	| monticelloPackageService |
 	self monticelloPackageListPresenter selectedItems size = 1 ifFalse: [
@@ -27,7 +27,7 @@ JadeiteConsoleSeaside >> browsePackageRepositories [
 ]
 
 { #category : 'actions' }
-JadeiteConsoleSeaside >> changes [
+JadeiteConsoleMonticello >> changes [
 
 	| packageService repositoryService |
 	packageService := monticelloPackageListPresenter selectedItem.
@@ -51,7 +51,7 @@ JadeiteConsoleSeaside >> changes [
 ]
 
 { #category : 'initialization' }
-JadeiteConsoleSeaside >> connectPresenters [
+JadeiteConsoleMonticello >> connectPresenters [
 	"initialization"
 
 	super connectPresenters.
@@ -60,7 +60,7 @@ JadeiteConsoleSeaside >> connectPresenters [
 ]
 
 { #category : 'accessing' }
-JadeiteConsoleSeaside >> gciSession: aSession [
+JadeiteConsoleMonticello >> gciSession: aSession [
 
 	super gciSession: aSession.
 	aSession ifNotNil: [ :sess |
@@ -71,13 +71,13 @@ JadeiteConsoleSeaside >> gciSession: aSession [
 ]
 
 { #category : 'menus' }
-JadeiteConsoleSeaside >> initializeMonticelloPackageListMenu [
+JadeiteConsoleMonticello >> initializeMonticelloPackageListMenu [
 
 	self monticelloPackageListPresenter contextMenu: self newMonticelloMenu
 ]
 
 { #category : 'initialization' }
-JadeiteConsoleSeaside >> initializePrimaryListPresenter: tabs [
+JadeiteConsoleMonticello >> initializePrimaryListPresenter: tabs [
 
 	| box column1 column2 |
 	column1 := JadeiteConsoleTableColumn
@@ -104,19 +104,19 @@ JadeiteConsoleSeaside >> initializePrimaryListPresenter: tabs [
 ]
 
 { #category : 'accessing' }
-JadeiteConsoleSeaside >> monticelloPackageListPresenter [
+JadeiteConsoleMonticello >> monticelloPackageListPresenter [
 
 	^ monticelloPackageListPresenter
 ]
 
 { #category : 'accessing' }
-JadeiteConsoleSeaside >> monticelloPackageListPresenter: anObject [
+JadeiteConsoleMonticello >> monticelloPackageListPresenter: anObject [
 
 	monticelloPackageListPresenter := anObject
 ]
 
 { #category : 'menus' }
-JadeiteConsoleSeaside >> newMonticelloMenu [
+JadeiteConsoleMonticello >> newMonticelloMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
@@ -132,7 +132,13 @@ JadeiteConsoleSeaside >> newMonticelloMenu [
 								  name: 'Changes';
 								  action: [ self changes ];
 								  enabled: [
-									  self monticelloPackageListPresenter selections size = 1 ] ] ];
+									  self monticelloPackageListPresenter selections size = 1 ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Save ...';
+								  action: [ self savePackage ];
+								  enabled: [
+									  self monticelloPackageListPresenter selectedItem hasChanges ] ] ];
 		  addGroup: [ :group |
 				  group addItem: [ :item |
 						  item
@@ -143,42 +149,33 @@ JadeiteConsoleSeaside >> newMonticelloMenu [
 ]
 
 { #category : 'accessing' }
-JadeiteConsoleSeaside >> repositoryListFor: monticelloPackageService [
+JadeiteConsoleMonticello >> repositoryListFor: monticelloPackageService [
 
 	^ monticelloPackageService
 		  ifNil: [ String new ]
 		  ifNotNil: [ :svc | svc repositoryDescriptions ]
 ]
 
+{ #category : 'actions' }
+JadeiteConsoleMonticello >> savePackage [
+
+	^ self uiManager alert: 'Save Package not implemented yet'
+]
+
 { #category : 'updates' }
-JadeiteConsoleSeaside >> updateMonticelloPackages [
+JadeiteConsoleMonticello >> updateMonticelloPackages [
 
 	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
 ]
 
 { #category : 'updates' }
-JadeiteConsoleSeaside >> updateMonticelloPackages: anAnnouncement [
+JadeiteConsoleMonticello >> updateMonticelloPackages: anAnnouncement [
 	"pass the announcement if and when needed"
 	self updateMonticelloPackagesOnCompletion: [ ] catchBlock: [ ]
 ]
 
 { #category : 'updates' }
-JadeiteConsoleSeaside >> updateMonticelloPackagesOnCompletion: completionBlock catchBlock: catchBlock [
-
-	| monticelloService |
-	monticelloService := RowanMonticelloService new.
-	monticelloService command: #update.
-	monticelloService catchBlock: catchBlock.
-	RowanServiceUpdater current
-		issueCommand: monticelloService
-		session: self gciSession
-		onCompletion: [
-				monticelloPackageListPresenter items: monticelloService packages.
-				completionBlock value ]
-]
-
-{ #category : 'updates' }
-JadeiteConsoleSeaside >> updateProjectsOnCompletion: completionBlock catchBlock: catchBlock [
+JadeiteConsoleMonticello >> updateProjectsOnCompletion: completionBlock catchBlock: catchBlock [
 	"we don't deal with rowan projects in seaside"
 
 	^ self

@@ -91,6 +91,17 @@ JadeiteBrowserPresenterWithoutRowan >> classListHierarchyTabsChanged [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> connectDictionaryAndClassCategoryPresenters [
+
+	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
+		:selection |
+		self updateClassCategoriesAndSelectAllFor: selection selectedItem ].
+	classCategoryPresenter whenSelectionChangedDo: [ :selection |
+			selectionEventsSuspended ifFalse: [
+				self updateClassesForClassCategories: selection selectedItems ] ]
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> connectFilterPresenters [
 
 	categoryListPresenter whenSelectionChangedDo: [ :selection |
@@ -109,12 +120,7 @@ JadeiteBrowserPresenterWithoutRowan >> connectPackageDictionaryPresenters [
 JadeiteBrowserPresenterWithoutRowan >> connectPresenters [
 
 	super connectPresenters.
-	dictionaryListPresenter whenSelectionChangedAndEventsNotSuspendedDo: [
-		:selection |
-		self updateClassCategoriesAndSelectAllFor: selection selectedItem ].
-	classCategoryPresenter whenSelectionChangedDo: [ :selection |
-		selectionEventsSuspended ifFalse: [
-			self updateClassesForClassCategories: selection selectedItems ] ].
+	self connectDictionaryAndClassCategoryPresenters
 ]
 
 { #category : 'initialization' }
@@ -141,17 +147,19 @@ JadeiteBrowserPresenterWithoutRowan >> editSaveClass [
 		command: #jfpwor_compileClass:;
 		commandArgs: (Array with: classDefinitionPresenter text asString);
 		compileErrorHandler: [ :ex |
-			self classDefinitionPresenter reportCompileError: ex gsArguments ].
+				self uiManager defer: [
+						self classDefinitionPresenter reportCompileError: ex gsArguments ] ].
 	self selectedClass ifNotNil: [ :classService |
 		browserService selectedClass: classService name ].
 	self issueCommand: browserService onCompletion: [
-		self
-			findClass: browserService selectedClass
-			methodService: nil
-			onCompletion: [
-				classHierarchyTabSelected ifTrue: [ self selectClassHierarchyTab ].
-				self updateTabLabel ].
-		classDefinitionPresenter hasUnacceptedEdits: false ]
+			self
+				findClass: browserService selectedClass
+				methodService: nil
+				onCompletion: [
+						classHierarchyTabSelected ifTrue: [
+							self selectClassHierarchyTab ].
+						self updateTabLabel ].
+			classDefinitionPresenter hasUnacceptedEdits: false ]
 ]
 
 { #category : 'actions' }
@@ -184,19 +192,21 @@ JadeiteBrowserPresenterWithoutRowan >> findClass: classService methodService: me
 			self classCategoryPresenter selectedItems
 			using: self dictionaryListPresenter selectedItem.
 		self selectClass: classService completionBlock: [
-				classDefinitionPresenter text: classService template.
-				methodListPresenter items: classService methods.
-				methodListPresenter beSorted.
-				classService updateSortedJadeiteCategories: categoryListPresenter.
-				methodService ifNotNil: [
-						| index |
-						self methodListPresenter selection unselectAll.
-						index := self methodListPresenter items indexOf: methodService.
-						self methodListPresenter
-							selectIndex: index
-							scrollToSelection: true ].
-				completionBlock value.
-				self updateTabLabel ] ] ensure: [ self resumeSelectionEvents ]
+				self uiManager defer: [
+						classDefinitionPresenter text: classService template.
+						methodListPresenter items: classService methods.
+						methodListPresenter beSorted.
+						classService updateSortedJadeiteCategories:
+							categoryListPresenter.
+						methodService ifNotNil: [
+								| index |
+								self methodListPresenter selection unselectAll.
+								index := self methodListPresenter items indexOf: methodService.
+								self methodListPresenter
+									selectIndex: index
+									scrollToSelection: true ].
+						completionBlock value.
+						self updateTabLabel ] ] ] ensure: [ self resumeSelectionEvents ]
 ]
 
 { #category : 'initialization' }
@@ -283,44 +293,41 @@ JadeiteBrowserPresenterWithoutRowan >> initializeFilterTabs: methodPanedLayout [
 ]
 
 { #category : 'initialization' }
+JadeiteBrowserPresenterWithoutRowan >> initializeFirstColumns: panedLayout1 [
+
+	self initializeDictionaryTabIn: panedLayout1.
+	self initializeClassCategoryTabIn: panedLayout1
+]
+
+{ #category : 'initialization' }
 JadeiteBrowserPresenterWithoutRowan >> initializePresenters [
-	"in order to get scroll bars to (kind of) work, create a paned layout with 
-	project & package list. Then create a nother paned layout with the first
-	paned layout + the class list, etc.  Then add the final paned layout to the 
-	upper box layout. ... Seems unnecessarily complicated. Would be better if 
-	I could just add a resizer between two arbitrary widgets."
 
 	| listPresenters classColumn filterLayout panedLayout1 panedLayout2 panedLayout3 panedLayout4 methodLayout |
 	listPresenters := SpBoxLayout newLeftToRight.
 	listPresenters spacing: 10.
 	self layout add: listPresenters.
-	panedLayout1 := SpPanedLayout newHorizontal.
-	self initializeDictionaryTabIn: panedLayout1.
-	self initializeClassCategoryTabIn: panedLayout1.
-
+	panedLayout1 := SpPanedLayout newHorizontal positionOfSlider: 0.99.
+	self initializeFirstColumns: panedLayout1.
 	classColumn := SpBoxLayout newVertical.
 	self initializeClassTabs: classColumn.
 	self initializeClassExtraText: classColumn.
-	panedLayout2 := SpPanedLayout newHorizontal positionOfSlider: 0.66.
-	panedLayout2 add: panedLayout1. 
+	panedLayout2 := SpPanedLayout newHorizontal positionOfSlider: 0.55.
+	panedLayout2 add: panedLayout1.
 	panedLayout2 add: classColumn.
-	
 	filterLayout := SpBoxLayout newHorizontal.
 	self initializeFilterTabs: filterLayout.
-	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
+	panedLayout3 := SpPanedLayout newHorizontal positionOfSlider: 0.7.
 	panedLayout3 add: panedLayout2.
 	panedLayout3 add: filterLayout.
-
 	panedLayout4 := SpPanedLayout newHorizontal positionOfSlider: 0.75.
 	methodLayout := SpBoxLayout newHorizontal.
 	self initializeMethodList: methodLayout.
-	panedLayout4 add: panedLayout3. 
+	panedLayout4 add: panedLayout3.
 	panedLayout4 add: methodLayout.
-
 	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
 	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ].
-	projectListPresenter := JadeiteListPresenter new. "may be able to remove"
+	projectListPresenter := JadeiteListPresenter new
 ]
 
 { #category : 'initialization' }
@@ -410,20 +417,22 @@ JadeiteBrowserPresenterWithoutRowan >> resetClassTemplate [
 	classDefinitionPresenter isModified: false.
 	presenter := classCategoryPresenter.
 	presenter roots isEmpty ifTrue: [
-		classDefinitionPresenter value: String new.
-		^ self ].
+			classDefinitionPresenter value: String new.
+			^ self ].
 	presenter selectedItem
 		ifNil: [ self updateClassDefPresenter ]
 		ifNotNil: [ :selectedItem |
-			self selectedClassTab
-				ifNil: [
-				classDefinitionPresenter value: selectedItem defaultTemplate ]
-				ifNotNil: [
-					self selectedClassTab activePresenter selection selectedItem
-						ifNil: [ self templateForClassCategory: selectedItem ]
-						ifNotNil: [
-							classDefinitionPresenter value:
-								self selectedClassTab activePresenter selectedItem template ] ] ].
+				self uiManager defer: [
+						self selectedClassTab
+							ifNil: [
+							classDefinitionPresenter value: selectedItem defaultTemplate ]
+							ifNotNil: [
+									self selectedClassTab activePresenter selection selectedItem
+										ifNil: [ self templateForClassCategory: selectedItem ]
+										ifNotNil: [
+												classDefinitionPresenter value:
+													self selectedClassTab activePresenter selectedItem
+														template ] ] ] ].
 	self markClassDefinitionPaneUnmodified
 ]
 
@@ -490,12 +499,16 @@ JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
 	| answeringService dictionaryService |
 	dictionaryService := self dictionaryListPresenter selectedItem.
 	classCategory ifNil: [
-		classDefinitionPresenter text: dictionaryService defaultTemplate.
-		^ classDefinitionPresenter isModified: false ].
+			self uiManager defer: [
+					classDefinitionPresenter text: dictionaryService defaultTemplate.
+					classDefinitionPresenter isModified: false ].
+			^ self ].
 	JadeitePreferences isRowanAvailable ifTrue: [
-		classDefinitionPresenter text:
-			(self defaultTemplateForClassCategory: classCategory).
-		^ classDefinitionPresenter isModified: false ].
+			self uiManager defer: [
+					classDefinitionPresenter text:
+						(self defaultTemplateForClassCategory: classCategory).
+					classDefinitionPresenter isModified: false ].
+			^ self ].
 	answeringService := RowanAnsweringService new
 		                    command:
 			                    #templateForClassCategory:dictionaryName:;
@@ -504,8 +517,9 @@ JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
 					                     classCategory classDefinitionTemplateString
 				                     with: dictionaryService name).
 	self issueCommand: answeringService onCompletion: [ :service |
-		classDefinitionPresenter text: service answer.
-		classDefinitionPresenter isModified: false ]
+			self uiManager defer: [
+					classDefinitionPresenter text: service answer.
+					classDefinitionPresenter isModified: false ] ]
 ]
 
 { #category : 'updates' }
@@ -608,9 +622,10 @@ JadeiteBrowserPresenterWithoutRowan >> updateClassCategoriesFor: dictionaryServi
 JadeiteBrowserPresenterWithoutRowan >> updateClassDefPresenter [
 
 	self selectedClass ifNotNil: [ :classService |
-			classDefinitionPresenter text:
-				(classService template ifNil: [ String new ]).
-			classDefinitionPresenter isModified: false.
+			self uiManager defer: [
+					classDefinitionPresenter text:
+						(classService template ifNil: [ String new ]).
+					classDefinitionPresenter isModified: false ].
 			^ self ].
 	self dictionaryListPresenter selectedItem ifNil: [
 		^ self markClassDefinitionPaneUnmodified ].

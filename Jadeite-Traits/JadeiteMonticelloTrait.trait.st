@@ -15,3 +15,19 @@ JadeiteMonticelloTrait >> changesFor: package against: repository onCompletion: 
 		session: self gciSession
 		onCompletion: completionBlock
 ]
+
+{ #category : 'updates' }
+JadeiteMonticelloTrait >> updateMonticelloPackagesOnCompletion: completionBlock catchBlock: catchBlock [
+
+	| monticelloService |
+	monticelloService := RowanMonticelloService new.
+	monticelloService command: #update.
+	monticelloService catchBlock: catchBlock.
+	RowanServiceUpdater current
+		issueCommand: monticelloService
+		session: self gciSession
+		onCompletion: [
+				self monticelloPackageListPresenter items:
+					monticelloService packages.
+				completionBlock value ]
+]

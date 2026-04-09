@@ -36,7 +36,7 @@ JadeiteBrowser class >> defaultPreferredExtent [
 JadeiteBrowser class >> new [
 
 	JadeitePreferences isRowanLoaded ifTrue: [ ^ super new ].
-	JadeitePreferences isSeaside ifTrue: [ ^ JadeiteBrowserSeaside new ].
+	JadeitePreferences isSeaside ifTrue: [ ^ JadeiteBrowserMonticello new ].
 	^ JadeiteBrowserWithoutRowan new
 ]
 
