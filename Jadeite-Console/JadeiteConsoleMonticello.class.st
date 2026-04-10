@@ -71,6 +71,27 @@ JadeiteConsoleMonticello >> gciSession: aSession [
 ]
 
 { #category : 'menus' }
+JadeiteConsoleMonticello >> initializeBrowseMenu [
+
+	^ self newBrowseMethodsConsoleMenu
+		  addItem: [ :item |
+				  item
+					  name: 'Browse Dictionaries';
+					  action: [ self browseDictionaries ] ];
+		  addItem: [ :item |
+				  item
+					  name: 'Find Class ...';
+					  shortcut: $f shift ctrl;
+					  action: [ self findClass ] ];
+		  addItem: [ :item |
+				  item
+					  name: 'Find Class References ...';
+					  shortcut: $r shift ctrl;
+					  action: [ self findClassReferences ] ];
+		  yourself
+]
+
+{ #category : 'menus' }
 JadeiteConsoleMonticello >> initializeMonticelloPackageListMenu [
 
 	self monticelloPackageListPresenter contextMenu: self newMonticelloMenu

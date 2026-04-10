@@ -222,11 +222,6 @@ JadePresenter >> addSystemBrowser [
 	self subclassResponsibility
 ]
 
-{ #category : 'constants' }
-JadePresenter >> additionalAccelerators [
-	^#(#(#raiseConsole 'Ctrl+F7'))
-]
-
 { #category : 'public' }
 JadePresenter >> gciSession [
 

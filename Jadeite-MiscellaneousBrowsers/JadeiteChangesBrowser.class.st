@@ -51,11 +51,6 @@ JadeiteChangesBrowser >> abortTransaction [
 ]
 
 { #category : 'as yet unclassified' }
-JadeiteChangesBrowser >> additionalAccelerators [
-	^#(#(#raiseConsole 'Ctrl+F7'))
-]
-
-{ #category : 'as yet unclassified' }
 JadeiteChangesBrowser >> afterTitle: operation [
 	^operation obsoletionMemo = operation modificationMemo
 		ifTrue: ['Image (no change)']

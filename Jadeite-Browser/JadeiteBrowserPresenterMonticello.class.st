@@ -143,7 +143,8 @@ JadeiteBrowserPresenterMonticello >> isNoneProjectSelected [
 JadeiteBrowserPresenterMonticello >> monticelloPackageChanged: monticelloPackageService [
 
 	monticelloPackageService ifNil: [
-		^ self classListPresenter items: OrderedCollection new ].
+			self updateSystemTab.
+			^ self classListPresenter items: OrderedCollection new ].
 	monticelloPackageService command: #classes.
 	self issueCommand: monticelloPackageService onCompletion: [ :svc |
 			classListPresenter items: svc classes.
@@ -207,6 +208,25 @@ JadeiteBrowserPresenterMonticello >> postOpen [
 JadeiteBrowserPresenterMonticello >> removeMonticelloPackage [
 
 	self uiManager alert: 'Not Implemented Yet'
+]
+
+{ #category : 'actions' }
+JadeiteBrowserPresenterMonticello >> resetClassTemplate [
+
+	| presenter |
+	classDefinitionPresenter isModified: false.
+	presenter := self monticelloPackageListPresenter.
+	presenter selectedItem
+		ifNil: [ self updateClassDefPresenter ]
+		ifNotNil: [ :selectedItem |
+				self uiManager defer: [
+						self selectedClassTab
+							ifNil: [
+							classDefinitionPresenter value: selectedItem defaultTemplate ]
+							ifNotNil: [
+									classDefinitionPresenter value:
+										self selectedClassTab activePresenter selectedItem template ] ] ].
+	self markClassDefinitionPaneUnmodified
 ]
 
 { #category : 'accessing' }

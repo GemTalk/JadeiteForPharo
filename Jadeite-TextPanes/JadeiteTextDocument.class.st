@@ -155,12 +155,6 @@ JadeiteTextDocument >> addQuotesToSelection [
 ]
 
 { #category : 'accessing' }
-JadeiteTextDocument >> additionalAccelerators [
-
-	^#(#(#raiseConsole 'Ctrl+F7') )
-]
-
-{ #category : 'accessing' }
 JadeiteTextDocument >> autoCommit: aBoolean [
 
 	"do nothing"

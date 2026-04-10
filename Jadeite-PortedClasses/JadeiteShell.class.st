@@ -32,11 +32,6 @@ JadeiteShell class >> showOnSession: aGciSession [
 
 ]
 
-{ #category : 'constants' }
-JadeiteShell >> additionalAccelerators [
-	^#(#(#raiseConsole 'Ctrl+F7'))
-]
-
 { #category : 'private' }
 JadeiteShell >> gciSession [
 
