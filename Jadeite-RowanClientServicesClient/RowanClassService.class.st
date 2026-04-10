@@ -924,14 +924,10 @@ RowanClassService >> shouldBeInTree: presenter [
 
 { #category : 'public' }
 RowanClassService >> shouldColorAsExtension: browser [
-	^browser isNoneProjectSelected
-		ifTrue: [false]
-		ifFalse: 
-			[browser selectedPackageServices isEmpty
-				ifTrue: [false]
-				ifFalse: 
-					[((browser selectedPackageServices collect: [:service | service name]) includes: definedPackageName)
-						not]]
+
+	self todo:
+		'need to figure out defined class for monticello then use super method as guidance'.
+	^ false
 ]
 
 { #category : 'public' }

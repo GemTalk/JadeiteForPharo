@@ -28,11 +28,47 @@ JadeiteBrowserPresenterMonticello >> addMonticelloPackage [
 	self uiManager alert: 'Not Implemented Yet'
 ]
 
+{ #category : 'tab labels' }
+JadeiteBrowserPresenterMonticello >> basicProjectTabLabel [
+	self monticelloPackageListPresenter selectedItems ifEmpty: [
+		^ 'Projects' ].
+	self selectedClass ifNotNil: [ ^ self selectedClass name ].
+	^ self monticelloPackageListPresenter selectedItem tabLabel
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterMonticello >> classListHierarchyTabsChanged [
+
+	self isHierarchyTabSelected
+		ifTrue: [ self updateHierarchy ]
+		ifFalse: [
+				classHierarchyPresenter selectedItem ifNotNil: [ :sel |
+						classListPresenter
+							selectIndex: (classListPresenter items indexOf: sel)
+							scrollToSelection: true ] ].
+	^ self classSelected: self selectedClass
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterMonticello >> connectDictionaryAndClassCategoryPresenters [
+	"not relevant for seaside"
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenterMonticello >> connectPresenters [
 
+	super connectPresenters.
 	monticelloPackageListPresenter
-		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |  ]
+		whenSelectionChangedAndEventsNotSuspendedDo: [ :selection |
+		self monticelloPackageChanged: selection selectedItem ]
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenterMonticello >> dictionaryListPresenter [
+	"not sure if this is going to work but so many times
+	all we send this method for is to check if we have selections"
+
+	^ self monticelloPackageListPresenter
 ]
 
 { #category : 'initialization' }
@@ -50,7 +86,9 @@ JadeiteBrowserPresenterMonticello >> initializeMonticelloPackageListIn: panedPre
 		                                   newNameSortedListFor: self)
 		                                  contextMenu:
 			                                  self newMonticelloPackageMenu;
-		                                  display: #description.
+		                                  display: #description;
+		                                  displayBold: [ :packageService |
+			                                  packageService hasChanges ].
 	self todo: [
 			self monticelloPackageListPresenter
 				wantsDrop: [ :transfer |
@@ -95,6 +133,23 @@ JadeiteBrowserPresenterMonticello >> initializePresenters [
 	projectListPresenter := JadeiteListPresenter new
 ]
 
+{ #category : 'testing' }
+JadeiteBrowserPresenterMonticello >> isNoneProjectSelected [
+
+	^ false
+]
+
+{ #category : 'events' }
+JadeiteBrowserPresenterMonticello >> monticelloPackageChanged: monticelloPackageService [
+
+	monticelloPackageService ifNil: [
+		^ self classListPresenter items: OrderedCollection new ].
+	monticelloPackageService command: #classes.
+	self issueCommand: monticelloPackageService onCompletion: [ :svc |
+			classListPresenter items: svc classes.
+			self updateTabLabel ]
+]
+
 { #category : 'accessing' }
 JadeiteBrowserPresenterMonticello >> monticelloPackageListPresenter [
 
@@ -134,6 +189,12 @@ JadeiteBrowserPresenterMonticello >> newMonticelloPackageMenu [
 		  yourself
 ]
 
+{ #category : 'accessing' }
+JadeiteBrowserPresenterMonticello >> packageListPresenter [
+
+	^ self monticelloPackageListPresenter
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenterMonticello >> postOpen [
 
@@ -146,6 +207,69 @@ JadeiteBrowserPresenterMonticello >> postOpen [
 JadeiteBrowserPresenterMonticello >> removeMonticelloPackage [
 
 	self uiManager alert: 'Not Implemented Yet'
+]
+
+{ #category : 'accessing' }
+JadeiteBrowserPresenterMonticello >> templateForMonticelloPackage: monticelloPackageService [
+
+	| answeringService dictionaryService |
+	self todo: [
+			dictionaryService := self dictionaryListPresenter selectedItem.
+			monticelloPackageService ifNil: [
+					self uiManager defer: [
+							classDefinitionPresenter text:
+								dictionaryService defaultTemplate.
+							classDefinitionPresenter isModified: false ].
+					^ self ].
+			JadeitePreferences isRowanAvailable ifTrue: [
+					self uiManager defer: [
+							classDefinitionPresenter text:
+								(self defaultTemplateForClassCategory:
+									 monticelloPackageService).
+							classDefinitionPresenter isModified: false ].
+					^ self ].
+			answeringService := RowanAnsweringService new
+				                    command:
+					                    #templateForClassCategory:dictionaryName:;
+				                    commandArgs: (Array
+						                     with:
+							                     monticelloPackageService
+								                     classDefinitionTemplateString
+						                     with: dictionaryService name).
+			self issueCommand: answeringService onCompletion: [ :service |
+					self uiManager defer: [
+							classDefinitionPresenter text: service answer.
+							classDefinitionPresenter isModified: false ] ] ]
+]
+
+{ #category : 'initialization' }
+JadeiteBrowserPresenterMonticello >> updateClassDefPresenter [
+
+	self selectedClass ifNotNil: [ :classService |
+			self uiManager defer: [
+					classDefinitionPresenter text:
+						(classService template ifNil: [ String new ]).
+					classDefinitionPresenter isModified: false ].
+			^ self ].
+	self monticelloPackageListPresenter selectedItem ifNil: [
+		^ self markClassDefinitionPaneUnmodified ].
+	self templateForMonticelloPackage:
+		self monticelloPackageListPresenter selectedItem
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterMonticello >> updateHierarchy [
+
+	| service |
+	classHierarchyPresenter clear.
+
+	monticelloPackageListPresenter selectionOrNil ifNil: [ ^ self ].
+	service := classListPresenter selectionOrNil ifNil: [
+		           ^ self updateHierarchyForPacktionaries ].
+	service
+		updateAfterCommand: false;
+		command: #classHierarchy.
+	self issueCommand: service onCompletion: [ ]
 ]
 
 { #category : 'updates' }

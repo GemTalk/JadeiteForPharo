@@ -780,5 +780,5 @@ JadeiteBrowserPresenterWithoutRowan >> updateHierarchyForClassCategories [
 
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateHierarchyForPacktionaries [
-	self updateHierarchyForClassCategories. 
+	self todo: [ 'filter hierarchy for monticello packages' ]
 ]

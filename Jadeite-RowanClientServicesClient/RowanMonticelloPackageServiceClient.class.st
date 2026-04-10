@@ -45,3 +45,9 @@ RowanMonticelloPackageServiceClient >> serviceCompletionBlock: anObject [
 
 	serviceCompletionBlock := anObject
 ]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageServiceClient >> tabLabel [
+
+	^ self name
+]

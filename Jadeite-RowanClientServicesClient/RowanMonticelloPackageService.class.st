@@ -7,7 +7,8 @@ Class {
 		'repositoryGroups',
 		'packageOop',
 		'hasChanges',
-		'changes'
+		'changes',
+		'classes'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -29,6 +30,12 @@ RowanMonticelloPackageService >> changes [
 RowanMonticelloPackageService >> changes: anObject [
 
 	changes := anObject
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> classes [
+
+	^ classes
 ]
 
 { #category : 'accessing' }
