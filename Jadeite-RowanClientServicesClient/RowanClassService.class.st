@@ -925,9 +925,7 @@ RowanClassService >> shouldBeInTree: presenter [
 { #category : 'public' }
 RowanClassService >> shouldColorAsExtension: browser [
 
-	self todo:
-		'need to figure out defined class for monticello then use super method as guidance'.
-	^ false
+	^ self isExtension
 ]
 
 { #category : 'public' }

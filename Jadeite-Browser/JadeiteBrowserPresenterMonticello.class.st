@@ -36,6 +36,16 @@ JadeiteBrowserPresenterMonticello >> basicProjectTabLabel [
 	^ self monticelloPackageListPresenter selectedItem tabLabel
 ]
 
+{ #category : 'testing' }
+JadeiteBrowserPresenterMonticello >> classDisplayColor: classService [
+
+	| color |
+	classService ifNil: [ ^ nil ].
+	classService isExtension ifTrue: [
+		color := self theme jadeiteExtensionTextColor ].
+	^ color
+]
+
 { #category : 'initialization' }
 JadeiteBrowserPresenterMonticello >> classListHierarchyTabsChanged [
 
@@ -139,6 +149,13 @@ JadeiteBrowserPresenterMonticello >> isNoneProjectSelected [
 	^ false
 ]
 
+{ #category : 'testing' }
+JadeiteBrowserPresenterMonticello >> isRowanProjectSelected [
+	"monticello returns the package selections"
+
+	^ self monticelloPackageListPresenter selections notEmpty
+]
+
 { #category : 'events' }
 JadeiteBrowserPresenterMonticello >> monticelloPackageChanged: monticelloPackageService [
 
@@ -147,7 +164,10 @@ JadeiteBrowserPresenterMonticello >> monticelloPackageChanged: monticelloPackage
 			^ self classListPresenter items: OrderedCollection new ].
 	monticelloPackageService command: #classes.
 	self issueCommand: monticelloPackageService onCompletion: [ :svc |
-			classListPresenter items: svc classes.
+			| theClasses |
+			theClasses := svc classes , svc extensionClasses.
+			classListPresenter items:
+				(theClasses asSet asSortedCollection: [ :x :y | x name < y name ]).
 			self updateTabLabel ]
 ]
 
@@ -225,7 +245,9 @@ JadeiteBrowserPresenterMonticello >> resetClassTemplate [
 							classDefinitionPresenter value: selectedItem defaultTemplate ]
 							ifNotNil: [
 									classDefinitionPresenter value:
-										self selectedClassTab activePresenter selectedItem template ] ] ].
+										(self selectedClassTab activePresenter selectedItem
+											 ifNil: [ String new ]
+											 ifNotNil: [ :classService | classService template ]) ] ] ].
 	self markClassDefinitionPaneUnmodified
 ]
 

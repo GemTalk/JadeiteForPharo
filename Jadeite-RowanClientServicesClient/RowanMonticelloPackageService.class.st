@@ -8,7 +8,8 @@ Class {
 		'packageOop',
 		'hasChanges',
 		'changes',
-		'classes'
+		'classes',
+		'extensionClasses'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -48,6 +49,18 @@ RowanMonticelloPackageService >> description [
 RowanMonticelloPackageService >> description: anObject [
 
 	description := anObject
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> extensionClasses [
+
+	^ extensionClasses
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> extensionClasses: anObject [
+
+	extensionClasses := anObject
 ]
 
 { #category : 'accessing' }
