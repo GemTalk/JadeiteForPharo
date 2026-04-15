@@ -47,7 +47,8 @@ Class {
 		'renamedName',
 		'hasSubclasses',
 		'classCategory',
-		'methodsFailingRecompilation'
+		'methodsFailingRecompilation',
+		'isInMonticelloPackage'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
