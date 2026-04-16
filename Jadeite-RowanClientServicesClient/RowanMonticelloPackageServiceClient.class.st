@@ -10,6 +10,17 @@ Class {
 	#package : 'Jadeite-RowanClientServicesClient'
 }
 
+{ #category : 'as yet unclassified' }
+RowanMonticelloPackageServiceClient >> allClassesSorted [
+
+	| sorted |
+	sorted := SortedCollection sortBlock: [ :x :y | x name < y name ].
+	sorted
+		addAll: self classes;
+		addAll: self extensionClasses.
+	^ sorted asArray
+]
+
 { #category : 'accessing' }
 RowanMonticelloPackageServiceClient >> catchBlock [
 

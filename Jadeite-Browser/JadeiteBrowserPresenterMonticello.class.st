@@ -140,7 +140,8 @@ JadeiteBrowserPresenterMonticello >> initializePresenters [
 	listPresenters add: panedLayout4.
 	self initializeLowerTabs.
 	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ].
-	projectListPresenter := JadeiteListPresenter new
+	projectListPresenter := JadeiteListPresenter new.
+	classCategoryPresenter := JadeiteClassCategoryTreePresenter new
 ]
 
 { #category : 'testing' }
@@ -282,6 +283,58 @@ JadeiteBrowserPresenterMonticello >> templateForMonticelloPackage: monticelloPac
 					self uiManager defer: [
 							classDefinitionPresenter text: service answer.
 							classDefinitionPresenter isModified: false ] ] ]
+]
+
+{ #category : 'updates' }
+JadeiteBrowserPresenterMonticello >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
+
+	self suspendSelectionEvents.
+	classService selectedPackageServices:
+		self monticelloPackageListPresenter selectedItems.
+	self updateService: classService onCompletion: [
+			[
+				classService isInMonticelloPackage
+					ifFalse: [
+							| browser |
+							[
+								browser := self browseDictionaries.
+								browser activePresenter
+									basicFindClass: classService
+									methodService: methodService
+									onCompletion: completionBlock ] ensure: [
+								self resumeSelectionEvents ] ]
+					ifTrue: [
+							| monticelloPackageService index |
+							monticelloPackageService := self monticelloPackageListPresenter
+								                            items detect: [ :packageService |
+								                            packageService name
+								                            = classService monticelloPackage ].
+							index := self monticelloPackageListPresenter list indexOf:
+								         monticelloPackageService.
+							self monticelloPackageListPresenter
+								selectIndex: index
+								scrollToSelection: true.
+							monticelloPackageService command: #classes.
+							self issueCommand: monticelloPackageService onCompletion: [
+									self selectClassListTab.
+									self classListPresenter items:
+										monticelloPackageService allClassesSorted.
+									self selectClass: classService completionBlock: [
+											methodListPresenter items: classService methods.
+											methodListPresenter beSorted.
+											classService updateSortedJadeiteCategories:
+												categoryListPresenter.
+											methodService ifNotNil: [
+													| index |
+													self methodListPresenter selection unselectAll.
+													index := self methodListPresenter items indexOf:
+														         methodService.
+													self methodListPresenter
+														selectIndex: index
+														scrollToSelection: true ].
+											completionBlock value.
+											self updateTabLabel ] ] ] ] ensure: [
+				self resumeSelectionEvents ] ]
 ]
 
 { #category : 'initialization' }

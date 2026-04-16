@@ -568,6 +568,18 @@ RowanClassService >> isExtension: anObject [
 ]
 
 { #category : 'accessing' }
+RowanClassService >> isInMonticelloPackage [
+
+	^ isInMonticelloPackage ~= 'nil'
+]
+
+{ #category : 'accessing' }
+RowanClassService >> isInMonticelloPackage: anObject [
+
+	isInMonticelloPackage := anObject
+]
+
+{ #category : 'accessing' }
 RowanClassService >> isInSymbolList [
 	^isInSymbolList
 ]
@@ -691,6 +703,12 @@ RowanClassService >> methodsFailingRecompilation: anObject [
 { #category : 'public' }
 RowanClassService >> methodsWithBreakpoints [
 	^methods detect: [:methodService | methodService breakPoints notEmpty]
+]
+
+{ #category : 'accessing' }
+RowanClassService >> monticelloPackage [
+
+	^ isInMonticelloPackage
 ]
 
 { #category : 'private' }

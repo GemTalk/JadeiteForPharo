@@ -488,7 +488,7 @@ JadeiteBrowser >> selectedPackageServices [
 
 { #category : 'constants' }
 JadeiteBrowser >> shellName [
-	^'System Browser '
+	^'System Browser'
 ]
 
 { #category : 'accessing' }

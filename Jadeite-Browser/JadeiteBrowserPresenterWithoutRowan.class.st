@@ -43,6 +43,45 @@ JadeiteBrowserPresenterWithoutRowan >> addUnpackagedClassesMessageTo: messageStr
 	"no message in JfPwoR"
 ]
 
+{ #category : 'updates' }
+JadeiteBrowserPresenterWithoutRowan >> basicFindClass: classService methodService: methodService onCompletion: completionBlock [
+
+	| methods |
+	^ classService dictionaryName ifNotNil: [
+			  self selectDictionaryNamed: classService dictionaryName.
+			  methods := classService methods.
+			  self
+				  updateService: self dictionaryListPresenter selectedItem
+				  onCompletion: [
+						  classService methods: methods. "the update will clear the classService's methods"
+						  self refreshClassCategoriesFrom:
+							  self dictionaryListPresenter selectedItem.
+						  self setAppropriateMeta: classService.
+						  self isHierarchyTabSelected ifTrue: [
+							  self selectedClass = classService ifFalse: [
+								  self selectClassListTab ] ].
+						  self selectClassCategoryFor: classService.
+						  self
+							  updateClassesForClassCategories:
+							  self classCategoryPresenter selectedItems
+							  using: self dictionaryListPresenter selectedItem.
+						  self selectClass: classService completionBlock: [
+								  methodListPresenter items: classService methods.
+								  methodListPresenter beSorted.
+								  classService updateSortedJadeiteCategories:
+									  categoryListPresenter.
+								  methodService ifNotNil: [
+										  | index |
+										  self methodListPresenter selection unselectAll.
+										  index := self methodListPresenter items indexOf:
+											           methodService.
+										  self methodListPresenter
+											  selectIndex: index
+											  scrollToSelection: true ].
+								  completionBlock value.
+								  self updateTabLabel ] ] ] "might not be a valid class, say in a preference"
+]
+
 { #category : 'tab labels' }
 JadeiteBrowserPresenterWithoutRowan >> basicProjectTabLabel [
 
@@ -535,43 +574,14 @@ JadeiteBrowserPresenterWithoutRowan >> templateForClassCategory: classCategory [
 { #category : 'updates' }
 JadeiteBrowserPresenterWithoutRowan >> updateAfterFindClass: classService methodService: methodService onCompletion: completionBlock [
 
-	| methods |
 	self suspendSelectionEvents.
 	self updateService: classService onCompletion: [
-		[ "might not be a valid class, say in a preference"
-		classService dictionaryName ifNotNil: [
-			self selectDictionaryNamed: classService dictionaryName.
-			methods := classService methods.
-			self
-				updateService: self dictionaryListPresenter selectedItem
-				onCompletion: [
-					classService methods: methods. "the update will clear the classService's methods"
-					self refreshClassCategoriesFrom:
-						self dictionaryListPresenter selectedItem.
-					self setAppropriateMeta: classService.
-					self isHierarchyTabSelected ifTrue: [
-						self selectedClass = classService ifFalse: [
-							self selectClassListTab ] ].
-					self selectClassCategoryFor: classService.
-					self
-						updateClassesForClassCategories:
-						self classCategoryPresenter selectedItems
-						using: self dictionaryListPresenter selectedItem.
-					self selectClass: classService completionBlock: [
-						methodListPresenter items: classService methods.
-						methodListPresenter beSorted.
-						classService updateSortedJadeiteCategories:
-							categoryListPresenter.
-						methodService ifNotNil: [
-							| index |
-							self methodListPresenter selection unselectAll.
-							index := self methodListPresenter items indexOf: methodService.
-							self methodListPresenter
-								selectIndex: index
-								scrollToSelection: true ].
-						completionBlock value.
-						self updateTabLabel ] ] ] ] ensure: [
-			self resumeSelectionEvents ] ]
+			[
+				self
+					basicFindClass: classService
+					methodService: methodService
+					onCompletion: completionBlock ] ensure: [
+				self resumeSelectionEvents ] ]
 ]
 
 { #category : 'updates' }

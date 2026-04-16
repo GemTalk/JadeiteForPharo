@@ -147,6 +147,17 @@ JadeiteProjectsTrait >> basicUnloadProjects: projectNames onCompletion: completi
 		onCompletion: [ self refreshGlobalSelections. completionBlock value ]
 ]
 
+{ #category : 'actions' }
+JadeiteProjectsTrait >> browseDictionaries [
+
+	| browser |
+	browser := JadeiteBrowserWithoutRowan new owner: self.
+	browser gciSession: self gciSession.
+	browser postOpenBlock: [ ].
+	browser basicOpenBrowser: browser.
+	^ browser
+]
+
 { #category : 'as yet unclassified' }
 JadeiteProjectsTrait >> browseProject [
 

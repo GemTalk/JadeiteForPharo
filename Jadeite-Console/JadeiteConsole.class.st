@@ -123,16 +123,6 @@ JadeiteConsole >> basicOpenServerFile: filePath [
 ]
 
 { #category : 'actions' }
-JadeiteConsole >> browseDictionaries [
-
-	| browser |
-	browser := JadeiteBrowserWithoutRowan new owner: self.
-	browser postOpenBlock: [ ].
-	self basicOpenBrowser: browser.
-	^ browser
-]
-
-{ #category : 'actions' }
 JadeiteConsole >> browseJadeitePrefs [
 	^JadeitePreferencesWorkspace browseJadeitePrefs: self gciSession
 ]

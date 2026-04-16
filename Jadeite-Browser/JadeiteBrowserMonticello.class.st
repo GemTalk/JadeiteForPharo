@@ -10,3 +10,8 @@ JadeiteBrowserMonticello class >> browserPresenterClass [
 
 	^ JadeiteBrowserPresenterMonticello
 ]
+
+{ #category : 'constants' }
+JadeiteBrowserMonticello >> shellName [
+	^'System Monticello Browser'
+]

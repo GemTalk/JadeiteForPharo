@@ -77,7 +77,6 @@ RowanBrowserService >> classHierarchyUpdate: presenter browser: browser [
 { #category : 'public' }
 RowanBrowserService >> dictionaryListUpdate: presenter [
 	"no sort. dictionaries maintain their server order"
-
 	presenter list isEmpty ifTrue: [ presenter list: ListModel new ].
 	dictionaries ifNil: [ ^ self ].
 	dictionaries = presenter list
