@@ -36,9 +36,69 @@ JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: applica
 ]
 
 { #category : 'actions' }
-JadeiteMonticelloBrowser >> addRepository [
+JadeiteMonticelloBrowser >> addFiletreeRepository [
 
-	self uiManager alert: 'add respository not implemented yet!'
+	| directoryString |
+	directoryString := JadeiteServerFileSelectorDialog
+		                   showOnSession: gciSession
+		                   defaultPath: JadePresenter homeEnvVarString.
+	directoryString ifNil: [ ^ self ].
+	self monticelloPackageService
+		command: #addFiletreeRepository:;
+		commandArgs: (Array with: directoryString).
+	self gciSession
+		issueCommand: self monticelloPackageService
+		onCompletion: [ self updateRepositories ]
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> addGithubRepository [
+
+	| urlString |
+	urlString := self application newRequest
+		             title: 'Github url request';
+		             label: 'Enter complete Github url string';
+		             openModalWithParent: self window.
+	urlString ifNil: [ ^ self ].
+	self monticelloPackageService
+		command: #addGithubRepository:;
+		commandArgs: (Array with: urlString).
+	self gciSession
+		issueCommand: self monticelloPackageService
+		onCompletion: [ self updateRepositories ]
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> addHttpRepository [
+
+	| urlString |
+	urlString := self application newRequest
+		             title: 'HTTP url request';
+		             label: 'Enter complete HTTP url string';
+		             openModalWithParent: self window.
+	urlString ifNil: [ ^ self ].
+	self monticelloPackageService
+		command: #addHttpRepository:;
+		commandArgs: (Array with: urlString).
+	self gciSession
+		issueCommand: self monticelloPackageService
+		onCompletion: [ self updateRepositories ]
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> addMCZRepository [
+
+	| directoryString |
+	directoryString := JadeiteServerFileSelectorDialog
+		                   showOnSession: gciSession
+		                   defaultPath: JadePresenter homeEnvVarString.
+	directoryString ifNil: [ ^ self ].
+	self monticelloPackageService
+		command: #addMCZRepository:;
+		commandArgs: (Array with: directoryString).
+	self gciSession
+		issueCommand: self monticelloPackageService
+		onCompletion: [ self updateRepositories ]
 ]
 
 { #category : 'initialization' }
@@ -120,11 +180,27 @@ JadeiteMonticelloBrowser >> newPackageMenu [
 { #category : 'menus' }
 JadeiteMonticelloBrowser >> newRepositoryMenu [
 
-	^ JadeiteMenuPresenter new addGroup: [ :group |
-			  group addItem: [ :item |
-					  item
-						  name: 'Add Repository';
-						  action: [ self addRepository ] ] ]
+	^ JadeiteMenuPresenter new
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Attach Http Repository';
+								  action: [ self addHttpRepository ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Attach Github Repository';
+								  action: [ self addGithubRepository ] ] ];
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Attach MCZ Repository';
+								  action: [ self addMCZRepository ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Attach Filetree Repository';
+								  action: [ self addFiletreeRepository ] ] ]
 ]
 
 { #category : 'accessing' }
