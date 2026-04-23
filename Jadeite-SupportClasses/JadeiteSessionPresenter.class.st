@@ -1,5 +1,5 @@
 "
-Superclass for Jaded's presenters. 
+Superclass for Jadeite's presenters. 
 Provides things like hooks to register presenters for updates.
 "
 Class {

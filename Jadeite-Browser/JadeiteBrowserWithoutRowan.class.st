@@ -78,3 +78,8 @@ JadeiteBrowserWithoutRowan >> initializeWindow: aWindowPresenter [
 	aWindowPresenter whenOpenedDo: [
 		self activePresenter ifNotNil: [ :pres | pres updateSUnitTab ] ]
 ]
+
+{ #category : 'constants' }
+JadeiteBrowserWithoutRowan >> shellName [
+	^'System Dictionary Browser'
+]

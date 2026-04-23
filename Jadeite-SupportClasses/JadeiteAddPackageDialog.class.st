@@ -144,6 +144,13 @@ JadeiteAddPackageDialog >> projectService: anObject [
 	projectService := anObject
 ]
 
+{ #category : 'constants' }
+JadeiteAddPackageDialog >> shellName [
+
+	^'Add Package'
+
+]
+
 { #category : 'accessing' }
 JadeiteAddPackageDialog >> symbolDictionaryName [
 

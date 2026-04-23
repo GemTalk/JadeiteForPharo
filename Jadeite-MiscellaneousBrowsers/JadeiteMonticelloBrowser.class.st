@@ -71,8 +71,10 @@ JadeiteMonticelloBrowser >> addGithubRepository [
 { #category : 'actions' }
 JadeiteMonticelloBrowser >> addHttpRepository [
 
-	| urlString |
-	urlString := self application newRequest
+	"| urlString |"
+	JadeiteMonticelloAddRepositoryDialog showOnSession: self gciSession packageService: self monticelloPackageService.
+	
+"	urlString := self application newRequest
 		             title: 'HTTP url request';
 		             label: 'Enter complete HTTP url string';
 		             openModalWithParent: self window.
@@ -82,7 +84,7 @@ JadeiteMonticelloBrowser >> addHttpRepository [
 		commandArgs: (Array with: urlString).
 	self gciSession
 		issueCommand: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]
+		onCompletion: [ self updateRepositories ]"
 ]
 
 { #category : 'actions' }
