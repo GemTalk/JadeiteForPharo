@@ -415,7 +415,10 @@ JadeiteAbstractTestCase >> executeStringInOtherSession: string [
 { #category : 'support' }
 JadeiteAbstractTestCase >> forceReconnect [
 
-	self jadeiteTestResourceClass current connect.
+	user ifNil: [ user := 'SystemUser' ].
+	self jadeiteTestResourceClass current
+		user: user;
+		connect.
 	jadeiteShell := JadeiteConsole currentConsole
 ]
 
@@ -1281,7 +1284,6 @@ JadeiteAbstractTestCase >> setRemoteAutoCommit: aBoolean onCompletion: completio
 JadeiteAbstractTestCase >> setUp [
 
 	super setUp.
-	user ifNil: [ user := 'SystemUser' ].
 	self forceReconnect.
 	session := self jadeiteTestResourceClass current session.
 	transcript := self jadeiteTestResourceClass current transcript.

@@ -609,3 +609,9 @@ JadeiteTestResource >> updateServices: services [
 		session: self gciSession
 		onCompletion: [ ]
 ]
+
+{ #category : 'accessing' }
+JadeiteTestResource >> user: aUserName [
+
+	testConnectionProfile user: aUserName
+]

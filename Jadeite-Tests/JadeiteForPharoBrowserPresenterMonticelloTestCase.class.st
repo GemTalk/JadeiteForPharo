@@ -28,9 +28,30 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> performTest [
 	^ super performTest
 ]
 
+{ #category : 'support' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> selectServiceNamed: name in: presenter [
+
+	| service |
+	service := presenter list
+		           detect: [ :monticelloPackageService |
+		           monticelloPackageService name = name ]
+		           ifNone: [
+		           self error: 'Service expected to be in list not found' ].
+	presenter selectItem: service
+]
+
+{ #category : 'support' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> setUp [
+
+	user := 'DataCurator'.
+	super setUp
+]
+
 { #category : 'tests' }
 JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_selectPackageDisplaysClasses [
 
-	self selectServiceNamed: 'Announcements' in: self dictionaryListPresenter.
+	self
+		selectServiceNamed: 'Announcements'
+		in: self projectsPresenter monticelloPackageListPresenter.
 	self deny: self classListPresenter items isEmpty
 ]
