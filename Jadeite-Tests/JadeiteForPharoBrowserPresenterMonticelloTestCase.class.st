@@ -48,6 +48,21 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> setUp [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_hasChangesDisplaysBoldWithAsterix [
+
+	| packageListPresenter |
+	packageListPresenter := self projectsPresenter monticelloPackageListPresenter.
+	packageListPresenter items do: [ :packageService |
+		packageService hasChanges
+			ifTrue: [
+				self assert: packageService description first equals: $*.
+				self assert: (packageListPresenter displayBold value: packageService) ]
+			ifFalse: [
+				self deny: packageService description first equals: $*.
+				self deny: (packageListPresenter displayBold value: packageService) ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_selectPackageDisplaysClasses [
 
 	self
