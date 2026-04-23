@@ -50,8 +50,9 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> setUp [
 { #category : 'tests' }
 JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_basicProjectTabLabel [
 
-	| packageListPresenter firstClass |
+	| packageListPresenter classListPresenter firstClass |
 	packageListPresenter := self projectsPresenter monticelloPackageListPresenter.
+	classListPresenter := self classListPresenter.
 	self
 		assert: self projectsPresenter basicProjectTabLabel
 		equals: 'Projects'.
@@ -59,11 +60,19 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_basicProjectTabLabel [
 	self
 		assert: self projectsPresenter basicProjectTabLabel
 		equals: 'Announcements'.
-	firstClass := self classListPresenter items first.
-	self selectServiceNamed: firstClass name in: self classListPresenter.
+	firstClass := classListPresenter items first.
+	self selectServiceNamed: firstClass name in: classListPresenter.
 	self
 		assert: self projectsPresenter basicProjectTabLabel
-		equals: firstClass name
+		equals: firstClass name.
+	classListPresenter resetSelection.
+	self
+		assert: self projectsPresenter basicProjectTabLabel
+		equals: 'Announcements'.
+	packageListPresenter resetSelection.
+	self
+		assert: self projectsPresenter basicProjectTabLabel
+		equals: 'Projects'
 ]
 
 { #category : 'tests' }
