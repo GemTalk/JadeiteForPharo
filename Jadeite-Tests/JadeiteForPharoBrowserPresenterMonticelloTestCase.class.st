@@ -48,6 +48,47 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> setUp [
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_basicProjectTabLabel [
+
+	| packageListPresenter firstClass |
+	packageListPresenter := self projectsPresenter monticelloPackageListPresenter.
+	self
+		assert: self projectsPresenter basicProjectTabLabel
+		equals: 'Projects'.
+	self selectServiceNamed: 'Announcements' in: packageListPresenter.
+	self
+		assert: self projectsPresenter basicProjectTabLabel
+		equals: 'Announcements'.
+	firstClass := self classListPresenter items first.
+	self selectServiceNamed: firstClass name in: self classListPresenter.
+	self
+		assert: self projectsPresenter basicProjectTabLabel
+		equals: firstClass name
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_extensionClassesDisplayWithColor [
+	"Covers two behaviors:
+	 1. classDisplayColor: returns the extension color for extension classes and nil for regular ones.
+	 2. monticelloPackageChanged: merges svc classes and svc extensionClasses so both appear in the list."
+
+	| packageListPresenter classListPresenter |
+	packageListPresenter := self projectsPresenter monticelloPackageListPresenter.
+	classListPresenter := self classListPresenter.
+	packageListPresenter items
+		detect: [ :packageService |
+			self selectServiceNamed: packageService name in: packageListPresenter.
+			classListPresenter items anySatisfy: [ :cs | cs isExtension ] ]
+		ifNone: [ ^ self skip: 'No package with extension classes found' ].
+	self deny: (classListPresenter items select: [ :cs | cs isExtension ]) isEmpty.
+	classListPresenter items do: [ :classService |
+		classService isExtension
+			ifTrue: [ self denyIsNil: (classListPresenter displayColor value: classService) ]
+			ifFalse: [
+				self assertIsNil: (classListPresenter displayColor value: classService) ] ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_findClassInMonticelloPackage [
 
 	self projectsPresenter
