@@ -48,21 +48,6 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> setUp [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_hasChangesDisplaysBoldWithAsterix [
-
-	| packageListPresenter |
-	packageListPresenter := self projectsPresenter monticelloPackageListPresenter.
-	packageListPresenter items do: [ :packageService |
-		packageService hasChanges
-			ifTrue: [
-				self assert: packageService description first equals: $*.
-				self assert: (packageListPresenter displayBold value: packageService) ]
-			ifFalse: [
-				self deny: packageService description first equals: $*.
-				self deny: (packageListPresenter displayBold value: packageService) ] ]
-]
-
-{ #category : 'tests' }
 JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_findClassInMonticelloPackage [
 
 	self projectsPresenter
@@ -83,15 +68,33 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_findClassNotInMonticel
 	| browsersBefore newBrowser |
 	browsersBefore := JadeiteBrowserWithoutRowan allInstances asArray.
 	self projectsPresenter
-		updateAfterFindClass: (RowanClassService new name: 'OrderedCollection')
+		updateAfterFindClass:
+		(RowanClassService new name: 'OrderedCollection')
 		methodService: nil
-		onCompletion: [  ].
-	newBrowser := JadeiteBrowserWithoutRowan allInstances
-		              detect: [ :browser | (browsersBefore includes: browser) not ].
-	[
-	self
-		assert: newBrowser activePresenter classListPresenter selectedItem name
-		equals: 'OrderedCollection' ] ensure: [ self destroy: newBrowser ]
+		onCompletion: [
+				newBrowser := JadeiteBrowserWithoutRowan allInstances detect: [
+					              :browser | (browsersBefore includes: browser) not ].
+				[
+					self
+						assert:
+						newBrowser activePresenter classListPresenter selectedItem name
+						equals: 'OrderedCollection' ] ensure: [
+					self destroy: newBrowser ] ]
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_hasChangesDisplaysBoldWithAsterix [
+
+	| packageListPresenter |
+	packageListPresenter := self projectsPresenter monticelloPackageListPresenter.
+	packageListPresenter items do: [ :packageService |
+		packageService hasChanges
+			ifTrue: [
+				self assert: packageService description first equals: $*.
+				self assert: (packageListPresenter displayBold value: packageService) ]
+			ifFalse: [
+				self deny: packageService description first equals: $*.
+				self deny: (packageListPresenter displayBold value: packageService) ] ]
 ]
 
 { #category : 'tests' }
