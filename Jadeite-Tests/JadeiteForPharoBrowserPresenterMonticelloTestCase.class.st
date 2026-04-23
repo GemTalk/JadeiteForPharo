@@ -63,6 +63,38 @@ JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_hasChangesDisplaysBold
 ]
 
 { #category : 'tests' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_findClassInMonticelloPackage [
+
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'Announcer')
+		methodService: nil
+		onCompletion: [  ].
+	self
+		assert: self classListPresenter selectedItem name
+		equals: 'Announcer'.
+	self
+		assert: self projectsPresenter monticelloPackageListPresenter selectedItem name
+		equals: 'Announcements'
+]
+
+{ #category : 'tests' }
+JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_findClassNotInMonticelloPackage [
+
+	| browsersBefore newBrowser |
+	browsersBefore := JadeiteBrowserWithoutRowan allInstances asArray.
+	self projectsPresenter
+		updateAfterFindClass: (RowanClassService new name: 'OrderedCollection')
+		methodService: nil
+		onCompletion: [  ].
+	newBrowser := JadeiteBrowserWithoutRowan allInstances
+		              detect: [ :browser | (browsersBefore includes: browser) not ].
+	[
+	self
+		assert: newBrowser activePresenter classListPresenter selectedItem name
+		equals: 'OrderedCollection' ] ensure: [ self destroy: newBrowser ]
+]
+
+{ #category : 'tests' }
 JadeiteForPharoBrowserPresenterMonticelloTestCase >> test_selectPackageDisplaysClasses [
 
 	self
