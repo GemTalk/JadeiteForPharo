@@ -90,7 +90,7 @@ JadeiteMonticelloAddRepositoryDialog >> connectPresenters [
 { #category : 'layout' }
 JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 
-	| labelWidth typeRow urlRow buttonRow |
+	| labelWidth typeRow urlRow buttonRow outer |
 	labelWidth := 130.
 
 	typeRow := SpBoxLayout newHorizontal
@@ -115,12 +115,14 @@ JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 	buttonRow := SpBoxLayout newHorizontal.
 	buttonRow addLast: addRepositoryButton expand: false.
 
-	^ SpBoxLayout newVertical
-		  spacing: 10;
-		  add: typeRow expand: false;
-		  add: urlRow expand: false;
-		  add: buttonRow expand: false;
-		  yourself
+	outer := SpBoxLayout newVertical.
+	outer borderWidth: 8.
+	outer
+		spacing: 10;
+		add: typeRow expand: false;
+		add: urlRow expand: false;
+		add: buttonRow expand: false.
+	^ outer
 ]
 
 { #category : 'initialization' }
@@ -136,7 +138,7 @@ JadeiteMonticelloAddRepositoryDialog >> initializePresenters [
 	fileDialogPresenter := self newButton
 		                       label: 'Choose...';
 		                       action: [ self openFileDialog ].
-	fileDialogPresenter hide.
+	fileDialogPresenter enabled: false.
 	addRepositoryButton := self newButton
 		                       label: 'Add Repository';
 		                       action: [ self addRepository ]
@@ -181,9 +183,7 @@ JadeiteMonticelloAddRepositoryDialog >> updateForRepositoryType [
 	| selectedType isFileBased |
 	selectedType := repositoryTypePresenter selectedItem.
 	isFileBased := #( #FileTree #MCZ ) includes: selectedType.
-	isFileBased
-		ifTrue: [ fileDialogPresenter show ]
-		ifFalse: [ fileDialogPresenter hide ].
+	fileDialogPresenter enabled: isFileBased.
 	urlLabelPresenter label: (self urlLabelForType: selectedType)
 ]
 
