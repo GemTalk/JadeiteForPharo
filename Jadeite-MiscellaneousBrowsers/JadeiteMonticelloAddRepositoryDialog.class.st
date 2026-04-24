@@ -3,6 +3,7 @@ Class {
 	#superclass : 'JadeiteSessionPresenter',
 	#instVars : [
 		'repositoryTypePresenter',
+		'repositoryTypeLabelPresenter',
 		'urlPresenter',
 		'urlLabelPresenter',
 		'monticelloPackageService',
@@ -17,7 +18,7 @@ Class {
 { #category : 'accessing' }
 JadeiteMonticelloAddRepositoryDialog class >> defaultPreferredExtent [
 	"customExtent := nil"
-	^ 60 @ 15
+	^ 60 @ 20
 
 ]
 
@@ -89,16 +90,36 @@ JadeiteMonticelloAddRepositoryDialog >> connectPresenters [
 { #category : 'layout' }
 JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 
-	^ SpGridLayout new
-		  beColumnNotHomogeneous;
-		  add: 'Repository Type:' atPoint: 1 @ 1;
-		  add: repositoryTypePresenter atPoint: 2 @ 1 span: 4 @ 1;
-		  add: urlLabelPresenter atPoint: 1 @ 2;
-		  add: urlPresenter atPoint: 2 @ 2 span: 3 @ 1;
-		  add: fileDialogPresenter atPoint: 5 @ 2;
-		  add: (SpBoxLayout newHorizontal
-				   addLast: addRepositoryButton expand: false;
-				   yourself) atPoint: 1 @ 3 span: 5 @ 1;
+	| labelWidth typeRow urlRow buttonRow |
+	labelWidth := 130.
+
+	typeRow := SpBoxLayout newHorizontal
+		           spacing: 8;
+		           yourself.
+	typeRow
+		add: repositoryTypeLabelPresenter
+		withConstraints: [ :c | c width: labelWidth ].
+	typeRow
+		add: repositoryTypePresenter
+		withConstraints: [ :c | c width: 160 ].
+
+	urlRow := SpBoxLayout newHorizontal
+		          spacing: 4;
+		          yourself.
+	urlRow
+		add: urlLabelPresenter
+		withConstraints: [ :c | c width: labelWidth ].
+	urlRow add: urlPresenter.
+	urlRow add: fileDialogPresenter expand: false.
+
+	buttonRow := SpBoxLayout newHorizontal.
+	buttonRow addLast: addRepositoryButton expand: false.
+
+	^ SpBoxLayout newVertical
+		  spacing: 10;
+		  add: typeRow expand: false;
+		  add: urlRow expand: false;
+		  add: buttonRow expand: false;
 		  yourself
 ]
 
@@ -107,6 +128,7 @@ JadeiteMonticelloAddRepositoryDialog >> initializePresenters [
 
 	super initializePresenters.
 	completionBlock := [  ].
+	repositoryTypeLabelPresenter := self newLabel label: 'Repository Type:'.
 	repositoryTypePresenter := self newDropList.
 	repositoryTypePresenter items: #( #HTTP #FileTree #Github #MCZ ).
 	urlLabelPresenter := self newLabel label: 'URL:'.
