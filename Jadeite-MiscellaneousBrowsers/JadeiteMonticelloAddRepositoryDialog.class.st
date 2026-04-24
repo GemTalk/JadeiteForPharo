@@ -4,6 +4,7 @@ Class {
 	#instVars : [
 		'repositoryTypePresenter',
 		'urlPresenter',
+		'urlLabelPresenter',
 		'monticelloPackageService',
 		'fileDialogPresenter',
 		'addRepositoryButton',
@@ -16,7 +17,7 @@ Class {
 { #category : 'accessing' }
 JadeiteMonticelloAddRepositoryDialog class >> defaultPreferredExtent [
 	"customExtent := nil"
-	^ 60 @ 30
+	^ 60 @ 15
 
 ]
 
@@ -82,23 +83,23 @@ JadeiteMonticelloAddRepositoryDialog >> connectPresenters [
 
 	super connectPresenters.
 	repositoryTypePresenter whenSelectedItemChangedDo: [ :thing |
-		self showHideDirectoryButton  ]
+		self updateForRepositoryType ]
 ]
 
 { #category : 'layout' }
 JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 
 	^ SpGridLayout new
-		  add: 'URL:' atPoint: 1 @ 1;
-		  add: urlPresenter atPoint: 1 @ 2 span: 4 @ 1;
+		  beColumnNotHomogeneous;
+		  add: 'Repository Type:' atPoint: 1 @ 1;
+		  add: repositoryTypePresenter atPoint: 2 @ 1 span: 4 @ 1;
+		  add: urlLabelPresenter atPoint: 1 @ 2;
+		  add: urlPresenter atPoint: 2 @ 2 span: 3 @ 1;
 		  add: fileDialogPresenter atPoint: 5 @ 2;
-		  add: 'Repository Type:' atPoint: 1 @ 6;
-		  add: repositoryTypePresenter atPoint: 2 @ 6;
 		  add: (SpBoxLayout newHorizontal
-				   addLast: #addRepositoryButton;
-				   yourself)
-		  atPoint: 1 @ 9;
-		  beColumnNotHomogeneous
+				   addLast: addRepositoryButton expand: false;
+				   yourself) atPoint: 1 @ 3 span: 5 @ 1;
+		  yourself
 ]
 
 { #category : 'initialization' }
@@ -106,13 +107,14 @@ JadeiteMonticelloAddRepositoryDialog >> initializePresenters [
 
 	super initializePresenters.
 	completionBlock := [  ].
-	urlPresenter := self newTextInput.
-	fileDialogPresenter := self newButton
-		                       label: 'Choose';
-		                       action: [ self openFileDialog ].
-	fileDialogPresenter hide.
 	repositoryTypePresenter := self newDropList.
 	repositoryTypePresenter items: #( #HTTP #FileTree #Github #MCZ ).
+	urlLabelPresenter := self newLabel label: 'URL:'.
+	urlPresenter := self newTextInput.
+	fileDialogPresenter := self newButton
+		                       label: 'Choose...';
+		                       action: [ self openFileDialog ].
+	fileDialogPresenter hide.
 	addRepositoryButton := self newButton
 		                       label: 'Add Repository';
 		                       action: [ self addRepository ]
@@ -148,14 +150,25 @@ JadeiteMonticelloAddRepositoryDialog >> openFileDialog [
 { #category : 'constants' }
 JadeiteMonticelloAddRepositoryDialog >> shellName [
 
-	^'Add Repository Dialog'
-
+	^ 'Add Repository'
 ]
 
 { #category : 'actions' }
-JadeiteMonticelloAddRepositoryDialog >> showHideDirectoryButton [
+JadeiteMonticelloAddRepositoryDialog >> updateForRepositoryType [
 
-	(#( #FileTree #MCZ ) includes: repositoryTypePresenter selectedItem)
-		ifTrue: [ ^ fileDialogPresenter show ].
-	fileDialogPresenter hide
+	| selectedType isFileBased |
+	selectedType := repositoryTypePresenter selectedItem.
+	isFileBased := #( #FileTree #MCZ ) includes: selectedType.
+	isFileBased
+		ifTrue: [ fileDialogPresenter show ]
+		ifFalse: [ fileDialogPresenter hide ].
+	urlLabelPresenter label: (self urlLabelForType: selectedType)
+]
+
+{ #category : 'private' }
+JadeiteMonticelloAddRepositoryDialog >> urlLabelForType: aSymbol [
+
+	aSymbol = #FileTree ifTrue: [ ^ 'Directory:' ].
+	aSymbol = #MCZ ifTrue: [ ^ 'File path:' ].
+	^ 'URL:'
 ]
