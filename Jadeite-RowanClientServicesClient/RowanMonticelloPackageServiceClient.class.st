@@ -37,8 +37,7 @@ RowanMonticelloPackageServiceClient >> catchBlock: anObject [
 RowanMonticelloPackageServiceClient >> descriptionInsideParens [
 
 	| abbrevDescription indexOfLeftParen indexOfRightParen |
-	abbrevDescription := self description.
-	indexOfLeftParen := self description indexOf: $(.
+	indexOfLeftParen := self description indexOf: $(. "if not found copy from start of string"
 	indexOfRightParen := self description indexOf: $).
 	indexOfRightParen := indexOfRightParen = 0
 		                     ifTrue: [ self description size ]

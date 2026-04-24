@@ -227,8 +227,8 @@ JadeiteMonticelloBrowser >> selectLoadedPackage [
 	| index package |
 	package := self packagesPresenter list
 		           detect: [ :availablePackage |
-				           availablePackage descriptionInsideParens match:
-					           monticelloPackageService descriptionInsideParens ]
+				           availablePackage descriptionInsideParens
+				           = monticelloPackageService descriptionInsideParens ]
 		           ifNone: [ ^ self ].
 	index := self packagesPresenter list indexOf: package.
 	self packagesPresenter selectIndex: index scrollToSelection: true
