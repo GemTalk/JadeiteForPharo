@@ -6,7 +6,8 @@ Class {
 		'urlPresenter',
 		'monticelloPackageService',
 		'fileDialogPresenter',
-		'addRepositoryButton'
+		'addRepositoryButton',
+		'completionBlock'
 	],
 	#category : 'Jadeite-MiscellaneousBrowsers',
 	#package : 'Jadeite-MiscellaneousBrowsers'
@@ -16,27 +17,71 @@ Class {
 JadeiteMonticelloAddRepositoryDialog class >> defaultPreferredExtent [
 	"customExtent := nil"
 	^ 60 @ 30
-	
+
 ]
 
 { #category : 'instance creation' }
 JadeiteMonticelloAddRepositoryDialog class >> showOnSession: aGciSession packageService: monticelloPackageService [
 
+	^ self
+		  showOnSession: aGciSession
+		  packageService: monticelloPackageService
+		  onCompletion: [  ]
+]
+
+{ #category : 'instance creation' }
+JadeiteMonticelloAddRepositoryDialog class >> showOnSession: aGciSession packageService: monticelloPackageService onCompletion: aBlock [
+
 	^ self new
 		  gciSession: aGciSession;
 		  monticelloPackageService: monticelloPackageService;
+		  completionBlock: aBlock;
 		  open
 ]
 
 { #category : 'actions' }
 JadeiteMonticelloAddRepositoryDialog >> addRepository [
+
+	| urlString commandSymbol |
+	urlString := urlPresenter text.
+	(urlString isNil or: [ urlString isEmpty ]) ifTrue: [ ^ self ].
+	commandSymbol := self commandForRepositoryType:
+		                 repositoryTypePresenter selectedItem.
+	self monticelloPackageService
+		command: commandSymbol;
+		commandArgs: (Array with: urlString).
+	self gciSession
+		issueCommand: self monticelloPackageService
+		onCompletion: [ completionBlock value ]
+]
+
+{ #category : 'private' }
+JadeiteMonticelloAddRepositoryDialog >> commandForRepositoryType: aSymbol [
+
+	aSymbol = #HTTP ifTrue: [ ^ #addHttpRepository: ].
+	aSymbol = #FileTree ifTrue: [ ^ #addFiletreeRepository: ].
+	aSymbol = #Github ifTrue: [ ^ #addGithubRepository: ].
+	aSymbol = #MCZ ifTrue: [ ^ #addMCZRepository: ].
+	^ self error: 'Unknown repository type: ' , aSymbol
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloAddRepositoryDialog >> completionBlock [
+
+	^ completionBlock
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloAddRepositoryDialog >> completionBlock: aBlock [
+
+	completionBlock := aBlock
 ]
 
 { #category : 'initialization' }
 JadeiteMonticelloAddRepositoryDialog >> connectPresenters [
 
 	super connectPresenters.
-	repositoryTypePresenter whenSelectedItemChangedDo: [ :thing | 
+	repositoryTypePresenter whenSelectedItemChangedDo: [ :thing |
 		self showHideDirectoryButton  ]
 ]
 
@@ -60,6 +105,7 @@ JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 JadeiteMonticelloAddRepositoryDialog >> initializePresenters [
 
 	super initializePresenters.
+	completionBlock := [  ].
 	urlPresenter := self newTextInput.
 	fileDialogPresenter := self newButton
 		                       label: 'Choose';
@@ -86,6 +132,17 @@ JadeiteMonticelloAddRepositoryDialog >> monticelloPackageService: anObject [
 
 { #category : 'actions' }
 JadeiteMonticelloAddRepositoryDialog >> openFileDialog [
+
+	| shellName path |
+	shellName := repositoryTypePresenter selectedItem = #MCZ
+		             ifTrue: [ 'Choose MCZ File' ]
+		             ifFalse: [ 'Choose Filetree Directory' ].
+	path := JadeiteServerFileSelectorDialog
+		        showOnSession: self gciSession
+		        defaultPath: JadePresenter homeEnvVarString
+		        shellName: shellName.
+	path ifNil: [ ^ self ].
+	urlPresenter text: path
 ]
 
 { #category : 'constants' }

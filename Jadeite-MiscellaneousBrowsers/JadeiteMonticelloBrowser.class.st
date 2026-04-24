@@ -69,22 +69,12 @@ JadeiteMonticelloBrowser >> addGithubRepository [
 ]
 
 { #category : 'actions' }
-JadeiteMonticelloBrowser >> addHttpRepository [
+JadeiteMonticelloBrowser >> addRepository [
 
-	"| urlString |"
-	JadeiteMonticelloAddRepositoryDialog showOnSession: self gciSession packageService: self monticelloPackageService.
-	
-"	urlString := self application newRequest
-		             title: 'HTTP url request';
-		             label: 'Enter complete HTTP url string';
-		             openModalWithParent: self window.
-	urlString ifNil: [ ^ self ].
-	self monticelloPackageService
-		command: #addHttpRepository:;
-		commandArgs: (Array with: urlString).
-	self gciSession
-		issueCommand: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]"
+	JadeiteMonticelloAddRepositoryDialog
+		showOnSession: self gciSession
+		packageService: self monticelloPackageService
+		onCompletion: [ self updateRepositories ]
 ]
 
 { #category : 'actions' }
@@ -184,25 +174,10 @@ JadeiteMonticelloBrowser >> newRepositoryMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-				  group
-					  addItem: [ :item |
-							  item
-								  name: 'Attach Http Repository';
-								  action: [ self addHttpRepository ] ];
-					  addItem: [ :item |
-							  item
-								  name: 'Attach Github Repository';
-								  action: [ self addGithubRepository ] ] ];
-		  addGroup: [ :group |
-				  group
-					  addItem: [ :item |
-							  item
-								  name: 'Attach MCZ Repository';
-								  action: [ self addMCZRepository ] ];
-					  addItem: [ :item |
-							  item
-								  name: 'Attach Filetree Repository';
-								  action: [ self addFiletreeRepository ] ] ]
+				  group addItem: [ :item |
+						  item
+							  name: 'Add Repository...';
+							  action: [ self addRepository ] ] ]
 ]
 
 { #category : 'accessing' }
