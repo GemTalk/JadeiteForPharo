@@ -120,12 +120,19 @@ JadeiteMonticelloBrowser >> initializePresenters [
 
 	| box |
 	box := SpBoxLayout newHorizontal.
-	repositoriesPresenter := JadeiteListPresenter new display:
-		                         #description.
-	repositoriesPresenter headerTitle: 'Repositories'.
+	repositoriesPresenter := JadeiteListPresenter new display: #description.
+	repositoriesPresenter
+		headerTitle: 'Repositories';
+		displayBold: [ :item |
+			self repositoriesPresenter list notEmpty
+				and: [ item == self repositoriesPresenter list last ] ].
 	box add: repositoriesPresenter.
 	packagesPresenter := JadeiteListPresenter new display: #description.
-	packagesPresenter headerTitle: 'Available Packages'.
+	packagesPresenter
+		headerTitle: 'Available Packages';
+		displayBold: [ :item |
+			monticelloPackageService notNil and: [
+				'*' , item description , '*' match: monticelloPackageService description ] ].
 	box add: packagesPresenter.
 	packagesPresenter contextMenu: self newPackageMenu.
 	repositoriesPresenter contextMenu: self newRepositoryMenu.
