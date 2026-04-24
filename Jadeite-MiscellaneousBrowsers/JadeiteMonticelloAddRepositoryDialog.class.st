@@ -9,6 +9,7 @@ Class {
 		'monticelloPackageService',
 		'fileDialogPresenter',
 		'addRepositoryButton',
+		'cancelButton',
 		'completionBlock'
 	],
 	#category : 'Jadeite-MiscellaneousBrowsers',
@@ -55,6 +56,12 @@ JadeiteMonticelloAddRepositoryDialog >> addRepository [
 	self gciSession
 		issueCommand: self monticelloPackageService
 		onCompletion: [ completionBlock value ]
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloAddRepositoryDialog >> cancel [
+
+	self window close
 ]
 
 { #category : 'private' }
@@ -114,6 +121,7 @@ JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 
 	buttonRow := SpBoxLayout newHorizontal.
 	buttonRow addLast: addRepositoryButton expand: false.
+	buttonRow addLast: cancelButton expand: false.
 
 	outer := SpBoxLayout newVertical.
 	outer borderWidth: 8.
@@ -141,7 +149,10 @@ JadeiteMonticelloAddRepositoryDialog >> initializePresenters [
 	fileDialogPresenter enabled: false.
 	addRepositoryButton := self newButton
 		                       label: 'Add Repository';
-		                       action: [ self addRepository ]
+		                       action: [ self addRepository ].
+	cancelButton := self newButton
+		                label: 'Cancel';
+		                action: [ self cancel ]
 ]
 
 { #category : 'accessing' }
