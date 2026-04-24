@@ -69,15 +69,6 @@ JadeiteMonticelloBrowser >> addGithubRepository [
 ]
 
 { #category : 'actions' }
-JadeiteMonticelloBrowser >> addRepository [
-
-	JadeiteMonticelloAddRepositoryDialog
-		showOnSession: self gciSession
-		packageService: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]
-]
-
-{ #category : 'actions' }
 JadeiteMonticelloBrowser >> addMCZRepository [
 
 	| directoryString |
@@ -90,6 +81,15 @@ JadeiteMonticelloBrowser >> addMCZRepository [
 		commandArgs: (Array with: directoryString).
 	self gciSession
 		issueCommand: self monticelloPackageService
+		onCompletion: [ self updateRepositories ]
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> addRepository [
+
+	JadeiteMonticelloAddRepositoryDialog
+		showOnSession: self gciSession
+		packageService: self monticelloPackageService
 		onCompletion: [ self updateRepositories ]
 ]
 
@@ -120,19 +120,20 @@ JadeiteMonticelloBrowser >> initializePresenters [
 
 	| box |
 	box := SpBoxLayout newHorizontal.
-	repositoriesPresenter := JadeiteListPresenter new display: #description.
+	repositoriesPresenter := JadeiteListPresenter new display:
+		                         #description.
 	repositoriesPresenter
 		headerTitle: 'Repositories';
 		displayBold: [ :item |
-			self repositoriesPresenter list notEmpty
-				and: [ item == self repositoriesPresenter list last ] ].
+				self repositoriesPresenter list notEmpty and: [
+						item == self repositoriesPresenter list last ] ].
 	box add: repositoriesPresenter.
 	packagesPresenter := JadeiteListPresenter new display: #description.
 	packagesPresenter
 		headerTitle: 'Available Packages';
 		displayBold: [ :item |
-			monticelloPackageService notNil and: [
-				'*' , item description , '*' match: monticelloPackageService description ] ].
+				monticelloPackageService notNil and: [
+						item description = monticelloPackageService description ] ].
 	box add: packagesPresenter.
 	packagesPresenter contextMenu: self newPackageMenu.
 	repositoriesPresenter contextMenu: self newRepositoryMenu.
