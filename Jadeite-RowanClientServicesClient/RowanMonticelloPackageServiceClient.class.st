@@ -34,6 +34,23 @@ RowanMonticelloPackageServiceClient >> catchBlock: anObject [
 ]
 
 { #category : 'accessing' }
+RowanMonticelloPackageServiceClient >> descriptionInsideParens [
+
+	| abbrevDescription indexOfLeftParen indexOfRightParen |
+	abbrevDescription := self description.
+	indexOfLeftParen := self description indexOf: $(.
+	indexOfRightParen := self description indexOf: $).
+	indexOfRightParen := indexOfRightParen = 0
+		                     ifTrue: [ self description size ]
+		                     ifFalse: [ indexOfRightParen - 1 ].
+	abbrevDescription := self description
+		                     copyFrom: indexOfLeftParen + 1
+		                     to: indexOfRightParen.
+
+	^ abbrevDescription
+]
+
+{ #category : 'accessing' }
 RowanMonticelloPackageServiceClient >> inCommand [
 
 	^ inCommand ifNil: [ inCommand := RowanSemaphore new ]

@@ -133,7 +133,8 @@ JadeiteMonticelloBrowser >> initializePresenters [
 		headerTitle: 'Available Packages';
 		displayBold: [ :item |
 				monticelloPackageService notNil and: [
-						item description = monticelloPackageService description ] ].
+							item descriptionInsideParens
+							= monticelloPackageService descriptionInsideParens ] ].
 	box add: packagesPresenter.
 	packagesPresenter contextMenu: self newPackageMenu.
 	repositoriesPresenter contextMenu: self newRepositoryMenu.
@@ -226,8 +227,8 @@ JadeiteMonticelloBrowser >> selectLoadedPackage [
 	| index package |
 	package := self packagesPresenter list
 		           detect: [ :availablePackage |
-				           '*' , availablePackage description , '*' match:
-					           monticelloPackageService description ]
+				           availablePackage descriptionInsideParens match:
+					           monticelloPackageService descriptionInsideParens ]
 		           ifNone: [ ^ self ].
 	index := self packagesPresenter list indexOf: package.
 	self packagesPresenter selectIndex: index scrollToSelection: true
