@@ -55,7 +55,9 @@ JadeiteMonticelloAddRepositoryDialog >> addRepository [
 		commandArgs: (Array with: urlString).
 	self gciSession
 		issueCommand: self monticelloPackageService
-		onCompletion: [ completionBlock value ]
+		onCompletion: [
+				completionBlock value.
+				self window close ]
 ]
 
 { #category : 'actions' }

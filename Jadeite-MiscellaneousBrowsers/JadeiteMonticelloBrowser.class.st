@@ -36,55 +36,6 @@ JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: applica
 ]
 
 { #category : 'actions' }
-JadeiteMonticelloBrowser >> addFiletreeRepository [
-
-	| directoryString |
-	directoryString := JadeiteServerFileSelectorDialog
-		                   showOnSession: gciSession
-		                   defaultPath: JadePresenter homeEnvVarString.
-	directoryString ifNil: [ ^ self ].
-	self monticelloPackageService
-		command: #addFiletreeRepository:;
-		commandArgs: (Array with: directoryString).
-	self gciSession
-		issueCommand: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]
-]
-
-{ #category : 'actions' }
-JadeiteMonticelloBrowser >> addGithubRepository [
-
-	| urlString |
-	urlString := self application newRequest
-		             title: 'Github url request';
-		             label: 'Enter complete Github url string';
-		             openModalWithParent: self window.
-	urlString ifNil: [ ^ self ].
-	self monticelloPackageService
-		command: #addGithubRepository:;
-		commandArgs: (Array with: urlString).
-	self gciSession
-		issueCommand: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]
-]
-
-{ #category : 'actions' }
-JadeiteMonticelloBrowser >> addMCZRepository [
-
-	| directoryString |
-	directoryString := JadeiteServerFileSelectorDialog
-		                   showOnSession: gciSession
-		                   defaultPath: JadePresenter homeEnvVarString.
-	directoryString ifNil: [ ^ self ].
-	self monticelloPackageService
-		command: #addMCZRepository:;
-		commandArgs: (Array with: directoryString).
-	self gciSession
-		issueCommand: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]
-]
-
-{ #category : 'actions' }
 JadeiteMonticelloBrowser >> addRepository [
 
 	JadeiteMonticelloAddRepositoryDialog
@@ -181,12 +132,17 @@ JadeiteMonticelloBrowser >> newPackageMenu [
 { #category : 'menus' }
 JadeiteMonticelloBrowser >> newRepositoryMenu [
 
-	^ JadeiteMenuPresenter new
-		  addGroup: [ :group |
-				  group addItem: [ :item |
+	^ JadeiteMenuPresenter new addGroup: [ :group |
+			  group
+				  addItem: [ :item |
 						  item
 							  name: 'Add Repository...';
-							  action: [ self addRepository ] ] ]
+							  action: [ self addRepository ] ];
+				  addItem: [ :item |
+						  item
+							  name: 'Remove Repository...';
+							  action: [ self removeRepository ];
+							  enabled: [ self repositoriesPresenter hasSelection ] ] ]
 ]
 
 { #category : 'accessing' }
@@ -199,6 +155,20 @@ JadeiteMonticelloBrowser >> packagesPresenter [
 JadeiteMonticelloBrowser >> packagesPresenter: anObject [
 
 	packagesPresenter := anObject
+]
+
+{ #category : 'actions' }
+JadeiteMonticelloBrowser >> removeRepository [
+
+	(self uiManager confirm: 'Really remove repository '
+		 , repositoriesPresenter selectedItem description) ifFalse: [
+		^ self ].
+	self monticelloPackageService
+		command: #removeRepository:;
+		commandArgs: (Array with: repositoriesPresenter selectedItem name).
+	self gciSession
+		issueCommand: self monticelloPackageService
+		onCompletion: [ ]
 ]
 
 { #category : 'accessing' }
