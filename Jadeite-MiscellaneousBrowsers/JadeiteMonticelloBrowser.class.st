@@ -75,13 +75,13 @@ JadeiteMonticelloBrowser >> initializePresenters [
 		                         #description.
 	repositoriesPresenter
 		headerTitle: 'Repositories';
-		displayBold: [ :item |
-				item == monticelloPackageService sourceRepository ].
+		displayItalic: [ :item |
+			item == monticelloPackageService sourceRepository ].
 	box add: repositoriesPresenter.
 	packagesPresenter := JadeiteListPresenter new display: #description.
 	packagesPresenter
 		headerTitle: 'Available Packages';
-		displayBold: [ :item |
+		displayItalic: [ :item |
 				monticelloPackageService notNil and: [
 							item descriptionInsideParens
 							= monticelloPackageService descriptionInsideParens ] ].
