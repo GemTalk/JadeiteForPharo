@@ -9,7 +9,8 @@ Class {
 		'hasChanges',
 		'changes',
 		'classes',
-		'extensionClasses'
+		'extensionClasses',
+		'sourceRepository'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -109,4 +110,16 @@ RowanMonticelloPackageService >> repositoryGroups [
 RowanMonticelloPackageService >> repositoryGroups: anObject [
 
 	repositoryGroups := anObject
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> sourceRepository [
+
+	^ sourceRepository
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> sourceRepository: anObject [
+
+	sourceRepository := anObject
 ]

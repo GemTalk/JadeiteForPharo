@@ -39,6 +39,10 @@ JadeiteMonticelloTrait >> updateMonticelloPackagesOnCompletion: completionBlock 
 		issueCommand: monticelloService
 		session: self gciSession
 		onCompletion: [
+				monticelloService packages do: [ :pkg |
+					pkg sourceRepository ifNil: [
+						pkg repositoryGroups repositories ifNotEmpty: [ :repos |
+							pkg sourceRepository: repos last ] ] ].
 				self monticelloPackageListPresenter items:
 					monticelloService packages.
 				completionBlock cull: monticelloService ]

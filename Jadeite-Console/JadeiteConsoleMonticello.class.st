@@ -31,8 +31,7 @@ JadeiteConsoleMonticello >> changes [
 
 	| packageService repositoryService |
 	packageService := monticelloPackageListPresenter selectedItem.
-	repositoryService := packageService repositoryGroups repositories
-		                     last.
+	repositoryService := packageService sourceRepository.
 	self
 		changesFor: packageService
 		against: repositoryService
@@ -110,8 +109,9 @@ JadeiteConsoleMonticello >> initializePrimaryListPresenter: tabs [
 	column2 := JadeiteConsoleTableColumn
 		           title: 'Source Repository'
 		           evaluated: [ :monticelloPackageService |
-			           monticelloPackageService repositoryGroups
-				           repositoryDescriptions last ].
+			           monticelloPackageService sourceRepository
+				           ifNil: [ '' ]
+				           ifNotNil: [ :repo | repo description ] ].
 	column2 displayBold: [ :monticelloPackageService |
 		monticelloPackageService hasChanges ].
 	projectColumns := OrderedCollection with: column1 with: column2.

@@ -76,8 +76,7 @@ JadeiteMonticelloBrowser >> initializePresenters [
 	repositoriesPresenter
 		headerTitle: 'Repositories';
 		displayBold: [ :item |
-				self repositoriesPresenter list notEmpty and: [
-						item == self repositoriesPresenter list last ] ].
+				item == monticelloPackageService sourceRepository ].
 	box add: repositoriesPresenter.
 	packagesPresenter := JadeiteListPresenter new display: #description.
 	packagesPresenter
@@ -186,8 +185,12 @@ JadeiteMonticelloBrowser >> repositoriesPresenter: anObject [
 { #category : 'actions' }
 JadeiteMonticelloBrowser >> selectLoaded [
 
-	self repositoriesPresenter selectIndex:
-		self repositoriesPresenter list size.
+	| sourceRepo index |
+	sourceRepo := monticelloPackageService sourceRepository.
+	sourceRepo ifNotNil: [
+		index := self repositoriesPresenter list indexOf: sourceRepo.
+		index > 0 ifTrue: [
+			self repositoriesPresenter selectIndex: index scrollToSelection: true ] ].
 	self selectLoadedPackage
 ]
 
