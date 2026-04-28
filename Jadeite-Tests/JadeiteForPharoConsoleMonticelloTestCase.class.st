@@ -65,9 +65,55 @@ JadeiteForPharoConsoleMonticelloTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConsoleMonticelloTestCase >> test_packagesLoaded [
+JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
+	"Add a test HTTP repository to the first package, verify it appears in the
+	 All Repositories browser, then remove it to restore the original state."
 
-	self deny: self monticelloPackageListPresenter items isEmpty
+	| firstPackage testUrl initialCount updatedCount |
+	self deny: self monticelloPackageListPresenter items isEmpty.
+	firstPackage := self monticelloPackageListPresenter items first.
+	testUrl := 'http://test.jadeiteforpharo.internal/ss/TestRepo'.
+	repositoriesBrowser := self
+		                       waitForNewPresenter:
+		                       JadeiteMonticelloAllRepositoriesBrowser
+		                       while: [ jadeiteShell browseAllRepositories ].
+	initialCount := (repositoriesBrowser repositoriesPresenter items
+		                 reject: [ :item | item isSeparator ]) size.
+	firstPackage
+		command: #addHttpRepository:;
+		commandArgs: (Array with: testUrl).
+	self
+		issueCommand: firstPackage
+		onCompletion: [
+		repositoriesBrowser updateRepositoriesSelectingUrl: testUrl ].
+	self
+		waitFor: [
+				(repositoriesBrowser repositoriesPresenter items reject: [ :item |
+					 item isSeparator ]) size = initialCount ]
+		errorMessage:
+		'Timed out waiting for repository list to update after add'.
+	updatedCount := (repositoriesBrowser repositoriesPresenter items
+		                 reject: [ :item | item isSeparator ]) size.
+	self assert: updatedCount > initialCount.
+	self
+		assert:
+		repositoriesBrowser repositoriesPresenter selectedItem description
+		equals: testUrl.
+	firstPackage
+		command: #removeRepository:;
+		commandArgs: (Array with: testUrl).
+	self
+		issueCommand: firstPackage
+		onCompletion: [ repositoriesBrowser updateRepositories ].
+	self
+		waitFor: [
+				(repositoriesBrowser repositoriesPresenter items reject: [ :item |
+					 item isSeparator ]) size = updatedCount ]
+		errorMessage:
+		'Timed out waiting for repository list to update after remove'.
+	self assert:
+		(repositoriesBrowser repositoriesPresenter items reject: [ :item |
+			 item isSeparator ]) size equals: initialCount
 ]
 
 { #category : 'tests' }
@@ -139,50 +185,7 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_browsePackageRepositoriesWindow
 ]
 
 { #category : 'tests' }
-JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
+JadeiteForPharoConsoleMonticelloTestCase >> test_packagesLoaded [
 
-	"Add a test HTTP repository to the first package, verify it appears in the
-	 All Repositories browser, then remove it to restore the original state."
-
-	| firstPackage testUrl initialCount updatedCount |
-	self deny: self monticelloPackageListPresenter items isEmpty.
-	firstPackage := self monticelloPackageListPresenter items first.
-	testUrl := 'http://test.jadeiteforpharo.internal/ss/TestRepo'.
-	repositoriesBrowser := self
-		                       waitForNewPresenter:
-		                       JadeiteMonticelloAllRepositoriesBrowser
-		                       while: [ jadeiteShell browseAllRepositories ].
-	initialCount := (repositoriesBrowser repositoriesPresenter items
-		                 reject: [ :item | item isSeparator ]) size.
-	firstPackage
-		command: #addHttpRepository:;
-		commandArgs: (Array with: testUrl).
-	self
-		issueCommand: firstPackage
-		onCompletion: [ repositoriesBrowser updateRepositoriesSelectingUrl: testUrl ].
-	self
-		waitFor: [
-			(repositoriesBrowser repositoriesPresenter items
-				 reject: [ :item | item isSeparator ]) size = initialCount ]
-		errorMessage: 'Timed out waiting for repository list to update after add'.
-	updatedCount := (repositoriesBrowser repositoriesPresenter items
-		                 reject: [ :item | item isSeparator ]) size.
-	self assert: updatedCount > initialCount.
-	self
-		assert: repositoriesBrowser repositoriesPresenter selectedItem description
-		equals: testUrl.
-	firstPackage
-		command: #removeRepository:;
-		commandArgs: (Array with: testUrl).
-	self
-		issueCommand: firstPackage
-		onCompletion: [ repositoriesBrowser updateRepositories ].
-	self
-		waitFor: [
-			(repositoriesBrowser repositoriesPresenter items
-				 reject: [ :item | item isSeparator ]) size = updatedCount ]
-		errorMessage: 'Timed out waiting for repository list to update after remove'.
-	self assert:
-		(repositoriesBrowser repositoriesPresenter items
-			 reject: [ :item | item isSeparator ]) size = initialCount
+	self deny: self monticelloPackageListPresenter items isEmpty
 ]
