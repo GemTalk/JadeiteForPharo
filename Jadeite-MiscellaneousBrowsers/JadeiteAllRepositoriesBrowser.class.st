@@ -44,12 +44,25 @@ JadeiteAllRepositoriesBrowser >> addRepository [
 { #category : 'actions' }
 JadeiteAllRepositoriesBrowser >> browsePackageRepositories [
 
-	| packageService |
+	| loadedPackage |
 	self packagesPresenter hasSelection ifFalse: [ ^ self ].
-	packageService := self packagesPresenter selectedItem.
-	JadeiteMonticelloBrowser
-		showOn: packageService
-		application: self owner application
+	loadedPackage := self loadedPackageFor: self packagesPresenter selectedItem.
+	loadedPackage ifNil: [ ^ self ].
+	loadedPackage
+		updateForSession: self gciSession
+		onCompletion: [
+			JadeiteMonticelloBrowser
+				showOn: loadedPackage
+				application: self owner application ]
+]
+
+{ #category : 'private' }
+JadeiteAllRepositoriesBrowser >> loadedPackageFor: aPackageService [
+
+	^ packages
+		  detect: [ :pkg |
+			  pkg descriptionInsideParens = aPackageService descriptionInsideParens ]
+		  ifNone: [ nil ]
 ]
 
 { #category : 'initialization' }
@@ -166,7 +179,10 @@ JadeiteAllRepositoriesBrowser >> newPackageMenu [
 							  item
 								  name: 'Browse Package Repositories';
 								  action: [ self browsePackageRepositories ];
-								  enabled: [ self packagesPresenter hasSelection ] ];
+								  enabled: [
+									  self packagesPresenter hasSelection and: [
+										  (self loadedPackageFor:
+											   self packagesPresenter selectedItem) notNil ] ] ];
 					  addItem: [ :item |
 							  item
 								  name: 'Load Package';
@@ -226,18 +242,13 @@ JadeiteAllRepositoriesBrowser >> sortedPackagesForRepository: repositoryService 
 { #category : 'updates' }
 JadeiteAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 
-	| repositoryService answeringService |
+	| repositoryService |
 	repositoryService := selection selectedItem.
 	(repositoryService isNil or: [ repositoryService isSeparator ]) ifTrue: [
 		packagesPresenter items: Array new.
 		^ self ].
-	answeringService := RowanAnsweringService new
-		                    command: #updateServices:;
-		                    commandArgs:
-			                    (Array with: (Array with: repositoryService)).
-	RowanServiceUpdater current
-		issueCommand: answeringService
-		session: self gciSession
+	repositoryService
+		updateForSession: self gciSession
 		onCompletion: [
 			packagesPresenter items:
 				(self sortedPackagesForRepository: repositoryService) ]

@@ -873,13 +873,20 @@ RowanService >> toolTip [
 RowanService >> updateForSession: session [
 	"will not work for some services but does for many"
 
+	self updateForSession: session onCompletion: nil
+]
+
+{ #category : 'actions' }
+RowanService >> updateForSession: session onCompletion: completionBlock [
+	"will not work for some services but does for many"
+
 	self
 		command: #update;
 		commandArgs: Array new.
 	RowanServiceUpdater current
 		issueCommand: self
 		session: session
-		onCompletion: nil
+		onCompletion: completionBlock
 ]
 
 { #category : 'private' }
