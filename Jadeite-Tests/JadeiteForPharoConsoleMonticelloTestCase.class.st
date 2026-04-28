@@ -98,8 +98,9 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_browseAllRepositoriesPackagePan
 		             ifNone: [ nil ].
 	self denyIsNil: firstRepo.
 	repositoriesBrowser repositoriesPresenter selectItem: firstRepo.
-	[ repositoriesBrowser packagesPresenter items isEmpty ] whileTrue: [
-		(Delay forMilliseconds: 50) wait ].
+	self
+		waitFor: [ repositoriesBrowser packagesPresenter items isEmpty ]
+		errorMessage: 'Timed out waiting for packages pane to populate'.
 	self deny: repositoriesBrowser packagesPresenter items isEmpty
 ]
 
@@ -159,9 +160,11 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
 	self
 		issueCommand: firstPackage
 		onCompletion: [ repositoriesBrowser updateRepositories ].
-	[ (repositoriesBrowser repositoriesPresenter items
-		 reject: [ :item | item isSeparator ]) size = initialCount ] whileTrue: [
-		(Delay forMilliseconds: 50) wait ].
+	self
+		waitFor: [
+			(repositoriesBrowser repositoriesPresenter items
+				 reject: [ :item | item isSeparator ]) size = initialCount ]
+		errorMessage: 'Timed out waiting for repository list to update after add'.
 	updatedCount := (repositoriesBrowser repositoriesPresenter items
 		                 reject: [ :item | item isSeparator ]) size.
 	self assert: updatedCount > initialCount.
@@ -171,9 +174,11 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
 	self
 		issueCommand: firstPackage
 		onCompletion: [ repositoriesBrowser updateRepositories ].
-	[ (repositoriesBrowser repositoriesPresenter items
-		 reject: [ :item | item isSeparator ]) size = updatedCount ] whileTrue: [
-		(Delay forMilliseconds: 50) wait ].
+	self
+		waitFor: [
+			(repositoriesBrowser repositoriesPresenter items
+				 reject: [ :item | item isSeparator ]) size = updatedCount ]
+		errorMessage: 'Timed out waiting for repository list to update after remove'.
 	self assert:
 		(repositoriesBrowser repositoriesPresenter items
 			 reject: [ :item | item isSeparator ]) size = initialCount
