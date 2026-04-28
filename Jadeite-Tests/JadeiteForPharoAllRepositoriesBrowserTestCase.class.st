@@ -1,6 +1,6 @@
 Class {
 	#name : 'JadeiteForPharoAllRepositoriesBrowserTestCase',
-	#superclass : 'JadeiteForPharoConsoleTestCase',
+	#superclass : 'JadeiteForPharoGUITestCase',
 	#instVars : [
 		'repositoriesBrowser'
 	],
