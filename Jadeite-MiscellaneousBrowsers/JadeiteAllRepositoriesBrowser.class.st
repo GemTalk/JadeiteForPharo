@@ -78,6 +78,7 @@ JadeiteAllRepositoriesBrowser >> initializeMenubar [
 JadeiteAllRepositoriesBrowser >> initializePresenters [
 
 	| box |
+	self layout add: self initializeWaitPresenter expand: false.
 	box := SpBoxLayout newHorizontal.
 	repositoriesPresenter := JadeiteListPresenter new display: #description.
 	repositoriesPresenter
