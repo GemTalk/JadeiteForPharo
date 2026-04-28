@@ -38,7 +38,7 @@ JadeiteMonticelloAllRepositoriesBrowser >> addRepository [
 	JadeiteMonticelloAddRepositoryDialog
 		showOnSession: self gciSession
 		packageService: packages first
-		onCompletion: [ self updateRepositories ]
+		onCompletion: [ :url | self updateRepositoriesSelectingUrl: url ]
 ]
 
 { #category : 'actions' }
@@ -315,4 +315,16 @@ JadeiteMonticelloAllRepositoriesBrowser >> updateRepositories [
 		previousKey := key.
 		result add: repo ].
 	repositoriesPresenter items: result
+]
+
+{ #category : 'updates' }
+JadeiteMonticelloAllRepositoriesBrowser >> updateRepositoriesSelectingUrl: url [
+
+	| repo |
+	self updateRepositories.
+	repo := repositoriesPresenter items
+		        detect: [ :item |
+			        item isSeparator not and: [ item description = url ] ]
+		        ifNone: [ nil ].
+	repo ifNotNil: [ repositoriesPresenter selectItem: repo ]
 ]

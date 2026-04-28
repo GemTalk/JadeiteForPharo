@@ -159,7 +159,7 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
 		commandArgs: (Array with: testUrl).
 	self
 		issueCommand: firstPackage
-		onCompletion: [ repositoriesBrowser updateRepositories ].
+		onCompletion: [ repositoriesBrowser updateRepositoriesSelectingUrl: testUrl ].
 	self
 		waitFor: [
 			(repositoriesBrowser repositoriesPresenter items
@@ -168,6 +168,9 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
 	updatedCount := (repositoriesBrowser repositoriesPresenter items
 		                 reject: [ :item | item isSeparator ]) size.
 	self assert: updatedCount > initialCount.
+	self
+		assert: repositoriesBrowser repositoriesPresenter selectedItem description
+		equals: testUrl.
 	firstPackage
 		command: #removeRepository:;
 		commandArgs: (Array with: testUrl).
