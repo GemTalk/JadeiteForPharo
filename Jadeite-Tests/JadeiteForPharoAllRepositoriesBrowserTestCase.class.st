@@ -11,13 +11,13 @@ Class {
 { #category : 'coverage' }
 JadeiteForPharoAllRepositoriesBrowserTestCase class >> codeCoverageClasses [
 
-	^ { JadeiteAllRepositoriesBrowser } asOrderedCollection
+	^ { JadeiteMonticelloAllRepositoriesBrowser } asOrderedCollection
 ]
 
 { #category : 'testing' }
 JadeiteForPharoAllRepositoriesBrowserTestCase class >> primaryTestClass [
 
-	^ JadeiteAllRepositoriesBrowser
+	^ JadeiteMonticelloAllRepositoriesBrowser
 ]
 
 { #category : 'testing' }
@@ -61,68 +61,15 @@ JadeiteForPharoAllRepositoriesBrowserTestCase >> tearDown [
 ]
 
 { #category : 'tests' }
-JadeiteForPharoAllRepositoriesBrowserTestCase >> test_browserOpens [
-
-	| packages |
-	packages := self monticelloPackageListPresenter items.
-	self deny: packages isEmpty.
-	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
-		                       while: [
-			                       JadeiteAllRepositoriesBrowser
-				                       showOnPackages: packages
-				                       application: jadeiteShell application ].
-	self assert: repositoriesBrowser isKindOf: JadeiteAllRepositoriesBrowser.
-	self assert: repositoriesBrowser window isOpen
-]
-
-{ #category : 'tests' }
-JadeiteForPharoAllRepositoriesBrowserTestCase >> test_repositoriesPopulated [
-
-	| packages |
-	packages := self monticelloPackageListPresenter items.
-	self deny: packages isEmpty.
-	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
-		                       while: [
-			                       JadeiteAllRepositoriesBrowser
-				                       showOnPackages: packages
-				                       application: jadeiteShell application ].
-	self deny: repositoriesBrowser repositoriesPresenter items isEmpty
-]
-
-{ #category : 'tests' }
-JadeiteForPharoAllRepositoriesBrowserTestCase >> test_selectRepositoryDisplaysPackages [
-
-	| packages firstRepo |
-	packages := self monticelloPackageListPresenter items.
-	self deny: packages isEmpty.
-	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
-		                       while: [
-			                       JadeiteAllRepositoriesBrowser
-				                       showOnPackages: packages
-				                       application: jadeiteShell application ].
-	firstRepo := repositoriesBrowser repositoriesPresenter items
-		             detect: [ :item | item isSeparator not ]
-		             ifNone: [ nil ].
-	self denyIsNil: firstRepo.
-	repositoriesBrowser repositoriesPresenter selectItem: firstRepo.
-	[ repositoriesBrowser packagesPresenter items isEmpty ] whileTrue: [
-		(Delay forMilliseconds: 50) wait ].
-	self deny: repositoriesBrowser packagesPresenter items isEmpty
-]
-
-{ #category : 'tests' }
 JadeiteForPharoAllRepositoriesBrowserTestCase >> test_browsePackageRepositoriesDisabledForUnloadedPackage [
 
 	| packages firstRepo loadedDescs unloadedPackage |
 	packages := self monticelloPackageListPresenter items.
 	self deny: packages isEmpty.
 	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
 		                       while: [
-			                       JadeiteAllRepositoriesBrowser
+			                       JadeiteMonticelloAllRepositoriesBrowser
 				                       showOnPackages: packages
 				                       application: jadeiteShell application ].
 	firstRepo := repositoriesBrowser repositoriesPresenter items
@@ -150,9 +97,9 @@ JadeiteForPharoAllRepositoriesBrowserTestCase >> test_browsePackageRepositoriesE
 	packages := self monticelloPackageListPresenter items.
 	self deny: packages isEmpty.
 	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
 		                       while: [
-			                       JadeiteAllRepositoriesBrowser
+			                       JadeiteMonticelloAllRepositoriesBrowser
 				                       showOnPackages: packages
 				                       application: jadeiteShell application ].
 	firstRepo := repositoriesBrowser repositoriesPresenter items
@@ -179,9 +126,9 @@ JadeiteForPharoAllRepositoriesBrowserTestCase >> test_browsePackageRepositoriesO
 	packages := self monticelloPackageListPresenter items.
 	self deny: packages isEmpty.
 	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
 		                       while: [
-			                       JadeiteAllRepositoriesBrowser
+			                       JadeiteMonticelloAllRepositoriesBrowser
 				                       showOnPackages: packages
 				                       application: jadeiteShell application ].
 	firstRepo := repositoriesBrowser repositoriesPresenter items
@@ -207,14 +154,67 @@ JadeiteForPharoAllRepositoriesBrowserTestCase >> test_browsePackageRepositoriesO
 ]
 
 { #category : 'tests' }
+JadeiteForPharoAllRepositoriesBrowserTestCase >> test_browserOpens [
+
+	| packages |
+	packages := self monticelloPackageListPresenter items.
+	self deny: packages isEmpty.
+	repositoriesBrowser := self
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
+		                       while: [
+			                       JadeiteMonticelloAllRepositoriesBrowser
+				                       showOnPackages: packages
+				                       application: jadeiteShell application ].
+	self assert: repositoriesBrowser isKindOf: JadeiteMonticelloAllRepositoriesBrowser.
+	self assert: repositoriesBrowser window isOpen
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAllRepositoriesBrowserTestCase >> test_repositoriesPopulated [
+
+	| packages |
+	packages := self monticelloPackageListPresenter items.
+	self deny: packages isEmpty.
+	repositoriesBrowser := self
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
+		                       while: [
+			                       JadeiteMonticelloAllRepositoriesBrowser
+				                       showOnPackages: packages
+				                       application: jadeiteShell application ].
+	self deny: repositoriesBrowser repositoriesPresenter items isEmpty
+]
+
+{ #category : 'tests' }
+JadeiteForPharoAllRepositoriesBrowserTestCase >> test_selectRepositoryDisplaysPackages [
+
+	| packages firstRepo |
+	packages := self monticelloPackageListPresenter items.
+	self deny: packages isEmpty.
+	repositoriesBrowser := self
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
+		                       while: [
+			                       JadeiteMonticelloAllRepositoriesBrowser
+				                       showOnPackages: packages
+				                       application: jadeiteShell application ].
+	firstRepo := repositoriesBrowser repositoriesPresenter items
+		             detect: [ :item | item isSeparator not ]
+		             ifNone: [ nil ].
+	self denyIsNil: firstRepo.
+	repositoriesBrowser repositoriesPresenter selectItem: firstRepo.
+	[ repositoriesBrowser packagesPresenter items isEmpty ] whileTrue: [
+		(Delay forMilliseconds: 50) wait ].
+	self deny: repositoriesBrowser packagesPresenter items isEmpty
+]
+
+{ #category : 'tests' }
 JadeiteForPharoAllRepositoriesBrowserTestCase >> test_shellName [
 
 	| packages |
 	packages := self monticelloPackageListPresenter items.
 	repositoriesBrowser := self
-		                       waitForNewPresenter: JadeiteAllRepositoriesBrowser
+		                       waitForNewPresenter: JadeiteMonticelloAllRepositoriesBrowser
 		                       while: [
-			                       JadeiteAllRepositoriesBrowser
+			                       JadeiteMonticelloAllRepositoriesBrowser
 				                       showOnPackages: packages
 				                       application: jadeiteShell application ].
 	self

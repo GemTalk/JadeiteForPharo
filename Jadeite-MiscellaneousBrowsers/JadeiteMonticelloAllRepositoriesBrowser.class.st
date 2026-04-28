@@ -1,5 +1,5 @@
 Class {
-	#name : 'JadeiteAllRepositoriesBrowser',
+	#name : 'JadeiteMonticelloAllRepositoriesBrowser',
 	#superclass : 'JadeiteMiscellaneousBrowser',
 	#instVars : [
 		'repositoriesPresenter',
@@ -11,13 +11,13 @@ Class {
 }
 
 { #category : 'accessing' }
-JadeiteAllRepositoriesBrowser class >> defaultPreferredExtent [
+JadeiteMonticelloAllRepositoriesBrowser class >> defaultPreferredExtent [
 
 	^ 90 @ 50
 ]
 
 { #category : 'instance creation' }
-JadeiteAllRepositoriesBrowser class >> showOnPackages: aCollection application: application [
+JadeiteMonticelloAllRepositoriesBrowser class >> showOnPackages: aCollection application: application [
 
 	| browser windowPresenter |
 	browser := self new packages: aCollection.
@@ -32,7 +32,7 @@ JadeiteAllRepositoriesBrowser class >> showOnPackages: aCollection application: 
 ]
 
 { #category : 'actions' }
-JadeiteAllRepositoriesBrowser >> addRepository [
+JadeiteMonticelloAllRepositoriesBrowser >> addRepository [
 
 	packages isEmpty ifTrue: [ ^ self ].
 	JadeiteMonticelloAddRepositoryDialog
@@ -42,7 +42,7 @@ JadeiteAllRepositoriesBrowser >> addRepository [
 ]
 
 { #category : 'actions' }
-JadeiteAllRepositoriesBrowser >> browsePackageRepositories [
+JadeiteMonticelloAllRepositoriesBrowser >> browsePackageRepositories [
 
 	| loadedPackage |
 	self packagesPresenter hasSelection ifFalse: [ ^ self ].
@@ -60,17 +60,8 @@ JadeiteAllRepositoriesBrowser >> browsePackageRepositories [
 				application: self owner application ]
 ]
 
-{ #category : 'private' }
-JadeiteAllRepositoriesBrowser >> loadedPackageFor: aPackageService [
-
-	^ packages
-		  detect: [ :pkg |
-			  pkg descriptionInsideParens = aPackageService descriptionInsideParens ]
-		  ifNone: [ nil ]
-]
-
 { #category : 'initialization' }
-JadeiteAllRepositoriesBrowser >> connectPresenters [
+JadeiteMonticelloAllRepositoriesBrowser >> connectPresenters [
 
 	super connectPresenters.
 	repositoriesPresenter whenSelectionChangedDo: [ :selection |
@@ -78,13 +69,13 @@ JadeiteAllRepositoriesBrowser >> connectPresenters [
 ]
 
 { #category : 'initialization' }
-JadeiteAllRepositoriesBrowser >> defaultLayout [
+JadeiteMonticelloAllRepositoriesBrowser >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 ]
 
 { #category : 'initialization' }
-JadeiteAllRepositoriesBrowser >> initializeMenubar [
+JadeiteMonticelloAllRepositoriesBrowser >> initializeMenubar [
 
 	^ self newMenuBar
 		  addGroup: [ :group | self addToolsToMenuGroup: group ];
@@ -92,7 +83,7 @@ JadeiteAllRepositoriesBrowser >> initializeMenubar [
 ]
 
 { #category : 'initialization' }
-JadeiteAllRepositoriesBrowser >> initializePresenters [
+JadeiteMonticelloAllRepositoriesBrowser >> initializePresenters [
 
 	| box |
 	self layout add: self initializeWaitPresenter expand: false.
@@ -119,7 +110,7 @@ JadeiteAllRepositoriesBrowser >> initializePresenters [
 ]
 
 { #category : 'actions' }
-JadeiteAllRepositoriesBrowser >> loadSelectedPackage [
+JadeiteMonticelloAllRepositoriesBrowser >> loadSelectedPackage [
 
 	| confirmation |
 	self packagesPresenter hasSelection ifFalse: [ ^ self ].
@@ -130,8 +121,38 @@ JadeiteAllRepositoriesBrowser >> loadSelectedPackage [
 	self uiManager alert: 'load package not implemented yet!'
 ]
 
+{ #category : 'private' }
+JadeiteMonticelloAllRepositoriesBrowser >> loadedPackageFor: aPackageService [
+
+	^ packages
+		  detect: [ :pkg |
+			  pkg descriptionInsideParens = aPackageService descriptionInsideParens ]
+		  ifNone: [ nil ]
+]
+
 { #category : 'menus' }
-JadeiteAllRepositoriesBrowser >> newRepositoryMenu [
+JadeiteMonticelloAllRepositoriesBrowser >> newPackageMenu [
+
+	^ JadeiteMenuPresenter new
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Browse Package Repositories';
+								  action: [ self browsePackageRepositories ];
+								  enabled: [
+									  self packagesPresenter hasSelection and: [
+										  (self loadedPackageFor:
+											   self packagesPresenter selectedItem) notNil ] ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Load Package';
+								  action: [ self loadSelectedPackage ];
+								  enabled: [ self packagesPresenter hasSelection ] ] ]
+]
+
+{ #category : 'menus' }
+JadeiteMonticelloAllRepositoriesBrowser >> newRepositoryMenu [
 
 	^ JadeiteMenuPresenter new addGroup: [ :group |
 			  group
@@ -149,8 +170,32 @@ JadeiteAllRepositoriesBrowser >> newRepositoryMenu [
 										   isSeparator) not ] ] ] ]
 ]
 
+{ #category : 'accessing' }
+JadeiteMonticelloAllRepositoriesBrowser >> packages [
+
+	^ packages
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloAllRepositoriesBrowser >> packages: aCollection [
+
+	packages := aCollection
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloAllRepositoriesBrowser >> packagesPresenter [
+
+	^ packagesPresenter
+]
+
+{ #category : 'accessing' }
+JadeiteMonticelloAllRepositoriesBrowser >> packagesPresenter: anObject [
+
+	packagesPresenter := anObject
+]
+
 { #category : 'actions' }
-JadeiteAllRepositoriesBrowser >> removeRepository [
+JadeiteMonticelloAllRepositoriesBrowser >> removeRepository [
 
 	| repositoryService packageService |
 	self repositoriesPresenter hasSelection ifFalse: [ ^ self ].
@@ -173,78 +218,57 @@ JadeiteAllRepositoriesBrowser >> removeRepository [
 		onCompletion: [ self updateRepositories ]
 ]
 
-{ #category : 'menus' }
-JadeiteAllRepositoriesBrowser >> newPackageMenu [
-
-	^ JadeiteMenuPresenter new
-		  addGroup: [ :group |
-				  group
-					  addItem: [ :item |
-							  item
-								  name: 'Browse Package Repositories';
-								  action: [ self browsePackageRepositories ];
-								  enabled: [
-									  self packagesPresenter hasSelection and: [
-										  (self loadedPackageFor:
-											   self packagesPresenter selectedItem) notNil ] ] ];
-					  addItem: [ :item |
-							  item
-								  name: 'Load Package';
-								  action: [ self loadSelectedPackage ];
-								  enabled: [ self packagesPresenter hasSelection ] ] ]
-]
-
 { #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> packages [
-
-	^ packages
-]
-
-{ #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> packages: aCollection [
-
-	packages := aCollection
-]
-
-{ #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> packagesPresenter [
-
-	^ packagesPresenter
-]
-
-{ #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> packagesPresenter: anObject [
-
-	packagesPresenter := anObject
-]
-
-{ #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> repositoriesPresenter [
+JadeiteMonticelloAllRepositoriesBrowser >> repositoriesPresenter [
 
 	^ repositoriesPresenter
 ]
 
 { #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> repositoriesPresenter: anObject [
+JadeiteMonticelloAllRepositoriesBrowser >> repositoriesPresenter: anObject [
 
 	repositoriesPresenter := anObject
 ]
 
+{ #category : 'private' }
+JadeiteMonticelloAllRepositoriesBrowser >> repositoryTypeKeyFor: aRepositoryService [
+
+	| desc |
+	desc := aRepositoryService description asLowercase.
+	(desc includesSubstring: 'cache') ifTrue: [ ^ 0 ].
+	(desc includesSubstring: 'github') ifTrue: [ ^ 1 ].
+	(desc beginsWith: 'http') ifTrue: [ ^ 2 ].
+	(desc endsWith: '.mcz') ifTrue: [ ^ 3 ].
+	(desc beginsWith: 'filetree:') ifTrue: [ ^ 4 ].
+	^ 5
+]
+
+{ #category : 'private' }
+JadeiteMonticelloAllRepositoriesBrowser >> repositoryTypeLabelFor: aKey [
+
+	aKey = 0 ifTrue: [ ^ 'Cache' ].
+	aKey = 1 ifTrue: [ ^ 'GitHub' ].
+	aKey = 2 ifTrue: [ ^ 'HTTP' ].
+	aKey = 3 ifTrue: [ ^ 'MCZ' ].
+	aKey = 4 ifTrue: [ ^ 'FileTree' ].
+	^ 'Other'
+]
+
 { #category : 'accessing' }
-JadeiteAllRepositoriesBrowser >> shellName [
+JadeiteMonticelloAllRepositoriesBrowser >> shellName [
 
 	^ 'Jadeite Monticello Repository Browser'
 ]
 
 { #category : 'private' }
-JadeiteAllRepositoriesBrowser >> sortedPackagesForRepository: repositoryService [
+JadeiteMonticelloAllRepositoriesBrowser >> sortedPackagesForRepository: repositoryService [
 
 	^ (repositoryService repositoryPackages ifNil: [ #() ])
 		  asSortedCollection: [ :x :y | x description < y description ]
 ]
 
 { #category : 'updates' }
-JadeiteAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
+JadeiteMonticelloAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 
 	| repositoryService |
 	repositoryService := selection selectedItem.
@@ -259,7 +283,7 @@ JadeiteAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 ]
 
 { #category : 'updates' }
-JadeiteAllRepositoriesBrowser >> updateRepositories [
+JadeiteMonticelloAllRepositoriesBrowser >> updateRepositories [
 
 	| allRepos seen sorted result previousKey |
 	allRepos := OrderedCollection new.
@@ -287,28 +311,4 @@ JadeiteAllRepositoriesBrowser >> updateRepositories [
 		previousKey := key.
 		result add: repo ].
 	repositoriesPresenter items: result
-]
-
-{ #category : 'private' }
-JadeiteAllRepositoriesBrowser >> repositoryTypeKeyFor: aRepositoryService [
-
-	| desc |
-	desc := aRepositoryService description asLowercase.
-	(desc includesSubstring: 'cache') ifTrue: [ ^ 0 ].
-	(desc includesSubstring: 'github') ifTrue: [ ^ 1 ].
-	(desc beginsWith: 'http') ifTrue: [ ^ 2 ].
-	(desc endsWith: '.mcz') ifTrue: [ ^ 3 ].
-	(desc beginsWith: 'filetree:') ifTrue: [ ^ 4 ].
-	^ 5
-]
-
-{ #category : 'private' }
-JadeiteAllRepositoriesBrowser >> repositoryTypeLabelFor: aKey [
-
-	aKey = 0 ifTrue: [ ^ 'Cache' ].
-	aKey = 1 ifTrue: [ ^ 'GitHub' ].
-	aKey = 2 ifTrue: [ ^ 'HTTP' ].
-	aKey = 3 ifTrue: [ ^ 'MCZ' ].
-	aKey = 4 ifTrue: [ ^ 'FileTree' ].
-	^ 'Other'
 ]

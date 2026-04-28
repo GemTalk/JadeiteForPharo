@@ -16,7 +16,7 @@ JadeiteConsoleMonticello >> browseAllRepositories [
 	| packages |
 	packages := self monticelloPackageListPresenter items.
 	packages isEmpty ifTrue: [ ^ self ].
-	JadeiteAllRepositoriesBrowser
+	JadeiteMonticelloAllRepositoriesBrowser
 		showOnPackages: packages
 		application: self application
 ]
