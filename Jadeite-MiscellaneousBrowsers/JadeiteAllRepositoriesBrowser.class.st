@@ -276,7 +276,8 @@ JadeiteAllRepositoriesBrowser >> repositoryTypeKeyFor: aRepositoryService [
 	(desc includesSubstring: 'github') ifTrue: [ ^ 1 ].
 	(desc beginsWith: 'http') ifTrue: [ ^ 2 ].
 	(desc endsWith: '.mcz') ifTrue: [ ^ 3 ].
-	^ 4
+	(desc beginsWith: 'filetree:') ifTrue: [ ^ 4 ].
+	^ 5
 ]
 
 { #category : 'private' }
@@ -286,5 +287,6 @@ JadeiteAllRepositoriesBrowser >> repositoryTypeLabelFor: aKey [
 	aKey = 1 ifTrue: [ ^ 'GitHub' ].
 	aKey = 2 ifTrue: [ ^ 'HTTP' ].
 	aKey = 3 ifTrue: [ ^ 'MCZ' ].
-	^ 'FileTree'
+	aKey = 4 ifTrue: [ ^ 'FileTree' ].
+	^ 'Other'
 ]
