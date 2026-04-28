@@ -35,15 +35,6 @@ JadeiteMonticelloBrowser class >> showOn: monticelloPackage application: applica
 		addStyle: 'jadeiteTextBackgroundColor'
 ]
 
-{ #category : 'actions' }
-JadeiteMonticelloBrowser >> addRepository [
-
-	JadeiteMonticelloAddRepositoryDialog
-		showOnSession: self gciSession
-		packageService: self monticelloPackageService
-		onCompletion: [ self updateRepositories ]
-]
-
 { #category : 'initialization' }
 JadeiteMonticelloBrowser >> connectPresenters [
 
@@ -87,7 +78,6 @@ JadeiteMonticelloBrowser >> initializePresenters [
 							= monticelloPackageService descriptionInsideParens ] ].
 	box add: packagesPresenter.
 	packagesPresenter contextMenu: self newPackageMenu.
-	repositoriesPresenter contextMenu: self newRepositoryMenu.
 	self layout add: box
 ]
 
@@ -128,22 +118,6 @@ JadeiteMonticelloBrowser >> newPackageMenu [
 									  self repositoriesPresenter selections size = 1 ] ]]
 ]
 
-{ #category : 'menus' }
-JadeiteMonticelloBrowser >> newRepositoryMenu [
-
-	^ JadeiteMenuPresenter new addGroup: [ :group |
-			  group
-				  addItem: [ :item |
-						  item
-							  name: 'Add Repository...';
-							  action: [ self addRepository ] ];
-				  addItem: [ :item |
-						  item
-							  name: 'Remove Repository...';
-							  action: [ self removeRepository ];
-							  enabled: [ self repositoriesPresenter hasSelection ] ] ]
-]
-
 { #category : 'accessing' }
 JadeiteMonticelloBrowser >> packagesPresenter [
 
@@ -154,20 +128,6 @@ JadeiteMonticelloBrowser >> packagesPresenter [
 JadeiteMonticelloBrowser >> packagesPresenter: anObject [
 
 	packagesPresenter := anObject
-]
-
-{ #category : 'actions' }
-JadeiteMonticelloBrowser >> removeRepository [
-
-	(self uiManager confirm: 'Really remove repository '
-		 , repositoriesPresenter selectedItem description) ifFalse: [
-		^ self ].
-	self monticelloPackageService
-		command: #removeRepository:;
-		commandArgs: (Array with: repositoriesPresenter selectedItem name).
-	self gciSession
-		issueCommand: self monticelloPackageService
-		onCompletion: [ ]
 ]
 
 { #category : 'accessing' }

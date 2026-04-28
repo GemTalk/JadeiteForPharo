@@ -11,6 +11,17 @@ Class {
 }
 
 { #category : 'actions' }
+JadeiteConsoleMonticello >> browseAllRepositories [
+
+	| packages |
+	packages := self monticelloPackageListPresenter items.
+	packages isEmpty ifTrue: [ ^ self ].
+	JadeiteAllRepositoriesBrowser
+		showOnPackages: packages
+		application: self application
+]
+
+{ #category : 'actions' }
 JadeiteConsoleMonticello >> browsePackageRepositories [
 
 	| monticelloPackageService |
@@ -142,6 +153,12 @@ JadeiteConsoleMonticello >> newMonticelloMenu [
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
 				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Browse All Repositories';
+								  action: [ self browseAllRepositories ];
+								  enabled: [
+									  self monticelloPackageListPresenter items notEmpty ] ];
 					  addItem: [ :item |
 							  item
 								  name: 'Browse Package Repositories';
