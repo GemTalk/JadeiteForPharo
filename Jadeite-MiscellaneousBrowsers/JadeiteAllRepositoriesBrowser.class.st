@@ -80,10 +80,20 @@ JadeiteAllRepositoriesBrowser >> initializePresenters [
 	| box |
 	box := SpBoxLayout newHorizontal.
 	repositoriesPresenter := JadeiteListPresenter new display: #description.
-	repositoriesPresenter headerTitle: 'Repositories'.
+	repositoriesPresenter
+		headerTitle: 'Repositories';
+		displayItalic: [ :item | item isKindOf: JadeiteRepositoryGroupSeparator ];
+		displayColor: [ :item |
+			(item isKindOf: JadeiteRepositoryGroupSeparator)
+				ifTrue: [ Color gray ]
+				ifFalse: [ nil ] ].
 	box add: repositoriesPresenter.
 	packagesPresenter := JadeiteListPresenter new display: #description.
-	packagesPresenter headerTitle: 'Packages'.
+	packagesPresenter
+		headerTitle: 'Packages';
+		displayItalic: [ :item |
+			packages anySatisfy: [ :loaded |
+				loaded descriptionInsideParens = item descriptionInsideParens ] ].
 	box add: packagesPresenter.
 	packagesPresenter contextMenu: self newPackageMenu.
 	repositoriesPresenter contextMenu: self newRepositoryMenu.
@@ -115,7 +125,10 @@ JadeiteAllRepositoriesBrowser >> newRepositoryMenu [
 						  item
 							  name: 'Remove Repository...';
 							  action: [ self removeRepository ];
-							  enabled: [ self repositoriesPresenter hasSelection ] ] ]
+							  enabled: [
+								  self repositoriesPresenter hasSelection and: [
+									  (self repositoriesPresenter selectedItem
+										   isKindOf: JadeiteRepositoryGroupSeparator) not ] ] ] ]
 ]
 
 { #category : 'actions' }
@@ -124,6 +137,7 @@ JadeiteAllRepositoriesBrowser >> removeRepository [
 	| repositoryService packageService |
 	self repositoriesPresenter hasSelection ifFalse: [ ^ self ].
 	repositoryService := self repositoriesPresenter selectedItem.
+	(repositoryService isKindOf: JadeiteRepositoryGroupSeparator) ifTrue: [ ^ self ].
 	(self uiManager confirm:
 		 'Really remove repository ' , repositoryService description)
 		ifFalse: [ ^ self ].
@@ -204,34 +218,73 @@ JadeiteAllRepositoriesBrowser >> shellName [
 { #category : 'private' }
 JadeiteAllRepositoriesBrowser >> sortedPackagesForRepository: repositoryService [
 
-	| repoOop |
-	repoOop := repositoryService repositoryOop.
-	^ (packages select: [ :pkg |
-		   pkg repositoryGroups repositories anySatisfy: [ :repo |
-			   repo repositoryOop = repoOop ] ])
+	^ (repositoryService repositoryPackages ifNil: [ #() ])
 		  asSortedCollection: [ :x :y | x description < y description ]
 ]
 
 { #category : 'updates' }
 JadeiteAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 
-	packagesPresenter items: (selection selectedItem
-			 ifNil: [ Array new ]
-			 ifNotNil: [ :repositoryService |
-				 self sortedPackagesForRepository: repositoryService ])
+	| item |
+	item := selection selectedItem.
+	(item isNil or: [ item isKindOf: JadeiteRepositoryGroupSeparator ])
+		ifTrue: [
+			packagesPresenter items: Array new.
+			^ self ].
+	packagesPresenter items: (self sortedPackagesForRepository: item)
 ]
 
 { #category : 'updates' }
 JadeiteAllRepositoriesBrowser >> updateRepositories [
 
-	| allRepos seen |
+	| allRepos seen sorted result previousKey |
 	allRepos := OrderedCollection new.
 	seen := Set new.
 	packages do: [ :pkg |
 		pkg repositoryGroups repositories do: [ :repo |
-			(seen includes: repo repositoryOop) ifFalse: [
-				seen add: repo repositoryOop.
+			| key |
+			key := repo repositoryOop ifNil: [ repo description ].
+			(seen includes: key) ifFalse: [
+				seen add: key.
 				allRepos add: repo ] ] ].
-	repositoriesPresenter items:
-		(allRepos asSortedCollection: [ :x :y | x description < y description ])
+	sorted := allRepos asSortedCollection: [ :x :y |
+		          | kx ky |
+		          kx := self repositoryTypeKeyFor: x.
+		          ky := self repositoryTypeKeyFor: y.
+		          kx = ky
+			          ifTrue: [ x description < y description ]
+			          ifFalse: [ kx < ky ] ].
+	result := OrderedCollection new.
+	previousKey := nil.
+	sorted do: [ :repo |
+		| key |
+		key := self repositoryTypeKeyFor: repo.
+		key ~= previousKey ifTrue: [
+			result add: (JadeiteRepositoryGroupSeparator label:
+					 (self repositoryTypeLabelFor: key)) ].
+		previousKey := key.
+		result add: repo ].
+	repositoriesPresenter items: result
+]
+
+{ #category : 'private' }
+JadeiteAllRepositoriesBrowser >> repositoryTypeKeyFor: aRepositoryService [
+
+	| desc |
+	desc := aRepositoryService description asLowercase.
+	(desc includesSubstring: 'cache') ifTrue: [ ^ 0 ].
+	(desc includesSubstring: 'github') ifTrue: [ ^ 1 ].
+	(desc beginsWith: 'http') ifTrue: [ ^ 2 ].
+	(desc endsWith: '.mcz') ifTrue: [ ^ 3 ].
+	^ 4
+]
+
+{ #category : 'private' }
+JadeiteAllRepositoriesBrowser >> repositoryTypeLabelFor: aKey [
+
+	aKey = 0 ifTrue: [ ^ 'Cache' ].
+	aKey = 1 ifTrue: [ ^ 'GitHub' ].
+	aKey = 2 ifTrue: [ ^ 'HTTP' ].
+	aKey = 3 ifTrue: [ ^ 'MCZ' ].
+	^ 'FileTree'
 ]
