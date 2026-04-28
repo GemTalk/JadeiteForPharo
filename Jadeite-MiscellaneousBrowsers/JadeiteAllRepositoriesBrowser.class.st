@@ -49,7 +49,11 @@ JadeiteAllRepositoriesBrowser >> browsePackageRepositories [
 	loadedPackage := self loadedPackageFor: self packagesPresenter selectedItem.
 	loadedPackage ifNil: [ ^ self ].
 	loadedPackage
-		updateForSession: self gciSession
+		command: #updateServices:;
+		commandArgs: (Array with: loadedPackage repositories).
+	RowanServiceUpdater current
+		issueCommand: loadedPackage
+		session: self gciSession
 		onCompletion: [
 			JadeiteMonticelloBrowser
 				showOn: loadedPackage
