@@ -44,15 +44,15 @@ JadeiteMonticelloAllRepositoriesBrowser >> addRepository [
 { #category : 'actions' }
 JadeiteMonticelloAllRepositoriesBrowser >> browsePackageRepositories [
 
-	| loadedPackage |
+	| loadedPackage answeringService |
 	self packagesPresenter hasSelection ifFalse: [ ^ self ].
 	loadedPackage := self loadedPackageFor: self packagesPresenter selectedItem.
 	loadedPackage ifNil: [ ^ self ].
-	loadedPackage
-		command: #updateServices:;
-		commandArgs: (Array with: loadedPackage repositories).
+	answeringService := RowanAnsweringService new
+		                    command: #updateServices:;
+		                    commandArgs: (Array with: loadedPackage repositories).
 	RowanServiceUpdater current
-		issueCommand: loadedPackage
+		issueCommand: answeringService
 		session: self gciSession
 		onCompletion: [
 			JadeiteMonticelloBrowser
@@ -270,13 +270,17 @@ JadeiteMonticelloAllRepositoriesBrowser >> sortedPackagesForRepository: reposito
 { #category : 'updates' }
 JadeiteMonticelloAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 
-	| repositoryService |
+	| repositoryService answeringService |
 	repositoryService := selection selectedItem.
 	(repositoryService isNil or: [ repositoryService isSeparator ]) ifTrue: [
 		packagesPresenter items: Array new.
 		^ self ].
-	repositoryService
-		updateForSession: self gciSession
+	answeringService := RowanAnsweringService new
+		                    command: #updateServices:;
+		                    commandArgs: (Array with: (Array with: repositoryService)).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession
 		onCompletion: [
 			packagesPresenter items:
 				(self sortedPackagesForRepository: repositoryService) ]
