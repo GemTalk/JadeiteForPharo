@@ -22,6 +22,12 @@ RowanMonticelloRepositoryService >> asString [
 	^ self description
 ]
 
+{ #category : 'testing' }
+RowanMonticelloRepositoryService >> isSeparator [
+
+	^ false
+]
+
 { #category : 'accessing' }
 RowanMonticelloRepositoryService >> description [
 

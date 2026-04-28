@@ -20,6 +20,12 @@ JadeiteRepositoryGroupSeparator >> description [
 	^ label
 ]
 
+{ #category : 'testing' }
+JadeiteRepositoryGroupSeparator >> isSeparator [
+
+	^ true
+]
+
 { #category : 'accessing' }
 JadeiteRepositoryGroupSeparator >> label [
 

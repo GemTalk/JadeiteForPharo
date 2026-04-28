@@ -82,9 +82,9 @@ JadeiteAllRepositoriesBrowser >> initializePresenters [
 	repositoriesPresenter := JadeiteListPresenter new display: #description.
 	repositoriesPresenter
 		headerTitle: 'Repositories';
-		displayItalic: [ :item | item isKindOf: JadeiteRepositoryGroupSeparator ];
+		displayItalic: [ :item | item isSeparator ];
 		displayColor: [ :item |
-			(item isKindOf: JadeiteRepositoryGroupSeparator)
+			(item isSeparator)
 				ifTrue: [ Color gray ]
 				ifFalse: [ nil ] ].
 	box add: repositoriesPresenter.
@@ -128,7 +128,7 @@ JadeiteAllRepositoriesBrowser >> newRepositoryMenu [
 							  enabled: [
 								  self repositoriesPresenter hasSelection and: [
 									  (self repositoriesPresenter selectedItem
-										   isKindOf: JadeiteRepositoryGroupSeparator) not ] ] ] ]
+										   isSeparator) not ] ] ] ]
 ]
 
 { #category : 'actions' }
@@ -137,7 +137,7 @@ JadeiteAllRepositoriesBrowser >> removeRepository [
 	| repositoryService packageService |
 	self repositoriesPresenter hasSelection ifFalse: [ ^ self ].
 	repositoryService := self repositoriesPresenter selectedItem.
-	(repositoryService isKindOf: JadeiteRepositoryGroupSeparator) ifTrue: [ ^ self ].
+	(repositoryService isSeparator) ifTrue: [ ^ self ].
 	(self uiManager confirm:
 		 'Really remove repository ' , repositoryService description)
 		ifFalse: [ ^ self ].
@@ -227,7 +227,7 @@ JadeiteAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 
 	| item |
 	item := selection selectedItem.
-	(item isNil or: [ item isKindOf: JadeiteRepositoryGroupSeparator ])
+	(item isNil or: [ item isSeparator ])
 		ifTrue: [
 			packagesPresenter items: Array new.
 			^ self ].
