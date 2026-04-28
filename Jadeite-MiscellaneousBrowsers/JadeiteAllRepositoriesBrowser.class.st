@@ -225,13 +225,21 @@ JadeiteAllRepositoriesBrowser >> sortedPackagesForRepository: repositoryService 
 { #category : 'updates' }
 JadeiteAllRepositoriesBrowser >> updatePackagePresenterFor: selection [
 
-	| item |
-	item := selection selectedItem.
-	(item isNil or: [ item isSeparator ])
-		ifTrue: [
-			packagesPresenter items: Array new.
-			^ self ].
-	packagesPresenter items: (self sortedPackagesForRepository: item)
+	| repositoryService answeringService |
+	repositoryService := selection selectedItem.
+	(repositoryService isNil or: [ repositoryService isSeparator ]) ifTrue: [
+		packagesPresenter items: Array new.
+		^ self ].
+	answeringService := RowanAnsweringService new
+		                    command: #updateServices:;
+		                    commandArgs:
+			                    (Array with: (Array with: repositoryService)).
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: self gciSession
+		onCompletion: [
+			packagesPresenter items:
+				(self sortedPackagesForRepository: repositoryService) ]
 ]
 
 { #category : 'updates' }
