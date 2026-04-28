@@ -122,8 +122,8 @@ JadeiteMonticelloAddRepositoryDialog >> defaultLayout [
 	urlRow add: fileDialogPresenter expand: false.
 
 	buttonRow := SpBoxLayout newHorizontal.
-	buttonRow addLast: addRepositoryButton expand: false.
 	buttonRow addLast: cancelButton expand: false.
+	buttonRow addLast: addRepositoryButton expand: false.
 
 	outer := SpBoxLayout newVertical.
 	outer borderWidth: 8.
