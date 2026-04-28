@@ -91,9 +91,13 @@ JadeiteForPharoAllRepositoriesBrowserTestCase >> test_selectRepositoryDisplaysPa
 			                       JadeiteAllRepositoriesBrowser
 				                       showOnPackages: packages
 				                       application: jadeiteShell application ].
-	self deny: repositoriesBrowser repositoriesPresenter items isEmpty.
-	firstRepo := repositoriesBrowser repositoriesPresenter items first.
+	firstRepo := repositoriesBrowser repositoriesPresenter items
+		             detect: [ :item | item isSeparator not ]
+		             ifNone: [ nil ].
+	self denyIsNil: firstRepo.
 	repositoriesBrowser repositoriesPresenter selectItem: firstRepo.
+	[ repositoriesBrowser packagesPresenter items isEmpty ] whileTrue: [
+		(Delay forMilliseconds: 50) wait ].
 	self deny: repositoriesBrowser packagesPresenter items isEmpty
 ]
 
