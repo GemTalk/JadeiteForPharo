@@ -20,6 +20,18 @@ JadeiteForPharoAllRepositoriesBrowserTestCase class >> primaryTestClass [
 	^ JadeiteAllRepositoriesBrowser
 ]
 
+{ #category : 'testing' }
+JadeiteForPharoAllRepositoriesBrowserTestCase class >> runAsDataCurator [
+
+	^ true
+]
+
+{ #category : 'testing' }
+JadeiteForPharoAllRepositoriesBrowserTestCase class >> runAsSystemUser [
+
+	^ false
+]
+
 { #category : 'support' }
 JadeiteForPharoAllRepositoriesBrowserTestCase >> monticelloPackageListPresenter [
 

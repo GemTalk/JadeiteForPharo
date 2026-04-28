@@ -52,12 +52,17 @@ JadeiteAbstractTestCase class >> resources [
 
 { #category : 'testing' }
 JadeiteAbstractTestCase class >> runAsDataCurator [
-	"If the test class is expected to pass while
-	logged in with DataCurator, override this 
-	method to return true. The test runner will
-	run each test as both SystemUser and DataCurator."
+	"Override to return true to run each test as DataCurator.
+	Combine with runAsSystemUser to control which users run the tests."
 
 	^ false
+]
+
+{ #category : 'testing' }
+JadeiteAbstractTestCase class >> runAsSystemUser [
+	"Override to return false to skip running tests as SystemUser."
+
+	^ true
 ]
 
 { #category : 'factory' }
