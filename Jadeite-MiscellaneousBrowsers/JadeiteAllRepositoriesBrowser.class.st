@@ -242,10 +242,8 @@ JadeiteAllRepositoriesBrowser >> updateRepositories [
 	seen := Set new.
 	packages do: [ :pkg |
 		pkg repositoryGroups repositories do: [ :repo |
-			| key |
-			key := repo repositoryOop ifNil: [ repo description ].
-			(seen includes: key) ifFalse: [
-				seen add: key.
+			(seen includes: repo description) ifFalse: [
+				seen add: repo description.
 				allRepos add: repo ] ] ].
 	sorted := allRepos asSortedCollection: [ :x :y |
 		          | kx ky |
