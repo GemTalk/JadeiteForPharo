@@ -197,24 +197,18 @@ JadeiteMonticelloAllRepositoriesBrowser >> packagesPresenter: anObject [
 { #category : 'actions' }
 JadeiteMonticelloAllRepositoriesBrowser >> removeRepository [
 
-	| repositoryService packageService |
+	| repositoryService service |
 	self repositoriesPresenter hasSelection ifFalse: [ ^ self ].
 	repositoryService := self repositoriesPresenter selectedItem.
-	(repositoryService isSeparator) ifTrue: [ ^ self ].
+	repositoryService isSeparator ifTrue: [ ^ self ].
 	(self uiManager confirm:
 		 'Really remove repository ' , repositoryService description)
 		ifFalse: [ ^ self ].
-	packageService := packages
-		                  detect: [ :pkg |
-			                  pkg repositoryGroups repositories anySatisfy: [
-				                  :repo |
-				                  repo repositoryOop = repositoryService repositoryOop ] ]
-		                  ifNone: [ ^ self ].
-	packageService
-		command: #removeRepository:;
-		commandArgs: (Array with: repositoryService name).
+	service := RowanMonticelloService new
+		           command: #removeRepository:;
+		           commandArgs: (Array with: repositoryService).
 	self gciSession
-		issueCommand: packageService
+		issueCommand: service
 		onCompletion: [ self updateRepositories ]
 ]
 
@@ -289,32 +283,31 @@ JadeiteMonticelloAllRepositoriesBrowser >> updatePackagePresenterFor: selection 
 { #category : 'updates' }
 JadeiteMonticelloAllRepositoriesBrowser >> updateRepositories [
 
-	| allRepos seen sorted result previousKey |
-	allRepos := OrderedCollection new.
-	seen := Set new.
-	packages do: [ :pkg |
-		pkg repositoryGroups repositories do: [ :repo |
-			(seen includes: repo description) ifFalse: [
-				seen add: repo description.
-				allRepos add: repo ] ] ].
-	sorted := allRepos asSortedCollection: [ :x :y |
-		          | kx ky |
-		          kx := self repositoryTypeKeyFor: x.
-		          ky := self repositoryTypeKeyFor: y.
-		          kx = ky
-			          ifTrue: [ x description < y description ]
-			          ifFalse: [ kx < ky ] ].
-	result := OrderedCollection new.
-	previousKey := nil.
-	sorted do: [ :repo |
-		| key |
-		key := self repositoryTypeKeyFor: repo.
-		key ~= previousKey ifTrue: [
-			result add: (JadeiteRepositoryGroupSeparator label:
-					 (self repositoryTypeLabelFor: key)) ].
-		previousKey := key.
-		result add: repo ].
-	repositoriesPresenter items: result
+	| sorted result previousKey service allRepos |
+	service := RowanMonticelloService new command: #updateRepositories.
+	RowanServiceUpdater current
+		issueCommand: service
+		session: self gciSession
+		onCompletion: [ :svc |
+				allRepos := svc repositories asSet.
+				sorted := allRepos asSortedCollection: [ :x :y |
+						          | kx ky |
+						          kx := self repositoryTypeKeyFor: x.
+						          ky := self repositoryTypeKeyFor: y.
+						          kx = ky
+							          ifTrue: [ x description < y description ]
+							          ifFalse: [ kx < ky ] ].
+				result := OrderedCollection new.
+				previousKey := nil.
+				sorted do: [ :repo |
+						| key |
+						key := self repositoryTypeKeyFor: repo.
+						key ~= previousKey ifTrue: [
+								result add: (JadeiteRepositoryGroupSeparator label:
+										 (self repositoryTypeLabelFor: key)) ].
+						previousKey := key.
+						result add: repo ].
+				repositoriesPresenter items: result ]
 ]
 
 { #category : 'updates' }

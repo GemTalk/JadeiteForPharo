@@ -1121,20 +1121,6 @@ JadeSystemBrowserPresenter >> removePriorVersions [
 ]
 
 { #category : 'as yet unclassified' }
-JadeSystemBrowserPresenter >> removeRepository [
-
-	|stream |
-	stream := (WriteStream on: String new)
-		nextPutAll: 'removeRepository'; tab;
-		nextPutAll: (repositoryListPresenter selection at: 2);
-		yourself.
-	packageListPresenter selections do: [:each | stream tab; nextPutAll: each key].
-	stream lf.
-	self updateCommand: stream contents , self requestString.
-
-]
-
-{ #category : 'as yet unclassified' }
 JadeSystemBrowserPresenter >> requestString [
 
 	| stream |

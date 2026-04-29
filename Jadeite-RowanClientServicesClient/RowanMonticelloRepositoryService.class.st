@@ -16,16 +16,17 @@ RowanMonticelloRepositoryService class >> templateClassName [
 	^#RowanMonticelloRepositoryService
 ]
 
+{ #category : 'comparing' }
+RowanMonticelloRepositoryService >> = aRepositoryService [
+
+	aRepositoryService isService ifFalse: [ ^ false ].
+	^ aRepositoryService description = self description
+]
+
 { #category : 'converting' }
 RowanMonticelloRepositoryService >> asString [
 
 	^ self description
-]
-
-{ #category : 'testing' }
-RowanMonticelloRepositoryService >> isSeparator [
-
-	^ false
 ]
 
 { #category : 'accessing' }
@@ -38,6 +39,18 @@ RowanMonticelloRepositoryService >> description [
 RowanMonticelloRepositoryService >> description: anObject [
 
 	description := anObject
+]
+
+{ #category : 'comparing' }
+RowanMonticelloRepositoryService >> hash [
+
+	^ self description hash bitXor: self description hash
+]
+
+{ #category : 'testing' }
+RowanMonticelloRepositoryService >> isSeparator [
+
+	^ false
 ]
 
 { #category : 'accessing' }

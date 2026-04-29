@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanMonticelloService',
 	#superclass : 'RowanService',
 	#instVars : [
-		'packages'
+		'packages',
+		'repositories'
 	],
 	#category : 'Jadeite-RowanClientServicesClient',
 	#package : 'Jadeite-RowanClientServicesClient'
@@ -30,4 +31,16 @@ RowanMonticelloService >> packages [
 RowanMonticelloService >> packages: anObject [
 
 	packages := anObject
+]
+
+{ #category : 'accessing' }
+RowanMonticelloService >> repositories [
+
+	^ repositories
+]
+
+{ #category : 'accessing' }
+RowanMonticelloService >> repositories: anObject [
+
+	repositories := anObject
 ]

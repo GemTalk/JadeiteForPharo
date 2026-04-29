@@ -45,19 +45,17 @@ JadeiteMonticelloAddRepositoryDialog class >> showOnSession: aGciSession package
 { #category : 'actions' }
 JadeiteMonticelloAddRepositoryDialog >> addRepository [
 
-	| urlString commandSymbol |
+	| urlString commandSymbol service |
 	urlString := urlPresenter text.
 	(urlString isNil or: [ urlString isEmpty ]) ifTrue: [ ^ self ].
 	commandSymbol := self commandForRepositoryType:
 		                 repositoryTypePresenter selectedItem.
-	self monticelloPackageService
-		command: commandSymbol;
-		commandArgs: (Array with: urlString).
-	self gciSession
-		issueCommand: self monticelloPackageService
-		onCompletion: [
-				completionBlock cull: urlString.
-				self window close ]
+	service := RowanMonticelloService new
+		           command: commandSymbol;
+		           commandArgs: (Array with: urlString).
+	self gciSession issueCommand: service onCompletion: [
+			completionBlock cull: urlString.
+			self window close ]
 ]
 
 { #category : 'actions' }
