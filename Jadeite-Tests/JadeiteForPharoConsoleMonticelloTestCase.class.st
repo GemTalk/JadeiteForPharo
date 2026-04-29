@@ -94,7 +94,11 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
 			                       waitForNewPresenter:
 			                       JadeiteMonticelloAllRepositoriesBrowser
 			                       while: [ jadeiteShell browseAllRepositories ].
-		(Delay forMilliseconds: 100) wait.
+		self
+			waitFor: [
+					(repositoriesBrowser repositoriesPresenter items reject: [ :item |
+						 item isSeparator ]) size <= initialCount ]
+			errorMessage: 'timeout waiting for repositories browser to build'.
 		self assert:
 			(repositoriesBrowser repositoriesPresenter items reject: [ :item |
 				 item isSeparator ]) size > initialCount.
@@ -107,21 +111,27 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
 			equals: testUrl.
 		self destroy: repositoriesBrowser ] ensure: [
 			repositoriesBrowser := nil.
-			monticelloService
-				command: #removeRepository:;
-				commandArgs: (Array with: repoService).
-			self issueCommand: monticelloService onCompletion: [
-					repositoriesBrowser := self
-						                       waitForNewPresenter:
-						                       JadeiteMonticelloAllRepositoriesBrowser
-						                       while: [
-						                       jadeiteShell browseAllRepositories ].
-					(Delay forMilliseconds: 100) wait.
-					self
-						assert:
-							(repositoriesBrowser repositoriesPresenter items reject: [
-								 :item | item isSeparator ]) size
-						equals: initialCount ] ]
+			repoService ifNotNil: [
+					monticelloService
+						command: #removeRepository:;
+						commandArgs: (Array with: repoService).
+					self issueCommand: monticelloService onCompletion: [
+							repositoriesBrowser := self
+								                       waitForNewPresenter:
+								                       JadeiteMonticelloAllRepositoriesBrowser
+								                       while: [
+								                       jadeiteShell browseAllRepositories ].
+							self
+								waitFor: [
+										(repositoriesBrowser repositoriesPresenter items reject: [
+											 :item | item isSeparator ]) size ~= initialCount ]
+								errorMessage:
+								'timeout waiting for repositories browser to build'.
+							self
+								assert:
+									(repositoriesBrowser repositoriesPresenter items reject: [
+										 :item | item isSeparator ]) size
+								equals: initialCount ] ] ]
 ]
 
 { #category : 'tests' }

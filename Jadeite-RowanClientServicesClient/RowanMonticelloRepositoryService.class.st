@@ -44,7 +44,7 @@ RowanMonticelloRepositoryService >> description: anObject [
 { #category : 'comparing' }
 RowanMonticelloRepositoryService >> hash [
 
-	^ self description hash bitXor: self description hash
+	^ self description hash
 ]
 
 { #category : 'testing' }
