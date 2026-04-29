@@ -66,54 +66,61 @@ JadeiteForPharoConsoleMonticelloTestCase >> tearDown [
 
 { #category : 'tests' }
 JadeiteForPharoConsoleMonticelloTestCase >> test_addAndRemoveRepository [
-	"Add a test HTTP repository to the first package, verify it appears in the
-	 All Repositories browser, then remove it to restore the original state."
+	"Add a test HTTP repository, verify it appears and is selected,
+	 then remove it to restore the original state.
+	 After each action command, updateMonticelloPackages re-fetches package
+	 data from the server (action commands do not return updated services).
+	 A fresh browser is opened each time so it reads the current packages."
 
-	| firstPackage testUrl initialCount updatedCount |
+	| firstPackage testUrl initialCount |
 	self deny: self monticelloPackageListPresenter items isEmpty.
 	firstPackage := self monticelloPackageListPresenter items first.
 	testUrl := 'http://test.jadeiteforpharo.internal/ss/TestRepo'.
+
 	repositoriesBrowser := self
 		                       waitForNewPresenter:
 		                       JadeiteMonticelloAllRepositoriesBrowser
 		                       while: [ jadeiteShell browseAllRepositories ].
 	initialCount := (repositoriesBrowser repositoriesPresenter items
 		                 reject: [ :item | item isSeparator ]) size.
-	firstPackage
-		command: #addHttpRepository:;
-		commandArgs: (Array with: testUrl).
-	self
-		issueCommand: firstPackage
-		onCompletion: [
-		repositoriesBrowser updateRepositoriesSelectingUrl: testUrl ].
-	self
-		waitFor: [
-				(repositoriesBrowser repositoriesPresenter items reject: [ :item |
-					 item isSeparator ]) size = initialCount ]
-		errorMessage:
-		'Timed out waiting for repository list to update after add'.
-	updatedCount := (repositoriesBrowser repositoriesPresenter items
-		                 reject: [ :item | item isSeparator ]) size.
-	self assert: updatedCount > initialCount.
-	self
-		assert:
-		repositoriesBrowser repositoriesPresenter selectedItem description
-		equals: testUrl.
-	firstPackage
-		command: #removeRepository:;
-		commandArgs: (Array with: testUrl).
-	self
-		issueCommand: firstPackage
-		onCompletion: [ repositoriesBrowser updateRepositories ].
-	self
-		waitFor: [
-				(repositoriesBrowser repositoriesPresenter items reject: [ :item |
-					 item isSeparator ]) size = updatedCount ]
-		errorMessage:
-		'Timed out waiting for repository list to update after remove'.
-	self assert:
-		(repositoriesBrowser repositoriesPresenter items reject: [ :item |
-			 item isSeparator ]) size equals: initialCount
+	self destroy: repositoriesBrowser.
+	repositoriesBrowser := nil.
+
+	[
+		firstPackage
+			command: #addHttpRepository:;
+			commandArgs: (Array with: testUrl).
+		self issueCommand: firstPackage onCompletion: [  ].
+		jadeiteShell updateMonticelloPackages.
+
+		repositoriesBrowser := self
+			                       waitForNewPresenter:
+			                       JadeiteMonticelloAllRepositoriesBrowser
+			                       while: [ jadeiteShell browseAllRepositories ].
+		self assert:
+			(repositoriesBrowser repositoriesPresenter items
+				 reject: [ :item | item isSeparator ]) size > initialCount.
+		repositoriesBrowser updateRepositoriesSelectingUrl: testUrl.
+		self
+			assert: repositoriesBrowser repositoriesPresenter selectedItem
+				description
+			equals: testUrl.
+		self destroy: repositoriesBrowser.
+		repositoriesBrowser := nil ] ensure: [
+		firstPackage := self monticelloPackageListPresenter items first.
+		firstPackage
+			command: #removeRepository:;
+			commandArgs: (Array with: testUrl).
+		self issueCommand: firstPackage onCompletion: [  ].
+		jadeiteShell updateMonticelloPackages.
+
+		repositoriesBrowser := self
+			                       waitForNewPresenter:
+			                       JadeiteMonticelloAllRepositoriesBrowser
+			                       while: [ jadeiteShell browseAllRepositories ].
+		self assert:
+			(repositoriesBrowser repositoriesPresenter items
+				 reject: [ :item | item isSeparator ]) size equals: initialCount ]
 ]
 
 { #category : 'tests' }
@@ -188,4 +195,24 @@ JadeiteForPharoConsoleMonticelloTestCase >> test_browsePackageRepositoriesWindow
 JadeiteForPharoConsoleMonticelloTestCase >> test_packagesLoaded [
 
 	self deny: self monticelloPackageListPresenter items isEmpty
+]
+
+{ #category : 'tests' }
+JadeiteForPharoConsoleMonticelloTestCase >> test_updateRepositoriesSelectsExistingUrl [
+	"updateRepositoriesSelectingUrl: should select the repo whose description
+	 matches the given URL, whether it was just added or was already present."
+
+	| firstRepo |
+	repositoriesBrowser := self
+		                       waitForNewPresenter:
+		                       JadeiteMonticelloAllRepositoriesBrowser
+		                       while: [ jadeiteShell browseAllRepositories ].
+	firstRepo := repositoriesBrowser repositoriesPresenter items
+		             detect: [ :item | item isSeparator not ]
+		             ifNone: [ nil ].
+	self denyIsNil: firstRepo.
+	repositoriesBrowser updateRepositoriesSelectingUrl: firstRepo description.
+	self
+		assert: repositoriesBrowser repositoriesPresenter selectedItem
+		equals: firstRepo
 ]
