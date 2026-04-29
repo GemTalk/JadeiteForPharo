@@ -160,6 +160,9 @@ JadeiteBrowserPresenterMonticello >> isRowanProjectSelected [
 { #category : 'events' }
 JadeiteBrowserPresenterMonticello >> monticelloPackageChanged: monticelloPackageService [
 
+	classHierarchyPresenter clear.
+	classListPresenter clear.
+	self selectClassListTab.
 	monticelloPackageService ifNil: [
 			self updateSystemTab.
 			^ self classListPresenter items: OrderedCollection new ].
