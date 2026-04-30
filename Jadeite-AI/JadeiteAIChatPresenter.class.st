@@ -307,8 +307,8 @@ JadeiteAIChatPresenter >> initializePresenters [
 		                    action: [ self toggleIncludeAllMethods ];
 		                    yourself.
 	contextRow
-		add: contextLabel;
-		add: includeAllButton expand: false.
+		add: includeAllButton expand: false;
+		add: contextLabel.
 	self layout add: contextRow withConstraints: [ :c | c height: 24 ].
 
 	buttonRow := SpBoxLayout newHorizontal.
@@ -380,28 +380,35 @@ JadeiteAIChatPresenter >> onWorkerError: errorString [
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> resolveContextSource [
-	"Called from the background worker. Returns the context string to inject into
-	 the prompt. Caches the result; set contextSource to nil to force a rebuild.
-	 Falls back to auto-detecting selected method in any open browser."
+JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
+	"Resolve the context string and call aBlock with it.
+	 For class services this is async (forks a GemStone fetch via RowanServiceUpdater);
+	 for all other cases it is synchronous. Caches the result in contextSource."
 
-	contextSource ifNotNil: [ ^ contextSource ].
+	contextSource ifNotNil: [ :src |
+		aBlock value: src.
+		^ self ].
 
 	contextClassService ifNotNil: [ :cs |
-		cs update.
-		contextSource := self buildContextSourceFromClass: cs.
-		^ contextSource ].
+		RowanServiceUpdater current
+			updateService: cs
+			session: gciSession
+			onCompletion: [
+				contextSource := self buildContextSourceFromClass: cs.
+				aBlock value: contextSource ].
+		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
 		contextSource := self buildContextSourceFromMethods: ms.
-		^ contextSource ].
+		aBlock value: contextSource.
+		^ self ].
 
-	^ self fetchGemStoneContext
+	aBlock value: self fetchGemStoneContext
 ]
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> sendMessage [
-	"Grab input, resolve GemStone context in the worker, then POST to the LLM."
+	"Grab input, resolve GemStone context (async for class services), then POST to the LLM."
 
 	| userText |
 	userText := inputArea text trimBlanks.
@@ -411,24 +418,24 @@ JadeiteAIChatPresenter >> sendMessage [
 	inputArea text: ''.
 	self disableInput.
 
-	workerProcess := [
-		| context fullPrompt reply |
-		[
-			context := self resolveContextSource.
-			fullPrompt := context isEmpty
-				              ifTrue: [ userText ]
-				              ifFalse: [
-					              'GemStone source context:
+	self resolveContextOnCompletion: [ :context |
+		workerProcess := [
+			| fullPrompt reply |
+			[
+				fullPrompt := context isEmpty
+					              ifTrue: [ userText ]
+					              ifFalse: [
+						              'GemStone source context:
 ' , context , '
 
 Question: ' , userText ].
-			conversation addUserMessage: fullPrompt.
-			reply := llmAdapter sendConversation: conversation.
-			UIManager default defer: [ self onWorkerDone: reply ] ]
-			on: Error
-			do: [ :ex |
-				UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
-		forkNamed: 'JadeiteAI-LLMWorker'
+				conversation addUserMessage: fullPrompt.
+				reply := llmAdapter sendConversation: conversation.
+				UIManager default defer: [ self onWorkerDone: reply ] ]
+				on: Error
+				do: [ :ex |
+					UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
+			forkNamed: 'JadeiteAI-LLMWorker' ]
 ]
 
 { #category : 'context' }
