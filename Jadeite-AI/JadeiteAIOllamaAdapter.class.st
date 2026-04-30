@@ -71,22 +71,22 @@ JadeiteAIOllamaAdapter >> model: aString [
 { #category : 'json' }
 JadeiteAIOllamaAdapter >> jsonEncodeString: aString [
 	"Return aString as a JSON string literal including surrounding double-quotes.
-	 Escapes backslash, double-quote, and common control characters."
+	 Escapes backslash, double-quote, and common control characters.
+	 CR (13) is stripped — Pharo uses CR internally but it is invalid in JSON."
 
-	| ws v escape |
+	| ws |
 	ws := WriteStream on: String new.
 	ws nextPut: $".
 	aString do: [ :c |
+		| v written |
 		v := c value.
-		escape := nil.
-		v = 34 ifTrue: [ escape := '\"' ].   "double-quote"
-		v = 92 ifTrue: [ escape := '\\' ].   "backslash"
-		v = 10 ifTrue: [ escape := '\n' ].   "newline"
-		v = 13 ifTrue: [ escape := '' ].   "strip CR - prevents invalid JSON on CRLF content"
-		v =  9 ifTrue: [ escape := '\t' ].   "tab"
-		escape isNil
-			ifTrue:  [ ws nextPut: c ]
-			ifFalse: [ ws nextPutAll: escape ] ].
+		written := false.
+		(v = 34) ifTrue: [ ws nextPutAll: '\"'. written := true ].
+		(written not and: [ v = 92 ]) ifTrue: [ ws nextPutAll: '\\'. written := true ].
+		(written not and: [ v = 10 ]) ifTrue: [ ws nextPutAll: '\n'. written := true ].
+		(written not and: [ v =  9 ]) ifTrue: [ ws nextPutAll: '\t'. written := true ].
+		(written not and: [ v = 13 ]) ifTrue: [ written := true ].
+		written ifFalse: [ ws nextPut: c ] ].
 	ws nextPut: $".
 	^ ws contents
 ]
@@ -174,6 +174,7 @@ JadeiteAIOllamaAdapter >> sendConversation: aConversation [
 	| body responseString |
 	body := self buildRequestBody: aConversation.
 	body := body copyWithout: Character cr.
+	body := body copyWithout: (Character value: 9).
 	responseString := ZnClient new
 		                  beOneShot;
 		                  url: baseUrl , '/chat/completions';

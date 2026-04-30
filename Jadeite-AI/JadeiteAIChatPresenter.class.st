@@ -265,6 +265,7 @@ JadeiteAIChatPresenter >> spinnerMessages [
 		'Alphabetizing the symbol table...'
 		'Consulting ancient ObjectMemory scrolls...'
 		'Asking Allen...'
+		'Reading Lisa''s Docs...'
 	)
 ]
 
