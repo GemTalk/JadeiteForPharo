@@ -82,7 +82,8 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession [
 	CurrentWindow := self new.
 	aGciSession ifNotNil: [ CurrentWindow gciSession: aGciSession ].
 	CurrentWindow llmAdapter: resolvedAdapter.
-	^ CurrentWindow open
+	CurrentWindow open.
+	^ CurrentWindow
 ]
 
 { #category : 'instance creation' }
