@@ -264,6 +264,7 @@ JadeiteAIChatPresenter >> spinnerMessages [
 		'Sharpening the SortBlock...'
 		'Alphabetizing the symbol table...'
 		'Consulting ancient ObjectMemory scrolls...'
+		'Asking Allen...'
 	)
 ]
 
