@@ -2,7 +2,7 @@
 JAIChatPresenter — Spec 2 chat UI for the Jadeite AI assistant.
 
 Menu path:  Console > AI Chat
-Setup:      Install Ollama from https://ollama.com, then run: ollama pull llama3.2
+Setup:      Install Ollama from https://ollama.com, then run: ollama pull qwen2.5-coder:7b
             No account or API key needed. If Ollama is not running, a setup
             dialog explains exactly what to do.
 Tests:      JAIChatTestCase run
@@ -12,6 +12,9 @@ The presenter is self-contained:
   - input area accepts multi-line prompts
   - Send forks a background worker so the UI stays responsive
   - GemStone source context is injected automatically when a browser is open
+
+Note: the instance variable is named llmAdapter (not adapter) to avoid
+shadowing SpPresenter>>adapter which Spec 2 uses for its Morphic backend.
 "
 Class {
 	#name : 'JAIChatPresenter',
@@ -23,7 +26,7 @@ Class {
 		'stopButton',
 		'statusLabel',
 		'conversation',
-		'adapter',
+		'llmAdapter',
 		'workerProcess',
 		'gciSession'
 	],
@@ -34,8 +37,8 @@ Class {
 { #category : 'instance creation' }
 JAIChatPresenter class >> openWithSession: aGciSession [
 	"Open a new AI chat window.
-	 Resolves the LLM adapter automatically (config file, env var, or Ollama).
-	 Shows a setup dialog if no LLM source is found."
+	 Resolves the LLM adapter automatically via JAISettings.
+	 Shows a setup dialog if Ollama is not running."
 
 	| resolvedAdapter presenter |
 	resolvedAdapter := JAISettings resolveAdapter.
@@ -45,7 +48,7 @@ JAIChatPresenter class >> openWithSession: aGciSession [
 
 	presenter := self new.
 	aGciSession ifNotNil: [ presenter gciSession: aGciSession ].
-	presenter adapter: resolvedAdapter.
+	presenter llmAdapter: resolvedAdapter.
 	^ presenter open
 ]
 
@@ -65,7 +68,6 @@ JAIChatPresenter >> appendToTranscript: aString [
 	transcriptArea text: (current isEmpty
 		ifTrue: [ aString ]
 		ifFalse: [ current , String lf , aString ]).
-	"Scroll to bottom — adapter may not exist before the window is open"
 	[ transcriptArea adapter widget scrollToBottom ]
 		on: Error
 		do: [ "ignore if widget not yet realized" ]
@@ -109,15 +111,15 @@ JAIChatPresenter >> fetchGemStoneContext [
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> adapter [
+JAIChatPresenter >> llmAdapter [
 
-	^ adapter
+	^ llmAdapter
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> adapter: aJAIHttpAdapter [
+JAIChatPresenter >> llmAdapter: aJAIHttpAdapter [
 
-	adapter := aJAIHttpAdapter
+	llmAdapter := aJAIHttpAdapter
 ]
 
 { #category : 'accessing' }
@@ -148,17 +150,21 @@ JAIChatPresenter >> initialize [
 { #category : 'initialization' }
 JAIChatPresenter >> initializePresenters [
 
-	| buttonRow |
+	| buttonRow inputLabel |
 	super initializePresenters.
 
 	transcriptArea := self newText.
 	transcriptArea beNotEditable.
 	self layout add: transcriptArea.
 
+	inputLabel := self newLabel label: 'Your message:'.
+	self layout add: inputLabel withConstraints: [ :c | c height: 20 ].
+
 	inputArea := self newText.
-	self layout
-		add: inputArea
-		withConstraints: [ :c | c height: 110 ].
+	inputArea
+		bindKeyCombination: $u meta asKeyCombination
+		toAction: [ self sendMessage ].
+	self layout add: inputArea withConstraints: [ :c | c height: 100 ].
 
 	buttonRow := SpBoxLayout newHorizontal.
 	sendButton := self newButton
@@ -183,7 +189,7 @@ JAIChatPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter title: 'AI Chat — Jadeite'.
-	aWindowPresenter initialExtent: 700 @ 500
+	aWindowPresenter initialExtent: 700 @ 520
 ]
 
 { #category : 'event handling' }
@@ -226,15 +232,15 @@ Question: ' , userText ].
 	self disableInput.
 
 	workerProcess := [
-	                 | reply |
-	                 [
-	                 reply := adapter sendConversation: conversation.
-	                 UIManager default defer: [ self onWorkerDone: reply ] ]
-		                 on: Error
-		                 do: [ :ex |
-			                 UIManager default defer: [
-				                 self onWorkerError: ex messageText ] ] ]
-		                 forkNamed: 'JAI-LLMWorker'
+		| reply |
+		[
+		reply := llmAdapter sendConversation: conversation.
+		UIManager default defer: [ self onWorkerDone: reply ] ]
+			on: Error
+			do: [ :ex |
+				UIManager default defer: [
+					self onWorkerError: ex messageText ] ] ]
+		forkNamed: 'JAI-LLMWorker'
 ]
 
 { #category : 'actions' }

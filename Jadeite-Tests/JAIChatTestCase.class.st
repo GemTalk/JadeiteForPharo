@@ -104,8 +104,8 @@ JAIChatTestCase >> testPresenterAcceptsInjectedAdapter [
 	| presenter mock |
 	presenter := JAIChatPresenter new.
 	mock := JAIMockAdapter returning: 'hi'.
-	presenter adapter: mock.
-	self assert: presenter adapter == mock
+	presenter llmAdapter: mock.
+	self assert: presenter llmAdapter == mock
 ]
 
 { #category : 'tests - presenter' }
@@ -120,7 +120,7 @@ JAIChatTestCase >> testSendMessageAddsUserMessageToConversation [
 		        reply: 'reply'.
 
 	"Intercept onWorkerDone: so we can signal the semaphore"
-	presenter adapter: mock.
+	presenter llmAdapter: mock.
 
 	"We cannot call sendMessage without a real UI, so test the model layer directly"
 	presenter conversation addUserMessage: 'my question'.
