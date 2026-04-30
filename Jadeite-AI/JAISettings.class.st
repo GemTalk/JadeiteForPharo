@@ -23,8 +23,8 @@ One-time setup:
      (one installer, works on Mac, Windows, and Linux)
 
   2. Open a terminal and download a model:
-       ollama pull llama3.2
-     (~2 GB download, only needed once)
+       ollama pull qwen2.5-coder:7b
+     (~5 GB download, only needed once — good at Smalltalk/GemStone code)
 
   3. Ollama starts automatically after install.
      If it is not running, start it with:
@@ -32,8 +32,10 @@ One-time setup:
 
 Then select Console > AI Chat again — no restart needed.
 
-For better code analysis, try the coding-focused model instead:
-  ollama pull qwen2.5-coder:7b  (~5 GB)'
+For a lighter model on machines with less RAM:
+  ollama pull llama3.2  (~2 GB)
+  Then open a Workspace and evaluate:
+    JAIOpenAIAdapter forOllamaWithModel: ''llama3.2'''
 ]
 
 { #category : 'probing' }

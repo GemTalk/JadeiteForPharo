@@ -169,7 +169,7 @@ JAIChatTestCase >> testAdapterDefaultsToOllama [
 JAIChatTestCase >> testOllamaAdapterCustomModel [
 
 	| adapter |
-	adapter := JAIOpenAIAdapter forOllama model: 'qwen2.5-coder:7b'.
+	adapter := JAIOpenAIAdapter forOllamaWithModel: 'qwen2.5-coder:7b'.
 	self assert: adapter model equals: 'qwen2.5-coder:7b'.
 	self assert: adapter apiKey equals: 'ollama'.
 	self assert: (adapter baseUrl includesSubstring: 'localhost')

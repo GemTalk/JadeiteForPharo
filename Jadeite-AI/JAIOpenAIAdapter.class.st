@@ -4,10 +4,11 @@ JAIOpenAIAdapter — HTTP adapter for Ollama's OpenAI-compatible chat completion
 Ollama exposes the same REST interface as OpenAI on localhost:11434/v1,
 so this adapter works for both without any code changes.
 
-Default model:  llama3.2  (~2 GB, good general assistant)
-Code model:     qwen2.5-coder:7b  (~5 GB, better for Smalltalk/GemStone analysis)
+Default model:  qwen2.5-coder:7b  (~5 GB, good at Smalltalk/GemStone code analysis)
+Lighter model:  llama3.2  (~2 GB, use on machines with less RAM)
 
-Pull a model once with:  ollama pull llama3.2
+Pull a model once with:  ollama pull qwen2.5-coder:7b
+Switch model:   JAIOpenAIAdapter forOllamaWithModel: 'llama3.2'
 "
 Class {
 	#name : 'JAIOpenAIAdapter',
@@ -24,11 +25,15 @@ Class {
 { #category : 'instance creation' }
 JAIOpenAIAdapter class >> forOllama [
 
-	^ self forOllama model: 'llama3.2'
+	^ self new
+		  apiKey: 'ollama';
+		  baseUrl: 'http://localhost:11434/v1';
+		  model: 'qwen2.5-coder:7b';
+		  yourself
 ]
 
 { #category : 'instance creation' }
-JAIOpenAIAdapter class >> forOllama model: aModelString [
+JAIOpenAIAdapter class >> forOllamaWithModel: aModelString [
 
 	^ self new
 		  apiKey: 'ollama';
