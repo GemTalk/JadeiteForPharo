@@ -1,7 +1,7 @@
 "
 JadeiteAIChatPresenter — Spec 2 chat UI for the Jadeite AI assistant.
 
-Menu path:  Console > AI Chat
+Menu path:  Tools > Ask Jadeite
 Setup:      Install Ollama from https://ollama.com, then run: ollama pull qwen2.5-coder:7b
             No account or API key needed. If Ollama is not running, a setup
             dialog explains exactly what to do.
@@ -21,6 +21,7 @@ Class {
 	#superclass : 'JadeitePresenter',
 	#instVars : [
 		'transcriptArea',
+		'transcriptContent',
 		'inputArea',
 		'sendButton',
 		'stopButton',
@@ -55,14 +56,15 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession [
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> appendToTranscript: aString [
-	"Append aString to the read-only transcript and scroll to the end."
+JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
+	"Append text to the transcript, preserving Text attributes (bold etc.).
+	 Maintains transcriptContent as the source of truth to avoid losing
+	 formatting when re-reading from the widget."
 
-	| current |
-	current := transcriptArea text.
-	transcriptArea text: (current isEmpty
-		ifTrue: [ aString ]
-		ifFalse: [ current , String lf , aString ]).
+	transcriptContent isEmpty
+		ifFalse: [ transcriptContent := transcriptContent , String lf asText ].
+	transcriptContent := transcriptContent , aTextOrString asText.
+	transcriptArea text: transcriptContent.
 	[ transcriptArea scrollValue: 1 @ 1 ]
 		on: Error
 		do: [ "ignore if widget not yet realized" ]
@@ -72,7 +74,8 @@ JadeiteAIChatPresenter >> appendToTranscript: aString [
 JadeiteAIChatPresenter >> clearChat [
 	"Reset the transcript display and start a fresh conversation."
 
-	transcriptArea text: ''.
+	transcriptContent := '' asText.
+	transcriptArea text: transcriptContent.
 	conversation := JadeiteAIChatConversation new
 ]
 
@@ -110,15 +113,17 @@ JadeiteAIChatPresenter >> enableInput [
 JadeiteAIChatPresenter >> fetchGemStoneContext [
 	"Return source of the currently-selected method from any open Jadeite browser,
 	 or empty string if nothing is selected or no session is available.
-	 Source is already in the Pharo image — no extra GemStone round-trip needed."
+	 Uses selectedMethods (from JadeiteMethodsTrait) which all browsers implement."
 
 	gciSession ifNil: [ ^ '' ].
 	JadeiteBrowserPresenter allInstances do: [ :browser |
 		| src |
 		src := [
-			browser selectedMethod
-				ifNotNil: [ :m | m source ]
-				ifNil: [ nil ] ]
+			| methods |
+			methods := browser selectedMethods.
+			(methods notNil and: [ methods notEmpty ])
+				ifTrue: [ methods first source ]
+				ifFalse: [ nil ] ]
 			on: Error
 			do: [ nil ].
 		(src notNil and: [ src notEmpty ]) ifTrue: [ ^ src ] ].
@@ -141,7 +146,8 @@ JadeiteAIChatPresenter >> gciSession: aGciSession [
 JadeiteAIChatPresenter >> initialize [
 
 	super initialize.
-	conversation := JadeiteAIChatConversation new
+	conversation := JadeiteAIChatConversation new.
+	transcriptContent := '' asText
 ]
 
 { #category : 'initialization' }
@@ -217,7 +223,7 @@ JadeiteAIChatPresenter >> onWorkerDone: replyString [
 	"Called on the UI thread after a successful LLM response."
 
 	conversation addAssistantMessage: replyString.
-	self appendToTranscript: '[AI] ' , replyString.
+	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
 	self enableInput
 ]
 
@@ -247,7 +253,7 @@ JadeiteAIChatPresenter >> sendMessage [
 Question: ' , userText ].
 
 	conversation addUserMessage: fullPrompt.
-	self appendToTranscript: '[You] ' , userText.
+	self appendToTranscript: '[You] ' asText allBold , userText asText.
 	inputArea text: ''.
 	self disableInput.
 
@@ -280,19 +286,27 @@ JadeiteAIChatPresenter >> spinnerMessages [
 		'Consulting ancient ObjectMemory scrolls...'
 		'Asking Allen...'
 		'Reading Lisa''s Docs...'
+		'Checking SVN blame...'
+		'Waiting for the merge to resolve...'
+		'Counting commits to trunk...'
+		'Praying to the GemStone gods...'
+		'Waiting for the GC to finish...'
+		'Befuddling the ponytails...'
+		'Waking the gray-beards from their naps...'
 	)
 ]
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> startSpinner [
 
-	| frames messages frameIdx msgIdx rotationCount |
+	| frames messages frameIdx rotationCount |
 	frames := #('|' '/' '-' '\').
 	messages := self spinnerMessages.
 	frameIdx := 1.
-	msgIdx := 1.
 	rotationCount := 0.
 	spinnerProcess := [
+		| msgIdx |
+		msgIdx := (1 to: messages size) atRandom.
 		[ true ] whileTrue: [
 			| label |
 			label := (frames at: frameIdx) , '  ' , (messages at: msgIdx).
@@ -301,7 +315,7 @@ JadeiteAIChatPresenter >> startSpinner [
 			frameIdx = 1 ifTrue: [
 				rotationCount := rotationCount + 1.
 				rotationCount \\ 3 = 0 ifTrue: [
-					msgIdx := (msgIdx \\ messages size) + 1 ] ].
+					msgIdx := (1 to: messages size) atRandom ] ].
 			(Delay forMilliseconds: 150) wait ] ]
 		forkNamed: 'JadeiteAI-Spinner'
 ]
