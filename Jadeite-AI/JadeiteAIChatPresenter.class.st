@@ -9,7 +9,7 @@ Tests:      JadeiteAIChatTestCase run
 
 The presenter is self-contained:
   - transcript area shows alternating user / assistant turns
-  - input area accepts multi-line prompts
+  - input area accepts multi-line prompts (Ctrl+Enter for newline, Enter to send)
   - Send forks a background worker so the UI stays responsive
   - GemStone source context is injected automatically when a browser is open
 
@@ -28,6 +28,7 @@ Class {
 		'conversation',
 		'llmAdapter',
 		'workerProcess',
+		'spinnerProcess',
 		'gciSession'
 	],
 	#category : 'Jadeite-AI',
@@ -54,15 +55,14 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> appendToTranscript: aString [
-	"Append aString to the read-only transcript and scroll to the end.
-	 Must be called from the UI process."
+	"Append aString to the read-only transcript and scroll to the end."
 
 	| current |
 	current := transcriptArea text.
 	transcriptArea text: (current isEmpty
 		ifTrue: [ aString ]
 		ifFalse: [ current , String lf , aString ]).
-	[ transcriptArea adapter widget scrollToBottom ]
+	[ transcriptArea scrollValue: 1 @ 1 ]
 		on: Error
 		do: [ "ignore if widget not yet realized" ]
 ]
@@ -85,16 +85,16 @@ JadeiteAIChatPresenter >> disableInput [
 	sendButton enabled: false.
 	inputArea enabled: false.
 	stopButton enabled: true.
-	statusLabel label: 'Waiting for response...'
+	self startSpinner
 ]
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> enableInput [
 
+	self stopSpinner.
 	sendButton enabled: true.
 	inputArea enabled: true.
-	stopButton enabled: false.
-	statusLabel label: ''
+	stopButton enabled: false
 ]
 
 { #category : 'private' }
@@ -145,13 +145,19 @@ JadeiteAIChatPresenter >> initializePresenters [
 	transcriptArea beNotEditable.
 	self layout add: transcriptArea.
 
-	inputLabel := self newLabel label: 'Your message:'.
+	inputLabel := self newLabel label: 'Your message:  (Enter = Send,  Ctrl+Enter = new line)'.
 	self layout add: inputLabel withConstraints: [ :c | c height: 20 ].
 
 	inputArea := self newText.
 	inputArea
-		bindKeyCombination: $u meta asKeyCombination
+		bindKeyCombination: Character cr asKeyCombination
 		toAction: [ self sendMessage ].
+	inputArea
+		bindKeyCombination: Character cr ctrl asKeyCombination
+		toAction: [
+			[ inputArea adapter widget editor insertString: (String with: Character cr) ]
+				on: Error
+				do: [ inputArea text: inputArea text , String cr ] ].
 	self layout add: inputArea withConstraints: [ :c | c height: 100 ].
 
 	buttonRow := SpBoxLayout newHorizontal.
@@ -244,6 +250,42 @@ Question: ' , userText ].
 		                 forkNamed: 'JadeiteAI-LLMWorker'
 ]
 
+{ #category : 'private' }
+JadeiteAIChatPresenter >> spinnerMessages [
+
+	^ #(
+		'Polishing gem facets...'
+		'Bribing the Stone keeper...'
+		'Negotiating with the Gem process...'
+		'Reticulating GemStone splines...'
+		'Asking Topaz nicely...'
+		'Herding stray objects...'
+		'Convincing the GC to wait...'
+		'Sharpening the SortBlock...'
+		'Alphabetizing the symbol table...'
+		'Consulting ancient ObjectMemory scrolls...'
+	)
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> startSpinner [
+
+	| frames messages frameIdx msgIdx |
+	frames := #('|' '/' '-' '\').
+	messages := self spinnerMessages.
+	frameIdx := 1.
+	msgIdx := 1.
+	spinnerProcess := [
+		[ true ] whileTrue: [
+			| label |
+			label := (frames at: frameIdx) , '  ' , (messages at: msgIdx).
+			UIManager default defer: [ statusLabel label: label ].
+			frameIdx := (frameIdx \\ frames size) + 1.
+			frameIdx = 1 ifTrue: [ msgIdx := (msgIdx \\ messages size) + 1 ].
+			(Delay forMilliseconds: 150) wait ] ]
+		forkNamed: 'JadeiteAI-Spinner'
+]
+
 { #category : 'actions' }
 JadeiteAIChatPresenter >> stopWorker [
 	"Terminate the in-flight LLM request and re-enable input."
@@ -253,4 +295,13 @@ JadeiteAIChatPresenter >> stopWorker [
 		workerProcess := nil ].
 	self appendToTranscript: '[Stopped]'.
 	self enableInput
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> stopSpinner [
+
+	spinnerProcess ifNotNil: [ :p |
+		p terminate.
+		spinnerProcess := nil ].
+	statusLabel label: ''
 ]
