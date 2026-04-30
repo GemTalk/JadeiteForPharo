@@ -53,7 +53,9 @@ BaselineOfJadeiteForPharo >> baseline: spec [
 				package: 'Jadeite-MiscellaneousBrowsers'
 				with: [ spec requires: 'Jadeite-Connection' ];
 				package: 'Jadeite-Tests'
-				with: [ spec requires: 'Jadeite-Connection' ].
+				with: [ spec requires: 'Jadeite-Connection' ];
+				package: 'Jadeite-AI'
+				with: [ spec requires: 'Jadeite-Console' ].
 			spec
 				baseline: 'RemoteServiceReplication'
 				with: [ spec repository: self rsrUrl ].
