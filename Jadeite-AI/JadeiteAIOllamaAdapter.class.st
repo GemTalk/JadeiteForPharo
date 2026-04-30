@@ -173,6 +173,7 @@ JadeiteAIOllamaAdapter >> sendConversation: aConversation [
 
 	| body responseString |
 	body := self buildRequestBody: aConversation.
+	body := body copyWithout: Character cr.
 	responseString := ZnClient new
 		                  beOneShot;
 		                  url: baseUrl , '/chat/completions';
