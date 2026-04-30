@@ -82,7 +82,7 @@ JadeiteAIOllamaAdapter >> jsonEncodeString: aString [
 		v = 34 ifTrue: [ escape := '\"' ].   "double-quote"
 		v = 92 ifTrue: [ escape := '\\' ].   "backslash"
 		v = 10 ifTrue: [ escape := '\n' ].   "newline"
-		v = 13 ifTrue: [ escape := '\r' ].   "carriage return"
+		v = 13 ifTrue: [ escape := '' ].   "strip CR - prevents invalid JSON on CRLF content"
 		v =  9 ifTrue: [ escape := '\t' ].   "tab"
 		escape isNil
 			ifTrue:  [ ws nextPut: c ]
@@ -125,6 +125,8 @@ JadeiteAIOllamaAdapter >> parseResponse: responseString [
 	 Written manually to avoid NeoJSON load-order issues."
 
 	| idx content |
+	(responseString includesSubstring: '"error":') ifTrue: [
+		Error signal: 'Ollama error: ' , responseString ].
 	idx := responseString indexOfSubCollection: '"content":' startingAt: 1 ifAbsent: [
 		Error signal: 'No content key in Ollama response: ' , responseString ].
 	idx := idx + 10. "skip past the 10-character content key"
