@@ -271,18 +271,22 @@ JadeiteAIChatPresenter >> spinnerMessages [
 { #category : 'private' }
 JadeiteAIChatPresenter >> startSpinner [
 
-	| frames messages frameIdx msgIdx |
+	| frames messages frameIdx msgIdx rotationCount |
 	frames := #('|' '/' '-' '\').
 	messages := self spinnerMessages.
 	frameIdx := 1.
 	msgIdx := 1.
+	rotationCount := 0.
 	spinnerProcess := [
 		[ true ] whileTrue: [
 			| label |
 			label := (frames at: frameIdx) , '  ' , (messages at: msgIdx).
 			UIManager default defer: [ statusLabel label: label ].
 			frameIdx := (frameIdx \\ frames size) + 1.
-			frameIdx = 1 ifTrue: [ msgIdx := (msgIdx \\ messages size) + 1 ].
+			frameIdx = 1 ifTrue: [
+				rotationCount := rotationCount + 1.
+				rotationCount \\ 3 = 0 ifTrue: [
+					msgIdx := (msgIdx \\ messages size) + 1 ] ].
 			(Delay forMilliseconds: 150) wait ] ]
 		forkNamed: 'JadeiteAI-Spinner'
 ]
