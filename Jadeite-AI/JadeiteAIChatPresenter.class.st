@@ -24,6 +24,7 @@ Class {
 		'inputArea',
 		'sendButton',
 		'stopButton',
+		'clearButton',
 		'statusLabel',
 		'conversation',
 		'llmAdapter',
@@ -65,6 +66,14 @@ JadeiteAIChatPresenter >> appendToTranscript: aString [
 	[ transcriptArea scrollValue: 1 @ 1 ]
 		on: Error
 		do: [ "ignore if widget not yet realized" ]
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> clearChat [
+	"Reset the transcript display and start a fresh conversation."
+
+	transcriptArea text: ''.
+	conversation := JadeiteAIChatConversation new
 ]
 
 { #category : 'accessing' }
@@ -170,10 +179,15 @@ JadeiteAIChatPresenter >> initializePresenters [
 		              enabled: false;
 		              action: [ self stopWorker ];
 		              yourself.
+	clearButton := self newButton
+		               label: 'Clear';
+		               action: [ self clearChat ];
+		               yourself.
 	statusLabel := self newLabel label: ''.
 	buttonRow
 		add: sendButton expand: false;
 		add: stopButton expand: false;
+		add: clearButton expand: false;
 		add: statusLabel.
 	self layout add: buttonRow withConstraints: [ :c | c height: 30 ]
 ]
@@ -182,7 +196,7 @@ JadeiteAIChatPresenter >> initializePresenters [
 JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter title: 'AI Chat — Jadeite'.
+	aWindowPresenter title: 'Ask Jadeite'.
 	aWindowPresenter initialExtent: 700 @ 520
 ]
 

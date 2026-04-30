@@ -377,11 +377,7 @@ JadeiteConsole >> initializeMenubar [
 				  addItem: [ :item |
 					  item
 						  name: 'About';
-						  subMenu: self initializeAboutMenu ];
-				  addItem: [ :item |
-					  item
-						  name: 'AI Chat';
-						  action: [ self openAIChatWindow ] ].
+						  subMenu: self initializeAboutMenu ].
 			  self addToolsToMenuGroup: group ];
 		  yourself
 ]
