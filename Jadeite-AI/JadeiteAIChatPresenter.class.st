@@ -130,10 +130,6 @@ JadeiteAIChatPresenter >> buildContextSourceFromClass: aClassService [
 	| ws methods cap capped truncated |
 	ws := WriteStream on: String new.
 	ws nextPutAll: 'Class: '; nextPutAll: aClassService name; nextPutAll: String lf.
-	ws
-		nextPutAll: 'Superclass: ';
-		nextPutAll: (aClassService superclassName ifNil: [ 'nil' ]);
-		nextPutAll: String lf.
 
 	(aClassService instVarNames notNil and: [ aClassService instVarNames notEmpty ])
 		ifTrue: [
@@ -283,6 +279,8 @@ JadeiteAIChatPresenter >> initializePresenters [
 
 	transcriptArea := self newText.
 	transcriptArea beNotEditable.
+	transcriptArea whenBuiltDo: [
+		transcriptArea addStyle: 'jadeiteTextBackgroundColor' ].
 	self layout add: transcriptArea.
 
 	inputLabel := self newLabel label: 'Your message:  (Enter = Send,  Ctrl+Enter = new line)'.
@@ -300,16 +298,17 @@ JadeiteAIChatPresenter >> initializePresenters [
 				do: [ inputArea text: inputArea text , String cr ] ].
 	self layout add: inputArea withConstraints: [ :c | c height: 100 ].
 
-	contextRow := SpBoxLayout newHorizontal.
+	contextRow := SpBoxLayout newHorizontal spacing: 6.
+	contextRow borderWidth: 4.
 	contextLabel := self newLabel label: ''.
 	includeAllButton := self newButton
 		                    label: 'Include All Methods';
 		                    action: [ self toggleIncludeAllMethods ];
 		                    yourself.
 	contextRow
-		add: includeAllButton expand: false;
+		add: includeAllButton withConstraints: [ :c | c width: 160; expand: false ];
 		add: contextLabel.
-	self layout add: contextRow withConstraints: [ :c | c height: 24 ].
+	self layout add: contextRow withConstraints: [ :c | c height: 34 ].
 
 	buttonRow := SpBoxLayout newHorizontal.
 	sendButton := self newButton
@@ -414,6 +413,7 @@ JadeiteAIChatPresenter >> sendMessage [
 	userText := inputArea text trimBlanks.
 	userText isEmpty ifTrue: [ ^ self ].
 
+	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
 	self appendToTranscript: '[You] ' asText allBold , userText asText.
 	inputArea text: ''.
 	self disableInput.
