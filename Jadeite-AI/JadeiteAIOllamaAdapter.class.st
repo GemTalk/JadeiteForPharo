@@ -127,7 +127,7 @@ JadeiteAIOllamaAdapter >> parseResponse: responseString [
 	| idx content |
 	idx := responseString indexOfSubCollection: '"content":' startingAt: 1 ifAbsent: [
 		Error signal: 'No content key in Ollama response: ' , responseString ].
-	idx := idx + 10. "skip past '"content":''"
+	idx := idx + 10. "skip past the 10-character content key"
 
 	"skip optional whitespace"
 	[ idx <= responseString size and: [ (responseString at: idx) isSeparator ] ]
