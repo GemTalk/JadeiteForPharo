@@ -52,12 +52,6 @@ JAIChatPresenter class >> openWithSession: aGciSession [
 	^ presenter open
 ]
 
-{ #category : 'layout' }
-JAIChatPresenter >> defaultLayout [
-
-	^ SpBoxLayout newVertical
-]
-
 { #category : 'private' }
 JAIChatPresenter >> appendToTranscript: aString [
 	"Append aString to the read-only transcript and scroll to the end.
@@ -71,6 +65,18 @@ JAIChatPresenter >> appendToTranscript: aString [
 	[ transcriptArea adapter widget scrollToBottom ]
 		on: Error
 		do: [ "ignore if widget not yet realized" ]
+]
+
+{ #category : 'accessing' }
+JAIChatPresenter >> conversation [
+
+	^ conversation
+]
+
+{ #category : 'layout' }
+JAIChatPresenter >> defaultLayout [
+
+	^ SpBoxLayout newVertical
 ]
 
 { #category : 'private' }
@@ -108,24 +114,6 @@ JAIChatPresenter >> fetchGemStoneContext [
 			do: [ nil ].
 		(src notNil and: [ src notEmpty ]) ifTrue: [ ^ src ] ].
 	^ ''
-]
-
-{ #category : 'accessing' }
-JAIChatPresenter >> llmAdapter [
-
-	^ llmAdapter
-]
-
-{ #category : 'accessing' }
-JAIChatPresenter >> llmAdapter: aJAIHttpAdapter [
-
-	llmAdapter := aJAIHttpAdapter
-]
-
-{ #category : 'accessing' }
-JAIChatPresenter >> conversation [
-
-	^ conversation
 ]
 
 { #category : 'accessing' }
@@ -192,6 +180,18 @@ JAIChatPresenter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter initialExtent: 700 @ 520
 ]
 
+{ #category : 'accessing' }
+JAIChatPresenter >> llmAdapter [
+
+	^ llmAdapter
+]
+
+{ #category : 'accessing' }
+JAIChatPresenter >> llmAdapter: aJAIHttpAdapter [
+
+	llmAdapter := aJAIHttpAdapter
+]
+
 { #category : 'event handling' }
 JAIChatPresenter >> onWorkerDone: replyString [
 	"Called on the UI thread after a successful LLM response."
@@ -214,14 +214,14 @@ JAIChatPresenter >> sendMessage [
 	"Grab input, inject GemStone context if available, fork the HTTP worker."
 
 	| userText context fullPrompt |
-	userText := inputArea text trimSeparators.
+	userText := inputArea text trimBlanks.
 	userText isEmpty ifTrue: [ ^ self ].
 
 	context := self fetchGemStoneContext.
 	fullPrompt := context isEmpty
 		              ifTrue: [ userText ]
 		              ifFalse: [
-			              'GemStone source context:
+				              'GemStone source context:
 ' , context , '
 
 Question: ' , userText ].
@@ -232,15 +232,16 @@ Question: ' , userText ].
 	self disableInput.
 
 	workerProcess := [
-		| reply |
-		[
-		reply := llmAdapter sendConversation: conversation.
-		UIManager default defer: [ self onWorkerDone: reply ] ]
-			on: Error
-			do: [ :ex |
-				UIManager default defer: [
-					self onWorkerError: ex messageText ] ] ]
-		forkNamed: 'JAI-LLMWorker'
+		                 | reply |
+		                 [
+			                 reply := llmAdapter sendConversation: conversation.
+			                 UIManager default defer: [
+				                 self onWorkerDone: reply ] ]
+			                 on: Error
+			                 do: [ :ex |
+				                 UIManager default defer: [
+					                 self onWorkerError: ex messageText ] ] ]
+		                 forkNamed: 'JAI-LLMWorker'
 ]
 
 { #category : 'actions' }

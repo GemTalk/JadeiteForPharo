@@ -35,13 +35,6 @@ JAIOllamaAdapter class >> forModel: aModelString [
 		  yourself
 ]
 
-{ #category : 'initialization' }
-JAIOllamaAdapter >> initialize [
-
-	baseUrl := 'http://localhost:11434/v1'.
-	model := 'qwen2.5-coder:7b'
-]
-
 { #category : 'accessing' }
 JAIOllamaAdapter >> baseUrl [
 
@@ -54,18 +47,6 @@ JAIOllamaAdapter >> baseUrl: aString [
 	baseUrl := aString
 ]
 
-{ #category : 'accessing' }
-JAIOllamaAdapter >> model [
-
-	^ model
-]
-
-{ #category : 'accessing' }
-JAIOllamaAdapter >> model: aString [
-
-	model := aString
-]
-
 { #category : 'building' }
 JAIOllamaAdapter >> buildRequestBody: aConversation [
 
@@ -76,6 +57,25 @@ JAIOllamaAdapter >> buildRequestBody: aConversation [
 	payload at: 'temperature' put: aConversation temperature.
 	payload at: 'max_tokens' put: aConversation maxTokens.
 	^ NeoJSONWriter toString: payload
+]
+
+{ #category : 'initialization' }
+JAIOllamaAdapter >> initialize [
+
+	baseUrl := 'http://localhost:11434/v1'.
+	model := 'qwen2.5-coder:7b'
+]
+
+{ #category : 'accessing' }
+JAIOllamaAdapter >> model [
+
+	^ model
+]
+
+{ #category : 'accessing' }
+JAIOllamaAdapter >> model: aString [
+
+	model := aString
 ]
 
 { #category : 'parsing' }
