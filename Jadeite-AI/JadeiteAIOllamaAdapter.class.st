@@ -71,24 +71,18 @@ JadeiteAIOllamaAdapter >> model: aString [
 { #category : 'json' }
 JadeiteAIOllamaAdapter >> jsonEncodeString: aString [
 	"Return aString as a JSON string literal including surrounding double-quotes.
-	 Escapes backslash, double-quote, and common control characters.
-	 CR (13) is stripped — Pharo uses CR internally but it is invalid in JSON."
+	 Uses copyReplaceAll:with: for reliability. Backslash must be escaped first
+	 so that the backslashes added by later steps are not double-escaped."
 
-	| ws |
-	ws := WriteStream on: String new.
-	ws nextPut: $".
-	aString do: [ :c |
-		| v written |
-		v := c value.
-		written := false.
-		(v = 34) ifTrue: [ ws nextPutAll: '\"'. written := true ].
-		(written not and: [ v = 92 ]) ifTrue: [ ws nextPutAll: '\\'. written := true ].
-		(written not and: [ v = 10 ]) ifTrue: [ ws nextPutAll: '\n'. written := true ].
-		(written not and: [ v =  9 ]) ifTrue: [ ws nextPutAll: '\t'. written := true ].
-		(written not and: [ v = 13 ]) ifTrue: [ written := true ].
-		written ifFalse: [ ws nextPut: c ] ].
-	ws nextPut: $".
-	^ ws contents
+	| s bs dq |
+	bs := String with: $\.
+	dq := String with: (Character value: 34).
+	s := aString copyReplaceAll: bs with: bs , bs.
+	s := s copyReplaceAll: dq with: bs , dq.
+	s := s copyWithout: Character cr.
+	s := s copyReplaceAll: (String with: (Character value: 10)) with: bs , 'n'.
+	s := s copyReplaceAll: (String with: (Character value: 9))  with: bs , 't'.
+	^ dq , s , dq
 ]
 
 { #category : 'building' }
