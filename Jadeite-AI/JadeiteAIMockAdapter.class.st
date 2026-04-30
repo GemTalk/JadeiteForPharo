@@ -1,13 +1,13 @@
 "
-JAIMockAdapter — test double for JAIHttpAdapter.
-Inject into JAIChatPresenter to avoid real HTTP calls in tests.
+JadeiteAIMockAdapter — test double for JadeiteAIHttpAdapter.
+Inject into JadeiteAIChatPresenter to avoid real HTTP calls in tests.
 
-  adapter := JAIMockAdapter returning: 'Hello from mock'.
+  adapter := JadeiteAIMockAdapter returning: 'Hello from mock'.
   presenter adapter: adapter.
 "
 Class {
-	#name : 'JAIMockAdapter',
-	#superclass : 'JAIHttpAdapter',
+	#name : 'JadeiteAIMockAdapter',
+	#superclass : 'JadeiteAIHttpAdapter',
 	#instVars : [
 		'cannedReply',
 		'delayMilliseconds',
@@ -18,7 +18,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-JAIMockAdapter class >> returning: aString [
+JadeiteAIMockAdapter class >> returning: aString [
 
 	^ self new
 		  cannedReply: aString;
@@ -26,7 +26,7 @@ JAIMockAdapter class >> returning: aString [
 ]
 
 { #category : 'instance creation' }
-JAIMockAdapter class >> returningAfterDelay: milliseconds reply: aString [
+JadeiteAIMockAdapter class >> returningAfterDelay: milliseconds reply: aString [
 	"Use to test that the UI is not blocked during a slow response."
 
 	^ self new
@@ -36,44 +36,44 @@ JAIMockAdapter class >> returningAfterDelay: milliseconds reply: aString [
 ]
 
 { #category : 'accessing' }
-JAIMockAdapter >> cannedReply [
+JadeiteAIMockAdapter >> cannedReply [
 
 	^ cannedReply
 ]
 
 { #category : 'accessing' }
-JAIMockAdapter >> cannedReply: aString [
+JadeiteAIMockAdapter >> cannedReply: aString [
 
 	cannedReply := aString
 ]
 
 { #category : 'accessing' }
-JAIMockAdapter >> delayMilliseconds [
+JadeiteAIMockAdapter >> delayMilliseconds [
 
 	^ delayMilliseconds
 ]
 
 { #category : 'accessing' }
-JAIMockAdapter >> delayMilliseconds: anInteger [
+JadeiteAIMockAdapter >> delayMilliseconds: anInteger [
 
 	delayMilliseconds := anInteger
 ]
 
 { #category : 'initialization' }
-JAIMockAdapter >> initialize [
+JadeiteAIMockAdapter >> initialize [
 
 	cannedReply := 'Mock reply'.
 	delayMilliseconds := 0
 ]
 
 { #category : 'accessing' }
-JAIMockAdapter >> lastConversationReceived [
+JadeiteAIMockAdapter >> lastConversationReceived [
 
 	^ lastConversationReceived
 ]
 
 { #category : 'api' }
-JAIMockAdapter >> sendConversation: aConversation [
+JadeiteAIMockAdapter >> sendConversation: aConversation [
 
 	lastConversationReceived := aConversation.
 	delayMilliseconds > 0 ifTrue: [

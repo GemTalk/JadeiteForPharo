@@ -1,18 +1,18 @@
 "
-JAISettings — resolves the Ollama adapter automatically when AI Chat is opened.
+JadeiteAISettings — resolves the Ollama adapter automatically when AI Chat is opened.
 
 Ollama is free, runs entirely on your machine, and requires no account or API key.
 If Ollama is not running, a setup dialog explains exactly what to do.
 "
 Class {
-	#name : 'JAISettings',
+	#name : 'JadeiteAISettings',
 	#superclass : 'Object',
 	#category : 'Jadeite-AI',
 	#package : 'Jadeite-AI'
 }
 
 { #category : 'help' }
-JAISettings class >> configurationHelpMessage [
+JadeiteAISettings class >> configurationHelpMessage [
 
 	^ 'Jadeite AI Chat uses Ollama — a free LLM that runs entirely on your machine.
 No account, no API key, and no data leaves your computer.
@@ -35,11 +35,11 @@ Then select Console > AI Chat again — no restart needed.
 For a lighter model on machines with less RAM:
   ollama pull llama3.2  (~2 GB)
   Then open a Workspace and evaluate:
-    JAIOllamaAdapter forModel: ''llama3.2'''
+    JadeiteAIOllamaAdapter forModel: ''llama3.2'''
 ]
 
 { #category : 'probing' }
-JAISettings class >> isOllamaAvailable [
+JadeiteAISettings class >> isOllamaAvailable [
 	"Return true if Ollama is listening on localhost:11434.
 	 Short timeout so the probe fails fast when Ollama is not running."
 
@@ -54,11 +54,11 @@ JAISettings class >> isOllamaAvailable [
 ]
 
 { #category : 'resolution' }
-JAISettings class >> resolveAdapter [
-	"Return a JAIOllamaAdapter if Ollama is running, otherwise nil.
+JadeiteAISettings class >> resolveAdapter [
+	"Return a JadeiteAIOllamaAdapter if Ollama is running, otherwise nil.
 	 Called fresh each time AI Chat is opened, so starting Ollama
 	 and pressing the menu item again is all that is needed."
 
-	self isOllamaAvailable ifTrue: [ ^ JAIOllamaAdapter default ].
+	self isOllamaAvailable ifTrue: [ ^ JadeiteAIOllamaAdapter default ].
 	^ nil
 ]

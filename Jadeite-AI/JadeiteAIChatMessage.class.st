@@ -1,9 +1,9 @@
 "
-JAIChatMessage — immutable value object representing a single turn in a conversation.
+JadeiteAIChatMessage — immutable value object representing a single turn in a conversation.
 role: #user | #assistant | #system
 "
 Class {
-	#name : 'JAIChatMessage',
+	#name : 'JadeiteAIChatMessage',
 	#superclass : 'Object',
 	#instVars : [
 		'role',
@@ -15,7 +15,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-JAIChatMessage class >> role: aSymbol content: aString [
+JadeiteAIChatMessage class >> role: aSymbol content: aString [
 
 	^ self new
 		  role: aSymbol;
@@ -25,19 +25,19 @@ JAIChatMessage class >> role: aSymbol content: aString [
 ]
 
 { #category : 'accessing' }
-JAIChatMessage >> content [
+JadeiteAIChatMessage >> content [
 
 	^ content
 ]
 
 { #category : 'accessing' }
-JAIChatMessage >> content: aString [
+JadeiteAIChatMessage >> content: aString [
 
 	content := aString
 ]
 
 { #category : 'displaying' }
-JAIChatMessage >> displayPrefix [
+JadeiteAIChatMessage >> displayPrefix [
 
 	role = #user ifTrue: [ ^ 'You' ].
 	role = #assistant ifTrue: [ ^ 'AI' ].
@@ -45,31 +45,31 @@ JAIChatMessage >> displayPrefix [
 ]
 
 { #category : 'displaying' }
-JAIChatMessage >> displayString [
+JadeiteAIChatMessage >> displayString [
 
 	^ '[' , self displayPrefix , '] ' , content
 ]
 
 { #category : 'accessing' }
-JAIChatMessage >> role [
+JadeiteAIChatMessage >> role [
 
 	^ role
 ]
 
 { #category : 'accessing' }
-JAIChatMessage >> role: aSymbol [
+JadeiteAIChatMessage >> role: aSymbol [
 
 	role := aSymbol
 ]
 
 { #category : 'accessing' }
-JAIChatMessage >> timestamp [
+JadeiteAIChatMessage >> timestamp [
 
 	^ timestamp
 ]
 
 { #category : 'accessing' }
-JAIChatMessage >> timestamp: aDateAndTime [
+JadeiteAIChatMessage >> timestamp: aDateAndTime [
 
 	timestamp := aDateAndTime
 ]

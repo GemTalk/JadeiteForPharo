@@ -1,11 +1,11 @@
 "
-JAIChatPresenter — Spec 2 chat UI for the Jadeite AI assistant.
+JadeiteAIChatPresenter — Spec 2 chat UI for the Jadeite AI assistant.
 
 Menu path:  Console > AI Chat
 Setup:      Install Ollama from https://ollama.com, then run: ollama pull qwen2.5-coder:7b
             No account or API key needed. If Ollama is not running, a setup
             dialog explains exactly what to do.
-Tests:      JAIChatTestCase run
+Tests:      JadeiteAIChatTestCase run
 
 The presenter is self-contained:
   - transcript area shows alternating user / assistant turns
@@ -17,7 +17,7 @@ Note: the instance variable is named llmAdapter (not adapter) to avoid
 shadowing SpPresenter>>adapter which Spec 2 uses for its Morphic backend.
 "
 Class {
-	#name : 'JAIChatPresenter',
+	#name : 'JadeiteAIChatPresenter',
 	#superclass : 'JadeitePresenter',
 	#instVars : [
 		'transcriptArea',
@@ -35,15 +35,15 @@ Class {
 }
 
 { #category : 'instance creation' }
-JAIChatPresenter class >> openWithSession: aGciSession [
+JadeiteAIChatPresenter class >> openWithSession: aGciSession [
 	"Open a new AI chat window.
-	 Resolves the LLM adapter automatically via JAISettings.
+	 Resolves the LLM adapter automatically via JadeiteAISettings.
 	 Shows a setup dialog if Ollama is not running."
 
 	| resolvedAdapter presenter |
-	resolvedAdapter := JAISettings resolveAdapter.
+	resolvedAdapter := JadeiteAISettings resolveAdapter.
 	resolvedAdapter isNil ifTrue: [
-		UIManager default alert: JAISettings configurationHelpMessage.
+		UIManager default alert: JadeiteAISettings configurationHelpMessage.
 		^ nil ].
 
 	presenter := self new.
@@ -53,7 +53,7 @@ JAIChatPresenter class >> openWithSession: aGciSession [
 ]
 
 { #category : 'private' }
-JAIChatPresenter >> appendToTranscript: aString [
+JadeiteAIChatPresenter >> appendToTranscript: aString [
 	"Append aString to the read-only transcript and scroll to the end.
 	 Must be called from the UI process."
 
@@ -68,19 +68,19 @@ JAIChatPresenter >> appendToTranscript: aString [
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> conversation [
+JadeiteAIChatPresenter >> conversation [
 
 	^ conversation
 ]
 
 { #category : 'layout' }
-JAIChatPresenter >> defaultLayout [
+JadeiteAIChatPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 ]
 
 { #category : 'private' }
-JAIChatPresenter >> disableInput [
+JadeiteAIChatPresenter >> disableInput [
 
 	sendButton enabled: false.
 	inputArea enabled: false.
@@ -89,7 +89,7 @@ JAIChatPresenter >> disableInput [
 ]
 
 { #category : 'private' }
-JAIChatPresenter >> enableInput [
+JadeiteAIChatPresenter >> enableInput [
 
 	sendButton enabled: true.
 	inputArea enabled: true.
@@ -98,7 +98,7 @@ JAIChatPresenter >> enableInput [
 ]
 
 { #category : 'private' }
-JAIChatPresenter >> fetchGemStoneContext [
+JadeiteAIChatPresenter >> fetchGemStoneContext [
 	"Return source of the currently-selected method from any open Jadeite browser,
 	 or empty string if nothing is selected or no session is available.
 	 Source is already in the Pharo image — no extra GemStone round-trip needed."
@@ -117,26 +117,26 @@ JAIChatPresenter >> fetchGemStoneContext [
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> gciSession [
+JadeiteAIChatPresenter >> gciSession [
 
 	^ gciSession
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> gciSession: aGciSession [
+JadeiteAIChatPresenter >> gciSession: aGciSession [
 
 	gciSession := aGciSession
 ]
 
 { #category : 'initialization' }
-JAIChatPresenter >> initialize [
+JadeiteAIChatPresenter >> initialize [
 
 	super initialize.
-	conversation := JAIChatConversation new
+	conversation := JadeiteAIChatConversation new
 ]
 
 { #category : 'initialization' }
-JAIChatPresenter >> initializePresenters [
+JadeiteAIChatPresenter >> initializePresenters [
 
 	| buttonRow inputLabel |
 	super initializePresenters.
@@ -173,7 +173,7 @@ JAIChatPresenter >> initializePresenters [
 ]
 
 { #category : 'initialization' }
-JAIChatPresenter >> initializeWindow: aWindowPresenter [
+JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter title: 'AI Chat — Jadeite'.
@@ -181,19 +181,19 @@ JAIChatPresenter >> initializeWindow: aWindowPresenter [
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> llmAdapter [
+JadeiteAIChatPresenter >> llmAdapter [
 
 	^ llmAdapter
 ]
 
 { #category : 'accessing' }
-JAIChatPresenter >> llmAdapter: aJAIHttpAdapter [
+JadeiteAIChatPresenter >> llmAdapter: aJadeiteAIHttpAdapter [
 
-	llmAdapter := aJAIHttpAdapter
+	llmAdapter := aJadeiteAIHttpAdapter
 ]
 
 { #category : 'event handling' }
-JAIChatPresenter >> onWorkerDone: replyString [
+JadeiteAIChatPresenter >> onWorkerDone: replyString [
 	"Called on the UI thread after a successful LLM response."
 
 	conversation addAssistantMessage: replyString.
@@ -202,7 +202,7 @@ JAIChatPresenter >> onWorkerDone: replyString [
 ]
 
 { #category : 'event handling' }
-JAIChatPresenter >> onWorkerError: errorString [
+JadeiteAIChatPresenter >> onWorkerError: errorString [
 	"Called on the UI thread when the worker catches an error."
 
 	self appendToTranscript: '[Error] ' , errorString.
@@ -210,7 +210,7 @@ JAIChatPresenter >> onWorkerError: errorString [
 ]
 
 { #category : 'actions' }
-JAIChatPresenter >> sendMessage [
+JadeiteAIChatPresenter >> sendMessage [
 	"Grab input, inject GemStone context if available, fork the HTTP worker."
 
 	| userText context fullPrompt |
@@ -241,11 +241,11 @@ Question: ' , userText ].
 			                 do: [ :ex |
 				                 UIManager default defer: [
 					                 self onWorkerError: ex messageText ] ] ]
-		                 forkNamed: 'JAI-LLMWorker'
+		                 forkNamed: 'JadeiteAI-LLMWorker'
 ]
 
 { #category : 'actions' }
-JAIChatPresenter >> stopWorker [
+JadeiteAIChatPresenter >> stopWorker [
 	"Terminate the in-flight LLM request and re-enable input."
 
 	workerProcess ifNotNil: [ :p |

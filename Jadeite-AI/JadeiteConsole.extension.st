@@ -4,5 +4,5 @@ Extension { #name : 'JadeiteConsole' }
 JadeiteConsole >> openAIChatWindow [
 	"Open the AI chat window, passing the live GemStone session for source-context injection."
 
-	JAIChatPresenter openWithSession: gciSession
+	JadeiteAIChatPresenter openWithSession: gciSession
 ]

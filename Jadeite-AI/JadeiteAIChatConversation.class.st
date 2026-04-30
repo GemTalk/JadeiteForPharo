@@ -1,10 +1,10 @@
 "
-JAIChatConversation — in-memory conversation model.
-Holds an ordered list of JAIChatMessage turns plus model settings.
+JadeiteAIChatConversation — in-memory conversation model.
+Holds an ordered list of JadeiteAIChatMessage turns plus model settings.
 No persistence in Phase 1; GemStone persistence is Phase 2.
 "
 Class {
-	#name : 'JAIChatConversation',
+	#name : 'JadeiteAIChatConversation',
 	#superclass : 'Object',
 	#instVars : [
 		'messages',
@@ -18,38 +18,38 @@ Class {
 }
 
 { #category : 'instance creation' }
-JAIChatConversation class >> new [
+JadeiteAIChatConversation class >> new [
 
 	^ super new initialize
 ]
 
 { #category : 'adding' }
-JAIChatConversation >> addAssistantMessage: aString [
+JadeiteAIChatConversation >> addAssistantMessage: aString [
 
 	| msg |
-	msg := JAIChatMessage role: #assistant content: aString.
+	msg := JadeiteAIChatMessage role: #assistant content: aString.
 	messages add: msg.
 	^ msg
 ]
 
 { #category : 'adding' }
-JAIChatConversation >> addMessage: aJAIChatMessage [
+JadeiteAIChatConversation >> addMessage: aJadeiteAIChatMessage [
 
-	messages add: aJAIChatMessage.
-	^ aJAIChatMessage
+	messages add: aJadeiteAIChatMessage.
+	^ aJadeiteAIChatMessage
 ]
 
 { #category : 'adding' }
-JAIChatConversation >> addUserMessage: aString [
+JadeiteAIChatConversation >> addUserMessage: aString [
 
 	| msg |
-	msg := JAIChatMessage role: #user content: aString.
+	msg := JadeiteAIChatMessage role: #user content: aString.
 	messages add: msg.
 	^ msg
 ]
 
 { #category : 'initialization' }
-JAIChatConversation >> initialize [
+JadeiteAIChatConversation >> initialize [
 
 	messages := OrderedCollection new.
 	model := 'gpt-3.5-turbo'.
@@ -61,61 +61,61 @@ When shown source code, analyze it and answer questions about it concisely.'
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> maxTokens [
+JadeiteAIChatConversation >> maxTokens [
 
 	^ maxTokens
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> maxTokens: anInteger [
+JadeiteAIChatConversation >> maxTokens: anInteger [
 
 	maxTokens := anInteger
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> messages [
+JadeiteAIChatConversation >> messages [
 
 	^ messages
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> model [
+JadeiteAIChatConversation >> model [
 
 	^ model
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> model: aString [
+JadeiteAIChatConversation >> model: aString [
 
 	model := aString
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> systemPrompt [
+JadeiteAIChatConversation >> systemPrompt [
 
 	^ systemPrompt
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> systemPrompt: aString [
+JadeiteAIChatConversation >> systemPrompt: aString [
 
 	systemPrompt := aString
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> temperature [
+JadeiteAIChatConversation >> temperature [
 
 	^ temperature
 ]
 
 { #category : 'accessing' }
-JAIChatConversation >> temperature: aFloat [
+JadeiteAIChatConversation >> temperature: aFloat [
 
 	temperature := aFloat
 ]
 
 { #category : 'building' }
-JAIChatConversation >> toApiMessages [
+JadeiteAIChatConversation >> toApiMessages [
 	"Return messages array in OpenAI/Ollama format for the HTTP payload."
 
 	| result |

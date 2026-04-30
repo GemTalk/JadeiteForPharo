@@ -1,31 +1,31 @@
 "
-JAIChatTestCase — unit tests for the Jadeite AI chat (Phase 1).
+JadeiteAIChatTestCase — unit tests for the Jadeite AI chat (Phase 1).
 No network access, no GemStone connection required.
-All HTTP calls are replaced by JAIMockAdapter via dependency injection.
+All HTTP calls are replaced by JadeiteAIMockAdapter via dependency injection.
 
-To run:  JAIChatTestCase run
+To run:  JadeiteAIChatTestCase run
 "
 Class {
-	#name : 'JAIChatTestCase',
+	#name : 'JadeiteAIChatTestCase',
 	#superclass : 'TestCase',
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
 
 { #category : 'tests - model' }
-JAIChatTestCase >> testConversationInitializesEmpty [
+JadeiteAIChatTestCase >> testConversationInitializesEmpty [
 
 	| conv |
-	conv := JAIChatConversation new.
+	conv := JadeiteAIChatConversation new.
 	self assert: conv messages isEmpty.
 	self assert: conv model equals: 'gpt-3.5-turbo'
 ]
 
 { #category : 'tests - model' }
-JAIChatTestCase >> testConversationRecordsUserMessage [
+JadeiteAIChatTestCase >> testConversationRecordsUserMessage [
 
 	| conv msg |
-	conv := JAIChatConversation new.
+	conv := JadeiteAIChatConversation new.
 	msg := conv addUserMessage: 'What does this method do?'.
 	self assert: conv messages size equals: 1.
 	self assert: msg role equals: #user.
@@ -33,10 +33,10 @@ JAIChatTestCase >> testConversationRecordsUserMessage [
 ]
 
 { #category : 'tests - model' }
-JAIChatTestCase >> testConversationRecordsAssistantReply [
+JadeiteAIChatTestCase >> testConversationRecordsAssistantReply [
 
 	| conv |
-	conv := JAIChatConversation new.
+	conv := JadeiteAIChatConversation new.
 	conv addUserMessage: 'Hello'.
 	conv addAssistantMessage: 'Hi there!'.
 	self assert: conv messages size equals: 2.
@@ -45,22 +45,22 @@ JAIChatTestCase >> testConversationRecordsAssistantReply [
 ]
 
 { #category : 'tests - model' }
-JAIChatTestCase >> testMessageDisplayString [
+JadeiteAIChatTestCase >> testMessageDisplayString [
 
 	| msg |
-	msg := JAIChatMessage role: #user content: 'Test'.
+	msg := JadeiteAIChatMessage role: #user content: 'Test'.
 	self assert: (msg displayString includesSubstring: 'You').
 	self assert: (msg displayString includesSubstring: 'Test').
 
-	msg := JAIChatMessage role: #assistant content: 'Reply'.
+	msg := JadeiteAIChatMessage role: #assistant content: 'Reply'.
 	self assert: (msg displayString includesSubstring: 'AI')
 ]
 
 { #category : 'tests - model' }
-JAIChatTestCase >> testConversationApiPayloadIncludesSystemPrompt [
+JadeiteAIChatTestCase >> testConversationApiPayloadIncludesSystemPrompt [
 
 	| conv messages roles |
-	conv := JAIChatConversation new.
+	conv := JadeiteAIChatConversation new.
 	conv addUserMessage: 'Hello'.
 	messages := conv toApiMessages.
 	roles := messages collect: [ :m | m at: 'role' ].
@@ -69,53 +69,53 @@ JAIChatTestCase >> testConversationApiPayloadIncludesSystemPrompt [
 ]
 
 { #category : 'tests - adapter' }
-JAIChatTestCase >> testMockAdapterReturnsCannedReply [
+JadeiteAIChatTestCase >> testMockAdapterReturnsCannedReply [
 
 	| mock conv reply |
-	mock := JAIMockAdapter returning: 'Canned answer'.
-	conv := JAIChatConversation new.
+	mock := JadeiteAIMockAdapter returning: 'Canned answer'.
+	conv := JadeiteAIChatConversation new.
 	conv addUserMessage: 'Question'.
 	reply := mock sendConversation: conv.
 	self assert: reply equals: 'Canned answer'
 ]
 
 { #category : 'tests - adapter' }
-JAIChatTestCase >> testMockAdapterRecordsConversation [
+JadeiteAIChatTestCase >> testMockAdapterRecordsConversation [
 
 	| mock conv |
-	mock := JAIMockAdapter returning: 'ok'.
-	conv := JAIChatConversation new.
+	mock := JadeiteAIMockAdapter returning: 'ok'.
+	conv := JadeiteAIChatConversation new.
 	conv addUserMessage: 'Hi'.
 	mock sendConversation: conv.
 	self assert: mock lastConversationReceived == conv
 ]
 
 { #category : 'tests - presenter' }
-JAIChatTestCase >> testPresenterInitializesWithEmptyConversation [
+JadeiteAIChatTestCase >> testPresenterInitializesWithEmptyConversation [
 
 	| presenter |
-	presenter := JAIChatPresenter new.
+	presenter := JadeiteAIChatPresenter new.
 	self assert: presenter conversation messages isEmpty
 ]
 
 { #category : 'tests - presenter' }
-JAIChatTestCase >> testPresenterAcceptsInjectedAdapter [
+JadeiteAIChatTestCase >> testPresenterAcceptsInjectedAdapter [
 
 	| presenter mock |
-	presenter := JAIChatPresenter new.
-	mock := JAIMockAdapter returning: 'hi'.
+	presenter := JadeiteAIChatPresenter new.
+	mock := JadeiteAIMockAdapter returning: 'hi'.
 	presenter llmAdapter: mock.
 	self assert: presenter llmAdapter == mock
 ]
 
 { #category : 'tests - presenter' }
-JAIChatTestCase >> testSendMessageAddsUserMessageToConversation [
+JadeiteAIChatTestCase >> testSendMessageAddsUserMessageToConversation [
 	"Verify that sendMessage records the user turn even before the worker finishes."
 
 	| presenter mock semaphore |
-	presenter := JAIChatPresenter new.
+	presenter := JadeiteAIChatPresenter new.
 	semaphore := Semaphore new.
-	mock := JAIMockAdapter
+	mock := JadeiteAIMockAdapter
 		        returningAfterDelay: 0
 		        reply: 'reply'.
 
@@ -129,18 +129,18 @@ JAIChatTestCase >> testSendMessageAddsUserMessageToConversation [
 ]
 
 { #category : 'tests - presenter' }
-JAIChatTestCase >> testBackgroundWorkerDoesNotBlockCallerProcess [
+JadeiteAIChatTestCase >> testBackgroundWorkerDoesNotBlockCallerProcess [
 	"Verify that a slow adapter does not stall the calling process.
 	 The worker runs in a forked process; the test process continues immediately."
 
 	| mock startTime elapsedMillis done semaphore |
 	"A 300ms mock simulates a real HTTP call"
-	mock := JAIMockAdapter returningAfterDelay: 300 reply: 'slow reply'.
+	mock := JadeiteAIMockAdapter returningAfterDelay: 300 reply: 'slow reply'.
 	done := false.
 	semaphore := Semaphore new.
 
 	[
-	mock sendConversation: JAIChatConversation new.
+	mock sendConversation: JadeiteAIChatConversation new.
 	done := true.
 	semaphore signal ] forkNamed: 'test-slow-worker'.
 
@@ -156,19 +156,19 @@ JAIChatTestCase >> testBackgroundWorkerDoesNotBlockCallerProcess [
 ]
 
 { #category : 'tests - adapter config' }
-JAIChatTestCase >> testAdapterDefaultsToOllama [
+JadeiteAIChatTestCase >> testAdapterDefaultsToOllama [
 
 	| adapter |
-	adapter := JAIOllamaAdapter default.
+	adapter := JadeiteAIOllamaAdapter default.
 	self assert: adapter model equals: 'qwen2.5-coder:7b'.
 	self assert: (adapter baseUrl includesSubstring: 'localhost')
 ]
 
 { #category : 'tests - adapter config' }
-JAIChatTestCase >> testOllamaAdapterCustomModel [
+JadeiteAIChatTestCase >> testOllamaAdapterCustomModel [
 
 	| adapter |
-	adapter := JAIOllamaAdapter forModel: 'qwen2.5-coder:7b'.
+	adapter := JadeiteAIOllamaAdapter forModel: 'qwen2.5-coder:7b'.
 	self assert: adapter model equals: 'qwen2.5-coder:7b'.
 	self assert: (adapter baseUrl includesSubstring: 'localhost')
 ]
