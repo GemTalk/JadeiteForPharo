@@ -1,20 +1,19 @@
 "
-JAIOpenAIAdapter — HTTP adapter for Ollama's OpenAI-compatible chat completions API.
+JAIOllamaAdapter — HTTP adapter for Ollama running on localhost.
 
-Ollama exposes the same REST interface as OpenAI on localhost:11434/v1,
-so this adapter works for both without any code changes.
+Ollama is free, requires no account or API key, and runs entirely on your machine.
+Install from https://ollama.com
 
 Default model:  qwen2.5-coder:7b  (~5 GB, good at Smalltalk/GemStone code analysis)
 Lighter model:  llama3.2  (~2 GB, use on machines with less RAM)
 
 Pull a model once with:  ollama pull qwen2.5-coder:7b
-Switch model:   JAIOpenAIAdapter forOllamaWithModel: 'llama3.2'
+Switch model:            JAIOllamaAdapter forModel: 'llama3.2'
 "
 Class {
-	#name : 'JAIOpenAIAdapter',
+	#name : 'JAIOllamaAdapter',
 	#superclass : 'JAIHttpAdapter',
 	#instVars : [
-		'apiKey',
 		'baseUrl',
 		'model'
 	],
@@ -23,72 +22,52 @@ Class {
 }
 
 { #category : 'instance creation' }
-JAIOpenAIAdapter class >> forOllama [
+JAIOllamaAdapter class >> default [
 
 	^ self new
-		  apiKey: 'ollama';
-		  baseUrl: 'http://localhost:11434/v1';
-		  model: 'qwen2.5-coder:7b';
-		  yourself
 ]
 
 { #category : 'instance creation' }
-JAIOpenAIAdapter class >> forOllamaWithModel: aModelString [
+JAIOllamaAdapter class >> forModel: aModelString [
 
 	^ self new
-		  apiKey: 'ollama';
-		  baseUrl: 'http://localhost:11434/v1';
 		  model: aModelString;
 		  yourself
 ]
 
 { #category : 'initialization' }
-JAIOpenAIAdapter >> initialize [
+JAIOllamaAdapter >> initialize [
 
 	baseUrl := 'http://localhost:11434/v1'.
-	apiKey := 'ollama'.
-	model := 'llama3.2'
+	model := 'qwen2.5-coder:7b'
 ]
 
 { #category : 'accessing' }
-JAIOpenAIAdapter >> apiKey [
-
-	^ apiKey
-]
-
-{ #category : 'accessing' }
-JAIOpenAIAdapter >> apiKey: aString [
-
-	apiKey := aString
-]
-
-{ #category : 'accessing' }
-JAIOpenAIAdapter >> baseUrl [
+JAIOllamaAdapter >> baseUrl [
 
 	^ baseUrl
 ]
 
 { #category : 'accessing' }
-JAIOpenAIAdapter >> baseUrl: aString [
+JAIOllamaAdapter >> baseUrl: aString [
 
 	baseUrl := aString
 ]
 
 { #category : 'accessing' }
-JAIOpenAIAdapter >> model [
+JAIOllamaAdapter >> model [
 
 	^ model
 ]
 
 { #category : 'accessing' }
-JAIOpenAIAdapter >> model: aString [
+JAIOllamaAdapter >> model: aString [
 
 	model := aString
 ]
 
 { #category : 'building' }
-JAIOpenAIAdapter >> buildRequestBody: aConversation [
-	"Return a JSON string for the /chat/completions endpoint."
+JAIOllamaAdapter >> buildRequestBody: aConversation [
 
 	| payload |
 	payload := OrderedDictionary new.
@@ -100,8 +79,7 @@ JAIOpenAIAdapter >> buildRequestBody: aConversation [
 ]
 
 { #category : 'parsing' }
-JAIOpenAIAdapter >> parseResponse: responseString [
-	"Extract the assistant content string from the JSON response."
+JAIOllamaAdapter >> parseResponse: responseString [
 
 	| json choices message |
 	json := NeoJSONReader fromString: responseString.
@@ -114,16 +92,14 @@ JAIOpenAIAdapter >> parseResponse: responseString [
 ]
 
 { #category : 'api' }
-JAIOpenAIAdapter >> sendConversation: aConversation [
-	"POST to Ollama and return the assistant reply string.
-	 Uses ZnClient (Zinc HTTP, built into Pharo)."
+JAIOllamaAdapter >> sendConversation: aConversation [
+	"POST to the local Ollama server and return the assistant reply string."
 
 	| body responseString |
 	body := self buildRequestBody: aConversation.
 	responseString := ZnClient new
 		                  beOneShot;
 		                  url: baseUrl , '/chat/completions';
-		                  headerAt: 'Authorization' put: 'Bearer ' , apiKey;
 		                  entity: (ZnStringEntity json: body);
 		                  timeout: 120;
 		                  post.

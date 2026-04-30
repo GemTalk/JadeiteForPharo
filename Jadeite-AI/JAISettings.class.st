@@ -35,7 +35,7 @@ Then select Console > AI Chat again — no restart needed.
 For a lighter model on machines with less RAM:
   ollama pull llama3.2  (~2 GB)
   Then open a Workspace and evaluate:
-    JAIOpenAIAdapter forOllamaWithModel: ''llama3.2'''
+    JAIOllamaAdapter forModel: ''llama3.2'''
 ]
 
 { #category : 'probing' }
@@ -59,6 +59,6 @@ JAISettings class >> resolveAdapter [
 	 Called fresh each time AI Chat is opened, so starting Ollama
 	 and pressing the menu item again is all that is needed."
 
-	self isOllamaAvailable ifTrue: [ ^ JAIOpenAIAdapter forOllama ].
+	self isOllamaAvailable ifTrue: [ ^ JAIOllamaAdapter default ].
 	^ nil
 ]

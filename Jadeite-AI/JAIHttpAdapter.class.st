@@ -16,6 +16,11 @@ JAIHttpAdapter >> isAvailable [
 	^ true
 ]
 
+{ #category : 'lifecycle' }
+JAIHttpAdapter >> unsubscribe [
+	"No-op. Spec 2 calls unsubscribe on all presenter instance variables during teardown."
+]
+
 { #category : 'api' }
 JAIHttpAdapter >> sendConversation: aJAIChatConversation [
 	"Send aJAIChatConversation to the LLM and return the assistant reply as a String.

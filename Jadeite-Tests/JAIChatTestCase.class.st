@@ -159,18 +159,16 @@ JAIChatTestCase >> testBackgroundWorkerDoesNotBlockCallerProcess [
 JAIChatTestCase >> testAdapterDefaultsToOllama [
 
 	| adapter |
-	adapter := JAIOpenAIAdapter new.
-	self assert: adapter model equals: 'llama3.2'.
-	self assert: (adapter baseUrl includesSubstring: 'localhost').
-	self assert: adapter apiKey equals: 'ollama'
+	adapter := JAIOllamaAdapter default.
+	self assert: adapter model equals: 'qwen2.5-coder:7b'.
+	self assert: (adapter baseUrl includesSubstring: 'localhost')
 ]
 
 { #category : 'tests - adapter config' }
 JAIChatTestCase >> testOllamaAdapterCustomModel [
 
 	| adapter |
-	adapter := JAIOpenAIAdapter forOllamaWithModel: 'qwen2.5-coder:7b'.
+	adapter := JAIOllamaAdapter forModel: 'qwen2.5-coder:7b'.
 	self assert: adapter model equals: 'qwen2.5-coder:7b'.
-	self assert: adapter apiKey equals: 'ollama'.
 	self assert: (adapter baseUrl includesSubstring: 'localhost')
 ]
