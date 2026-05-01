@@ -53,5 +53,7 @@ JadeiteConsole >> openAIChatWindow [
 
 	| inst |
 	inst := JadeiteAIChatPresenter openWithSession: gciSession.
-	inst addStyle: 'jadeiteTextBackgroundColor'
+	inst
+		application: self application;
+		addStyle: 'jadeiteTextBackgroundColor'
 ]

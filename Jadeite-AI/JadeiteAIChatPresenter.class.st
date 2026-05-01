@@ -377,7 +377,8 @@ JadeiteAIChatPresenter >> initializePresenters [
 	transcriptArea beNotEditable.
 	self layout add: transcriptArea.
 
-	inputLabel := self newLabel label: 'Your message:  (Enter = Send,  Ctrl+Enter = new line)'.
+	inputLabel := self newLabel label:
+		              'Your message:  (Enter = Send,  Ctrl+Enter = new line)'.
 	self layout add: inputLabel withConstraints: [ :c | c height: 20 ].
 
 	inputArea := self newText.
@@ -386,10 +387,7 @@ JadeiteAIChatPresenter >> initializePresenters [
 		toAction: [ self sendMessage ].
 	inputArea
 		bindKeyCombination: Character cr ctrl asKeyCombination
-		toAction: [
-			[ inputArea adapter widget editor insertString: (String with: Character cr) ]
-				on: Error
-				do: [ inputArea text: inputArea text , String cr ] ].
+		toAction: [ inputArea text: inputArea text , String cr ].
 	inputArea
 		bindKeyCombination: KeyboardKey up asKeyCombination
 		toAction: [ self historyUp ].
@@ -406,7 +404,10 @@ JadeiteAIChatPresenter >> initializePresenters [
 		                    action: [ self toggleIncludeAllMethods ];
 		                    yourself.
 	contextRow
-		add: includeAllButton withConstraints: [ :c | c width: 160; expand: false ];
+		add: includeAllButton withConstraints: [ :c |
+				c
+					width: 160;
+					expand: false ];
 		add: contextLabel.
 	self layout add: contextRow withConstraints: [ :c | c height: 34 ].
 
