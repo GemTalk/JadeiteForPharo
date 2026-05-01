@@ -140,7 +140,8 @@ JadeiteAIOllamaAdapter >> parseResponse: responseString [
 { #category : 'parsing' }
 JadeiteAIOllamaAdapter >> readJsonStringFrom: aString startingAt: startIndex [
 	"Read a JSON string value starting at startIndex (after the opening quote).
-	 Returns the unescaped string content."
+	 Returns the unescaped string content.
+	 Handles \\n \\r \\t \\\\ and \\uXXXX (e.g. \\u003c -> <)."
 
 	| ws idx c |
 	ws := WriteStream on: String new.
@@ -151,19 +152,19 @@ JadeiteAIOllamaAdapter >> readJsonStringFrom: aString startingAt: startIndex [
 			idx := idx + 1.
 			idx <= aString size ifTrue: [
 				c := aString at: idx.
-				c = $n ifTrue:  [ ws nextPut: (Character value: 10) ] ifFalse: [
-				c = $r ifTrue:  [ ws nextPut: (Character value: 13) ] ifFalse: [
-				c = $t ifTrue:  [ ws nextPut: (Character value: 9)  ] ifFalse: [
-				c = $u ifTrue: [
-					(idx + 4 <= aString size)
-						ifTrue: [
-							| hex |
-							hex := aString copyFrom: idx + 1 to: idx + 4.
-							ws nextPut: (Character value: (Integer readFrom: hex base: 16)).
-							idx := idx + 4 ] ]
+				c = $n ifTrue: [ ws nextPut: (Character value: 10) ]
+				ifFalse: [ c = $r ifTrue: [ ws nextPut: (Character value: 13) ]
+				ifFalse: [ c = $t ifTrue: [ ws nextPut: (Character value: 9) ]
+				ifFalse: [ c = $u ifTrue: [
+					idx + 4 <= aString size ifTrue: [
+						| cp |
+						cp := 0.
+						1 to: 4 do: [ :i |
+							cp := cp * 16 + (aString at: idx + i) digitValue ].
+						ws nextPut: (Character value: cp).
+						idx := idx + 4 ] ]
 				ifFalse: [ ws nextPut: c ] ] ] ] ] ]
-		ifFalse: [
-			ws nextPut: c ].
+		ifFalse: [ ws nextPut: c ].
 		idx := idx + 1 ].
 	^ ws contents
 ]
