@@ -179,11 +179,10 @@ JadeiteAIOllamaAdapter >> normalizeAngleBrackets: aString [
 	backslashU := String with: (Character value: 92) with: $u.
 	lt := String with: (Character value: 60).
 	gt := String with: (Character value: 62).
-	s := aString
-		copyReplaceAll: backslashU , '003c' with: lt;
-		copyReplaceAll: backslashU , '003C' with: lt;
-		copyReplaceAll: backslashU , '003e' with: gt;
-		copyReplaceAll: backslashU , '003E' with: gt.
+	s := aString copyReplaceAll: backslashU , '003c' with: lt.
+	s := s copyReplaceAll: backslashU , '003C' with: lt.
+	s := s copyReplaceAll: backslashU , '003e' with: gt.
+	s := s copyReplaceAll: backslashU , '003E' with: gt.
 	^ s
 ]
 
