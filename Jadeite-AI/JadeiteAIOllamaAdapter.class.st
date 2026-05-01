@@ -37,13 +37,6 @@ JadeiteAIOllamaAdapter class >> forModel: aModelString [
 		  yourself
 ]
 
-{ #category : 'initialization' }
-JadeiteAIOllamaAdapter >> initialize [
-
-	baseUrl := 'http://localhost:11434/v1'.
-	model := 'qwen2.5-coder:7b'
-]
-
 { #category : 'accessing' }
 JadeiteAIOllamaAdapter >> baseUrl [
 
@@ -54,35 +47,6 @@ JadeiteAIOllamaAdapter >> baseUrl [
 JadeiteAIOllamaAdapter >> baseUrl: aString [
 
 	baseUrl := aString
-]
-
-{ #category : 'accessing' }
-JadeiteAIOllamaAdapter >> model [
-
-	^ model
-]
-
-{ #category : 'accessing' }
-JadeiteAIOllamaAdapter >> model: aString [
-
-	model := aString
-]
-
-{ #category : 'json' }
-JadeiteAIOllamaAdapter >> jsonEncodeString: aString [
-	"Return aString as a JSON string literal including surrounding double-quotes.
-	 Uses copyReplaceAll:with: for reliability. Backslash must be escaped first
-	 so that the backslashes added by later steps are not double-escaped."
-
-	| s bs dq |
-	bs := String with: $\.
-	dq := String with: (Character value: 34).
-	s := aString copyReplaceAll: bs with: bs , bs.
-	s := s copyReplaceAll: dq with: bs , dq.
-	s := s copyWithout: Character cr.
-	s := s copyReplaceAll: (String with: (Character value: 10)) with: bs , 'n'.
-	s := s copyReplaceAll: (String with: (Character value: 9))  with: bs , 't'.
-	^ dq , s , dq
 ]
 
 { #category : 'building' }
@@ -110,6 +74,59 @@ JadeiteAIOllamaAdapter >> buildRequestBody: aConversation [
 	ws nextPutAll: aConversation maxTokens printString.
 	ws nextPut: $}.
 	^ ws contents
+]
+
+{ #category : 'initialization' }
+JadeiteAIOllamaAdapter >> initialize [
+
+	baseUrl := 'http://localhost:11434/v1'.
+	model := 'qwen2.5-coder:7b'
+]
+
+{ #category : 'json' }
+JadeiteAIOllamaAdapter >> jsonEncodeString: aString [
+	"Return aString as a JSON string literal including surrounding double-quotes.
+	 Uses copyReplaceAll:with: for reliability. Backslash must be escaped first
+	 so that the backslashes added by later steps are not double-escaped."
+
+	| s bs dq |
+	bs := String with: $\.
+	dq := String with: (Character value: 34).
+	s := aString copyReplaceAll: bs with: bs , bs.
+	s := s copyReplaceAll: dq with: bs , dq.
+	s := s copyWithout: Character cr.
+	s := s copyReplaceAll: (String with: (Character value: 10)) with: bs , 'n'.
+	s := s copyReplaceAll: (String with: (Character value: 9))  with: bs , 't'.
+	^ dq , s , dq
+]
+
+{ #category : 'accessing' }
+JadeiteAIOllamaAdapter >> model [
+
+	^ model
+]
+
+{ #category : 'accessing' }
+JadeiteAIOllamaAdapter >> model: aString [
+
+	model := aString
+]
+
+{ #category : 'parsing' }
+JadeiteAIOllamaAdapter >> normalizeAngleBrackets: aString [
+	"Replace JSON Unicode escapes for < and > that some LLMs emit.
+	 Handles both lowercase (<) and uppercase (<) variants.
+	 Uses Character value: to avoid any source-encoding ambiguity."
+
+	| backslashU lt gt s |
+	backslashU := String with: (Character value: 92) with: $u.
+	lt := String with: (Character value: 60).
+	gt := String with: (Character value: 62).
+	s := aString copyReplaceAll: backslashU , '003c' with: lt.
+	s := s copyReplaceAll: backslashU , '003C' with: lt.
+	s := s copyReplaceAll: backslashU , '003e' with: gt.
+	s := s copyReplaceAll: backslashU , '003E' with: gt.
+	^ s
 ]
 
 { #category : 'parsing' }
@@ -167,23 +184,6 @@ JadeiteAIOllamaAdapter >> readJsonStringFrom: aString startingAt: startIndex [
 		ifFalse: [ ws nextPut: c ].
 		idx := idx + 1 ].
 	^ ws contents
-]
-
-{ #category : 'parsing' }
-JadeiteAIOllamaAdapter >> normalizeAngleBrackets: aString [
-	"Replace JSON Unicode escapes for < and > that some LLMs emit.
-	 Handles both lowercase (<) and uppercase (<) variants.
-	 Uses Character value: to avoid any source-encoding ambiguity."
-
-	| backslashU lt gt s |
-	backslashU := String with: (Character value: 92) with: $u.
-	lt := String with: (Character value: 60).
-	gt := String with: (Character value: 62).
-	s := aString copyReplaceAll: backslashU , '003c' with: lt.
-	s := s copyReplaceAll: backslashU , '003C' with: lt.
-	s := s copyReplaceAll: backslashU , '003e' with: gt.
-	s := s copyReplaceAll: backslashU , '003E' with: gt.
-	^ s
 ]
 
 { #category : 'api' }

@@ -242,27 +242,31 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 	 to prevent infinite hangs on compile errors."
 
 	| service sem result wrappedExpr |
-	gciSession ifNil: [ ^ '<gemstoneerror>no GemStone session available</gemstoneerror>' ].
-	wrappedExpr := '[ ' , expr , ' ] on: Error do: [ :__e | ''<gemstoneerror>'' , __e messageText , ''</gemstoneerror>'' ]'.
+	gciSession ifNil: [
+		^ '<gemstoneerror>no GemStone session available</gemstoneerror>' ].
+	wrappedExpr := '[ ' , expr
+	               ,
+	               ' ] on: Error do: [ :__e | ''<gemstoneerror>'' , __e messageText , ''</gemstoneerror>'' ]'.
 	sem := Semaphore new.
 	service := RowanAnsweringService new.
 	[
-		service
-			exec: wrappedExpr
-			in: gciSession
-			onCompletion: [
+		service exec: wrappedExpr in: gciSession onCompletion: [
 				[ result := service answer ]
 					on: Error
 					do: [ :ex |
-						result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>' ].
+						result := '<gemstoneerror>' , ex messageText
+						          , '</gemstoneerror>' ].
 				sem signal ] ]
 		on: Error
 		do: [ :ex |
-			result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>'.
-			sem signal ].
-	(sem waitTimeoutMSecs: 30000) ifTrue: [ ^ '<gemstoneerror>GemStone query timed out</gemstoneerror>' ].
-	result ifNil: [ ^ '<gemstoneerror>no result returned</gemstoneerror>' ].
-	(result isString and: [ result includesSubstring: '<gemstoneerror>' ]) ifTrue: [ ^ result ].
+				result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>'.
+				sem signal ].
+	(sem waitTimeoutMilliseconds: 30000) ifTrue: [
+		^ '<gemstoneerror>GemStone query timed out</gemstoneerror>' ].
+	result ifNil: [
+		^ '<gemstoneerror>no result returned</gemstoneerror>' ].
+	(result isString and: [ result includesSubstring: '<gemstoneerror>' ])
+		ifTrue: [ ^ result ].
 	^ result printString
 ]
 
@@ -288,28 +292,6 @@ JadeiteAIChatPresenter >> extractTextBefore: tag in: aString [
 	idx := aString indexOfSubCollection: tag startingAt: 1 ifAbsent: [ ^ aString ].
 	idx <= 1 ifTrue: [ ^ '' ].
 	^ (aString copyFrom: 1 to: idx - 1) trimBlanks
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> historyDown [
-	"Advance forward through sent-message history; clears input when past the end."
-
-	messageHistory isEmpty ifTrue: [ ^ self ].
-	historyIndex := historyIndex + 1.
-	historyIndex > messageHistory size
-		ifTrue: [
-			historyIndex := messageHistory size + 1.
-			inputArea text: '' ]
-		ifFalse: [ inputArea text: (messageHistory at: historyIndex) ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> historyUp [
-	"Step back through sent-message history, oldest first on repeated presses."
-
-	messageHistory isEmpty ifTrue: [ ^ self ].
-	historyIndex := (historyIndex - 1) max: 1.
-	inputArea text: (messageHistory at: historyIndex)
 ]
 
 { #category : 'private' }
@@ -342,6 +324,28 @@ JadeiteAIChatPresenter >> gciSession [
 JadeiteAIChatPresenter >> gciSession: aGciSession [
 
 	gciSession := aGciSession
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> historyDown [
+	"Advance forward through sent-message history; clears input when past the end."
+
+	messageHistory isEmpty ifTrue: [ ^ self ].
+	historyIndex := historyIndex + 1.
+	historyIndex > messageHistory size
+		ifTrue: [
+			historyIndex := messageHistory size + 1.
+			inputArea text: '' ]
+		ifFalse: [ inputArea text: (messageHistory at: historyIndex) ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> historyUp [
+	"Step back through sent-message history, oldest first on repeated presses."
+
+	messageHistory isEmpty ifTrue: [ ^ self ].
+	historyIndex := (historyIndex - 1) max: 1.
+	inputArea text: (messageHistory at: historyIndex)
 ]
 
 { #category : 'initialization' }
@@ -624,6 +628,15 @@ JadeiteAIChatPresenter >> startSpinner [
 		                  forkNamed: 'JadeiteAI-Spinner'
 ]
 
+{ #category : 'private' }
+JadeiteAIChatPresenter >> stopSpinner [
+
+	spinnerProcess ifNotNil: [ :p |
+		p terminate.
+		spinnerProcess := nil ].
+	statusLabel label: ''
+]
+
 { #category : 'actions' }
 JadeiteAIChatPresenter >> stopWorker [
 	"Terminate the in-flight LLM request and re-enable input."
@@ -633,15 +646,6 @@ JadeiteAIChatPresenter >> stopWorker [
 		workerProcess := nil ].
 	self appendToTranscript: '[Stopped]'.
 	self enableInput
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> stopSpinner [
-
-	spinnerProcess ifNotNil: [ :p |
-		p terminate.
-		spinnerProcess := nil ].
-	statusLabel label: ''
 ]
 
 { #category : 'context' }
