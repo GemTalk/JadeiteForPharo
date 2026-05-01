@@ -85,6 +85,7 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession [
 	aGciSession ifNotNil: [ CurrentWindow gciSession: aGciSession ].
 	CurrentWindow llmAdapter: resolvedAdapter.
 	CurrentWindow open.
+	CurrentWindow addStyle: 'jadeiteTextBackgroundColor'.
 	^ CurrentWindow
 ]
 
@@ -429,8 +430,7 @@ JadeiteAIChatPresenter >> initializePresenters [
 		add: stopButton expand: false;
 		add: clearButton expand: false;
 		add: statusLabel.
-	self layout add: buttonRow withConstraints: [ :c | c height: 30 ].
-	self whenBuiltDo: [ transcriptArea addStyle: 'jadeiteTextBackgroundColor' ]
+	self layout add: buttonRow withConstraints: [ :c | c height: 30 ]
 ]
 
 { #category : 'initialization' }
