@@ -234,25 +234,31 @@ JadeiteAIChatPresenter >> enableInput [
 JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 	"Execute a Smalltalk expression on the GemStone server and return the result string.
 	 Called from the LLM worker thread; uses a Semaphore to block until the async
-	 RowanAnsweringService call completes."
+	 RowanAnsweringService call completes.
+	 Wraps the expression in a server-side error handler so runtime errors are returned
+	 as 'ERROR: ...' strings rather than opening a debugger. Times out after 30 seconds
+	 to prevent infinite hangs on compile errors."
 
-	| service sem result |
-	gciSession ifNil: [ ^ '(no GemStone session available)' ].
+	| service sem result wrappedExpr |
+	gciSession ifNil: [ ^ '<gemstoneerror>no GemStone session available</gemstoneerror>' ].
+	wrappedExpr := '[ ' , expr , ' ] on: Error do: [ :__e | ''<gemstoneerror>'' , __e messageText , ''</gemstoneerror>'' ]'.
 	sem := Semaphore new.
 	service := RowanAnsweringService new.
 	[
 		service
-			exec: expr
+			exec: wrappedExpr
 			in: gciSession
 			onCompletion: [
 				result := service answer.
 				sem signal ] ]
 		on: Error
 		do: [ :ex |
-			result := 'Error issuing command: ' , ex messageText.
+			result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>'.
 			sem signal ].
-	sem wait.
-	^ (result ifNil: [ '(no result)' ]) printString
+	(sem waitTimeoutMSecs: 30000) ifTrue: [ ^ '<gemstoneerror>GemStone query timed out</gemstoneerror>' ].
+	result ifNil: [ ^ '<gemstoneerror>no result returned</gemstoneerror>' ].
+	(result isString and: [ result includesSubstring: '<gemstoneerror>' ]) ifTrue: [ ^ result ].
+	^ result printString
 ]
 
 { #category : 'private' }
@@ -482,7 +488,7 @@ Question: ' , userText ].
 				reply := llmAdapter sendConversation: conversation.
 
 				[ reply includesSubstring: '<gemstone>' ] whileTrue: [
-					| preText expr result |
+					| preText expr result feedbackMsg |
 					preText := self extractTextBefore: '<gemstone>' in: reply.
 					expr := self extractGemStoneExpressionFrom: reply.
 					preText isEmpty ifFalse: [
@@ -495,8 +501,13 @@ Question: ' , userText ].
 					UIManager default defer: [
 						self appendToTranscript:
 							'[Result] ' asText allBold , result asText ].
+					feedbackMsg := (result includesSubstring: '<gemstoneerror>')
+						ifTrue: [
+							'Your GemStone query failed: ' , result ,
+							' Please analyze the error and retry with a corrected expression.' ]
+						ifFalse: [ 'GemStone query result: ' , result ].
 					conversation addAssistantMessage: preText.
-					conversation addUserMessage: 'GemStone query result: ' , result.
+					conversation addUserMessage: feedbackMsg.
 					reply := llmAdapter sendConversation: conversation ].
 
 				UIManager default defer: [ self onWorkerDone: reply ] ]

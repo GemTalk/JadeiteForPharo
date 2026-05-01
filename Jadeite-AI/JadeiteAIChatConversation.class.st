@@ -65,7 +65,11 @@ to you as a follow-up message so you can complete your answer. Example:
   <gemstone>Array allInstances size</gemstone>
 Use printString on complex objects for readable output. Only query the server
 when you genuinely need live data. Do not include anything else on the same
-line as the tags.'
+line as the tags.
+
+If a query fails, the result will be wrapped in <gemstoneerror>...</gemstoneerror>
+tags. Read the error message, correct your expression, and try again with a new
+<gemstone> tag.'
 ]
 
 { #category : 'accessing' }
