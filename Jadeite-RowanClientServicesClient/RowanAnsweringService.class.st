@@ -69,6 +69,16 @@ RowanAnsweringService >> canAccessServiceClasses: session [
 	^ answer
 ]
 
+{ #category : 'actions' }
+RowanAnsweringService >> handleCompileError: compileError [
+	"Store the compile error in answer and trigger the completion block so callers
+	 get a result rather than a debugger. Base class calls pass, which re-raises
+	 in the RSR forked thread where no handler exists."
+
+	answer := '<gemstoneerror>' , compileError messageText , '</gemstoneerror>'.
+	self handleServiceCompletion
+]
+
 { #category : 'commands' }
 RowanAnsweringService >> exec: string in: session onCompletion: completionBlock [
 
