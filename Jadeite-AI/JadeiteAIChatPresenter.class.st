@@ -249,10 +249,13 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 			exec: wrappedExpr
 			in: gciSession
 			onCompletion: [
-				[ result := service answer ]
-					on: Error
-					do: [ :ex |
-						result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>' ].
+				[
+					[ result := service answer ]
+						on: Error
+						do: [ :ex |
+							result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>' ] ]
+					on: GsCompileError
+					do: [ :ex | "ignore — prevents debugger; nil result surfaces as gemstoneerror" ].
 				sem signal ] ]
 		on: Error
 		do: [ :ex |
