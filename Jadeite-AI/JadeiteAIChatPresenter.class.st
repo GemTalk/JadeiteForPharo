@@ -275,9 +275,7 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 		^ '<gemstoneerror>no result returned</gemstoneerror>' ].
 	(result isString and: [ result includesSubstring: '<gemstoneerror>' ])
 		ifTrue: [ ^ result ].
-	^ result isString
-		ifTrue: [ result ]
-		ifFalse: [ result printString ]
+	^ result printString
 ]
 
 { #category : 'private' }
