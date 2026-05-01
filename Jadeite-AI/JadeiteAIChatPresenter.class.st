@@ -308,9 +308,13 @@ JadeiteAIChatPresenter >> executePharoExpression: expr [
 	| result |
 	expr isEmpty ifTrue: [
 		^ '<pharoerror>empty expression — missing closing </pharo> tag?</pharoerror>' ].
-	result := [ (OpalCompiler evaluate: expr) printString ]
-		on: Error
-		do: [ :e | '<pharoerror>' , e messageText , '</pharoerror>' ].
+	result := [
+		          (OpalCompiler new
+			           source: expr;
+			           evaluate) printString ]
+		          on: Error
+		          do: [ :e |
+		          '<pharoerror>' , e messageText , '</pharoerror>' ].
 	^ result
 ]
 
