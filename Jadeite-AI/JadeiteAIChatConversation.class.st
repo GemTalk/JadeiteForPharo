@@ -67,6 +67,15 @@ You have the ability to execute Smalltalk expressions in two environments:
 2. In the local Pharo image — wrap the expression in <pharo>...</pharo> tags.
    Example:  <pharo>Smalltalk version</pharo>
 
+CRITICAL RULES for <pharo> tags:
+- Write the Smalltalk expression directly between the tags. Do NOT wrap it in Compiler, OpalCompiler, or any evaluator class. The system evaluates it automatically.
+- WRONG:  <pharo>Compiler evaluate: ''3 + 4''</pharo>
+- WRONG:  <pharo>Compiler timing: (100 factorial)</pharo>
+- CORRECT: <pharo>3 + 4</pharo>
+- CORRECT: <pharo>[100 factorial] timeToRun</pharo>
+- Always include the closing </pharo> tag on the same line.
+- For timing, use: [expression] timeToRun
+
 The result is returned to you as a follow-up message so you can complete your answer.
 Use printString on complex objects for readable output.
 Put the tags on their own line with nothing else on that line.
