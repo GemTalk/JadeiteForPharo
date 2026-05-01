@@ -249,7 +249,10 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 			exec: wrappedExpr
 			in: gciSession
 			onCompletion: [
-				result := service answer.
+				[ result := service answer ]
+					on: Error
+					do: [ :ex |
+						result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>' ].
 				sem signal ] ]
 		on: Error
 		do: [ :ex |
