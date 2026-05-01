@@ -33,6 +33,7 @@ Class {
 		'statusLabel',
 		'contextLabel',
 		'includeAllButton',
+		'clearContextButton',
 		'conversation',
 		'llmAdapter',
 		'workerProcess',
@@ -520,10 +521,19 @@ JadeiteAIChatPresenter >> initializePresenters [
 		                    label: 'Include All Methods';
 		                    action: [ self toggleIncludeAllMethods ];
 		                    yourself.
+	clearContextButton := self newButton
+		                      label: 'Clear Context';
+		                      action: [ self clearContext ];
+		                      enabled: false;
+		                      yourself.
 	contextRow
 		add: includeAllButton withConstraints: [ :c |
 				c
 					width: 160;
+					expand: false ];
+		add: clearContextButton withConstraints: [ :c |
+				c
+					width: 110;
 					expand: false ];
 		add: contextLabel.
 	self layout add: contextRow withConstraints: [ :c | c height: 34 ].
@@ -804,11 +814,14 @@ JadeiteAIChatPresenter >> updateContextLabel [
 			ifTrue: [ label := label , ' (all methods included)' ]
 			ifFalse: [ label := label , ' (definition only — toggle to include method sources)' ].
 		contextLabel label: label.
+		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
 		contextLabel label: 'Context: ' , ms size printString , ' selected method(s)'.
+		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
 		^ self ].
 
-	contextLabel label: ''
+	contextLabel label: ''.
+	clearContextButton ifNotNil: [ clearContextButton enabled: false ]
 ]
