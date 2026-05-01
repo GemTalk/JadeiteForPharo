@@ -41,7 +41,9 @@ Class {
 		'contextClassService',
 		'contextMethodServices',
 		'contextSource',
-		'includeAllMethods'
+		'includeAllMethods',
+		'messageHistory',
+		'historyIndex'
 	],
 	#classVars : [
 		'CurrentWindow'
@@ -289,6 +291,28 @@ JadeiteAIChatPresenter >> extractTextBefore: tag in: aString [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> historyDown [
+	"Advance forward through sent-message history; clears input when past the end."
+
+	messageHistory isEmpty ifTrue: [ ^ self ].
+	historyIndex := historyIndex + 1.
+	historyIndex > messageHistory size
+		ifTrue: [
+			historyIndex := messageHistory size + 1.
+			inputArea text: '' ]
+		ifFalse: [ inputArea text: (messageHistory at: historyIndex) ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> historyUp [
+	"Step back through sent-message history, oldest first on repeated presses."
+
+	messageHistory isEmpty ifTrue: [ ^ self ].
+	historyIndex := (historyIndex - 1) max: 1.
+	inputArea text: (messageHistory at: historyIndex)
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> fetchGemStoneContext [
 	"Fallback: return source of the currently-selected method from any open Jadeite
 	 browser, or empty string if nothing is selected. Used when no explicit context set."
@@ -326,7 +350,9 @@ JadeiteAIChatPresenter >> initialize [
 	super initialize.
 	conversation := JadeiteAIChatConversation new.
 	transcriptContent := '' asText.
-	includeAllMethods := false
+	includeAllMethods := false.
+	messageHistory := OrderedCollection new.
+	historyIndex := 0
 ]
 
 { #category : 'initialization' }
@@ -354,6 +380,12 @@ JadeiteAIChatPresenter >> initializePresenters [
 			[ inputArea adapter widget editor insertString: (String with: Character cr) ]
 				on: Error
 				do: [ inputArea text: inputArea text , String cr ] ].
+	inputArea
+		bindKeyCombination: KeyboardKey up asKeyCombination
+		toAction: [ self historyUp ].
+	inputArea
+		bindKeyCombination: KeyboardKey down asKeyCombination
+		toAction: [ self historyDown ].
 	self layout add: inputArea withConstraints: [ :c | c height: 100 ].
 
 	contextRow := SpBoxLayout newHorizontal spacing: 6.
@@ -471,6 +503,8 @@ JadeiteAIChatPresenter >> sendMessage [
 	userText := inputArea text trimBlanks.
 	userText isEmpty ifTrue: [ ^ self ].
 
+	messageHistory addLast: userText.
+	historyIndex := messageHistory size + 1.
 	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
 	self appendToTranscript: '[You] ' asText allBold , userText asText.
 	inputArea text: ''.
