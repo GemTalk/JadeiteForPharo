@@ -266,7 +266,7 @@ JadeiteAIChatPresenter >> extractGemStoneExpressionFrom: aString [
 	         + openTag size.
 	end := (aString indexOfSubCollection: closeTag startingAt: start ifAbsent: [ ^ '' ])
 	       - 1.
-	^ (aString copyFrom: start to: end) trimSeparators
+	^ (aString copyFrom: start to: end) trimBlanks
 ]
 
 { #category : 'private' }
@@ -276,7 +276,7 @@ JadeiteAIChatPresenter >> extractTextBefore: tag in: aString [
 	| idx |
 	idx := aString indexOfSubCollection: tag startingAt: 1 ifAbsent: [ ^ aString ].
 	idx <= 1 ifTrue: [ ^ '' ].
-	^ (aString copyFrom: 1 to: idx - 1) trimSeparators
+	^ (aString copyFrom: 1 to: idx - 1) trimBlanks
 ]
 
 { #category : 'private' }
