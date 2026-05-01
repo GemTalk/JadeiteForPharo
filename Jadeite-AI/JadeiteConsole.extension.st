@@ -51,9 +51,5 @@ JadeiteConsole >> newToolsMenu [
 JadeiteConsole >> openAIChatWindow [
 	"Open the AI chat window, passing the live GemStone session for source-context injection."
 
-	| inst |
-	inst := JadeiteAIChatPresenter openWithSession: gciSession.
-	inst
-		application: self application;
-		addStyle: 'jadeiteTextBackgroundColor'
+	JadeiteAIChatApplication showOnSession: self gciSession
 ]
