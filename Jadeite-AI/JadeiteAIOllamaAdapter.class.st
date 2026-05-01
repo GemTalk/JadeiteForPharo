@@ -169,6 +169,24 @@ JadeiteAIOllamaAdapter >> readJsonStringFrom: aString startingAt: startIndex [
 	^ ws contents
 ]
 
+{ #category : 'parsing' }
+JadeiteAIOllamaAdapter >> normalizeAngleBrackets: aString [
+	"Replace JSON Unicode escapes for < and > that some LLMs emit.
+	 Handles both lowercase (<) and uppercase (<) variants.
+	 Uses Character value: to avoid any source-encoding ambiguity."
+
+	| backslashU lt gt s |
+	backslashU := String with: (Character value: 92) with: $u.
+	lt := String with: (Character value: 60).
+	gt := String with: (Character value: 62).
+	s := aString
+		copyReplaceAll: backslashU , '003c' with: lt;
+		copyReplaceAll: backslashU , '003C' with: lt;
+		copyReplaceAll: backslashU , '003e' with: gt;
+		copyReplaceAll: backslashU , '003E' with: gt.
+	^ s
+]
+
 { #category : 'api' }
 JadeiteAIOllamaAdapter >> sendConversation: aConversation [
 	"POST to the local Ollama server and return the assistant reply string."
@@ -183,5 +201,8 @@ JadeiteAIOllamaAdapter >> sendConversation: aConversation [
 		                  entity: (ZnStringEntity json: body);
 		                  timeout: 120;
 		                  post.
+	"Some LLMs JSON-encode < and > as < / >.
+	 Normalise before parsing so the agent-loop tag detection works."
+	responseString := self normalizeAngleBrackets: responseString.
 	^ self parseResponse: responseString
 ]
