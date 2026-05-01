@@ -302,17 +302,40 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> extractGemStoneExpressionFrom: aString [
-	"Return the Smalltalk expression between the first <gemstone>...</gemstone> tags."
+JadeiteAIChatPresenter >> executePharoExpression: expr [
+	"Evaluate a Pharo Smalltalk expression in the local image and return the result string."
 
-	| openTag closeTag start end |
-	openTag := '<gemstone>'.
-	closeTag := '</gemstone>'.
+	| result |
+	result := [ (Compiler evaluate: expr) printString ]
+		on: Error
+		do: [ :e | '<pharoerror>' , e messageText , '</pharoerror>' ].
+	^ result
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> extractExpressionFrom: aString openTag: openTag closeTag: closeTag [
+	"Return the Smalltalk expression between the first openTag...closeTag pair."
+
+	| start end |
 	start := (aString indexOfSubCollection: openTag startingAt: 1 ifAbsent: [ ^ '' ])
 	         + openTag size.
 	end := (aString indexOfSubCollection: closeTag startingAt: start ifAbsent: [ ^ '' ])
 	       - 1.
 	^ (aString copyFrom: start to: end) trimBlanks
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> extractGemStoneExpressionFrom: aString [
+	"Return the Smalltalk expression between the first <gemstone>...</gemstone> tags."
+
+	^ self extractExpressionFrom: aString openTag: '<gemstone>' closeTag: '</gemstone>'
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> extractPharoExpressionFrom: aString [
+	"Return the Smalltalk expression between the first <pharo>...</pharo> tags."
+
+	^ self extractExpressionFrom: aString openTag: '<pharo>' closeTag: '</pharo>'
 ]
 
 { #category : 'private' }
@@ -662,26 +685,47 @@ Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
 				reply := llmAdapter sendConversation: conversation.
 
-				[ reply includesSubstring: '<gemstone>' ] whileTrue: [
-					| preText expr result feedbackMsg |
-					preText := self extractTextBefore: '<gemstone>' in: reply.
-					expr := self extractGemStoneExpressionFrom: reply.
+				[ | hasGemstone hasPharo |
+				  hasGemstone := reply includesSubstring: '<gemstone>'.
+				  hasPharo := reply includesSubstring: '<pharo>'.
+				  hasGemstone or: [ hasPharo ] ] whileTrue: [
+					| preText expr result feedbackMsg useGemstone tag errorTag label |
+					useGemstone := (reply
+						indexOfSubCollection: '<gemstone>'
+						startingAt: 1
+						ifAbsent: [ reply size + 1 ]) < (reply
+						indexOfSubCollection: '<pharo>'
+						startingAt: 1
+						ifAbsent: [ reply size + 1 ]).
+					useGemstone
+						ifTrue: [
+							tag := '<gemstone>'.
+							errorTag := '<gemstoneerror>'.
+							label := '[GemStone]'.
+							preText := self extractTextBefore: tag in: reply.
+							expr := self extractGemStoneExpressionFrom: reply ]
+						ifFalse: [
+							tag := '<pharo>'.
+							errorTag := '<pharoerror>'.
+							label := '[Pharo]'.
+							preText := self extractTextBefore: tag in: reply.
+							expr := self extractPharoExpressionFrom: reply ].
 					preText isEmpty ifFalse: [
 						UIManager default defer: [
 							self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
 					UIManager default defer: [
-						self appendToTranscript:
-							'[GemStone] ' asText allBold , expr asText ].
+						self appendToTranscript: label asText allBold , ' ' asText , expr asText ].
 					Processor yield.
-					result := self executeGemStoneExpression: expr.
+					result := useGemstone
+						ifTrue: [ self executeGemStoneExpression: expr ]
+						ifFalse: [ self executePharoExpression: expr ].
 					UIManager default defer: [
-						self appendToTranscript:
-							'[Result] ' asText allBold , result asText ].
-					feedbackMsg := (result includesSubstring: '<gemstoneerror>')
+						self appendToTranscript: '[Result] ' asText allBold , result asText ].
+					feedbackMsg := (result includesSubstring: errorTag)
 						ifTrue: [
-							'Your GemStone query failed: ' , result ,
+							'Your ' , label , ' query failed: ' , result ,
 							' Please analyze the error and retry with a corrected expression.' ]
-						ifFalse: [ 'GemStone query result: ' , result ].
+						ifFalse: [ label , ' query result: ' , result ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := llmAdapter sendConversation: conversation ].
