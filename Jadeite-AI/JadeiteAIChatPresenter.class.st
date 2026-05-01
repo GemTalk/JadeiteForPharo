@@ -292,7 +292,7 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 		do: [ :ex |
 				result := '<gemstoneerror>' , ex messageText , '</gemstoneerror>'.
 				sem signal ].
-	(sem waitTimeoutMilliseconds: 30000) ifTrue: [
+	(sem waitTimeoutMilliseconds: self timeout) ifTrue: [
 		^ '<gemstoneerror>GemStone query timed out</gemstoneerror>' ].
 	result ifNil: [
 		^ '<gemstoneerror>no result returned</gemstoneerror>' ].
@@ -381,97 +381,6 @@ JadeiteAIChatPresenter >> historyUp [
 	self isInputAtFirstLine ifFalse: [ self moveCursorUpLine. ^ self ].
 	historyIndex := (historyIndex - 1) max: 1.
 	inputArea text: (messageHistory at: historyIndex)
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> inputCursorPosition [
-	"Return the character index of the cursor in the input area, or 0 on error."
-
-	^ [ inputArea adapter widget textMorph selectionInterval first ]
-		on: Error
-		do: [ 0 ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> isInputAtFirstLine [
-	"True if the cursor is on the first line (no newline before cursor position)."
-
-	| pos textBefore |
-	pos := self inputCursorPosition.
-	pos <= 1 ifTrue: [ ^ true ].
-	textBefore := inputArea text asString copyFrom: 1 to: pos - 1.
-	^ (textBefore includes: Character cr) not
-		and: [ (textBefore includes: Character lf) not ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> isInputAtLastLine [
-	"True if the cursor is on the last line (no newline from cursor position to end)."
-
-	| pos text textAfter |
-	text := inputArea text asString.
-	pos := self inputCursorPosition.
-	pos > text size ifTrue: [ ^ true ].
-	textAfter := text copyFrom: pos to: text size.
-	^ (textAfter includes: Character cr) not
-		and: [ (textAfter includes: Character lf) not ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> moveCursorDownLine [
-	"Move the cursor down one line, keeping the same column."
-
-	| text pos lineStart lineEnd nextLineStart nextLineEnd col newPos |
-	text := inputArea text asString.
-	pos := self inputCursorPosition.
-	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
-	lineEnd := pos.
-	[ lineEnd <= text size and: [
-		  (text at: lineEnd) ~= Character cr and: [ (text at: lineEnd) ~= Character lf ] ] ]
-		whileTrue: [ lineEnd := lineEnd + 1 ].
-	lineEnd > text size ifTrue: [ ^ self ].
-	nextLineStart := lineEnd + 1.
-	nextLineStart > text size ifTrue: [ ^ self ].
-	nextLineEnd := nextLineStart.
-	[ nextLineEnd <= text size and: [
-		  (text at: nextLineEnd) ~= Character cr
-		  and: [ (text at: nextLineEnd) ~= Character lf ] ] ]
-		whileTrue: [ nextLineEnd := nextLineEnd + 1 ].
-	lineStart := 1.
-	1 to: pos - 1 do: [ :i |
-		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
-			ifTrue: [ lineStart := i + 1 ] ].
-	col := pos - lineStart.
-	newPos := (nextLineStart + col) min: nextLineEnd.
-	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
-		on: Error
-		do: [  ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> moveCursorUpLine [
-	"Move the cursor up one line, keeping the same column."
-
-	| text pos lineStart prevLineEnd prevLineStart col newPos |
-	text := inputArea text asString.
-	pos := self inputCursorPosition.
-	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
-	lineStart := 1.
-	1 to: pos - 1 do: [ :i |
-		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
-			ifTrue: [ lineStart := i + 1 ] ].
-	col := pos - lineStart.
-	lineStart <= 1 ifTrue: [ ^ self ].
-	prevLineEnd := lineStart - 2.
-	prevLineEnd < 1 ifTrue: [ ^ self ].
-	prevLineStart := 1.
-	1 to: prevLineEnd - 1 do: [ :i |
-		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
-			ifTrue: [ prevLineStart := i + 1 ] ].
-	newPos := (prevLineStart + col) min: prevLineEnd + 1.
-	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
-		on: Error
-		do: [  ]
 ]
 
 { #category : 'initialization' }
@@ -570,6 +479,40 @@ JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter whenClosedDo: [ self class currentWindow: nil ]
 ]
 
+{ #category : 'private' }
+JadeiteAIChatPresenter >> inputCursorPosition [
+	"Return the character index of the cursor in the input area, or 0 on error."
+
+	^ [ inputArea adapter widget textMorph selectionInterval first ]
+		on: Error
+		do: [ 0 ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isInputAtFirstLine [
+	"True if the cursor is on the first line (no newline before cursor position)."
+
+	| pos textBefore |
+	pos := self inputCursorPosition.
+	pos <= 1 ifTrue: [ ^ true ].
+	textBefore := inputArea text asString copyFrom: 1 to: pos - 1.
+	^ (textBefore includes: Character cr) not
+		and: [ (textBefore includes: Character lf) not ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isInputAtLastLine [
+	"True if the cursor is on the last line (no newline from cursor position to end)."
+
+	| pos text textAfter |
+	text := inputArea text asString.
+	pos := self inputCursorPosition.
+	pos > text size ifTrue: [ ^ true ].
+	textAfter := text copyFrom: pos to: text size.
+	^ (textAfter includes: Character cr) not
+		and: [ (textAfter includes: Character lf) not ]
+]
+
 { #category : 'accessing' }
 JadeiteAIChatPresenter >> llmAdapter [
 
@@ -587,6 +530,63 @@ JadeiteAIChatPresenter >> methodCap [
 	"Maximum number of methods to include when building a class context."
 
 	^ 50
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> moveCursorDownLine [
+	"Move the cursor down one line, keeping the same column."
+
+	| text pos lineStart lineEnd nextLineStart nextLineEnd col newPos |
+	text := inputArea text asString.
+	pos := self inputCursorPosition.
+	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
+	lineEnd := pos.
+	[ lineEnd <= text size and: [
+		  (text at: lineEnd) ~= Character cr and: [ (text at: lineEnd) ~= Character lf ] ] ]
+		whileTrue: [ lineEnd := lineEnd + 1 ].
+	lineEnd > text size ifTrue: [ ^ self ].
+	nextLineStart := lineEnd + 1.
+	nextLineStart > text size ifTrue: [ ^ self ].
+	nextLineEnd := nextLineStart.
+	[ nextLineEnd <= text size and: [
+		  (text at: nextLineEnd) ~= Character cr
+		  and: [ (text at: nextLineEnd) ~= Character lf ] ] ]
+		whileTrue: [ nextLineEnd := nextLineEnd + 1 ].
+	lineStart := 1.
+	1 to: pos - 1 do: [ :i |
+		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
+			ifTrue: [ lineStart := i + 1 ] ].
+	col := pos - lineStart.
+	newPos := (nextLineStart + col) min: nextLineEnd.
+	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
+		on: Error
+		do: [  ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> moveCursorUpLine [
+	"Move the cursor up one line, keeping the same column."
+
+	| text pos lineStart prevLineEnd prevLineStart col newPos |
+	text := inputArea text asString.
+	pos := self inputCursorPosition.
+	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
+	lineStart := 1.
+	1 to: pos - 1 do: [ :i |
+		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
+			ifTrue: [ lineStart := i + 1 ] ].
+	col := pos - lineStart.
+	lineStart <= 1 ifTrue: [ ^ self ].
+	prevLineEnd := lineStart - 2.
+	prevLineEnd < 1 ifTrue: [ ^ self ].
+	prevLineStart := 1.
+	1 to: prevLineEnd - 1 do: [ :i |
+		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
+			ifTrue: [ prevLineStart := i + 1 ] ].
+	newPos := (prevLineStart + col) min: prevLineEnd + 1.
+	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
+		on: Error
+		do: [  ]
 ]
 
 { #category : 'event handling' }
@@ -789,6 +789,12 @@ JadeiteAIChatPresenter >> stopWorker [
 		workerProcess := nil ].
 	self appendToTranscript: '[Stopped]'.
 	self enableInput
+]
+
+{ #category : 'constants' }
+JadeiteAIChatPresenter >> timeout [
+
+	^ 60000
 ]
 
 { #category : 'context' }
