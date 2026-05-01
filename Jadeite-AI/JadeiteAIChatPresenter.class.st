@@ -306,7 +306,9 @@ JadeiteAIChatPresenter >> executePharoExpression: expr [
 	"Evaluate a Pharo Smalltalk expression in the local image and return the result string."
 
 	| result |
-	result := [ (Compiler evaluate: expr) printString ]
+	expr isEmpty ifTrue: [
+		^ '<pharoerror>empty expression — missing closing </pharo> tag?</pharoerror>' ].
+	result := [ (OpalCompiler evaluate: expr) printString ]
 		on: Error
 		do: [ :e | '<pharoerror>' , e messageText , '</pharoerror>' ].
 	^ result
@@ -713,8 +715,9 @@ Question: ' , userText ].
 					preText isEmpty ifFalse: [
 						UIManager default defer: [
 							self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
-					UIManager default defer: [
-						self appendToTranscript: label asText allBold , ' ' asText , expr asText ].
+					expr isEmpty ifFalse: [
+						UIManager default defer: [
+							self appendToTranscript: (label , ' ' , expr) asText ] ].
 					Processor yield.
 					result := useGemstone
 						ifTrue: [ self executeGemStoneExpression: expr ]
