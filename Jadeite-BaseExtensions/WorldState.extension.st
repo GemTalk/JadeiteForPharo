@@ -48,7 +48,7 @@ WorldState >> runLocalStepMethodsIn: aWorld [
 					lastStepMessage := nil ]
 					on: Error
 					do: [ :ex | "JfP override. Morphic drawing can fail. Note it and resume to let the next drawing event cleanup."
-							'Error in WorldState>>#runLocalStepMethodsIn: ' , ex traceCr.
+							'Error in WorldState>>#runLocalStepMethodsIn: ' , ex traceCr printString .
 							^ self ] ].
 	lastStepTime := now.
 	ActiveWorld := priorWorld
