@@ -4,24 +4,28 @@ Extension { #name : 'JadeiteBrowserPresenter' }
 JadeiteBrowserPresenter >> askJadeiteAboutSelectedClass [
 	"Open (or activate) the Ask Jadeite window with the selected class as context."
 
-	| classService |
+	| classService chatPresenter |
 	classService := self selectedClass.
 	classService ifNil: [ ^ self ].
-	JadeiteAIChatPresenter
-		openWithSession: gciSession
-		classService: classService
+	chatPresenter := JadeiteAIChatPresenter currentWindow.
+	chatPresenter
+		ifNil: [ chatPresenter := JadeiteAIChatApplication showOnSession: gciSession library ]
+		ifNotNil: [ [ chatPresenter window window activate ] on: Error do: [  ] ].
+	chatPresenter ifNotNil: [ chatPresenter setClassContext: classService ]
 ]
 
 { #category : '*Jadeite-AI' }
 JadeiteBrowserPresenter >> askJadeiteAboutSelectedMethods [
 	"Open (or activate) the Ask Jadeite window with the selected methods as context."
 
-	| selected |
+	| selected chatPresenter |
 	selected := self selectedMethods.
 	(selected isNil or: [ selected isEmpty ]) ifTrue: [ ^ self ].
-	JadeiteAIChatPresenter
-		openWithSession: gciSession
-		methodServices: selected
+	chatPresenter := JadeiteAIChatPresenter currentWindow.
+	chatPresenter
+		ifNil: [ chatPresenter := JadeiteAIChatApplication showOnSession: gciSession library ]
+		ifNotNil: [ [ chatPresenter window window activate ] on: Error do: [  ] ].
+	chatPresenter ifNotNil: [ chatPresenter setMethodsContext: selected ]
 ]
 
 { #category : '*Jadeite-AI' }

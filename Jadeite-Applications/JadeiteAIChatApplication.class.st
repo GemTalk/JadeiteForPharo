@@ -26,6 +26,7 @@ JadeiteAIChatApplication >> start [
 		gciSession: gciSession;
 		llmAdapter: resolvedAdapter.
 
+	JadeiteAIChatPresenter currentWindow: inst.
 	windowPresenter := inst open.
 	self addBorderStyleTo: windowPresenter presenter: inst.
 	^ inst
