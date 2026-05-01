@@ -254,7 +254,7 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 		^ '<gemstoneerror>no GemStone session available</gemstoneerror>' ].
 	wrappedExpr := '[ ' , expr
 	               ,
-	               ' ] on: Error do: [ :__e | ''<gemstoneerror>'' , __e messageText , ''</gemstoneerror>'' ]'.
+	               ' ] on: Error do: [ :__e | ''<gemstoneerror>'' , __e asString , ''</gemstoneerror>'' ]'.
 	sem := Semaphore new.
 	service := RowanAnsweringService new.
 	[
