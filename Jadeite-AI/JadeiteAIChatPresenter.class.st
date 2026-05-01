@@ -108,6 +108,13 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession methodServices: aCo
 	^ window
 ]
 
+{ #category : 'api' }
+JadeiteAIChatPresenter >> addStyle: aString [
+
+	super addStyle: aString.
+	transcriptArea addStyle: aString.
+]
+
 { #category : 'private' }
 JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 	"Append text to the transcript, preserving Text attributes (bold etc.).
