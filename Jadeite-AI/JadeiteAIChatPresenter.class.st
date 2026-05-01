@@ -367,8 +367,6 @@ JadeiteAIChatPresenter >> initializePresenters [
 
 	transcriptArea := self newText.
 	transcriptArea beNotEditable.
-	transcriptArea whenBuiltDo: [
-		transcriptArea addStyle: 'jadeiteTextBackgroundColor' ].
 	self layout add: transcriptArea.
 
 	inputLabel := self newLabel label: 'Your message:  (Enter = Send,  Ctrl+Enter = new line)'.
@@ -424,7 +422,8 @@ JadeiteAIChatPresenter >> initializePresenters [
 		add: stopButton expand: false;
 		add: clearButton expand: false;
 		add: statusLabel.
-	self layout add: buttonRow withConstraints: [ :c | c height: 30 ]
+	self layout add: buttonRow withConstraints: [ :c | c height: 30 ].
+	self whenBuiltDo: [ transcriptArea addStyle: 'jadeiteTextBackgroundColor' ]
 ]
 
 { #category : 'initialization' }
@@ -538,6 +537,7 @@ Question: ' , userText ].
 					UIManager default defer: [
 						self appendToTranscript:
 							'[GemStone] ' asText allBold , expr asText ].
+					Processor yield.
 					result := self executeGemStoneExpression: expr.
 					UIManager default defer: [
 						self appendToTranscript:
