@@ -43,7 +43,8 @@ Class {
 		'contextSource',
 		'includeAllMethods',
 		'messageHistory',
-		'historyIndex'
+		'historyIndex',
+		'thinkingStart'
 	],
 	#classVars : [
 		'CurrentWindow'
@@ -117,11 +118,32 @@ JadeiteAIChatPresenter >> addStyle: aString [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> appendThinkingIndicator: aText [
+	"Replace any current thinking indicator with aText, or append if none exists.
+	 Called from startSpinner and the spinner animation loop."
+
+	spinnerProcess ifNil: [ ^ self ]. "ignore deferred updates after spinner stopped"
+	thinkingStart ifNotNil: [ :start |
+		transcriptContent := transcriptContent copyFrom: 1 to: start.
+		thinkingStart := nil ].
+	thinkingStart := transcriptContent size.
+	transcriptContent isEmpty
+		ifFalse: [ transcriptContent := transcriptContent , String lf asText ].
+	transcriptContent := transcriptContent , aText.
+	transcriptArea text: transcriptContent.
+	[ transcriptArea scrollValue: 1 @ 1 ] on: Error do: [  ]
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 	"Append text to the transcript, preserving Text attributes (bold etc.).
+	 Removes any thinking indicator first so real content always follows it.
 	 Maintains transcriptContent as the source of truth to avoid losing
 	 formatting when re-reading from the widget."
 
+	thinkingStart ifNotNil: [ :start |
+		transcriptContent := transcriptContent copyFrom: 1 to: start.
+		thinkingStart := nil ].
 	transcriptContent isEmpty
 		ifFalse: [ transcriptContent := transcriptContent , String lf asText ].
 	transcriptContent := transcriptContent , aTextOrString asText.
@@ -336,9 +358,11 @@ JadeiteAIChatPresenter >> gciSession: aGciSession [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> historyDown [
-	"Advance forward through sent-message history; clears input when past the end."
+	"At the last line of input: advance forward through history.
+	 Otherwise move the cursor down one line within the text."
 
 	messageHistory isEmpty ifTrue: [ ^ self ].
+	self isInputAtLastLine ifFalse: [ self moveCursorDownLine. ^ self ].
 	historyIndex := historyIndex + 1.
 	historyIndex > messageHistory size
 		ifTrue: [
@@ -349,11 +373,104 @@ JadeiteAIChatPresenter >> historyDown [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> historyUp [
-	"Step back through sent-message history, oldest first on repeated presses."
+	"At the first line of input: step back through history.
+	 Otherwise move the cursor up one line within the text."
 
 	messageHistory isEmpty ifTrue: [ ^ self ].
+	self isInputAtFirstLine ifFalse: [ self moveCursorUpLine. ^ self ].
 	historyIndex := (historyIndex - 1) max: 1.
 	inputArea text: (messageHistory at: historyIndex)
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> inputCursorPosition [
+	"Return the character index of the cursor in the input area, or 0 on error."
+
+	^ [ inputArea adapter widget textMorph selectionInterval first ]
+		on: Error
+		do: [ 0 ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isInputAtFirstLine [
+	"True if the cursor is on the first line (no newline before cursor position)."
+
+	| pos textBefore |
+	pos := self inputCursorPosition.
+	pos <= 1 ifTrue: [ ^ true ].
+	textBefore := inputArea text asString copyFrom: 1 to: pos - 1.
+	^ (textBefore includes: Character cr) not
+		and: [ (textBefore includes: Character lf) not ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isInputAtLastLine [
+	"True if the cursor is on the last line (no newline from cursor position to end)."
+
+	| pos text textAfter |
+	text := inputArea text asString.
+	pos := self inputCursorPosition.
+	pos > text size ifTrue: [ ^ true ].
+	textAfter := text copyFrom: pos to: text size.
+	^ (textAfter includes: Character cr) not
+		and: [ (textAfter includes: Character lf) not ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> moveCursorDownLine [
+	"Move the cursor down one line, keeping the same column."
+
+	| text pos lineStart lineEnd nextLineStart nextLineEnd col newPos |
+	text := inputArea text asString.
+	pos := self inputCursorPosition.
+	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
+	lineEnd := pos.
+	[ lineEnd <= text size and: [
+		  (text at: lineEnd) ~= Character cr and: [ (text at: lineEnd) ~= Character lf ] ] ]
+		whileTrue: [ lineEnd := lineEnd + 1 ].
+	lineEnd > text size ifTrue: [ ^ self ].
+	nextLineStart := lineEnd + 1.
+	nextLineStart > text size ifTrue: [ ^ self ].
+	nextLineEnd := nextLineStart.
+	[ nextLineEnd <= text size and: [
+		  (text at: nextLineEnd) ~= Character cr
+		  and: [ (text at: nextLineEnd) ~= Character lf ] ] ]
+		whileTrue: [ nextLineEnd := nextLineEnd + 1 ].
+	lineStart := 1.
+	1 to: pos - 1 do: [ :i |
+		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
+			ifTrue: [ lineStart := i + 1 ] ].
+	col := pos - lineStart.
+	newPos := (nextLineStart + col) min: nextLineEnd.
+	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
+		on: Error
+		do: [  ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> moveCursorUpLine [
+	"Move the cursor up one line, keeping the same column."
+
+	| text pos lineStart prevLineEnd prevLineStart col newPos |
+	text := inputArea text asString.
+	pos := self inputCursorPosition.
+	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
+	lineStart := 1.
+	1 to: pos - 1 do: [ :i |
+		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
+			ifTrue: [ lineStart := i + 1 ] ].
+	col := pos - lineStart.
+	lineStart <= 1 ifTrue: [ ^ self ].
+	prevLineEnd := lineStart - 2.
+	prevLineEnd < 1 ifTrue: [ ^ self ].
+	prevLineStart := 1.
+	1 to: prevLineEnd - 1 do: [ :i |
+		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
+			ifTrue: [ prevLineStart := i + 1 ] ].
+	newPos := (prevLineStart + col) min: prevLineEnd + 1.
+	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
+		on: Error
+		do: [  ]
 ]
 
 { #category : 'initialization' }
@@ -614,19 +731,23 @@ JadeiteAIChatPresenter >> spinnerMessages [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> startSpinner [
+	"Show an animated thinking indicator in the transcript (like VS Code Claude).
+	 The indicator is removed or replaced when real content arrives."
 
-	| frames messages frameIdx rotationCount |
+	| frames messages frameIdx rotationCount msgIdx |
 	frames := #( '|' '/' '-' '\' ).
 	messages := self spinnerMessages.
 	frameIdx := 1.
 	rotationCount := 0.
+	msgIdx := (1 to: messages size) atRandom.
+	self appendThinkingIndicator: ('[AI] |  ' , (messages at: msgIdx)) asText allBold.
 	spinnerProcess := [
-		                  | msgIdx |
-		                  msgIdx := (1 to: messages size) atRandom.
 		                  [ true ] whileTrue: [
 			                  | label |
-			                  label := (frames at: frameIdx) , '  ' , (messages at: msgIdx).
-			                  UIManager default defer: [ statusLabel label: label ].
+			                  label := '[AI] ' , (frames at: frameIdx) , '  '
+				                        , (messages at: msgIdx).
+			                  UIManager default defer: [
+				                  self appendThinkingIndicator: label asText allBold ].
 			                  frameIdx := (frameIdx \\ frames size) + 1.
 			                  frameIdx = 1 ifTrue: [
 				                  rotationCount := rotationCount + 1.
@@ -642,6 +763,10 @@ JadeiteAIChatPresenter >> stopSpinner [
 	spinnerProcess ifNotNil: [ :p |
 		p terminate.
 		spinnerProcess := nil ].
+	thinkingStart ifNotNil: [ :start |
+		transcriptContent := transcriptContent copyFrom: 1 to: start.
+		thinkingStart := nil.
+		transcriptArea text: transcriptContent ].
 	statusLabel label: ''
 ]
 
