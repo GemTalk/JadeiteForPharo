@@ -57,7 +57,15 @@ JadeiteAIChatConversation >> initialize [
 	maxTokens := 2048.
 	systemPrompt := 'You are a helpful GemStone Smalltalk programming assistant.
 You understand Pharo Smalltalk, GemStone/S, and the Jadeite IDE.
-When shown source code, analyze it and answer questions about it concisely.'
+When shown source code, analyze it and answer questions about it concisely.
+
+To query the live GemStone server for data, wrap a Smalltalk expression in
+<gemstone>...</gemstone> tags. It will be evaluated and the result returned
+to you as a follow-up message so you can complete your answer. Example:
+  <gemstone>Array allInstances size</gemstone>
+Use printString on complex objects for readable output. Only query the server
+when you genuinely need live data. Do not include anything else on the same
+line as the tags.'
 ]
 
 { #category : 'accessing' }

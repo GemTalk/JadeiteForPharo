@@ -231,6 +231,55 @@ JadeiteAIChatPresenter >> enableInput [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
+	"Execute a Smalltalk expression on the GemStone server and return the result string.
+	 Called from the LLM worker thread; uses a Semaphore to block until the async
+	 RowanAnsweringService call completes."
+
+	| service sem result |
+	gciSession ifNil: [ ^ '(no GemStone session available)' ].
+	sem := Semaphore new.
+	service := RowanAnsweringService new.
+	[
+		service
+			exec: expr
+			in: gciSession
+			onCompletion: [
+				result := service answer.
+				sem signal ] ]
+		on: Error
+		do: [ :ex |
+			result := 'Error issuing command: ' , ex messageText.
+			sem signal ].
+	sem wait.
+	^ (result ifNil: [ '(no result)' ]) printString
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> extractGemStoneExpressionFrom: aString [
+	"Return the Smalltalk expression between the first <gemstone>...</gemstone> tags."
+
+	| openTag closeTag start end |
+	openTag := '<gemstone>'.
+	closeTag := '</gemstone>'.
+	start := (aString indexOfSubCollection: openTag startingAt: 1 ifAbsent: [ ^ '' ])
+	         + openTag size.
+	end := (aString indexOfSubCollection: closeTag startingAt: start ifAbsent: [ ^ '' ])
+	       - 1.
+	^ (aString copyFrom: start to: end) trimSeparators
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> extractTextBefore: tag in: aString [
+	"Return the text before the first occurrence of tag, trimmed."
+
+	| idx |
+	idx := aString indexOfSubCollection: tag startingAt: 1 ifAbsent: [ ^ aString ].
+	idx <= 1 ifTrue: [ ^ '' ].
+	^ (aString copyFrom: 1 to: idx - 1) trimSeparators
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> fetchGemStoneContext [
 	"Fallback: return source of the currently-selected method from any open Jadeite
 	 browser, or empty string if nothing is selected. Used when no explicit context set."
@@ -431,6 +480,25 @@ JadeiteAIChatPresenter >> sendMessage [
 Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
 				reply := llmAdapter sendConversation: conversation.
+
+				[ reply includesSubstring: '<gemstone>' ] whileTrue: [
+					| preText expr result |
+					preText := self extractTextBefore: '<gemstone>' in: reply.
+					expr := self extractGemStoneExpressionFrom: reply.
+					preText isEmpty ifFalse: [
+						UIManager default defer: [
+							self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+					UIManager default defer: [
+						self appendToTranscript:
+							'[GemStone] ' asText allBold , expr asText ].
+					result := self executeGemStoneExpression: expr.
+					UIManager default defer: [
+						self appendToTranscript:
+							'[Result] ' asText allBold , result asText ].
+					conversation addAssistantMessage: preText.
+					conversation addUserMessage: 'GemStone query result: ' , result.
+					reply := llmAdapter sendConversation: conversation ].
+
 				UIManager default defer: [ self onWorkerDone: reply ] ]
 				on: Error
 				do: [ :ex |
