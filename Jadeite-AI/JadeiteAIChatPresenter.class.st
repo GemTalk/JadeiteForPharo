@@ -942,42 +942,51 @@ JadeiteAIChatPresenter >> teachJadeite [
 	"Permanently add the current context class or methods to the Jadeite knowledge base."
 
 	contextClassService ifNotNil: [ :cs |
+		UIManager default defer: [
+			statusLabel label: 'Teaching Jadeite: fetching instance methods for ' , cs name , '...' ].
 		RowanServiceUpdater current
 			updateService: cs
 			session: gciSession
 			onCompletion: [
 				| instanceMethods metaService |
 				instanceMethods := (cs methods ifNil: [ #(  ) ]) asArray.
+				UIManager default defer: [
+					statusLabel label:
+						'Teaching Jadeite: fetching class-side methods for ' , cs name , '...' ].
 				metaService := cs copy.
 				metaService meta: true.
 				RowanServiceUpdater current
 					updateService: metaService
 					session: gciSession
 					onCompletion: [
-						| classMethods kb |
+						| classMethods kb msg |
 						classMethods := (metaService methods ifNil: [ #(  ) ]) asArray.
 						kb := JadeiteAIKnowledgeBase current.
 						kb
 							addClass: cs name
 							instanceMethods: instanceMethods
 							classMethods: classMethods.
-						UIManager default inform:
-							'Taught Jadeite: ' , cs name , ' ('
+						msg := 'Taught Jadeite: ' , cs name , ' ('
 							, instanceMethods size printString , ' instance, '
 							, classMethods size printString
-							, ' class methods added to permanent knowledge).' ] ].
+							, ' class methods).'.
+						UIManager default defer: [ statusLabel label: '' ].
+						UIManager default inform: msg ] ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
-		| kb className |
+		| kb className msg |
+		UIManager default defer: [
+			statusLabel label: 'Teaching Jadeite: saving methods...' ].
 		kb := JadeiteAIKnowledgeBase current.
 		className := (ms isEmpty or: [ ms first className isNil ])
 			             ifTrue: [ 'Unknown' ]
 			             ifFalse: [ ms first className ].
 		kb addMethods: ms className: className.
-		UIManager default inform:
-			'Taught Jadeite: ' , ms size printString
-			, ' method(s) added to permanent knowledge.' ]
+		msg := 'Taught Jadeite: ' , ms size printString
+			, ' method(s) added to permanent knowledge.'.
+		UIManager default defer: [ statusLabel label: '' ].
+		UIManager default inform: msg ]
 ]
 
 { #category : 'context' }
