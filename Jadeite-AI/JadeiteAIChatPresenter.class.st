@@ -946,14 +946,26 @@ JadeiteAIChatPresenter >> teachJadeite [
 			updateService: cs
 			session: gciSession
 			onCompletion: [
-				| methods kb |
-				methods := (cs methods ifNil: [ #(  ) ]) asArray.
-				kb := JadeiteAIKnowledgeBase current.
-				kb addClass: cs name methods: methods.
-				UIManager default inform:
-					'Taught Jadeite: ' , cs name , ' ('
-					, methods size printString
-					, ' methods added to permanent knowledge).' ].
+				| instanceMethods metaService |
+				instanceMethods := (cs methods ifNil: [ #(  ) ]) asArray.
+				metaService := RowanClassService named: cs name.
+				metaService meta: true.
+				RowanServiceUpdater current
+					updateService: metaService
+					session: gciSession
+					onCompletion: [
+						| classMethods kb |
+						classMethods := (metaService methods ifNil: [ #(  ) ]) asArray.
+						kb := JadeiteAIKnowledgeBase current.
+						kb
+							addClass: cs name
+							instanceMethods: instanceMethods
+							classMethods: classMethods.
+						UIManager default inform:
+							'Taught Jadeite: ' , cs name , ' ('
+							, instanceMethods size printString , ' instance, '
+							, classMethods size printString
+							, ' class methods added to permanent knowledge).' ] ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |

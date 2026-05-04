@@ -29,20 +29,37 @@ JadeiteAIKnowledgeBase class >> reset [
 ]
 
 { #category : 'adding' }
-JadeiteAIKnowledgeBase >> addClass: className methods: aCollection [
-	"Add or replace knowledge for a class, built from its method services."
+JadeiteAIKnowledgeBase >> addClass: className instanceMethods: instanceColl classMethods: classColl [
+	"Add or replace knowledge for a class, labelling instance and class-side methods separately."
 
 	| ws |
 	ws := WriteStream on: String new.
 	ws nextPutAll: 'Class: '; nextPutAll: className; nextPutAll: String lf.
-	aCollection do: [ :method |
+	instanceColl do: [ :method |
 		| comment |
 		ws nextPutAll: '  '; nextPutAll: (method selector ifNil: [ '?' ]); nextPutAll: ': '.
 		comment := self firstCommentFrom: (method source ifNil: [ '' ]).
 		comment isEmpty ifFalse: [ ws nextPutAll: comment ].
 		ws nextPutAll: String lf ].
+	classColl isEmpty ifFalse: [
+		ws nextPutAll: '  Class-side:'; nextPutAll: String lf.
+		classColl do: [ :method |
+			| comment |
+			ws nextPutAll: '    class>>';
+				nextPutAll: (method selector ifNil: [ '?' ]);
+				nextPutAll: ': '.
+			comment := self firstCommentFrom: (method source ifNil: [ '' ]).
+			comment isEmpty ifFalse: [ ws nextPutAll: comment ].
+			ws nextPutAll: String lf ] ].
 	entries at: className put: ws contents.
 	self save
+]
+
+{ #category : 'adding' }
+JadeiteAIKnowledgeBase >> addClass: className methods: aCollection [
+	"Add or replace knowledge for a class (instance methods only)."
+
+	self addClass: className instanceMethods: aCollection classMethods: #(  )
 ]
 
 { #category : 'adding' }
