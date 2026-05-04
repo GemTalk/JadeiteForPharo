@@ -34,6 +34,7 @@ Class {
 		'contextLabel',
 		'includeAllButton',
 		'clearContextButton',
+		'teachJadeiteButton',
 		'conversation',
 		'llmAdapter',
 		'workerProcess',
@@ -309,7 +310,9 @@ JadeiteAIChatPresenter >> executePharoExpression: expr [
 	expr isEmpty ifTrue: [
 		^ '<pharoerror>empty expression — missing closing </pharo> tag?</pharoerror>' ].
 	result := [
-		          self truncateResult: (OpalCompiler evaluate: expr) printString ]
+		          self truncateResult: (OpalCompiler new
+				           source: expr;
+				           evaluate) printString ]
 		          on: Error
 		          do: [ :e |
 		          '<pharoerror>' , e messageText , '</pharoerror>' ].
@@ -525,12 +528,21 @@ JadeiteAIChatPresenter >> initializePresenters [
 		                      action: [ self clearContext ];
 		                      enabled: false;
 		                      yourself.
+	teachJadeiteButton := self newButton
+		                      label: 'Teach Jadeite';
+		                      action: [ self teachJadeite ];
+		                      enabled: false;
+		                      yourself.
 	contextRow
 		add: includeAllButton withConstraints: [ :c |
 				c
 					width: 160;
 					expand: false ];
 		add: clearContextButton withConstraints: [ :c |
+				c
+					width: 110;
+					expand: false ];
+		add: teachJadeiteButton withConstraints: [ :c |
 				c
 					width: 110;
 					expand: false ];
@@ -925,6 +937,37 @@ JadeiteAIChatPresenter >> timeout [
 	^ 60000
 ]
 
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> teachJadeite [
+	"Permanently add the current context class or methods to the Jadeite knowledge base."
+
+	contextClassService ifNotNil: [ :cs |
+		RowanServiceUpdater current
+			updateService: cs
+			session: gciSession
+			onCompletion: [
+				| methods kb |
+				methods := (cs methods ifNil: [ #(  ) ]) asArray.
+				kb := JadeiteAIKnowledgeBase current.
+				kb addClass: cs name methods: methods.
+				UIManager default inform:
+					'Taught Jadeite: ' , cs name , ' ('
+					, methods size printString
+					, ' methods added to permanent knowledge).' ].
+		^ self ].
+
+	contextMethodServices ifNotNil: [ :ms |
+		| kb className |
+		kb := JadeiteAIKnowledgeBase current.
+		className := (ms isEmpty or: [ ms first className isNil ])
+			             ifTrue: [ 'Unknown' ]
+			             ifFalse: [ ms first className ].
+		kb addMethods: ms className: className.
+		UIManager default inform:
+			'Taught Jadeite: ' , ms size printString
+			, ' method(s) added to permanent knowledge.' ]
+]
+
 { #category : 'context' }
 JadeiteAIChatPresenter >> toggleIncludeAllMethods [
 	"Toggle whether all methods are included in the class context.
@@ -949,13 +992,16 @@ JadeiteAIChatPresenter >> updateContextLabel [
 			ifFalse: [ label := label , ' (definition only — toggle to include method sources)' ].
 		contextLabel label: label.
 		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
+		teachJadeiteButton ifNotNil: [ teachJadeiteButton enabled: true ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
 		contextLabel label: 'Context: ' , ms size printString , ' selected method(s)'.
 		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
+		teachJadeiteButton ifNotNil: [ teachJadeiteButton enabled: true ].
 		^ self ].
 
 	contextLabel label: ''.
-	clearContextButton ifNotNil: [ clearContextButton enabled: false ]
+	clearContextButton ifNotNil: [ clearContextButton enabled: false ].
+	teachJadeiteButton ifNotNil: [ teachJadeiteButton enabled: false ]
 ]

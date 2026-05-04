@@ -141,14 +141,19 @@ JadeiteAIChatConversation >> temperature: aFloat [
 
 { #category : 'building' }
 JadeiteAIChatConversation >> toApiMessages [
-	"Return messages array in OpenAI/Ollama format for the HTTP payload."
+	"Return messages array in OpenAI/Ollama format for the HTTP payload.
+	 Appends any permanent knowledge from JadeiteAIKnowledgeBase to the system prompt."
 
-	| result |
+	| result effectivePrompt knowledgeText |
 	result := OrderedCollection new.
-	systemPrompt ifNotEmpty: [
+	knowledgeText := JadeiteAIKnowledgeBase current knowledgeText.
+	effectivePrompt := knowledgeText isEmpty
+		                   ifTrue: [ systemPrompt ]
+		                   ifFalse: [ systemPrompt , knowledgeText ].
+	effectivePrompt ifNotEmpty: [
 		result add: (Dictionary new
 			at: 'role' put: 'system';
-			at: 'content' put: systemPrompt;
+			at: 'content' put: effectivePrompt;
 			yourself) ].
 	messages do: [ :msg |
 		result add: (Dictionary new
