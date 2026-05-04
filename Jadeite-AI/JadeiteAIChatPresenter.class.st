@@ -298,7 +298,7 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 		^ '<gemstoneerror>no result returned</gemstoneerror>' ].
 	(result isString and: [ result includesSubstring: '<gemstoneerror>' ])
 		ifTrue: [ ^ result ].
-	^ result printString
+	^ self truncateResult: result printString
 ]
 
 { #category : 'private' }
@@ -309,13 +309,23 @@ JadeiteAIChatPresenter >> executePharoExpression: expr [
 	expr isEmpty ifTrue: [
 		^ '<pharoerror>empty expression — missing closing </pharo> tag?</pharoerror>' ].
 	result := [
-		          (OpalCompiler new
-			           source: expr;
-			           evaluate) printString ]
+		          self truncateResult: (OpalCompiler evaluate: expr) printString ]
 		          on: Error
 		          do: [ :e |
 		          '<pharoerror>' , e messageText , '</pharoerror>' ].
 	^ result
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> truncateResult: aString [
+	"Truncate a result string that is too long to be useful in the transcript or LLM context."
+
+	| maxLen |
+	maxLen := 500.
+	aString size <= maxLen ifTrue: [ ^ aString ].
+	^ (aString copyFrom: 1 to: maxLen)
+	  , String lf
+	  , '[...truncated — ' , (aString size - maxLen) printString , ' more characters]'
 ]
 
 { #category : 'private' }
