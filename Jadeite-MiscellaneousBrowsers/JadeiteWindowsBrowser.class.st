@@ -130,21 +130,6 @@ JadeiteWindowsBrowser >> initializeWindow: aWindowPresenter [
 	autoRefreshPresenter state: true
 ]
 
-{ #category : 'actions' }
-JadeiteWindowsBrowser >> updateWindows [
-
-	| allWindows handWindows |
-	allWindows := self currentWorld windowsSatisfying: [ :w | true ].
-	"windowsSatisfying: only sees World submorphs. During a drag the window
-	 is temporarily reparented to the Hand, so include hand submorphs too."
-	handWindows := self currentWorld currentHand submorphs
-		               select: [ :m | m embeddedWindowOrNil notNil ].
-	allWindows := (allWindows , handWindows) asSet
-		              asSortedCollection: [ :x :y | x label < y label ].
-	jadeiteWindows := allWindows select: [ :w | w isJadeiteWindow ].
-	pharoWindows := allWindows reject: [ :w | w isJadeiteWindow ]
-]
-
 { #category : 'initialization' }
 JadeiteWindowsBrowser >> initializeWindowsListMenu [
 
@@ -368,4 +353,19 @@ JadeiteWindowsBrowser >> themeChanged [
 JadeiteWindowsBrowser >> updateInterval [
 
 	^ 0.5
+]
+
+{ #category : 'actions' }
+JadeiteWindowsBrowser >> updateWindows [
+
+	| allWindows handWindows |
+	allWindows := self currentWorld windowsSatisfying: [ :w | true ].
+	"windowsSatisfying: only sees World submorphs. During a drag the window
+	 is temporarily reparented to the Hand, so include hand submorphs too."
+	handWindows := self currentWorld currentHand submorphs
+		               select: [ :m | m embeddedWindowOrNil notNil ].
+	allWindows := (allWindows , handWindows) asSet
+		              asSortedCollection: [ :x :y | x label < y label ].
+	jadeiteWindows := allWindows select: [ :w | w isJadeiteWindow ].
+	pharoWindows := allWindows reject: [ :w | w isJadeiteWindow ]
 ]

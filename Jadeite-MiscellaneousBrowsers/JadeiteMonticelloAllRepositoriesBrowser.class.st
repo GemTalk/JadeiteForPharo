@@ -1,6 +1,8 @@
 Class {
 	#name : 'JadeiteMonticelloAllRepositoriesBrowser',
 	#superclass : 'JadeiteMiscellaneousBrowser',
+	#traits : 'JadeiteMonticelloTrait',
+	#classTraits : 'JadeiteMonticelloTrait classTrait',
 	#instVars : [
 		'repositoriesPresenter',
 		'packagesPresenter',
@@ -109,16 +111,14 @@ JadeiteMonticelloAllRepositoriesBrowser >> initializePresenters [
 	self layout add: box
 ]
 
-{ #category : 'actions' }
-JadeiteMonticelloAllRepositoriesBrowser >> loadSelectedPackage [
+{ #category : 'testing' }
+JadeiteMonticelloAllRepositoriesBrowser >> isLoaded: aPackageService [
 
-	| confirmation |
-	self packagesPresenter hasSelection ifFalse: [ ^ self ].
-	confirmation := self uiManager confirm:
-		                'Load selected package '
-		                , packagesPresenter selectedItem description , '?'.
-	confirmation ifFalse: [ ^ self ].
-	self uiManager alert: 'load package not implemented yet!'
+	^ (self packages
+		   detect: [ :pkg |
+			   pkg descriptionInsideParens
+			   = aPackageService descriptionInsideParens ]
+		   ifNone: [ ]) isNil
 ]
 
 { #category : 'private' }
@@ -135,20 +135,26 @@ JadeiteMonticelloAllRepositoriesBrowser >> newPackageMenu [
 
 	^ JadeiteMenuPresenter new
 		  addGroup: [ :group |
-				  group
-					  addItem: [ :item |
+				  group addItem: [ :item |
 							  item
 								  name: 'Browse Package Repositories';
 								  action: [ self browsePackageRepositories ];
 								  enabled: [
-									  self packagesPresenter hasSelection and: [
-										  (self loadedPackageFor:
-											   self packagesPresenter selectedItem) notNil ] ] ];
+										  self packagesPresenter hasSelection and: [
+												  (self loadedPackageFor:
+														   self packagesPresenter selectedItem) notNil ] ] ] ];
+		  addGroup: [ :group |
+				  group
 					  addItem: [ :item |
 							  item
 								  name: 'Load Package';
 								  action: [ self loadSelectedPackage ];
-								  enabled: [ self packagesPresenter hasSelection ] ] ]
+								  enabled: [ self selectedPackageIsLoaded ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Unload Package';
+								  action: [ self unloadSelectedPackage ];
+								  enabled: [ self selectedPackageIsLoaded ] ] ]
 ]
 
 { #category : 'menus' }
