@@ -52,7 +52,7 @@ JadeiteAIKnowledgeBase >> isEmpty [
 
 	| file |
 	file := self filePath.
-	^ file exists not or: [ file contents trimSeparators isEmpty ]
+	^ file exists not or: [ file contents trimBlanks isEmpty ]
 ]
 
 { #category : 'accessing' }
@@ -63,10 +63,10 @@ JadeiteAIKnowledgeBase >> knowledgeText [
 	| file text |
 	file := self filePath.
 	file exists ifFalse: [ ^ '' ].
-	text := [ file contents ] on: Error do: [ ^ '' ].
-	text trimSeparators isEmpty ifTrue: [ ^ '' ].
-	^ String lf
-	  , '--- Permanent GemStone Knowledge ---' , String lf
-	  , text
-	  , String lf , '--- End Knowledge ---'
+	text := [ file contents ]
+		        on: Error
+		        do: [ ^ '' ].
+	text trimBlanks isEmpty ifTrue: [ ^ '' ].
+	^ String lf , '--- Permanent GemStone Knowledge ---' , String lf
+	  , text , String lf , '--- End Knowledge ---'
 ]

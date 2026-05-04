@@ -320,18 +320,6 @@ JadeiteAIChatPresenter >> executePharoExpression: expr [
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> truncateResult: aString [
-	"Truncate a result string that is too long to be useful in the transcript or LLM context."
-
-	| maxLen |
-	maxLen := 500.
-	aString size <= maxLen ifTrue: [ ^ aString ].
-	^ (aString copyFrom: 1 to: maxLen)
-	  , String lf
-	  , '[...truncated — ' , (aString size - maxLen) printString , ' more characters]'
-]
-
-{ #category : 'private' }
 JadeiteAIChatPresenter >> extractExpressionFrom: aString openTag: openTag closeTag: closeTag [
 	"Return the Smalltalk expression between the first openTag...closeTag pair."
 
@@ -365,57 +353,6 @@ JadeiteAIChatPresenter >> extractTextBefore: tag in: aString [
 	idx := aString indexOfSubCollection: tag startingAt: 1 ifAbsent: [ ^ aString ].
 	idx <= 1 ifTrue: [ ^ '' ].
 	^ (aString copyFrom: 1 to: idx - 1) trimBlanks
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> preprocessReply: aString [
-	"Convert Markdown code fences (```gemstone...``` or ```pharo...```) to
-	 XML-like execution tags. Fallback for models that default to Markdown formatting."
-
-	| result |
-	result := aString.
-	#( 'gemstone' 'pharo' ) do: [ :lang |
-		| marker |
-		marker := '```' , lang.
-		[ result includesSubstring: marker ] whileTrue: [
-			| openAt contentStart closeAt exprEnd expr |
-			openAt := result
-				indexOfSubCollection: marker
-				startingAt: 1
-				ifAbsent: [ result size + 1 ].
-			contentStart := openAt + marker size.
-			[ contentStart <= result size and: [
-				  (result at: contentStart) = Character cr
-				  or: [ (result at: contentStart) = Character lf ] ] ]
-				whileTrue: [ contentStart := contentStart + 1 ].
-			closeAt := result
-				indexOfSubCollection: '```'
-				startingAt: contentStart
-				ifAbsent: [ 0 ].
-			closeAt = 0
-				ifTrue: [
-					"No closing fence — use the first line of content as the expression"
-					| lineEnd |
-					lineEnd := contentStart.
-					[ lineEnd <= result size
-					  and: [ (result at: lineEnd) ~= Character cr
-					         and: [ (result at: lineEnd) ~= Character lf ] ] ]
-						whileTrue: [ lineEnd := lineEnd + 1 ].
-					expr := (result copyFrom: contentStart to: lineEnd - 1) trimSeparators.
-					result := (result copyFrom: 1 to: openAt - 1)
-					          , '<' , lang , '>' , expr , '</' , lang , '>'
-					          , (result copyFrom: lineEnd to: result size) ]
-				ifFalse: [
-					exprEnd := closeAt - 1.
-					[ exprEnd >= contentStart and: [ (result at: exprEnd) isSeparator ] ]
-						whileTrue: [ exprEnd := exprEnd - 1 ].
-					expr := exprEnd >= contentStart
-						        ifTrue: [ result copyFrom: contentStart to: exprEnd ]
-						        ifFalse: [ '' ].
-					result := (result copyFrom: 1 to: openAt - 1)
-					          , '<' , lang , '>' , expr , '</' , lang , '>'
-					          , (result copyFrom: closeAt + 3 to: result size) ] ] ].
-	^ result
 ]
 
 { #category : 'private' }
@@ -716,6 +653,57 @@ JadeiteAIChatPresenter >> onWorkerError: errorString [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> preprocessReply: aString [
+	"Convert Markdown code fences (```gemstone...``` or ```pharo...```) to
+	 XML-like execution tags. Fallback for models that default to Markdown formatting."
+
+	| result |
+	result := aString.
+	#( 'gemstone' 'pharo' ) do: [ :lang |
+		| marker |
+		marker := '```' , lang.
+		[ result includesSubstring: marker ] whileTrue: [
+			| openAt contentStart closeAt exprEnd expr |
+			openAt := result
+				indexOfSubCollection: marker
+				startingAt: 1
+				ifAbsent: [ result size + 1 ].
+			contentStart := openAt + marker size.
+			[ contentStart <= result size and: [
+				  (result at: contentStart) = Character cr
+				  or: [ (result at: contentStart) = Character lf ] ] ]
+				whileTrue: [ contentStart := contentStart + 1 ].
+			closeAt := result
+				indexOfSubCollection: '```'
+				startingAt: contentStart
+				ifAbsent: [ 0 ].
+			closeAt = 0
+				ifTrue: [
+					"No closing fence — use the first line of content as the expression"
+					| lineEnd |
+					lineEnd := contentStart.
+					[ lineEnd <= result size
+					  and: [ (result at: lineEnd) ~= Character cr
+					         and: [ (result at: lineEnd) ~= Character lf ] ] ]
+						whileTrue: [ lineEnd := lineEnd + 1 ].
+					expr := (result copyFrom: contentStart to: lineEnd - 1) trimSeparators.
+					result := (result copyFrom: 1 to: openAt - 1)
+					          , '<' , lang , '>' , expr , '</' , lang , '>'
+					          , (result copyFrom: lineEnd to: result size) ]
+				ifFalse: [
+					exprEnd := closeAt - 1.
+					[ exprEnd >= contentStart and: [ (result at: exprEnd) isSeparator ] ]
+						whileTrue: [ exprEnd := exprEnd - 1 ].
+					expr := exprEnd >= contentStart
+						        ifTrue: [ result copyFrom: contentStart to: exprEnd ]
+						        ifFalse: [ '' ].
+					result := (result copyFrom: 1 to: openAt - 1)
+					          , '<' , lang , '>' , expr , '</' , lang , '>'
+					          , (result copyFrom: closeAt + 3 to: result size) ] ] ].
+	^ result
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 	"Resolve the context string and call aBlock with it.
 	 For class services this is async (forks a GemStone fetch via RowanServiceUpdater);
@@ -931,12 +919,6 @@ JadeiteAIChatPresenter >> stopWorker [
 	self enableInput
 ]
 
-{ #category : 'constants' }
-JadeiteAIChatPresenter >> timeout [
-
-	^ 60000
-]
-
 { #category : 'actions' }
 JadeiteAIChatPresenter >> teachJadeite [
 	"File out the current context class or methods to a temp file on the GemStone server,
@@ -997,6 +979,12 @@ JadeiteAIChatPresenter >> teachJadeiteFinish: tempRef label: labelString [
 			self appendToTranscript: ('[Teaching] Error: ' , e messageText) asText ] ]
 ]
 
+{ #category : 'constants' }
+JadeiteAIChatPresenter >> timeout [
+
+	^ 60000
+]
+
 { #category : 'context' }
 JadeiteAIChatPresenter >> toggleIncludeAllMethods [
 	"Toggle whether all methods are included in the class context.
@@ -1005,6 +993,18 @@ JadeiteAIChatPresenter >> toggleIncludeAllMethods [
 	includeAllMethods := includeAllMethods not.
 	contextSource := nil.
 	self updateContextLabel
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> truncateResult: aString [
+	"Truncate a result string that is too long to be useful in the transcript or LLM context."
+
+	| maxLen |
+	maxLen := 500.
+	aString size <= maxLen ifTrue: [ ^ aString ].
+	^ (aString copyFrom: 1 to: maxLen)
+	  , String lf
+	  , '[...truncated — ' , (aString size - maxLen) printString , ' more characters]'
 ]
 
 { #category : 'private' }
