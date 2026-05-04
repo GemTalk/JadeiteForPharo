@@ -939,89 +939,62 @@ JadeiteAIChatPresenter >> timeout [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> teachJadeite [
-	"Permanently add the current context class or methods to the knowledge base.
-	 Runs a GemStone expression in a background process and appends the result
-	 to the plain-text knowledge file."
+	"File out the current context class or methods to a temp file on the GemStone server,
+	 then read the temp file and append its contents to the local knowledge base."
 
 	contextClassService ifNotNil: [ :cs |
+		| tempPath |
+		tempPath := FileLocator temp / ('jadeite-knowledge-' , cs name , '.gs').
 		self appendToTranscript:
-			('[Teaching] Fetching methods for ' , cs name , ' from GemStone...') asText allBold.
-		[
-			| expr result |
-			expr := self buildTeachExpressionForClass: cs name.
-			result := self executeGemStoneExpression: expr.
-			(result includesSubstring: '<gemstoneerror>')
-				ifTrue: [
-					UIManager default defer: [
-						self appendToTranscript:
-							('[Teaching] Error fetching ' , cs name , ': ' , result) asText ] ]
-				ifFalse: [
-					JadeiteAIKnowledgeBase current appendText: result.
-					UIManager default defer: [
-						self appendToTranscript:
-							('[Teaching] ' , cs name , ' added to permanent knowledge.') asText allBold ] ] ]
-			forkNamed: 'JadeiteAI-Teach'.
+			('[Teaching] Filing out ' , cs name , ' to knowledge base...') asText allBold.
+		cs
+			command: #fileoutClassOn:;
+			commandArgs: (Array with: tempPath pathString).
+		RowanServiceUpdater current
+			issueCommand: cs
+			session: gciSession
+			onCompletion: [ self teachJadeiteFinish: tempPath label: cs name ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
+		| tempPath fileService |
+		tempPath := FileLocator temp / 'jadeite-knowledge-methods.gs'.
 		self appendToTranscript:
-			('[Teaching] Fetching source for ' , ms size printString , ' selected method(s)...') asText allBold.
-		[
-			| expr result |
-			expr := self buildTeachExpressionForMethods: ms.
-			result := self executeGemStoneExpression: expr.
-			(result includesSubstring: '<gemstoneerror>')
-				ifTrue: [
-					UIManager default defer: [
-						self appendToTranscript:
-							('[Teaching] Error: ' , result) asText ] ]
-				ifFalse: [
-					JadeiteAIKnowledgeBase current appendText: result.
-					UIManager default defer: [
-						self appendToTranscript:
-							('[Teaching] ' , ms size printString , ' method(s) added to permanent knowledge.') asText allBold ] ] ]
-			forkNamed: 'JadeiteAI-Teach' ]
+			('[Teaching] Filing out ' , ms size printString , ' method(s) to knowledge base...') asText allBold.
+		fileService := RowanFileServiceClient new
+			path: tempPath pathString;
+			session: gciSession.
+		fileService
+			command: #fileoutMethods:;
+			commandArgs: (Array with: ms asArray).
+		RowanServiceUpdater current
+			issueCommand: fileService
+			session: gciSession
+			onCompletion: [
+				self teachJadeiteFinish: tempPath label: ms size printString , ' method(s)' ] ]
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> buildTeachExpressionForClass: className [
-	"Return a GemStone expression that produces a formatted selector list for className."
+JadeiteAIChatPresenter >> teachJadeiteFinish: tempRef label: labelString [
+	"Read the fileout temp file, append to knowledge base, delete temp file."
 
-	^ '| cls ws |
-cls := ' , className , '.
-ws := WriteStream on: String new.
-ws nextPutAll: ''=== '' , cls name , '' ==='' , (String with: (Character value: 10)).
-cls methodDictionary keys asSortedCollection do: [:sel |
-    ws nextPutAll: ''  '' , sel , (String with: (Character value: 10))].
-cls class methodDictionary keys asSortedCollection do: [:sel |
-    ws nextPutAll: ''  class>>'' , sel , (String with: (Character value: 10))].
-ws contents'
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> buildTeachExpressionForMethods: aCollection [
-	"Return a GemStone expression that fetches the source of each method service in aCollection."
-
-	| ws nl |
-	ws := WriteStream on: String new.
-	nl := String with: Character lf.
-	ws nextPutAll: '| ws |'; nextPutAll: nl.
-	ws nextPutAll: 'ws := WriteStream on: String new.'; nextPutAll: nl.
-	aCollection do: [ :method |
-		| cls sel dict lookup |
-		cls := method className ifNil: [ 'Object' ].
-		sel := method selector.
-		dict := (method meta ifNil: [ false ])
-			        ifTrue: [ cls , ' class methodDictionary' ]
-			        ifFalse: [ cls , ' methodDictionary' ].
-		lookup := dict , ' at: #' , sel , ' ifAbsent: [nil]'.
-		ws
-			nextPutAll: '(' , lookup , ') ifNotNil: [:m |'; nextPutAll: nl;
-			nextPutAll: '    ws nextPutAll: m sourceString ,'; nextPutAll: nl;
-			nextPutAll: '        (String with: (Character value: 10)) , ''---'' , (String with: (Character value: 10))].';
-			nextPutAll: nl ].
-	ws nextPutAll: 'ws contents'.
-	^ ws contents
+	[ | content |
+	  content := tempRef exists ifTrue: [ tempRef contents ] ifFalse: [ '' ].
+	  content isEmpty
+		  ifFalse: [
+			  JadeiteAIKnowledgeBase current appendText: content.
+			  [ tempRef delete ] on: Error do: [  ] ].
+	  UIManager default defer: [
+		  content isEmpty
+			  ifTrue: [
+				  self appendToTranscript:
+					  ('[Teaching] Warning: fileout produced no output for ' , labelString) asText ]
+			  ifFalse: [
+				  self appendToTranscript:
+					  ('[Teaching] ' , labelString , ' added to permanent knowledge.') asText allBold ] ] ]
+	on: Error do: [ :e |
+		UIManager default defer: [
+			self appendToTranscript: ('[Teaching] Error: ' , e messageText) asText ] ]
 ]
 
 { #category : 'context' }
