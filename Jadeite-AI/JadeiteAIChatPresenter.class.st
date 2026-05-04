@@ -988,7 +988,7 @@ JadeiteAIChatPresenter >> buildTeachExpressionForClass: className [
 	"Return a GemStone expression that produces a formatted selector list for className."
 
 	^ '| cls ws |
-cls := Smalltalk at: #' , className , '.
+cls := ' , className , '.
 ws := WriteStream on: String new.
 ws nextPutAll: ''=== '' , cls name , '' ==='' , (String with: (Character value: 10)).
 cls methodDictionary keys asSortedCollection do: [:sel |
@@ -1012,8 +1012,8 @@ JadeiteAIChatPresenter >> buildTeachExpressionForMethods: aCollection [
 		cls := method className ifNil: [ 'Object' ].
 		sel := method selector.
 		dict := (method meta ifNil: [ false ])
-			        ifTrue: [ '(Smalltalk at: #' , cls , ') class methodDictionary' ]
-			        ifFalse: [ '(Smalltalk at: #' , cls , ') methodDictionary' ].
+			        ifTrue: [ cls , ' class methodDictionary' ]
+			        ifFalse: [ cls , ' methodDictionary' ].
 		lookup := dict , ' at: #' , sel , ' ifAbsent: [nil]'.
 		ws
 			nextPutAll: '(' , lookup , ') ifNotNil: [:m |'; nextPutAll: nl;
