@@ -72,7 +72,7 @@ Rules:
 - Put each tag pair on its own line with nothing else on that line.
 - Write the expression directly inside the tags. Do NOT use Compiler or OpalCompiler.
 - Always include the closing tag on the same line as the opening tag.
-- For timing in GemStone, use: Time millisecondsToRun: [expression]
+- For timing in GemStone, use: System millisecondsToRun: [expression]
 - For timing in Pharo, use: [expression] timeToRun
 - Use printString on complex objects for readable output.
 
