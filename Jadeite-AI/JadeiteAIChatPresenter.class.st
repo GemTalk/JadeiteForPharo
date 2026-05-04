@@ -616,6 +616,13 @@ JadeiteAIChatPresenter >> llmAdapter: aJadeiteAIHttpAdapter [
 ]
 
 { #category : 'accessing' }
+JadeiteAIChatPresenter >> maxAgentIterations [
+	"Maximum number of code-execution rounds per LLM response before stopping."
+
+	^ 6
+]
+
+{ #category : 'constants' }
 JadeiteAIChatPresenter >> methodCap [
 	"Maximum number of methods to include when building a class context."
 
@@ -740,7 +747,7 @@ JadeiteAIChatPresenter >> sendMessage [
 
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
-			| fullPrompt reply |
+			| fullPrompt reply agentIteration |
 			[
 				fullPrompt := context isEmpty
 					              ifTrue: [ userText ]
@@ -752,11 +759,16 @@ Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
 				reply := self preprocessReply: (llmAdapter sendConversation: conversation).
 
+				agentIteration := 0.
+
 				[ | hasGemstone hasPharo |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
 				  hasPharo := reply includesSubstring: '<pharo>'.
-				  hasGemstone or: [ hasPharo ] ] whileTrue: [
-					| preText expr result feedbackMsg useGemstone tag errorTag label |
+				  (hasGemstone or: [ hasPharo ])
+				  and: [ agentIteration < self maxAgentIterations ] ]
+				whileTrue: [
+					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label |
+					agentIteration := agentIteration + 1.
 					useGemstone := (reply
 						indexOfSubCollection: '<gemstone>'
 						startingAt: 1
@@ -789,11 +801,15 @@ Question: ' , userText ].
 						ifFalse: [ self executePharoExpression: expr ].
 					UIManager default defer: [
 						self appendToTranscript: '[Result] ' asText allBold , result asText ].
+					"Keep LLM feedback short to avoid overflowing the context window"
+					feedbackResult := result size > 150
+						ifTrue: [ (result copyFrom: 1 to: 150) , '...[truncated]' ]
+						ifFalse: [ result ].
 					feedbackMsg := (result includesSubstring: errorTag)
 						ifTrue: [
-							'Your ' , label , ' query failed: ' , result ,
+							'Your ' , label , ' query failed: ' , feedbackResult ,
 							' Please analyze the error and retry with a corrected expression.' ]
-						ifFalse: [ label , ' query result: ' , result ].
+						ifFalse: [ label , ' query result: ' , feedbackResult ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
