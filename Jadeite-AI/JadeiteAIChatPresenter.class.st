@@ -948,7 +948,7 @@ JadeiteAIChatPresenter >> teachJadeite [
 			onCompletion: [
 				| instanceMethods metaService |
 				instanceMethods := (cs methods ifNil: [ #(  ) ]) asArray.
-				metaService := RowanClassService named: cs name.
+				metaService := cs copy.
 				metaService meta: true.
 				RowanServiceUpdater current
 					updateService: metaService
