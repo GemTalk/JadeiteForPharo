@@ -355,6 +355,57 @@ JadeiteAIChatPresenter >> extractTextBefore: tag in: aString [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> preprocessReply: aString [
+	"Convert Markdown code fences (```gemstone...``` or ```pharo...```) to
+	 XML-like execution tags. Fallback for models that default to Markdown formatting."
+
+	| result |
+	result := aString.
+	#( 'gemstone' 'pharo' ) do: [ :lang |
+		| marker |
+		marker := '```' , lang.
+		[ result includesSubstring: marker ] whileTrue: [
+			| openAt contentStart closeAt exprEnd expr |
+			openAt := result
+				indexOfSubCollection: marker
+				startingAt: 1
+				ifAbsent: [ result size + 1 ].
+			contentStart := openAt + marker size.
+			[ contentStart <= result size and: [
+				  (result at: contentStart) = Character cr
+				  or: [ (result at: contentStart) = Character lf ] ] ]
+				whileTrue: [ contentStart := contentStart + 1 ].
+			closeAt := result
+				indexOfSubCollection: '```'
+				startingAt: contentStart
+				ifAbsent: [ 0 ].
+			closeAt = 0
+				ifTrue: [
+					"No closing fence — use the first line of content as the expression"
+					| lineEnd |
+					lineEnd := contentStart.
+					[ lineEnd <= result size
+					  and: [ (result at: lineEnd) ~= Character cr
+					         and: [ (result at: lineEnd) ~= Character lf ] ] ]
+						whileTrue: [ lineEnd := lineEnd + 1 ].
+					expr := (result copyFrom: contentStart to: lineEnd - 1) trimSeparators.
+					result := (result copyFrom: 1 to: openAt - 1)
+					          , '<' , lang , '>' , expr , '</' , lang , '>'
+					          , (result copyFrom: lineEnd to: result size) ]
+				ifFalse: [
+					exprEnd := closeAt - 1.
+					[ exprEnd >= contentStart and: [ (result at: exprEnd) isSeparator ] ]
+						whileTrue: [ exprEnd := exprEnd - 1 ].
+					expr := exprEnd >= contentStart
+						        ifTrue: [ result copyFrom: contentStart to: exprEnd ]
+						        ifFalse: [ '' ].
+					result := (result copyFrom: 1 to: openAt - 1)
+					          , '<' , lang , '>' , expr , '</' , lang , '>'
+					          , (result copyFrom: closeAt + 3 to: result size) ] ] ].
+	^ result
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> fetchGemStoneContext [
 	"Fallback: return source of the currently-selected method from any open Jadeite
 	 browser, or empty string if nothing is selected. Used when no explicit context set."
@@ -689,7 +740,7 @@ JadeiteAIChatPresenter >> sendMessage [
 
 Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
-				reply := llmAdapter sendConversation: conversation.
+				reply := self preprocessReply: (llmAdapter sendConversation: conversation).
 
 				[ | hasGemstone hasPharo |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
@@ -735,7 +786,7 @@ Question: ' , userText ].
 						ifFalse: [ label , ' query result: ' , result ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
-					reply := llmAdapter sendConversation: conversation ].
+					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
 
 				UIManager default defer: [ self onWorkerDone: reply ] ]
 				on: Error
