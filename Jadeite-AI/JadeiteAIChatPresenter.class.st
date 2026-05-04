@@ -939,54 +939,89 @@ JadeiteAIChatPresenter >> timeout [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> teachJadeite [
-	"Permanently add the current context class or methods to the Jadeite knowledge base."
+	"Permanently add the current context class or methods to the knowledge base.
+	 Runs a GemStone expression in a background process and appends the result
+	 to the plain-text knowledge file."
 
 	contextClassService ifNotNil: [ :cs |
-		UIManager default defer: [
-			statusLabel label: 'Teaching Jadeite: fetching instance methods for ' , cs name , '...' ].
-		RowanServiceUpdater current
-			updateService: cs
-			session: gciSession
-			onCompletion: [
-				| instanceMethods metaService |
-				instanceMethods := (cs methods ifNil: [ #(  ) ]) asArray.
-				UIManager default defer: [
-					statusLabel label:
-						'Teaching Jadeite: fetching class-side methods for ' , cs name , '...' ].
-				metaService := cs copy.
-				metaService meta: true.
-				RowanServiceUpdater current
-					updateService: metaService
-					session: gciSession
-					onCompletion: [
-						| classMethods kb msg |
-						classMethods := (metaService methods ifNil: [ #(  ) ]) asArray.
-						kb := JadeiteAIKnowledgeBase current.
-						kb
-							addClass: cs name
-							instanceMethods: instanceMethods
-							classMethods: classMethods.
-						msg := 'Taught Jadeite: ' , cs name , ' ('
-							, instanceMethods size printString , ' instance, '
-							, classMethods size printString
-							, ' class methods).'.
-						UIManager default defer: [ statusLabel label: '' ].
-						UIManager default inform: msg ] ].
+		self appendToTranscript:
+			('[Teaching] Fetching methods for ' , cs name , ' from GemStone...') asText allBold.
+		[
+			| expr result |
+			expr := self buildTeachExpressionForClass: cs name.
+			result := self executeGemStoneExpression: expr.
+			(result includesSubstring: '<gemstoneerror>')
+				ifTrue: [
+					UIManager default defer: [
+						self appendToTranscript:
+							('[Teaching] Error fetching ' , cs name , ': ' , result) asText ] ]
+				ifFalse: [
+					JadeiteAIKnowledgeBase current appendText: result.
+					UIManager default defer: [
+						self appendToTranscript:
+							('[Teaching] ' , cs name , ' added to permanent knowledge.') asText allBold ] ] ]
+			forkNamed: 'JadeiteAI-Teach'.
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
-		| kb className msg |
-		UIManager default defer: [
-			statusLabel label: 'Teaching Jadeite: saving methods...' ].
-		kb := JadeiteAIKnowledgeBase current.
-		className := (ms isEmpty or: [ ms first className isNil ])
-			             ifTrue: [ 'Unknown' ]
-			             ifFalse: [ ms first className ].
-		kb addMethods: ms className: className.
-		msg := 'Taught Jadeite: ' , ms size printString
-			, ' method(s) added to permanent knowledge.'.
-		UIManager default defer: [ statusLabel label: '' ].
-		UIManager default inform: msg ]
+		self appendToTranscript:
+			('[Teaching] Fetching source for ' , ms size printString , ' selected method(s)...') asText allBold.
+		[
+			| expr result |
+			expr := self buildTeachExpressionForMethods: ms.
+			result := self executeGemStoneExpression: expr.
+			(result includesSubstring: '<gemstoneerror>')
+				ifTrue: [
+					UIManager default defer: [
+						self appendToTranscript:
+							('[Teaching] Error: ' , result) asText ] ]
+				ifFalse: [
+					JadeiteAIKnowledgeBase current appendText: result.
+					UIManager default defer: [
+						self appendToTranscript:
+							('[Teaching] ' , ms size printString , ' method(s) added to permanent knowledge.') asText allBold ] ] ]
+			forkNamed: 'JadeiteAI-Teach' ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> buildTeachExpressionForClass: className [
+	"Return a GemStone expression that produces a formatted selector list for className."
+
+	^ '| cls ws |
+cls := Smalltalk at: #' , className , '.
+ws := WriteStream on: String new.
+ws nextPutAll: ''=== '' , cls name , '' ==='' , (String with: (Character value: 10)).
+cls methodDictionary keys asSortedCollection do: [:sel |
+    ws nextPutAll: ''  '' , sel , (String with: (Character value: 10))].
+cls class methodDictionary keys asSortedCollection do: [:sel |
+    ws nextPutAll: ''  class>>'' , sel , (String with: (Character value: 10))].
+ws contents'
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> buildTeachExpressionForMethods: aCollection [
+	"Return a GemStone expression that fetches the source of each method service in aCollection."
+
+	| ws nl |
+	ws := WriteStream on: String new.
+	nl := String with: Character lf.
+	ws nextPutAll: '| ws |'; nextPutAll: nl.
+	ws nextPutAll: 'ws := WriteStream on: String new.'; nextPutAll: nl.
+	aCollection do: [ :method |
+		| cls sel dict lookup |
+		cls := method className ifNil: [ 'Object' ].
+		sel := method selector.
+		dict := (method meta ifNil: [ false ])
+			        ifTrue: [ '(Smalltalk at: #' , cls , ') class methodDictionary' ]
+			        ifFalse: [ '(Smalltalk at: #' , cls , ') methodDictionary' ].
+		lookup := dict , ' at: #' , sel , ' ifAbsent: [nil]'.
+		ws
+			nextPutAll: '(' , lookup , ') ifNotNil: [:m |'; nextPutAll: nl;
+			nextPutAll: '    ws nextPutAll: m sourceString ,'; nextPutAll: nl;
+			nextPutAll: '        (String with: (Character value: 10)) , ''---'' , (String with: (Character value: 10))].';
+			nextPutAll: nl ].
+	ws nextPutAll: 'ws contents'.
+	^ ws contents
 ]
 
 { #category : 'context' }
