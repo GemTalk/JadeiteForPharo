@@ -814,11 +814,12 @@ Question: ' , userText ].
 					feedbackMsg := (result includesSubstring: errorTag)
 						ifTrue: [
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
-							, ' query failed: ' , feedbackResult
-							, ' Please correct the expression and retry using <gemstone> or <pharo> tags.' ]
+							, ' execution failed: ' , feedbackResult
+							, ' Correct the expression and retry using <gemstone> or <pharo> angle-bracket tags.' ]
 						ifFalse: [
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
-							, ' result: ' , feedbackResult ].
+							, ' execution returned: ' , feedbackResult
+							, ' To execute in another environment, use <gemstone>...</gemstone> or <pharo>...</pharo> tags.' ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
