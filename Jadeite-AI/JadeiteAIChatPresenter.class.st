@@ -535,7 +535,7 @@ JadeiteAIChatPresenter >> insertNewlineAtCursor [
 	pos := self inputCursorPosition.
 	text := inputArea text asString.
 	pos <= 0 ifTrue: [ pos := text size + 1 ].
-	before := text copyFrom: 1 to: (pos - 1) max: 0.
+	before := text copyFrom: 1 to: ((pos - 1) max: 0).
 	after := text copyFrom: pos to: text size.
 	newPos := before size + 2.
 	inputArea text: before , String lf , after.
@@ -904,13 +904,16 @@ JadeiteAIChatPresenter >> spinnerMessages [
 		'Consulting ancient ObjectMemory scrolls...'
 		'Asking Allen...'
 		'Reading Lisa''s Docs...'
-		'Checking SVN blame...'
+		'Checking GitHub blame...'
 		'Waiting for the merge to resolve...'
 		'Counting commits to trunk...'
 		'Praying to the GemStone gods...'
 		'Waiting for the GC to finish...'
 		'Befuddling the ponytails...'
 		'Waking the gray-beards from their naps...'
+		'Preparing for Thursday meeting...'
+		'Watering plants...'
+		'Reviewing contractual agreements...'
 		)
 ]
 
