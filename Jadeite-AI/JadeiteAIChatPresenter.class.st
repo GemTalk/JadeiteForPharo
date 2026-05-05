@@ -813,9 +813,12 @@ Question: ' , userText ].
 						ifFalse: [ result ].
 					feedbackMsg := (result includesSubstring: errorTag)
 						ifTrue: [
-							'Your ' , label , ' query failed: ' , feedbackResult ,
-							' Please analyze the error and retry with a corrected expression.' ]
-						ifFalse: [ label , ' query result: ' , feedbackResult ].
+							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
+							, ' query failed: ' , feedbackResult
+							, ' Please correct the expression and retry using <gemstone> or <pharo> tags.' ]
+						ifFalse: [
+							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
+							, ' result: ' , feedbackResult ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
