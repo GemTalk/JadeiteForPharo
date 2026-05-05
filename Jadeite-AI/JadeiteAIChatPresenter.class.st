@@ -817,9 +817,12 @@ Question: ' , userText ].
 							, ' execution failed: ' , feedbackResult
 							, ' Correct the expression and retry using <gemstone> or <pharo> angle-bracket tags.' ]
 						ifFalse: [
+							| otherEnv otherTag |
+							otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
+							otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution returned: ' , feedbackResult
-							, ' To execute in another environment, use <gemstone>...</gemstone> or <pharo>...</pharo> tags.' ].
+							, ' If you still need to query ' , otherEnv , ', use ' , otherTag , ' tags now. Otherwise give your final answer.' ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
