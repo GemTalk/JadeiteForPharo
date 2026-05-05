@@ -323,12 +323,19 @@ JadeiteAIChatPresenter >> executePharoExpression: expr [
 JadeiteAIChatPresenter >> extractExpressionFrom: aString openTag: openTag closeTag: closeTag [
 	"Return the Smalltalk expression between the first openTag...closeTag pair."
 
-	| start end |
+	| start end expr |
 	start := (aString indexOfSubCollection: openTag startingAt: 1 ifAbsent: [ ^ '' ])
 	         + openTag size.
 	end := (aString indexOfSubCollection: closeTag startingAt: start ifAbsent: [ ^ '' ])
 	       - 1.
-	^ (aString copyFrom: start to: end) trimBlanks
+	expr := (aString copyFrom: start to: end) trimBlanks.
+	"Strip leading markdown artifacts (backticks, 'tag.', inline code references)
+	 that appear when the LLM uses the tag name in prose rather than as an execution tag."
+	[ expr notEmpty and: [ expr first = $` ] ] whileTrue: [
+		| lineEnd |
+		lineEnd := expr indexOf: (Character value: 10) ifAbsent: [ expr size + 1 ].
+		expr := (expr copyFrom: lineEnd to: expr size) trimBlanks ].
+	^ expr
 ]
 
 { #category : 'private' }
@@ -659,6 +666,8 @@ JadeiteAIChatPresenter >> preprocessReply: aString [
 
 	| result |
 	result := aString.
+	"Map ```smalltalk fences to <gemstone> — generic Smalltalk defaults to GemStone."
+	result := result copyReplaceAll: '```smalltalk' with: '```gemstone'.
 	#( 'gemstone' 'pharo' ) do: [ :lang |
 		| marker |
 		marker := '```' , lang.
@@ -815,7 +824,9 @@ Question: ' , userText ].
 						ifTrue: [
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution failed: ' , feedbackResult
-							, ' Correct the expression and retry using <gemstone> or <pharo> angle-bracket tags.' ]
+							, ' Retry with a corrected expression using ONLY '
+							, (useGemstone ifTrue: [ '<gemstone>fixed_expr</gemstone>' ] ifFalse: [ '<pharo>fixed_expr</pharo>' ])
+							, ' angle-bracket tags. Do NOT use markdown code fences or prose descriptions.' ]
 						ifFalse: [
 							| otherEnv otherTag |
 							otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
