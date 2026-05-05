@@ -714,12 +714,17 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 		^ self ].
 
 	contextClassService ifNotNil: [ :cs |
-		RowanServiceUpdater current
-			updateService: cs
-			session: gciSession
-			onCompletion: [
+		includeAllMethods
+			ifFalse: [
 				contextSource := self buildContextSourceFromClass: cs.
-				aBlock value: contextSource ].
+				aBlock value: contextSource ]
+			ifTrue: [
+				RowanServiceUpdater current
+					updateService: cs
+					session: gciSession
+					onCompletion: [
+						contextSource := self buildContextSourceFromClass: cs.
+						aBlock value: contextSource ] ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
@@ -921,69 +926,41 @@ JadeiteAIChatPresenter >> stopWorker [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> teachJadeite [
-	"File out the current context class or methods to a temp file on the GemStone server,
-	 then read the temp file and append its contents to the local knowledge base."
+	"Append the current context to the permanent knowledge base.
+	 Builds text from whatever the class service already has in memory — same
+	 data that gets sent as context in a query.  No fileout or server round-trip needed."
 
+	| text label |
 	contextClassService ifNotNil: [ :cs |
-		| tempPath serviceCopy |
-		tempPath := FileLocator temp / ('jadeite-knowledge-' , cs name , '.gs').
+		text := self buildContextSourceFromClass: cs.
+		label := cs name.
 		self appendToTranscript:
-			('[Teaching] Filing out ' , cs name , ' → ' , tempPath pathString , '...') asText allBold.
-		serviceCopy := cs copy.
-		serviceCopy
-			command: #fileoutClassOn:;
-			commandArgs: (Array with: tempPath pathString).
-		RowanServiceUpdater current
-			issueCommand: serviceCopy
-			session: gciSession
-			onCompletion: [ self teachJadeiteFinish: tempPath label: cs name ].
+			('[Teaching] Adding ' , label , ' to permanent knowledge...') asText allBold.
+		(includeAllMethods
+		 and: [ cs methods isNil or: [ cs methods isEmpty ] ]) ifTrue: [
+			self appendToTranscript:
+				('[Teaching] Note: method sources not yet loaded. Send a query with '
+				 , '''Include All Methods'' on first to also include method sources.') asText ].
+		JadeiteAIKnowledgeBase current appendText: text , String lf.
+		self appendToTranscript:
+			('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold.
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
-		| tempPath fileService |
-		tempPath := FileLocator temp / 'jadeite-knowledge-methods.gs'.
+		text := self buildContextSourceFromMethods: ms.
+		label := ms size printString , ' method(s)'.
 		self appendToTranscript:
-			('[Teaching] Filing out ' , ms size printString , ' method(s) → ' , tempPath pathString , '...') asText allBold.
-		fileService := RowanFileServiceClient new
-			path: tempPath pathString;
-			session: gciSession.
-		fileService
-			command: #fileoutMethods:;
-			commandArgs: (Array with: ms asArray).
-		RowanServiceUpdater current
-			issueCommand: fileService
-			session: gciSession
-			onCompletion: [
-				self teachJadeiteFinish: tempPath label: ms size printString , ' method(s)' ] ]
+			('[Teaching] Adding ' , label , ' to permanent knowledge...') asText allBold.
+		text isEmpty
+			ifTrue: [
+				self appendToTranscript:
+					('[Teaching] Nothing to add for ' , label) asText ]
+			ifFalse: [
+				JadeiteAIKnowledgeBase current appendText: text , String lf.
+				self appendToTranscript:
+					('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold ] ]
 ]
 
-{ #category : 'private' }
-JadeiteAIChatPresenter >> teachJadeiteFinish: tempRef label: labelString [
-	"Read the fileout temp file, append to knowledge base, delete temp file."
-
-	[ | exists content |
-	  exists := tempRef exists.
-	  UIManager default defer: [
-		  self appendToTranscript:
-			  ('[Teaching] Temp file ' , tempRef pathString
-			   , (exists ifTrue: [ ' exists (' , tempRef size printString , ' bytes)' ] ifFalse: [ ' NOT FOUND' ])) asText ].
-	  content := exists ifTrue: [ tempRef contents ] ifFalse: [ '' ].
-	  content isEmpty
-		  ifFalse: [
-			  JadeiteAIKnowledgeBase current appendText: content.
-			  [ tempRef delete ] on: Error do: [  ] ].
-	  UIManager default defer: [
-		  content isEmpty
-			  ifTrue: [
-				  self appendToTranscript:
-					  ('[Teaching] Warning: temp file was empty for ' , labelString) asText ]
-			  ifFalse: [
-				  self appendToTranscript:
-					  ('[Teaching] ' , labelString , ' added to permanent knowledge.') asText allBold ] ] ]
-	on: Error do: [ :e |
-		UIManager default defer: [
-			self appendToTranscript: ('[Teaching] Error: ' , e messageText) asText ] ]
-]
 
 { #category : 'constants' }
 JadeiteAIChatPresenter >> timeout [
