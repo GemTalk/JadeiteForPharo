@@ -925,15 +925,16 @@ JadeiteAIChatPresenter >> teachJadeite [
 	 then read the temp file and append its contents to the local knowledge base."
 
 	contextClassService ifNotNil: [ :cs |
-		| tempPath |
+		| tempPath serviceCopy |
 		tempPath := FileLocator temp / ('jadeite-knowledge-' , cs name , '.gs').
 		self appendToTranscript:
-			('[Teaching] Filing out ' , cs name , ' to knowledge base...') asText allBold.
-		cs
+			('[Teaching] Filing out ' , cs name , ' → ' , tempPath pathString , '...') asText allBold.
+		serviceCopy := cs copy.
+		serviceCopy
 			command: #fileoutClassOn:;
 			commandArgs: (Array with: tempPath pathString).
 		RowanServiceUpdater current
-			issueCommand: cs
+			issueCommand: serviceCopy
 			session: gciSession
 			onCompletion: [ self teachJadeiteFinish: tempPath label: cs name ].
 		^ self ].
@@ -942,7 +943,7 @@ JadeiteAIChatPresenter >> teachJadeite [
 		| tempPath fileService |
 		tempPath := FileLocator temp / 'jadeite-knowledge-methods.gs'.
 		self appendToTranscript:
-			('[Teaching] Filing out ' , ms size printString , ' method(s) to knowledge base...') asText allBold.
+			('[Teaching] Filing out ' , ms size printString , ' method(s) → ' , tempPath pathString , '...') asText allBold.
 		fileService := RowanFileServiceClient new
 			path: tempPath pathString;
 			session: gciSession.
@@ -960,8 +961,13 @@ JadeiteAIChatPresenter >> teachJadeite [
 JadeiteAIChatPresenter >> teachJadeiteFinish: tempRef label: labelString [
 	"Read the fileout temp file, append to knowledge base, delete temp file."
 
-	[ | content |
-	  content := tempRef exists ifTrue: [ tempRef contents ] ifFalse: [ '' ].
+	[ | exists content |
+	  exists := tempRef exists.
+	  UIManager default defer: [
+		  self appendToTranscript:
+			  ('[Teaching] Temp file ' , tempRef pathString
+			   , (exists ifTrue: [ ' exists (' , tempRef size printString , ' bytes)' ] ifFalse: [ ' NOT FOUND' ])) asText ].
+	  content := exists ifTrue: [ tempRef contents ] ifFalse: [ '' ].
 	  content isEmpty
 		  ifFalse: [
 			  JadeiteAIKnowledgeBase current appendText: content.
@@ -970,7 +976,7 @@ JadeiteAIChatPresenter >> teachJadeiteFinish: tempRef label: labelString [
 		  content isEmpty
 			  ifTrue: [
 				  self appendToTranscript:
-					  ('[Teaching] Warning: fileout produced no output for ' , labelString) asText ]
+					  ('[Teaching] Warning: temp file was empty for ' , labelString) asText ]
 			  ifFalse: [
 				  self appendToTranscript:
 					  ('[Teaching] ' , labelString , ' added to permanent knowledge.') asText allBold ] ] ]
