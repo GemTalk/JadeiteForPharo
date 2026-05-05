@@ -731,8 +731,8 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 		contextSource := self buildContextSourceFromMethods: ms.
 		aBlock value: contextSource.
 		^ self ].
-
-	aBlock value: self fetchGemStoneContext
+	aBlock value: String new. 
+	"aBlock value: self fetchGemStoneContext"
 ]
 
 { #category : 'actions' }
@@ -968,7 +968,6 @@ JadeiteAIChatPresenter >> teachJadeiteWrite: text label: label [
 			self appendToTranscript:
 				('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold ]
 ]
-
 
 { #category : 'constants' }
 JadeiteAIChatPresenter >> timeout [
