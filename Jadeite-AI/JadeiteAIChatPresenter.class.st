@@ -329,12 +329,14 @@ JadeiteAIChatPresenter >> extractExpressionFrom: aString openTag: openTag closeT
 	end := (aString indexOfSubCollection: closeTag startingAt: start ifAbsent: [ ^ '' ])
 	       - 1.
 	expr := (aString copyFrom: start to: end) trimBlanks.
-	"Strip leading markdown artifacts (backticks, 'tag.', inline code references)
-	 that appear when the LLM uses the tag name in prose rather than as an execution tag."
+	"Strip leading lines that are markdown artifacts (start with a backtick).
+	 If no newline follows the backtick, the expression is wrapped in inline code — strip the backticks."
 	[ expr notEmpty and: [ expr first = $` ] ] whileTrue: [
 		| lineEnd |
-		lineEnd := expr indexOf: (Character value: 10) ifAbsent: [ expr size + 1 ].
-		expr := (expr copyFrom: lineEnd to: expr size) trimBlanks ].
+		lineEnd := expr indexOf: (Character value: 10) ifAbsent: [ 0 ].
+		lineEnd = 0
+			ifTrue: [ expr := expr copyWithout: $` ]
+			ifFalse: [ expr := (expr copyFrom: lineEnd to: expr size) trimBlanks ] ].
 	^ expr
 ]
 
