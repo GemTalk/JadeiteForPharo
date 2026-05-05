@@ -592,7 +592,7 @@ JadeiteAIChatPresenter >> moveCursorDownLine [
 	| text pos lineStart lineEnd nextLineStart nextLineEnd col newPos |
 	text := inputArea text asString.
 	pos := self inputCursorPosition.
-	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
+	(pos <= 0 or: [ pos > (text size + 1) ]) ifTrue: [ ^ self ].
 	lineEnd := pos.
 	[ lineEnd <= text size and: [
 		  (text at: lineEnd) ~= Character cr and: [ (text at: lineEnd) ~= Character lf ] ] ]
@@ -623,7 +623,7 @@ JadeiteAIChatPresenter >> moveCursorUpLine [
 	| text pos lineStart prevLineEnd prevLineStart col newPos |
 	text := inputArea text asString.
 	pos := self inputCursorPosition.
-	(pos <= 0 or: [ pos > text size + 1 ]) ifTrue: [ ^ self ].
+	(pos <= 0 or: [ pos > (text size + 1) ]) ifTrue: [ ^ self ].
 	lineStart := 1.
 	1 to: pos - 1 do: [ :i |
 		((text at: i) = Character cr or: [ (text at: i) = Character lf ])
