@@ -527,11 +527,21 @@ JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> insertNewlineAtCursor [
-	"Insert a newline at the current cursor position using the editor API,
-	 so the cursor advances naturally without resetting the whole text."
+	"Insert a newline at the current cursor position and restore the cursor.
+	 Uses UIManager defer for cursor repositioning because inputArea text:
+	 triggers async morph updates that would otherwise reset the selection."
 
-	[ inputArea adapter widget textMorph editor insertText: (Text string: String lf) ]
-		on: Error do: [ inputArea text: inputArea text , String lf ]
+	| pos text before after newPos |
+	pos := self inputCursorPosition.
+	text := inputArea text asString.
+	pos <= 0 ifTrue: [ pos := text size + 1 ].
+	before := text copyFrom: 1 to: (pos - 1) max: 0.
+	after := text copyFrom: pos to: text size.
+	newPos := before size + 2.
+	inputArea text: before , String lf , after.
+	UIManager default defer: [
+		[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
+			on: Error do: [  ] ]
 ]
 
 { #category : 'private' }
