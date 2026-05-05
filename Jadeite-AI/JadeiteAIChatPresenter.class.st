@@ -451,7 +451,7 @@ JadeiteAIChatPresenter >> initializePresenters [
 		toAction: [ self sendMessage ].
 	inputArea
 		bindKeyCombination: Character cr ctrl asKeyCombination
-		toAction: [ inputArea text: inputArea text , String cr ].
+		toAction: [ self insertNewlineAtCursor ].
 	inputArea
 		bindKeyCombination: KeyboardKey up asKeyCombination
 		toAction: [ self historyUp ].
@@ -523,6 +523,22 @@ JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter title: 'Ask Jadeite'.
 	aWindowPresenter initialExtent: 700 @ 520.
 	aWindowPresenter whenClosedDo: [ self class currentWindow: nil ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> insertNewlineAtCursor [
+	"Insert a newline at the current cursor position and place the cursor on the new line."
+
+	| pos text before after newPos |
+	pos := self inputCursorPosition.
+	text := inputArea text asString.
+	pos <= 0 ifTrue: [ pos := text size + 1 ].
+	before := text copyFrom: 1 to: (pos - 1) max: 0.
+	after := text copyFrom: pos to: text size.
+	newPos := before size + 2.
+	inputArea text: before , String lf , after.
+	[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
+		on: Error do: [  ]
 ]
 
 { #category : 'private' }
