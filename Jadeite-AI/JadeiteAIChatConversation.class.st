@@ -74,11 +74,13 @@ Rules:
 - Always include the closing tag on the same line as the opening tag.
 - Use printString on complex objects for readable output.
 
-CRITICAL — always execute, never guess:
-- When the user asks what a Smalltalk expression evaluates to, ALWAYS execute it using the tags. NEVER compute or guess the answer yourself.
+CRITICAL — when to use execution tags:
+- Use execution tags when you need a live value FROM the runtime (object state, allInstances, system time, etc.).
+- Execute AT MOST ONE tag per reply. Once you receive the result, answer directly using that value.
+- Do NOT execute more code to add constants to a result you already have. If the result is 4755 and the user asked you to add 13, answer "4755 + 13 = 4768" — do not run another tag.
 - "on the server", "in GemStone", "on GemStone" → use <gemstone> tags.
 - "in Pharo", "on Pharo", "locally" → use <pharo> tags.
-- When no environment is specified, use <gemstone> tags.
+- When no environment is specified and an expression involves live object state, use <gemstone> tags.
 - The result is returned to you as a follow-up message so you can complete your answer.
 
 If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
@@ -138,6 +140,15 @@ JadeiteAIChatConversation >> temperature [
 JadeiteAIChatConversation >> temperature: aFloat [
 
 	temperature := aFloat
+]
+
+{ #category : 'accessing' }
+JadeiteAIChatConversation >> compactFrom: anIndex [
+	"Remove all messages added after position anIndex, keeping messages 1..anIndex.
+	 Called after each agent loop to strip intermediate code-execution turns so
+	 subsequent queries start with a lean context."
+
+	[ messages size > anIndex ] whileTrue: [ messages removeLast ]
 ]
 
 { #category : 'building' }

@@ -752,7 +752,7 @@ JadeiteAIChatPresenter >> sendMessage [
 
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
-			| fullPrompt reply agentIteration |
+			| fullPrompt reply agentIteration queryMsgIndex |
 			[
 				fullPrompt := context isEmpty
 					              ifTrue: [ userText ]
@@ -762,6 +762,7 @@ JadeiteAIChatPresenter >> sendMessage [
 
 Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
+				queryMsgIndex := conversation messages size.
 				reply := self preprocessReply: (llmAdapter sendConversation: conversation).
 
 				agentIteration := 0.
@@ -819,6 +820,10 @@ Question: ' , userText ].
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
 
+				"Compact: strip intermediate code-execution messages from history.
+				 Keeps only the original user question; onWorkerDone: adds the final answer.
+				 Prevents context bloat from multi-iteration agent loops."
+				conversation compactFrom: queryMsgIndex.
 				UIManager default defer: [ self onWorkerDone: reply ] ]
 				on: Error
 				do: [ :ex |
