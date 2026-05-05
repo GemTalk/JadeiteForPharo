@@ -72,6 +72,7 @@ JadeiteAIOllamaAdapter >> buildRequestBody: aConversation [
 	ws nextPutAll: aConversation temperature printString.
 	ws nextPutAll: ',"max_tokens":'.
 	ws nextPutAll: aConversation maxTokens printString.
+	ws nextPutAll: ',"stream":false'.
 	ws nextPut: $}.
 	^ ws contents
 ]
