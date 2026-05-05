@@ -927,38 +927,46 @@ JadeiteAIChatPresenter >> stopWorker [
 { #category : 'actions' }
 JadeiteAIChatPresenter >> teachJadeite [
 	"Append the current context to the permanent knowledge base.
-	 Builds text from whatever the class service already has in memory — same
-	 data that gets sent as context in a query.  No fileout or server round-trip needed."
+	 When includeAllMethods is true, loads method sources via RowanServiceUpdater first
+	 (same async path as resolveContextOnCompletion:) so sources are not nil."
 
-	| text label |
+	| label |
 	contextClassService ifNotNil: [ :cs |
-		text := self buildContextSourceFromClass: cs.
 		label := cs name.
 		self appendToTranscript:
-			('[Teaching] Adding ' , label , ' to permanent knowledge...') asText allBold.
-		(includeAllMethods
-		 and: [ cs methods isNil or: [ cs methods isEmpty ] ]) ifTrue: [
-			self appendToTranscript:
-				('[Teaching] Note: method sources not yet loaded. Send a query with '
-				 , '''Include All Methods'' on first to also include method sources.') asText ].
-		JadeiteAIKnowledgeBase current appendText: text , String lf.
-		self appendToTranscript:
-			('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold.
+			('[Teaching] Loading ' , label , '...') asText allBold.
+		includeAllMethods
+			ifFalse: [
+				self teachJadeiteWrite: (self buildContextSourceFromClass: cs) label: label ]
+			ifTrue: [
+				RowanServiceUpdater current
+					updateService: cs
+					session: gciSession
+					onCompletion: [
+						self teachJadeiteWrite: (self buildContextSourceFromClass: cs) label: label ] ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
-		text := self buildContextSourceFromMethods: ms.
+		| text |
 		label := ms size printString , ' method(s)'.
+		text := self buildContextSourceFromMethods: ms.
 		self appendToTranscript:
 			('[Teaching] Adding ' , label , ' to permanent knowledge...') asText allBold.
-		text isEmpty
-			ifTrue: [
-				self appendToTranscript:
-					('[Teaching] Nothing to add for ' , label) asText ]
-			ifFalse: [
-				JadeiteAIKnowledgeBase current appendText: text , String lf.
-				self appendToTranscript:
-					('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold ] ]
+		self teachJadeiteWrite: text label: label ]
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> teachJadeiteWrite: text label: label [
+	"Write text to the knowledge base and log the result."
+
+	text trimBlanks isEmpty
+		ifTrue: [
+			self appendToTranscript:
+				('[Teaching] Nothing to add for ' , label) asText ]
+		ifFalse: [
+			JadeiteAIKnowledgeBase current appendText: text , String lf.
+			self appendToTranscript:
+				('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold ]
 ]
 
 
