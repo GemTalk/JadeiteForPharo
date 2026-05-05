@@ -299,7 +299,7 @@ JadeiteAIChatPresenter >> executeGemStoneExpression: expr [
 		^ '<gemstoneerror>no result returned</gemstoneerror>' ].
 	(result isString and: [ result includesSubstring: '<gemstoneerror>' ])
 		ifTrue: [ ^ result ].
-	^ self truncateResult: result printString
+	^ self truncateResult: (result isString ifTrue: [ result ] ifFalse: [ result printString ])
 ]
 
 { #category : 'private' }
