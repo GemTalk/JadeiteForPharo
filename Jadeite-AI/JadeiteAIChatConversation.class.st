@@ -54,7 +54,7 @@ JadeiteAIChatConversation >> initialize [
 	messages := OrderedCollection new.
 	model := 'gpt-3.5-turbo'.
 	temperature := 0.7.
-	maxTokens := 2048.
+	maxTokens := 512.
 	systemPrompt := 'You are a helpful GemStone Smalltalk programming assistant.
 You understand Pharo Smalltalk, GemStone/S, and the Jadeite IDE.
 When shown source code, analyze it and answer questions about it concisely.

@@ -4,11 +4,11 @@ JadeiteAIOllamaAdapter — HTTP adapter for Ollama running on localhost.
 Ollama is free, requires no account or API key, and runs entirely on your machine.
 Install from https://ollama.com
 
-Default model:  qwen2.5-coder:7b  (~5 GB, good at Smalltalk/GemStone code analysis)
-Lighter model:  llama3.2  (~2 GB, use on machines with less RAM)
+Default model:  qwen2.5-coder:14b  (~9 GB, better instruction-following for multi-step queries)
+Lighter model:  qwen2.5-coder:7b   (~5 GB, use on machines with less RAM)
 
-Pull a model once with:  ollama pull qwen2.5-coder:7b
-Switch model:            JadeiteAIOllamaAdapter forModel: 'llama3.2'
+Pull a model once with:  ollama pull qwen2.5-coder:14b
+Switch model:            JadeiteAIOllamaAdapter forModel: 'qwen2.5-coder:7b'
 
 JSON is built and parsed manually to avoid NeoJSON load-order issues.
 "
@@ -81,7 +81,7 @@ JadeiteAIOllamaAdapter >> buildRequestBody: aConversation [
 JadeiteAIOllamaAdapter >> initialize [
 
 	baseUrl := 'http://localhost:11434/v1'.
-	model := 'qwen2.5-coder:7b'
+	model := 'qwen2.5-coder:14b'
 ]
 
 { #category : 'json' }
