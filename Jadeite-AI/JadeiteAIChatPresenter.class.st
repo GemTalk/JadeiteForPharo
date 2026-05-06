@@ -32,9 +32,7 @@ Class {
 		'clearButton',
 		'statusLabel',
 		'contextLabel',
-		'includeAllButton',
 		'clearContextButton',
-		'teachJadeiteButton',
 		'conversation',
 		'llmAdapter',
 		'workerProcess',
@@ -43,7 +41,6 @@ Class {
 		'contextClassService',
 		'contextMethodServices',
 		'contextSource',
-		'includeAllMethods',
 		'messageHistory',
 		'historyIndex',
 		'thinkingStart',
@@ -159,11 +156,12 @@ JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> buildContextSourceFromClass: aClassService [
-	"Build a context string from the replicated class service.
-	 Always includes definition (name, superclass, vars).
-	 Includes method sources only when includeAllMethods is true, capped at methodCap."
+	"Build a context string from the class service.
+	 Includes definition (name, vars) plus all available method selectors.
+	 Selectors from both GemStone (via class service) and Pharo (via reflection) are included.
+	 Full source is fetched on demand by the LLM using <pharo> or <gemstone> tags."
 
-	| ws methods cap capped truncated |
+	| ws methods selectors pharoClass |
 	ws := WriteStream on: String new.
 	ws nextPutAll: 'Class: '; nextPutAll: aClassService name; nextPutAll: String lf.
 
@@ -179,27 +177,23 @@ JadeiteAIChatPresenter >> buildContextSourceFromClass: aClassService [
 			aClassService classVarNames do: [ :v | ws nextPutAll: v; nextPut: $  ].
 			ws nextPutAll: String lf ].
 
-	includeAllMethods ifFalse: [ ^ ws contents ].
+	methods := (aClassService methods ifNil: [ #() ]) asArray.
+	methods isEmpty ifFalse: [
+		selectors := (methods collect: [ :m | m selector ]) asSortedCollection.
+		ws nextPutAll: String lf; nextPutAll: 'GemStone selectors: '; nextPutAll: String lf.
+		selectors do: [ :sel | ws nextPutAll: sel; nextPut: $  ] ].
 
-	methods := (aClassService methods ifNil: [ #(  ) ]) asArray.
-	methods isEmpty ifTrue: [ ^ ws contents ].
-
-	cap := self methodCap.
-	capped := methods size > cap.
-	truncated := capped
-		             ifTrue: [ methods copyFrom: 1 to: cap ]
-		             ifFalse: [ methods ].
-
-	ws nextPutAll: String lf; nextPutAll: 'Methods:'; nextPutAll: String lf.
-	capped ifTrue: [
-		ws
-			nextPutAll: '(First ' , cap printString , ' of ' , methods size printString
-				, ' shown. Large contexts may exceed the LLM token limit.)';
-			nextPutAll: String lf ].
-
-	truncated do: [ :method |
-		ws nextPutAll: '---'; nextPutAll: String lf.
-		ws nextPutAll: (method source ifNil: [ '' ]); nextPutAll: String lf ].
+	pharoClass := Smalltalk at: aClassService name asSymbol ifAbsent: [ nil ].
+	pharoClass ifNotNil: [ :cls |
+		| instSelectors classSelectors |
+		instSelectors := cls methodDict keys asSortedCollection.
+		classSelectors := cls class methodDict keys asSortedCollection.
+		instSelectors isEmpty ifFalse: [
+			ws nextPutAll: String lf; nextPutAll: 'Pharo instance-side selectors: '; nextPutAll: String lf.
+			instSelectors do: [ :sel | ws nextPutAll: sel; nextPut: $  ] ].
+		classSelectors isEmpty ifFalse: [
+			ws nextPutAll: String lf; nextPutAll: 'Pharo class-side selectors: '; nextPutAll: String lf.
+			classSelectors do: [ :sel | ws nextPutAll: sel; nextPut: $  ] ] ].
 
 	^ ws contents
 ]
@@ -232,7 +226,6 @@ JadeiteAIChatPresenter >> clearContext [
 	contextClassService := nil.
 	contextMethodServices := nil.
 	contextSource := nil.
-	includeAllMethods := false.
 	self updateContextLabel
 ]
 
@@ -430,7 +423,6 @@ JadeiteAIChatPresenter >> initialize [
 	super initialize.
 	conversation := JadeiteAIChatConversation new.
 	transcriptContent := '' asText.
-	includeAllMethods := false.
 	messageHistory := OrderedCollection new.
 	historyIndex := 0
 ]
@@ -481,30 +473,13 @@ JadeiteAIChatPresenter >> initializePresenters [
 	contextRow := SpBoxLayout newHorizontal spacing: 6.
 	contextRow borderWidth: 4.
 	contextLabel := self newLabel label: ''.
-	includeAllButton := self newButton
-		                    label: 'Include All Methods';
-		                    action: [ self toggleIncludeAllMethods ];
-		                    yourself.
 	clearContextButton := self newButton
 		                      label: 'Clear Context';
 		                      action: [ self clearContext ];
 		                      enabled: false;
 		                      yourself.
-	teachJadeiteButton := self newButton
-		                      label: 'Teach Jadeite';
-		                      action: [ self teachJadeite ];
-		                      enabled: false;
-		                      yourself.
 	contextRow
-		add: includeAllButton withConstraints: [ :c |
-				c
-					width: 160;
-					expand: false ];
 		add: clearContextButton withConstraints: [ :c |
-				c
-					width: 110;
-					expand: false ];
-		add: teachJadeiteButton withConstraints: [ :c |
 				c
 					width: 110;
 					expand: false ];
@@ -615,12 +590,6 @@ JadeiteAIChatPresenter >> maxAgentIterations [
 	^ 6
 ]
 
-{ #category : 'constants' }
-JadeiteAIChatPresenter >> methodCap [
-	"Maximum number of methods to include when building a class context."
-
-	^ 50
-]
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> moveCursorDownLine [
@@ -752,33 +721,23 @@ JadeiteAIChatPresenter >> preprocessReply: aString [
 { #category : 'private' }
 JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 	"Resolve the context string and call aBlock with it.
-	 For class services this is async (forks a GemStone fetch via RowanServiceUpdater);
-	 for all other cases it is synchronous. Caches the result in contextSource."
+	 All paths are synchronous. Caches the result in contextSource."
 
 	contextSource ifNotNil: [ :src |
 		aBlock value: src.
 		^ self ].
 
 	contextClassService ifNotNil: [ :cs |
-		includeAllMethods
-			ifFalse: [
-				contextSource := self buildContextSourceFromClass: cs.
-				aBlock value: contextSource ]
-			ifTrue: [
-				RowanServiceUpdater current
-					updateService: cs
-					session: gciSession
-					onCompletion: [
-						contextSource := self buildContextSourceFromClass: cs.
-						aBlock value: contextSource ] ].
+		contextSource := self buildContextSourceFromClass: cs.
+		aBlock value: contextSource.
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
 		contextSource := self buildContextSourceFromMethods: ms.
 		aBlock value: contextSource.
 		^ self ].
-	aBlock value: String new. 
-	"aBlock value: self fetchGemStoneContext"
+
+	aBlock value: String new
 ]
 
 { #category : 'actions' }
@@ -998,50 +957,6 @@ JadeiteAIChatPresenter >> stopWorker [
 	self enableInput
 ]
 
-{ #category : 'actions' }
-JadeiteAIChatPresenter >> teachJadeite [
-	"Append the current context to the permanent knowledge base.
-	 When includeAllMethods is true, loads method sources via RowanServiceUpdater first
-	 (same async path as resolveContextOnCompletion:) so sources are not nil."
-
-	| label |
-	contextClassService ifNotNil: [ :cs |
-		label := cs name.
-		self appendToTranscript:
-			('[Teaching] Loading ' , label , '...') asText allBold.
-		includeAllMethods
-			ifFalse: [
-				self teachJadeiteWrite: (self buildContextSourceFromClass: cs) label: label ]
-			ifTrue: [
-				RowanServiceUpdater current
-					updateService: cs
-					session: gciSession
-					onCompletion: [
-						self teachJadeiteWrite: (self buildContextSourceFromClass: cs) label: label ] ].
-		^ self ].
-
-	contextMethodServices ifNotNil: [ :ms |
-		| text |
-		label := ms size printString , ' method(s)'.
-		text := self buildContextSourceFromMethods: ms.
-		self appendToTranscript:
-			('[Teaching] Adding ' , label , ' to permanent knowledge...') asText allBold.
-		self teachJadeiteWrite: text label: label ]
-]
-
-{ #category : 'actions' }
-JadeiteAIChatPresenter >> teachJadeiteWrite: text label: label [
-	"Write text to the knowledge base and log the result."
-
-	text trimBlanks isEmpty
-		ifTrue: [
-			self appendToTranscript:
-				('[Teaching] Nothing to add for ' , label) asText ]
-		ifFalse: [
-			JadeiteAIKnowledgeBase current appendText: text , String lf.
-			self appendToTranscript:
-				('[Teaching] ' , label , ' added to permanent knowledge.') asText allBold ]
-]
 
 { #category : 'constants' }
 JadeiteAIChatPresenter >> timeout [
@@ -1049,15 +964,6 @@ JadeiteAIChatPresenter >> timeout [
 	^ 60000
 ]
 
-{ #category : 'context' }
-JadeiteAIChatPresenter >> toggleIncludeAllMethods [
-	"Toggle whether all methods are included in the class context.
-	 Clears the cached contextSource so it is rebuilt on next send."
-
-	includeAllMethods := includeAllMethods not.
-	contextSource := nil.
-	self updateContextLabel
-]
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> truncateResult: aString [
@@ -1078,23 +984,15 @@ JadeiteAIChatPresenter >> updateContextLabel [
 	contextLabel ifNil: [ ^ self ].
 
 	contextClassService ifNotNil: [ :cs |
-		| label |
-		label := 'Context: class ' , cs name.
-		includeAllMethods
-			ifTrue: [ label := label , ' (all methods included)' ]
-			ifFalse: [ label := label , ' (definition only — toggle to include method sources)' ].
-		contextLabel label: label.
+		contextLabel label: 'Context: class ' , cs name.
 		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
-		teachJadeiteButton ifNotNil: [ teachJadeiteButton enabled: true ].
 		^ self ].
 
 	contextMethodServices ifNotNil: [ :ms |
 		contextLabel label: 'Context: ' , ms size printString , ' selected method(s)'.
 		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
-		teachJadeiteButton ifNotNil: [ teachJadeiteButton enabled: true ].
 		^ self ].
 
 	contextLabel label: ''.
-	clearContextButton ifNotNil: [ clearContextButton enabled: false ].
-	teachJadeiteButton ifNotNil: [ teachJadeiteButton enabled: false ]
+	clearContextButton ifNotNil: [ clearContextButton enabled: false ]
 ]

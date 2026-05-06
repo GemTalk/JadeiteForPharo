@@ -160,7 +160,7 @@ JadeiteAIChatTestCase >> testAdapterDefaultsToOllama [
 
 	| adapter |
 	adapter := JadeiteAIOllamaAdapter default.
-	self assert: adapter model equals: 'qwen2.5-coder:7b'.
+	self assert: adapter model equals: 'qwen2.5-coder:14b'.
 	self assert: (adapter baseUrl includesSubstring: 'localhost')
 ]
 

@@ -84,6 +84,14 @@ CRITICAL — when to use execution tags:
 - When no environment is specified and an expression involves live object state, use <gemstone> tags.
 - The result is returned to you as a follow-up message so you can complete your answer.
 
+Reading source code:
+- When a class context is set, you will receive a list of method selectors for that class.
+- Analyze selector names to identify which methods are relevant before reading any source.
+- To read a Pharo method: <pharo>((Smalltalk at: #ClassName) >> #selector) sourceCode</pharo>
+- To read a GemStone method: <gemstone>(ClassName >> #selector) sourceCode</gemstone>
+- Read at most 3 method sources per response. If you need more, tell the user which additional methods you would like to read and ask permission before proceeding.
+- Never request all methods of a class at once.
+
 If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
 or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
 and retry with a new tag.'
@@ -154,19 +162,14 @@ JadeiteAIChatConversation >> compactFrom: anIndex [
 
 { #category : 'building' }
 JadeiteAIChatConversation >> toApiMessages [
-	"Return messages array in OpenAI/Ollama format for the HTTP payload.
-	 Appends any permanent knowledge from JadeiteAIKnowledgeBase to the system prompt."
+	"Return messages array in OpenAI/Ollama format for the HTTP payload."
 
-	| result effectivePrompt knowledgeText |
+	| result |
 	result := OrderedCollection new.
-	knowledgeText := JadeiteAIKnowledgeBase current knowledgeText.
-	effectivePrompt := knowledgeText isEmpty
-		                   ifTrue: [ systemPrompt ]
-		                   ifFalse: [ systemPrompt , knowledgeText ].
-	effectivePrompt ifNotEmpty: [
+	systemPrompt ifNotEmpty: [
 		result add: (Dictionary new
 			at: 'role' put: 'system';
-			at: 'content' put: effectivePrompt;
+			at: 'content' put: systemPrompt;
 			yourself) ].
 	messages do: [ :msg |
 		result add: (Dictionary new
