@@ -168,6 +168,9 @@ JadeiteForPharoInspectorTestCase >> test_adHocInspect [
 		equals: 'aSymbolDictionary( name: #''UserGlobals'' )' ] ensure: [
 		self destroy: inspector ].
 	methodListBrowser := self projectsPresenter browseImplementors.
+	self waitWhile: [
+		((methodListBrowser methodSourcePresenter text ifNil: [ '' ])
+			 includesSubstring: 'bartooee') not ].
 	[
 	methodListBrowser methodSourcePresenter selectionInterval:
 		(12 to: 22).
