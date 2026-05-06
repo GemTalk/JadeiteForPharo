@@ -798,7 +798,7 @@ JadeiteAIChatPresenter >> sendMessage [
 
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
-			| fullPrompt reply agentIteration queryMsgIndex bothEnvsRequested |
+			| fullPrompt reply agentIteration queryMsgIndex bothEnvsRequested gemstoneExecuted pharoExecuted |
 			[
 				fullPrompt := context isEmpty
 					              ifTrue: [ userText ]
@@ -810,6 +810,8 @@ Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
 				queryMsgIndex := conversation messages size.
 				bothEnvsRequested := pharoCheckbox state and: [ gemstoneCheckbox state ].
+				gemstoneExecuted := false.
+				pharoExecuted := false.
 				reply := self preprocessReply: (llmAdapter sendConversation: conversation).
 
 				agentIteration := 0.
@@ -852,6 +854,9 @@ Question: ' , userText ].
 					result := useGemstone
 						ifTrue: [ self executeGemStoneExpression: expr ]
 						ifFalse: [ self executePharoExpression: expr ].
+					useGemstone
+						ifTrue: [ gemstoneExecuted := true ]
+						ifFalse: [ pharoExecuted := true ].
 					UIManager default defer: [
 						self appendToTranscript: '[Result] ' asText allBold , result asText ].
 					"Keep LLM feedback short to avoid overflowing the context window"
@@ -871,9 +876,12 @@ Question: ' , userText ].
 							otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution returned: ' , feedbackResult
-							, (bothEnvsRequested
-								ifTrue: [ '. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
-								ifFalse: [ '. If you need ' , otherEnv , ' results, use ' , otherTag , ' now. Otherwise give your final answer.' ]) ].
+							, ((bothEnvsRequested and: [ gemstoneExecuted and: [ pharoExecuted ] ])
+								ifTrue: [ '. Both environments have been executed. Give your final answer now using the results above. Do not execute any more code.' ]
+								ifFalse: [
+									bothEnvsRequested
+										ifTrue: [ '. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
+										ifFalse: [ '. If you need ' , otherEnv , ' results, use ' , otherTag , ' now. Otherwise give your final answer.' ] ]) ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
