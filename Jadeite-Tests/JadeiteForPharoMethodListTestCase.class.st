@@ -84,6 +84,7 @@ JadeiteForPharoMethodListTestCase >> test_browseClassReferences [
 		originalMethodListBrowser browseClassReferences ].
 	methodListBrowser methodListPresenter items do: [ :service |
 		methodListBrowser methodListPresenter selectItem: service.
+		self waitWhile: [ methodListBrowser methodSourcePresenter text ~= service source ].
 		self assert:
 			('*Bag*' match: methodListBrowser methodSourcePresenter text) ] ]
 		ensure: [ self destroy: originalMethodListBrowser ]
@@ -341,6 +342,7 @@ JadeiteForPharoMethodListTestCase >> test_browseSendersFoo [
 		jadeiteShell browseSendersOf: #foo ].
 	methodListBrowser methodListPresenter items do: [ :methodService |
 		methodListBrowser methodListPresenter selectItem: methodService.
+		self waitWhile: [ methodListBrowser methodSourcePresenter text ~= methodService source ].
 		self assert:
 			('foo*' match: methodListBrowser methodSourcePresenter selection) "use match because we might pickup a '.'" ].
 	self assert:
@@ -499,14 +501,17 @@ JadeiteForPharoMethodListTestCase >> test_multiSelection [
 	self methodListPresenter selectIndex: 1.
 	self assert: self methodListPresenter selectedItem equals: first.
 	self assert: self methodListPresenter selectedItems size equals: 1.
+	self waitWhile: [ self methodSourcePresenter text ~= first source ].
 	self assert: self methodSourcePresenter text equals: first source.
 	self methodListPresenter selectIndexes: #( 2 1 ).
 	self assert: self methodListPresenter selectedItem equals: second.
 	self assert: self methodListPresenter selectedItems size equals: 2.
+	self waitWhile: [ self methodSourcePresenter text ~= second source ].
 	self assert: self methodSourcePresenter text equals: second source.
 	self methodListPresenter selectIndexes: #( 3 2 1 ).
 	self assert: self methodListPresenter selectedItem equals: third.
 	self assert: self methodListPresenter selectedItems size equals: 3.
+	self waitWhile: [ self methodSourcePresenter text ~= third source ].
 	self assert: self methodSourcePresenter text equals: third source
 ]
 
@@ -600,6 +605,7 @@ JadeiteForPharoMethodListTestCase >> test_resetMethodDetails [
 
 	| methodService sem |
 	self openMethodListBrowserOfImplementorsOf: 'includes:'.
+	self waitWhile: [ self methodSourcePresenter text ~= self methodListPresenter selectedItem source ].
 	self
 		assert: self methodSourcePresenter text
 		equals: self methodListPresenter selectedItem source.
@@ -664,6 +670,9 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 	self
 		selectServiceNamed: 'didSourceUpdate'
 		in: self projectsPresenter methodListPresenter.
+	self waitWhile: [
+		methodListBrowser methodSourcePresenter text
+			~= methodListBrowser methodListPresenter selectedItem source ].
 	self
 		assert:
 		methodListBrowser methodSourcePresenter text
@@ -676,9 +685,11 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 	self
 		assert: methodListBrowser methodListPresenter selectedItem selector
 		equals: #didSourceUpdate.
+	self waitWhile: [ methodListBrowser methodSourcePresenter text ~= newSource ].
 	self
 		assert: methodListBrowser methodSourcePresenter text
 		equals: newSource.
+	self waitWhile: [ self projectsPresenter methodSourcePresenter text ~= newSource ].
 	self
 		assert: self projectsPresenter methodSourcePresenter text
 		equals: newSource
