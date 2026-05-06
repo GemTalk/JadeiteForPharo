@@ -136,7 +136,7 @@ JadeiteForPharoFileTestCase >> tempFileName3 [
 { #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 
-	| fileDialog fileSelector inaccessibleDir backupPath sem inaccessibleFile alert |
+	| fileDialog fileSelector inaccessibleDir backupPath inaccessibleFile alert deadline |
 	backupPath := JadePresenter lastFilePath.
 	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
 	fileDialog := self
@@ -144,12 +144,11 @@ JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 		              while: [ self console openServerFile ].
 	[
 		fileSelector := fileDialog fileSelectorPresenter.
-		sem := Semaphore new.
-		[
-			[ fileSelector directoryContentsList list isEmpty ] whileTrue: [
-				(Delay forMilliseconds: 5) wait ].
-			sem signal ] fork.
-		sem waitTimeoutSeconds: 1.
+		deadline := DateAndTime now + 2 seconds.
+		[ fileSelector directoryContentsList list isEmpty
+		  and: [ DateAndTime now < deadline ] ] whileTrue: [
+			WorldMorph doOneCycle.
+			(Delay forMilliseconds: 50) wait ].
 		self assert:
 			((fileSelector directoryContentsList list collect: [ :assoc |
 				  assoc key ]) includes: self inaccessibleDirectoryName).
@@ -307,7 +306,7 @@ JadeiteForPharoFileTestCase >> test_fileSelectInitialPath [
 { #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
 
-	| tempDir fileDialog backupPath tempFile dirRef sem semResult |
+	| tempDir fileDialog backupPath tempFile dirRef deadline |
 	self createTempFiles.
 	backupPath := JadePresenter lastFilePath.
 	[
@@ -336,22 +335,18 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
 		fileDialog window
 			beOk;
 			triggerOkAction.
-		sem := Semaphore new.
 		newFileRef := dirRef / 'workspace.txt'.
-		[
-			[ newFileRef exists ] whileFalse: [
-				(Delay forMilliseconds: 5) wait ].
-			sem signal ] fork.
-		semResult := sem waitTimeoutSeconds: 1.
-		semResult ifTrue: [
-				fileDialog window close.
-				^ self error: 'Semaphore timeout hit in test_lastFilePathOnSave' ].
+		deadline := DateAndTime now + 2 seconds.
+		[ newFileRef exists not and: [ DateAndTime now < deadline ] ] whileTrue: [
+			WorldMorph doOneCycle.
+			(Delay forMilliseconds: 50) wait ].
 		self assert: newFileRef exists.
 		newFileRef delete.
 		self deny: newFileRef exists.
 		self assert: JadePresenter lastFilePath equals: dirRef pathString ]
 		ensure: [
 				JadePresenter lastFilePath: backupPath.
+				fileDialog ifNotNil: [ :d | [ d window close ] on: Error do: [ :e |  ] ].
 				workspace window close ]
 ]
 
