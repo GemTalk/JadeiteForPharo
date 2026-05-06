@@ -87,8 +87,10 @@ CRITICAL — when to use execution tags:
 Reading source code:
 - When a class context is set, you will receive a list of method selectors for that class.
 - Analyze selector names to identify which methods are relevant before reading any source.
-- To read a Pharo method: <pharo>((Smalltalk at: #ClassName) >> #selector) sourceCode</pharo>
-- To read a GemStone method: <gemstone>(ClassName >> #selector) sourceCode</gemstone>
+- To read a Pharo instance method: <pharo>((Smalltalk at: #ClassName) >> #selector) sourceCode</pharo>
+- To read a Pharo class-side method: <pharo>((Smalltalk at: #ClassName) class >> #selector) sourceCode</pharo>
+- To read a GemStone instance method: <gemstone>((ClassName methodDictForEnv: 0) at: #selector) sourceString</gemstone>
+- To read a GemStone class-side method: <gemstone>((ClassName class methodDictForEnv: 0) at: #selector) sourceString</gemstone>
 - Read at most 3 method sources per response. If you need more, tell the user which additional methods you would like to read and ask permission before proceeding.
 - Never request all methods of a class at once.
 
