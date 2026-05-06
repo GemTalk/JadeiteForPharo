@@ -358,7 +358,7 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
 { #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_lastFilePathOnSelect [
 
-	| tempDir fileDialog backupPath tempFile dirRef sem semResult |
+	| tempDir fileDialog backupPath tempFile dirRef deadline |
 	self createTempFiles.
 	backupPath := JadePresenter lastFilePath.
 	[
@@ -385,19 +385,16 @@ JadeiteForPharoFileTestCase >> test_lastFilePathOnSelect [
 		fileDialog window
 			beOk;
 			triggerOkAction.
-		sem := Semaphore new.
+		deadline := DateAndTime now + 2 seconds.
 		[
-			[
-			JadePresenter lastFilePath = FileSystem workingDirectory pathString ]
-				whileTrue: [ (Delay forMilliseconds: 10) wait ].
-			sem signal ] fork.
-		semResult := sem waitTimeoutSeconds: 1.
-		semResult ifTrue: [
-				fileDialog window close.
-				^ self error: 'Semaphore timeout hit in test_lastFilePathOnSelect' ].
+		JadePresenter lastFilePath = FileSystem workingDirectory pathString
+			and: [ DateAndTime now < deadline ] ] whileTrue: [
+			WorldMorph doOneCycle.
+			(Delay forMilliseconds: 50) wait ].
 		self assert: JadePresenter lastFilePath equals: dirRef pathString ]
 		ensure: [
 				JadePresenter lastFilePath: backupPath.
+				fileDialog ifNotNil: [ :d | [ d window close ] on: Error do: [ :e |  ] ].
 				workspace window close ]
 ]
 
