@@ -435,6 +435,16 @@ JadeiteAbstractTestCase >> haltTestForHardToCatchErrors: reason [
 	proc halt: proc topFrame sender cause: reason
 ]
 
+{ #category : 'support' }
+JadeiteAbstractTestCase >> waitWhile: aBlock [
+
+	| deadline |
+	deadline := DateAndTime now + 2 seconds.
+	[ aBlock value and: [ DateAndTime now < deadline ] ] whileTrue: [
+		WorldMorph doOneCycle.
+		(Delay forMilliseconds: 50) wait ]
+]
+
 { #category : 'accessing' }
 JadeiteAbstractTestCase >> inspectMethodSourceSelectionIn: browser [
 
@@ -447,8 +457,7 @@ JadeiteAbstractTestCase >> inspectMethodSourceSelectionIn: browser [
 		            menuItemPresenter description
 		            = 'Evaluate selection and inspect the result.' ]) action
 		           value.
-	[ command innerCommand _inspector ] whileNil: [
-		(Delay forMilliseconds: 1) wait ].
+	self waitWhile: [ command innerCommand _inspector isNil ].
 	^ command innerCommand _inspector
 ]
 
