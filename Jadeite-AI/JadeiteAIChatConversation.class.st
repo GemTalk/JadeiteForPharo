@@ -164,7 +164,7 @@ JadeiteAIChatConversation >> compactFrom: anIndex [
 
 { #category : 'building' }
 JadeiteAIChatConversation >> toApiMessages [
-	"Return messages array in OpenAI/Ollama format for the HTTP payload."
+	"Return messages array in OpenAI/Ollama format, including the system prompt."
 
 	| result |
 	result := OrderedCollection new.
@@ -173,6 +173,21 @@ JadeiteAIChatConversation >> toApiMessages [
 			at: 'role' put: 'system';
 			at: 'content' put: systemPrompt;
 			yourself) ].
+	messages do: [ :msg |
+		result add: (Dictionary new
+			at: 'role' put: msg role;
+			at: 'content' put: msg content;
+			yourself) ].
+	^ result
+]
+
+{ #category : 'building' }
+JadeiteAIChatConversation >> toApiMessagesNoSystem [
+	"Return messages array without the system prompt.
+	 Used for agent-loop iterations where the system prompt was already sent."
+
+	| result |
+	result := OrderedCollection new.
 	messages do: [ :msg |
 		result add: (Dictionary new
 			at: 'role' put: msg role;

@@ -51,6 +51,18 @@ JadeiteAIOllamaAdapter >> baseUrl: aString [
 
 { #category : 'building' }
 JadeiteAIOllamaAdapter >> buildRequestBody: aConversation [
+	^ self buildRequestBodyFromMessages: aConversation toApiMessages
+		conversation: aConversation
+]
+
+{ #category : 'building' }
+JadeiteAIOllamaAdapter >> buildRequestBodyNoSystem: aConversation [
+	^ self buildRequestBodyFromMessages: aConversation toApiMessagesNoSystem
+		conversation: aConversation
+]
+
+{ #category : 'building' }
+JadeiteAIOllamaAdapter >> buildRequestBodyFromMessages: messages conversation: aConversation [
 	"Build the JSON request body for the /chat/completions endpoint.
 	 Written manually to avoid NeoJSON load-order issues."
 
@@ -60,7 +72,7 @@ JadeiteAIOllamaAdapter >> buildRequestBody: aConversation [
 	ws nextPutAll: (self jsonEncodeString: model).
 	ws nextPutAll: ',"messages":['.
 	first := true.
-	aConversation toApiMessages do: [ :msg |
+	messages do: [ :msg |
 		first ifFalse: [ ws nextPut: $, ].
 		first := false.
 		ws nextPutAll: '{"role":'.
@@ -191,9 +203,22 @@ JadeiteAIOllamaAdapter >> readJsonStringFrom: aString startingAt: startIndex [
 JadeiteAIOllamaAdapter >> sendConversation: aConversation [
 	"POST to the local Ollama server and return the assistant reply string."
 
+	^ self postBody: (self buildRequestBody: aConversation)
+]
+
+{ #category : 'api' }
+JadeiteAIOllamaAdapter >> sendConversationStep: aConversation [
+	"Agent-loop iteration — omits the system prompt to save context-window tokens."
+
+	^ self postBody: (self buildRequestBodyNoSystem: aConversation)
+]
+
+{ #category : 'api' }
+JadeiteAIOllamaAdapter >> postBody: aBody [
+	"POST aBody to the Ollama chat endpoint and return the parsed reply string."
+
 	| body responseString |
-	body := self buildRequestBody: aConversation.
-	body := body copyWithout: Character cr.
+	body := aBody copyWithout: Character cr.
 	body := body copyWithout: (Character value: 9).
 	responseString := ZnClient new
 		                  beOneShot;
@@ -201,8 +226,6 @@ JadeiteAIOllamaAdapter >> sendConversation: aConversation [
 		                  entity: (ZnStringEntity json: body);
 		                  timeout: 120;
 		                  post.
-	"Some LLMs JSON-encode < and > as < / >.
-	 Normalise before parsing so the agent-loop tag detection works."
 	responseString := self normalizeAngleBrackets: responseString.
 	^ self parseResponse: responseString
 ]

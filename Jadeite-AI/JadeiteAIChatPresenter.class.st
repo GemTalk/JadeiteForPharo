@@ -830,20 +830,21 @@ Question: ' , userText ].
 							, (useGemstone ifTrue: [ '<gemstone>fixed_expr</gemstone>' ] ifFalse: [ '<pharo>fixed_expr</pharo>' ])
 							, ' angle-bracket tags. Do NOT use markdown code fences or prose descriptions.' ]
 						ifFalse: [
-							| otherEnv otherTag |
-							otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
-							otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution returned: ' , feedbackResult
 							, ((bothEnvsRequested and: [ gemstoneExecuted and: [ pharoExecuted ] ])
 								ifTrue: [ '. Both environments have been executed. Give your final answer now using the results above. Do not execute any more code.' ]
 								ifFalse: [
 									bothEnvsRequested
-										ifTrue: [ '. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
-										ifFalse: [ '. If you need ' , otherEnv , ' results, use ' , otherTag , ' now. Otherwise give your final answer.' ] ]) ].
+										ifTrue: [
+											| otherEnv otherTag |
+											otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
+											otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
+											'. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
+										ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
-					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
+					reply := self preprocessReply: (llmAdapter sendConversationStep: conversation) ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.

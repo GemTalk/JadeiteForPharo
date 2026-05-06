@@ -24,6 +24,14 @@ JadeiteAIHttpAdapter >> sendConversation: aJadeiteAIChatConversation [
 	^ self subclassResponsibility
 ]
 
+{ #category : 'api' }
+JadeiteAIHttpAdapter >> sendConversationStep: aJadeiteAIChatConversation [
+	"Agent-loop iteration send — subclasses should override to omit the system prompt
+	 and save context-window tokens. Default falls back to the full send."
+
+	^ self sendConversation: aJadeiteAIChatConversation
+]
+
 { #category : 'lifecycle' }
 JadeiteAIHttpAdapter >> unsubscribe [
 	"No-op. Spec 2 calls unsubscribe on all presenter instance variables during teardown."
