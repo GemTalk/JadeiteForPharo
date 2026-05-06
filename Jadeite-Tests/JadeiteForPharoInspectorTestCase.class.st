@@ -136,6 +136,7 @@ JadeiteForPharoInspectorTestCase >> test_adHocExecution [
 { #category : 'tests' }
 JadeiteForPharoInspectorTestCase >> test_adHocInspect [
 
+	| deadline |
 	self
 		testsIssue: #issue427
 		withTitle: '(3.0.60) autocommit not done after successful doits'.
@@ -152,6 +153,13 @@ JadeiteForPharoInspectorTestCase >> test_adHocInspect [
 		in: 'RowanSample1Test'
 		category: 'deleteme'.
 	self selectMethodNamed: #bartooee.
+	deadline := DateAndTime now + 2 seconds.
+	[
+	((self projectsPresenter methodSourcePresenter text ifNil: [ '' ])
+		 includesSubstring: 'bartooee') not
+		and: [ DateAndTime now < deadline ] ] whileTrue: [
+		WorldMorph doOneCycle.
+		(Delay forMilliseconds: 50) wait ].
 	self projectsPresenter methodSourcePresenter selectionInterval:
 		(12 to: 22).
 	inspector := self inspectMethodSourceSelectionIn:
