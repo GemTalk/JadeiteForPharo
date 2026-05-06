@@ -11,7 +11,8 @@ Class {
 		'model',
 		'systemPrompt',
 		'temperature',
-		'maxTokens'
+		'maxTokens',
+		'contextMessage'
 	],
 	#category : 'Jadeite-AI',
 	#package : 'Jadeite-AI'
@@ -48,6 +49,18 @@ JadeiteAIChatConversation >> addUserMessage: aString [
 	^ msg
 ]
 
+{ #category : 'accessing' }
+JadeiteAIChatConversation >> contextMessage [
+
+	^ contextMessage
+]
+
+{ #category : 'accessing' }
+JadeiteAIChatConversation >> contextMessage: aStringOrNil [
+
+	contextMessage := aStringOrNil
+]
+
 { #category : 'initialization' }
 JadeiteAIChatConversation >> initialize [
 
@@ -55,6 +68,7 @@ JadeiteAIChatConversation >> initialize [
 	model := 'gpt-3.5-turbo'.
 	temperature := 0.7.
 	maxTokens := 512.
+	contextMessage := nil.
 	systemPrompt := 'You are a helpful GemStone Smalltalk programming assistant.
 You understand Pharo Smalltalk, GemStone/S, and the Jadeite IDE.
 When shown source code, analyze it and answer questions about it concisely.
@@ -164,7 +178,9 @@ JadeiteAIChatConversation >> compactFrom: anIndex [
 
 { #category : 'building' }
 JadeiteAIChatConversation >> toApiMessages [
-	"Return messages array in OpenAI/Ollama format, including the system prompt."
+	"Return messages array in OpenAI/Ollama format, including the system prompt
+	 and any one-shot context message. Used only for the first call per user query;
+	 agent-loop steps use toApiMessagesNoSystem which omits both."
 
 	| result |
 	result := OrderedCollection new.
@@ -172,6 +188,11 @@ JadeiteAIChatConversation >> toApiMessages [
 		result add: (Dictionary new
 			at: 'role' put: 'system';
 			at: 'content' put: systemPrompt;
+			yourself) ].
+	contextMessage ifNotNil: [ :ctx |
+		result add: (Dictionary new
+			at: 'role' put: 'user';
+			at: 'content' put: ctx;
 			yourself) ].
 	messages do: [ :msg |
 		result add: (Dictionary new

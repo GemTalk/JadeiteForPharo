@@ -757,16 +757,13 @@ JadeiteAIChatPresenter >> sendMessage [
 
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
-			| fullPrompt reply agentIteration queryMsgIndex bothEnvsRequested gemstoneExecuted pharoExecuted |
+			| reply agentIteration queryMsgIndex bothEnvsRequested gemstoneExecuted pharoExecuted |
 			[
-				fullPrompt := context isEmpty
-					              ifTrue: [ userText ]
-					              ifFalse: [
-						              'GemStone source context:
-' , context , '
-
-Question: ' , userText ].
-				conversation addUserMessage: fullPrompt.
+				conversation contextMessage: (context isEmpty
+					ifTrue: [ nil ]
+					ifFalse: [ 'Class context (selectors and definition):
+' , context ]).
+				conversation addUserMessage: userText.
 				queryMsgIndex := conversation messages size.
 				bothEnvsRequested := pharoCheckbox state and: [ gemstoneCheckbox state ].
 				gemstoneExecuted := false.
