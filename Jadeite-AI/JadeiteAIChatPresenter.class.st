@@ -46,7 +46,9 @@ Class {
 		'includeAllMethods',
 		'messageHistory',
 		'historyIndex',
-		'thinkingStart'
+		'thinkingStart',
+		'pharoCheckbox',
+		'gemstoneCheckbox'
 	],
 	#classVars : [
 		'CurrentWindow'
@@ -436,7 +438,7 @@ JadeiteAIChatPresenter >> initialize [
 { #category : 'initialization' }
 JadeiteAIChatPresenter >> initializePresenters [
 
-	| buttonRow inputLabel contextRow |
+	| buttonRow inputLabel contextRow inputRow checkboxColumn |
 	super initializePresenters.
 
 	transcriptArea := self newText.
@@ -460,7 +462,21 @@ JadeiteAIChatPresenter >> initializePresenters [
 	inputArea
 		bindKeyCombination: KeyboardKey down asKeyCombination
 		toAction: [ self historyDown ].
-	self layout add: inputArea withConstraints: [ :c | c height: 100 ].
+	pharoCheckbox := self newCheckBox
+		label: 'Pharo';
+		yourself.
+	gemstoneCheckbox := self newCheckBox
+		label: 'GemStone';
+		yourself.
+	checkboxColumn := SpBoxLayout newVertical spacing: 4.
+	checkboxColumn
+		add: pharoCheckbox withConstraints: [ :c | c height: 24; expand: false ];
+		add: gemstoneCheckbox withConstraints: [ :c | c height: 24; expand: false ].
+	inputRow := SpBoxLayout newHorizontal spacing: 6.
+	inputRow
+		add: inputArea;
+		add: checkboxColumn withConstraints: [ :c | c width: 100; expand: false ].
+	self layout add: inputRow withConstraints: [ :c | c height: 100 ].
 
 	contextRow := SpBoxLayout newHorizontal spacing: 6.
 	contextRow borderWidth: 4.
@@ -782,7 +798,7 @@ JadeiteAIChatPresenter >> sendMessage [
 
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
-			| fullPrompt reply agentIteration queryMsgIndex |
+			| fullPrompt reply agentIteration queryMsgIndex bothEnvsRequested |
 			[
 				fullPrompt := context isEmpty
 					              ifTrue: [ userText ]
@@ -793,6 +809,7 @@ JadeiteAIChatPresenter >> sendMessage [
 Question: ' , userText ].
 				conversation addUserMessage: fullPrompt.
 				queryMsgIndex := conversation messages size.
+				bothEnvsRequested := pharoCheckbox state and: [ gemstoneCheckbox state ].
 				reply := self preprocessReply: (llmAdapter sendConversation: conversation).
 
 				agentIteration := 0.
@@ -854,7 +871,9 @@ Question: ' , userText ].
 							otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution returned: ' , feedbackResult
-							, ' If you still need to query ' , otherEnv , ', use ' , otherTag , ' tags now. Otherwise give your final answer.' ].
+							, (bothEnvsRequested
+								ifTrue: [ '. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
+								ifFalse: [ '. If you need ' , otherEnv , ' results, use ' , otherTag , ' now. Otherwise give your final answer.' ]) ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
 					reply := self preprocessReply: (llmAdapter sendConversation: conversation) ].
