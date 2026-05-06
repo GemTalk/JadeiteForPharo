@@ -1618,6 +1618,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_resetClassComment [
 JadeiteForPharoAbstractBrowserTestCase >> test_resetClassDefinitionTemplate_classSelected [
 
 	self selectRowanSample1Class.
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]

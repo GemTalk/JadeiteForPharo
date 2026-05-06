@@ -597,6 +597,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 JadeiteForPharoMethodListTestCase >> test_reset [
 
 	self openMethodListBrowserOfImplementorsOf: 'answer'.
+	self waitWhile: [ (methodListBrowser methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor: methodListBrowser methodSourcePresenter
 ]
 

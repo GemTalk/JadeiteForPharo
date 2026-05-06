@@ -2643,6 +2643,7 @@ JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_packageSelec
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self packageListPresenter.
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]
@@ -2653,6 +2654,7 @@ JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_projectSelec
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self projectListPresenter.
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]
