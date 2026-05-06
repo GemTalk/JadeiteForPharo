@@ -85,6 +85,8 @@ JadeiteAIOllamaAdapter >> buildRequestBodyFromMessages: messages conversation: a
 	ws nextPutAll: ',"max_tokens":'.
 	ws nextPutAll: aConversation maxTokens printString.
 	ws nextPutAll: ',"stream":false'.
+	ws nextPutAll: ',"num_ctx":'.
+	ws nextPutAll: self numCtx printString.
 	ws nextPut: $}.
 	^ ws contents
 ]
@@ -94,6 +96,15 @@ JadeiteAIOllamaAdapter >> initialize [
 
 	baseUrl := 'http://localhost:11434/v1'.
 	model := 'qwen2.5-coder:14b'
+]
+
+{ #category : 'constants' }
+JadeiteAIOllamaAdapter >> numCtx [
+	"Context window size passed to Ollama on every request.
+	 8192 tokens is enough for system prompt + selector list + several method sources
+	 with minimal overhead on modern hardware."
+
+	^ 8192
 ]
 
 { #category : 'json' }
