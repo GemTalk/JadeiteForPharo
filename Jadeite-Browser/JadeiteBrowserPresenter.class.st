@@ -4394,6 +4394,25 @@ JadeiteBrowserPresenter >> updateGlobalsTab [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenter >> updateHierarchy [ 
+     | service |
+      classHierarchyPresenter clear.
+      self isDictionaryTabSelected
+              ifTrue: [
+              dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ] ]
+              ifFalse: [
+                      projectListPresenter selectionOrNil ifNil: [ ^ self ].
+                      packageListPresenter selections isEmpty ifTrue: [ ^ self ] ].
+      service := classListPresenter selectionOrNil ifNil: [
+                         ^ self updateHierarchyForPacktionaries ].
+      service
+              updateAfterCommand: false;
+              command: #classHierarchy.
+      self issueCommand: service onCompletion: [].
+
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateHierarchyForPacktionaries [
 
 	| service |
