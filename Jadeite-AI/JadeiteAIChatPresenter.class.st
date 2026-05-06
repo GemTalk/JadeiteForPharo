@@ -823,9 +823,9 @@ JadeiteAIChatPresenter >> sendMessage [
 						ifTrue: [
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution failed: ' , feedbackResult
-							, ' Retry with a corrected expression using ONLY '
-							, (useGemstone ifTrue: [ '<gemstone>fixed_expr</gemstone>' ] ifFalse: [ '<pharo>fixed_expr</pharo>' ])
-							, ' angle-bracket tags. Do NOT use markdown code fences or prose descriptions.' ]
+							, ' Write the corrected expression inside '
+							, (useGemstone ifTrue: [ '<gemstone>' ] ifFalse: [ '<pharo>' ])
+							, ' tags. Do NOT use markdown code fences, placeholder names, or prose descriptions.' ]
 						ifFalse: [
 							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
 							, ' execution returned: ' , feedbackResult

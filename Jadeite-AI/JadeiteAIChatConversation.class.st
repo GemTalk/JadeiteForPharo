@@ -105,6 +105,7 @@ Reading source code:
 - To read a Pharo class-side method: <pharo>((Smalltalk at: #ClassName) class >> #selector) sourceCode</pharo>
 - To read a GemStone instance method: <gemstone>((ClassName methodDictForEnv: 0) at: #selector) sourceString</gemstone>
 - To read a GemStone class-side method: <gemstone>((ClassName class methodDictForEnv: 0) at: #selector) sourceString</gemstone>
+- ALWAYS use the fetch expression above. NEVER write method source code from memory inside a tag — you will get a compile error. The tag must contain only the fetch expression, not the method body.
 - Read at most 3 method sources per response. If you need more, tell the user which additional methods you would like to read and ask permission before proceeding.
 - Never request all methods of a class at once.
 
