@@ -246,9 +246,7 @@ JadeiteForPharoGUITestCase >> setUp [
 
 	RowanTestServiceUpdater currentTestName:
 		self class name , '>>' , self selector.
-	Transcript
-		show: 'Running: ' , self class name , '>>' , self selector;
-		nl.
+	('Running: ' , self class name , '>>' , self selector) traceCr.
 	self ensureConnectionProfileEstablished.
 	super setUp
 ]
