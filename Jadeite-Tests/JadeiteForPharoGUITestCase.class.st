@@ -390,18 +390,18 @@ JadeiteForPharoGUITestCase >> waitForNewBrowserWhile: aBlock [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> waitForSaveDialog [
 
-	| dialogs count |
-	count := 0.
-	[
-	(dialogs := self currentWorld windowsSatisfying: [ :each |
-		            (each model class canUnderstand: #presenter)
-			            ifTrue: [
-			            each model presenter isKindOf:
-				            JadeiteServerFileSaveDialog ]
-			            ifFalse: [ false ] ]) isEmpty and: [ count < 10 ] ]
-		whileTrue: [
-			count := count + 1.
-			(Delay forMilliseconds: 10) wait ].
-	self assert: dialogs size equals: 1.
+	| dialogs |
+	dialogs := OrderedCollection new.
+	self
+		waitFor: [
+			dialogs := self currentWorld windowsSatisfying: [ :each |
+				            (each model class canUnderstand: #presenter)
+					            ifTrue: [
+					            each model presenter isKindOf:
+						            JadeiteServerFileSaveDialog ]
+					            ifFalse: [ false ] ].
+			dialogs isEmpty ]
+		errorMessage: 'Timed out waiting for save dialog to open'.
+	Processor yield. "let the dialog finish activating"
 	^ dialogs first model
 ]

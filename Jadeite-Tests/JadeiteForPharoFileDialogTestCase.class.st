@@ -198,11 +198,11 @@ JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose 
 	dirRef := path asFileReference.
 	ref := dirRef / filename.
 	ref exists ifTrue: [ ref delete ].
-	[
+	self uiManager defer: [
 		JadeiteServerFileSaveDialog
 			showOnSession: session
 			defaultPath: path
-			defaultFileName: self fileName ] fork.
+			defaultFileName: self fileName ].
 	fileDialog := self waitForSaveDialog.
 	fileDialog window beTopWindow.
 	self assert: fileDialog window isActive. "not sure why but #isActive requires the window to be the top window. Haven't found an isOpen or ilk that doesn't require the window be on top yet"
