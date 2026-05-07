@@ -3634,6 +3634,7 @@ JadeiteBrowserPresenter >> selectMethodsFrom: classService [
 		ifTrue: [
 			| category |
 			category := selectedMethods first category.
+			category isString ifTrue: [ category := JadeiteCategory named: category ].
 			(categoryListPresenter model includes: category) ifFalse: [
 				categoryListPresenter model add: category ].
 			categoryListPresenter selection: category ].
