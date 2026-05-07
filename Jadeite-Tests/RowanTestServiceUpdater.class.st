@@ -46,6 +46,7 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	Any sending process has to use completion blocks"
 
 	| sem processingCommand connectionError monitorFork |
+	GciSession current isValidSession ifFalse: [ ^ self invalidSessionAction ].
 	self class connectionLost ifTrue: [ ^ self ].
 	sem := Semaphore new.
 	processingCommand := true.
