@@ -145,11 +145,12 @@ JadeiteServerFileSaveDialog >> initializePresenters [
 JadeiteServerFileSaveDialog >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter okAction: [
-		| okToClose |
-		okToClose := self confirmSave: aWindowPresenter.
-		okToClose ifTrue: [ aWindowPresenter close ].
-		okToClose ]
+	(aWindowPresenter respondsTo: #okAction:) ifTrue: [
+		aWindowPresenter okAction: [
+			| okToClose |
+			okToClose := self confirmSave: aWindowPresenter.
+			okToClose ifTrue: [ aWindowPresenter close ].
+			okToClose ] ]
 ]
 
 { #category : 'initialization' }

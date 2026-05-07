@@ -208,7 +208,7 @@ JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose 
 
 	ref writeStreamDo: [ :stream | stream nextPutAll: 'some content' ].
 	self assert: ref exists.
-	[ fileDialogPresenter window triggerOkAction ]
+	[ fileDialog confirmSave: fileDialog window ]
 		on: ProvideAnswerNotification
 		do: [ :notification |
 				notification resume: false.
