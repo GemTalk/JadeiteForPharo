@@ -16,9 +16,10 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has to use completion blocks"
 
-	| sem processingCommand |
+	| sem processingCommand connectionError |
 	sem := Semaphore new.
 	processingCommand := true.
+	connectionError := nil.
 	Processor activeProcess name = 'Morphic UI Process' ifTrue: [
 		[
 		[ MorphicRenderLoop new doOneCycleWhile: [ processingCommand ] ]
@@ -27,10 +28,17 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 				processingCommand := false.
 				ex pass "stop the render loop and let a debugger open" ] ] fork ].
 	[
-	[ self _basicIssueCommand: service ] ensure: [
+	[ [ self _basicIssueCommand: service ]
+		on: Error
+		do: [ :ex |
+			(ex messageText includesSubstring: 'Connection is not open')
+				ifTrue: [ connectionError := ex ]
+				ifFalse: [ ex pass ] ] ]
+	ensure: [
 		processingCommand := false.
 		sem signal ] ] fork.
-	sem wait
+	sem wait.
+	connectionError ifNotNil: [ :e | e signal ]
 ]
 
 { #category : 'commands' }
