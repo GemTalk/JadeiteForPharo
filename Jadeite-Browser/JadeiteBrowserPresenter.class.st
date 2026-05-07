@@ -587,14 +587,15 @@ JadeiteBrowserPresenter >> classListHierarchyTabsChanged [
 { #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
+	self window isOpen ifFalse: [ ^ self ].
 	classService ifNotNil: [
-		self clearMethodLists.
-		self clearFilterLists.
-		self refreshClassUsing: methodListPresenter selectedItem.
-		self updateTabLabel.
-		self selectCategoryTab.
-		self methodListPresenter selectIndex: 0 scrollToSelection: true.
-		self updateSUnitTab ]
+			self clearMethodLists.
+			self clearFilterLists.
+			self refreshClassUsing: methodListPresenter selectedItem.
+			self updateTabLabel.
+			self selectCategoryTab.
+			self methodListPresenter selectIndex: 0 scrollToSelection: true.
+			self updateSUnitTab ]
 ]
 
 { #category : 'project info tab' }

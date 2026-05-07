@@ -60,6 +60,13 @@ JadeiteForPharoMethodListTestCase >> saveSourcesFor_test_sourcesSync: oldSource 
 		category: 'test_created'
 ]
 
+{ #category : 'support' }
+JadeiteForPharoMethodListTestCase >> tearDown [
+
+	super tearDown.
+	JadeiteConnectionProfile connectionProfile disconnect
+]
+
 { #category : 'tests' }
 JadeiteForPharoMethodListTestCase >> test_browseClassReferenceCaptionTitle [
 

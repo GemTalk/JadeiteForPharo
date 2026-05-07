@@ -317,8 +317,9 @@ RowanServiceUpdater >> issueCommand: service session: session [
 RowanServiceUpdater >> issueCommand: service session: session onCompletion: completionBlock [
 
 	| theCompletionBlock |
-	theCompletionBlock := completionBlock ifNil: [ [  ] ].
 	session ifNil: [ ^ nil ].
+	session isValidSession ifFalse: [ ^ self ].
+	theCompletionBlock := completionBlock ifNil: [ [ ] ].
 	service serviceCompletionBlock: theCompletionBlock.
 	self basicIssueCommand: service
 ]
