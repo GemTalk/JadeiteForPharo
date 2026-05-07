@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanTestServiceUpdater',
 	#superclass : 'RowanServiceUpdater',
 	#classVars : [
-		'ConnectionLost'
+		'ConnectionLost',
+		'CurrentTestName'
 	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
@@ -12,6 +13,18 @@ Class {
 RowanTestServiceUpdater class >> connectionLost [
 
 	^ ConnectionLost ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+RowanTestServiceUpdater class >> currentTestName [
+
+	^ CurrentTestName ifNil: [ 'unknown test' ]
+]
+
+{ #category : 'accessing' }
+RowanTestServiceUpdater class >> currentTestName: aString [
+
+	CurrentTestName := aString
 ]
 
 { #category : 'instance creation' }
@@ -32,7 +45,7 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	"Don't block the morphic process.
 	Any sending process has to use completion blocks"
 
-	| sem processingCommand connectionError |
+	| sem processingCommand connectionError monitorFork |
 	self class connectionLost ifTrue: [ ^ self ].
 	sem := Semaphore new.
 	processingCommand := true.
@@ -54,15 +67,29 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	ensure: [
 		processingCommand := false.
 		sem signal ] ] fork.
+	"Monitor session validity; if the connection drops while the command fork is
+	 blocked on service inCommand wait, signal it so the fork can exit cleanly."
+	monitorFork := [
+		[ processingCommand and: [ GciSession current isValidSession ] ] whileTrue: [
+			(Delay forMilliseconds: 100) wait ].
+		processingCommand ifTrue: [
+			connectionError := connectionError
+				ifNil: [ Error new messageText: 'Connection is not open' ].
+			service inCommand signal ] ] fork.
 	sem wait.
+	monitorFork terminate.
 	connectionError ifNotNil: [ :e |
-		ConnectionLost := true.
-		JadeiteConnectionLostError signal: e messageText ]
+		ConnectionLost ifFalse: [
+			ConnectionLost := true.
+			JadeiteConnectionLostError
+				signal:
+				'Connection lost in ' , self class currentTestName , ': '
+					, e messageText ] ]
 ]
 
 { #category : 'commands' }
 RowanTestServiceUpdater >> invalidSessionAction [
 	"no action - tests can sometimes get invalid sessions and we don't want to disconnect."
 
-	
+
 ]

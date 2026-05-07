@@ -244,6 +244,11 @@ JadeiteForPharoGUITestCase >> selectRowanDictionaryOrPackage [
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> setUp [
 
+	RowanTestServiceUpdater currentTestName:
+		self class name , '>>' , self selector.
+	Transcript
+		show: 'Running: ' , self class name , '>>' , self selector;
+		nl.
 	self ensureConnectionProfileEstablished.
 	super setUp
 ]
