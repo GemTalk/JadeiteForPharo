@@ -83,7 +83,7 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 			ConnectionLost := true.
 			JadeiteConnectionLostError
 				signal:
-				'Connection lost in ' , self class currentTestName , ': '
+				'Connection lost in ' , RowanTestServiceUpdater currentTestName , ': '
 					, e messageText ] ]
 ]
 
