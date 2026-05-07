@@ -340,7 +340,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestClass [
 		                   openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
+	self waitWhile: [
+		((self projectsPresenter classDefinitionPresenter text ifNil: [ '' ])
+			 includesSubstring: 'NewSubclass') not ].
 	self projectsPresenter editSaveClass.
+	self waitWhile: [
+		(sunitBrowser classListPresenter list
+			 detect: [ :s | s name = 'NewSubclass' ]
+			 ifNone: [ nil ]) isNil ].
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self projectsPresenter selectedClass
@@ -416,7 +423,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addRemoveTestClass [
 		                   openProjectsBrowser.
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
+	self waitWhile: [
+		((self projectsPresenter classDefinitionPresenter text ifNil: [ '' ])
+			 includesSubstring: 'NewSubclass') not ].
 	self projectsPresenter editSaveClass.
+	self waitWhile: [
+		(sunitBrowser classListPresenter list
+			 detect: [ :s | s name = 'NewSubclass' ]
+			 ifNone: [ nil ]) isNil ].
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
 		self projectsPresenter
 			basicRemoveClass: self projectsPresenter selectedClass
