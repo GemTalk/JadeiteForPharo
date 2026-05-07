@@ -4,3 +4,9 @@ Class {
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
+
+{ #category : 'testing' }
+JadeiteConnectionLostError >> isResumable [
+
+	^ false
+]

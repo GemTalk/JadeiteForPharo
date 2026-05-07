@@ -1,14 +1,30 @@
 Class {
 	#name : 'RowanTestServiceUpdater',
 	#superclass : 'RowanServiceUpdater',
+	#classVars : [
+		'ConnectionLost'
+	],
 	#category : 'Jadeite-Tests',
 	#package : 'Jadeite-Tests'
 }
 
+{ #category : 'accessing' }
+RowanTestServiceUpdater class >> connectionLost [
+
+	^ ConnectionLost ifNil: [ false ]
+]
+
 { #category : 'instance creation' }
 RowanTestServiceUpdater class >> installTestUpdater [
 	"RowanTestServiceUpdater installTestUpdater"
+	self resetConnectionLost.
 	self adoptInstance: self current
+]
+
+{ #category : 'accessing' }
+RowanTestServiceUpdater class >> resetConnectionLost [
+
+	ConnectionLost := false
 ]
 
 { #category : 'commands' }
@@ -17,6 +33,7 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 	Any sending process has to use completion blocks"
 
 	| sem processingCommand connectionError |
+	self class connectionLost ifTrue: [ ^ self ].
 	sem := Semaphore new.
 	processingCommand := true.
 	connectionError := nil.
@@ -39,6 +56,7 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 		sem signal ] ] fork.
 	sem wait.
 	connectionError ifNotNil: [ :e |
+		ConnectionLost := true.
 		JadeiteConnectionLostError signal: e messageText ]
 ]
 
