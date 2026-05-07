@@ -38,7 +38,8 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 		processingCommand := false.
 		sem signal ] ] fork.
 	sem wait.
-	connectionError ifNotNil: [ :e | e signal ]
+	connectionError ifNotNil: [ :e |
+		JadeiteConnectionLostError signal: e messageText ]
 ]
 
 { #category : 'commands' }
