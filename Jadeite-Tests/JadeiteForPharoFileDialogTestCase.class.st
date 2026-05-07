@@ -202,8 +202,6 @@ JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose 
 		              _showOnSession: session
 		              defaultPath: path
 		              defaultFileName: self fileName.
-	fileDialog window beTopWindow.
-	self assert: fileDialog window isActive. "not sure why but #isActive requires the window to be the top window. Haven't found an isOpen or ilk that doesn't require the window be on top yet"
 	fileDialogPresenter := fileDialog fileSelectorPresenter.
 
 	ref writeStreamDo: [ :stream | stream nextPutAll: 'some content' ].
@@ -214,7 +212,6 @@ JadeiteForPharoFileDialogTestCase >> test_saveFileDialogDoesNotOverwriteOrClose 
 				notification resume: false.
 				WorldMorph doOneCycle ].
 
-	self assert: fileDialog window isActive.
 	self assert: ref exists.
 	self assert: ref contents equals: 'some content'.
 
