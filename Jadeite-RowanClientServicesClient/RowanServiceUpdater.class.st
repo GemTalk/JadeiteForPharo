@@ -69,19 +69,22 @@ RowanServiceUpdater >> _basicIssueCommand: service [
 	service commandArgs ifNil: [ service commandArgs: Array new ].
 	service prepareForReplication.
 	postExecutionBlock := [ :aService |
-	                      [
-	                      [
-	                      self possiblySignalCompileError: service.
-	                      self applyUpdates: service.
-	                      service handleServiceCompletion ] ifCurtailed: [
-		                      service inCommand signal ].
-	                      service inCommand signal ]
-		                      on: GsCompileError
-		                      do: [ :ex |
-			                      service handleCompileError: ex.
-			                      service inCommand signal.
-			                      self stopCommandProgressBar: service ].
-	                      self stopCommandProgressBar: service ].
+		                      [
+			                      [
+				                      [
+					                      self possiblySignalCompileError: service.
+					                      self applyUpdates: service.
+					                      service handleServiceCompletion ]
+					                      ifCurtailed: [ service inCommand signal ] ]
+				                      on: JadeiteConnectionLostError
+				                      do: [ :ex | service inCommand signal ].
+			                      service inCommand signal ]
+			                      on: GsCompileError
+			                      do: [ :ex |
+					                      service handleCompileError: ex.
+					                      service inCommand signal.
+					                      self stopCommandProgressBar: service ].
+		                      self stopCommandProgressBar: service ].
 
 	service
 		executeInSession: GciSession current
