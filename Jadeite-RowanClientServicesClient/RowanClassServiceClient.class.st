@@ -59,7 +59,7 @@ RowanClassServiceClient >> inCommand: anObject [
 RowanClassServiceClient >> indexOfInCommandInstVar [
 	"performance enhancement"
 
-	^50
+	^51
 ]
 
 { #category : 'constants' }
@@ -79,7 +79,7 @@ RowanClassServiceClient >> indexOfMethodsInstVar [
 RowanClassServiceClient >> indexOfServiceCompletionBlock [
 	"performance enhancement"
 
-	^52
+	^53
 ]
 
 { #category : 'initialization' }
