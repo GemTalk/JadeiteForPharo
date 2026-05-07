@@ -285,11 +285,12 @@ JadeiteForPharoGUITestCase >> simulatedKeyStrokeFromChar: aCharacter alt: useAlt
 { #category : 'support' }
 JadeiteForPharoGUITestCase >> tearDown [
 
-	super tearDown.
+	"must precede super tearDown: super calls uninstallTestUpdater, so cleanup after that uses production updater and leaves lingering forks"
 	workspace ifNotNil: [
 		workspace isModified: false.
 		self destroy: workspace ].
 	self destroy: methodListBrowser.
+	super tearDown.
 ]
 
 { #category : 'tests' }
