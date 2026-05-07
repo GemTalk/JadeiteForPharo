@@ -404,6 +404,7 @@ JadeiteForPharoMethodListTestCase >> test_methodCompileError [
 
 	self openMethodListBrowserOfImplementorsOf: 'answer'.
 	self methodListPresenter selectIndex: 1.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter value: self compileErrorMethodText.
 	methodListBrowser editSaveMethod.
 	self
@@ -427,11 +428,17 @@ JadeiteForPharoMethodListTestCase >> test_methodListSourceDoesNotDisappear [
 	self
 		assert: methodListBrowser methodListPresenter list size
 		equals: 1. "right now, implementors size = 1. If that changes, revisit test"
+	self waitWhile: [
+		methodListBrowser methodSourcePresenter text
+			~= methodListBrowser methodListPresenter selectedItem source ].
 	self
 		assert: methodListBrowser methodSourcePresenter text
 		equals: methodListBrowser methodListPresenter selectedItem source.
 	self openProjectBrowser.
 	projectsBrowser findClassNamed: 'RowanBrowserService'.
+	self waitWhile: [
+		methodListBrowser methodSourcePresenter text
+			~= methodListBrowser methodListPresenter selectedItem source ].
 	self
 		assert: methodListBrowser methodSourcePresenter text
 		equals: methodListBrowser methodListPresenter selectedItem source.
@@ -528,6 +535,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #answer ].
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	originalText := self methodSourcePresenter text replaceCrWithLf.
 	self methodSourcePresenter text: 'answer3
 ^#answer3'.
@@ -544,6 +552,10 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompile [
 		assert:
 		newCompiledMethodBrowser methodListPresenter items first selector
 		equals: #answer3.
+	self waitWhile: [
+		newCompiledMethodBrowser methodSourcePresenter text
+			~= ('answer3
+^#answer3' replaceCrWithLf) ].
 	self
 		assert: newCompiledMethodBrowser methodSourcePresenter text
 		equals: 'answer3
@@ -565,6 +577,7 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #answer ].
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	originalText := self methodSourcePresenter text replaceCrWithLf.
 	newMethodSource := 'answer3
 | abc | "create compiler warning for unused temp"
@@ -583,6 +596,9 @@ JadeiteForPharoMethodListTestCase >> test_newMethodCompileWithWarnings [
 		assert:
 		newCompiledMethodBrowser methodListPresenter items first selector
 		equals: #answer3.
+	self waitWhile: [
+		newCompiledMethodBrowser methodSourcePresenter text
+			~= newMethodSource replaceCrWithLf ].
 	self
 		assert: newCompiledMethodBrowser methodSourcePresenter text
 		equals: newMethodSource replaceCrWithLf.
@@ -646,6 +662,7 @@ JadeiteForPharoMethodListTestCase >> test_sourcesSync [
 	self saveSourcesFor_test_sourcesSync: oldSource.
 	self waitForMethodListBrowserWhile: [
 		jadeiteShell browseImplementorsOf: #didSourceUpdate ].
+	self waitWhile: [ methodListBrowser methodSourcePresenter text ~= oldSource ].
 	self
 		assert: methodListBrowser methodSourcePresenter text
 		equals: oldSource.
@@ -734,6 +751,7 @@ JadeiteForPharoMethodListTestCase >> test_unsavedChangesNotOverwritten [
 	self
 		assert: methodListBrowser methodListPresenter list size
 		equals: 2.
+	self waitWhile: [ (methodListBrowser methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	methodListBrowser methodSourcePresenter text: 'new text'.
 	widget := methodListBrowser methodSourcePresenter adapter widget.
 	self assert: widget hasUnacceptedEdits.
