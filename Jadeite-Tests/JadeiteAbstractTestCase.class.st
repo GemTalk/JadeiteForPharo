@@ -435,16 +435,6 @@ JadeiteAbstractTestCase >> haltTestForHardToCatchErrors: reason [
 	proc halt: proc topFrame sender cause: reason
 ]
 
-{ #category : 'support' }
-JadeiteAbstractTestCase >> waitWhile: aBlock [
-
-	| deadline |
-	deadline := DateAndTime now + 2 seconds.
-	[ aBlock value and: [ DateAndTime now < deadline ] ] whileTrue: [
-		WorldMorph doOneCycle.
-		(Delay forMilliseconds: 50) wait ]
-]
-
 { #category : 'accessing' }
 JadeiteAbstractTestCase >> inspectMethodSourceSelectionIn: browser [
 
@@ -1486,4 +1476,14 @@ JadeiteAbstractTestCase >> waitForDebugger [
 	debugger := debuggedProcesses first debugger.
 	(Delay forMilliseconds: 250) wait. "wait for widget to be built"
 	^ debugger
+]
+
+{ #category : 'support' }
+JadeiteAbstractTestCase >> waitWhile: aBlock [
+
+	| deadline |
+	deadline := DateAndTime now + 2 seconds.
+	[ aBlock value and: [ DateAndTime now < deadline ] ] whileTrue: [
+		WorldMorph doOneCycle.
+		(Delay forMilliseconds: 50) wait ]
 ]

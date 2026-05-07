@@ -331,9 +331,9 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestClass [
 		testsIssue: #issue879
 		withTitle: 'Removing class does not remove class from sunit browser'.
 	JadeitePreferences isRowanAvailable ifFalse: [
-		^ self skip:
-			  'Rowan not available. ' , thisContext methodClass name , '>>#'
-			  , thisContext selector , ' not run' ].
+			^ self skip:
+				  'Rowan not available. ' , thisContext methodClass name , '>>#'
+				  , thisContext selector , ' not run' ].
 	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
 	self denyClassInList: 'NewSubclass'.
 	projectsBrowser := self jadeiteTestResourceClass current
@@ -341,17 +341,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addNewTestClass [
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self waitWhile: [
-		((self projectsPresenter classDefinitionPresenter text ifNil: [ '' ])
-			 includesSubstring: 'NewSubclass') not ].
+			('*NewSubclass*' match:
+				(self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]))
+					not ].
 	self projectsPresenter editSaveClass.
-	self waitWhile: [
-		(sunitBrowser classListPresenter list
-			 detect: [ :s | s name = 'NewSubclass' ]
-			 ifNone: [ nil ]) isNil ].
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ].
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ].
 	self denyClassInList: 'NewSubclass'
 ]
 
@@ -414,9 +411,9 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addRemoveTestClass [
 		testsIssue: #issue879
 		withTitle: 'Removing class does not remove class from sunit browser'.
 	JadeitePreferences isRowanAvailable ifFalse: [
-		^ self skip:
-			  'Rowan not available. ' , thisContext methodClass name , '>>#'
-			  , thisContext selector , ' not run' ].
+			^ self skip:
+				  'Rowan not available. ' , thisContext methodClass name , '>>#'
+				  , thisContext selector , ' not run' ].
 	self selectServiceNamed: 'RowanSample1-Tests' in: self leftColumn.
 	self denyClassInList: 'NewSubclass'.
 	projectsBrowser := self jadeiteTestResourceClass current
@@ -424,17 +421,14 @@ JadeiteForPharoSUnitBrowserTestCase >> test_addRemoveTestClass [
 	self selectRowanSample1Test.
 	self projectsPresenter addSubclass.
 	self waitWhile: [
-		((self projectsPresenter classDefinitionPresenter text ifNil: [ '' ])
-			 includesSubstring: 'NewSubclass') not ].
+			('*NewSubclass*' match:
+				 (self projectsPresenter classDefinitionPresenter text ifNil: [
+					  '' ])) not ].
 	self projectsPresenter editSaveClass.
-	self waitWhile: [
-		(sunitBrowser classListPresenter list
-			 detect: [ :s | s name = 'NewSubclass' ]
-			 ifNone: [ nil ]) isNil ].
 	[ self assertClassInList: 'NewSubclass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ].
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ].
 	self denyClassInList: 'NewSubclass'
 ]
 
