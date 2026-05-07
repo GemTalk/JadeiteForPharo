@@ -9,6 +9,19 @@ Class {
 }
 
 { #category : 'instance creation' }
+JadeiteServerFileSaveDialog class >> _showOnSession: aGciSession defaultPath: defaultPath defaultFileName: fileName [
+	"private for testing - open non-modally and return dialog instance"
+
+	| inst theWindow expandedPath |
+	inst := self createDialogOn: aGciSession path: defaultPath.
+	expandedPath := inst fileSelectorPresenter pathText text.
+	theWindow := (inst application: JadeiteSpApplication new) asWindow.
+	inst initializeWith: expandedPath fileName: fileName.
+	theWindow open.
+	^ inst
+]
+
+{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath: path [
 	"assumes path is a full path + file name" 
 	| inst answer  |
