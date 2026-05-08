@@ -709,13 +709,10 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
 	self assert: list size equals: 1.
 	self assert: list first selector equals: #meth.
 	self waitWhile: [
-			(methodListBrowser methodSourcePresenter adapter widget textArea
-				 selection asString = 'RenamedClass') not ].
-	self
-		assert:
-			methodListBrowser methodSourcePresenter adapter widget textArea
-				selection asString
-		equals: 'RenamedClass'
+			('*RenamedClass' match:
+				 methodListBrowser methodSourcePresenter text) not ].
+	self assert:
+		('*RenamedClass' match: methodListBrowser methodSourcePresenter text)
 ]
 
 { #category : 'tests' }
@@ -808,13 +805,11 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
 				selector
 			equals: #meth.
 		self waitWhile: [
-				(methodListBrowser methodSourcePresenter adapter widget textArea
-					 selection asString = 'RenamedClass') not ].
-		self
-			assert:
-				methodListBrowser methodSourcePresenter adapter widget textArea
-					selection asString
-			equals: 'RenamedClass' ] ensure: [
+				('*RenamedClass' match:
+					 methodListBrowser methodSourcePresenter text) not ].
+		self assert:
+			('*RenamedClass' match:
+				 methodListBrowser methodSourcePresenter text) ] ensure: [
 			self projectsPresenter
 				basicRemoveClass: self projectsPresenter selectedClass
 				onCompletion: nil ]
