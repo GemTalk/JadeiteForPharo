@@ -930,6 +930,17 @@ JadeiteForPharoBrowserTestCase >> test_compileClassSameClass [
 		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
 
+	self waitWhile: [
+			(self projectsPresenter classDefinitionPresenter text
+			 = 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf) not ].
+
 	self
 		assert: self projectsPresenter selectedClass name
 		equals: 'TestClass'.
