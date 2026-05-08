@@ -2132,6 +2132,7 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 		assert:
 		failedMethodPresenter methodListPresenter items first searchString
 		equals: failedMethodPresenter firstReferenceString.
+	self waitWhile: [ (failedMethodPresenter methodSourcePresenter text) isEmpty ].
 	self
 		assert: failedMethodPresenter methodSourcePresenter text
 		equals:

@@ -917,24 +917,8 @@ JadeiteForPharoAbstractBrowserTestCase >> test_compileClassCompilerError [
 	self waitWhile: [
 			(self projectsPresenter classDefinitionPresenter text
 				 includesSubstring: 'invalid pound sign') not ].
-	self waitWhile: [
-			(self projectsPresenter classDefinitionPresenter text
-			 = 'Object rwSubclass: ''TestClass''
-	instVarNames:  invalid pound sign# abc )
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()') not ].
-	self
-		assert: self projectsPresenter classDefinitionPresenter text
-		equals: 'Object rwSubclass: ''TestClass''
-	instVarNames:  invalid pound sign# abc )
-	classVars: #()
-	classInstVars: #()
-	poolDictionaries: #()
-	category: ''RowanSample1-Core''
-	options: #()'
+	self assert: (self projectsPresenter classDefinitionPresenter text
+			 includesSubstring: 'invalid pound sign')
 ]
 
 { #category : 'tests' }

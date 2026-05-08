@@ -619,6 +619,7 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 		completionBlock: [
 				self uiManager defer: [
 						classService selectedMethods isEmpty ifFalse: [
+								self methodSourcePresenter hasUnacceptedEdits: false.
 								index := self methodListPresenter selectionMode indexOfItem:
 									         classService selectedMethods first.
 								self methodListPresenter
