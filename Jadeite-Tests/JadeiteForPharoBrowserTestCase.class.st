@@ -2191,18 +2191,23 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarRemoved [
 		failedMethodPresenter methodListPresenter selection selectedIndex
 		equals: 1.
 	sources := OrderedCollection new.
-	sources add:
-		failedMethodPresenter methodSourcePresenter adapter widget text
-			asString.
 	failedMethodPresenter methodListPresenter adapter widget
 		selectIndex: 1.
-	failedMethodPresenter methodListPresenter adapter widget
-		selectIndex: 2.
+	self waitWhile: [
+			failedMethodPresenter methodSourcePresenter adapter widget text
+				asString isEmpty ].
 	sources add:
 		failedMethodPresenter methodSourcePresenter adapter widget text
 			asString.
+	failedMethodPresenter methodListPresenter unselectAll.
+	failedMethodPresenter methodListPresenter adapter widget
+		selectIndex: 2.
 	self waitWhile: [
-		(sources includes: 'abc  ^undefined symbol->abc') not ].
+			failedMethodPresenter methodSourcePresenter adapter widget text
+				asString isEmpty ].
+	sources add:
+		failedMethodPresenter methodSourcePresenter adapter widget text
+			asString.
 	self assert: (sources includes: 'abc  ^undefined symbol->abc').
 	self assert:
 		(sources includes: 'abc: param undefined symbol->abc := param. ').

@@ -1026,6 +1026,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_confirmDiscardMethodChanges [
 { #category : 'tests' }
 JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource [
 	"If you reselect the same method that has changes and discard text was not being updated."
+
 	| methodSelectorsList newSource originalSource |
 	self selectRowanSample1Test.
 	methodSelectorsList := (self methodListPresenter list collect: [
@@ -1037,23 +1038,29 @@ JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource
 	self projectsPresenter methodListPresenter
 		selectIndex: 1
 		scrollToSelection: true.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+	self waitWhile: [
+			(self methodSourcePresenter text
+			 = self projectsPresenter methodListPresenter selectedItem source) not ].
 	originalSource := self methodSourcePresenter text.
 	newSource := 'test1  | array | array := Array new. ^''foo'''.
 	self projectsPresenter selectMethodSourceTab.
 	self selectCategoryNamed: 'tests'.
 	self methodSourcePresenter value: ''.
 	self selectMethodNamed: #test1.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+	self waitWhile: [
+		(self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter text: newSource.
-	self assert: self methodSourcePresenter adapter widget hasUnacceptedEdits.
-	["reselect same method" 
-	self projectsPresenter methodListPresenter
-		selectIndex: 1
-		scrollToSelection: true ]
+	self assert:
+		self methodSourcePresenter adapter widget hasUnacceptedEdits.
+	[ "reselect same method"
+		self projectsPresenter methodListPresenter
+			selectIndex: 1
+			scrollToSelection: true ]
 		on: ProvideAnswerNotification
-		do: [ :notification | 
+		do: [ :notification |
 		notification resume: true "Yes to discard changes" ].
+	self waitWhile: [
+		(self methodSourcePresenter text = originalSource) not ].
 	self
 		assert:
 		self projectsPresenter methodListPresenter selection selectedIndex
