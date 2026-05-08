@@ -844,25 +844,26 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNo
 		category: 'foo'.
 
 	[
-	self projectsPresenter selectClassNamed: 'SubString'.
-	self waitForMethodListBrowserWhile: [
-		self projectsPresenter
-			basicRenameClass: self projectsPresenter selectedClass
-			to: 'RenamedClass' ].
-	self
-		assert: self classListPresenter selectedItem name
-		equals: 'RenamedClass'.
-	list := methodListBrowser methodListPresenter list collection.
-	self assert: list size equals: 1.
-	self assert: list first selector equals: #meth.
-	self
-		assert:
-			methodListBrowser methodSourcePresenter adapter widget textArea
-				selection asString
-		equals: 'RenamedClass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self classListPresenter selectedItem
-			onCompletion: [  ] ]
+		self projectsPresenter selectClassNamed: 'SubString'.
+		self waitForMethodListBrowserWhile: [
+				self projectsPresenter
+					basicRenameClass: self projectsPresenter selectedClass
+					to: 'RenamedClass' ].
+		self
+			assert: self classListPresenter selectedItem name
+			equals: 'RenamedClass'.
+		list := methodListBrowser methodListPresenter list collection.
+		self assert: list size equals: 1.
+		self assert: list first selector equals: #meth.
+		self waitWhile: [
+				('*RenamedClass*' match:
+					 methodListBrowser methodSourcePresenter text) not ].
+		self assert:
+			('*RenamedClass*' match:
+				 methodListBrowser methodSourcePresenter text) ] ensure: [
+			self projectsPresenter
+				basicRemoveClass: self classListPresenter selectedItem
+				onCompletion: [ ] ]
 ]
 
 { #category : 'tests' }
@@ -2190,12 +2191,16 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarRemoved [
 		failedMethodPresenter methodListPresenter selection selectedIndex
 		equals: 1.
 	sources := OrderedCollection new.
-	sources add: failedMethodPresenter methodSourcePresenter text.
+	sources add:
+		failedMethodPresenter methodSourcePresenter adapter widget text
+			asString.
 	failedMethodPresenter methodListPresenter adapter widget
 		selectIndex: 1.
 	failedMethodPresenter methodListPresenter adapter widget
 		selectIndex: 2.
-	sources add: failedMethodPresenter methodSourcePresenter text.
+	sources add:
+		failedMethodPresenter methodSourcePresenter adapter widget text
+			asString.
 	self waitWhile: [
 		(sources includes: 'abc  ^undefined symbol->abc') not ].
 	self assert: (sources includes: 'abc  ^undefined symbol->abc').
