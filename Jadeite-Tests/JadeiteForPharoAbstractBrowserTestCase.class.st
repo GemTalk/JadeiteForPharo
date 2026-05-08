@@ -186,6 +186,8 @@ array add: ''blerf''.
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> tearDown [
 
+	self methodSourcePresenter withAdapterDo: [ :adapter |
+		adapter widgetDo: [ :widget | widget hasUnacceptedEdits: false ] ].
 	super tearDown.
 	self class primaryTestClass preferredExtent: preferredExtent.
 	(session isNotNil and: [ session isValidSession ]) ifTrue: [
@@ -342,21 +344,24 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsVerifySource [
 		package: 'RowanSample1-Core'.
 
 	[
-	self projectsPresenter selectVariableTab.
-	self selectVariableNamed: 'var1'.
-	self projectsPresenter addVariableAccessors.
-	self selectMethodNamed: #var1.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
-	self assert: self methodSourcePresenter text equals: 'var1
-	^var1' replaceCrWithLf .
-	self methodSourcePresenter value: ''.
-	self selectMethodNamed: #var1:.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
-	self assert: self methodSourcePresenter text equals: 'var1: object
+		self projectsPresenter selectVariableTab.
+		self selectVariableNamed: 'var1'.
+		self projectsPresenter addVariableAccessors.
+		self selectMethodNamed: #var1.
+		self waitWhile: [
+				(self methodSourcePresenter text = 'var1
+	^var1' replaceCrWithLf) not ].
+		self assert: self methodSourcePresenter text equals: 'var1
+	^var1' replaceCrWithLf.
+		self methodSourcePresenter value: ''.
+		self selectMethodNamed: #var1:.
+		self waitWhile: [
+			(self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+		self assert: self methodSourcePresenter text equals: 'var1: object
 	var1 := object' replaceCrWithLf ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ]
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'tests' }
@@ -909,8 +914,17 @@ JadeiteForPharoAbstractBrowserTestCase >> test_compileClassCompilerError [
 	options: #()'.
 	self projectsPresenter editSaveClass.
 	self waitWhile: [
-		(self projectsPresenter classDefinitionPresenter text
-			includesSubstring: 'invalid pound sign') not ].
+			(self projectsPresenter classDefinitionPresenter text
+				 includesSubstring: 'invalid pound sign') not ].
+	self waitWhile: [
+			(self projectsPresenter classDefinitionPresenter text
+			 = 'Object rwSubclass: ''TestClass''
+	instVarNames:  invalid pound sign# abc )
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()') not ].
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: 'Object rwSubclass: ''TestClass''
@@ -919,7 +933,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_compileClassCompilerError [
 	classInstVars: #()
 	poolDictionaries: #()
 	category: ''RowanSample1-Core''
-	options: #()'.
+	options: #()'
 ]
 
 { #category : 'tests' }
@@ -1377,7 +1391,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_invalidSession [
 	| gotNotification |
 	self selectRowanClassServiceNamed: 'RowanPackageService'.
 	self selectMethodNamed: 'initialize'.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) ~= 'initialize*' ].
 	self assert: ('initialize*' match: self methodSourcePresenter text).
 	gotNotification := false.
 	session library channel close.
@@ -1453,7 +1467,8 @@ abc := 1.
 		category: 'dontcare'
 		meta: false.
 	self selectMethodNamed: 'foo'.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+	self waitWhile: [
+		((self methodSourcePresenter adapter widget text at: 1) = $f) not ].
 	self
 		assert: (self methodSourcePresenter adapter widget text at: 1)
 		equals: $f.
@@ -1461,7 +1476,8 @@ abc := 1.
 		crWithIndent: (self simulatedKeyStrokeFromChar: Character cr). "Method with fix would normally insert cr"
 	self
 		assert: (self methodSourcePresenter adapter widget text at: 1)
-		equals: Character lf
+		equals: Character lf.
+	self methodSourcePresenter adapter widget hasUnacceptedEdits: false
 ]
 
 { #category : 'tests' }
@@ -1548,17 +1564,21 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 
 	self selectRowanSample1Class.
 	self selectMethodNamed: #foo.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+	self waitWhile: [
+		(self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
 	self methodSourcePresenter text: 'foo  ^''instance side'''.
 	self assert: self morphicMethodSourceHasUnacceptedEdits.
-	self projectsPresenter editSaveMethod. 
+	self projectsPresenter editSaveMethod.
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
 	self methodSourcePresenter text: 'foo  ^''dontcare'''.
-	self assert: self morphicMethodSourceHasUnacceptedEdits.	
-	self projectsPresenter resetSource. 
-	self assert: self methodSourcePresenter text = 'foo  ^''instance side'''. 
-	self deny: self morphicMethodSourceHasUnacceptedEdits.
+	self assert: self morphicMethodSourceHasUnacceptedEdits.
+	self projectsPresenter resetSource.
+	self waitWhile: [
+		(self methodSourcePresenter text = 'foo  ^''instance side''') not ].
+	self assert:
+		self methodSourcePresenter text = 'foo  ^''instance side'''.
+	self deny: self morphicMethodSourceHasUnacceptedEdits
 ]
 
 { #category : 'not working tests' }
@@ -1567,6 +1587,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_moveMethodToCategory [
 	self selectRowanSample1Class.
 	self projectsPresenter basicAddMethodCategory: 'foo'.
 	self saveSampleMethod.
+	self waitWhile: [ self methodListPresenter selectedItem isNil ].
 	self
 		assert: self methodListPresenter selectedItem category
 		equals: 'foo'.
@@ -1661,8 +1682,8 @@ abc := 1.
 		category: 'dontcare'
 		meta: false.
 	self selectMethodNamed: 'foo'.
-	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
-
+	self waitWhile: [
+		(self methodSourcePresenter adapter widget text = source) not ].
 	self
 		assert: self methodSourcePresenter adapter widget text
 		equals: source.
@@ -1676,6 +1697,8 @@ abc := 1.
 				 ctrl: true
 				 command: false
 				 shift: false).
+	self waitWhile: [
+		(self methodSourcePresenter adapter widget text = source) not ].
 	self
 		assert: self methodSourcePresenter adapter widget text
 		equals: source
@@ -1719,7 +1742,10 @@ JadeiteForPharoAbstractBrowserTestCase >> test_sendersOfOptimizedSelector [
 	methodListBrowser := (JadeiteMethodListPresenter allInstances
 		                      difference: existingMethodListPresenters)
 		                     first.
+	self waitWhile: [
+		methodListBrowser methodSourcePresenter selection ~= '_isNumber' ].
 	self assert: methodListBrowser methodListPresenter list notEmpty.
+
 	self
 		assert: methodListBrowser methodSourcePresenter selection
 		equals: '_isNumber'

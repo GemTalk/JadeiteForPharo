@@ -4748,8 +4748,8 @@ JadeiteBrowserPresenter >> updateSUnitTabMethods [
 			| sunitMethod |
 			sunitMethod := self sunitPresenter testCaseListPresenter items
 				               detect: [ :sunitTabMethod |
-				               sunitTabMethod selector = methodService selector ].
-			sunitMethod testResult: methodService testResult ]
+				               sunitTabMethod selector = methodService selector ] ifNone:[].
+			sunitMethod ifNotNil: [sunitMethod testResult: methodService testResult]]
 ]
 
 { #category : 'tab labels' }
