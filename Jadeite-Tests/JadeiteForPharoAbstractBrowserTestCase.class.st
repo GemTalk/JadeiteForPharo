@@ -186,8 +186,9 @@ array add: ''blerf''.
 { #category : 'support' }
 JadeiteForPharoAbstractBrowserTestCase >> tearDown [
 
-	self methodSourcePresenter withAdapterDo: [ :adapter |
-		adapter widgetDo: [ :widget | widget hasUnacceptedEdits: false ] ].
+	self methodSourcePresenter ifNotNil: [ :pres |
+			pres withAdapterDo: [ :adapter |
+				adapter widgetDo: [ :widget | widget hasUnacceptedEdits: false ] ] ].
 	super tearDown.
 	self class primaryTestClass preferredExtent: preferredExtent.
 	(session isNotNil and: [ session isValidSession ]) ifTrue: [

@@ -3340,13 +3340,17 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 							 self selectedClassTab
 								 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
 								 ifNotNil: [
-										 self selectedClassTab activePresenter selection
-											 selectedItem
+										 self selectedClassTab activePresenter
 											 ifNil: [
 											 packageListPresenter selectedItem defaultTemplate ]
 											 ifNotNil: [
-											 self selectedClassTab activePresenter selectedItem
-												 template ] ] ]).
+													 self selectedClassTab activePresenter selection
+														 selectedItem
+														 ifNil: [
+														 packageListPresenter selectedItem defaultTemplate ]
+														 ifNotNil: [
+														 self selectedClassTab activePresenter selectedItem
+															 template ] ] ] ]).
 			self markClassDefinitionPaneUnmodified ]
 ]
 

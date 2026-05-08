@@ -627,7 +627,9 @@ JadeiteAbstractTestCase >> methodSourceForTest [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> methodSourcePresenter [
-	^self projectsPresenter methodSourcePresenter
+
+	^ self projectsPresenter ifNotNil: [ :pres |
+		  pres methodSourcePresenter ]
 ]
 
 { #category : 'as yet unclassified' }
