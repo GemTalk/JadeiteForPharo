@@ -63,7 +63,7 @@ RowanTestServiceUpdater >> basicIssueCommand: service [
 		on: Error
 		do: [ :ex |
 			(ex messageText includesSubstring: 'Connection is not open')
-				ifTrue: [ connectionError := ex ]
+				ifTrue: [ service inCommand signal "unblock any stale waiter; ensure signals sem" ]
 				ifFalse: [ ex pass ] ] ]
 	ensure: [
 		processingCommand := false.

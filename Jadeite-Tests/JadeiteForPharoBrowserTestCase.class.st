@@ -200,6 +200,7 @@ JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
 	self selectServiceNamed: self sampleClassName in: self classListPresenter.
 	self selectMethodNamed: #foo.	"select a method defined in it's class package while the extension class is selected"
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter value: 'foo   ^foot'.
 	self assert: self methodSourcePresenter text equals: 'foo   ^foot'.
 	self assert: self methodListPresenter selectedItem selector equals: #foo.
@@ -1736,6 +1737,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
 	| widget editor sem |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'updateServices: services
@@ -1768,6 +1770,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyImplementors [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'updateServices: services
@@ -1795,6 +1798,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingClass [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #basicSortedSymbols.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'basicSortedSymbols
@@ -1822,6 +1826,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingMessage [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #basicSortedSymbols.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'basicSortedSymbols
@@ -1849,6 +1854,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingSymbol [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #basicSortedSymbols.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'basicSortedSymbols
@@ -1876,6 +1882,7 @@ JadeiteForPharoBrowserTestCase >> test_hotKeySenders [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'updateServices: services
@@ -2004,6 +2011,7 @@ JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 		selectServiceNamed: self sampleClassName
 		in: self classListPresenter.
 	self selectMethodNamed: #foo. "select a method defined in it's class package while the extension class is selected"
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter value: self compileErrorMethodText.
 	self projectsPresenter
 		editSaveMethod: self classListPresenter selectedItem

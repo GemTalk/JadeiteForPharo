@@ -346,9 +346,12 @@ JadeiteForPharoAbstractBrowserTestCase >> test_addAccessorsVerifySource [
 	self selectVariableNamed: 'var1'.
 	self projectsPresenter addVariableAccessors.
 	self selectMethodNamed: #var1.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self assert: self methodSourcePresenter text equals: 'var1
 	^var1' replaceCrWithLf .
+	self methodSourcePresenter value: ''.
 	self selectMethodNamed: #var1:.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self assert: self methodSourcePresenter text equals: 'var1: object
 	var1 := object' replaceCrWithLf ] ensure: [
 		self projectsPresenter
@@ -905,6 +908,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_compileClassCompilerError [
 	category: ''RowanSample1-Core''
 	options: #()'.
 	self projectsPresenter editSaveClass.
+	self waitWhile: [
+		(self projectsPresenter classDefinitionPresenter text
+			includesSubstring: 'invalid pound sign') not ].
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: 'Object rwSubclass: ''TestClass''
@@ -971,8 +977,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_confirmDiscardMethodChanges [
 		'While editing a method, can click on other methods, but method text pane not updated'.
 	self selectRowanSample1Test.
 	self selectMethodNamedInProjectBrowser: #test1.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	changedMethodSource := 'test1
-	
+
 	self assert: RowanSample1 new foo = ''foo''
 	"add this line to make a change"'.
 	self methodSourcePresenter text: changedMethodSource.
@@ -984,7 +991,9 @@ JadeiteForPharoAbstractBrowserTestCase >> test_confirmDiscardMethodChanges [
 			assert:
 			self projectsPresenter methodListPresenter selectedItem selector
 			equals: #test2 "selected method" ].
+	self methodSourcePresenter value: ''.
 	self selectMethodNamedInProjectBrowser: #test1.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter text: changedMethodSource.
 	MessageBox expectResult: [ false ] during: [
 		self projectsPresenter methodListPresenter withAdapterDo: [ :adapter |
@@ -1013,11 +1022,14 @@ JadeiteForPharoAbstractBrowserTestCase >> test_discardMethodChangesRevertsSource
 	self projectsPresenter methodListPresenter
 		selectIndex: 1
 		scrollToSelection: true.
-	originalSource := self methodSourcePresenter text. 
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
+	originalSource := self methodSourcePresenter text.
 	newSource := 'test1  | array | array := Array new. ^''foo'''.
 	self projectsPresenter selectMethodSourceTab.
 	self selectCategoryNamed: 'tests'.
+	self methodSourcePresenter value: ''.
 	self selectMethodNamed: #test1.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter text: newSource.
 	self assert: self methodSourcePresenter adapter widget hasUnacceptedEdits.
 	["reselect same method" 
@@ -1365,6 +1377,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_invalidSession [
 	| gotNotification |
 	self selectRowanClassServiceNamed: 'RowanPackageService'.
 	self selectMethodNamed: 'initialize'.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self assert: ('initialize*' match: self methodSourcePresenter text).
 	gotNotification := false.
 	session library channel close.
@@ -1440,6 +1453,7 @@ abc := 1.
 		category: 'dontcare'
 		meta: false.
 	self selectMethodNamed: 'foo'.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: (self methodSourcePresenter adapter widget text at: 1)
 		equals: $f.
@@ -1484,6 +1498,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodListBrowserOverwritesMethod
 	self assert: instanceMethod displayClassName equals: 'RowanSample1'.
 	methodListBrowser methodListPresenter resetSelection.
 	methodListBrowser methodListPresenter selectItem: instanceMethod.
+	self waitWhile: [ (methodListBrowser methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self
 		assert: methodListBrowser methodSourcePresenter text asString
 		equals: 'foo ^''foo'''.
@@ -1533,6 +1548,7 @@ JadeiteForPharoAbstractBrowserTestCase >> test_methodSourcechangeIndicator [
 
 	self selectRowanSample1Class.
 	self selectMethodNamed: #foo.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self deny: self morphicMethodSourceHasUnacceptedEdits.
 	self methodSourcePresenter text: 'foo  ^''instance side'''.
 	self assert: self morphicMethodSourceHasUnacceptedEdits.
@@ -1645,6 +1661,7 @@ abc := 1.
 		category: 'dontcare'
 		meta: false.
 	self selectMethodNamed: 'foo'.
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 
 	self
 		assert: self methodSourcePresenter adapter widget text
