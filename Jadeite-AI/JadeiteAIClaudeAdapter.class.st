@@ -61,7 +61,7 @@ JadeiteAIClaudeAdapter >> initialize [
 JadeiteAIClaudeAdapter >> apiKey [
 	"Read API key from environment. Set ANTHROPIC_API_KEY before starting Pharo."
 
-	^ Smalltalk os getenv: 'ANTHROPIC_API_KEY'
+	^ OSEnvironment current at: 'ANTHROPIC_API_KEY' ifAbsent: [ nil ]
 ]
 
 { #category : 'testing' }
