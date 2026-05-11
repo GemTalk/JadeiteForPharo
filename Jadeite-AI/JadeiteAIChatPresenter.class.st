@@ -45,7 +45,8 @@ Class {
 		'historyIndex',
 		'thinkingStart',
 		'pharoCheckbox',
-		'gemstoneCheckbox'
+		'gemstoneCheckbox',
+		'adapterDropList'
 	],
 	#classVars : [
 		'CurrentWindow'
@@ -501,11 +502,20 @@ JadeiteAIChatPresenter >> initializePresenters [
 		               action: [ self clearChat ];
 		               yourself.
 	statusLabel := self newLabel label: ''.
+	adapterDropList := self newDropList
+		                   items: #( 'Claude' 'Ollama' );
+		                   whenSelectedItemChangedDo: [ :item |
+			                   self switchToAdapterNamed: item ];
+		                   yourself.
 	buttonRow
 		add: sendButton expand: false;
 		add: stopButton expand: false;
 		add: clearButton expand: false;
-		add: statusLabel.
+		add: statusLabel;
+		add: adapterDropList withConstraints: [ :c |
+			c
+				width: 110;
+				expand: false ].
 	self layout add: buttonRow withConstraints: [ :c | c height: 30 ]
 ]
 
@@ -513,9 +523,11 @@ JadeiteAIChatPresenter >> initializePresenters [
 JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter title: 'Ask Jadeite'.
-	aWindowPresenter initialExtent: 700 @ 520.
-	aWindowPresenter whenClosedDo: [ self class currentWindow: nil ]
+	aWindowPresenter
+		title: 'Ask Jadeite'
+			, (llmAdapter ifNotNil: [ ' — ' , self adapterDisplayName ] ifNil: [ '' ]);
+		initialExtent: 700 @ 520;
+		whenClosedDo: [ self class currentWindow: nil ]
 ]
 
 { #category : 'private' }
@@ -580,7 +592,64 @@ JadeiteAIChatPresenter >> llmAdapter [
 { #category : 'accessing' }
 JadeiteAIChatPresenter >> llmAdapter: aJadeiteAIHttpAdapter [
 
-	llmAdapter := aJadeiteAIHttpAdapter
+	llmAdapter := aJadeiteAIHttpAdapter.
+	self updateAdapterUI
+]
+
+{ #category : 'accessing' }
+JadeiteAIChatPresenter >> adapterDisplayName [
+	"Return a short display name for the current adapter."
+
+	llmAdapter isNil ifTrue: [ ^ 'None' ].
+	(llmAdapter isKindOf: JadeiteAIClaudeAdapter) ifTrue: [ ^ 'Claude' ].
+	^ 'Ollama'
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> switchToAdapterNamed: aString [
+	"Called when the user changes the adapter dropdown.
+	 Validates availability before switching; reverts the dropdown on failure."
+
+	| newAdapter currentName |
+	currentName := self adapterDisplayName.
+	aString = currentName ifTrue: [ ^ self ].
+	aString = 'Claude'
+		ifTrue: [
+			newAdapter := JadeiteAIClaudeAdapter default.
+			newAdapter isAvailable ifFalse: [
+				UIManager default
+					alert: 'ANTHROPIC_API_KEY is not set in the environment.
+Set it before starting Pharo:  export ANTHROPIC_API_KEY=''sk-ant-...'''.
+				adapterDropList selectItem: currentName.
+				^ self ] ]
+		ifFalse: [
+			JadeiteAISettings isOllamaAvailable ifFalse: [
+				UIManager default
+					alert: 'Ollama is not running.
+Start it with:  ollama serve'.
+				adapterDropList selectItem: currentName.
+				^ self ].
+			newAdapter := JadeiteAIOllamaAdapter default ].
+	llmAdapter := newAdapter.
+	self updateWindowTitle
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> updateAdapterUI [
+	"Sync the dropdown and window title to the current adapter.
+	 Called from llmAdapter: when the adapter is set externally."
+
+	adapterDropList ifNil: [ ^ self ].
+	adapterDropList selectItem: self adapterDisplayName.
+	self updateWindowTitle
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> updateWindowTitle [
+
+	[ self window title: 'Ask Jadeite — ' , self adapterDisplayName ]
+		on: Error
+		do: [  ]
 ]
 
 { #category : 'accessing' }

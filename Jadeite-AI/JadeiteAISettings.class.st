@@ -1,8 +1,11 @@
 "
-JadeiteAISettings — resolves the Ollama adapter automatically when AI Chat is opened.
+JadeiteAISettings — resolves an LLM adapter when AI Chat is opened.
 
-Ollama is free, runs entirely on your machine, and requires no account or API key.
-If Ollama is not running, a setup dialog explains exactly what to do.
+Preference order:
+  1. Claude (Anthropic API) — if ANTHROPIC_API_KEY is set in the environment
+  2. Ollama — if running on localhost:11434
+
+If neither is available a setup dialog explains what to do.
 "
 Class {
 	#name : 'JadeiteAISettings',
@@ -14,28 +17,21 @@ Class {
 { #category : 'help' }
 JadeiteAISettings class >> configurationHelpMessage [
 
-	^ 'Jadeite AI Chat uses Ollama — a free LLM that runs entirely on your machine.
-No account, no API key, and no data leaves your computer.
+	^ 'Jadeite AI Chat requires one of the following:
 
-One-time setup:
-  1. Download and install Ollama from:
-       https://ollama.com
-     (one installer, works on Mac, Windows, and Linux)
+Option 1 — Claude (Anthropic API, recommended):
+  Set the ANTHROPIC_API_KEY environment variable before starting Pharo:
+    export ANTHROPIC_API_KEY=''sk-ant-...''
+  Get a key at https://console.anthropic.com
 
-  2. Open a terminal and download a model:
+Option 2 — Ollama (free, runs locally, no account needed):
+  1. Download and install Ollama from https://ollama.com
+  2. Pull a model:
        ollama pull qwen2.5-coder:7b
-     (~5 GB download, only needed once — good at Smalltalk/GemStone code)
-
-  3. Ollama starts automatically after install.
-     If it is not running, start it with:
+  3. If Ollama is not running:
        ollama serve
 
-Then select Console > AI Chat again — no restart needed.
-
-For a lighter model on machines with less RAM:
-  ollama pull llama3.2  (~2 GB)
-  Then open a Workspace and evaluate:
-    JadeiteAIOllamaAdapter forModel: ''llama3.2'''
+Then select Console > AI Chat again — no restart needed.'
 ]
 
 { #category : 'probing' }
@@ -55,10 +51,12 @@ JadeiteAISettings class >> isOllamaAvailable [
 
 { #category : 'resolution' }
 JadeiteAISettings class >> resolveAdapter [
-	"Return a JadeiteAIOllamaAdapter if Ollama is running, otherwise nil.
-	 Called fresh each time AI Chat is opened, so starting Ollama
-	 and pressing the menu item again is all that is needed."
+	"Return the best available adapter. Claude is preferred when ANTHROPIC_API_KEY
+	 is set; falls back to Ollama if running. Returns nil when neither is available."
 
+	| claude |
+	claude := JadeiteAIClaudeAdapter default.
+	claude isAvailable ifTrue: [ ^ claude ].
 	self isOllamaAvailable ifTrue: [ ^ JadeiteAIOllamaAdapter default ].
 	^ nil
 ]
