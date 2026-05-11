@@ -235,7 +235,7 @@ JadeiteAIOllamaAdapter >> postBody: aBody [
 		                  beOneShot;
 		                  url: baseUrl , '/chat/completions';
 		                  entity: (ZnStringEntity json: body);
-		                  timeout: 120;
+		                  timeout: 300;
 		                  post.
 	responseString := self normalizeAngleBrackets: responseString.
 	^ self parseResponse: responseString

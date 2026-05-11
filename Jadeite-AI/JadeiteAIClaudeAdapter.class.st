@@ -179,7 +179,7 @@ JadeiteAIClaudeAdapter >> postBody: aBody [
 		                  headerAt: 'x-api-key' put: self apiKey;
 		                  headerAt: 'anthropic-version' put: '2023-06-01';
 		                  entity: (ZnStringEntity json: body);
-		                  timeout: 120;
+		                  timeout: 300;
 		                  post.
 	^ self parseResponse: responseString
 ]
