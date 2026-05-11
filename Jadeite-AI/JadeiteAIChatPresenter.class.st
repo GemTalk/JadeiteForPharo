@@ -122,11 +122,30 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession methodServices: aCo
 	^ window
 ]
 
+{ #category : 'accessing' }
+JadeiteAIChatPresenter >> adapterDisplayName [
+	"Return a short display name for the current adapter."
+
+	llmAdapter isNil ifTrue: [ ^ 'None' ].
+	(llmAdapter isKindOf: JadeiteAIClaudeAdapter) ifTrue: [ ^ 'Claude' ].
+	^ 'Ollama'
+]
+
 { #category : 'api' }
 JadeiteAIChatPresenter >> addStyle: aString [
 
 	super addStyle: aString.
 	transcriptArea addStyle: aString.
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> analyzeStack: aStackString [
+	"Pre-populate the input with the stack and send immediately."
+
+	inputArea text: 'Please analyze this GemStone stack and explain what went wrong:
+
+' , aStackString.
+	self sendMessage
 ]
 
 { #category : 'private' }
@@ -541,6 +560,15 @@ JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> inputCursorPosition [
+	"Return the character index of the cursor in the input area, or 0 on error."
+
+	^ [ inputArea adapter widget textMorph selectionInterval first ]
+		on: Error
+		do: [ 0 ]
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> insertNewlineAtCursor [
 	"Insert a newline at the current cursor position and restore the cursor.
 	 Uses UIManager defer for cursor repositioning because inputArea text:
@@ -557,15 +585,6 @@ JadeiteAIChatPresenter >> insertNewlineAtCursor [
 	UIManager default defer: [
 		[ inputArea adapter widget textMorph selectFrom: newPos to: newPos - 1 ]
 			on: Error do: [  ] ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> inputCursorPosition [
-	"Return the character index of the cursor in the input area, or 0 on error."
-
-	^ [ inputArea adapter widget textMorph selectionInterval first ]
-		on: Error
-		do: [ 0 ]
 ]
 
 { #category : 'private' }
@@ -607,67 +626,11 @@ JadeiteAIChatPresenter >> llmAdapter: aJadeiteAIHttpAdapter [
 ]
 
 { #category : 'accessing' }
-JadeiteAIChatPresenter >> adapterDisplayName [
-	"Return a short display name for the current adapter."
-
-	llmAdapter isNil ifTrue: [ ^ 'None' ].
-	(llmAdapter isKindOf: JadeiteAIClaudeAdapter) ifTrue: [ ^ 'Claude' ].
-	^ 'Ollama'
-]
-
-{ #category : 'actions' }
-JadeiteAIChatPresenter >> switchToAdapterNamed: aString [
-	"Called when the user changes the adapter dropdown.
-	 Validates availability before switching; reverts the dropdown on failure."
-
-	| newAdapter currentName |
-	currentName := self adapterDisplayName.
-	aString = currentName ifTrue: [ ^ self ].
-	aString = 'Claude'
-		ifTrue: [
-			newAdapter := JadeiteAIClaudeAdapter default.
-			newAdapter isAvailable ifFalse: [
-				JadeiteAIClaudeAdapter requestApiKey isNil ifTrue: [
-					adapterDropList selectItem: currentName.
-					^ self ].
-				newAdapter := JadeiteAIClaudeAdapter default ] ]
-		ifFalse: [
-			JadeiteAISettings isOllamaAvailable ifFalse: [
-				UIManager default
-					alert: 'Ollama is not running.
-Start it with:  ollama serve'.
-				adapterDropList selectItem: currentName.
-				^ self ].
-			newAdapter := JadeiteAIOllamaAdapter default ].
-	llmAdapter := newAdapter.
-	self updateWindowTitle
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> updateAdapterUI [
-	"Sync the dropdown and window title to the current adapter.
-	 Called from llmAdapter: when the adapter is set externally."
-
-	adapterDropList ifNil: [ ^ self ].
-	adapterDropList selectItem: self adapterDisplayName.
-	self updateWindowTitle
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> updateWindowTitle [
-
-	[ self window title: 'Ask Jadeite — ' , self adapterDisplayName ]
-		on: Error
-		do: [  ]
-]
-
-{ #category : 'accessing' }
 JadeiteAIChatPresenter >> maxAgentIterations [
 	"Maximum number of code-execution rounds per LLM response before stopping."
 
 	^ 6
 ]
-
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> moveCursorDownLine [
@@ -816,16 +779,6 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 		^ self ].
 
 	aBlock value: String new
-]
-
-{ #category : 'actions' }
-JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Pre-populate the input with the stack and send immediately."
-
-	inputArea text: 'Please analyze this GemStone stack and explain what went wrong:
-
-' , aStackString.
-	self sendMessage
 ]
 
 { #category : 'actions' }
@@ -1043,13 +996,39 @@ JadeiteAIChatPresenter >> stopWorker [
 	self enableInput
 ]
 
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> switchToAdapterNamed: aString [
+	"Called when the user changes the adapter dropdown.
+	 Validates availability before switching; reverts the dropdown on failure."
+
+	| newAdapter currentName |
+	currentName := self adapterDisplayName.
+	aString = currentName ifTrue: [ ^ self ].
+	aString = 'Claude'
+		ifTrue: [
+			newAdapter := JadeiteAIClaudeAdapter default.
+			newAdapter isAvailable ifFalse: [
+				JadeiteAIClaudeAdapter requestApiKey isNil ifTrue: [
+					adapterDropList selectItem: currentName.
+					^ self ].
+				newAdapter := JadeiteAIClaudeAdapter default ] ]
+		ifFalse: [
+			JadeiteAISettings isOllamaAvailable ifFalse: [
+				UIManager default
+					alert: 'Ollama is not running.
+Start it with:  ollama serve'.
+				adapterDropList selectItem: currentName.
+				^ self ].
+			newAdapter := JadeiteAIOllamaAdapter default ].
+	llmAdapter := newAdapter.
+	self updateWindowTitle
+]
 
 { #category : 'constants' }
 JadeiteAIChatPresenter >> timeout [
 
 	^ 60000
 ]
-
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> truncateResult: aString [
@@ -1061,6 +1040,16 @@ JadeiteAIChatPresenter >> truncateResult: aString [
 	^ (aString copyFrom: 1 to: maxLen)
 	  , String lf
 	  , '[...truncated — ' , (aString size - maxLen) printString , ' more characters]'
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> updateAdapterUI [
+	"Sync the dropdown and window title to the current adapter.
+	 Called from llmAdapter: when the adapter is set externally."
+
+	adapterDropList ifNil: [ ^ self ].
+	adapterDropList selectItem: self adapterDisplayName.
+	self updateWindowTitle
 ]
 
 { #category : 'private' }
@@ -1081,4 +1070,12 @@ JadeiteAIChatPresenter >> updateContextLabel [
 
 	contextLabel label: ''.
 	clearContextButton ifNotNil: [ clearContextButton enabled: false ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> updateWindowTitle [
+
+	[ self window title: 'Ask Jadeite — ' , self adapterDisplayName ]
+		on: Error
+		do: [  ]
 ]

@@ -447,8 +447,7 @@ JadeiteAbstractTestCase >> inspectMethodSourceSelectionIn: browser [
 		            menuItemPresenter description
 		            = 'Evaluate selection and inspect the result.' ]) action
 		           value.
-	[ command innerCommand _inspector ] whileNil: [
-		(Delay forMilliseconds: 1) wait ].
+	self waitWhile: [ command innerCommand _inspector isNil ].
 	^ command innerCommand _inspector
 ]
 
@@ -628,7 +627,9 @@ JadeiteAbstractTestCase >> methodSourceForTest [
 
 { #category : 'as yet unclassified' }
 JadeiteAbstractTestCase >> methodSourcePresenter [
-	^self projectsPresenter methodSourcePresenter
+
+	^ self projectsPresenter ifNotNil: [ :pres |
+		  pres methodSourcePresenter ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -1477,4 +1478,14 @@ JadeiteAbstractTestCase >> waitForDebugger [
 	debugger := debuggedProcesses first debugger.
 	(Delay forMilliseconds: 250) wait. "wait for widget to be built"
 	^ debugger
+]
+
+{ #category : 'support' }
+JadeiteAbstractTestCase >> waitWhile: aBlock [
+
+	| deadline |
+	deadline := DateAndTime now + 2 seconds.
+	[ aBlock value and: [ DateAndTime now < deadline ] ] whileTrue: [
+		WorldMorph doOneCycle.
+		(Delay forMilliseconds: 50) wait ]
 ]

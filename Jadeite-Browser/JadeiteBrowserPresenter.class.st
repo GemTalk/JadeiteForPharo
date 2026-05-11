@@ -587,14 +587,15 @@ JadeiteBrowserPresenter >> classListHierarchyTabsChanged [
 { #category : 'events' }
 JadeiteBrowserPresenter >> classSelected: classService [
 
+	self window isOpen ifFalse: [ ^ self ].
 	classService ifNotNil: [
-		self clearMethodLists.
-		self clearFilterLists.
-		self refreshClassUsing: methodListPresenter selectedItem.
-		self updateTabLabel.
-		self selectCategoryTab.
-		self methodListPresenter selectIndex: 0 scrollToSelection: true.
-		self updateSUnitTab ]
+			self clearMethodLists.
+			self clearFilterLists.
+			self refreshClassUsing: methodListPresenter selectedItem.
+			self updateTabLabel.
+			self selectCategoryTab.
+			self methodListPresenter selectIndex: 0 scrollToSelection: true.
+			self updateSUnitTab ]
 ]
 
 { #category : 'project info tab' }
@@ -3339,13 +3340,17 @@ JadeiteBrowserPresenter >> resetClassTemplate [
 							 self selectedClassTab
 								 ifNil: [ packageListPresenter selectedItem defaultTemplate ]
 								 ifNotNil: [
-										 self selectedClassTab activePresenter selection
-											 selectedItem
+										 self selectedClassTab activePresenter
 											 ifNil: [
 											 packageListPresenter selectedItem defaultTemplate ]
 											 ifNotNil: [
-											 self selectedClassTab activePresenter selectedItem
-												 template ] ] ]).
+													 self selectedClassTab activePresenter selection
+														 selectedItem
+														 ifNil: [
+														 packageListPresenter selectedItem defaultTemplate ]
+														 ifNotNil: [
+														 self selectedClassTab activePresenter selectedItem
+															 template ] ] ] ]).
 			self markClassDefinitionPaneUnmodified ]
 ]
 
@@ -3634,6 +3639,7 @@ JadeiteBrowserPresenter >> selectMethodsFrom: classService [
 		ifTrue: [
 			| category |
 			category := selectedMethods first category.
+			category isString ifTrue: [ category := JadeiteCategory named: category ].
 			(categoryListPresenter model includes: category) ifFalse: [
 				categoryListPresenter model add: category ].
 			categoryListPresenter selection: category ].
@@ -4394,6 +4400,25 @@ JadeiteBrowserPresenter >> updateGlobalsTab [
 ]
 
 { #category : 'updates' }
+JadeiteBrowserPresenter >> updateHierarchy [ 
+     | service |
+      classHierarchyPresenter clear.
+      self isDictionaryTabSelected
+              ifTrue: [
+              dictionaryListPresenter selections isEmpty ifTrue: [ ^ self ] ]
+              ifFalse: [
+                      projectListPresenter selectionOrNil ifNil: [ ^ self ].
+                      packageListPresenter selections isEmpty ifTrue: [ ^ self ] ].
+      service := classListPresenter selectionOrNil ifNil: [
+                         ^ self updateHierarchyForPacktionaries ].
+      service
+              updateAfterCommand: false;
+              command: #classHierarchy.
+      self issueCommand: service onCompletion: [].
+
+]
+
+{ #category : 'updates' }
 JadeiteBrowserPresenter >> updateHierarchyForPacktionaries [
 
 	| service |
@@ -4727,8 +4752,8 @@ JadeiteBrowserPresenter >> updateSUnitTabMethods [
 			| sunitMethod |
 			sunitMethod := self sunitPresenter testCaseListPresenter items
 				               detect: [ :sunitTabMethod |
-				               sunitTabMethod selector = methodService selector ].
-			sunitMethod testResult: methodService testResult ]
+				               sunitTabMethod selector = methodService selector ] ifNone:[].
+			sunitMethod ifNotNil: [sunitMethod testResult: methodService testResult]]
 ]
 
 { #category : 'tab labels' }

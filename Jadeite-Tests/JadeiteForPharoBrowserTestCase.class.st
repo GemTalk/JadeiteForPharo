@@ -200,6 +200,7 @@ JadeiteForPharoBrowserTestCase >> test_acceptDefinedMethodInExtensionClass [
 	self selectServiceNamed: 'RowanSample1-Extensions' in: self packageListPresenter.
 	self selectServiceNamed: self sampleClassName in: self classListPresenter.
 	self selectMethodNamed: #foo.	"select a method defined in it's class package while the extension class is selected"
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter value: 'foo   ^foot'.
 	self assert: self methodSourcePresenter text equals: 'foo   ^foot'.
 	self assert: self methodListPresenter selectedItem selector equals: #foo.
@@ -698,20 +699,20 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferences [
 
 	self projectsPresenter selectClassNamed: 'TestClass'.
 	self waitForMethodListBrowserWhile: [
-		self projectsPresenter
-			basicRenameClass: self projectsPresenter selectedClass
-			to: 'RenamedClass' ].
+			self projectsPresenter
+				basicRenameClass: self projectsPresenter selectedClass
+				to: 'RenamedClass' ].
 	self
 		assert: self classListPresenter selectedItem name
 		equals: 'RenamedClass'.
 	list := methodListBrowser methodListPresenter list collection.
 	self assert: list size equals: 1.
 	self assert: list first selector equals: #meth.
-	self
-		assert:
-			methodListBrowser methodSourcePresenter adapter widget textArea
-				selection asString
-		equals: 'RenamedClass'
+	self waitWhile: [
+			('*RenamedClass' match:
+				 methodListBrowser methodSourcePresenter text) not ].
+	self assert:
+		('*RenamedClass' match: methodListBrowser methodSourcePresenter text)
 ]
 
 { #category : 'tests' }
@@ -783,33 +784,35 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesHierarchy [
 		category: 'foo'.
 
 	[
-	self projectsPresenter selectClassNamed: 'TestClass'.
-	self selectHierarchyTab.
-	self
-		assert: self classHierarchyPresenter selectedItem name
-		equals: 'TestClass'.
-	self waitForMethodListBrowserWhile: [
-		self projectsPresenter
-			basicRenameClass: self projectsPresenter selectedClass
-			to: 'RenamedClass' ].
-	self
-		assert: self classHierarchyPresenter selectedItem name
-		equals: 'RenamedClass'.
-	self
-		assert: methodListBrowser methodListPresenter list collection size
-		equals: 1.
-	self
-		assert:
-		methodListBrowser methodListPresenter list collection first selector
-		equals: #meth.
-	self
-		assert:
-			methodListBrowser methodSourcePresenter adapter widget textArea
-				selection asString
-		equals: 'RenamedClass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self projectsPresenter selectedClass
-			onCompletion: nil ]
+		self projectsPresenter selectClassNamed: 'TestClass'.
+		self selectHierarchyTab.
+		self
+			assert: self classHierarchyPresenter selectedItem name
+			equals: 'TestClass'.
+		self waitForMethodListBrowserWhile: [
+				self projectsPresenter
+					basicRenameClass: self projectsPresenter selectedClass
+					to: 'RenamedClass' ].
+		self
+			assert: self classHierarchyPresenter selectedItem name
+			equals: 'RenamedClass'.
+		self
+			assert: methodListBrowser methodListPresenter list collection size
+			equals: 1.
+		self
+			assert:
+			methodListBrowser methodListPresenter list collection first
+				selector
+			equals: #meth.
+		self waitWhile: [
+				('*RenamedClass' match:
+					 methodListBrowser methodSourcePresenter text) not ].
+		self assert:
+			('*RenamedClass' match:
+				 methodListBrowser methodSourcePresenter text) ] ensure: [
+			self projectsPresenter
+				basicRemoveClass: self projectsPresenter selectedClass
+				onCompletion: nil ]
 ]
 
 { #category : 'tests' }
@@ -841,25 +844,26 @@ JadeiteForPharoBrowserTestCase >> test_classRenameWithReferencesSimilarNameButNo
 		category: 'foo'.
 
 	[
-	self projectsPresenter selectClassNamed: 'SubString'.
-	self waitForMethodListBrowserWhile: [
-		self projectsPresenter
-			basicRenameClass: self projectsPresenter selectedClass
-			to: 'RenamedClass' ].
-	self
-		assert: self classListPresenter selectedItem name
-		equals: 'RenamedClass'.
-	list := methodListBrowser methodListPresenter list collection.
-	self assert: list size equals: 1.
-	self assert: list first selector equals: #meth.
-	self
-		assert:
-			methodListBrowser methodSourcePresenter adapter widget textArea
-				selection asString
-		equals: 'RenamedClass' ] ensure: [
-		self projectsPresenter
-			basicRemoveClass: self classListPresenter selectedItem
-			onCompletion: [  ] ]
+		self projectsPresenter selectClassNamed: 'SubString'.
+		self waitForMethodListBrowserWhile: [
+				self projectsPresenter
+					basicRenameClass: self projectsPresenter selectedClass
+					to: 'RenamedClass' ].
+		self
+			assert: self classListPresenter selectedItem name
+			equals: 'RenamedClass'.
+		list := methodListBrowser methodListPresenter list collection.
+		self assert: list size equals: 1.
+		self assert: list first selector equals: #meth.
+		self waitWhile: [
+				('*RenamedClass*' match:
+					 methodListBrowser methodSourcePresenter text) not ].
+		self assert:
+			('*RenamedClass*' match:
+				 methodListBrowser methodSourcePresenter text) ] ensure: [
+			self projectsPresenter
+				basicRemoveClass: self classListPresenter selectedItem
+				onCompletion: [ ] ]
 ]
 
 { #category : 'tests' }
@@ -887,7 +891,9 @@ JadeiteForPharoBrowserTestCase >> test_compileClassOtherClass [
 		superclass: 'Object'
 		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
-
+	self waitWhile: [
+			('Object rwSubclass: ''TestClass''*' match:
+				 self projectsPresenter classDefinitionPresenter text) not ].
 	self
 		assert: self projectsPresenter selectedClass name
 		equals: 'TestClass'.
@@ -923,6 +929,17 @@ JadeiteForPharoBrowserTestCase >> test_compileClassSameClass [
 		superclass: 'Object'
 		instVars: #( 'abc' )
 		package: 'RowanSample1-Core'.
+
+	self waitWhile: [
+			(self projectsPresenter classDefinitionPresenter text
+			 = 'Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf) not ].
 
 	self
 		assert: self projectsPresenter selectedClass name
@@ -985,6 +1002,16 @@ JadeiteForPharoBrowserTestCase >> test_compileClassSameClassMethodSelected [
 		assert: self projectsPresenter selectedClass name
 		equals: 'TestClass'.
 	self assert: self projectsPresenter isClassDefinitionTabSelected.
+	self waitWhile: [
+			('Object rwSubclass: ''TestClass''
+	instVarNames: #( abc)
+	classVars: #()
+	classInstVars: #()
+	poolDictionaries: #()
+	category: ''RowanSample1-Core''
+	options: #()
+' replaceCrWithLf
+			 = self projectsPresenter classDefinitionPresenter text) not ].
 	self
 		assert: self projectsPresenter classDefinitionPresenter text
 		equals: 'Object rwSubclass: ''TestClass''
@@ -1736,6 +1763,13 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
 	| widget editor sem |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
+	self waitWhile: [
+			(self methodSourcePresenter text asString replaceLfWithCr
+			 = 'updateServices: services
+	services
+		do: [ :service | 
+			service update.
+			RowanCommandResult addResult: service ]') not ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'updateServices: services
@@ -1751,10 +1785,10 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyBrowse [
 		                   while: [ editor browseIt: nil ].
 	sem := Semaphore new.
 	[
-	[
-	secondPresenter activePresenter isNil or: [
-		secondPresenter selectedClass isNil ] ] whileTrue: [
-		(Delay forMilliseconds: 10) wait ] ] fork.
+		[
+			secondPresenter activePresenter isNil or: [
+				secondPresenter selectedClass isNil ] ] whileTrue: [
+			(Delay forMilliseconds: 10) wait ] ] fork.
 	sem waitTimeoutSeconds: 2.
 	self
 		assert: secondPresenter selectedClass name
@@ -1768,6 +1802,9 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyImplementors [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
+	self waitWhile: [
+			('updateServices: services*' match: self methodSourcePresenter text)
+				not ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'updateServices: services
@@ -1795,6 +1832,16 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingClass [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #basicSortedSymbols.
+	self waitWhile: [
+			(self methodSourcePresenter text asString replaceLfWithCr
+			 = 'basicSortedSymbols
+  | sortedSymbols |
+  sortedSymbols := SortedCollection new.
+  ((AllUsers userWithId: #''SymbolUser'') resolveSymbol: #''AllSymbols'') value
+    keysDo: [ :symbol | 
+      symbol charSize = 1
+        ifTrue: [ sortedSymbols add: symbol ] ].
+  ^sortedSymbols asArray') not ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'basicSortedSymbols
@@ -1822,6 +1869,16 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingMessage [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #basicSortedSymbols.
+	self waitWhile: [
+			(self methodSourcePresenter text asString replaceLfWithCr
+			 = 'basicSortedSymbols
+  | sortedSymbols |
+  sortedSymbols := SortedCollection new.
+  ((AllUsers userWithId: #''SymbolUser'') resolveSymbol: #''AllSymbols'') value
+    keysDo: [ :symbol | 
+      symbol charSize = 1
+        ifTrue: [ sortedSymbols add: symbol ] ].
+  ^sortedSymbols asArray') not ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'basicSortedSymbols
@@ -1849,6 +1906,16 @@ JadeiteForPharoBrowserTestCase >> test_hotKeyMethodsContainingSymbol [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #basicSortedSymbols.
+	self waitWhile: [
+			(self methodSourcePresenter text asString replaceLfWithCr
+			 = 'basicSortedSymbols
+  | sortedSymbols |
+  sortedSymbols := SortedCollection new.
+  ((AllUsers userWithId: #''SymbolUser'') resolveSymbol: #''AllSymbols'') value
+    keysDo: [ :symbol | 
+      symbol charSize = 1
+        ifTrue: [ sortedSymbols add: symbol ] ].
+  ^sortedSymbols asArray') not ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'basicSortedSymbols
@@ -1876,6 +1943,13 @@ JadeiteForPharoBrowserTestCase >> test_hotKeySenders [
 	| widget editor |
 	self selectRowanAnsweringService.
 	self selectMethodNamed: #updateServices:.
+	self waitWhile: [
+			(self methodSourcePresenter text asString replaceLfWithCr
+			 = 'updateServices: services
+	services
+		do: [ :service | 
+			service update.
+			RowanCommandResult addResult: service ]') not ].
 	self
 		assert: self methodSourcePresenter text asString replaceLfWithCr
 		equals: 'updateServices: services
@@ -2004,6 +2078,7 @@ JadeiteForPharoBrowserTestCase >> test_methodCompileError [
 		selectServiceNamed: self sampleClassName
 		in: self classListPresenter.
 	self selectMethodNamed: #foo. "select a method defined in it's class package while the extension class is selected"
+	self waitWhile: [ (self methodSourcePresenter text ifNil: [ '' ]) isEmpty ].
 	self methodSourcePresenter value: self compileErrorMethodText.
 	self projectsPresenter
 		editSaveMethod: self classListPresenter selectedItem
@@ -2068,6 +2143,7 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarAdded [
 		assert:
 		failedMethodPresenter methodListPresenter items first searchString
 		equals: failedMethodPresenter firstReferenceString.
+	self waitWhile: [ (failedMethodPresenter methodSourcePresenter text) isEmpty ].
 	self
 		assert: failedMethodPresenter methodSourcePresenter text
 		equals:
@@ -2105,11 +2181,11 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarRemoved [
 		                         waitForNewPresenter:
 		                         JadeiteFailedCompileMethodListPresenter
 		                         while: [
-			                         self
-				                         saveClass: className
-				                         superclass: 'Object'
-				                         instVars: #(  )
-				                         package: 'RowanSample1-Tests' ].
+				                         self
+					                         saveClass: className
+					                         superclass: 'Object'
+					                         instVars: #(  )
+					                         package: 'RowanSample1-Tests' ].
 	self assert: self methodListPresenter items size equals: 0.
 	self assert: self classListPresenter selectedItem version equals: 2.
 	self
@@ -2127,12 +2203,23 @@ JadeiteForPharoBrowserTestCase >> test_methodsFailingCompilationInstVarRemoved [
 		failedMethodPresenter methodListPresenter selection selectedIndex
 		equals: 1.
 	sources := OrderedCollection new.
-	sources add: failedMethodPresenter methodSourcePresenter text.
 	failedMethodPresenter methodListPresenter adapter widget
 		selectIndex: 1.
+	self waitWhile: [
+			failedMethodPresenter methodSourcePresenter adapter widget text
+				asString isEmpty ].
+	sources add:
+		failedMethodPresenter methodSourcePresenter adapter widget text
+			asString.
+	failedMethodPresenter methodListPresenter unselectAll.
 	failedMethodPresenter methodListPresenter adapter widget
 		selectIndex: 2.
-	sources add: failedMethodPresenter methodSourcePresenter text.
+	self waitWhile: [
+			failedMethodPresenter methodSourcePresenter adapter widget text
+				asString isEmpty ].
+	sources add:
+		failedMethodPresenter methodSourcePresenter adapter widget text
+			asString.
 	self assert: (sources includes: 'abc  ^undefined symbol->abc').
 	self assert:
 		(sources includes: 'abc: param undefined symbol->abc := param. ').
@@ -2643,6 +2730,7 @@ JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_packageSelec
 	self
 		selectServiceNamed: 'RowanSample1-Tests'
 		in: self packageListPresenter.
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]
@@ -2653,6 +2741,7 @@ JadeiteForPharoBrowserTestCase >> test_resetClassDefinitionTemplate_projectSelec
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self projectListPresenter.
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]

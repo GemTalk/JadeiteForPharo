@@ -3392,6 +3392,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate_
 			 name: 'Rowan-Services-Core';
 			 substringIndex: 3;
 			 yourself).
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]
@@ -3402,6 +3403,7 @@ JadeiteForPharoBrowserWithoutRowanTestCase >> test_resetClassDefinitionTemplate_
 	self
 		selectServiceNamed: 'RowanClientServices'
 		in: self dictionaryListPresenter.
+	self waitWhile: [ (self projectsPresenter classDefinitionPresenter text ifNil: [ '' ]) isEmpty ].
 	self assertTextPaneResetFor:
 		self projectsPresenter classDefinitionPresenter
 ]

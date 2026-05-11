@@ -599,9 +599,14 @@ JadeiteMethodsTrait >> displayMethodSourceStepPoints [
 			range := self methodSourcePresenter methodService
 				         stepPointRangeFrom: stepPointAssoc.
 
-			self methodSourcePresenter addTextSegmentDecoration:
-				((SpTextPresenterDecorator new underlineColor: Color veryLightGray)
-					 interval: range) ]
+			[
+				self methodSourcePresenter addTextSegmentDecoration:
+					((SpTextPresenterDecorator new underlineColor:
+						  Color veryLightGray) interval: range) ]
+				on: Error
+				do: [ :ex |
+						'Error drawing method segments - ' trace.
+						ex traceCr ] ]
 ]
 
 { #category : 'actions' }
@@ -614,6 +619,7 @@ JadeiteMethodsTrait >> editSaveMethod: classService in: thePresenter category: c
 		completionBlock: [
 				self uiManager defer: [
 						classService selectedMethods isEmpty ifFalse: [
+								self methodSourcePresenter hasUnacceptedEdits: false.
 								index := self methodListPresenter selectionMode indexOfItem:
 									         classService selectedMethods first.
 								self methodListPresenter

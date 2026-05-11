@@ -50,6 +50,15 @@ JadeiteAIChatConversation >> addUserMessage: aString [
 ]
 
 { #category : 'accessing' }
+JadeiteAIChatConversation >> compactFrom: anIndex [
+	"Remove all messages added after position anIndex, keeping messages 1..anIndex.
+	 Called after each agent loop to strip intermediate code-execution turns so
+	 subsequent queries start with a lean context."
+
+	[ messages size > anIndex ] whileTrue: [ messages removeLast ]
+]
+
+{ #category : 'accessing' }
 JadeiteAIChatConversation >> contextMessage [
 
 	^ contextMessage
@@ -166,15 +175,6 @@ JadeiteAIChatConversation >> temperature [
 JadeiteAIChatConversation >> temperature: aFloat [
 
 	temperature := aFloat
-]
-
-{ #category : 'accessing' }
-JadeiteAIChatConversation >> compactFrom: anIndex [
-	"Remove all messages added after position anIndex, keeping messages 1..anIndex.
-	 Called after each agent loop to strip intermediate code-execution turns so
-	 subsequent queries start with a lean context."
-
-	[ messages size > anIndex ] whileTrue: [ messages removeLast ]
 ]
 
 { #category : 'building' }

@@ -68,7 +68,7 @@ JadeiteForPharoFileTestCase >> deleteTempFiles [
 	fileRef exists ifTrue: [ fileRef delete ].
 	fileRef := dirRef / self tempFileName3.
 	fileRef exists ifTrue: [ fileRef delete ].
-	dirRef delete
+	dirRef deleteAll
 ]
 
 { #category : 'constants' }
@@ -136,7 +136,7 @@ JadeiteForPharoFileTestCase >> tempFileName3 [
 { #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 
-	| fileDialog fileSelector inaccessibleDir backupPath sem inaccessibleFile alert |
+	| fileDialog fileSelector inaccessibleDir backupPath inaccessibleFile alert |
 	backupPath := JadePresenter lastFilePath.
 	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
 	fileDialog := self
@@ -144,12 +144,7 @@ JadeiteForPharoFileTestCase >> test_cannotOpenInaccessibleServerFile [
 		              while: [ self console openServerFile ].
 	[
 		fileSelector := fileDialog fileSelectorPresenter.
-		sem := Semaphore new.
-		[
-			[ fileSelector directoryContentsList list isEmpty ] whileTrue: [
-				(Delay forMilliseconds: 5) wait ].
-			sem signal ] fork.
-		sem waitTimeoutSeconds: 1.
+		self waitWhile: [ fileSelector directoryContentsList list isEmpty ].
 		self assert:
 			((fileSelector directoryContentsList list collect: [ :assoc |
 				  assoc key ]) includes: self inaccessibleDirectoryName).
@@ -307,91 +302,84 @@ JadeiteForPharoFileTestCase >> test_fileSelectInitialPath [
 { #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_lastFilePathOnSave [
 
-	| tempDir fileDialog backupPath tempFile dirRef sem |
+	| tempDir fileDialog backupPath tempFile dirRef |
 	self createTempFiles.
 	backupPath := JadePresenter lastFilePath.
 	[
-	| newFileRef |
-	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
-	self
-		assert: JadePresenter lastFilePath
-		equals: FileSystem workingDirectory pathString.
-	workspace := (JadeiteWorkspace showOnSession: session) caption:
-		             'Jade Workspace - test_lastFilePathOnSave'.
-	fileDialog := self
-		              waitForNewPresenter: JadeiteServerFileSaveDialog
-		              while: [ workspace saveServerFile ].
-	tempDir := fileDialog fileSelectorPresenter directoryContentsList
-		           list detect: [ :assoc | assoc key = self tempDirName ].
-	fileDialog fileSelectorPresenter directoryContentsList selectItem:
-		tempDir.
-	fileDialog fileSelectorPresenter dive.
-	self waitForFileOperationSemaphore.
-	dirRef := fileDialog pathText text asFileReference.
-	tempFile := fileDialog fileSelectorPresenter directoryContentsList
-		            list detect: [ :assoc | assoc key = self tempFileName1 ].
-	fileDialog fileSelectorPresenter directoryContentsList selectItem:
-		tempFile.
-	fileDialog fileNamePresenter text: 'workspace.txt'.
-	fileDialog window
-		beOk;
-		triggerOkAction.
-	sem := Semaphore new.
-	newFileRef := dirRef / 'workspace.txt'.
-	[
-	[ newFileRef exists ] whileFalse: [ (Delay forMilliseconds: 5) wait ].
-	sem signal ] fork.
-	sem waitTimeoutSeconds: 1.
-	self assert: newFileRef exists. 
-	newFileRef delete.
-	self deny: newFileRef exists.
-	self assert: JadePresenter lastFilePath equals: dirRef pathString ]
+		| newFileRef |
+		JadePresenter lastFilePath: FileSystem workingDirectory pathString.
+		self
+			assert: JadePresenter lastFilePath
+			equals: FileSystem workingDirectory pathString.
+		workspace := (JadeiteWorkspace showOnSession: session) caption:
+			             'Jade Workspace - test_lastFilePathOnSave'.
+		fileDialog := self
+			              waitForNewPresenter: JadeiteServerFileSaveDialog
+			              while: [ workspace saveServerFile ].
+		tempDir := fileDialog fileSelectorPresenter directoryContentsList
+			           list detect: [ :assoc | assoc key = self tempDirName ].
+		fileDialog fileSelectorPresenter directoryContentsList selectItem:
+			tempDir.
+		fileDialog fileSelectorPresenter dive.
+		self waitForFileOperationSemaphore.
+		dirRef := fileDialog pathText text asFileReference.
+		tempFile := fileDialog fileSelectorPresenter directoryContentsList
+			            list detect: [ :assoc | assoc key = self tempFileName1 ].
+		fileDialog fileSelectorPresenter directoryContentsList selectItem:
+			tempFile.
+		fileDialog fileNamePresenter text: 'workspace.txt'.
+		fileDialog window
+			beOk;
+			triggerOkAction.
+		newFileRef := dirRef / 'workspace.txt'.
+		self waitWhile: [ newFileRef exists not ].
+		self assert: newFileRef exists.
+		newFileRef delete.
+		self deny: newFileRef exists.
+		self assert: JadePresenter lastFilePath equals: dirRef pathString ]
 		ensure: [
-			JadePresenter lastFilePath: backupPath.
-			workspace window close ]
+				JadePresenter lastFilePath: backupPath.
+				fileDialog ifNotNil: [ :d | [ d window close ] on: Error do: [ :e |  ] ].
+				workspace window close ]
 ]
 
 { #category : 'tests' }
 JadeiteForPharoFileTestCase >> test_lastFilePathOnSelect [
 
-	| tempDir fileDialog backupPath tempFile dirRef sem |
+	| tempDir fileDialog backupPath tempFile dirRef |
 	self createTempFiles.
 	backupPath := JadePresenter lastFilePath.
 	[
-	JadePresenter lastFilePath: FileSystem workingDirectory pathString.
-	self
-		assert: JadePresenter lastFilePath
-		equals: FileSystem workingDirectory pathString.
-	workspace := (JadeiteWorkspace showOnSession: session) caption:
-		             'Jade Workspace - lastFilePathOnSelect'.
-	fileDialog := self
-		              waitForNewPresenter: JadeiteServerFileSelectorDialog
-		              while: [ workspace openServerFile ].
-	tempDir := fileDialog fileSelectorPresenter directoryContentsList
-		           list detect: [ :assoc | assoc key = self tempDirName ].
-	fileDialog fileSelectorPresenter directoryContentsList selectItem:
-		tempDir.
-	fileDialog fileSelectorPresenter dive.
-	self waitForFileOperationSemaphore.
-	dirRef := fileDialog pathText text asFileReference.
-	tempFile := fileDialog fileSelectorPresenter directoryContentsList
-		            list detect: [ :assoc | assoc key = self tempFileName1 ].
-	fileDialog fileSelectorPresenter directoryContentsList selectItem:
-		tempFile.
-	fileDialog window
-		beOk;
-		triggerOkAction.
-	sem := Semaphore new.
-	[
-	[
-	JadePresenter lastFilePath = FileSystem workingDirectory pathString ]
-		whileTrue: [ (Delay forMilliseconds: 10) wait ].
-	sem signal ] fork.
-	sem waitTimeoutSeconds: 1.
-	self assert: JadePresenter lastFilePath equals: dirRef pathString ]
+		JadePresenter lastFilePath: FileSystem workingDirectory pathString.
+		self
+			assert: JadePresenter lastFilePath
+			equals: FileSystem workingDirectory pathString.
+		workspace := (JadeiteWorkspace showOnSession: session) caption:
+			             'Jade Workspace - lastFilePathOnSelect'.
+		fileDialog := self
+			              waitForNewPresenter: JadeiteServerFileSelectorDialog
+			              while: [ workspace openServerFile ].
+		tempDir := fileDialog fileSelectorPresenter directoryContentsList
+			           list detect: [ :assoc | assoc key = self tempDirName ].
+		fileDialog fileSelectorPresenter directoryContentsList selectItem:
+			tempDir.
+		fileDialog fileSelectorPresenter dive.
+		self waitForFileOperationSemaphore.
+		dirRef := fileDialog pathText text asFileReference.
+		tempFile := fileDialog fileSelectorPresenter directoryContentsList
+			            list detect: [ :assoc | assoc key = self tempFileName1 ].
+		fileDialog fileSelectorPresenter directoryContentsList selectItem:
+			tempFile.
+		fileDialog window
+			beOk;
+			triggerOkAction.
+		self waitWhile: [
+			JadePresenter lastFilePath = FileSystem workingDirectory pathString ].
+		self assert: JadePresenter lastFilePath equals: dirRef pathString ]
 		ensure: [
-			JadePresenter lastFilePath: backupPath.
-			workspace window close ]
+				JadePresenter lastFilePath: backupPath.
+				fileDialog ifNotNil: [ :d | [ d window close ] on: Error do: [ :e |  ] ].
+				workspace window close ]
 ]
 
 { #category : 'tests' }

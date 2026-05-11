@@ -202,26 +202,29 @@ JadeiteMethodSourcePane >> resetText [
 JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory completionBlock: completionBlock [
 
 	| methodSource1 theCategory serverSelector |
-
 	methodSource1 := self currentMethodSourceFrom: self text.
 	theCategory := jadeiteCategory ifNil: [ 'other' ] ifNotNil: [ :cat |
-		               cat isEmpty
-			               ifTrue: [ 'other' ]
-			               ifFalse: [
-				               cat isString
-					               ifTrue: [ jadeiteCategory ]
-					               ifFalse: [ jadeiteCategory categoryName ] ] ].
+			               cat isEmpty
+				               ifTrue: [ 'other' ]
+				               ifFalse: [
+						               cat isString
+							               ifTrue: [ jadeiteCategory ]
+							               ifFalse: [ jadeiteCategory categoryName ] ] ].
 	serverSelector := JadeitePreferences isRowanLoaded
 		                  ifTrue: [ #saveMethodSource:category: ]
-		                  ifFalse: [ #jfpwor_saveMethodSource:category: ].
+		                  ifFalse: [
+				                  JadeitePreferences isSeaside
+					                  ifTrue: [
+					                  #jfpseaside_saveMethodSource:category: ]
+					                  ifFalse: [ #jfpwor_saveMethodSource:category: ] ].
 	classService
 		command: serverSelector;
 		commandArgs: (Array with: methodSource1 with: theCategory);
 		compileErrorHandler: [ :ex |
 			self reportCompileError: ex gsArguments ].
 	self issueCommand: classService onCompletion: [
-		self hasUnacceptedEdits: false.
-		completionBlock value ]
+			self hasUnacceptedEdits: false.
+			completionBlock value ]
 ]
 
 { #category : 'selections' }
@@ -279,7 +282,7 @@ JadeiteMethodSourcePane >> setBreakpoint: stepPoint [
 { #category : 'actions' }
 JadeiteMethodSourcePane >> showStepPoint: anInteger [
 
-	| stepPoint stringToHighlight | 
+	| stepPoint stringToHighlight |
 	anInteger ifNil: [ ^ self ].
 	methodService ifNil: [ ^ self ].
 	stepPoint := methodService stepPoints
@@ -289,6 +292,9 @@ JadeiteMethodSourcePane >> showStepPoint: anInteger [
 	stringToHighlight isEmpty
 		ifTrue: [ self selectMessageAt: stepPoint first ]
 		ifFalse: [
-				self adapter widget textArea editor hoverHighlightInterval:
-					(stepPoint first to: stepPoint first + stringToHighlight size - 1) ]
+				self withAdapterDo: [ :a |
+						a widgetDo: [ :widget |
+								widget textArea editor hoverHighlightInterval:
+									(stepPoint first to:
+									 stepPoint first + stringToHighlight size - 1) ] ] ]
 ]

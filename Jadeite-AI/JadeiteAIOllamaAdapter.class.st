@@ -56,12 +56,6 @@ JadeiteAIOllamaAdapter >> buildRequestBody: aConversation [
 ]
 
 { #category : 'building' }
-JadeiteAIOllamaAdapter >> buildRequestBodyNoSystem: aConversation [
-	^ self buildRequestBodyFromMessages: aConversation toApiMessagesNoSystem
-		conversation: aConversation
-]
-
-{ #category : 'building' }
 JadeiteAIOllamaAdapter >> buildRequestBodyFromMessages: messages conversation: aConversation [
 	"Build the JSON request body for the /chat/completions endpoint.
 	 Written manually to avoid NeoJSON load-order issues."
@@ -91,20 +85,17 @@ JadeiteAIOllamaAdapter >> buildRequestBodyFromMessages: messages conversation: a
 	^ ws contents
 ]
 
+{ #category : 'building' }
+JadeiteAIOllamaAdapter >> buildRequestBodyNoSystem: aConversation [
+	^ self buildRequestBodyFromMessages: aConversation toApiMessagesNoSystem
+		conversation: aConversation
+]
+
 { #category : 'initialization' }
 JadeiteAIOllamaAdapter >> initialize [
 
 	baseUrl := 'http://localhost:11434/v1'.
 	model := 'qwen2.5-coder:14b'
-]
-
-{ #category : 'constants' }
-JadeiteAIOllamaAdapter >> numCtx [
-	"Context window size passed to Ollama on every request.
-	 8192 tokens is enough for system prompt + selector list + several method sources
-	 with minimal overhead on modern hardware."
-
-	^ 8192
 ]
 
 { #category : 'json' }
@@ -153,6 +144,15 @@ JadeiteAIOllamaAdapter >> normalizeAngleBrackets: aString [
 	^ s
 ]
 
+{ #category : 'constants' }
+JadeiteAIOllamaAdapter >> numCtx [
+	"Context window size passed to Ollama on every request.
+	 8192 tokens is enough for system prompt + selector list + several method sources
+	 with minimal overhead on modern hardware."
+
+	^ 8192
+]
+
 { #category : 'parsing' }
 JadeiteAIOllamaAdapter >> parseResponse: responseString [
 	"Extract the assistant content string from the Ollama JSON response.
@@ -176,6 +176,23 @@ JadeiteAIOllamaAdapter >> parseResponse: responseString [
 
 	content := self readJsonStringFrom: responseString startingAt: idx.
 	^ content
+]
+
+{ #category : 'api' }
+JadeiteAIOllamaAdapter >> postBody: aBody [
+	"POST aBody to the Ollama chat endpoint and return the parsed reply string."
+
+	| body responseString |
+	body := aBody copyWithout: Character cr.
+	body := body copyWithout: (Character value: 9).
+	responseString := ZnClient new
+		                  beOneShot;
+		                  url: baseUrl , '/chat/completions';
+		                  entity: (ZnStringEntity json: body);
+		                  timeout: 300;
+		                  post.
+	responseString := self normalizeAngleBrackets: responseString.
+	^ self parseResponse: responseString
 ]
 
 { #category : 'parsing' }
@@ -222,21 +239,4 @@ JadeiteAIOllamaAdapter >> sendConversationStep: aConversation [
 	"Agent-loop iteration — omits the system prompt to save context-window tokens."
 
 	^ self postBody: (self buildRequestBodyNoSystem: aConversation)
-]
-
-{ #category : 'api' }
-JadeiteAIOllamaAdapter >> postBody: aBody [
-	"POST aBody to the Ollama chat endpoint and return the parsed reply string."
-
-	| body responseString |
-	body := aBody copyWithout: Character cr.
-	body := body copyWithout: (Character value: 9).
-	responseString := ZnClient new
-		                  beOneShot;
-		                  url: baseUrl , '/chat/completions';
-		                  entity: (ZnStringEntity json: body);
-		                  timeout: 300;
-		                  post.
-	responseString := self normalizeAngleBrackets: responseString.
-	^ self parseResponse: responseString
 ]

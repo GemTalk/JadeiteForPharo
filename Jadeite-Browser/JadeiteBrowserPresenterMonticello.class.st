@@ -141,7 +141,8 @@ JadeiteBrowserPresenterMonticello >> initializePresenters [
 	self initializeLowerTabs.
 	self whenBuiltDo: [ self addStyle: 'jadeiteTextBackgroundColor' ].
 	projectListPresenter := JadeiteListPresenter new.
-	classCategoryPresenter := JadeiteClassCategoryTreePresenter new
+	classCategoryPresenter := JadeiteClassCategoryTreePresenter new.
+	packageListPresenter := JadeiteListPresenter new
 ]
 
 { #category : 'testing' }

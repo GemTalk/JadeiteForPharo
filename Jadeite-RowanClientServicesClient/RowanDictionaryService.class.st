@@ -90,6 +90,7 @@ RowanDictionaryService >> classesUpdate: presenter browser: browser [
 
 	| updatedClasses theClasses |
 	(self doesUpdateApply: browser) ifFalse: [ ^ self ].
+	browser classCategoryPresenter ifNil: [ ^ self ].
 	browser classCategoryPresenter selection
 		ifNil: [ classes ifNil: [ ^ presenter list: ListModel new ] ]
 		ifNotNil: [ ^ self ].

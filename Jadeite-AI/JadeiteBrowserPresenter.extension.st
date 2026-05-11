@@ -66,36 +66,3 @@ JadeiteBrowserPresenter >> fullMethodListMenu [
 				enabled: [ self methodListPresenter selections notEmpty ] ] ].
 	^ menu
 ]
-
-{ #category : '*Jadeite-AI' }
-JadeiteBrowserPresenter >> newFullClassMenu [
-	"Override to append Ask Jadeite to the full class context menu."
-
-	| menu |
-	menu := self newBrowseClassMenu.
-	self addModifyClassMenuItemsTo: menu.
-	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Ask Jadeite about this class';
-				icon: (self iconNamed: #glamorousHelp);
-				action: [ self askJadeiteAboutSelectedClass ] ] ].
-	^ menu
-]
-
-{ #category : '*Jadeite-AI' }
-JadeiteBrowserPresenter >> newHierarchyClassMenu [
-	"Override to append Ask Jadeite to the hierarchy class context menu."
-
-	| menu |
-	menu := self newBrowseClassMenu.
-	self addModifyClassMenuItemsTo: menu.
-	self addHierarchySpecificMenuItemsTo: menu.
-	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Ask Jadeite about this class';
-				icon: (self iconNamed: #glamorousHelp);
-				action: [ self askJadeiteAboutSelectedClass ] ] ].
-	^ menu
-]

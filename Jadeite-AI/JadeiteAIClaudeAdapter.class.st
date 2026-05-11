@@ -42,20 +42,6 @@ JadeiteAIClaudeAdapter class >> apiKey: aString [
 	ApiKey := aString
 ]
 
-{ #category : 'accessing' }
-JadeiteAIClaudeAdapter class >> requestApiKey [
-	"Prompt the user to enter their API key and cache it for the session.
-	 Returns the key string, or nil if the user cancelled."
-
-	| key |
-	key := UIManager default
-		       request: 'Enter your Anthropic API key:'
-		       initialAnswer: ''.
-	(key isNil or: [ key trimSeparators isEmpty ]) ifTrue: [ ^ nil ].
-	ApiKey := key trimSeparators.
-	^ ApiKey
-]
-
 { #category : 'instance creation' }
 JadeiteAIClaudeAdapter class >> default [
 
@@ -71,21 +57,17 @@ JadeiteAIClaudeAdapter class >> forModel: aModelString [
 ]
 
 { #category : 'accessing' }
-JadeiteAIClaudeAdapter >> model [
+JadeiteAIClaudeAdapter class >> requestApiKey [
+	"Prompt the user to enter their API key and cache it for the session.
+	 Returns the key string, or nil if the user cancelled."
 
-	^ model
-]
-
-{ #category : 'accessing' }
-JadeiteAIClaudeAdapter >> model: aString [
-
-	model := aString
-]
-
-{ #category : 'initialization' }
-JadeiteAIClaudeAdapter >> initialize [
-
-	model := 'claude-sonnet-4-6'
+	| key |
+	key := UIManager default
+		       request: 'Enter your Anthropic API key:'
+		       initialAnswer: ''.
+	(key isNil or: [ key trimSeparators isEmpty ]) ifTrue: [ ^ nil ].
+	ApiKey := key trimSeparators.
+	^ ApiKey
 ]
 
 { #category : 'accessing' }
@@ -94,12 +76,23 @@ JadeiteAIClaudeAdapter >> apiKey [
 	^ self class apiKey
 ]
 
-{ #category : 'testing' }
-JadeiteAIClaudeAdapter >> isAvailable [
+{ #category : 'building' }
+JadeiteAIClaudeAdapter >> buildMessagesJson: messages [
 
-	| key |
-	key := self apiKey.
-	^ key notNil and: [ key notEmpty ]
+	| ws first |
+	ws := WriteStream on: String new.
+	ws nextPut: $[.
+	first := true.
+	messages do: [ :msg |
+		first ifFalse: [ ws nextPut: $, ].
+		first := false.
+		ws nextPutAll: '{"role":'.
+		ws nextPutAll: (self jsonEncodeString: (msg at: 'role')).
+		ws nextPutAll: ',"content":'.
+		ws nextPutAll: (self jsonEncodeString: (msg at: 'content')).
+		ws nextPut: $} ].
+	ws nextPut: $].
+	^ ws contents
 ]
 
 { #category : 'building' }
@@ -135,53 +128,46 @@ JadeiteAIClaudeAdapter >> buildRequestBodyNoSystem: aConversation [
 	^ ws contents
 ]
 
-{ #category : 'building' }
-JadeiteAIClaudeAdapter >> buildMessagesJson: messages [
+{ #category : 'initialization' }
+JadeiteAIClaudeAdapter >> initialize [
 
-	| ws first |
-	ws := WriteStream on: String new.
-	ws nextPut: $[.
-	first := true.
-	messages do: [ :msg |
-		first ifFalse: [ ws nextPut: $, ].
-		first := false.
-		ws nextPutAll: '{"role":'.
-		ws nextPutAll: (self jsonEncodeString: (msg at: 'role')).
-		ws nextPutAll: ',"content":'.
-		ws nextPutAll: (self jsonEncodeString: (msg at: 'content')).
-		ws nextPut: $} ].
-	ws nextPut: $].
-	^ ws contents
+	model := 'claude-sonnet-4-6'
 ]
 
-{ #category : 'api' }
-JadeiteAIClaudeAdapter >> sendConversation: aConversation [
+{ #category : 'testing' }
+JadeiteAIClaudeAdapter >> isAvailable [
 
-	^ self postBody: (self buildRequestBody: aConversation)
+	| key |
+	key := self apiKey.
+	^ key notNil and: [ key notEmpty ]
 ]
 
-{ #category : 'api' }
-JadeiteAIClaudeAdapter >> sendConversationStep: aConversation [
+{ #category : 'json' }
+JadeiteAIClaudeAdapter >> jsonEncodeString: aString [
+	"Return aString as a JSON string literal including surrounding double-quotes.
+	 Backslash must be escaped first so later steps do not double-escape it."
 
-	^ self postBody: (self buildRequestBodyNoSystem: aConversation)
+	| s bs dq |
+	bs := String with: $\.
+	dq := String with: (Character value: 34).
+	s := aString copyReplaceAll: bs with: bs , bs.
+	s := s copyReplaceAll: dq with: bs , dq.
+	s := s copyWithout: Character cr.
+	s := s copyReplaceAll: (String with: (Character value: 10)) with: bs , 'n'.
+	s := s copyReplaceAll: (String with: (Character value: 9))  with: bs , 't'.
+	^ dq , s , dq
 ]
 
-{ #category : 'api' }
-JadeiteAIClaudeAdapter >> postBody: aBody [
-	"POST to the Anthropic messages endpoint and return the parsed reply string."
+{ #category : 'accessing' }
+JadeiteAIClaudeAdapter >> model [
 
-	| body responseString |
-	body := aBody copyWithout: Character cr.
-	body := body copyWithout: (Character value: 9).
-	responseString := ZnClient new
-		                  beOneShot;
-		                  url: 'https://api.anthropic.com/v1/messages';
-		                  headerAt: 'x-api-key' put: self apiKey;
-		                  headerAt: 'anthropic-version' put: '2023-06-01';
-		                  entity: (ZnStringEntity json: body);
-		                  timeout: 300;
-		                  post.
-	^ self parseResponse: responseString
+	^ model
+]
+
+{ #category : 'accessing' }
+JadeiteAIClaudeAdapter >> model: aString [
+
+	model := aString
 ]
 
 { #category : 'parsing' }
@@ -203,20 +189,22 @@ JadeiteAIClaudeAdapter >> parseResponse: responseString [
 	^ self readJsonStringFrom: responseString startingAt: idx
 ]
 
-{ #category : 'json' }
-JadeiteAIClaudeAdapter >> jsonEncodeString: aString [
-	"Return aString as a JSON string literal including surrounding double-quotes.
-	 Backslash must be escaped first so later steps do not double-escape it."
+{ #category : 'api' }
+JadeiteAIClaudeAdapter >> postBody: aBody [
+	"POST to the Anthropic messages endpoint and return the parsed reply string."
 
-	| s bs dq |
-	bs := String with: $\.
-	dq := String with: (Character value: 34).
-	s := aString copyReplaceAll: bs with: bs , bs.
-	s := s copyReplaceAll: dq with: bs , dq.
-	s := s copyWithout: Character cr.
-	s := s copyReplaceAll: (String with: (Character value: 10)) with: bs , 'n'.
-	s := s copyReplaceAll: (String with: (Character value: 9))  with: bs , 't'.
-	^ dq , s , dq
+	| body responseString |
+	body := aBody copyWithout: Character cr.
+	body := body copyWithout: (Character value: 9).
+	responseString := ZnClient new
+		                  beOneShot;
+		                  url: 'https://api.anthropic.com/v1/messages';
+		                  headerAt: 'x-api-key' put: self apiKey;
+		                  headerAt: 'anthropic-version' put: '2023-06-01';
+		                  entity: (ZnStringEntity json: body);
+		                  timeout: 300;
+		                  post.
+	^ self parseResponse: responseString
 ]
 
 { #category : 'json' }
@@ -248,4 +236,16 @@ JadeiteAIClaudeAdapter >> readJsonStringFrom: aString startingAt: startIndex [
 		ifFalse: [ ws nextPut: c ].
 		idx := idx + 1 ].
 	^ ws contents
+]
+
+{ #category : 'api' }
+JadeiteAIClaudeAdapter >> sendConversation: aConversation [
+
+	^ self postBody: (self buildRequestBody: aConversation)
+]
+
+{ #category : 'api' }
+JadeiteAIClaudeAdapter >> sendConversationStep: aConversation [
+
+	^ self postBody: (self buildRequestBodyNoSystem: aConversation)
 ]

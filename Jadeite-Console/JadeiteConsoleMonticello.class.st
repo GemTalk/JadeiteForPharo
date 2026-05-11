@@ -10,6 +10,13 @@ Class {
 	#package : 'Jadeite-Console'
 }
 
+{ #category : 'events' }
+JadeiteConsoleMonticello >> abortedTransaction [
+
+	self updateProjectsOnCompletion: [
+		self monticelloPackageListPresenter invalidate ]
+]
+
 { #category : 'actions' }
 JadeiteConsoleMonticello >> browseAllRepositories [
 

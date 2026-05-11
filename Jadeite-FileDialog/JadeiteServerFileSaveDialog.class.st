@@ -9,6 +9,19 @@ Class {
 }
 
 { #category : 'instance creation' }
+JadeiteServerFileSaveDialog class >> _showOnSession: aGciSession defaultPath: defaultPath defaultFileName: fileName [
+	"private for testing - open non-modally and return dialog instance"
+
+	| inst theWindow expandedPath |
+	inst := self createDialogOn: aGciSession path: defaultPath.
+	expandedPath := inst fileSelectorPresenter pathText text.
+	theWindow := (inst application: JadeiteSpApplication new) asWindow.
+	inst initializeWith: expandedPath fileName: fileName.
+	theWindow open.
+	^ inst
+]
+
+{ #category : 'instance creation' }
 JadeiteServerFileSaveDialog class >> showOnSession: aGciSession defaultFilePath: path [
 	"assumes path is a full path + file name" 
 	| inst answer  |
@@ -132,11 +145,12 @@ JadeiteServerFileSaveDialog >> initializePresenters [
 JadeiteServerFileSaveDialog >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
-	aWindowPresenter okAction: [
-		| okToClose |
-		okToClose := self confirmSave: aWindowPresenter.
-		okToClose ifTrue: [ aWindowPresenter close ].
-		okToClose ]
+	(aWindowPresenter respondsTo: #okAction:) ifTrue: [
+		aWindowPresenter okAction: [
+			| okToClose |
+			okToClose := self confirmSave: aWindowPresenter.
+			okToClose ifTrue: [ aWindowPresenter close ].
+			okToClose ] ]
 ]
 
 { #category : 'initialization' }

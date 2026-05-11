@@ -16,7 +16,12 @@ Class {
 MessageBox class >> confirm: aString [
 
 	ExpectedResult ifNotNil: [ ^ ExpectedResult ].
-	^ UIManager default confirm: aString
+	^ [ UIManager default confirm: aString ]
+		  on: Error
+		  do: [ :ex |
+				  'Error opening modal confirmation box - ' trace.
+				  ex traceCr.
+				  true ]
 ]
 
 { #category : 'pharo specific layer' }
