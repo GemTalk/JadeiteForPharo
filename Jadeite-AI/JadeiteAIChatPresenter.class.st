@@ -103,6 +103,16 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession classService: aClas
 ]
 
 { #category : 'instance creation' }
+JadeiteAIChatPresenter class >> openWithSession: aGciSession forStackAnalysis: aStackString [
+	"Open (or activate) the singleton window and immediately analyze the given stack."
+
+	| window |
+	window := self openWithSession: aGciSession.
+	window ifNotNil: [ window analyzeStack: aStackString ].
+	^ window
+]
+
+{ #category : 'instance creation' }
 JadeiteAIChatPresenter class >> openWithSession: aGciSession methodServices: aCollection [
 	"Open (or activate) the singleton window and load a method context."
 
@@ -806,6 +816,16 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 		^ self ].
 
 	aBlock value: String new
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> analyzeStack: aStackString [
+	"Pre-populate the input with the stack and send immediately."
+
+	inputArea text: 'Please analyze this GemStone stack and explain what went wrong:
+
+' , aStackString.
+	self sendMessage
 ]
 
 { #category : 'actions' }

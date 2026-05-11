@@ -202,6 +202,17 @@ JadeiteDebuggerPresenter >> copyStack [
 		informing: 'Process stack copied to clipboard'
 ]
 
+{ #category : 'actions' }
+JadeiteDebuggerPresenter >> analyzeWithAI [
+
+	| writeStream |
+	writeStream := WriteStream on: String new.
+	gsProcess dumpStackOn: writeStream.
+	JadeiteAIChatPresenter
+		openWithSession: gciSession
+		forStackAnalysis: writeStream contents
+]
+
 { #category : 'selection' }
 JadeiteDebuggerPresenter >> defaultFirstFrame [
 
@@ -498,6 +509,11 @@ JadeiteDebuggerPresenter >> initializeStackMenu [
 								  ifNil: [ false ]
 								  ifNotNil: [ :frameService |
 									  frameService homeMethodClassName notNil ] ] ] ];
+		  addGroup: [ :group |
+			  group addItem: [ :item |
+				  item
+					  name: 'Analyze with AI';
+					  action: [ self analyzeWithAI ] ] ];
 		  yourself
 ]
 
