@@ -21,9 +21,40 @@ Class {
 	#instVars : [
 		'model'
 	],
+	#classVars : [
+		'ApiKey'
+	],
 	#category : 'Jadeite-AI',
 	#package : 'Jadeite-AI'
 }
+
+{ #category : 'accessing' }
+JadeiteAIClaudeAdapter class >> apiKey [
+	"Return the cached key, falling back to the environment variable."
+
+	ApiKey ifNotNil: [ ^ ApiKey ].
+	^ OSEnvironment current at: 'ANTHROPIC_API_KEY' ifAbsent: [ nil ]
+]
+
+{ #category : 'accessing' }
+JadeiteAIClaudeAdapter class >> apiKey: aString [
+
+	ApiKey := aString
+]
+
+{ #category : 'accessing' }
+JadeiteAIClaudeAdapter class >> requestApiKey [
+	"Prompt the user to enter their API key and cache it for the session.
+	 Returns the key string, or nil if the user cancelled."
+
+	| key |
+	key := UIManager default
+		       request: 'Enter your Anthropic API key:'
+		       initialAnswer: ''.
+	(key isNil or: [ key trimSeparators isEmpty ]) ifTrue: [ ^ nil ].
+	ApiKey := key trimSeparators.
+	^ ApiKey
+]
 
 { #category : 'instance creation' }
 JadeiteAIClaudeAdapter class >> default [
@@ -59,9 +90,8 @@ JadeiteAIClaudeAdapter >> initialize [
 
 { #category : 'accessing' }
 JadeiteAIClaudeAdapter >> apiKey [
-	"Read API key from environment. Set ANTHROPIC_API_KEY before starting Pharo."
 
-	^ OSEnvironment current at: 'ANTHROPIC_API_KEY' ifAbsent: [ nil ]
+	^ self class apiKey
 ]
 
 { #category : 'testing' }

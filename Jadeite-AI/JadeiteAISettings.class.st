@@ -51,12 +51,14 @@ JadeiteAISettings class >> isOllamaAvailable [
 
 { #category : 'resolution' }
 JadeiteAISettings class >> resolveAdapter [
-	"Return the best available adapter. Claude is preferred when ANTHROPIC_API_KEY
-	 is set; falls back to Ollama if running. Returns nil when neither is available."
+	"Return the best available adapter.
+	 Prefers Claude; prompts for the API key if not already cached or in the environment.
+	 Falls back to Ollama if Claude setup is cancelled. Returns nil if neither is available."
 
 	| claude |
 	claude := JadeiteAIClaudeAdapter default.
 	claude isAvailable ifTrue: [ ^ claude ].
+	JadeiteAIClaudeAdapter requestApiKey ifNotNil: [ ^ JadeiteAIClaudeAdapter default ].
 	self isOllamaAvailable ifTrue: [ ^ JadeiteAIOllamaAdapter default ].
 	^ nil
 ]

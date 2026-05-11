@@ -617,11 +617,10 @@ JadeiteAIChatPresenter >> switchToAdapterNamed: aString [
 		ifTrue: [
 			newAdapter := JadeiteAIClaudeAdapter default.
 			newAdapter isAvailable ifFalse: [
-				UIManager default
-					alert: 'ANTHROPIC_API_KEY is not set in the environment.
-Set it before starting Pharo:  export ANTHROPIC_API_KEY=''sk-ant-...'''.
-				adapterDropList selectItem: currentName.
-				^ self ] ]
+				JadeiteAIClaudeAdapter requestApiKey isNil ifTrue: [
+					adapterDropList selectItem: currentName.
+					^ self ].
+				newAdapter := JadeiteAIClaudeAdapter default ] ]
 		ifFalse: [
 			JadeiteAISettings isOllamaAvailable ifFalse: [
 				UIManager default
