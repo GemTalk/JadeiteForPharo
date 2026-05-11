@@ -202,26 +202,29 @@ JadeiteMethodSourcePane >> resetText [
 JadeiteMethodSourcePane >> saveMethodIn: classService category: jadeiteCategory completionBlock: completionBlock [
 
 	| methodSource1 theCategory serverSelector |
-
 	methodSource1 := self currentMethodSourceFrom: self text.
 	theCategory := jadeiteCategory ifNil: [ 'other' ] ifNotNil: [ :cat |
-		               cat isEmpty
-			               ifTrue: [ 'other' ]
-			               ifFalse: [
-				               cat isString
-					               ifTrue: [ jadeiteCategory ]
-					               ifFalse: [ jadeiteCategory categoryName ] ] ].
+			               cat isEmpty
+				               ifTrue: [ 'other' ]
+				               ifFalse: [
+						               cat isString
+							               ifTrue: [ jadeiteCategory ]
+							               ifFalse: [ jadeiteCategory categoryName ] ] ].
 	serverSelector := JadeitePreferences isRowanLoaded
 		                  ifTrue: [ #saveMethodSource:category: ]
-		                  ifFalse: [ #jfpwor_saveMethodSource:category: ].
+		                  ifFalse: [
+				                  JadeitePreferences isSeaside
+					                  ifTrue: [
+					                  #jfpseaside_saveMethodSource:category: ]
+					                  ifFalse: [ #jfpwor_saveMethodSource:category: ] ].
 	classService
 		command: serverSelector;
 		commandArgs: (Array with: methodSource1 with: theCategory);
 		compileErrorHandler: [ :ex |
 			self reportCompileError: ex gsArguments ].
 	self issueCommand: classService onCompletion: [
-		self hasUnacceptedEdits: false.
-		completionBlock value ]
+			self hasUnacceptedEdits: false.
+			completionBlock value ]
 ]
 
 { #category : 'selections' }
