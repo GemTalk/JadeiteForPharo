@@ -142,12 +142,13 @@ JadeiteAIChatPresenter >> addStyle: aString [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Pre-populate the input with the stack and send immediately."
+	"Pre-populate the input with the stack and send immediately.
+	 Uses a one-shot path with a short system prompt to stay within rate limits."
 
 	inputArea text: 'Please analyze this GemStone stack and explain what went wrong:
 
 ' , aStackString.
-	self sendMessage
+	self sendStackAnalysisMessage
 ]
 
 { #category : 'private' }
@@ -903,6 +904,51 @@ JadeiteAIChatPresenter >> sendMessage [
 				do: [ :ex |
 					UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
 			forkNamed: 'JadeiteAI-LLMWorker' ]
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> sendStackAnalysisMessage [
+	"One-shot stack analysis: short system prompt, no agent loop.
+	 Keeps input tokens low to avoid hitting org rate limits."
+
+	| userText analysisConversation reply |
+	userText := inputArea text trimBlanks.
+	userText isEmpty ifTrue: [ ^ self ].
+
+	messageHistory addLast: userText.
+	historyIndex := messageHistory size + 1.
+	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
+	self appendToTranscript: '[You] ' asText allBold , userText asText.
+	inputArea text: ''.
+	self disableInput.
+
+	workerProcess := [
+		[
+			analysisConversation := JadeiteAIChatConversation new
+				systemPrompt: self stackAnalysisSystemPrompt;
+				yourself.
+			analysisConversation addUserMessage: userText.
+			reply := llmAdapter sendConversation: analysisConversation.
+			conversation addUserMessage: userText.
+			UIManager default defer: [ self onWorkerDone: reply ] ]
+		on: Error
+		do: [ :ex |
+			UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
+	forkNamed: 'JadeiteAI-LLMWorker'
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
+	"Minimal system prompt for stack analysis — no code-execution or method-reading
+	 instructions, keeping input tokens low."
+
+	^ 'You are a helpful GemStone Smalltalk programming assistant.
+Analyze the GemStone call stack provided and explain:
+1. What went wrong — the root cause of the error
+2. Which frame triggered the error and why
+3. How to fix it
+
+Be concise. Focus on the most relevant frames. Do not execute any code.'
 ]
 
 { #category : 'context' }
