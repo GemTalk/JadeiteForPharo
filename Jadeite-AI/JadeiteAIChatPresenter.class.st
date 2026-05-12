@@ -183,22 +183,18 @@ JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 	"Append text to the transcript, preserving Text attributes (bold etc.).
 	 Removes any thinking indicator first so real content always follows it.
 	 Maintains transcriptContent as the source of truth to avoid losing
-	 formatting when re-reading from the widget.
-	 Returns the 1-based start position of the newly appended content."
+	 formatting when re-reading from the widget."
 
-	| startPos |
 	thinkingStart ifNotNil: [ :start |
 		transcriptContent := transcriptContent copyFrom: 1 to: start.
 		thinkingStart := nil ].
-	startPos := transcriptContent isEmpty ifTrue: [ 1 ] ifFalse: [ transcriptContent size + 2 ].
 	transcriptContent isEmpty
 		ifFalse: [ transcriptContent := transcriptContent , String lf asText ].
 	transcriptContent := transcriptContent , aTextOrString asText.
 	transcriptArea text: transcriptContent.
 	[ transcriptArea scrollValue: 1 @ 1 ]
 		on: Error
-		do: [ "ignore if widget not yet realized" ].
-	^ startPos
+		do: [ "ignore if widget not yet realized" ]
 ]
 
 { #category : 'private' }
@@ -718,9 +714,11 @@ JadeiteAIChatPresenter >> moveCursorUpLine [
 JadeiteAIChatPresenter >> onWorkerDone: replyString [
 	"Called on the UI thread after a successful LLM response."
 
-	| startPos |
+	| effectiveSize startPos |
 	conversation addAssistantMessage: replyString.
-	startPos := self appendToTranscript: '[AI] ' asText allBold , replyString asText.
+	effectiveSize := thinkingStart ifNil: [ transcriptContent size ].
+	startPos := effectiveSize = 0 ifTrue: [ 1 ] ifFalse: [ effectiveSize + 2 ].
+	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
 	[ transcriptArea adapter widget textMorph
 		selectFrom: startPos to: transcriptContent size ] on: Error do: [  ].
 	self enableInput
@@ -824,7 +822,6 @@ JadeiteAIChatPresenter >> sendMessage [
 	inputArea text: ''.
 	self disableInput.
 
-	UIManager default defer: [
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
 			| reply agentIteration queryMsgIndex bothEnvsRequested gemstoneExecuted pharoExecuted |
@@ -921,7 +918,7 @@ JadeiteAIChatPresenter >> sendMessage [
 				on: Error
 				do: [ :ex |
 					UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
-			forkNamed: 'JadeiteAI-LLMWorker' ] ]
+			forkNamed: 'JadeiteAI-LLMWorker' ]
 ]
 
 { #category : 'actions' }
@@ -938,7 +935,6 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 	inputArea text: ''.
 	self disableInput.
 
-	UIManager default defer: [
 	workerProcess := [
 		| analysisConversation reply |
 		[
@@ -952,7 +948,7 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 		on: Error
 		do: [ :ex |
 			UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
-	forkNamed: 'JadeiteAI-LLMWorker' ]
+	forkNamed: 'JadeiteAI-LLMWorker'
 ]
 
 { #category : 'private' }
