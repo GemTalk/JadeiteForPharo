@@ -286,7 +286,8 @@ JadeiteAIChatPresenter >> enableInput [
 	self stopSpinner.
 	sendButton enabled: true.
 	inputArea enabled: true.
-	stopButton enabled: false
+	stopButton enabled: false.
+	[ inputArea takeKeyboardFocus ] on: Error do: [  ]
 ]
 
 { #category : 'private' }
