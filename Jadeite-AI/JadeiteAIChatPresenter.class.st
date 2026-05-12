@@ -182,6 +182,7 @@ JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 		ifFalse: [ transcriptContent := transcriptContent , String lf asText ].
 	transcriptContent := transcriptContent , aTextOrString asText.
 	transcriptArea text: transcriptContent.
+	[ transcriptArea adapter widget textMorph selectFrom: 1 to: 0 ] on: Error do: [  ].
 	[ transcriptArea scrollValue: 1 @ 1 ]
 		on: Error
 		do: [ "ignore if widget not yet realized" ]
@@ -704,8 +705,12 @@ JadeiteAIChatPresenter >> moveCursorUpLine [
 JadeiteAIChatPresenter >> onWorkerDone: replyString [
 	"Called on the UI thread after a successful LLM response."
 
+	| startPos |
 	conversation addAssistantMessage: replyString.
+	startPos := transcriptContent isEmpty ifTrue: [ 1 ] ifFalse: [ transcriptContent size + 2 ].
 	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
+	[ transcriptArea adapter widget textMorph
+		selectFrom: startPos to: transcriptContent size ] on: Error do: [  ].
 	self enableInput
 ]
 
