@@ -144,12 +144,30 @@ JadeiteAIChatPresenter >> addStyle: aString [
 { #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
 	"Send the stack to Claude for analysis.
+	 Auto-injects source for any stack-frame classes found in registered projects.
 	 The transcript shows a short summary so the full stack doesn't flood the chat."
 
-	| fullPrompt summaryLine displayText |
+	| fullPrompt summaryLine displayText classNames sourcesStream injectedCount |
 	fullPrompt := 'Please analyze this GemStone stack and explain what went wrong:
 
 ' , aStackString.
+
+	classNames := self parseClassNamesFromStack: aStackString.
+	sourcesStream := WriteStream on: String new.
+	injectedCount := 0.
+	classNames do: [ :className |
+		injectedCount < 5 ifTrue: [
+			| source |
+			source := JadeiteAIProjectRegistry default sourceForClass: className ifAbsent: [ nil ].
+			source ifNotNil: [
+				sourcesStream nextPutAll: '--- ' , className , ' ---'; nextPutAll: String lf.
+				sourcesStream nextPutAll: source; nextPutAll: String lf.
+				injectedCount := injectedCount + 1 ] ] ].
+	sourcesStream contents isEmpty ifFalse: [
+		fullPrompt := fullPrompt , String lf , String lf
+			, 'Relevant class sources from registered projects:' , String lf
+			, sourcesStream contents ].
+
 	summaryLine := (aStackString lines
 		ifEmpty: [ '' ]
 		ifNotEmpty: [ :lines | lines first ]) trimBlanks.
@@ -158,7 +176,34 @@ JadeiteAIChatPresenter >> analyzeStack: aStackString [
 	displayText := summaryLine isEmpty
 		ifTrue: [ 'Analyzing stack' ]
 		ifFalse: [ 'Analyzing stack: ' , summaryLine ].
+	injectedCount > 0 ifTrue: [
+		displayText := displayText , ' (with ' , injectedCount printString , ' class source'
+			, (injectedCount = 1 ifTrue: [ '' ] ifFalse: [ 's' ]) , ')' ].
 	self sendStackAnalysis: fullPrompt displayText: displayText
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> parseClassNamesFromStack: aStackString [
+	"Extract unique class names from GemStone stack frame lines.
+	 Frame lines have the form:  N [expr] in ClassName >> selector
+	                          or N [expr] in ClassName class >> selector
+	 Returns an OrderedCollection in first-occurrence order."
+
+	| names |
+	names := OrderedCollection new.
+	aStackString lines do: [ :line |
+		| inIdx arrowIdx afterIn raw |
+		inIdx := line indexOfSubCollection: ' in ' startingAt: 1 ifAbsent: [ 0 ].
+		inIdx = 0 ifFalse: [
+			afterIn := inIdx + 4.
+			arrowIdx := line indexOfSubCollection: ' >> ' startingAt: afterIn ifAbsent: [ 0 ].
+			arrowIdx > 0 ifTrue: [
+				raw := (line copyFrom: afterIn to: arrowIdx - 1) trimBlanks.
+				(raw endsWith: ' class') ifTrue: [
+					raw := raw copyFrom: 1 to: raw size - 6 ].
+				(raw notEmpty and: [ (names includes: raw) not ])
+					ifTrue: [ names add: raw ] ] ] ].
+	^ names
 ]
 
 { #category : 'private' }
