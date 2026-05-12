@@ -45,20 +45,33 @@ JadeiteAIProjectRegistry >> classNamesForProject: aName [
 
 { #category : 'accessing' }
 JadeiteAIProjectRegistry >> contextString [
-	"Return a string listing all registered projects and their class names.
+	"Return a string listing all registered projects with their disk layout and class names.
 	 Injected into the conversation context when projects are registered."
 
 	| ws |
 	projects isEmpty ifTrue: [ ^ '' ].
 	ws := WriteStream on: String new.
 	ws
-		nextPutAll: 'Registered GemStone projects — use <readgemstoneclass>ClassName</readgemstoneclass> to read a class source:';
+		nextPutAll: 'Registered GemStone projects (Tonel format on disk):';
 		nextPutAll: String lf.
 	projects do: [ :p |
-		| names |
+		| root classIndex packageDirs names |
+		root := p at: 'rootPath'.
+		classIndex := p at: 'classIndex'.
 		ws nextPutAll: 'Project: '; nextPutAll: (p at: 'name'); nextPutAll: String lf.
-		names := (p at: 'classIndex') keys asSortedCollection.
-		ws nextPutAll: 'Classes: '.
+		ws nextPutAll: 'Root path: '; nextPutAll: root pathString; nextPutAll: String lf.
+		ws nextPutAll: 'Bash commands run with "." = this root path.'; nextPutAll: String lf.
+		"Derive package names from the parent directories of class files"
+		packageDirs := (classIndex values
+			collect: [ :f | f parent basename ]
+			as: Set) asSortedCollection.
+		ws nextPutAll: 'Packages (subdirectories): '.
+		packageDirs doWithIndex: [ :pkg :i |
+			i > 1 ifTrue: [ ws nextPutAll: ', ' ].
+			ws nextPutAll: pkg ].
+		ws nextPutAll: String lf.
+		names := classIndex keys asSortedCollection.
+		ws nextPutAll: 'Classes ('; nextPutAll: names size printString; nextPutAll: ' total): '.
 		names doWithIndex: [ :name :i |
 			i > 1 ifTrue: [ ws nextPutAll: ', ' ].
 			ws nextPutAll: name ].
