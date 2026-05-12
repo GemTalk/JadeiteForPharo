@@ -808,6 +808,33 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 	aBlock value: String new
 ]
 
+{ #category : 'private' }
+JadeiteAIChatPresenter >> sendWithRetry: aBlock [
+	"Call aBlock, retrying up to 3 times on Claude overloaded_error responses.
+	 Updates the spinner indicator between retries so the user knows what is happening."
+
+	| attempt maxAttempts |
+	maxAttempts := 4.
+	attempt := 1.
+	[ attempt < maxAttempts ] whileTrue: [
+		[ ^ aBlock value ]
+			on: Error
+			do: [ :ex |
+				((ex messageText includesSubstring: 'overloaded_error')
+					or: [ ex messageText includesSubstring: 'rate_limit_error' ])
+					ifTrue: [
+						UIManager default defer: [
+							self appendThinkingIndicator:
+								('[AI] Claude is busy, retrying ('
+								, attempt printString , '/'
+								, (maxAttempts - 1) printString
+								, ')...') asText allBold ].
+						(Delay forSeconds: 5) wait ]
+					ifFalse: [ ex pass ] ].
+		attempt := attempt + 1 ].
+	^ aBlock value
+]
+
 { #category : 'actions' }
 JadeiteAIChatPresenter >> sendMessage [
 	"Grab input, resolve GemStone context (async for class services), then POST to the LLM."
@@ -836,7 +863,7 @@ JadeiteAIChatPresenter >> sendMessage [
 				bothEnvsRequested := pharoCheckbox state and: [ gemstoneCheckbox state ].
 				gemstoneExecuted := false.
 				pharoExecuted := false.
-				reply := self preprocessReply: (llmAdapter sendConversation: conversation).
+				reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: conversation ]).
 
 				agentIteration := 0.
 
@@ -909,7 +936,7 @@ JadeiteAIChatPresenter >> sendMessage [
 										ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
 					conversation addAssistantMessage: preText.
 					conversation addUserMessage: feedbackMsg.
-					reply := self preprocessReply: (llmAdapter sendConversationStep: conversation) ].
+					reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.
@@ -943,7 +970,7 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 				systemPrompt: self stackAnalysisSystemPrompt;
 				yourself.
 			analysisConversation addUserMessage: fullPrompt.
-			reply := llmAdapter sendConversation: analysisConversation.
+			reply := self sendWithRetry: [ llmAdapter sendConversation: analysisConversation ].
 			conversation addUserMessage: displayText.
 			UIManager default defer: [ self onWorkerDone: reply ] ]
 		on: Error
