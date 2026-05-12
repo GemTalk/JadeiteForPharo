@@ -504,20 +504,13 @@ JadeiteAIChatPresenter >> handleReadGemStoneMethodTag: reply conversation: aConv
 	| preText spec parts className selector source |
 	preText := self extractTextBefore: '<readgemstonemethod>' in: reply.
 	spec := (self extractExpressionFrom: reply openTag: '<readgemstonemethod>' closeTag: '</readgemstonemethod>') trimBlanks.
-	parts := spec substrings: $>.
-	(parts size >= 2 and: [ (parts at: 1) size >= 2 and: [ (parts at: 1) last = $> ] ])
-		ifTrue: [
-			className := (parts at: 1) copyFrom: 1 to: (parts at: 1) size - 1.
-			selector := (parts at: 2) trimBlanks ]
+	[ | sepIdx |
+	  sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+	  sepIdx = 0
+		ifTrue: [ className := spec. selector := '' ]
 		ifFalse: [
-			"Fallback: split on '>>' by looking for the pattern manually"
-			| sepIdx |
-			sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
-			sepIdx = 0
-				ifTrue: [ className := spec. selector := '' ]
-				ifFalse: [
-					className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
-					selector := (spec copyFrom: sepIdx + 2 to: spec size) trimBlanks ] ].
+			className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
+			selector := (spec copyFrom: sepIdx + 2 to: spec size) trimBlanks ] ] value.
 	preText isEmpty ifFalse: [
 		UIManager default defer: [
 			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
