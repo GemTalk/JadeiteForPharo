@@ -115,7 +115,8 @@ Reading source code:
 - To read a GemStone instance method: <gemstone>((ClassName methodDictForEnv: 0) at: #selector) sourceString</gemstone>
 - To read a GemStone class-side method: <gemstone>((ClassName class methodDictForEnv: 0) at: #selector) sourceString</gemstone>
 - ALWAYS use the fetch expression above. NEVER write method source code from memory inside a tag — you will get a compile error. The tag must contain only the fetch expression, not the method body.
-- Read at most 3 method sources per response. If you need more, tell the user which additional methods you would like to read and ask permission before proceeding.
+- Issue ONE tag per reply. The result is returned to you so you can issue the next tag.
+- You may read up to 3 methods sequentially without asking. After reading 3 methods total in a chain, ask permission before reading more.
 - Never request all methods of a class at once.
 
 If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
@@ -127,7 +128,8 @@ Reading registered project source:
 - To read a single method body from a registered project: <readgemstonemethod>ClassName>>selector</readgemstonemethod>
 - Prefer <readgemstonemethod> over <readgemstoneclass> when you only need one or two methods — it uses far fewer tokens.
 - Available projects and their class names are listed in the context message when projects are registered.
-- Ask permission before reading more than 3 methods in a single response.
+- Issue ONE tag per reply. The result is returned to you so you can issue the next tag.
+- You may read up to 3 methods sequentially without asking. After reading 3 methods total in a chain, ask permission before reading more.
 
 Pharo specific instructions: 
 - When asked to time results in Pharo use the format [ <expression> ] timeToRun
