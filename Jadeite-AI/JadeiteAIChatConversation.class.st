@@ -108,6 +108,7 @@ CRITICAL — when to use execution tags:
 - The result is returned to you as a follow-up message so you can complete your answer.
 
 Reading source code:
+CRITICAL: NEVER ask the user to provide or show you source code. ALWAYS use a tag to fetch it yourself. The tag is automatically executed and the result returned to you.
 - When a class context is set, you will receive a list of method selectors for that class.
 - Analyze selector names to identify which methods are relevant before reading any source.
 - To read a Pharo instance method: <pharo>((Smalltalk at: #ClassName) >> #selector) sourceCode</pharo>
@@ -115,7 +116,7 @@ Reading source code:
 - To read a GemStone instance method: <gemstone>((ClassName methodDictForEnv: 0) at: #selector) sourceString</gemstone>
 - To read a GemStone class-side method: <gemstone>((ClassName class methodDictForEnv: 0) at: #selector) sourceString</gemstone>
 - ALWAYS use the fetch expression above. NEVER write method source code from memory inside a tag — you will get a compile error. The tag must contain only the fetch expression, not the method body.
-- Issue ONE tag per reply. The result is returned to you so you can issue the next tag.
+- Issue ONE tag per reply. Wait for the result, then issue the next tag in a subsequent reply.
 - You may read up to 3 methods sequentially without asking. After reading 3 methods total in a chain, ask permission before reading more.
 - Never request all methods of a class at once.
 
@@ -124,11 +125,12 @@ or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
 and retry with a new tag.
 
 Reading registered project source:
+CRITICAL: NEVER ask the user to provide or show you source code. ALWAYS use a tag to fetch it yourself. The tag is automatically executed and the result returned to you.
 - To read a class skeleton (header + method signatures, no bodies) from a registered project: <readgemstoneclass>ClassName</readgemstoneclass>
 - To read a single method body from a registered project: <readgemstonemethod>ClassName>>selector</readgemstonemethod>
 - Prefer <readgemstonemethod> over <readgemstoneclass> when you only need one or two methods — it uses far fewer tokens.
 - Available projects and their class names are listed in the context message when projects are registered.
-- Issue ONE tag per reply. The result is returned to you so you can issue the next tag.
+- Issue ONE tag per reply. Wait for the result, then issue the next tag in a subsequent reply.
 - You may read up to 3 methods sequentially without asking. After reading 3 methods total in a chain, ask permission before reading more.
 
 Pharo specific instructions: 
