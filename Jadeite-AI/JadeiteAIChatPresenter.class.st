@@ -538,10 +538,8 @@ JadeiteAIChatPresenter >> handleBashTag: reply conversation: aConversation [
 		UIManager default defer: [
 			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
 	UIManager default defer: [
-		self appendToTranscript: ('[bash] ' , cmd) asText ].
+		self appendToTranscript: ('[bash] ' asText allBold , cmd asText) ].
 	result := JadeiteAIProjectRegistry default executeSafeCommand: cmd.
-	UIManager default defer: [
-		self appendToTranscript: '[Result] ' asText allBold , result asText ].
 	aConversation addAssistantMessage: preText.
 	aConversation addUserMessage: '[System: bash command executed in registered project root]
 $ ' , cmd , '
