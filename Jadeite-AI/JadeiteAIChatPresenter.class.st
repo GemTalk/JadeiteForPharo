@@ -523,7 +523,7 @@ JadeiteAIChatPresenter >> handleReadGemStoneMethodTag: reply conversation: aConv
 	aConversation addUserMessage: '[System: source fetched automatically]
 Source of ' , className , '>>' , selector , ':
 ' , source , '
-[System: Now issue another <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag to read the next method, or answer the user''s question if you have enough information. Do NOT ask the user to provide source — use tags.]'.
+[System: IMPORTANT — do NOT end your response with "let me look..." without including a tag. Issue another <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag NOW to read the next method, or give your final answer. The loop stops if no tag is present.]'.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 
@@ -544,7 +544,7 @@ JadeiteAIChatPresenter >> handleBashTag: reply conversation: aConversation [
 	aConversation addUserMessage: '[System: bash command executed in registered project root]
 $ ' , cmd , '
 ' , result , '
-[System: You may issue another tag (<bash>, <readgemstonemethod>, <readgemstoneclass>, etc.) or answer the user''s question. Do NOT ask the user — use tags.]'.
+[System: IMPORTANT — do NOT end your response with phrases like "let me look..." or "I will check..." without including a tag. If you need more information, include the tag in THIS response now. The loop stops if no tag is present. Issue a <bash>, <readgemstonemethod>, or <readgemstoneclass> tag immediately, or give your final answer.]'.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 
@@ -569,7 +569,7 @@ JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConve
 	aConversation addUserMessage: '[System: source fetched automatically]
 Skeleton of ' , className , ' (method signatures only):
 ' , source , '
-[System: Now issue a <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag to read a specific method body, or answer the user''s question if you have enough information. Do NOT ask the user to provide source — use tags.]'.
+[System: IMPORTANT — do NOT end your response with "let me look..." without including a tag. Issue a <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag NOW to read a specific method body, or give your final answer. The loop stops if no tag is present.]'.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 

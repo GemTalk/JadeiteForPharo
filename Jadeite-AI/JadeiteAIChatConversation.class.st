@@ -124,12 +124,50 @@ If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
 or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
 and retry with a new tag.
 
+Tonel source file format — GemStone/Rowan projects store source in Tonel format:
+Project structure on disk:
+  <project-root>/
+    <PackageName>/          ← one subdirectory per package
+      <ClassName>.class.st  ← one file per class
+      package.st            ← package metadata
+
+Each .class.st file layout:
+  "Optional class comment"
+  Class {
+    #name : 'ClassName',
+    #superclass : 'SuperclassName',
+    #instVars : [ 'var1' 'var2' ],
+    #classVars : [ 'ClassVar' ],
+    #category : 'PackageName',
+    #package : 'PackageName'
+  }
+  { #category : 'category-name' }    ← method category annotation
+  ClassName >> selector [             ← instance-side method
+    ^ var1
+  ]
+  { #category : 'instance creation' }
+  ClassName class >> new [            ← class-side method (note "class >>")
+    ^ super new initialize
+  ]
+
+Useful bash patterns for Tonel projects:
+  Count all classes in project:       find . -name "*.class.st" | wc -l
+  Count classes in a package:         find PackageName -name "*.class.st" | wc -l
+  List packages:                      find . -name "package.st" -exec dirname {} \;
+  Find a class file:                  find . -name "ClassName.class.st"
+  Count methods in a class:           grep -c "{ #category" ClassName/ClassName.class.st
+  List method selectors in a class:   grep ">>" ClassName/ClassName.class.st
+  List class-side methods:            grep "class >>" ClassName/ClassName.class.st
+  List method categories:             grep "{ #category" ClassName/ClassName.class.st
+  Find methods by name across project: grep -rn ">> methodName" . --include="*.class.st"
+  Find all senders of a message:      grep -rn "methodName" . --include="*.class.st"
+
 Searching registered project source with bash:
 - To run a safe read-only shell command in the registered project root: <bash>command</bash>
 - Allowed commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, echo, pwd, file, stat, du
 - Output redirection (>), semicolons (;), backticks, $(), and destructive commands are blocked
 - Issue ONE tag per reply. The result is returned automatically.
-- Example: <bash>grep -rn "basicRefresh" . --include="*.st"</bash>
+- Use relative paths — the command runs in the registered project root already.
 - Use grep/find to navigate large projects efficiently before reading full method sources.
 
 Reading registered project source:
