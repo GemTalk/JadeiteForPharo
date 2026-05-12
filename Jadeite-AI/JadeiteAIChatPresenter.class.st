@@ -1092,13 +1092,14 @@ JadeiteAIChatPresenter >> switchToModel: aModelString [
 
 	(llmAdapter isKindOf: JadeiteAIOllamaAdapter) ifFalse: [ ^ self ].
 	aModelString = llmAdapter model ifTrue: [ ^ self ].
-	(UIManager default confirm:
-		 'Switching models will clear the current conversation. Continue?')
-		ifFalse: [
+	(conversation messages notEmpty and: [
+		 (UIManager default confirm:
+			  'Switching models will clear the current conversation. Continue?') not ])
+		ifTrue: [
 			modelDropList selectItem: llmAdapter model.
 			^ self ].
 	llmAdapter model: aModelString.
-	self clearChat
+	conversation messages notEmpty ifTrue: [ self clearChat ]
 ]
 
 { #category : 'private' }
