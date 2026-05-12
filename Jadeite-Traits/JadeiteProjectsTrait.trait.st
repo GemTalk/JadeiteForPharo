@@ -609,6 +609,13 @@ JadeiteProjectsTrait >> newProjectMenu [
 							name: 'File Out Project ...';
 							action: [ self fileoutProject ];
 							enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Register project with AI';
+				icon: (self iconNamed: #glamorousHelp);
+				action: [ self registerProjectWithAI ];
+				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
 	^ menu
 ]
 

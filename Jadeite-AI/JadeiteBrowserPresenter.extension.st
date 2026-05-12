@@ -1,22 +1,6 @@
 Extension { #name : 'JadeiteBrowserPresenter' }
 
 { #category : '*Jadeite-AI' }
-JadeiteBrowserPresenter >> newProjectMenu [
-	"Override to append an AI group to the standard project context menu."
-
-	| menu |
-	menu := super newProjectMenu.
-	menu addGroup: [ :group |
-		group addItem: [ :item |
-			item
-				name: 'Register project with AI';
-				icon: (self iconNamed: #glamorousHelp);
-				action: [ self registerProjectWithAI ];
-				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
-	^ menu
-]
-
-{ #category : '*Jadeite-AI' }
 JadeiteBrowserPresenter >> registerProjectWithAI [
 	"Register the selected project's on-disk source with the AI project registry."
 
