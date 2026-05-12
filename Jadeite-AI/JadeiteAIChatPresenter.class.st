@@ -47,7 +47,8 @@ Class {
 		'pharoCheckbox',
 		'gemstoneCheckbox',
 		'adapterDropList',
-		'modelDropList'
+		'modelDropList',
+		'updatingModelList'
 	],
 	#classVars : [
 		'CurrentWindow'
@@ -454,7 +455,8 @@ JadeiteAIChatPresenter >> initialize [
 	conversation := JadeiteAIChatConversation new.
 	transcriptContent := '' asText.
 	messageHistory := OrderedCollection new.
-	historyIndex := 0
+	historyIndex := 0.
+	updatingModelList := false
 ]
 
 { #category : 'initialization' }
@@ -1072,13 +1074,17 @@ JadeiteAIChatPresenter >> updateModelDropList [
 		ifTrue: [
 			modelDropList enabled: true.
 			[
-			| models |
+			| models currentModel |
 			models := JadeiteAIOllamaAdapter availableModels.
 			models isEmpty ifTrue: [ models := Array with: llmAdapter model ].
+			currentModel := llmAdapter model.
 			UIManager default defer: [
+				updatingModelList := true.
+				[
 				modelDropList items: models.
-				(models includes: llmAdapter model) ifTrue: [
-					modelDropList selectItem: llmAdapter model ] ] ] fork ]
+				(models includes: currentModel) ifTrue: [
+					modelDropList selectItem: currentModel ] ]
+					ensure: [ updatingModelList := false ] ] ] fork ]
 		ifFalse: [
 			modelDropList
 				items: #(  );
@@ -1090,6 +1096,7 @@ JadeiteAIChatPresenter >> switchToModel: aModelString [
 	"Called when the user selects a model from the model dropdown.
 	 Warns that switching clears the conversation; reverts on cancel."
 
+	updatingModelList ifTrue: [ ^ self ].
 	(llmAdapter isKindOf: JadeiteAIOllamaAdapter) ifFalse: [ ^ self ].
 	aModelString = llmAdapter model ifTrue: [ ^ self ].
 	(conversation messages notEmpty and: [
