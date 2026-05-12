@@ -824,6 +824,7 @@ JadeiteAIChatPresenter >> sendMessage [
 	inputArea text: ''.
 	self disableInput.
 
+	UIManager default defer: [
 	self resolveContextOnCompletion: [ :context |
 		workerProcess := [
 			| reply agentIteration queryMsgIndex bothEnvsRequested gemstoneExecuted pharoExecuted |
@@ -920,7 +921,7 @@ JadeiteAIChatPresenter >> sendMessage [
 				on: Error
 				do: [ :ex |
 					UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
-			forkNamed: 'JadeiteAI-LLMWorker' ]
+			forkNamed: 'JadeiteAI-LLMWorker' ] ]
 ]
 
 { #category : 'actions' }
@@ -937,6 +938,7 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 	inputArea text: ''.
 	self disableInput.
 
+	UIManager default defer: [
 	workerProcess := [
 		| analysisConversation reply |
 		[
@@ -950,7 +952,7 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 		on: Error
 		do: [ :ex |
 			UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
-	forkNamed: 'JadeiteAI-LLMWorker'
+	forkNamed: 'JadeiteAI-LLMWorker' ]
 ]
 
 { #category : 'private' }
