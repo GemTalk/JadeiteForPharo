@@ -520,8 +520,10 @@ JadeiteAIChatPresenter >> handleReadGemStoneMethodTag: reply conversation: aConv
 		sourceForMethod: selector inClass: className
 		ifAbsent: [ className , '>>' , selector , ' not found in registered projects.' ].
 	aConversation addAssistantMessage: preText.
-	aConversation addUserMessage: 'Source of ' , className , '>>' , selector , ':
-' , source.
+	aConversation addUserMessage: '[System: source fetched automatically]
+Source of ' , className , '>>' , selector , ':
+' , source , '
+[System: Now issue another <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag to read the next method, or answer the user''s question if you have enough information. Do NOT ask the user to provide source — use tags.]'.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 
@@ -543,8 +545,10 @@ JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConve
 		skeletonForClass: className
 		ifAbsent: [ 'Class ' , className , ' not found in registered projects.' ].
 	aConversation addAssistantMessage: classPreText.
-	aConversation addUserMessage: 'Skeleton of ' , className , ' (method signatures only):
-' , source.
+	aConversation addUserMessage: '[System: source fetched automatically]
+Skeleton of ' , className , ' (method signatures only):
+' , source , '
+[System: Now issue a <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag to read a specific method body, or answer the user''s question if you have enough information. Do NOT ask the user to provide source — use tags.]'.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 
