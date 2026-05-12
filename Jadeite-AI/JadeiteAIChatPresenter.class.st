@@ -824,8 +824,8 @@ JadeiteAIChatPresenter >> sendWithRetry: aBlock [
 					or: [ ex messageText includesSubstring: 'rate_limit_error' ])
 					ifTrue: [
 						UIManager default defer: [
-							self appendThinkingIndicator:
-								('[AI] Claude is busy, retrying ('
+							self appendToTranscript:
+								('[AI] Claude busy, retrying ('
 								, attempt printString , '/'
 								, (maxAttempts - 1) printString
 								, ')...') asText allBold ].
