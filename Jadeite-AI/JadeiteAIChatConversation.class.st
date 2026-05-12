@@ -134,19 +134,19 @@ Project structure on disk:
 Each .class.st file layout:
   "Optional class comment"
   Class {
-    #name : 'ClassName',
-    #superclass : 'SuperclassName',
-    #instVars : [ 'var1' 'var2' ],
-    #classVars : [ 'ClassVar' ],
-    #category : 'PackageName',
-    #package : 'PackageName'
+    #name : ''ClassName'',
+    #superclass : ''SuperclassName'',
+    #instVars : [ ''var1'' ''var2'' ],
+    #classVars : [ ''ClassVar'' ],
+    #category : ''PackageName'',
+    #package : ''PackageName''
   }
-  { #category : 'category-name' }    ← method category annotation
-  ClassName >> selector [             ← instance-side method
+  { #category : ''category-name'' }    ← method category annotation
+  ClassName >> selector [              ← instance-side method
     ^ var1
   ]
-  { #category : 'instance creation' }
-  ClassName class >> new [            ← class-side method (note "class >>")
+  { #category : ''instance creation'' }
+  ClassName class >> new [             ← class-side method (note "class >>")
     ^ super new initialize
   ]
 
