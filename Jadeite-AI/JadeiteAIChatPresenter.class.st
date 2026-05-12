@@ -938,8 +938,8 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> sendWithRetry: aBlock [
-	"Call aBlock, retrying up to 3 times on Claude overloaded_error responses.
-	 Updates the spinner indicator between retries so the user knows what is happening."
+	"Call aBlock, retrying up to 3 times on Claude overloaded_error or rate_limit_error responses.
+	 Updates the transcript between retries so the user knows what is happening."
 
 	| attempt maxAttempts |
 	maxAttempts := 4.
@@ -1184,12 +1184,12 @@ JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
 
 	^ 'You are a GemStone Smalltalk debugging assistant.
 
-Given a GemStone call stack, explain:
-1. What went wrong — the root cause of the error
-2. Which frame triggered it and why
-3. How to fix it
+Given a GemStone call stack, your response MUST follow this order:
+1. Identify the most relevant frame (the one that caused or triggered the error).
+2. Use a <bash> or <readgemstonemethod> tag to read its source from disk before drawing conclusions.
+3. After reading the source, explain what went wrong, why, and how to fix it.
 
-Be concise. Focus on the most relevant frames. Do not execute GemStone or Pharo code.
+Do not execute GemStone or Pharo code. Read source from disk only.
 
 You may read source from registered projects using these tags:
 
