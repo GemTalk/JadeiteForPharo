@@ -497,6 +497,42 @@ JadeiteAIChatPresenter >> gciSession: aGciSession [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> handleReadGemStoneMethodTag: reply conversation: aConversation [
+	"Handle a <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag.
+	 Reads a single method from the registered project index."
+
+	| preText spec parts className selector source |
+	preText := self extractTextBefore: '<readgemstonemethod>' in: reply.
+	spec := (self extractExpressionFrom: reply openTag: '<readgemstonemethod>' closeTag: '</readgemstonemethod>') trimBlanks.
+	parts := spec substrings: $>.
+	(parts size >= 2 and: [ (parts at: 1) size >= 2 and: [ (parts at: 1) last = $> ] ])
+		ifTrue: [
+			className := (parts at: 1) copyFrom: 1 to: (parts at: 1) size - 1.
+			selector := (parts at: 2) trimBlanks ]
+		ifFalse: [
+			"Fallback: split on '>>' by looking for the pattern manually"
+			| sepIdx |
+			sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+			sepIdx = 0
+				ifTrue: [ className := spec. selector := '' ]
+				ifFalse: [
+					className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
+					selector := (spec copyFrom: sepIdx + 2 to: spec size) trimBlanks ] ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	UIManager default defer: [
+		self appendToTranscript: ('[Reading: ' , className , '>>' , selector , ']') asText ].
+	source := JadeiteAIProjectRegistry default
+		sourceForMethod: selector inClass: className
+		ifAbsent: [ className , '>>' , selector , ' not found in registered projects.' ].
+	aConversation addAssistantMessage: preText.
+	aConversation addUserMessage: 'Source of ' , className , '>>' , selector , ':
+' , source.
+	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConversation [
 	"Handle a <readgemstoneclass> tag: read the class source from the registry,
 	 show a [Reading: ClassName] line in the transcript, feed the source back to
@@ -511,10 +547,10 @@ JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConve
 	UIManager default defer: [
 		self appendToTranscript: ('[Reading: ' , className , ']') asText ].
 	source := JadeiteAIProjectRegistry default
-		sourceForClass: className
+		skeletonForClass: className
 		ifAbsent: [ 'Class ' , className , ' not found in registered projects.' ].
 	aConversation addAssistantMessage: classPreText.
-	aConversation addUserMessage: 'Source of ' , className , ':
+	aConversation addUserMessage: 'Skeleton of ' , className , ' (method signatures only):
 ' , source.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
@@ -950,20 +986,28 @@ JadeiteAIChatPresenter >> sendMessage [
 
 				agentIteration := 0.
 
-				[ | hasGemstone hasPharo hasReadClass |
+				[ | hasGemstone hasPharo hasReadClass hasReadMethod |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
 				  hasPharo := reply includesSubstring: '<pharo>'.
 				  hasReadClass := reply includesSubstring: '<readgemstoneclass>'.
-				  (hasGemstone or: [ hasPharo or: [ hasReadClass ] ])
+				  hasReadMethod := reply includesSubstring: '<readgemstonemethod>'.
+				  (hasGemstone or: [ hasPharo or: [ hasReadClass or: [ hasReadMethod ] ] ])
 				  and: [ agentIteration < self maxAgentIterations ] ]
 				whileTrue: [
-					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label |
+					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label firstTag |
 					agentIteration := agentIteration + 1.
-					(reply indexOfSubCollection: '<readgemstoneclass>' startingAt: 1 ifAbsent: [ reply size + 1 ])
-						< ((reply indexOfSubCollection: '<gemstone>' startingAt: 1 ifAbsent: [ reply size + 1 ])
-							min: (reply indexOfSubCollection: '<pharo>' startingAt: 1 ifAbsent: [ reply size + 1 ]))
+					firstTag := #(  '<readgemstoneclass>' '<readgemstonemethod>' '<gemstone>' '<pharo>' )
+						inject: reply size + 1 -> ''
+						into: [ :min :tag |
+							| idx |
+							idx := reply indexOfSubCollection: tag startingAt: 1 ifAbsent: [ reply size + 1 ].
+							idx < min key ifTrue: [ idx -> tag ] ifFalse: [ min ] ].
+					(firstTag value = '<readgemstoneclass>')
 						ifTrue: [
 							reply := self handleReadGemStoneClassTag: reply conversation: conversation ]
+						ifFalse: [ (firstTag value = '<readgemstonemethod>')
+						ifTrue: [
+							reply := self handleReadGemStoneMethodTag: reply conversation: conversation ]
 						ifFalse: [
 							useGemstone := (reply
 								indexOfSubCollection: '<gemstone>'
@@ -1026,7 +1070,7 @@ JadeiteAIChatPresenter >> sendMessage [
 												ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
 							conversation addAssistantMessage: preText.
 							conversation addUserMessage: feedbackMsg.
-							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ].
+							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ] ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.

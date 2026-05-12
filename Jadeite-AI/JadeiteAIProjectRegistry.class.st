@@ -119,6 +119,16 @@ JadeiteAIProjectRegistry >> registerProjectNamed: aName url: aUrlString [
 ]
 
 { #category : 'accessing' }
+JadeiteAIProjectRegistry >> skeletonForClass: aClassName ifAbsent: aBlock [
+	"Return a compact class skeleton: class header + method signatures only.
+	 Omits method bodies so token cost stays low."
+
+	| source |
+	source := self sourceForClass: aClassName ifAbsent: [ ^ aBlock value ].
+	^ self extractSkeletonFrom: source
+]
+
+{ #category : 'accessing' }
 JadeiteAIProjectRegistry >> sourceForClass: aClassName ifAbsent: aBlock [
 	"Return the full .class.st file contents for aClassName.
 	 Searches all registered projects in registration order.
@@ -129,4 +139,71 @@ JadeiteAIProjectRegistry >> sourceForClass: aClassName ifAbsent: aBlock [
 		ref := (p at: 'classIndex') at: aClassName ifAbsent: [ nil ].
 		ref ifNotNil: [ ^ ref contents ] ].
 	^ aBlock value
+]
+
+{ #category : 'accessing' }
+JadeiteAIProjectRegistry >> sourceForMethod: selector inClass: aClassName ifAbsent: aBlock [
+	"Return the source of a single method from a registered project.
+	 Parses the .class.st file to extract just the requested method.
+	 Evaluates aBlock if the class or method is not found."
+
+	| source |
+	source := self sourceForClass: aClassName ifAbsent: [ ^ aBlock value ].
+	^ self extractMethod: selector fromSource: source ifAbsent: aBlock
+]
+
+{ #category : 'private' }
+JadeiteAIProjectRegistry >> extractSkeletonFrom: classSource [
+	"Return a compact representation of a tonel class file:
+	 everything up to and including the Class { } block, then one line per method signature."
+
+	| ws lines pastClassDef |
+	ws := WriteStream on: String new.
+	lines := classSource lines.
+	pastClassDef := false.
+	lines do: [ :line |
+		| trimmed |
+		trimmed := line trimBlanks.
+		pastClassDef
+			ifFalse: [
+				ws nextPutAll: line; nextPutAll: String lf.
+				trimmed = '}' ifTrue: [ pastClassDef := true ] ]
+			ifTrue: [
+				(line includesSubstring: ' >> ') ifTrue: [
+					ws nextPutAll: trimmed; nextPutAll: String lf ] ] ].
+	^ ws contents
+]
+
+{ #category : 'private' }
+JadeiteAIProjectRegistry >> extractMethod: selector fromSource: classSource ifAbsent: aBlock [
+	"Extract a single method's full source from a tonel class file.
+	 Uses bracket-depth counting to find the method boundary.
+	 Evaluates aBlock if the selector is not found."
+
+	| lines foundIdx start ws depth |
+	lines := classSource lines.
+	foundIdx := 0.
+	lines doWithIndex: [ :line :i |
+		(foundIdx = 0 and: [ line includesSubstring: '>> ' , selector ]) ifTrue: [
+			foundIdx := i ] ].
+	foundIdx = 0 ifTrue: [ ^ aBlock value ].
+
+	"Include the category annotation line if present"
+	start := (foundIdx > 1 and: [ (lines at: foundIdx - 1) trimBlanks size > 0
+		and: [ (lines at: foundIdx - 1) trimBlanks first = ${ ] ])
+		ifTrue: [ foundIdx - 1 ]
+		ifFalse: [ foundIdx ].
+
+	ws := WriteStream on: String new.
+	depth := 0.
+	start to: lines size do: [ :i |
+		| line |
+		line := lines at: i.
+		ws nextPutAll: line.
+		line do: [ :ch |
+			ch = $[ ifTrue: [ depth := depth + 1 ].
+			ch = $] ifTrue: [ depth := depth - 1 ] ].
+		(depth <= 0 and: [ i >= (start + 1) ]) ifTrue: [ ^ ws contents ].
+		ws nextPutAll: String lf ].
+	^ ws contents
 ]
