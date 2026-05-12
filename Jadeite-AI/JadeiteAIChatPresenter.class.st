@@ -1143,7 +1143,7 @@ JadeiteAIChatPresenter >> sendStackAnalysisWithLoop: fullPrompt displayText: dis
 				systemPrompt: self stackAnalysisSystemPrompt;
 				yourself.
 			JadeiteAIProjectRegistry default hasProjects ifTrue: [
-				analysisConversation contextMessage: JadeiteAIProjectRegistry default contextString ].
+				analysisConversation contextMessage: JadeiteAIProjectRegistry default briefContextString ].
 			analysisConversation addUserMessage: fullPrompt.
 			reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: analysisConversation ]).
 

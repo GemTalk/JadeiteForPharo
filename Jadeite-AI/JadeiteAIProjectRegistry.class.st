@@ -44,6 +44,22 @@ JadeiteAIProjectRegistry >> classNamesForProject: aName [
 ]
 
 { #category : 'accessing' }
+JadeiteAIProjectRegistry >> briefContextString [
+	"Compact context for stack analysis: project names and root paths only, no class list.
+	 Keeps token count low while still telling Claude where to find sources."
+
+	| ws |
+	projects isEmpty ifTrue: [ ^ '' ].
+	ws := WriteStream on: String new.
+	ws nextPutAll: 'Registered GemStone projects available for source lookup (Tonel format):'; nextPutAll: String lf.
+	projects do: [ :p |
+		ws nextPutAll: 'Project: '; nextPutAll: (p at: 'name'); nextPutAll: String lf.
+		ws nextPutAll: 'Root: '; nextPutAll: (p at: 'rootPath') pathString; nextPutAll: String lf.
+		ws nextPutAll: 'Use <bash>find . -name "ClassName.class.st"</bash> to locate any class, then read it with <readgemstonemethod> or <readgemstoneclass>.'; nextPutAll: String lf ].
+	^ ws contents
+]
+
+{ #category : 'accessing' }
 JadeiteAIProjectRegistry >> contextString [
 	"Return a string listing all registered projects with their disk layout and class names.
 	 Injected into the conversation context when projects are registered."
