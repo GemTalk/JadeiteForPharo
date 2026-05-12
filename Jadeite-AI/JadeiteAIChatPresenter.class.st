@@ -528,6 +528,29 @@ Source of ' , className , '>>' , selector , ':
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> handleBashTag: reply conversation: aConversation [
+	"Handle a <bash> tag: run a safe read-only shell command in the registered project root."
+
+	| preText cmd result |
+	preText := self extractTextBefore: '<bash>' in: reply.
+	cmd := (self extractExpressionFrom: reply openTag: '<bash>' closeTag: '</bash>') trimBlanks.
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	UIManager default defer: [
+		self appendToTranscript: ('[bash] ' , cmd) asText ].
+	result := JadeiteAIProjectRegistry default executeSafeCommand: cmd.
+	UIManager default defer: [
+		self appendToTranscript: '[Result] ' asText allBold , result asText ].
+	aConversation addAssistantMessage: preText.
+	aConversation addUserMessage: '[System: bash command executed in registered project root]
+$ ' , cmd , '
+' , result , '
+[System: You may issue another tag (<bash>, <readgemstonemethod>, <readgemstoneclass>, etc.) or answer the user''s question. Do NOT ask the user — use tags.]'.
+	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConversation [
 	"Handle a <readgemstoneclass> tag: read the class source from the registry,
 	 show a [Reading: ClassName] line in the transcript, feed the source back to
@@ -983,17 +1006,18 @@ JadeiteAIChatPresenter >> sendMessage [
 
 				agentIteration := 0.
 
-				[ | hasGemstone hasPharo hasReadClass hasReadMethod |
+				[ | hasGemstone hasPharo hasReadClass hasReadMethod hasBash |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
 				  hasPharo := reply includesSubstring: '<pharo>'.
 				  hasReadClass := reply includesSubstring: '<readgemstoneclass>'.
 				  hasReadMethod := reply includesSubstring: '<readgemstonemethod>'.
-				  (hasGemstone or: [ hasPharo or: [ hasReadClass or: [ hasReadMethod ] ] ])
+				  hasBash := reply includesSubstring: '<bash>'.
+				  (hasGemstone or: [ hasPharo or: [ hasReadClass or: [ hasReadMethod or: [ hasBash ] ] ] ])
 				  and: [ agentIteration < self maxAgentIterations ] ]
 				whileTrue: [
 					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label firstTag |
 					agentIteration := agentIteration + 1.
-					firstTag := #(  '<readgemstoneclass>' '<readgemstonemethod>' '<gemstone>' '<pharo>' )
+					firstTag := #(  '<readgemstoneclass>' '<readgemstonemethod>' '<bash>' '<gemstone>' '<pharo>' )
 						inject: reply size + 1 -> ''
 						into: [ :min :tag |
 							| idx |
@@ -1005,6 +1029,9 @@ JadeiteAIChatPresenter >> sendMessage [
 						ifFalse: [ (firstTag value = '<readgemstonemethod>')
 						ifTrue: [
 							reply := self handleReadGemStoneMethodTag: reply conversation: conversation ]
+						ifFalse: [ (firstTag value = '<bash>')
+						ifTrue: [
+							reply := self handleBashTag: reply conversation: conversation ]
 						ifFalse: [
 							useGemstone := (reply
 								indexOfSubCollection: '<gemstone>'
@@ -1067,7 +1094,7 @@ JadeiteAIChatPresenter >> sendMessage [
 												ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
 							conversation addAssistantMessage: preText.
 							conversation addUserMessage: feedbackMsg.
-							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ] ].
+							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ] ] ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.

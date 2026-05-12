@@ -124,6 +124,14 @@ If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
 or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
 and retry with a new tag.
 
+Searching registered project source with bash:
+- To run a safe read-only shell command in the registered project root: <bash>command</bash>
+- Allowed commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, echo, pwd, file, stat, du
+- Output redirection (>), semicolons (;), backticks, $(), and destructive commands are blocked
+- Issue ONE tag per reply. The result is returned automatically.
+- Example: <bash>grep -rn "basicRefresh" . --include="*.st"</bash>
+- Use grep/find to navigate large projects efficiently before reading full method sources.
+
 Reading registered project source:
 CRITICAL: NEVER ask the user to provide or show you source code. ALWAYS use a tag to fetch it yourself. The tag is automatically executed and the result returned to you.
 - To read a class skeleton (header + method signatures, no bodies) from a registered project: <readgemstoneclass>ClassName</readgemstoneclass>
