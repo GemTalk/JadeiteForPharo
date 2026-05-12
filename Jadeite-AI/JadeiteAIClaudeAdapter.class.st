@@ -96,8 +96,36 @@ JadeiteAIClaudeAdapter >> buildMessagesJson: messages [
 ]
 
 { #category : 'building' }
+JadeiteAIClaudeAdapter >> buildMessagesJsonWithCache: messages [
+	"Build messages JSON, marking the first user message for prompt caching.
+	 The first user message is typically the class/project context block, which is
+	 stable within a conversation and worth caching.
+	 Only caches when there are 2+ messages so the live query is never cached."
+
+	| ws |
+	ws := WriteStream on: String new.
+	ws nextPut: $[.
+	messages doWithIndex: [ :msg :i |
+		i > 1 ifTrue: [ ws nextPut: $, ].
+		ws nextPutAll: '{"role":'.
+		ws nextPutAll: (self jsonEncodeString: (msg at: 'role')).
+		ws nextPutAll: ',"content":'.
+		(i = 1 and: [ messages size > 1 and: [ (msg at: 'role') = 'user' ] ])
+			ifTrue: [
+				ws nextPutAll: '[{"type":"text","text":'.
+				ws nextPutAll: (self jsonEncodeString: (msg at: 'content')).
+				ws nextPutAll: ',"cache_control":{"type":"ephemeral"}}]' ]
+			ifFalse: [
+				ws nextPutAll: (self jsonEncodeString: (msg at: 'content')) ].
+		ws nextPut: $} ].
+	ws nextPut: $].
+	^ ws contents
+]
+
+{ #category : 'building' }
 JadeiteAIClaudeAdapter >> buildRequestBody: aConversation [
-	"Anthropic format: system is top-level, messages array excludes system role."
+	"Anthropic format with prompt caching on the system prompt and context message.
+	 System is sent as an array so cache_control can be attached to it."
 
 	| ws messages |
 	messages := aConversation toApiMessages
@@ -105,10 +133,11 @@ JadeiteAIClaudeAdapter >> buildRequestBody: aConversation [
 	ws := WriteStream on: String new.
 	ws nextPutAll: '{"model":'.
 	ws nextPutAll: (self jsonEncodeString: model).
-	ws nextPutAll: ',"max_tokens":8192,"system":'.
+	ws nextPutAll: ',"max_tokens":8192,"system":[{"type":"text","text":'.
 	ws nextPutAll: (self jsonEncodeString: aConversation systemPrompt).
+	ws nextPutAll: ',"cache_control":{"type":"ephemeral"}}]'.
 	ws nextPutAll: ',"messages":'.
-	ws nextPutAll: (self buildMessagesJson: messages).
+	ws nextPutAll: (self buildMessagesJsonWithCache: messages).
 	ws nextPut: $}.
 	^ ws contents
 ]
@@ -201,6 +230,7 @@ JadeiteAIClaudeAdapter >> postBody: aBody [
 		                  url: 'https://api.anthropic.com/v1/messages';
 		                  headerAt: 'x-api-key' put: self apiKey;
 		                  headerAt: 'anthropic-version' put: '2023-06-01';
+		                  headerAt: 'anthropic-beta' put: 'prompt-caching-2024-07-31';
 		                  entity: (ZnStringEntity json: body);
 		                  timeout: 300;
 		                  post.
