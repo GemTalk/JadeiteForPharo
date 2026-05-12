@@ -75,7 +75,7 @@ JadeiteAIProjectRegistry >> executeSafeCommand: aCommandString [
 	root := self firstProjectRoot.
 	root isNil ifTrue: [ ^ 'Error: No project registered. Register a project first.' ].
 	(self isSafeCommand: aCommandString) ifFalse: [
-		^ 'Error: Command not permitted. Only read-only commands (ls, find, grep, cat, wc, head, tail, sort, uniq, diff, echo, pwd) are allowed. Output redirection (>), semicolons, and shell metacharacters are blocked.' ].
+		^ 'Error: Command not permitted. Only read-only commands (ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd) are allowed. Output redirection (>), sed -i, semicolons, and shell metacharacters are blocked.' ].
 	tmpFile := '/tmp/jadeite_bash_' , Processor activeProcess identityHash printString , '.txt'.
 	fullCmd := 'cd ' , root pathString , ' && ' , aCommandString , ' > ' , tmpFile , ' 2>&1'.
 	LibC system: fullCmd.
@@ -84,8 +84,8 @@ JadeiteAIProjectRegistry >> executeSafeCommand: aCommandString [
 		do: [ :e | result := 'Error reading output: ' , e messageText ].
 	[ tmpFile asFileReference delete ] on: Error do: [  ].
 	result isEmpty ifTrue: [ result := '(no output)' ].
-	result size > 4000 ifTrue: [
-		result := (result copyFrom: 1 to: 4000) , String lf , '... [output truncated at 4000 chars]' ].
+	result size > 10000 ifTrue: [
+		result := (result copyFrom: 1 to: 10000) , String lf , '... [output truncated at 10000 chars — use a more specific command to reduce output]' ].
 	^ result
 ]
 
@@ -109,8 +109,8 @@ JadeiteAIProjectRegistry >> isSafeCommand: aCommandString [
 	 Pipe segments are each checked independently against the whitelist."
 
 	| allowedVerbs blocked segments |
-	allowedVerbs := #( 'ls' 'find' 'grep' 'cat' 'wc' 'head' 'tail' 'sort' 'uniq' 'diff' 'echo' 'pwd' 'file' 'stat' 'du' ).
-	blocked := #( '>' ';' '`' '$(' 'rm' 'mv' 'cp' 'chmod' 'chown' 'touch' 'mkdir' 'rmdir' 'kill' 'sudo' 'bash' 'python' 'ruby' 'perl' 'eval' 'exec' ).
+	allowedVerbs := #( 'ls' 'find' 'grep' 'cat' 'wc' 'head' 'tail' 'sort' 'uniq' 'diff' 'echo' 'pwd' 'file' 'stat' 'du' 'sed' 'awk' ).
+	blocked := #( '>' ';' '`' '$(' 'sed -i' 'rm' 'mv' 'cp' 'chmod' 'chown' 'touch' 'mkdir' 'rmdir' 'kill' 'sudo' 'bash' 'python' 'ruby' 'perl' 'eval' 'exec' ).
 	blocked do: [ :b |
 		(aCommandString includesSubstring: b) ifTrue: [ ^ false ] ].
 	segments := aCommandString substrings: '|'.

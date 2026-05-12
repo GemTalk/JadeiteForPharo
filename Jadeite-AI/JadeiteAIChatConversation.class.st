@@ -164,8 +164,8 @@ Useful bash patterns for Tonel projects:
 
 Searching registered project source with bash:
 - To run a safe read-only shell command in the registered project root: <bash>command</bash>
-- Allowed commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, echo, pwd, file, stat, du
-- Output redirection (>), semicolons (;), backticks, $(), and destructive commands are blocked
+- Allowed commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd, file, stat, du
+- Output redirection (>), sed -i, semicolons (;), backticks, $(), and destructive commands are blocked
 - Issue ONE tag per reply. The result is returned automatically.
 - Use relative paths — the command runs in the registered project root already.
 - Use grep/find to navigate large projects efficiently before reading full method sources.
