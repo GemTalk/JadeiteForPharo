@@ -120,7 +120,15 @@ Reading source code:
 
 If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
 or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
-and retry with a new tag.'
+and retry with a new tag.
+
+Pharo specific instructions: 
+- When asked to time results in Pharo use the format [ <expression> ] timeToRun
+
+GemStone specific instructions: 
+- When asked to time results in GemStone use the format Time millisecondsToRun: [ <expression> ] 
+
+'
 ]
 
 { #category : 'accessing' }

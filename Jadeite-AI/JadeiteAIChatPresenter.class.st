@@ -1035,6 +1035,24 @@ Start it with:  ollama serve'.
 	self updateWindowTitle
 ]
 
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> switchToModel: aModelString [
+	"Called when the user selects a model from the model dropdown.
+	 Warns that switching clears the conversation; reverts on cancel."
+
+	updatingModelList ifTrue: [ ^ self ].
+	(llmAdapter isKindOf: JadeiteAIOllamaAdapter) ifFalse: [ ^ self ].
+	aModelString = llmAdapter model ifTrue: [ ^ self ].
+	(conversation messages notEmpty and: [
+		 (UIManager default confirm:
+			  'Switching models will clear the current conversation. Continue?') not ])
+		ifTrue: [
+			modelDropList selectItem: llmAdapter model.
+			^ self ].
+	llmAdapter model: aModelString.
+	conversation messages notEmpty ifTrue: [ self clearChat ]
+]
+
 { #category : 'constants' }
 JadeiteAIChatPresenter >> timeout [
 
@@ -1065,6 +1083,26 @@ JadeiteAIChatPresenter >> updateAdapterUI [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> updateContextLabel [
+	"Refresh the context row to reflect the current context state."
+
+	contextLabel ifNil: [ ^ self ].
+
+	contextClassService ifNotNil: [ :cs |
+		contextLabel label: 'Context: class ' , cs name.
+		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
+		^ self ].
+
+	contextMethodServices ifNotNil: [ :ms |
+		contextLabel label: 'Context: ' , ms size printString , ' selected method(s)'.
+		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
+		^ self ].
+
+	contextLabel label: ''.
+	clearContextButton ifNotNil: [ clearContextButton enabled: false ]
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> updateModelDropList [
 	"Populate the model dropdown for Ollama; hide it for Claude.
 	 Queries Ollama in a background thread to avoid blocking the UI."
@@ -1089,44 +1127,6 @@ JadeiteAIChatPresenter >> updateModelDropList [
 			modelDropList
 				items: #(  );
 				enabled: false ]
-]
-
-{ #category : 'actions' }
-JadeiteAIChatPresenter >> switchToModel: aModelString [
-	"Called when the user selects a model from the model dropdown.
-	 Warns that switching clears the conversation; reverts on cancel."
-
-	updatingModelList ifTrue: [ ^ self ].
-	(llmAdapter isKindOf: JadeiteAIOllamaAdapter) ifFalse: [ ^ self ].
-	aModelString = llmAdapter model ifTrue: [ ^ self ].
-	(conversation messages notEmpty and: [
-		 (UIManager default confirm:
-			  'Switching models will clear the current conversation. Continue?') not ])
-		ifTrue: [
-			modelDropList selectItem: llmAdapter model.
-			^ self ].
-	llmAdapter model: aModelString.
-	conversation messages notEmpty ifTrue: [ self clearChat ]
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> updateContextLabel [
-	"Refresh the context row to reflect the current context state."
-
-	contextLabel ifNil: [ ^ self ].
-
-	contextClassService ifNotNil: [ :cs |
-		contextLabel label: 'Context: class ' , cs name.
-		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
-		^ self ].
-
-	contextMethodServices ifNotNil: [ :ms |
-		contextLabel label: 'Context: ' , ms size printString , ' selected method(s)'.
-		clearContextButton ifNotNil: [ clearContextButton enabled: true ].
-		^ self ].
-
-	contextLabel label: ''.
-	clearContextButton ifNotNil: [ clearContextButton enabled: false ]
 ]
 
 { #category : 'private' }
