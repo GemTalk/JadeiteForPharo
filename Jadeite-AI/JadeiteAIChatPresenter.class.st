@@ -712,10 +712,16 @@ JadeiteAIChatPresenter >> moveCursorUpLine [
 
 { #category : 'event handling' }
 JadeiteAIChatPresenter >> onWorkerDone: replyString [
-	"Called on the UI thread after a successful LLM response."
+	"Called on the UI thread after a successful LLM response.
+	 Highlights the new [AI] block by computing its start position before appending."
 
+	| anchor startPos |
 	conversation addAssistantMessage: replyString.
+	anchor := thinkingStart ifNil: [ transcriptContent size ].
+	startPos := anchor = 0 ifTrue: [ 1 ] ifFalse: [ anchor + 2 ].
 	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
+	[ transcriptArea adapter widget textMorph
+		selectFrom: startPos to: transcriptContent size ] on: Error do: [  ].
 	self enableInput
 ]
 
@@ -763,7 +769,7 @@ JadeiteAIChatPresenter >> preprocessReply: aString [
 					  and: [ (result at: lineEnd) ~= Character cr
 					         and: [ (result at: lineEnd) ~= Character lf ] ] ]
 						whileTrue: [ lineEnd := lineEnd + 1 ].
-					expr := (result copyFrom: contentStart to: lineEnd - 1) trimSeparators.
+					expr := (result copyFrom: contentStart to: lineEnd - 1) trimBlanks.
 					result := (result copyFrom: 1 to: openAt - 1)
 					          , '<' , lang , '>' , expr , '</' , lang , '>'
 					          , (result copyFrom: lineEnd to: result size) ]
