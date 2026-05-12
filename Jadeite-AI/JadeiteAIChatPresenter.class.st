@@ -143,30 +143,21 @@ JadeiteAIChatPresenter >> addStyle: aString [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Send the stack to Claude for analysis.
-	 Auto-injects source for any stack-frame classes found in registered projects.
-	 The transcript shows a short summary so the full stack doesn't flood the chat."
+	"Send the stack to Claude for analysis using the agent loop so Claude can
+	 read relevant sources from registered projects using bash/<readgemstonemethod> tags."
 
-	| fullPrompt summaryLine displayText classNames sourcesStream injectedCount |
-	fullPrompt := 'Please analyze this GemStone stack and explain what went wrong:
-
-' , aStackString.
-
+	| fullPrompt summaryLine displayText classNames classHint |
 	classNames := self parseClassNamesFromStack: aStackString.
-	sourcesStream := WriteStream on: String new.
-	injectedCount := 0.
-	classNames do: [ :className |
-		injectedCount < 5 ifTrue: [
-			| source |
-			source := JadeiteAIProjectRegistry default sourceForClass: className ifAbsent: [ nil ].
-			source ifNotNil: [
-				sourcesStream nextPutAll: '--- ' , className , ' ---'; nextPutAll: String lf.
-				sourcesStream nextPutAll: source; nextPutAll: String lf.
-				injectedCount := injectedCount + 1 ] ] ].
-	sourcesStream contents isEmpty ifFalse: [
-		fullPrompt := fullPrompt , String lf , String lf
-			, 'Relevant class sources from registered projects:' , String lf
-			, sourcesStream contents ].
+	classHint := classNames isEmpty
+		ifTrue: [ '' ]
+		ifFalse: [
+			String lf , String lf , 'Classes appearing in stack frames: '
+			, (classNames
+				inject: ''
+				into: [ :acc :n | acc isEmpty ifTrue: [ n ] ifFalse: [ acc , ', ' , n ] ]) ].
+	fullPrompt := 'Please analyze this GemStone stack. Explain what went wrong, which frame triggered the error, and how to fix it. Use <bash> or <readgemstonemethod> tags to look up relevant source if needed.'
+		, classHint , String lf , String lf
+		, 'Stack:' , String lf , aStackString.
 
 	summaryLine := (aStackString lines
 		ifEmpty: [ '' ]
@@ -176,10 +167,7 @@ JadeiteAIChatPresenter >> analyzeStack: aStackString [
 	displayText := summaryLine isEmpty
 		ifTrue: [ 'Analyzing stack' ]
 		ifFalse: [ 'Analyzing stack: ' , summaryLine ].
-	injectedCount > 0 ifTrue: [
-		displayText := displayText , ' (with ' , injectedCount printString , ' class source'
-			, (injectedCount = 1 ifTrue: [ '' ] ifFalse: [ 's' ]) , ')' ].
-	self sendStackAnalysis: fullPrompt displayText: displayText
+	self sendStackAnalysisWithLoop: fullPrompt displayText: displayText
 ]
 
 { #category : 'private' }
@@ -1135,18 +1123,98 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 	forkNamed: 'JadeiteAI-LLMWorker'
 ]
 
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> sendStackAnalysisWithLoop: fullPrompt displayText: displayText [
+	"Stack analysis with agent-loop support for bash/<readgemstonemethod>/<readgemstoneclass> tags.
+	 Claude can look up relevant sources from registered projects as it works through the stack."
+
+	displayText trimBlanks isEmpty ifTrue: [ ^ self ].
+	messageHistory addLast: displayText.
+	historyIndex := messageHistory size + 1.
+	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
+	self appendToTranscript: '[You] ' asText allBold , displayText asText.
+	inputArea text: ''.
+	self disableInput.
+
+	workerProcess := [
+		| analysisConversation reply agentIteration |
+		[
+			analysisConversation := JadeiteAIChatConversation new
+				systemPrompt: self stackAnalysisSystemPrompt;
+				yourself.
+			JadeiteAIProjectRegistry default hasProjects ifTrue: [
+				analysisConversation contextMessage: JadeiteAIProjectRegistry default contextString ].
+			analysisConversation addUserMessage: fullPrompt.
+			reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: analysisConversation ]).
+
+			agentIteration := 0.
+			[ | hasReadClass hasReadMethod hasBash |
+			  hasReadClass := reply includesSubstring: '<readgemstoneclass>'.
+			  hasReadMethod := reply includesSubstring: '<readgemstonemethod>'.
+			  hasBash := reply includesSubstring: '<bash>'.
+			  (hasReadClass or: [ hasReadMethod or: [ hasBash ] ])
+			  and: [ agentIteration < self maxAgentIterations ] ]
+			whileTrue: [
+				| firstTag |
+				agentIteration := agentIteration + 1.
+				firstTag := #( '<readgemstoneclass>' '<readgemstonemethod>' '<bash>' )
+					inject: reply size + 1 -> ''
+					into: [ :min :tag |
+						| idx |
+						idx := reply indexOfSubCollection: tag startingAt: 1 ifAbsent: [ reply size + 1 ].
+						idx < min key ifTrue: [ idx -> tag ] ifFalse: [ min ] ].
+				(firstTag value = '<readgemstoneclass>')
+					ifTrue: [ reply := self handleReadGemStoneClassTag: reply conversation: analysisConversation ]
+					ifFalse: [ (firstTag value = '<readgemstonemethod>')
+					ifTrue: [ reply := self handleReadGemStoneMethodTag: reply conversation: analysisConversation ]
+					ifFalse: [ reply := self handleBashTag: reply conversation: analysisConversation ] ] ].
+
+			conversation addUserMessage: displayText.
+			UIManager default defer: [ self onWorkerDone: reply ] ]
+		on: Error
+		do: [ :ex |
+			UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
+	forkNamed: 'JadeiteAI-LLMWorker'
+]
+
 { #category : 'private' }
 JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
-	"Minimal system prompt for stack analysis — no code-execution or method-reading
-	 instructions, keeping input tokens low."
+	"System prompt for stack analysis — includes source-reading tag instructions so
+	 Claude can look up relevant methods from registered projects."
 
-	^ 'You are a helpful GemStone Smalltalk programming assistant.
-Analyze the GemStone call stack provided and explain:
+	^ 'You are a GemStone Smalltalk debugging assistant.
+
+Given a GemStone call stack, explain:
 1. What went wrong — the root cause of the error
-2. Which frame triggered the error and why
+2. Which frame triggered it and why
 3. How to fix it
 
-Be concise. Focus on the most relevant frames. Do not execute any code.'
+Be concise. Focus on the most relevant frames. Do not execute GemStone or Pharo code.
+
+You may read source from registered projects using these tags:
+
+To run a safe read-only shell command in the registered project root:
+<bash>command</bash>
+Allowed: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd
+Blocked: >, sed -i, ;, backticks, $(), destructive commands
+Use relative paths — "." is the project root. Always use find to locate a file before referencing it by path.
+
+To read a single method from a registered project:
+<readgemstonemethod>ClassName>>selector</readgemstonemethod>
+
+To read a class skeleton (method signatures only, no bodies):
+<readgemstoneclass>ClassName</readgemstoneclass>
+
+Useful bash patterns:
+  Locate a class file:   find . -name "ClassName.class.st"
+  Count methods:         grep -c "{ #category" path/to/ClassName.class.st
+  Find a method:         grep -n ">> methodName" path/to/ClassName.class.st
+  Find senders:          grep -rn "methodName" . --include="*.class.st"
+
+CRITICAL rules:
+- Issue ONE tag per reply. The result is returned automatically — do not ask the user.
+- Do NOT end a response with "let me look..." without including a tag immediately after.
+- After reading what you need, give your analysis.'
 ]
 
 { #category : 'context' }
