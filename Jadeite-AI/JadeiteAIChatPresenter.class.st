@@ -275,7 +275,6 @@ JadeiteAIChatPresenter >> defaultLayout [
 JadeiteAIChatPresenter >> disableInput [
 
 	sendButton enabled: false.
-	inputArea enabled: false.
 	stopButton enabled: true.
 	self startSpinner
 ]
@@ -285,7 +284,6 @@ JadeiteAIChatPresenter >> enableInput [
 
 	self stopSpinner.
 	sendButton enabled: true.
-	inputArea enabled: true.
 	stopButton enabled: false.
 	[ inputArea takeKeyboardFocus ] on: Error do: [  ]
 ]
