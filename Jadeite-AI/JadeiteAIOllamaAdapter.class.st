@@ -24,6 +24,36 @@ Class {
 }
 
 { #category : 'instance creation' }
+JadeiteAIOllamaAdapter class >> availableModels [
+	"Return model names installed in the local Ollama instance.
+	 Returns an empty array if Ollama is not running or the request fails."
+
+	| response names idx end |
+	[ response := ZnClient new
+		              beOneShot;
+		              url: 'http://localhost:11434/api/tags';
+		              timeout: 5;
+		              get ]
+		on: Error
+		do: [ ^ #(  ) ].
+	names := OrderedCollection new.
+	idx := 1.
+	[
+	idx := response
+		       indexOfSubCollection: '"name":"'
+		       startingAt: idx
+		       ifAbsent: [ 0 ].
+	idx = 0 ] whileFalse: [
+		idx := idx + 8.
+		end := idx.
+		[ end <= response size and: [ (response at: end) ~= $" ] ]
+			whileTrue: [ end := end + 1 ].
+		names add: (response copyFrom: idx to: end - 1).
+		idx := end + 1 ].
+	^ names asArray
+]
+
+{ #category : 'instance creation' }
 JadeiteAIOllamaAdapter class >> default [
 
 	^ self new

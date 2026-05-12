@@ -46,7 +46,8 @@ Class {
 		'thinkingStart',
 		'pharoCheckbox',
 		'gemstoneCheckbox',
-		'adapterDropList'
+		'adapterDropList',
+		'modelDropList'
 	],
 	#classVars : [
 		'CurrentWindow'
@@ -535,6 +536,10 @@ JadeiteAIChatPresenter >> initializePresenters [
 		                   whenSelectedItemChangedDo: [ :item |
 			                   self switchToAdapterNamed: item ];
 		                   yourself.
+	modelDropList := self newDropList
+		                 whenSelectedItemChangedDo: [ :item |
+			                 item ifNotNil: [ self switchToModel: item ] ];
+		                 yourself.
 	buttonRow
 		add: sendButton expand: false;
 		add: stopButton expand: false;
@@ -543,6 +548,10 @@ JadeiteAIChatPresenter >> initializePresenters [
 		add: adapterDropList withConstraints: [ :c |
 			c
 				width: 110;
+				expand: false ];
+		add: modelDropList withConstraints: [ :c |
+			c
+				width: 180;
 				expand: false ].
 	self layout add: buttonRow withConstraints: [ :c | c height: 30 ]
 ]
@@ -1020,6 +1029,7 @@ Start it with:  ollama serve'.
 				^ self ].
 			newAdapter := JadeiteAIOllamaAdapter default ].
 	llmAdapter := newAdapter.
+	self updateModelDropList.
 	self updateWindowTitle
 ]
 
@@ -1043,12 +1053,52 @@ JadeiteAIChatPresenter >> truncateResult: aString [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> updateAdapterUI [
-	"Sync the dropdown and window title to the current adapter.
+	"Sync the dropdown, model list, and window title to the current adapter.
 	 Called from llmAdapter: when the adapter is set externally."
 
 	adapterDropList ifNil: [ ^ self ].
 	adapterDropList selectItem: self adapterDisplayName.
+	self updateModelDropList.
 	self updateWindowTitle
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> updateModelDropList [
+	"Populate the model dropdown for Ollama; hide it for Claude.
+	 Queries Ollama in a background thread to avoid blocking the UI."
+
+	modelDropList ifNil: [ ^ self ].
+	(llmAdapter isKindOf: JadeiteAIOllamaAdapter)
+		ifTrue: [
+			modelDropList enabled: true.
+			[
+			| models |
+			models := JadeiteAIOllamaAdapter availableModels.
+			models isEmpty ifTrue: [ models := Array with: llmAdapter model ].
+			UIManager default defer: [
+				modelDropList items: models.
+				(models includes: llmAdapter model) ifTrue: [
+					modelDropList selectItem: llmAdapter model ] ] ] fork ]
+		ifFalse: [
+			modelDropList
+				items: #(  );
+				enabled: false ]
+]
+
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> switchToModel: aModelString [
+	"Called when the user selects a model from the model dropdown.
+	 Warns that switching clears the conversation; reverts on cancel."
+
+	(llmAdapter isKindOf: JadeiteAIOllamaAdapter) ifFalse: [ ^ self ].
+	aModelString = llmAdapter model ifTrue: [ ^ self ].
+	(UIManager default confirm:
+		 'Switching models will clear the current conversation. Continue?')
+		ifFalse: [
+			modelDropList selectItem: llmAdapter model.
+			^ self ].
+	llmAdapter model: aModelString.
+	self clearChat
 ]
 
 { #category : 'private' }
