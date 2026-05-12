@@ -198,6 +198,24 @@ JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> buildContextMessage: context [
+	"Combine class context and registered project info into a single context message.
+	 Returns nil if neither is present."
+
+	| ws projectContext |
+	projectContext := JadeiteAIProjectRegistry default contextString.
+	(context isEmpty and: [ projectContext isEmpty ]) ifTrue: [ ^ nil ].
+	ws := WriteStream on: String new.
+	context isEmpty ifFalse: [
+		ws nextPutAll: 'Class context (selectors and definition):'; nextPutAll: String lf.
+		ws nextPutAll: context ].
+	projectContext isEmpty ifFalse: [
+		context isEmpty ifFalse: [ ws nextPutAll: String lf ].
+		ws nextPutAll: projectContext ].
+	^ ws contents
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> buildContextSourceFromClass: aClassService [
 	"Build a context string from the class service.
 	 Includes definition (name, vars) plus all available method selectors.
@@ -431,6 +449,29 @@ JadeiteAIChatPresenter >> gciSession [
 JadeiteAIChatPresenter >> gciSession: aGciSession [
 
 	gciSession := aGciSession
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConversation [
+	"Handle a <readgemstoneclass> tag: read the class source from the registry,
+	 show a [Reading: ClassName] line in the transcript, feed the source back to
+	 the LLM, and return the next reply string."
+
+	| classPreText className source |
+	classPreText := self extractTextBefore: '<readgemstoneclass>' in: reply.
+	className := (self extractExpressionFrom: reply openTag: '<readgemstoneclass>' closeTag: '</readgemstoneclass>') trimBlanks.
+	classPreText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , classPreText asText ] ].
+	UIManager default defer: [
+		self appendToTranscript: ('[Reading: ' , className , ']') asText ].
+	source := JadeiteAIProjectRegistry default
+		sourceForClass: className
+		ifAbsent: [ 'Class ' , className , ' not found in registered projects.' ].
+	aConversation addAssistantMessage: classPreText.
+	aConversation addUserMessage: 'Source of ' , className , ':
+' , source.
+	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 
 { #category : 'private' }
@@ -854,10 +895,7 @@ JadeiteAIChatPresenter >> sendMessage [
 		workerProcess := [
 			| reply agentIteration queryMsgIndex bothEnvsRequested gemstoneExecuted pharoExecuted |
 			[
-				conversation contextMessage: (context isEmpty
-					ifTrue: [ nil ]
-					ifFalse: [ 'Class context (selectors and definition):
-' , context ]).
+				conversation contextMessage: (self buildContextMessage: context).
 				conversation addUserMessage: userText.
 				queryMsgIndex := conversation messages size.
 				bothEnvsRequested := pharoCheckbox state and: [ gemstoneCheckbox state ].
@@ -867,76 +905,83 @@ JadeiteAIChatPresenter >> sendMessage [
 
 				agentIteration := 0.
 
-				[ | hasGemstone hasPharo |
+				[ | hasGemstone hasPharo hasReadClass |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
 				  hasPharo := reply includesSubstring: '<pharo>'.
-				  (hasGemstone or: [ hasPharo ])
+				  hasReadClass := reply includesSubstring: '<readgemstoneclass>'.
+				  (hasGemstone or: [ hasPharo or: [ hasReadClass ] ])
 				  and: [ agentIteration < self maxAgentIterations ] ]
 				whileTrue: [
 					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label |
 					agentIteration := agentIteration + 1.
-					useGemstone := (reply
-						indexOfSubCollection: '<gemstone>'
-						startingAt: 1
-						ifAbsent: [ reply size + 1 ]) < (reply
-						indexOfSubCollection: '<pharo>'
-						startingAt: 1
-						ifAbsent: [ reply size + 1 ]).
-					useGemstone
+					(reply indexOfSubCollection: '<readgemstoneclass>' startingAt: 1 ifAbsent: [ reply size + 1 ])
+						< ((reply indexOfSubCollection: '<gemstone>' startingAt: 1 ifAbsent: [ reply size + 1 ])
+							min: (reply indexOfSubCollection: '<pharo>' startingAt: 1 ifAbsent: [ reply size + 1 ]))
 						ifTrue: [
-							tag := '<gemstone>'.
-							errorTag := '<gemstoneerror>'.
-							label := '[GemStone]'.
-							preText := self extractTextBefore: tag in: reply.
-							expr := self extractGemStoneExpressionFrom: reply ]
+							reply := self handleReadGemStoneClassTag: reply conversation: conversation ]
 						ifFalse: [
-							tag := '<pharo>'.
-							errorTag := '<pharoerror>'.
-							label := '[Pharo]'.
-							preText := self extractTextBefore: tag in: reply.
-							expr := self extractPharoExpressionFrom: reply ].
-					preText isEmpty ifFalse: [
-						UIManager default defer: [
-							self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
-					expr isEmpty ifFalse: [
-						UIManager default defer: [
-							self appendToTranscript: (label , ' ' , expr) asText ] ].
-					Processor yield.
-					result := useGemstone
-						ifTrue: [ self executeGemStoneExpression: expr ]
-						ifFalse: [ self executePharoExpression: expr ].
-					useGemstone
-						ifTrue: [ gemstoneExecuted := true ]
-						ifFalse: [ pharoExecuted := true ].
-					UIManager default defer: [
-						self appendToTranscript: '[Result] ' asText allBold , result asText ].
-					"Keep LLM feedback short to avoid overflowing the context window"
-					feedbackResult := result size > 150
-						ifTrue: [ (result copyFrom: 1 to: 150) , '...[truncated]' ]
-						ifFalse: [ result ].
-					feedbackMsg := (result includesSubstring: errorTag)
-						ifTrue: [
-							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
-							, ' execution failed: ' , feedbackResult
-							, ' Write the corrected expression inside '
-							, (useGemstone ifTrue: [ '<gemstone>' ] ifFalse: [ '<pharo>' ])
-							, ' tags. Do NOT use markdown code fences, placeholder names, or prose descriptions.' ]
-						ifFalse: [
-							(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
-							, ' execution returned: ' , feedbackResult
-							, ((bothEnvsRequested and: [ gemstoneExecuted and: [ pharoExecuted ] ])
-								ifTrue: [ '. Both environments have been executed. Give your final answer now using the results above. Do not execute any more code.' ]
+							useGemstone := (reply
+								indexOfSubCollection: '<gemstone>'
+								startingAt: 1
+								ifAbsent: [ reply size + 1 ]) < (reply
+								indexOfSubCollection: '<pharo>'
+								startingAt: 1
+								ifAbsent: [ reply size + 1 ]).
+							useGemstone
+								ifTrue: [
+									tag := '<gemstone>'.
+									errorTag := '<gemstoneerror>'.
+									label := '[GemStone]'.
+									preText := self extractTextBefore: tag in: reply.
+									expr := self extractGemStoneExpressionFrom: reply ]
 								ifFalse: [
-									bothEnvsRequested
-										ifTrue: [
-											| otherEnv otherTag |
-											otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
-											otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
-											'. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
-										ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
-					conversation addAssistantMessage: preText.
-					conversation addUserMessage: feedbackMsg.
-					reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ].
+									tag := '<pharo>'.
+									errorTag := '<pharoerror>'.
+									label := '[Pharo]'.
+									preText := self extractTextBefore: tag in: reply.
+									expr := self extractPharoExpressionFrom: reply ].
+							preText isEmpty ifFalse: [
+								UIManager default defer: [
+									self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+							expr isEmpty ifFalse: [
+								UIManager default defer: [
+									self appendToTranscript: (label , ' ' , expr) asText ] ].
+							Processor yield.
+							result := useGemstone
+								ifTrue: [ self executeGemStoneExpression: expr ]
+								ifFalse: [ self executePharoExpression: expr ].
+							useGemstone
+								ifTrue: [ gemstoneExecuted := true ]
+								ifFalse: [ pharoExecuted := true ].
+							UIManager default defer: [
+								self appendToTranscript: '[Result] ' asText allBold , result asText ].
+							"Keep LLM feedback short to avoid overflowing the context window"
+							feedbackResult := result size > 150
+								ifTrue: [ (result copyFrom: 1 to: 150) , '...[truncated]' ]
+								ifFalse: [ result ].
+							feedbackMsg := (result includesSubstring: errorTag)
+								ifTrue: [
+									(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
+									, ' execution failed: ' , feedbackResult
+									, ' Write the corrected expression inside '
+									, (useGemstone ifTrue: [ '<gemstone>' ] ifFalse: [ '<pharo>' ])
+									, ' tags. Do NOT use markdown code fences, placeholder names, or prose descriptions.' ]
+								ifFalse: [
+									(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
+									, ' execution returned: ' , feedbackResult
+									, ((bothEnvsRequested and: [ gemstoneExecuted and: [ pharoExecuted ] ])
+										ifTrue: [ '. Both environments have been executed. Give your final answer now using the results above. Do not execute any more code.' ]
+										ifFalse: [
+											bothEnvsRequested
+												ifTrue: [
+													| otherEnv otherTag |
+													otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
+													otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
+													'. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
+												ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
+							conversation addAssistantMessage: preText.
+							conversation addUserMessage: feedbackMsg.
+							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.

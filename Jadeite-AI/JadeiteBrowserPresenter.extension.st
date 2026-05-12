@@ -1,6 +1,41 @@
 Extension { #name : 'JadeiteBrowserPresenter' }
 
 { #category : '*Jadeite-AI' }
+JadeiteBrowserPresenter >> newProjectMenu [
+	"Override to append an AI group to the standard project context menu."
+
+	| menu |
+	menu := super newProjectMenu.
+	menu addGroup: [ :group |
+		group addItem: [ :item |
+			item
+				name: 'Register project with AI';
+				icon: (self iconNamed: #glamorousHelp);
+				action: [ self registerProjectWithAI ];
+				enabled: [ self projectListPresenter selectionOrNil notNil ] ] ].
+	^ menu
+]
+
+{ #category : '*Jadeite-AI' }
+JadeiteBrowserPresenter >> registerProjectWithAI [
+	"Register the selected project's on-disk source with the AI project registry."
+
+	| projectService count |
+	projectService := self projectListPresenter selectionOrNil.
+	projectService ifNil: [ ^ self ].
+	[
+		count := JadeiteAIProjectRegistry default
+			registerProjectNamed: projectService name
+			url: projectService projectUrl.
+		UIManager default alert:
+			'Registered ' , projectService name , ' with AI chat ('
+			, count printString , ' classes found).' ]
+		on: Error
+		do: [ :ex |
+			UIManager default alert: 'Could not register project: ' , ex messageText ]
+]
+
+{ #category : '*Jadeite-AI' }
 JadeiteBrowserPresenter >> askJadeiteAboutSelectedClass [
 	"Open (or activate) the Ask Jadeite window with the selected class as context."
 

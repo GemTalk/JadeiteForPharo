@@ -122,6 +122,12 @@ If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
 or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
 and retry with a new tag.
 
+Reading registered project source:
+- To read a full class source (.class.st) from a registered project: <readgemstoneclass>ClassName</readgemstoneclass>
+- Use this when you need the complete class definition and all methods for a class in a registered project.
+- Available projects and their class names are listed in the context message when projects are registered.
+- Read one class at a time. Ask permission before reading more than 3 classes.
+
 Pharo specific instructions: 
 - When asked to time results in Pharo use the format [ <expression> ] timeToRun
 
