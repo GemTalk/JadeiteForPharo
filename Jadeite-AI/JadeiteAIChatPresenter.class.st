@@ -714,13 +714,8 @@ JadeiteAIChatPresenter >> moveCursorUpLine [
 JadeiteAIChatPresenter >> onWorkerDone: replyString [
 	"Called on the UI thread after a successful LLM response."
 
-	| effectiveSize startPos |
 	conversation addAssistantMessage: replyString.
-	effectiveSize := thinkingStart ifNil: [ transcriptContent size ].
-	startPos := effectiveSize = 0 ifTrue: [ 1 ] ifFalse: [ effectiveSize + 2 ].
 	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
-	[ transcriptArea adapter widget textMorph
-		selectFrom: startPos to: transcriptContent size ] on: Error do: [  ].
 	self enableInput
 ]
 
@@ -1017,9 +1012,7 @@ JadeiteAIChatPresenter >> spinnerMessages [
 { #category : 'private' }
 JadeiteAIChatPresenter >> startSpinner [
 	"Show an animated thinking indicator in the transcript (like VS Code Claude).
-	 The indicator is removed or replaced when real content arrives.
-	 spinnerProcess must be set before calling appendThinkingIndicator: because
-	 that method guards on spinnerProcess notNil."
+	 The indicator is removed or replaced when real content arrives."
 
 	| frames messages frameIdx rotationCount msgIdx |
 	frames := #( '|' '/' '-' '\' ).
@@ -1027,6 +1020,7 @@ JadeiteAIChatPresenter >> startSpinner [
 	frameIdx := 1.
 	rotationCount := 0.
 	msgIdx := (1 to: messages size) atRandom.
+	self appendThinkingIndicator: ('[AI] |  ' , (messages at: msgIdx)) asText allBold.
 	spinnerProcess := [
 		                  [ true ] whileTrue: [
 			                  | label |
@@ -1040,8 +1034,7 @@ JadeiteAIChatPresenter >> startSpinner [
 				                  rotationCount \\ 3 = 0 ifTrue: [
 					                  msgIdx := (1 to: messages size) atRandom ] ].
 			                  (Delay forMilliseconds: 150) wait ] ]
-		                  forkNamed: 'JadeiteAI-Spinner'.
-	self appendThinkingIndicator: ('[AI] |  ' , (messages at: msgIdx)) asText allBold
+		                  forkNamed: 'JadeiteAI-Spinner'
 ]
 
 { #category : 'private' }
