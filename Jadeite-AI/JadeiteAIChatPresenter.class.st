@@ -142,13 +142,22 @@ JadeiteAIChatPresenter >> addStyle: aString [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Pre-populate the input with the stack and send immediately.
-	 Uses a one-shot path with a short system prompt to stay within rate limits."
+	"Send the stack to Claude for analysis.
+	 The transcript shows a short summary so the full stack doesn't flood the chat."
 
-	inputArea text: 'Please analyze this GemStone stack and explain what went wrong:
+	| fullPrompt summaryLine displayText |
+	fullPrompt := 'Please analyze this GemStone stack and explain what went wrong:
 
 ' , aStackString.
-	self sendStackAnalysisMessage
+	summaryLine := (aStackString lines
+		ifEmpty: [ '' ]
+		ifNotEmpty: [ :lines | lines first ]) trimBlanks.
+	(summaryLine endsWith: ':') ifTrue: [
+		summaryLine := summaryLine copyFrom: 1 to: summaryLine size - 1 ].
+	displayText := summaryLine isEmpty
+		ifTrue: [ 'Analyzing stack' ]
+		ifFalse: [ 'Analyzing stack: ' , summaryLine ].
+	self sendStackAnalysis: fullPrompt displayText: displayText
 ]
 
 { #category : 'private' }
@@ -173,19 +182,22 @@ JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 	"Append text to the transcript, preserving Text attributes (bold etc.).
 	 Removes any thinking indicator first so real content always follows it.
 	 Maintains transcriptContent as the source of truth to avoid losing
-	 formatting when re-reading from the widget."
+	 formatting when re-reading from the widget.
+	 Returns the 1-based start position of the newly appended content."
 
+	| startPos |
 	thinkingStart ifNotNil: [ :start |
 		transcriptContent := transcriptContent copyFrom: 1 to: start.
 		thinkingStart := nil ].
+	startPos := transcriptContent isEmpty ifTrue: [ 1 ] ifFalse: [ transcriptContent size + 2 ].
 	transcriptContent isEmpty
 		ifFalse: [ transcriptContent := transcriptContent , String lf asText ].
 	transcriptContent := transcriptContent , aTextOrString asText.
 	transcriptArea text: transcriptContent.
-	[ transcriptArea adapter widget textMorph selectFrom: 1 to: 0 ] on: Error do: [  ].
 	[ transcriptArea scrollValue: 1 @ 1 ]
 		on: Error
-		do: [ "ignore if widget not yet realized" ]
+		do: [ "ignore if widget not yet realized" ].
+	^ startPos
 ]
 
 { #category : 'private' }
@@ -707,8 +719,7 @@ JadeiteAIChatPresenter >> onWorkerDone: replyString [
 
 	| startPos |
 	conversation addAssistantMessage: replyString.
-	startPos := transcriptContent isEmpty ifTrue: [ 1 ] ifFalse: [ transcriptContent size + 2 ].
-	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
+	startPos := self appendToTranscript: '[AI] ' asText allBold , replyString asText.
 	[ transcriptArea adapter widget textMorph
 		selectFrom: startPos to: transcriptContent size ] on: Error do: [  ].
 	self enableInput
@@ -912,19 +923,17 @@ JadeiteAIChatPresenter >> sendMessage [
 ]
 
 { #category : 'actions' }
-JadeiteAIChatPresenter >> sendStackAnalysisMessage [
+JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText [
 	"One-shot stack analysis: short system prompt, no agent loop.
-	 Keeps input tokens low to avoid hitting org rate limits."
+	 displayText appears in the transcript; fullPrompt (with full stack) goes to Claude."
 
-	| userText analysisConversation reply |
-	userText := inputArea text trimBlanks.
-	userText isEmpty ifTrue: [ ^ self ].
+	| analysisConversation reply |
+	displayText trimBlanks isEmpty ifTrue: [ ^ self ].
 
-	messageHistory addLast: userText.
+	messageHistory addLast: displayText.
 	historyIndex := messageHistory size + 1.
 	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
-	self appendToTranscript: '[You] ' asText allBold , userText asText.
-	inputArea text: ''.
+	self appendToTranscript: '[You] ' asText allBold , displayText asText.
 	self disableInput.
 
 	workerProcess := [
@@ -932,9 +941,9 @@ JadeiteAIChatPresenter >> sendStackAnalysisMessage [
 			analysisConversation := JadeiteAIChatConversation new
 				systemPrompt: self stackAnalysisSystemPrompt;
 				yourself.
-			analysisConversation addUserMessage: userText.
+			analysisConversation addUserMessage: fullPrompt.
 			reply := llmAdapter sendConversation: analysisConversation.
-			conversation addUserMessage: userText.
+			conversation addUserMessage: displayText.
 			UIManager default defer: [ self onWorkerDone: reply ] ]
 		on: Error
 		do: [ :ex |
