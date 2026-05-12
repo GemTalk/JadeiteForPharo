@@ -106,11 +106,12 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession classService: aClas
 
 { #category : 'instance creation' }
 JadeiteAIChatPresenter class >> openWithSession: aGciSession forStackAnalysis: aStackString [
-	"Open (or activate) the singleton window and immediately analyze the given stack."
+	"Open (or activate) the singleton window and immediately analyze the given stack.
+	 Deferred so the window renders before the transcript is populated."
 
 	| window |
 	window := self openWithSession: aGciSession.
-	window ifNotNil: [ window analyzeStack: aStackString ].
+	window ifNotNil: [ UIManager default defer: [ window analyzeStack: aStackString ] ].
 	^ window
 ]
 
@@ -927,16 +928,17 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 	"One-shot stack analysis: short system prompt, no agent loop.
 	 displayText appears in the transcript; fullPrompt (with full stack) goes to Claude."
 
-	| analysisConversation reply |
 	displayText trimBlanks isEmpty ifTrue: [ ^ self ].
 
 	messageHistory addLast: displayText.
 	historyIndex := messageHistory size + 1.
 	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
 	self appendToTranscript: '[You] ' asText allBold , displayText asText.
+	inputArea text: ''.
 	self disableInput.
 
 	workerProcess := [
+		| analysisConversation reply |
 		[
 			analysisConversation := JadeiteAIChatConversation new
 				systemPrompt: self stackAnalysisSystemPrompt;
@@ -1017,7 +1019,9 @@ JadeiteAIChatPresenter >> spinnerMessages [
 { #category : 'private' }
 JadeiteAIChatPresenter >> startSpinner [
 	"Show an animated thinking indicator in the transcript (like VS Code Claude).
-	 The indicator is removed or replaced when real content arrives."
+	 The indicator is removed or replaced when real content arrives.
+	 spinnerProcess must be set before calling appendThinkingIndicator: because
+	 that method guards on spinnerProcess notNil."
 
 	| frames messages frameIdx rotationCount msgIdx |
 	frames := #( '|' '/' '-' '\' ).
@@ -1025,7 +1029,6 @@ JadeiteAIChatPresenter >> startSpinner [
 	frameIdx := 1.
 	rotationCount := 0.
 	msgIdx := (1 to: messages size) atRandom.
-	self appendThinkingIndicator: ('[AI] |  ' , (messages at: msgIdx)) asText allBold.
 	spinnerProcess := [
 		                  [ true ] whileTrue: [
 			                  | label |
@@ -1039,7 +1042,8 @@ JadeiteAIChatPresenter >> startSpinner [
 				                  rotationCount \\ 3 = 0 ifTrue: [
 					                  msgIdx := (1 to: messages size) atRandom ] ].
 			                  (Delay forMilliseconds: 150) wait ] ]
-		                  forkNamed: 'JadeiteAI-Spinner'
+		                  forkNamed: 'JadeiteAI-Spinner'.
+	self appendThinkingIndicator: ('[AI] |  ' , (messages at: msgIdx)) asText allBold
 ]
 
 { #category : 'private' }
