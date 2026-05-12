@@ -61,11 +61,18 @@ JadeiteAIProjectRegistry >> contextString [
 		ws nextPutAll: 'Project: '; nextPutAll: (p at: 'name'); nextPutAll: String lf.
 		ws nextPutAll: 'Root path: '; nextPutAll: root pathString; nextPutAll: String lf.
 		ws nextPutAll: 'Bash commands run with "." = this root path.'; nextPutAll: String lf.
-		"Derive package names from the parent directories of class files"
+		"Derive package relative paths from the parent directories of class files"
 		packageDirs := (classIndex values
-			collect: [ :f | f parent basename ]
+			collect: [ :f |
+				| parentPath rootPath |
+				parentPath := f parent pathString.
+				rootPath := root pathString.
+				(parentPath size > rootPath size and: [
+					(parentPath copyFrom: 1 to: rootPath size) = rootPath ])
+					ifTrue: [ parentPath copyFrom: rootPath size + 2 to: parentPath size ]
+					ifFalse: [ f parent basename ] ]
 			as: Set) asSortedCollection.
-		ws nextPutAll: 'Packages (subdirectories): '.
+		ws nextPutAll: 'Packages (relative paths from root): '.
 		packageDirs doWithIndex: [ :pkg :i |
 			i > 1 ifTrue: [ ws nextPutAll: ', ' ].
 			ws nextPutAll: pkg ].

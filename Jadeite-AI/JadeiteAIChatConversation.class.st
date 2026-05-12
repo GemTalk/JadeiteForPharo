@@ -151,14 +151,17 @@ Each .class.st file layout:
   ]
 
 Useful bash patterns for Tonel projects:
+  IMPORTANT: Always use find to locate a file before referencing it by path.
+  Locate a class file first:          find . -name "ClassName.class.st"
+  Then use the returned path exactly in subsequent commands.
+
   Count all classes in project:       find . -name "*.class.st" | wc -l
-  Count classes in a package:         find PackageName -name "*.class.st" | wc -l
-  List packages:                      find . -name "package.st" -exec dirname {} \;
-  Find a class file:                  find . -name "ClassName.class.st"
-  Count methods in a class:           grep -c "{ #category" ClassName/ClassName.class.st
-  List method selectors in a class:   grep ">>" ClassName/ClassName.class.st
-  List class-side methods:            grep "class >>" ClassName/ClassName.class.st
-  List method categories:             grep "{ #category" ClassName/ClassName.class.st
+  Count classes in a package:         find . -path "*/PackageName/*.class.st" | wc -l
+  List packages (unique parent dirs): find . -name "*.class.st" | sed "s|/[^/]*\.class\.st||" | sort -u
+  Count methods in a class:           grep -c "{ #category" path/to/ClassName.class.st
+  List method selectors in a class:   grep ">>" path/to/ClassName.class.st
+  List class-side methods:            grep "class >>" path/to/ClassName.class.st
+  List method categories:             grep "{ #category" path/to/ClassName.class.st
   Find methods by name across project: grep -rn ">> methodName" . --include="*.class.st"
   Find all senders of a message:      grep -rn "methodName" . --include="*.class.st"
 
