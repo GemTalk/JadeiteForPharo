@@ -108,8 +108,7 @@ JadeiteAIProjectRegistry >> executeSafeCommand: aCommandString [
 	 Returns command stdout+stderr as a string, or an error message."
 
 	| root tmpFile fullCmd result |
-	root := self firstProjectRoot.
-	root isNil ifTrue: [ ^ 'Error: No project registered. Register a project first.' ].
+	root := self firstProjectRoot ifNil: [ '/tmp' asFileReference ].
 	(self isSafeCommand: aCommandString) ifFalse: [
 		^ 'Error: Command not permitted. Only read-only commands (ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd) are allowed. Output redirection (>), sed -i, semicolons, and shell metacharacters are blocked.' ].
 	tmpFile := '/tmp/jadeite_bash_' , Processor activeProcess identityHash printString , '.txt'.

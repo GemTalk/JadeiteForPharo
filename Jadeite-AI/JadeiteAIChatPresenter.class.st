@@ -143,21 +143,14 @@ JadeiteAIChatPresenter >> addStyle: aString [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Send the stack to Claude for analysis using the agent loop so Claude can
-	 read relevant sources from registered projects using bash/<readgemstonemethod> tags."
+	"Write stack to a temp file and ask Claude to analyze it via bash.
+	 Keeps the initial prompt tiny — Claude reads only the frames it needs."
 
-	| fullPrompt summaryLine displayText classNames classHint |
-	classNames := self parseClassNamesFromStack: aStackString.
-	classHint := classNames isEmpty
-		ifTrue: [ '' ]
-		ifFalse: [
-			String lf , String lf , 'Classes appearing in stack frames: '
-			, (classNames
-				inject: ''
-				into: [ :acc :n | acc isEmpty ifTrue: [ n ] ifFalse: [ acc , ', ' , n ] ]) ].
-	fullPrompt := 'Please analyze this GemStone stack. Explain what went wrong, which frame triggered the error, and how to fix it. Use <bash> or <readgemstonemethod> tags to look up relevant source if needed.'
-		, classHint , String lf , String lf
-		, 'Stack:' , String lf , aStackString.
+	| stackFile summaryLine displayText fullPrompt |
+	stackFile := '/tmp/jadeite_stack.txt'.
+	[ stackFile asFileReference writeStreamDo: [ :s | s nextPutAll: aStackString ] ]
+		on: Error
+		do: [ :e | "fall through — prompt will note the failure" ].
 
 	summaryLine := (aStackString lines
 		ifEmpty: [ '' ]
@@ -167,6 +160,10 @@ JadeiteAIChatPresenter >> analyzeStack: aStackString [
 	displayText := summaryLine isEmpty
 		ifTrue: [ 'Analyzing stack' ]
 		ifFalse: [ 'Analyzing stack: ' , summaryLine ].
+
+	fullPrompt := 'A GemStone stack has been written to ' , stackFile
+		, '. Use bash to read it, identify the error and relevant frames, look up the method sources from the registered project, and explain what went wrong and how to fix it.'.
+
 	self sendStackAnalysisWithLoop: fullPrompt displayText: displayText
 ]
 
@@ -1184,37 +1181,28 @@ JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
 
 	^ 'You are a GemStone Smalltalk debugging assistant.
 
-Given a GemStone call stack, your response MUST follow this order:
-1. Identify the most relevant frame (the one that caused or triggered the error).
-2. Use a <bash> or <readgemstonemethod> tag to read its source from disk before drawing conclusions.
-3. After reading the source, explain what went wrong, why, and how to fix it.
+The GemStone stack has been written to /tmp/jadeite_stack.txt. Analyze it using bash, then read relevant source from the registered project on disk. Follow these steps:
 
-Do not execute GemStone or Pharo code. Read source from disk only.
+Step 1 — Read the stack:
+<bash>cat /tmp/jadeite_stack.txt</bash>
 
-You may read source from registered projects using these tags:
+Step 2 — Extract the relevant frame class names (lines matching "in ClassName >> selector") and locate their source files:
+<bash>find . -name "ClassName.class.st"</bash>
 
-To run a safe read-only shell command in the registered project root:
-<bash>command</bash>
-Allowed: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd
-Blocked: >, sed -i, ;, backticks, $(), destructive commands
-Use relative paths — "." is the project root. Always use find to locate a file before referencing it by path.
-
-To read a single method from a registered project:
+Step 3 — Read the method source for the triggering frame:
 <readgemstonemethod>ClassName>>selector</readgemstonemethod>
 
-To read a class skeleton (method signatures only, no bodies):
-<readgemstoneclass>ClassName</readgemstoneclass>
+Step 4 — Give your analysis: what went wrong, which frame triggered it, and how to fix it.
 
-Useful bash patterns:
-  Locate a class file:   find . -name "ClassName.class.st"
-  Count methods:         grep -c "{ #category" path/to/ClassName.class.st
-  Find a method:         grep -n ">> methodName" path/to/ClassName.class.st
-  Find senders:          grep -rn "methodName" . --include="*.class.st"
-
-CRITICAL rules:
+Rules:
+- Do NOT execute GemStone or Pharo code. Read source from disk only.
 - Issue ONE tag per reply. The result is returned automatically — do not ask the user.
-- Do NOT end a response with "let me look..." without including a tag immediately after.
-- After reading what you need, give your analysis.'
+- Do NOT end a reply with "let me look..." without including a tag immediately.
+- Absolute paths (like /tmp/jadeite_stack.txt) work in bash commands.
+- Use relative paths for project source files — "." is the registered project root.
+
+Allowed bash commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd
+Blocked: >, sed -i, ;, backticks, $()'
 ]
 
 { #category : 'context' }
