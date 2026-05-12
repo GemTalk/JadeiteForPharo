@@ -92,7 +92,7 @@ JadeiteAIProjectRegistry >> registerProjectNamed: aName url: aUrlString [
 	 Re-registration updates an existing entry."
 
 	| path rootRef classIndex |
-	path := (aUrlString startsWith: 'file:')
+	path := (aUrlString size >= 5 and: [ (aUrlString copyFrom: 1 to: 5) = 'file:' ])
 		ifTrue: [ aUrlString copyFrom: 6 to: aUrlString size ]
 		ifFalse: [ aUrlString ].
 	rootRef := path asFileReference.
