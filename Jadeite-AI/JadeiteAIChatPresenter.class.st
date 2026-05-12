@@ -143,14 +143,38 @@ JadeiteAIChatPresenter >> addStyle: aString [
 
 { #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Write stack to a temp file and ask Claude to analyze it via bash.
-	 Keeps the initial prompt tiny — Claude reads only the frames it needs."
+	"Gather method sources from disk, then make a single Claude call for analysis.
+	 No agent loop — one API request, no rate limit issues."
 
-	| stackFile summaryLine displayText fullPrompt |
-	stackFile := '/tmp/jadeite_stack.txt'.
-	[ stackFile asFileReference writeStreamDo: [ :s | s nextPutAll: aStackString ] ]
-		on: Error
-		do: [ :e | "fall through — prompt will note the failure" ].
+	| frames sourcesStream injectedCount fullPrompt summaryLine displayText |
+	frames := self parseFramesFromStack: aStackString.
+	sourcesStream := WriteStream on: String new.
+	injectedCount := 0.
+	frames do: [ :frame |
+		injectedCount < 8 ifTrue: [
+			| sepIdx className selector source |
+			sepIdx := frame indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+			sepIdx > 0 ifTrue: [
+				className := (frame copyFrom: 1 to: sepIdx - 1) trimBlanks.
+				selector := (frame copyFrom: sepIdx + 2 to: frame size) trimBlanks.
+				source := JadeiteAIProjectRegistry default
+					sourceForMethod: selector inClass: className
+					ifAbsent: [ nil ].
+				source ifNotNil: [
+					sourcesStream nextPutAll: '--- ' , frame , ' ---'.
+					sourcesStream nextPutAll: String lf.
+					sourcesStream nextPutAll: source.
+					sourcesStream nextPutAll: String lf.
+					injectedCount := injectedCount + 1 ] ] ] ].
+
+	fullPrompt := 'Please analyze this GemStone stack. Explain what went wrong, which frame triggered the error, and how to fix it.
+
+Stack:
+' , aStackString.
+	sourcesStream contents isEmpty ifFalse: [
+		fullPrompt := fullPrompt , String lf , String lf
+			, 'Method sources from registered project (frames found in this stack):' , String lf
+			, sourcesStream contents ].
 
 	summaryLine := (aStackString lines
 		ifEmpty: [ '' ]
@@ -160,11 +184,11 @@ JadeiteAIChatPresenter >> analyzeStack: aStackString [
 	displayText := summaryLine isEmpty
 		ifTrue: [ 'Analyzing stack' ]
 		ifFalse: [ 'Analyzing stack: ' , summaryLine ].
+	injectedCount > 0 ifTrue: [
+		displayText := displayText , ' (with ' , injectedCount printString , ' method source'
+			, (injectedCount = 1 ifTrue: [ '' ] ifFalse: [ 's' ]) , ')' ].
 
-	fullPrompt := 'A GemStone stack has been written to ' , stackFile
-		, '. Use bash to read it, identify the error and relevant frames, look up the method sources from the registered project, and explain what went wrong and how to fix it.'.
-
-	self sendStackAnalysisWithLoop: fullPrompt displayText: displayText
+	self sendStackAnalysis: fullPrompt displayText: displayText
 ]
 
 { #category : 'private' }
@@ -189,6 +213,36 @@ JadeiteAIChatPresenter >> parseClassNamesFromStack: aStackString [
 				(raw notEmpty and: [ (names includes: raw) not ])
 					ifTrue: [ names add: raw ] ] ] ].
 	^ names
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> parseFramesFromStack: aStackString [
+	"Extract unique ClassName>>selector pairs from GemStone stack frame lines.
+	 Frame lines: N [expr] in ClassName >> selector @N line N
+	           or N [expr] in ClassName class >> selector @N line N
+	 Returns OrderedCollection of 'ClassName>>selector' strings, first-occurrence order."
+
+	| frames |
+	frames := OrderedCollection new.
+	aStackString lines do: [ :line |
+		| inIdx arrowIdx afterIn className selectorRaw atIdx selector key |
+		inIdx := line indexOfSubCollection: ' in ' startingAt: 1 ifAbsent: [ 0 ].
+		inIdx > 0 ifTrue: [
+			afterIn := inIdx + 4.
+			arrowIdx := line indexOfSubCollection: ' >> ' startingAt: afterIn ifAbsent: [ 0 ].
+			arrowIdx > 0 ifTrue: [
+				className := (line copyFrom: afterIn to: arrowIdx - 1) trimBlanks.
+				(className endsWith: ' class') ifTrue: [
+					className := className copyFrom: 1 to: className size - 6 ].
+				selectorRaw := (line copyFrom: arrowIdx + 4 to: line size) trimBlanks.
+				atIdx := selectorRaw indexOfSubCollection: ' @' startingAt: 1 ifAbsent: [ 0 ].
+				selector := atIdx > 0
+					ifTrue: [ (selectorRaw copyFrom: 1 to: atIdx - 1) trimBlanks ]
+					ifFalse: [ selectorRaw ].
+				(className notEmpty and: [ selector notEmpty ]) ifTrue: [
+					key := className , '>>' , selector.
+					(frames includes: key) ifFalse: [ frames add: key ] ] ] ] ].
+	^ frames
 ]
 
 { #category : 'private' }
@@ -1179,30 +1233,13 @@ JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
 	"System prompt for stack analysis — includes source-reading tag instructions so
 	 Claude can look up relevant methods from registered projects."
 
-	^ 'You are a GemStone Smalltalk debugging assistant.
+	^ 'You are a helpful GemStone Smalltalk programming assistant.
+Analyze the GemStone call stack and any method sources provided. Explain:
+1. What went wrong — the root cause of the error
+2. Which frame triggered the error and why
+3. How to fix it
 
-The GemStone stack has been written to /tmp/jadeite_stack.txt. Analyze it using bash, then read relevant source from the registered project on disk. Follow these steps:
-
-Step 1 — Read the stack:
-<bash>cat /tmp/jadeite_stack.txt</bash>
-
-Step 2 — Extract the relevant frame class names (lines matching "in ClassName >> selector") and locate their source files:
-<bash>find . -name "ClassName.class.st"</bash>
-
-Step 3 — Read the method source for the triggering frame:
-<readgemstonemethod>ClassName>>selector</readgemstonemethod>
-
-Step 4 — Give your analysis: what went wrong, which frame triggered it, and how to fix it.
-
-Rules:
-- Do NOT execute GemStone or Pharo code. Read source from disk only.
-- Issue ONE tag per reply. The result is returned automatically — do not ask the user.
-- Do NOT end a reply with "let me look..." without including a tag immediately.
-- Absolute paths (like /tmp/jadeite_stack.txt) work in bash commands.
-- Use relative paths for project source files — "." is the registered project root.
-
-Allowed bash commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd
-Blocked: >, sed -i, ;, backticks, $()'
+Be concise. Focus on the most relevant frames and the provided method sources.'
 ]
 
 { #category : 'context' }
