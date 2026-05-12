@@ -95,7 +95,7 @@ JadeiteAIOllamaAdapter >> buildRequestBodyNoSystem: aConversation [
 JadeiteAIOllamaAdapter >> initialize [
 
 	baseUrl := 'http://localhost:11434/v1'.
-	model := 'qwen2.5-coder:14b'
+	model := 'qwen2.5-coder:7b'
 ]
 
 { #category : 'json' }
