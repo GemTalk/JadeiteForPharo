@@ -65,8 +65,8 @@ JadeiteAIClaudeAdapter class >> requestApiKey [
 	key := UIManager default
 		       request: 'Enter your Anthropic API key:'
 		       initialAnswer: ''.
-	(key isNil or: [ key trimSeparators isEmpty ]) ifTrue: [ ^ nil ].
-	ApiKey := key trimSeparators.
+	(key isNil or: [ key trimBlanks isEmpty ]) ifTrue: [ ^ nil ].
+	ApiKey := key trimBlanks.
 	^ ApiKey
 ]
 
