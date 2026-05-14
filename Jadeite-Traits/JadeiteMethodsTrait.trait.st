@@ -31,6 +31,27 @@ JadeiteMethodsTrait >> _selectSymbolFrom: wildcardString list: possibleSelectors
 ]
 
 { #category : 'menus' }
+JadeiteMethodsTrait >> addExplainWithAIItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Ask Jadeite About This Method';
+			icon: (self iconNamed: #glamorousHelp);
+			action: [ self explainSelectedMethodWithAI ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> explainSelectedMethodWithAI [
+
+	| methodService |
+	methodService := self methodListPresenter jadeiteSelections first.
+	JadeiteAIChatPresenter
+		openWithSession: self gciSession
+		forMethodExplanation: methodService
+]
+
+{ #category : 'menus' }
 JadeiteMethodsTrait >> addBrowseBreakpointMethodsTo: group [
 
 	^ group addItem: [ :item |
@@ -681,6 +702,7 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 						name: 'File Out Selected Methods ...';
 						action: [ self fileoutMethods ];
 						enabled: [ self methodListPresenter selections notEmpty ] ] ].
+	menu addGroup: [ :group | self addExplainWithAIItemTo: group ].
 	^ menu
 ]
 

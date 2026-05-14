@@ -3719,17 +3719,17 @@ JadeiteBrowserPresenter >> selectPackageListTab [
 { #category : 'selections' }
 JadeiteBrowserPresenter >> selectPackageNamed: packageName [
 
-	| answeringService service |
+	| answeringService |
 	self packageListPresenter hasSelection ifTrue: [
-		self packageListPresenter selectedItem name = packageName ifTrue: [
-			^ self ] ].
+			self packageListPresenter selectedItem name = packageName ifTrue: [
+				^ self ] ].
 	answeringService := RowanAnsweringService new.
 	answeringService
 		command: #packageNamed:;
 		commandArgs: (Array with: packageName).
-	self issueCommand: answeringService onCompletion: [  ].
-	service := answeringService answer.
-	service selectIn: self
+	self
+		issueCommand: answeringService
+		onCompletion: [ answeringService answer selectIn: self ]
 ]
 
 { #category : 'selections' }

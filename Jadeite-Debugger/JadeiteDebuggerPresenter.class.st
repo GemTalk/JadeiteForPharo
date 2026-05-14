@@ -416,7 +416,12 @@ JadeiteDebuggerPresenter >> initializeFileMenu [
 				  addItem: [ :item |
 					  item
 						  name: 'Dump Stack To File';
-						  action: [ self dumpStackToFile ] ] ];
+						  action: [ self dumpStackToFile ] ];
+				  addItem: [ :item |
+					  item
+						  name: 'Ask Jadeite About This Stack';
+						  icon: (self iconNamed: #glamorousHelp);
+						  action: [ self analyzeWithAI ] ] ];
 		  yourself
 ]
 
@@ -512,7 +517,8 @@ JadeiteDebuggerPresenter >> initializeStackMenu [
 		  addGroup: [ :group |
 			  group addItem: [ :item |
 				  item
-					  name: 'Analyze with AI';
+					  name: 'Ask Jadeite About This Stack';
+					  icon: (self iconNamed: #glamorousHelp);
 					  action: [ self analyzeWithAI ] ] ];
 		  yourself
 ]

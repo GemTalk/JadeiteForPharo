@@ -28,6 +28,7 @@ JadeiteAIChatApplication >> start [
 
 	JadeiteAIChatPresenter currentWindow: inst.
 	windowPresenter := inst open.
+	inst fetchProjectPaths.
 	self addBorderStyleTo: windowPresenter presenter: inst.
 	^ inst
 ]

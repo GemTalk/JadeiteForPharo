@@ -41,17 +41,20 @@ Class {
 		'contextClassService',
 		'contextMethodServices',
 		'contextSource',
-		'messageHistory',
 		'historyIndex',
+		'draftInput',
 		'thinkingStart',
 		'pharoCheckbox',
 		'gemstoneCheckbox',
 		'adapterDropList',
 		'modelDropList',
-		'updatingModelList'
+		'updatingModelList',
+		'projectPaths',
+		'gemstoneEnvVarCache'
 	],
 	#classVars : [
-		'CurrentWindow'
+		'CurrentWindow',
+		'MessageHistory'
 	],
 	#category : 'Jadeite-AI',
 	#package : 'Jadeite-AI'
@@ -69,29 +72,24 @@ JadeiteAIChatPresenter class >> currentWindow: aPresenterOrNil [
 	CurrentWindow := aPresenterOrNil
 ]
 
+{ #category : 'accessing' }
+JadeiteAIChatPresenter class >> windowClass [
+
+	^ JadeiteAIWindow
+]
+
 { #category : 'instance creation' }
 JadeiteAIChatPresenter class >> openWithSession: aGciSession [
 	"Open the singleton AI chat window, or bring it to front if already open.
 	 Invoked from the Tools menu; clears any prior context so the window is fresh."
 
-	| resolvedAdapter |
 	CurrentWindow ifNotNil: [ :w |
 		aGciSession ifNotNil: [ w gciSession: aGciSession ].
 		w clearContext.
 		[ w window window activate ] on: Error do: [  ].
 		^ w ].
 
-	resolvedAdapter := JadeiteAISettings resolveAdapter.
-	resolvedAdapter isNil ifTrue: [
-		UIManager default alert: JadeiteAISettings configurationHelpMessage.
-		^ nil ].
-
-	CurrentWindow := self new.
-	aGciSession ifNotNil: [ CurrentWindow gciSession: aGciSession ].
-	CurrentWindow llmAdapter: resolvedAdapter.
-	CurrentWindow open.
-	CurrentWindow addStyle: 'jadeiteTextBackgroundColor'.
-	^ CurrentWindow
+	^ (JadeiteAIChatApplication new gciSession: aGciSession; yourself) start
 ]
 
 { #category : 'instance creation' }
@@ -112,6 +110,20 @@ JadeiteAIChatPresenter class >> openWithSession: aGciSession forStackAnalysis: a
 	| window |
 	window := self openWithSession: aGciSession.
 	window ifNotNil: [ UIManager default defer: [ window analyzeStack: aStackString ] ].
+	^ window
+]
+
+{ #category : 'instance creation' }
+JadeiteAIChatPresenter class >> openWithSession: aGciSession forMethodExplanation: aMethodService [
+	"Open (or activate) the singleton window and immediately explain the selected method."
+
+	| window |
+	window := self openWithSession: aGciSession.
+	window ifNotNil: [
+		UIManager default defer: [
+			[ window explainMethod: aMethodService ]
+				on: Error
+				do: [ :ex | window onWorkerError: ex messageText ] ] ].
 	^ window
 ]
 
@@ -142,40 +154,25 @@ JadeiteAIChatPresenter >> addStyle: aString [
 ]
 
 { #category : 'actions' }
+JadeiteAIChatPresenter >> explainMethod: aMethodService [
+	"Auto-send an explanation request using the full agent loop.
+	 Uses sendText: directly to avoid an inputArea round-trip that can return
+	 empty when called from a deferred block on a fresh window."
+
+	| className selector prompt |
+	className := aMethodService className.
+	selector := aMethodService selector.
+	prompt := 'Explain the GemStone Smalltalk method ' , className , ' >> #' , selector , '.'.
+	self sendText: prompt.
+	self setMethodsContext: (Array with: aMethodService)
+]
+
+{ #category : 'actions' }
 JadeiteAIChatPresenter >> analyzeStack: aStackString [
-	"Gather method sources from disk, then make a single Claude call for analysis.
-	 No agent loop — one API request, no rate limit issues."
+	"Send the stack for analysis. The LLM can use bash to read relevant method sources
+	 from registered project roots listed in the context message."
 
-	| frames sourcesStream injectedCount fullPrompt summaryLine displayText |
-	frames := self parseFramesFromStack: aStackString.
-	sourcesStream := WriteStream on: String new.
-	injectedCount := 0.
-	frames do: [ :frame |
-		injectedCount < 8 ifTrue: [
-			| sepIdx className selector source |
-			sepIdx := frame indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
-			sepIdx > 0 ifTrue: [
-				className := (frame copyFrom: 1 to: sepIdx - 1) trimBlanks.
-				selector := (frame copyFrom: sepIdx + 2 to: frame size) trimBlanks.
-				source := JadeiteAIProjectRegistry default
-					sourceForMethod: selector inClass: className
-					ifAbsent: [ nil ].
-				source ifNotNil: [
-					sourcesStream nextPutAll: '--- ' , frame , ' ---'.
-					sourcesStream nextPutAll: String lf.
-					sourcesStream nextPutAll: source.
-					sourcesStream nextPutAll: String lf.
-					injectedCount := injectedCount + 1 ] ] ] ].
-
-	fullPrompt := 'Please analyze this GemStone stack. Explain what went wrong, which frame triggered the error, and how to fix it.
-
-Stack:
-' , aStackString.
-	sourcesStream contents isEmpty ifFalse: [
-		fullPrompt := fullPrompt , String lf , String lf
-			, 'Method sources from registered project (frames found in this stack):' , String lf
-			, sourcesStream contents ].
-
+	| summaryLine displayText fullPrompt |
 	summaryLine := (aStackString lines
 		ifEmpty: [ '' ]
 		ifNotEmpty: [ :lines | lines first ]) trimBlanks.
@@ -184,65 +181,11 @@ Stack:
 	displayText := summaryLine isEmpty
 		ifTrue: [ 'Analyzing stack' ]
 		ifFalse: [ 'Analyzing stack: ' , summaryLine ].
-	injectedCount > 0 ifTrue: [
-		displayText := displayText , ' (with ' , injectedCount printString , ' method source'
-			, (injectedCount = 1 ifTrue: [ '' ] ifFalse: [ 's' ]) , ')' ].
+	fullPrompt := 'Please analyze this GemStone stack. Explain what went wrong, which frame triggered the error, and how to fix it.
 
+Stack:
+' , aStackString.
 	self sendStackAnalysis: fullPrompt displayText: displayText
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> parseClassNamesFromStack: aStackString [
-	"Extract unique class names from GemStone stack frame lines.
-	 Frame lines have the form:  N [expr] in ClassName >> selector
-	                          or N [expr] in ClassName class >> selector
-	 Returns an OrderedCollection in first-occurrence order."
-
-	| names |
-	names := OrderedCollection new.
-	aStackString lines do: [ :line |
-		| inIdx arrowIdx afterIn raw |
-		inIdx := line indexOfSubCollection: ' in ' startingAt: 1 ifAbsent: [ 0 ].
-		inIdx = 0 ifFalse: [
-			afterIn := inIdx + 4.
-			arrowIdx := line indexOfSubCollection: ' >> ' startingAt: afterIn ifAbsent: [ 0 ].
-			arrowIdx > 0 ifTrue: [
-				raw := (line copyFrom: afterIn to: arrowIdx - 1) trimBlanks.
-				(raw endsWith: ' class') ifTrue: [
-					raw := raw copyFrom: 1 to: raw size - 6 ].
-				(raw notEmpty and: [ (names includes: raw) not ])
-					ifTrue: [ names add: raw ] ] ] ].
-	^ names
-]
-
-{ #category : 'private' }
-JadeiteAIChatPresenter >> parseFramesFromStack: aStackString [
-	"Extract unique ClassName>>selector pairs from GemStone stack frame lines.
-	 Frame lines: N [expr] in ClassName >> selector @N line N
-	           or N [expr] in ClassName class >> selector @N line N
-	 Returns OrderedCollection of 'ClassName>>selector' strings, first-occurrence order."
-
-	| frames |
-	frames := OrderedCollection new.
-	aStackString lines do: [ :line |
-		| inIdx arrowIdx afterIn className selectorRaw atIdx selector key |
-		inIdx := line indexOfSubCollection: ' in ' startingAt: 1 ifAbsent: [ 0 ].
-		inIdx > 0 ifTrue: [
-			afterIn := inIdx + 4.
-			arrowIdx := line indexOfSubCollection: ' >> ' startingAt: afterIn ifAbsent: [ 0 ].
-			arrowIdx > 0 ifTrue: [
-				className := (line copyFrom: afterIn to: arrowIdx - 1) trimBlanks.
-				(className endsWith: ' class') ifTrue: [
-					className := className copyFrom: 1 to: className size - 6 ].
-				selectorRaw := (line copyFrom: arrowIdx + 4 to: line size) trimBlanks.
-				atIdx := selectorRaw indexOfSubCollection: ' @' startingAt: 1 ifAbsent: [ 0 ].
-				selector := atIdx > 0
-					ifTrue: [ (selectorRaw copyFrom: 1 to: atIdx - 1) trimBlanks ]
-					ifFalse: [ selectorRaw ].
-				(className notEmpty and: [ selector notEmpty ]) ifTrue: [
-					key := className , '>>' , selector.
-					(frames includes: key) ifFalse: [ frames add: key ] ] ] ] ].
-	^ frames
 ]
 
 { #category : 'private' }
@@ -283,11 +226,11 @@ JadeiteAIChatPresenter >> appendToTranscript: aTextOrString [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> buildContextMessage: context [
-	"Combine class context and registered project info into a single context message.
+	"Combine class context and project source path info into a single context message.
 	 Returns nil if neither is present."
 
 	| ws projectContext |
-	projectContext := JadeiteAIProjectRegistry default contextString.
+	projectContext := self buildProjectPathsContext.
 	(context isEmpty and: [ projectContext isEmpty ]) ifTrue: [ ^ nil ].
 	ws := WriteStream on: String new.
 	context isEmpty ifFalse: [
@@ -536,34 +479,46 @@ JadeiteAIChatPresenter >> gciSession: aGciSession [
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> handleReadGemStoneMethodTag: reply conversation: aConversation [
-	"Handle a <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag.
-	 Reads a single method from the registered project index."
+JadeiteAIChatPresenter >> executeSafeCommand: aCommandString [
+	"Execute a whitelisted read-only shell command and return stdout+stderr as a string.
+	 Commands use absolute paths supplied by the LLM from the project roots in context."
 
-	| preText spec parts className selector source |
-	preText := self extractTextBefore: '<readgemstonemethod>' in: reply.
-	spec := (self extractExpressionFrom: reply openTag: '<readgemstonemethod>' closeTag: '</readgemstonemethod>') trimBlanks.
-	[ | sepIdx |
-	  sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
-	  sepIdx = 0
-		ifTrue: [ className := spec. selector := '' ]
-		ifFalse: [
-			className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
-			selector := (spec copyFrom: sepIdx + 2 to: spec size) trimBlanks ] ] value.
-	preText isEmpty ifFalse: [
-		UIManager default defer: [
-			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
-	UIManager default defer: [
-		self appendToTranscript: ('[Reading: ' , className , '>>' , selector , ']') asText ].
-	source := JadeiteAIProjectRegistry default
-		sourceForMethod: selector inClass: className
-		ifAbsent: [ className , '>>' , selector , ' not found in registered projects.' ].
-	aConversation addAssistantMessage: preText.
-	aConversation addUserMessage: '[System: source fetched automatically]
-Source of ' , className , '>>' , selector , ':
-' , source , '
-[System: IMPORTANT — do NOT end your response with "let me look..." without including a tag. Issue another <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag NOW to read the next method, or give your final answer. The loop stops if no tag is present.]'.
-	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
+	| tmpFile fullCmd result sem |
+	(self isSafeCommand: aCommandString) ifFalse: [
+		^ 'Error: Command not permitted. Only read-only commands (ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd, file, stat, du) are allowed. Output redirection (>), sed -i, semicolons, and shell metacharacters are blocked.' ].
+	tmpFile := '/tmp/jadeite_bash_' , Processor activeProcess identityHash printString , '.txt'.
+	fullCmd := 'timeout 30 ' , aCommandString , ' > ' , tmpFile , ' 2>&1'.
+	sem := Semaphore new.
+	[ LibC system: fullCmd. sem signal ] forkNamed: 'JadeiteAI-Bash'.
+	(sem waitTimeoutMilliseconds: 35000) ifTrue: [
+		^ '(bash command did not complete within timeout)' ].
+	[ result := tmpFile asFileReference contents ]
+		on: Error
+		do: [ :e | result := 'Error reading output: ' , e messageText ].
+	[ tmpFile asFileReference delete ] on: Error do: [  ].
+	result isEmpty ifTrue: [ result := '(no output — command produced no output or timed out after 30s)' ].
+	result size > 10000 ifTrue: [
+		result := (result copyFrom: 1 to: 10000) , String lf
+			, '... [output truncated at 10000 chars — use a more specific command to reduce output]' ].
+	^ result
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isSafeCommand: aCommandString [
+	"Return true if aCommand uses only whitelisted verbs and no dangerous metacharacters."
+
+	| allowedVerbs blocked segments |
+	allowedVerbs := #( 'ls' 'find' 'grep' 'cat' 'wc' 'head' 'tail' 'sort' 'uniq' 'diff' 'echo' 'pwd' 'file' 'stat' 'du' 'sed' 'awk' ).
+	blocked := #( ' > ' ';' '`' '$(' 'sed -i' 'rm ' 'mv' 'cp' 'chmod' 'chown' 'touch' 'mkdir' 'rmdir' 'kill' 'sudo' 'bash' 'python' 'ruby' 'perl' ).
+	blocked do: [ :b |
+		(aCommandString includesSubstring: b) ifTrue: [ ^ false ] ].
+	segments := aCommandString substrings: '|'.
+	segments do: [ :seg |
+		| words |
+		words := seg trimBlanks substrings.
+		words isEmpty ifFalse: [
+			(allowedVerbs includes: words first) ifFalse: [ ^ false ] ] ].
+	^ true
 ]
 
 { #category : 'private' }
@@ -578,64 +533,308 @@ JadeiteAIChatPresenter >> handleBashTag: reply conversation: aConversation [
 			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
 	UIManager default defer: [
 		self appendToTranscript: ('[bash] ' asText allBold , cmd asText) ].
-	result := JadeiteAIProjectRegistry default executeSafeCommand: cmd.
+	result := self executeSafeCommand: cmd.
 	aConversation addAssistantMessage: preText.
-	aConversation addUserMessage: '[System: bash command executed in registered project root]
+	aConversation addUserMessage: '[System: bash result]
 $ ' , cmd , '
 ' , result , '
-[System: IMPORTANT — do NOT end your response with phrases like "let me look..." or "I will check..." without including a tag. If you need more information, include the tag in THIS response now. The loop stops if no tag is present. Issue a <bash>, <readgemstonemethod>, or <readgemstoneclass> tag immediately, or give your final answer.]'.
+[System: You are a GemStone Smalltalk assistant. Act on the result above.
+Available action tags (use exactly one if appropriate, then stop):
+  Open a method in browser:  <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod>
+  Open a class in browser:   <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass>
+  Open a package in browser: <jadeiteaction:findgemstonepackage>PackageName</jadeiteaction:findgemstonepackage>
+  Inspect an object:         <jadeiteaction:openinspector>expression</jadeiteaction:openinspector>
+  Run another bash command:  <bash>command</bash>
+Rules: If the result contains the answer, give your final answer now — no tag needed.
+If you need to open something in the browser, use the action tag immediately.
+If you need more information, issue ONE tag. Do not describe what you are about to do — just do it.]'.
 	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
 ]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> handleReadGemStoneClassTag: reply conversation: aConversation [
-	"Handle a <readgemstoneclass> tag: read the class source from the registry,
-	 show a [Reading: ClassName] line in the transcript, feed the source back to
-	 the LLM, and return the next reply string."
+JadeiteAIChatPresenter >> handleFindGemStoneClassTag: reply [
+	"Handle a <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass> tag.
+	 Opens a GemStone browser navigated to the named class.
+	 Returns the text after the closing tag so a subsequent jadeiteaction tag is processed."
 
-	| classPreText className source |
-	classPreText := self extractTextBefore: '<readgemstoneclass>' in: reply.
-	className := (self extractExpressionFrom: reply openTag: '<readgemstoneclass>' closeTag: '</readgemstoneclass>') trimBlanks.
-	classPreText isEmpty ifFalse: [
+	| openTag closeTag preText className |
+	openTag := '<jadeiteaction:findgemstoneclass>'.
+	closeTag := '</jadeiteaction:findgemstoneclass>'.
+	preText := self extractTextBefore: openTag in: reply.
+	className := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	(self isValidGemStoneClassName: className) ifFalse: [
 		UIManager default defer: [
-			self appendToTranscript: '[AI] ' asText allBold , classPreText asText ] ].
+			self appendToTranscript: ('[Skipped ' , openTag , className , closeTag , ' — "' , className , '" is not a valid class name]') asText ].
+		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
 	UIManager default defer: [
-		self appendToTranscript: ('[Reading: ' , className , ']') asText ].
-	source := JadeiteAIProjectRegistry default
-		skeletonForClass: className
-		ifAbsent: [ 'Class ' , className , ' not found in registered projects.' ].
-	aConversation addAssistantMessage: classPreText.
-	aConversation addUserMessage: '[System: source fetched automatically]
-Skeleton of ' , className , ' (method signatures only):
-' , source , '
-[System: IMPORTANT — do NOT end your response with "let me look..." without including a tag. Issue a <readgemstonemethod>ClassName>>selector</readgemstonemethod> tag NOW to read a specific method body, or give your final answer. The loop stops if no tag is present.]'.
-	^ self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: aConversation ])
+		self appendToTranscript: ('[Opening GemStone browser: ' , className , ']') asText ].
+	UIManager default defer: [
+		| classService |
+		classService := RowanClassService new
+			name: className;
+			meta: false.
+		JadeiteBrowser openOn: JadeiteConsole currentConsole postOpen: [ :browserPresenter |
+			browserPresenter
+				updateAfterFindClass: classService
+				methodService: nil
+				onCompletion: [  ] ] ].
+	^ self suffixAfterTag: closeTag in: reply
 ]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleFindGemStoneMethodTag: reply [
+	"Handle a <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod> tag.
+	 Opens a GemStone browser navigated to the named class and method.
+	 Returns the text after the closing tag so a subsequent jadeiteaction tag is processed."
+
+	| openTag closeTag preText spec sepIdx className selector meta |
+	openTag := '<jadeiteaction:findgemstonemethod>'.
+	closeTag := '</jadeiteaction:findgemstonemethod>'.
+	preText := self extractTextBefore: openTag in: reply.
+	spec := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	(self isValidGemStoneMethodSpec: spec) ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: ('[Skipped ' , openTag , spec , closeTag , ' — "' , spec , '" is not a valid ClassName>>selector]') asText ].
+		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+	sepIdx = 0
+		ifTrue: [
+			className := spec.
+			selector := '' ]
+		ifFalse: [
+			className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
+			selector := (spec copyFrom: sepIdx + 2 to: spec size) trimBlanks ].
+	meta := className endsWith: ' class'.
+	meta ifTrue: [ className := (className copyFrom: 1 to: className size - 6) trimBlanks ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	UIManager default defer: [
+		self appendToTranscript: ('[Opening GemStone browser: ' , className , '>>' , selector , ']') asText ].
+	UIManager default defer: [
+		JadeiteBrowser openOn: JadeiteConsole currentConsole postOpen: [ :browserPresenter |
+			browserPresenter
+				updateAfterFindClassName: className
+				methodSelector: selector
+				meta: meta
+				onCompletion: [  ] ] ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleFindPharoClassTag: reply [
+	"Handle a <jadeiteaction:findpharoclass>ClassName</jadeiteaction:findpharoclass> tag.
+	 Opens the Pharo class browser on the named class. Terminal action."
+
+	| openTag closeTag preText className cls |
+	openTag := '<jadeiteaction:findpharoclass>'.
+	closeTag := '</jadeiteaction:findpharoclass>'.
+	preText := self extractTextBefore: openTag in: reply.
+	className := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	className isEmpty ifTrue: [ ^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	cls := Smalltalk at: className asSymbol ifAbsent: [ nil ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	cls
+		ifNil: [
+			UIManager default defer: [
+				self appendToTranscript: ('[Error: Pharo class ' , className , ' not found]') asText ] ]
+		ifNotNil: [
+			UIManager default defer: [
+				self appendToTranscript: ('[Opening Pharo browser: ' , className , ']') asText ].
+			UIManager default defer: [ cls browse ] ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleFindPharoMethodTag: reply [
+	"Handle a <jadeiteaction:findpharomethod>ClassName>>selector</jadeiteaction:findpharomethod> tag.
+	 Supports both instance-side (ClassName>>sel) and class-side (ClassName class>>sel). Terminal action."
+
+	| openTag closeTag preText spec sepIdx className selector meta cls lookupCls method |
+	openTag := '<jadeiteaction:findpharomethod>'.
+	closeTag := '</jadeiteaction:findpharomethod>'.
+	preText := self extractTextBefore: openTag in: reply.
+	spec := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	(self isValidGemStoneMethodSpec: spec) ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: ('[Skipped — "' , spec , '" is not a valid ClassName>>selector]') asText ].
+		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+	sepIdx = 0
+		ifTrue: [
+			className := spec.
+			selector := '' ]
+		ifFalse: [
+			className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
+			selector := (spec copyFrom: sepIdx + 2 to: spec size) trimBlanks ].
+	meta := className endsWith: ' class'.
+	meta ifTrue: [ className := (className copyFrom: 1 to: className size - 6) trimBlanks ].
+	cls := Smalltalk at: className asSymbol ifAbsent: [ nil ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	cls ifNil: [
+		UIManager default defer: [
+			self appendToTranscript: ('[Error: Pharo class ' , className , ' not found]') asText ] ]
+	ifNotNil: [
+		selector isEmpty
+			ifTrue: [
+				UIManager default defer: [
+					self appendToTranscript: ('[Opening Pharo browser: ' , className , ']') asText ].
+				UIManager default defer: [ cls browse ] ]
+			ifFalse: [
+				lookupCls := meta ifTrue: [ cls class ] ifFalse: [ cls ].
+				method := lookupCls lookupSelector: selector asSymbol.
+				method
+					ifNil: [
+						UIManager default defer: [
+							self appendToTranscript: ('[Error: ' , spec , ' not found in Pharo]') asText ] ]
+					ifNotNil: [
+						UIManager default defer: [
+							self appendToTranscript: ('[Opening Pharo browser: ' , className , (meta ifTrue: [ ' class' ] ifFalse: [ '' ]) , '>>' , selector , ']') asText ].
+						UIManager default defer: [ method browse ] ] ] ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleFindGemStonePackageTag: reply [
+	"Handle a <jadeiteaction:findgemstonepackage>PackageName</jadeiteaction:findgemstonepackage> tag.
+	 Opens a GemStone browser navigated to the named package. Terminal action."
+
+	| openTag closeTag preText packageName |
+	openTag := '<jadeiteaction:findgemstonepackage>'.
+	closeTag := '</jadeiteaction:findgemstonepackage>'.
+	preText := self extractTextBefore: openTag in: reply.
+	packageName := (self
+		                extractExpressionFrom: reply
+		                openTag: openTag
+		                closeTag: closeTag) trimBlanks.
+	(self isValidGemStoneClassName: packageName) ifFalse: [
+			UIManager default defer: [
+					self appendToTranscript:
+						('[Skipped ' , openTag , packageName , closeTag , ' — "'
+						 , packageName , '" is not a valid package name]') asText ].
+			^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	preText isEmpty ifFalse: [
+			UIManager default defer: [
+				self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	UIManager default defer: [
+			self appendToTranscript:
+				('[Opening GemStone browser: package ' , packageName , ']') asText ].
+	UIManager default defer: [
+			JadeiteBrowser
+				openOn: JadeiteConsole currentConsole
+				postOpen: [ :browserPresenter |
+						| projectService packageService |
+						"Find the project and package services from the already-loaded project list.
+			 Mirrors selectClassNamed:package:project:completionBlock: — events must be
+			 suspended so selectProject: does not trigger updateProjectOnCompletion:."
+						projectService := browserPresenter projectListPresenter list
+							                  detect: [ :p |
+							                  p sortedPackages anySatisfy: [ :pkg |
+								                  pkg name = packageName ] ]
+							                  ifNone: [ nil ].
+						projectService ifNotNil: [
+								packageService := projectService sortedPackages
+									                  detect: [ :pkg | pkg name = packageName ]
+									                  ifNone: [ nil ].
+								packageService ifNotNil: [
+										browserPresenter suspendSelectionEvents.
+										[
+											browserPresenter selectProject: projectService.
+											browserPresenter packageListPresenter list:
+												projectService sortedPackages ] ensure: [
+											browserPresenter resumeSelectionEvents ].
+										browserPresenter selectPackage: packageService ] ] ] ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleFindGemStoneProjectTag: reply [
+	"Handle a <jadeiteaction:findgemstoneproject>ProjectName</jadeiteaction:findgemstoneproject> tag.
+	 Opens a GemStone browser navigated to the named project. Terminal action."
+
+	| openTag closeTag preText projectName |
+	openTag := '<jadeiteaction:findgemstoneproject>'.
+	closeTag := '</jadeiteaction:findgemstoneproject>'.
+	preText := self extractTextBefore: openTag in: reply.
+	projectName := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	(self isValidGemStoneClassName: projectName) ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: ('[Skipped ' , openTag , projectName , closeTag , ' — "' , projectName , '" is not a valid project name]') asText ].
+		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	UIManager default defer: [
+		self appendToTranscript: ('[Opening GemStone browser: project ' , projectName , ']') asText ].
+	UIManager default defer: [
+		JadeiteBrowser openOn: JadeiteConsole currentConsole postOpen: [ :browserPresenter |
+			browserPresenter selectProjectNamed: projectName ] ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleOpenInspectorTag: reply [
+	"Handle a <jadeiteaction:openinspector>expression</jadeiteaction:openinspector> tag.
+	 Evaluates the expression on GemStone and opens a Jadeite inspector on the result. Terminal action."
+
+	| preText expr |
+	preText := self extractTextBefore: '<jadeiteaction:openinspector>' in: reply.
+	expr := (self extractExpressionFrom: reply openTag: '<jadeiteaction:openinspector>' closeTag: '</jadeiteaction:openinspector>') trimBlanks.
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	gciSession ifNil: [
+		UIManager default defer: [
+			self appendToTranscript: '[Error: Cannot open inspector — no GemStone session available]' asText ].
+		^ self suffixAfterTag: '</jadeiteaction:openinspector>' in: reply ].
+	UIManager default defer: [
+		self appendToTranscript: ('[Inspecting: ' , expr , ']') asText ].
+	UIManager default defer: [
+		JadeiteInspectorApplication
+			executeThenShowOn: expr
+			session: gciSession
+			context: 20
+			onCompletion: [  ] ].
+	^ self suffixAfterTag: '</jadeiteaction:openinspector>' in: reply
+]
+
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> historyDown [
 	"At the last line of input: advance forward through history.
 	 Otherwise move the cursor down one line within the text."
 
-	messageHistory isEmpty ifTrue: [ ^ self ].
+	MessageHistory isEmpty ifTrue: [ ^ self ].
 	self isInputAtLastLine ifFalse: [ self moveCursorDownLine. ^ self ].
 	historyIndex := historyIndex + 1.
-	historyIndex > messageHistory size
+	historyIndex > MessageHistory size
 		ifTrue: [
-			historyIndex := messageHistory size + 1.
-			inputArea text: '' ]
-		ifFalse: [ inputArea text: (messageHistory at: historyIndex) ]
+			historyIndex := MessageHistory size + 1.
+			inputArea text: (draftInput ifNil: [ '' ]).
+			draftInput := nil ]
+		ifFalse: [ inputArea text: (MessageHistory at: historyIndex) ]
 ]
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> historyUp [
 	"At the first line of input: step back through history.
+	 Saves current input as a draft the first time, so returning to the bottom restores it.
 	 Otherwise move the cursor up one line within the text."
 
-	messageHistory isEmpty ifTrue: [ ^ self ].
+	MessageHistory isEmpty ifTrue: [ ^ self ].
 	self isInputAtFirstLine ifFalse: [ self moveCursorUpLine. ^ self ].
+	historyIndex = (MessageHistory size + 1) ifTrue: [
+		draftInput := [ inputArea adapter widget textMorph text ]
+			on: Error do: [ inputArea text ] ].
 	historyIndex := (historyIndex - 1) max: 1.
-	inputArea text: (messageHistory at: historyIndex)
+	inputArea text: (MessageHistory at: historyIndex)
 ]
 
 { #category : 'initialization' }
@@ -644,9 +843,112 @@ JadeiteAIChatPresenter >> initialize [
 	super initialize.
 	conversation := JadeiteAIChatConversation new.
 	transcriptContent := '' asText.
-	messageHistory := OrderedCollection new.
-	historyIndex := 0.
-	updatingModelList := false
+	MessageHistory ifNil: [ MessageHistory := OrderedCollection new ].
+	historyIndex := MessageHistory size + 1.
+	updatingModelList := false.
+	gemstoneEnvVarCache := Dictionary new
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> fetchProjectPaths [
+	"Populate projectPaths from the console singleton's project list. Synchronous — no async needed."
+
+	| console list |
+	console := JadeiteConsole currentConsole.
+	console ifNil: [ ^ self ].
+	list := [ console projectListPresenter list ]
+		on: Error
+		do: [ :e | OrderedCollection new ].
+	projectPaths := (list select: [ :p | p projectUrl notNil and: [ p projectUrl notEmpty ] ])
+		collect: [ :p | p name -> ((self stripFileScheme: p projectUrl) , '/rowan/src') ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> stripFileScheme: aUrlString [
+	"Strip a leading 'file:' scheme from a URL string, returning a plain file path."
+
+	(aUrlString size >= 5 and: [ (aUrlString copyFrom: 1 to: 5) = 'file:' ])
+		ifTrue: [ ^ aUrlString copyFrom: 6 to: aUrlString size ].
+	^ aUrlString
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> resolveEnvVars: aString [
+	"Expand $VARNAME patterns using GemStone environment variable queries.
+	 Must be called from a background thread (e.g. the LLM worker) — uses blocking GemStone calls."
+
+	| result i |
+	result := WriteStream on: String new.
+	i := 1.
+	[ i <= aString size ] whileTrue: [
+		(aString at: i) = $$
+			ifTrue: [
+				| j varName |
+				j := i + 1.
+				[ j <= aString size and: [
+					  (aString at: j) isAlphaNumeric or: [ (aString at: j) = $_ ] ] ]
+					whileTrue: [ j := j + 1 ].
+				varName := aString copyFrom: i + 1 to: j - 1.
+				varName isEmpty
+					ifTrue: [
+						result nextPut: $$.
+						i := i + 1 ]
+					ifFalse: [
+						result nextPutAll: (self gemEnvironmentVariable: varName).
+						i := j ] ]
+			ifFalse: [
+				result nextPut: (aString at: i).
+				i := i + 1 ] ].
+	^ result contents
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> gemEnvironmentVariable: varName [
+	"Return the value of a GemStone server environment variable using System gemEnvironmentVariable:.
+	 Results are cached in gemstoneEnvVarCache to avoid redundant round-trips."
+
+	| cached sem service value |
+	cached := gemstoneEnvVarCache at: varName ifAbsent: [ nil ].
+	cached ifNotNil: [ ^ cached ].
+	gciSession ifNil: [ ^ '$' , varName ].
+	sem := Semaphore new.
+	value := '$' , varName.
+	service := RowanAnsweringService new.
+	[
+		service
+			exec: 'System gemEnvironmentVariable: ''' , varName , ''''
+			in: gciSession
+			onCompletion: [
+				[ value := service answer ]
+					on: Error
+					do: [ :ex | value := '$' , varName ].
+				sem signal ] ]
+		on: Error
+		do: [ :ex | sem signal ].
+	sem waitTimeoutMilliseconds: 5000.
+	(value notNil and: [ value notEmpty and: [ (value copyFrom: 1 to: 1) ~= '$' ] ])
+		ifTrue: [ gemstoneEnvVarCache at: varName put: value ].
+	^ value
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> buildProjectPathsContext [
+	"Return a string listing registered project source roots for the LLM context.
+	 The LLM uses bash with these absolute paths to navigate and read Tonel source.
+	 Lazily fetches paths on the first call if they have not been populated yet."
+
+	| ws |
+	projectPaths isNil ifTrue: [ self fetchProjectPaths ].
+	(projectPaths isNil or: [ projectPaths isEmpty ]) ifTrue: [ ^ '' ].
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: 'Registered GemStone project source roots (use bash with these absolute paths):';
+		nextPutAll: String lf.
+	projectPaths do: [ :assoc |
+		ws
+			nextPutAll: '  ' , assoc key , ': ' , (self resolveEnvVars: assoc value);
+			nextPutAll: String lf ].
+	^ ws contents
 ]
 
 { #category : 'initialization' }
@@ -812,6 +1114,30 @@ JadeiteAIChatPresenter >> isInputAtLastLine [
 		and: [ (textAfter includes: Character lf) not ]
 ]
 
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isValidGemStoneClassName: aString [
+	"Return true if aString looks like a real GemStone class name rather than documentation text.
+	 Class names have no whitespace, backticks, angle brackets, or newlines."
+
+	aString isEmpty ifTrue: [ ^ false ].
+	^ (aString includes: Character space) not
+		and: [ (aString includes: Character lf) not
+		and: [ (aString includes: Character cr) not
+		and: [ (aString includes: $<) not
+		and: [ (aString includesSubstring: '`') not ] ] ] ]
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> isValidGemStoneMethodSpec: aString [
+	"Return true if aString looks like a real ClassName>>selector spec rather than documentation text."
+
+	^ (aString includesSubstring: '>>')
+		and: [ (aString includes: $<) not
+		and: [ (aString includes: Character lf) not
+		and: [ (aString includes: Character cr) not
+		and: [ (aString includesSubstring: '`') not ] ] ] ]
+]
+
 { #category : 'accessing' }
 JadeiteAIChatPresenter >> llmAdapter [
 
@@ -829,7 +1155,7 @@ JadeiteAIChatPresenter >> llmAdapter: aJadeiteAIHttpAdapter [
 JadeiteAIChatPresenter >> maxAgentIterations [
 	"Maximum number of code-execution rounds per LLM response before stopping."
 
-	^ 6
+	^ 12
 ]
 
 { #category : 'private' }
@@ -896,6 +1222,7 @@ JadeiteAIChatPresenter >> onWorkerDone: replyString [
 
 	| anchor startPos |
 	conversation addAssistantMessage: replyString.
+	replyString trimBlanks isEmpty ifTrue: [ self enableInput. ^ self ].
 	anchor := thinkingStart ifNil: [ transcriptContent size ].
 	startPos := anchor = 0 ifTrue: [ 1 ] ifFalse: [ anchor + 2 ].
 	self appendToTranscript: '[AI] ' asText allBold , replyString asText.
@@ -910,6 +1237,60 @@ JadeiteAIChatPresenter >> onWorkerError: errorString [
 
 	self appendToTranscript: '[Error] ' , errorString.
 	self enableInput
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> parseClassNamesFromStack: aStackString [
+	"Extract unique class names from GemStone stack frame lines.
+	 Frame lines have the form:  N [expr] in ClassName >> selector
+	                          or N [expr] in ClassName class >> selector
+	 Returns an OrderedCollection in first-occurrence order."
+
+	| names |
+	names := OrderedCollection new.
+	aStackString lines do: [ :line |
+		| inIdx arrowIdx afterIn raw |
+		inIdx := line indexOfSubCollection: ' in ' startingAt: 1 ifAbsent: [ 0 ].
+		inIdx = 0 ifFalse: [
+			afterIn := inIdx + 4.
+			arrowIdx := line indexOfSubCollection: ' >> ' startingAt: afterIn ifAbsent: [ 0 ].
+			arrowIdx > 0 ifTrue: [
+				raw := (line copyFrom: afterIn to: arrowIdx - 1) trimBlanks.
+				(raw endsWith: ' class') ifTrue: [
+					raw := raw copyFrom: 1 to: raw size - 6 ].
+				(raw notEmpty and: [ (names includes: raw) not ])
+					ifTrue: [ names add: raw ] ] ] ].
+	^ names
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> parseFramesFromStack: aStackString [
+	"Extract unique ClassName>>selector pairs from GemStone stack frame lines.
+	 Frame lines: N [expr] in ClassName >> selector @N line N
+	           or N [expr] in ClassName class >> selector @N line N
+	 Returns OrderedCollection of 'ClassName>>selector' strings, first-occurrence order."
+
+	| frames |
+	frames := OrderedCollection new.
+	aStackString lines do: [ :line |
+		| inIdx arrowIdx afterIn className selectorRaw atIdx selector key |
+		inIdx := line indexOfSubCollection: ' in ' startingAt: 1 ifAbsent: [ 0 ].
+		inIdx > 0 ifTrue: [
+			afterIn := inIdx + 4.
+			arrowIdx := line indexOfSubCollection: ' >> ' startingAt: afterIn ifAbsent: [ 0 ].
+			arrowIdx > 0 ifTrue: [
+				className := (line copyFrom: afterIn to: arrowIdx - 1) trimBlanks.
+				(className endsWith: ' class') ifTrue: [
+					className := className copyFrom: 1 to: className size - 6 ].
+				selectorRaw := (line copyFrom: arrowIdx + 4 to: line size) trimBlanks.
+				atIdx := selectorRaw indexOfSubCollection: ' @' startingAt: 1 ifAbsent: [ 0 ].
+				selector := atIdx > 0
+					ifTrue: [ (selectorRaw copyFrom: 1 to: atIdx - 1) trimBlanks ]
+					ifFalse: [ selectorRaw ].
+				(className notEmpty and: [ selector notEmpty ]) ifTrue: [
+					key := className , '>>' , selector.
+					(frames includes: key) ifFalse: [ frames add: key ] ] ] ] ].
+	^ frames
 ]
 
 { #category : 'private' }
@@ -987,43 +1368,24 @@ JadeiteAIChatPresenter >> resolveContextOnCompletion: aBlock [
 	aBlock value: String new
 ]
 
-{ #category : 'private' }
-JadeiteAIChatPresenter >> sendWithRetry: aBlock [
-	"Call aBlock, retrying up to 3 times on Claude overloaded_error or rate_limit_error responses.
-	 Updates the transcript between retries so the user knows what is happening."
-
-	| attempt maxAttempts |
-	maxAttempts := 4.
-	attempt := 1.
-	[ attempt < maxAttempts ] whileTrue: [
-		[ ^ aBlock value ]
-			on: Error
-			do: [ :ex |
-				((ex messageText includesSubstring: 'overloaded_error')
-					or: [ ex messageText includesSubstring: 'rate_limit_error' ])
-					ifTrue: [
-						UIManager default defer: [
-							self appendToTranscript:
-								('[AI] Claude busy, retrying ('
-								, attempt printString , '/'
-								, (maxAttempts - 1) printString
-								, ')...') asText allBold ].
-						(Delay forSeconds: 5) wait ]
-					ifFalse: [ ex pass ] ].
-		attempt := attempt + 1 ].
-	^ aBlock value
-]
-
 { #category : 'actions' }
 JadeiteAIChatPresenter >> sendMessage [
-	"Grab input, resolve GemStone context (async for class services), then POST to the LLM."
+	"Grab input from inputArea and forward to sendText:."
 
 	| userText |
 	userText := inputArea text trimBlanks.
 	userText isEmpty ifTrue: [ ^ self ].
+	self sendText: userText
+]
 
-	messageHistory addLast: userText.
-	historyIndex := messageHistory size + 1.
+{ #category : 'actions' }
+JadeiteAIChatPresenter >> sendText: userText [
+	"Send userText to the LLM using the full agent loop.
+	 Called by sendMessage (from the UI) and by explainMethod: (programmatically)."
+
+	MessageHistory addLast: userText.
+	historyIndex := MessageHistory size + 1.
+	draftInput := nil.
 	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
 	self appendToTranscript: '[You] ' asText allBold , userText asText.
 	inputArea text: ''.
@@ -1043,32 +1405,52 @@ JadeiteAIChatPresenter >> sendMessage [
 
 				agentIteration := 0.
 
-				[ | hasGemstone hasPharo hasReadClass hasReadMethod hasBash |
+				[ | hasGemstone hasPharo hasBash hasFindClass hasFindMethod hasInspector hasFindProject hasFindPackage hasFindPharoClass hasFindPharoMethod |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
 				  hasPharo := reply includesSubstring: '<pharo>'.
-				  hasReadClass := reply includesSubstring: '<readgemstoneclass>'.
-				  hasReadMethod := reply includesSubstring: '<readgemstonemethod>'.
 				  hasBash := reply includesSubstring: '<bash>'.
-				  (hasGemstone or: [ hasPharo or: [ hasReadClass or: [ hasReadMethod or: [ hasBash ] ] ] ])
+				  hasFindClass := reply includesSubstring: '<jadeiteaction:findgemstoneclass>'.
+				  hasFindMethod := reply includesSubstring: '<jadeiteaction:findgemstonemethod>'.
+				  hasInspector := reply includesSubstring: '<jadeiteaction:openinspector>'.
+				  hasFindProject := reply includesSubstring: '<jadeiteaction:findgemstoneproject>'.
+				  hasFindPackage := reply includesSubstring: '<jadeiteaction:findgemstonepackage>'.
+				  hasFindPharoClass := reply includesSubstring: '<jadeiteaction:findpharoclass>'.
+				  hasFindPharoMethod := reply includesSubstring: '<jadeiteaction:findpharomethod>'.
+				  (hasGemstone or: [ hasPharo or: [ hasBash or: [ hasFindClass or: [ hasFindMethod or: [ hasInspector or: [ hasFindProject or: [ hasFindPackage or: [ hasFindPharoClass or: [ hasFindPharoMethod ] ] ] ] ] ] ] ] ])
 				  and: [ agentIteration < self maxAgentIterations ] ]
 				whileTrue: [
 					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label firstTag |
 					agentIteration := agentIteration + 1.
-					firstTag := #(  '<readgemstoneclass>' '<readgemstonemethod>' '<bash>' '<gemstone>' '<pharo>' )
+					firstTag := #( '<bash>' '<jadeiteaction:findgemstoneclass>' '<jadeiteaction:findgemstonemethod>' '<jadeiteaction:openinspector>' '<jadeiteaction:findgemstoneproject>' '<jadeiteaction:findgemstonepackage>' '<jadeiteaction:findpharoclass>' '<jadeiteaction:findpharomethod>' '<gemstone>' '<pharo>' )
 						inject: reply size + 1 -> ''
 						into: [ :min :tag |
 							| idx |
 							idx := reply indexOfSubCollection: tag startingAt: 1 ifAbsent: [ reply size + 1 ].
 							idx < min key ifTrue: [ idx -> tag ] ifFalse: [ min ] ].
-					(firstTag value = '<readgemstoneclass>')
-						ifTrue: [
-							reply := self handleReadGemStoneClassTag: reply conversation: conversation ]
-						ifFalse: [ (firstTag value = '<readgemstonemethod>')
-						ifTrue: [
-							reply := self handleReadGemStoneMethodTag: reply conversation: conversation ]
-						ifFalse: [ (firstTag value = '<bash>')
+					(firstTag value = '<bash>')
 						ifTrue: [
 							reply := self handleBashTag: reply conversation: conversation ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:findgemstoneclass>')
+						ifTrue: [
+							reply := self handleFindGemStoneClassTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:findgemstonemethod>')
+						ifTrue: [
+							reply := self handleFindGemStoneMethodTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:openinspector>')
+						ifTrue: [
+							reply := self handleOpenInspectorTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:findgemstoneproject>')
+						ifTrue: [
+							reply := self handleFindGemStoneProjectTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:findgemstonepackage>')
+						ifTrue: [
+							reply := self handleFindGemStonePackageTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:findpharoclass>')
+						ifTrue: [
+							reply := self handleFindPharoClassTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:findpharomethod>')
+						ifTrue: [
+							reply := self handleFindPharoMethodTag: reply ]
 						ifFalse: [
 							useGemstone := (reply
 								indexOfSubCollection: '<gemstone>'
@@ -1127,11 +1509,14 @@ JadeiteAIChatPresenter >> sendMessage [
 													| otherEnv otherTag |
 													otherEnv := useGemstone ifTrue: [ 'Pharo' ] ifFalse: [ 'GemStone' ].
 													otherTag := useGemstone ifTrue: [ '<pharo>...</pharo>' ] ifFalse: [ '<gemstone>...</gemstone>' ].
-													'. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required, output the tag immediately.' ]
-												ifFalse: [ '. If you need more data, use another <gemstone> or <pharo> tag. Otherwise give your final answer.' ] ]) ].
+													'. You were asked to evaluate in both environments. Execute in ' , otherEnv , ' now using ' , otherTag , ' — required.'
+													, String lf , '[System: Output ONLY the tag ' , otherTag , ' with the expression. No prose, no markdown.]' ]
+												ifFalse: [ '. If you need more data, use another tag. Otherwise give your final answer.'
+													, String lf , '[System: Results shown are COMPLETE as returned — do NOT re-read a result you already have, even if it looks short. For GemStone selector discovery AND method source: use bash grep across ALL registered roots then cat — not <gemstone>sourceCodeAt:</gemstone>. Only use <gemstone> for live runtime values or classes not in any registered project.]'
+													, String lf , '[System: To open a Jadeite window use the exact formats: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass> or <jadeiteaction:findpharoclass>ClassName</jadeiteaction:findpharoclass> for browsers; <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod> or <jadeiteaction:findpharomethod>ClassName>>selector</jadeiteaction:findpharomethod> for methods; <jadeiteaction:openinspector>expr</jadeiteaction:openinspector> for inspector. NEVER use <gemstone> or <pharo> tags to open windows — they will fail.]' ] ]) ].
 							conversation addAssistantMessage: preText.
 							conversation addUserMessage: feedbackMsg.
-							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ] ] ].
+							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversationStep: conversation ]) ] ] ] ] ] ] ] ] ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.
@@ -1151,8 +1536,8 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 
 	displayText trimBlanks isEmpty ifTrue: [ ^ self ].
 
-	messageHistory addLast: displayText.
-	historyIndex := messageHistory size + 1.
+	MessageHistory addLast: displayText.
+	historyIndex := MessageHistory size + 1.
 	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
 	self appendToTranscript: '[You] ' asText allBold , displayText asText.
 	inputArea text: ''.
@@ -1174,72 +1559,32 @@ JadeiteAIChatPresenter >> sendStackAnalysis: fullPrompt displayText: displayText
 	forkNamed: 'JadeiteAI-LLMWorker'
 ]
 
-{ #category : 'actions' }
-JadeiteAIChatPresenter >> sendStackAnalysisWithLoop: fullPrompt displayText: displayText [
-	"Stack analysis with agent-loop support for bash/<readgemstonemethod>/<readgemstoneclass> tags.
-	 Claude can look up relevant sources from registered projects as it works through the stack."
-
-	displayText trimBlanks isEmpty ifTrue: [ ^ self ].
-	messageHistory addLast: displayText.
-	historyIndex := messageHistory size + 1.
-	transcriptContent isEmpty ifFalse: [ self appendToTranscript: '' ].
-	self appendToTranscript: '[You] ' asText allBold , displayText asText.
-	inputArea text: ''.
-	self disableInput.
-
-	workerProcess := [
-		| analysisConversation reply agentIteration |
-		[
-			analysisConversation := JadeiteAIChatConversation new
-				systemPrompt: self stackAnalysisSystemPrompt;
-				yourself.
-			JadeiteAIProjectRegistry default hasProjects ifTrue: [
-				analysisConversation contextMessage: JadeiteAIProjectRegistry default briefContextString ].
-			analysisConversation addUserMessage: fullPrompt.
-			reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: analysisConversation ]).
-
-			agentIteration := 0.
-			[ | hasReadClass hasReadMethod hasBash |
-			  hasReadClass := reply includesSubstring: '<readgemstoneclass>'.
-			  hasReadMethod := reply includesSubstring: '<readgemstonemethod>'.
-			  hasBash := reply includesSubstring: '<bash>'.
-			  (hasReadClass or: [ hasReadMethod or: [ hasBash ] ])
-			  and: [ agentIteration < self maxAgentIterations ] ]
-			whileTrue: [
-				| firstTag |
-				agentIteration := agentIteration + 1.
-				firstTag := #( '<readgemstoneclass>' '<readgemstonemethod>' '<bash>' )
-					inject: reply size + 1 -> ''
-					into: [ :min :tag |
-						| idx |
-						idx := reply indexOfSubCollection: tag startingAt: 1 ifAbsent: [ reply size + 1 ].
-						idx < min key ifTrue: [ idx -> tag ] ifFalse: [ min ] ].
-				(firstTag value = '<readgemstoneclass>')
-					ifTrue: [ reply := self handleReadGemStoneClassTag: reply conversation: analysisConversation ]
-					ifFalse: [ (firstTag value = '<readgemstonemethod>')
-					ifTrue: [ reply := self handleReadGemStoneMethodTag: reply conversation: analysisConversation ]
-					ifFalse: [ reply := self handleBashTag: reply conversation: analysisConversation ] ] ].
-
-			conversation addUserMessage: displayText.
-			UIManager default defer: [ self onWorkerDone: reply ] ]
-		on: Error
-		do: [ :ex |
-			UIManager default defer: [ self onWorkerError: ex messageText ] ] ]
-	forkNamed: 'JadeiteAI-LLMWorker'
-]
 
 { #category : 'private' }
-JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
-	"System prompt for stack analysis — includes source-reading tag instructions so
-	 Claude can look up relevant methods from registered projects."
+JadeiteAIChatPresenter >> sendWithRetry: aBlock [
+	"Call aBlock, retrying up to 3 times on Claude overloaded_error or rate_limit_error responses.
+	 Updates the transcript between retries so the user knows what is happening."
 
-	^ 'You are a helpful GemStone Smalltalk programming assistant.
-Analyze the GemStone call stack and any method sources provided. Explain:
-1. What went wrong — the root cause of the error
-2. Which frame triggered the error and why
-3. How to fix it
-
-Be concise. Focus on the most relevant frames and the provided method sources.'
+	| attempt maxAttempts |
+	maxAttempts := 4.
+	attempt := 1.
+	[ attempt < maxAttempts ] whileTrue: [
+		[ ^ aBlock value ]
+			on: Error
+			do: [ :ex |
+				((ex messageText includesSubstring: 'overloaded_error')
+					or: [ ex messageText includesSubstring: 'rate_limit_error' ])
+					ifTrue: [
+						UIManager default defer: [
+							self appendToTranscript:
+								('[AI] Claude busy, retrying ('
+								, attempt printString , '/'
+								, (maxAttempts - 1) printString
+								, ')...') asText allBold ].
+						(Delay forSeconds: 5) wait ]
+					ifFalse: [ ex pass ] ].
+		attempt := attempt + 1 ].
+	^ aBlock value
 ]
 
 { #category : 'context' }
@@ -1292,6 +1637,20 @@ JadeiteAIChatPresenter >> spinnerMessages [
 ]
 
 { #category : 'private' }
+JadeiteAIChatPresenter >> stackAnalysisSystemPrompt [
+	"System prompt for stack analysis — includes source-reading tag instructions so
+	 Claude can look up relevant methods from registered projects."
+
+	^ 'You are a helpful GemStone Smalltalk programming assistant.
+Analyze the GemStone call stack and any method sources provided. Explain:
+1. What went wrong — the root cause of the error
+2. Which frame triggered the error and why
+3. How to fix it
+
+Be concise. Focus on the most relevant frames and the provided method sources.'
+]
+
+{ #category : 'private' }
 JadeiteAIChatPresenter >> startSpinner [
 	"Show an animated thinking indicator in the transcript (like VS Code Claude).
 	 The indicator is removed or replaced when real content arrives."
@@ -1341,6 +1700,30 @@ JadeiteAIChatPresenter >> stopWorker [
 		workerProcess := nil ].
 	self appendToTranscript: '[Stopped]'.
 	self enableInput
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> suffixAfterTag: closeTag in: reply [
+	"Return the text that follows the first occurrence of closeTag in reply.
+	 Used by jadeiteaction handlers so the agent loop can process a second tag
+	 that appears after the one just handled."
+
+	| closeIdx |
+	closeIdx := reply indexOfSubCollection: closeTag startingAt: 1 ifAbsent: [ ^ '' ].
+	^ reply copyFrom: closeIdx + closeTag size to: reply size
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> stripTagPair: openTag closeTag: closeTag from: reply [
+	"Remove the first occurrence of openTag...closeTag from reply.
+	 Used to discard invalid jadeiteaction tags so the agent loop can continue."
+
+	| openIdx closeIdx |
+	openIdx := reply indexOfSubCollection: openTag startingAt: 1 ifAbsent: [ ^ reply ].
+	closeIdx := reply indexOfSubCollection: closeTag startingAt: openIdx ifAbsent: [ 0 ].
+	closeIdx = 0 ifTrue: [
+		^ (reply copyFrom: 1 to: openIdx - 1) , (reply copyFrom: openIdx + openTag size to: reply size) ].
+	^ (reply copyFrom: 1 to: openIdx - 1) , (reply copyFrom: closeIdx + closeTag size to: reply size)
 ]
 
 { #category : 'actions' }
@@ -1398,14 +1781,24 @@ JadeiteAIChatPresenter >> timeout [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> truncateResult: aString [
-	"Truncate a result string that is too long to be useful in the transcript or LLM context."
+	"If the result is large, write it to a temp file and return a short pointer.
+	 The LLM can then use <bash> tags (grep, cat, head) to analyze without size limits.
+	 Falls back to plain truncation if the file write fails."
 
-	| maxLen |
-	maxLen := 500.
+	| maxLen dumpPath |
+	maxLen := 3000.
 	aString size <= maxLen ifTrue: [ ^ aString ].
-	^ (aString copyFrom: 1 to: maxLen)
+	dumpPath := '/tmp/jadeite_gs_result.txt'.
+	[ dumpPath asFileReference writeStreamDo: [ :s | s nextPutAll: aString ] ]
+		on: Error
+		do: [ :ex |
+			^ (aString copyFrom: 1 to: maxLen)
+			  , String lf
+			  , '[...truncated — ' , (aString size - maxLen) printString , ' more characters]' ].
+	^ '[Result too large for inline display (' , aString size printString
+	  , ' chars) — written to ' , dumpPath , '.'
 	  , String lf
-	  , '[...truncated — ' , (aString size - maxLen) printString , ' more characters]'
+	  , 'Use <bash>cat ' , dumpPath , '</bash> or <bash>grep pattern ' , dumpPath , '</bash> to analyze.]'
 ]
 
 { #category : 'private' }
