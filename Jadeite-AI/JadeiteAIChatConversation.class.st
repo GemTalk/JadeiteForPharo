@@ -181,7 +181,8 @@ Bash patterns for Tonel projects:
 Searching registered project source with bash:
 - To run a safe read-only shell command: <bash>command</bash>
 - Allowed commands: ls, find, grep, cat, wc, head, tail, sort, uniq, diff, sed, awk, echo, pwd, file, stat, du
-- Output redirection (>), sed -i, semicolons (;), backticks, $(), and destructive commands are blocked
+- Output redirection (>), sed -i, semicolons (;), backticks, $(), xargs, and destructive commands are blocked
+- Pipes between allowed commands are permitted (e.g. grep ... | sort). xargs is not allowed — use grep -rn with explicit paths instead of find | xargs grep
 - Issue ONE tag per reply. The result is returned automatically.
 - CRITICAL: Always use the exact "Root path:" from the context. Never abbreviate or reconstruct it.
 - Use grep/find to navigate large projects efficiently before reading full method sources.

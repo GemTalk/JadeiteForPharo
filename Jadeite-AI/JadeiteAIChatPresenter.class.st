@@ -512,7 +512,9 @@ JadeiteAIChatPresenter >> isSafeCommand: aCommandString [
 	blocked := #( ' > ' ';' '`' '$(' 'sed -i' 'rm ' 'mv' 'cp' 'chmod' 'chown' 'touch' 'mkdir' 'rmdir' 'kill' 'sudo' 'bash' 'python' 'ruby' 'perl' ).
 	blocked do: [ :b |
 		(aCommandString includesSubstring: b) ifTrue: [ ^ false ] ].
-	segments := aCommandString substrings: '|'.
+	"Split on shell pipes only — replace regex alternation \| with a placeholder first
+	 so grep patterns like '^Foo >> \|^Bar >> ' are not mistaken for shell pipes."
+	segments := (aCommandString copyReplaceAll: '\|' with: 'XXPIPEXX') substrings: '|'.
 	segments do: [ :seg |
 		| words |
 		words := seg trimBlanks substrings.
