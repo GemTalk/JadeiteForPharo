@@ -35,7 +35,7 @@ JadeiteMethodsTrait >> addExplainWithAIItemTo: group [
 
 	group addItem: [ :item |
 		item
-			name: 'Ask Jadeite About This Method';
+			name: 'Explain with Jadeite';
 			icon: (self iconNamed: #glamorousHelp);
 			action: [ self explainSelectedMethodWithAI ];
 			enabled: [ self methodListPresenter selections size = 1 ] ]
@@ -49,6 +49,27 @@ JadeiteMethodsTrait >> explainSelectedMethodWithAI [
 	JadeiteAIChatPresenter
 		openWithSession: self gciSession
 		forMethodExplanation: methodService
+]
+
+{ #category : 'menus' }
+JadeiteMethodsTrait >> addDebugWithAIItemTo: group [
+
+	group addItem: [ :item |
+		item
+			name: 'Run & Fix with Jadeite';
+			icon: (self iconNamed: #glamorousHelp);
+			action: [ self debugSelectedMethodWithAI ];
+			enabled: [ self methodListPresenter selections size = 1 ] ]
+]
+
+{ #category : 'actions' }
+JadeiteMethodsTrait >> debugSelectedMethodWithAI [
+
+	| methodService |
+	methodService := self methodListPresenter jadeiteSelections first.
+	JadeiteAIChatPresenter
+		openWithSession: self gciSession
+		forTestDebug: methodService
 ]
 
 { #category : 'menus' }
@@ -702,7 +723,9 @@ JadeiteMethodsTrait >> fullMethodListMenu [
 						name: 'File Out Selected Methods ...';
 						action: [ self fileoutMethods ];
 						enabled: [ self methodListPresenter selections notEmpty ] ] ].
-	menu addGroup: [ :group | self addExplainWithAIItemTo: group ].
+	menu addGroup: [ :group |
+		self addExplainWithAIItemTo: group.
+		self addDebugWithAIItemTo: group ].
 	^ menu
 ]
 
