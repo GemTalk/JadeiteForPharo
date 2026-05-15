@@ -964,7 +964,7 @@ JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
 			self appendToTranscript: ('[Skipped ' , openTag , spec , closeTag , ' -- expected ClassName>>sel1,sel2]') asText ].
 		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
 	className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
-	selectorNames := ((spec copyFrom: sepIdx + 2 to: spec size) trimBlanks) substrings: $,.
+	selectorNames := ((spec copyFrom: sepIdx + 2 to: spec size) trimBlanks) substrings: ','.
 	stubs := selectorNames collect: [ :sel |
 		RowanMethodService fakeMethodFor: className selector: sel trimBlanks source: '' ].
 	preText isEmpty ifFalse: [
