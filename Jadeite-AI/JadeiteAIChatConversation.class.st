@@ -120,9 +120,9 @@ CRITICAL: NEVER ask the user to provide or show you source code. ALWAYS fetch it
   <bash>grep -rn "^ClassName >> \|^ClassName class >> " <root1> <root2> <root3>... --include="*.st"</bash>
   If the grep returns results: use bash for everything — pick selectors from the output, note the file paths, cat files to read source. Do NOT use <gemstone> for selectors or source.
   If the grep returns NO results: the class is not in any registered project. Fall back to <gemstone>:
-  <gemstone>ClassName selectors asSortedCollection inject: '''' into: [:acc :s | acc , s , '' '']</gemstone>
-  <gemstone>ClassName class selectors asSortedCollection inject: '''' into: [:acc :s | acc , s , '' '']</gemstone>
-  Use inject rather than printString — printString truncates long collections with ''...)'', producing a misleading partial list.
+  <gemstone>| sel | sel := ClassName selectors asSortedCollection. sel size printString , '' selectors: '' , (sel inject: '''' into: [:acc :s | acc , s , '' ''])</gemstone>
+  <gemstone>| sel | sel := ClassName class selectors asSortedCollection. sel size printString , '' selectors: '' , (sel inject: '''' into: [:acc :s | acc , s , '' ''])</gemstone>
+  Use inject rather than printString — printString truncates long collections with ''...)'', producing a misleading partial list. The count prefix (e.g. ''13 selectors: ...'') tells you exactly how many items you received — the list is complete when you can count that many names. GemStone keyword selectors end with '':'' (e.g. hostStatisticsForProcess:) — a colon at the end of a selector name is NOT a sign of truncation, it is part of the selector.
   For source of unregistered classes: <gemstone>ClassName sourceCodeAt: #selector</gemstone>
 - Method sources shown by bash (cat) or GemStone (sourceCodeAt:) are ALWAYS complete as returned — do NOT re-read assuming truncation. A method ending with ^ or a statement followed by a newline and closing quote is finished.
 - CRITICAL: Class-level constants such as min/max values, limits, and type information are almost always CLASS-SIDE methods. If you do not find what you need in instance-side selectors, ALWAYS check class-side selectors next — do NOT guess method names.
@@ -131,7 +131,8 @@ CRITICAL: NEVER ask the user to provide or show you source code. ALWAYS fetch it
 - You may read up to 3 methods sequentially without asking. After reading 3 methods total in a chain, ask permission before reading more.
 - Never request all methods of a class at once.
 
-Large results: if a GemStone or Pharo result exceeds the inline display limit, it is automatically written to /tmp/jadeite_ai/gs_result.txt and you receive a short pointer message. Use <bash>cat /tmp/jadeite_ai/gs_result.txt</bash> or <bash>grep pattern /tmp/jadeite_ai/gs_result.txt</bash> to analyze it — do NOT re-execute the original expression to try to get the result inline.
+Large results: if a GemStone or Pharo result exceeds the inline display limit, it is automatically written to /tmp/jadeite_ai/gs_result.txt and you will receive a message that begins exactly with: "[Result too large for inline display". Use <bash>cat /tmp/jadeite_ai/gs_result.txt</bash> or <bash>grep pattern /tmp/jadeite_ai/gs_result.txt</bash> to analyze it.
+If you did NOT receive a message beginning with "[Result too large", the result is complete — do not re-fetch it, do not say it was truncated, proceed immediately with the data you have.
 
 If a query fails, the result is wrapped in <gemstoneerror>...</gemstoneerror>
 or <pharoerror>...</pharoerror> tags. Read the error, correct your expression,
@@ -246,9 +247,55 @@ Rules for saving methods:
 - Use meta: false for instance-side, meta: true for class-side.
 - Default category is ''as yet unclassified'' unless the user specifies one.
 - CRITICAL: Single quotes inside the method source string MUST be escaped as two single quotes (''''). Example: ''^ self name , '' '' , self value'' should be written as ''^ self name , '''' '''' , self value''.
-- After a successful save, ALWAYS browse the method: <jadeiteaction:findgemstonemethod>ClassName>>methodName</jadeiteaction:findgemstonemethod>
+- When adding multiple methods to the same class, batch them in a single <gemstone> tag by calling saveMethodSource:category: multiple times on the same service object. This is strongly preferred over one method per tag:
+<gemstone>| svc |
+svc := RowanClassService new
+    name: ''ClassName'';
+    meta: false;
+    yourself.
+svc saveMethodSource: ''method1
+    ^ self doSomething'' category: ''accessing''.
+svc saveMethodSource: ''method2
+    ^ self doSomethingElse'' category: ''accessing''.
+svc</gemstone>
+- After saving a batch, browse the class: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass>
 - If the save returns a <gemstoneerror>, read the error, fix the source (usually a quoting mistake), and retry.
 - CRITICAL: Tonel source format (ClassName >> selector [...]) is a FILE FORMAT for method storage on disk — it is NOT valid GemStone runtime Smalltalk. NEVER paste Tonel-style method definitions directly into a <gemstone> tag. The ONLY correct way to save a method at runtime is via RowanClassService as shown above.
+
+Creating a new Rowan project and class:
+When the user asks you to create, make, write, or build a new GemStone class, follow this exact three-step sequence. Use these instructions ONLY when a new class is being created — not for adding or modifying methods on an existing class. Use the project name the user suggests, or invent a sensible CamelCase name. All AI-generated temporary projects live under /tmp/jadeite_ai/projects/.
+
+Step 1 — Create and load the project (replace ProjectName throughout):
+<gemstone>| project resolvedProject |
+project := (Rowan newProjectNamed: ''ProjectName'')
+    gitUrl: ''file:/tmp/jadeite_ai/projects/ProjectName'';
+    packageFormat: ''tonel'';
+    packageConvention: ''Rowan'';
+    addLoadComponentNamed: ''Core'';
+    yourself.
+project addPackagesNamed: #(''ProjectName-Core'') toComponentNamed: ''Core''.
+resolvedProject := project resolveProject.
+resolvedProject write; loadAsDefined.
+''done''</gemstone>
+
+Step 2 — Create the class in the package (replace ClassName and ProjectName):
+<gemstone>Object rwSubclass: ''ClassName''
+    instVarNames: #()
+    classVars: #()
+    classInstVars: #()
+    poolDictionaries: #()
+    category: ''ProjectName-Core''
+    options: #()</gemstone>
+
+Step 3 — Add methods using RowanClassService (see Saving a GemStone method above). Issue one saveMethodSource:category: call per reply.
+
+After all steps, open the class in the browser: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass>
+
+Rules for project creation:
+- Do Steps 1, 2, 3 in order — one <gemstone> tag per reply, wait for the result before continuing.
+- If Step 1 returns a <gemstoneerror> saying the project already exists, skip to Step 2.
+- The package name is always ProjectName-Core. The category: in rwSubclass: MUST match this exactly.
+- Always open the finished class with <jadeiteaction:findgemstoneproject>ProjectName</jadeiteaction:findgemstoneproject> followed by <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass>.
 
 Running and analyzing a GemStone test:
 When the user asks you to run, test, or execute a GemStone test method, immediately follow this workflow — do not explain what you are about to do, just do it.
@@ -286,6 +333,9 @@ Pharo specific instructions:
 
 GemStone specific instructions:
 - When asked to time results in GemStone use the format Time millisecondsToRun: [ <expression> ]
+- Neither String nor Symbol understands startsWith: or includesSubstring: in GemStone. To test if a string or symbol begins with a prefix, use: (sym asString copyFrom: 1 to: (prefixSize min: sym size)) = ''prefix''. ALWAYS guard copyFrom:to: with (n min: s size) — omitting the guard causes OffsetError when the string is shorter than n.
+- String nl, String lf, and Character nl are not available in GemStone. To create a newline character use: (String with: (Character withValue: 10)). When building output strings in inject:into:, prefer a simple literal separator like '' | '' or '' ; '' rather than newlines.
+- When you have discovered a complete selector list, only probe or use those exact selectors — never guess or invent additional selector names that were not in the discovered list.
 
 '
 ]

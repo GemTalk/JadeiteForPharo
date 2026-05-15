@@ -402,9 +402,11 @@ JadeiteAIChatPresenter >> enableInput [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> ensureJadeiteAITempDir [
-	"Create the Jadeite AI temp directory if it does not exist."
+	"Create the Jadeite AI temp directory and projects subdir if they do not exist."
 
 	[ self jadeiteAITempDir asFileReference ensureCreateDirectory ]
+		on: Error do: [  ].
+	[ self jadeiteAIProjectsDir asFileReference ensureCreateDirectory ]
 		on: Error do: [  ]
 ]
 
@@ -1028,7 +1030,7 @@ JadeiteAIChatPresenter >> initializePresenters [
 	inputRow
 		add: inputArea;
 		add: checkboxColumn withConstraints: [ :c | c width: 100; expand: false ].
-	self layout add: inputRow withConstraints: [ :c | c height: 100 ].
+	self layout add: inputRow withConstraints: [ :c | c height: 120 ].
 
 	contextRow := SpBoxLayout newHorizontal spacing: 6.
 	contextRow borderWidth: 4.
@@ -1202,6 +1204,13 @@ JadeiteAIChatPresenter >> isValidGemStoneMethodSpec: aString [
 ]
 
 { #category : 'constants' }
+JadeiteAIChatPresenter >> jadeiteAIProjectsDir [
+	"Subdirectory under jadeiteAITempDir where AI-generated Rowan projects are stored."
+
+	^ self jadeiteAITempDir , '/projects'
+]
+
+{ #category : 'constants' }
 JadeiteAIChatPresenter >> jadeiteAITempDir [
 	"Dedicated temp directory for all Jadeite AI files (results, test sources, stacks)."
 
@@ -1225,7 +1234,7 @@ JadeiteAIChatPresenter >> llmAdapter: aJadeiteAIHttpAdapter [
 JadeiteAIChatPresenter >> maxAgentIterations [
 	"Maximum number of code-execution rounds per LLM response before stopping."
 
-	^ 12
+	^ 100
 ]
 
 { #category : 'private' }
@@ -1623,10 +1632,7 @@ JadeiteAIChatPresenter >> sendText: userText [
 								ifFalse: [ pharoExecuted := true ].
 							UIManager default defer: [
 								self appendToTranscript: '[Result] ' asText allBold , result asText ].
-							"Keep LLM feedback short to avoid overflowing the context window"
-							feedbackResult := result size > 150
-								ifTrue: [ (result copyFrom: 1 to: 150) , '...[truncated]' ]
-								ifFalse: [ result ].
+							feedbackResult := result.
 							feedbackMsg := (result includesSubstring: errorTag)
 								ifTrue: [
 									(useGemstone ifTrue: [ 'GemStone' ] ifFalse: [ 'Pharo' ])
