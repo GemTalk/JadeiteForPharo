@@ -951,9 +951,11 @@ JadeiteAIChatPresenter >> handleTestResultTag: reply [
 { #category : 'private' }
 JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
 	"Handle a <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist> tag.
-	 Opens a JadeiteMethodListPresenter showing the named methods. Terminal action."
+	 Use 'ClassName class>>sel1,sel2' for class-side methods.
+	 Issues one #update command per stub (matching the debugger pattern) so all fields
+	 are populated before the browser opens. Terminal action."
 
-	| openTag closeTag preText spec sepIdx className selectorNames stubs answeringService |
+	| openTag closeTag preText spec sepIdx className meta selectorNames stubs remaining |
 	openTag := '<jadeiteaction:openmethodlist>'.
 	closeTag := '</jadeiteaction:openmethodlist>'.
 	preText := self extractTextBefore: openTag in: reply.
@@ -964,9 +966,17 @@ JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
 			self appendToTranscript: ('[Skipped ' , openTag , spec , closeTag , ' -- expected ClassName>>sel1,sel2]') asText ].
 		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
 	className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
+	meta := className endsWith: ' class'.
+	meta ifTrue: [ className := (className copyFrom: 1 to: className size - 6) trimBlanks ].
 	selectorNames := ((spec copyFrom: sepIdx + 2 to: spec size) trimBlanks) substrings: ','.
 	stubs := selectorNames collect: [ :sel |
-		RowanMethodService fakeMethodFor: className selector: sel trimBlanks source: '' ].
+		RowanMethodServiceClient new
+			className: className;
+			selector: sel trimBlanks;
+			meta: meta;
+			command: #update;
+			commandArgs: Array new;
+			yourself ].
 	preText isEmpty ifFalse: [
 		UIManager default defer: [
 			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
@@ -975,17 +985,17 @@ JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
 			self appendToTranscript: '[Error: Cannot open method list -- no GemStone session available]' asText ].
 		^ self suffixAfterTag: closeTag in: reply ].
 	UIManager default defer: [
-		self appendToTranscript: ('[Opening method list: ' , className , ' (' , stubs size printString , ' methods)]') asText ].
-	answeringService := RowanAnsweringServiceClient new
-		command: #updateServices:;
-		commandArgs: (Array with: stubs);
-		yourself.
-	RowanServiceUpdater current
-		issueCommand: answeringService
-		session: gciSession
-		onCompletion: [
-			UIManager default defer: [
-				(JadeiteMethodListApplication showOnSession: gciSession library) methods: stubs ] ].
+		self appendToTranscript: ('[Opening method list: ' , className , (meta ifTrue: [ ' class' ] ifFalse: [ '' ]) , ' (' , stubs size printString , ' methods)]') asText ].
+	remaining := Array with: stubs size.
+	stubs do: [ :stub |
+		RowanServiceUpdater current
+			issueCommand: stub
+			session: gciSession
+			onCompletion: [
+				remaining at: 1 put: remaining first - 1.
+				remaining first = 0 ifTrue: [
+					UIManager default defer: [
+						(JadeiteMethodListApplication showOnSession: gciSession library) methods: stubs ] ] ] ].
 	^ self suffixAfterTag: closeTag in: reply
 ]
 
