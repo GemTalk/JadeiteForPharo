@@ -653,7 +653,7 @@ Available action tags (use exactly one if needed, then stop):
   Open a package in browser:  <jadeiteaction:findgemstonepackage>PackageName</jadeiteaction:findgemstonepackage>
   Inspect an object:          <jadeiteaction:openinspector>expression</jadeiteaction:openinspector>
   Open GemStone workspace:    <jadeiteaction:openworkspace>code to pre-populate</jadeiteaction:openworkspace>
-  Open method list browser:   <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist>
+  Open method list browser:   <jadeiteaction:openmethodlist>Class1>>sel1,Class2>>sel2</jadeiteaction:openmethodlist>
   Run another bash command:   <bash>command</bash>
 IMPORTANT: If the bash result says "Command not permitted" because you tried to write a file (> or >>), do NOT retry with bash. Bash is READ-ONLY. To save a GemStone method, use <gemstone> with the RowanClassService saveMethodSource:category: pattern described in your system instructions.
 Rules: If the result contains the answer, give your final answer now — no tag needed.
@@ -950,33 +950,43 @@ JadeiteAIChatPresenter >> handleTestResultTag: reply [
 
 { #category : 'private' }
 JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
-	"Handle a <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist> tag.
-	 Use 'ClassName class>>sel1,sel2' for class-side methods.
-	 Issues one #update command per stub (matching the debugger pattern) so all fields
-	 are populated before the browser opens. Terminal action."
+	"Handle a <jadeiteaction:openmethodlist>Class1>>sel1,Class2>>sel2</jadeiteaction:openmethodlist> tag.
+	 Each comma-separated entry is a full ClassName>>selector pair.
+	 Use 'ClassName class>>selector' for class-side methods.
+	 Issues one #update command per stub so all fields are populated before display. Terminal action."
 
-	| openTag closeTag preText spec sepIdx className meta selectorNames stubs remaining |
+	| openTag closeTag preText spec entries stubs remaining |
 	openTag := '<jadeiteaction:openmethodlist>'.
 	closeTag := '</jadeiteaction:openmethodlist>'.
 	preText := self extractTextBefore: openTag in: reply.
 	spec := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
-	sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
-	(sepIdx = 0 or: [ spec isEmpty ]) ifTrue: [
+	spec isEmpty ifTrue: [
 		UIManager default defer: [
-			self appendToTranscript: ('[Skipped ' , openTag , spec , closeTag , ' -- expected ClassName>>sel1,sel2]') asText ].
+			self appendToTranscript: ('[Skipped ' , openTag , closeTag , ' -- empty spec]') asText ].
 		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
-	className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
-	meta := className endsWith: ' class'.
-	meta ifTrue: [ className := (className copyFrom: 1 to: className size - 6) trimBlanks ].
-	selectorNames := ((spec copyFrom: sepIdx + 2 to: spec size) trimBlanks) substrings: ','.
-	stubs := selectorNames collect: [ :sel |
-		RowanMethodServiceClient new
-			className: className;
-			selector: sel trimBlanks;
-			meta: meta;
-			command: #update;
-			commandArgs: Array new;
-			yourself ].
+	entries := spec substrings: ','.
+	stubs := OrderedCollection new.
+	entries do: [ :entry |
+		| e sepIdx cls sel meta |
+		e := entry trimBlanks.
+		sepIdx := e indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+		sepIdx = 0 ifFalse: [
+			cls := (e copyFrom: 1 to: sepIdx - 1) trimBlanks.
+			sel := (e copyFrom: sepIdx + 2 to: e size) trimBlanks.
+			meta := cls endsWith: ' class'.
+			meta ifTrue: [ cls := (cls copyFrom: 1 to: cls size - 6) trimBlanks ].
+			(cls isEmpty or: [ sel isEmpty ]) ifFalse: [
+				stubs add: (RowanMethodServiceClient new
+					className: cls;
+					selector: sel;
+					meta: meta;
+					command: #update;
+					commandArgs: Array new;
+					yourself) ] ] ].
+	stubs isEmpty ifTrue: [
+		UIManager default defer: [
+			self appendToTranscript: ('[Skipped ' , openTag , spec , closeTag , ' -- no valid ClassName>>selector entries]') asText ].
+		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
 	preText isEmpty ifFalse: [
 		UIManager default defer: [
 			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
@@ -985,7 +995,7 @@ JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
 			self appendToTranscript: '[Error: Cannot open method list -- no GemStone session available]' asText ].
 		^ self suffixAfterTag: closeTag in: reply ].
 	UIManager default defer: [
-		self appendToTranscript: ('[Opening method list: ' , className , (meta ifTrue: [ ' class' ] ifFalse: [ '' ]) , ' (' , stubs size printString , ' methods)]') asText ].
+		self appendToTranscript: ('[Opening method list: ' , stubs size printString , ' methods]') asText ].
 	remaining := Array with: stubs size.
 	stubs do: [ :stub |
 		RowanServiceUpdater current
@@ -995,7 +1005,8 @@ JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
 				remaining at: 1 put: remaining first - 1.
 				remaining first = 0 ifTrue: [
 					UIManager default defer: [
-						(JadeiteMethodListApplication showOnSession: gciSession library) methods: stubs ] ] ] ].
+						(JadeiteMethodListApplication showOnSession: gciSession library)
+							methods: stubs asArray ] ] ] ].
 	^ self suffixAfterTag: closeTag in: reply
 ]
 
@@ -1745,7 +1756,7 @@ JadeiteAIChatPresenter >> sendText: userText [
 													, String lf , '[System: Output ONLY the tag ' , otherTag , ' with the expression. No prose, no markdown.]' ]
 												ifFalse: [ '. If you need more data, use another tag. Otherwise give your final answer.'
 													, String lf , '[System: Results shown are COMPLETE as returned — do NOT re-read a result you already have, even if it looks short. For GemStone selector discovery AND method source: use bash grep across ALL registered roots then cat — not <gemstone>sourceCodeAt:</gemstone>. Only use <gemstone> for live runtime values or classes not in any registered project.]'
-													, String lf , '[System: To open a Jadeite window use the exact formats: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass> or <jadeiteaction:findpharoclass>ClassName</jadeiteaction:findpharoclass> for browsers; <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod> or <jadeiteaction:findpharomethod>ClassName>>selector</jadeiteaction:findpharomethod> for methods; <jadeiteaction:openinspector>expr</jadeiteaction:openinspector> for inspector; <jadeiteaction:openworkspace>code</jadeiteaction:openworkspace> for GemStone workspace; <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist> for method list browser. NEVER use <gemstone> or <pharo> tags to open windows — they will fail.]' ] ]) ].
+													, String lf , '[System: To open a Jadeite window use the exact formats: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass> or <jadeiteaction:findpharoclass>ClassName</jadeiteaction:findpharoclass> for browsers; <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod> or <jadeiteaction:findpharomethod>ClassName>>selector</jadeiteaction:findpharomethod> for methods; <jadeiteaction:openinspector>expr</jadeiteaction:openinspector> for inspector; <jadeiteaction:openworkspace>code</jadeiteaction:openworkspace> for GemStone workspace; <jadeiteaction:openmethodlist>Class1>>sel1,Class2>>sel2</jadeiteaction:openmethodlist> for method list browser (each entry is ClassName>>selector). NEVER use <gemstone> or <pharo> tags to open windows — they will fail.]' ] ]) ].
 							conversation addAssistantMessage: preText.
 							conversation addUserMessage: feedbackMsg.
 							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: conversation ]) ] ] ] ] ] ] ] ] ] ] ] ].
