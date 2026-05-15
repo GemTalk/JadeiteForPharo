@@ -652,6 +652,8 @@ Available action tags (use exactly one if needed, then stop):
   Open a class in browser:    <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass>
   Open a package in browser:  <jadeiteaction:findgemstonepackage>PackageName</jadeiteaction:findgemstonepackage>
   Inspect an object:          <jadeiteaction:openinspector>expression</jadeiteaction:openinspector>
+  Open GemStone workspace:    <jadeiteaction:openworkspace>code to pre-populate</jadeiteaction:openworkspace>
+  Open method list browser:   <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist>
   Run another bash command:   <bash>command</bash>
 IMPORTANT: If the bash result says "Command not permitted" because you tried to write a file (> or >>), do NOT retry with bash. Bash is READ-ONLY. To save a GemStone method, use <gemstone> with the RowanClassService saveMethodSource:category: pattern described in your system instructions.
 Rules: If the result contains the answer, give your final answer now — no tag needed.
@@ -943,6 +945,73 @@ JadeiteAIChatPresenter >> handleTestResultTag: reply [
 		UIManager default defer: [
 			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
 	UIManager default defer: [ self appendToTranscript: t ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleOpenMethodListTag: reply [
+	"Handle a <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist> tag.
+	 Opens a JadeiteMethodListPresenter showing the named methods. Terminal action."
+
+	| openTag closeTag preText spec sepIdx className selectorNames stubs answeringService |
+	openTag := '<jadeiteaction:openmethodlist>'.
+	closeTag := '</jadeiteaction:openmethodlist>'.
+	preText := self extractTextBefore: openTag in: reply.
+	spec := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	sepIdx := spec indexOfSubCollection: '>>' startingAt: 1 ifAbsent: [ 0 ].
+	(sepIdx = 0 or: [ spec isEmpty ]) ifTrue: [
+		UIManager default defer: [
+			self appendToTranscript: ('[Skipped ' , openTag , spec , closeTag , ' -- expected ClassName>>sel1,sel2]') asText ].
+		^ self stripTagPair: openTag closeTag: closeTag from: reply ].
+	className := (spec copyFrom: 1 to: sepIdx - 1) trimBlanks.
+	selectorNames := ((spec copyFrom: sepIdx + 2 to: spec size) trimBlanks) substrings: $,.
+	stubs := selectorNames collect: [ :sel |
+		RowanMethodService fakeMethodFor: className selector: sel trimBlanks source: '' ].
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	gciSession ifNil: [
+		UIManager default defer: [
+			self appendToTranscript: '[Error: Cannot open method list -- no GemStone session available]' asText ].
+		^ self suffixAfterTag: closeTag in: reply ].
+	UIManager default defer: [
+		self appendToTranscript: ('[Opening method list: ' , className , ' (' , stubs size printString , ' methods)]') asText ].
+	answeringService := RowanAnsweringServiceClient new
+		command: #updateServices:;
+		commandArgs: (Array with: stubs);
+		yourself.
+	RowanServiceUpdater current
+		issueCommand: answeringService
+		session: gciSession
+		onCompletion: [
+			UIManager default defer: [
+				(JadeiteMethodListApplication showOnSession: gciSession library) methods: stubs ] ].
+	^ self suffixAfterTag: closeTag in: reply
+]
+
+{ #category : 'private' }
+JadeiteAIChatPresenter >> handleOpenWorkspaceTag: reply [
+	"Handle a <jadeiteaction:openworkspace>code</jadeiteaction:openworkspace> tag.
+	 Opens a GemStone workspace pre-populated with the given code. Terminal action."
+
+	| openTag closeTag preText code |
+	openTag := '<jadeiteaction:openworkspace>'.
+	closeTag := '</jadeiteaction:openworkspace>'.
+	preText := self extractTextBefore: openTag in: reply.
+	code := (self extractExpressionFrom: reply openTag: openTag closeTag: closeTag) trimBlanks.
+	preText isEmpty ifFalse: [
+		UIManager default defer: [
+			self appendToTranscript: '[AI] ' asText allBold , preText asText ] ].
+	gciSession ifNil: [
+		UIManager default defer: [
+			self appendToTranscript: '[Error: Cannot open workspace -- no GemStone session available]' asText ].
+		^ self suffixAfterTag: closeTag in: reply ].
+	UIManager default defer: [
+		self appendToTranscript: '[Opening GemStone workspace]' asText ].
+	UIManager default defer: [
+		| workspace |
+		workspace := JadeiteWorkspace showOnSession: gciSession.
+		code isEmpty ifFalse: [ workspace text: code ] ].
 	^ self suffixAfterTag: closeTag in: reply
 ]
 
@@ -1546,7 +1615,7 @@ JadeiteAIChatPresenter >> sendText: userText [
 
 				agentIteration := 0.
 
-				[ | hasGemstone hasPharo hasBash hasFindClass hasFindMethod hasInspector hasFindProject hasFindPackage hasFindPharoClass hasFindPharoMethod hasTestResult |
+				[ | hasGemstone hasPharo hasBash hasFindClass hasFindMethod hasInspector hasFindProject hasFindPackage hasFindPharoClass hasFindPharoMethod hasTestResult hasOpenWorkspace hasOpenMethodList |
 				  hasGemstone := reply includesSubstring: '<gemstone>'.
 				  hasPharo := reply includesSubstring: '<pharo>'.
 				  hasBash := reply includesSubstring: '<bash>'.
@@ -1558,12 +1627,14 @@ JadeiteAIChatPresenter >> sendText: userText [
 				  hasFindPharoClass := reply includesSubstring: '<jadeiteaction:findpharoclass>'.
 				  hasFindPharoMethod := reply includesSubstring: '<jadeiteaction:findpharomethod>'.
 				  hasTestResult := reply includesSubstring: '<jadeiteaction:testresult>'.
-				  (hasGemstone or: [ hasPharo or: [ hasBash or: [ hasFindClass or: [ hasFindMethod or: [ hasInspector or: [ hasFindProject or: [ hasFindPackage or: [ hasFindPharoClass or: [ hasFindPharoMethod or: [ hasTestResult ] ] ] ] ] ] ] ] ] ])
+				  hasOpenWorkspace := reply includesSubstring: '<jadeiteaction:openworkspace>'.
+				  hasOpenMethodList := reply includesSubstring: '<jadeiteaction:openmethodlist>'.
+				  (hasGemstone or: [ hasPharo or: [ hasBash or: [ hasFindClass or: [ hasFindMethod or: [ hasInspector or: [ hasFindProject or: [ hasFindPackage or: [ hasFindPharoClass or: [ hasFindPharoMethod or: [ hasTestResult or: [ hasOpenWorkspace or: [ hasOpenMethodList ] ] ] ] ] ] ] ] ] ] ] ])
 				  and: [ agentIteration < self maxAgentIterations ] ]
 				whileTrue: [
 					| preText expr result feedbackResult feedbackMsg useGemstone tag errorTag label firstTag |
 					agentIteration := agentIteration + 1.
-					firstTag := #( '<bash>' '<jadeiteaction:findgemstoneclass>' '<jadeiteaction:findgemstonemethod>' '<jadeiteaction:openinspector>' '<jadeiteaction:findgemstoneproject>' '<jadeiteaction:findgemstonepackage>' '<jadeiteaction:findpharoclass>' '<jadeiteaction:findpharomethod>' '<jadeiteaction:testresult>' '<gemstone>' '<pharo>' )
+					firstTag := #( '<bash>' '<jadeiteaction:findgemstoneclass>' '<jadeiteaction:findgemstonemethod>' '<jadeiteaction:openinspector>' '<jadeiteaction:findgemstoneproject>' '<jadeiteaction:findgemstonepackage>' '<jadeiteaction:findpharoclass>' '<jadeiteaction:findpharomethod>' '<jadeiteaction:testresult>' '<jadeiteaction:openworkspace>' '<jadeiteaction:openmethodlist>' '<gemstone>' '<pharo>' )
 						inject: reply size + 1 -> ''
 						into: [ :min :tag |
 							| idx |
@@ -1596,6 +1667,12 @@ JadeiteAIChatPresenter >> sendText: userText [
 						ifFalse: [ (firstTag value = '<jadeiteaction:testresult>')
 						ifTrue: [
 							reply := self handleTestResultTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:openworkspace>')
+						ifTrue: [
+							reply := self handleOpenWorkspaceTag: reply ]
+						ifFalse: [ (firstTag value = '<jadeiteaction:openmethodlist>')
+						ifTrue: [
+							reply := self handleOpenMethodListTag: reply ]
 						ifFalse: [
 							useGemstone := (reply
 								indexOfSubCollection: '<gemstone>'
@@ -1658,10 +1735,10 @@ JadeiteAIChatPresenter >> sendText: userText [
 													, String lf , '[System: Output ONLY the tag ' , otherTag , ' with the expression. No prose, no markdown.]' ]
 												ifFalse: [ '. If you need more data, use another tag. Otherwise give your final answer.'
 													, String lf , '[System: Results shown are COMPLETE as returned — do NOT re-read a result you already have, even if it looks short. For GemStone selector discovery AND method source: use bash grep across ALL registered roots then cat — not <gemstone>sourceCodeAt:</gemstone>. Only use <gemstone> for live runtime values or classes not in any registered project.]'
-													, String lf , '[System: To open a Jadeite window use the exact formats: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass> or <jadeiteaction:findpharoclass>ClassName</jadeiteaction:findpharoclass> for browsers; <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod> or <jadeiteaction:findpharomethod>ClassName>>selector</jadeiteaction:findpharomethod> for methods; <jadeiteaction:openinspector>expr</jadeiteaction:openinspector> for inspector. NEVER use <gemstone> or <pharo> tags to open windows — they will fail.]' ] ]) ].
+													, String lf , '[System: To open a Jadeite window use the exact formats: <jadeiteaction:findgemstoneclass>ClassName</jadeiteaction:findgemstoneclass> or <jadeiteaction:findpharoclass>ClassName</jadeiteaction:findpharoclass> for browsers; <jadeiteaction:findgemstonemethod>ClassName>>selector</jadeiteaction:findgemstonemethod> or <jadeiteaction:findpharomethod>ClassName>>selector</jadeiteaction:findpharomethod> for methods; <jadeiteaction:openinspector>expr</jadeiteaction:openinspector> for inspector; <jadeiteaction:openworkspace>code</jadeiteaction:openworkspace> for GemStone workspace; <jadeiteaction:openmethodlist>ClassName>>sel1,sel2</jadeiteaction:openmethodlist> for method list browser. NEVER use <gemstone> or <pharo> tags to open windows — they will fail.]' ] ]) ].
 							conversation addAssistantMessage: preText.
 							conversation addUserMessage: feedbackMsg.
-							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: conversation ]) ] ] ] ] ] ] ] ] ] ].
+							reply := self preprocessReply: (self sendWithRetry: [ llmAdapter sendConversation: conversation ]) ] ] ] ] ] ] ] ] ] ] ] ].
 
 				"Compact: strip intermediate code-execution messages from history.
 				 Keeps only the original user question; onWorkerDone: adds the final answer.
