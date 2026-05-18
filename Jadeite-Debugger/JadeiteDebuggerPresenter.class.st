@@ -419,7 +419,7 @@ JadeiteDebuggerPresenter >> initializeFileMenu [
 						  action: [ self dumpStackToFile ] ];
 				  addItem: [ :item |
 					  item
-						  name: 'Ask Jadeite About This Stack';
+						  name: 'Ask Jadeite Agent About This Stack';
 						  icon: (self iconNamed: #glamorousHelp);
 						  action: [ self analyzeWithAI ] ] ];
 		  yourself

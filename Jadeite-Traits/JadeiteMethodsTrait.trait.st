@@ -35,7 +35,7 @@ JadeiteMethodsTrait >> addExplainWithAIItemTo: group [
 
 	group addItem: [ :item |
 		item
-			name: 'Explain with Jadeite';
+			name: 'Explain with Jadeite Agent';
 			icon: (self iconNamed: #glamorousHelp);
 			action: [ self explainSelectedMethodWithAI ];
 			enabled: [ self methodListPresenter selections size = 1 ] ]
@@ -56,7 +56,7 @@ JadeiteMethodsTrait >> addDebugWithAIItemTo: group [
 
 	group addItem: [ :item |
 		item
-			name: 'Run & Fix with Jadeite';
+			name: 'Run & Fix with Jadeite Agent';
 			icon: (self iconNamed: #glamorousHelp);
 			action: [ self debugSelectedMethodWithAI ];
 			enabled: [ self methodListPresenter selections size = 1 ] ]

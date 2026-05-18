@@ -1183,7 +1183,7 @@ JadeiteAIChatPresenter >> initializeWindow: aWindowPresenter [
 
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
-		title: 'Ask Jadeite'
+		title: 'Jadeite Agent'
 			, (llmAdapter ifNotNil: [ ' — ' , self adapterDisplayName ] ifNil: [ '' ]);
 		initialExtent: 700 @ 520;
 		whenClosedDo: [ self class currentWindow: nil ]
@@ -2106,7 +2106,7 @@ JadeiteAIChatPresenter >> updateModelDropList [
 { #category : 'private' }
 JadeiteAIChatPresenter >> updateWindowTitle [
 
-	[ self window title: 'Ask Jadeite — ' , self adapterDisplayName ]
+	[ self window title: 'Jadeite Agent — ' , self adapterDisplayName ]
 		on: Error
 		do: [  ]
 ]

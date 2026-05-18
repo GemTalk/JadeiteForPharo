@@ -8,7 +8,7 @@ JadeiteConsole >> newToolsMenu [
 		  addGroup: [ :group |
 			  group addItem: [ :item |
 				  item
-					  name: 'Ask Jadeite';
+					  name: 'Jadeite Agent';
 					  icon: (self iconNamed: #glamorousHelp);
 					  action: [ self openAIChatWindow ] ] ];
 		  addGroup: [ :group |
