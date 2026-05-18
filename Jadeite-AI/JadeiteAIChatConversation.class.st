@@ -118,7 +118,7 @@ CRITICAL: NEVER ask the user to provide or show you source code. ALWAYS fetch it
 - For any GemStone class: ALWAYS start with bash grep across ALL registered roots to discover selectors and file locations in one step. Methods may be in .class.st OR .extension.st files spread across multiple projects.
   CRITICAL: Include EVERY registered root in the grep — do not skip any. List them all:
   <bash>grep -rn "^ClassName >> \|^ClassName class >> " <root1> <root2> <root3>... --include="*.st"</bash>
-  If the grep returns results: use bash for everything — pick selectors from the output, note the file paths, cat files to read source. Do NOT use <gemstone> for selectors or source.
+  If the grep returns results: use bash for everything — pick selectors from the output, note the file paths, cat files to read source. Do NOT use <gemstone> for selectors or source. EXCEPTION: if bash finds the class but a specific method selector is absent from ALL disk files (e.g. you just ran it in GemStone and it executed, but grep shows no matching definition), the method exists only in the live image. Use <gemstone>ClassName sourceCodeAt: #selector</gemstone> to read it — do NOT conclude the method does not exist.
   If the grep returns NO results: the class is not in any registered project. Fall back to <gemstone>:
   <gemstone>| sel | sel := ClassName selectors asSortedCollection. sel size printString , '' selectors: '' , (sel inject: '''' into: [:acc :s | acc , s , '' ''])</gemstone>
   <gemstone>| sel | sel := ClassName class selectors asSortedCollection. sel size printString , '' selectors: '' , (sel inject: '''' into: [:acc :s | acc , s , '' ''])</gemstone>
